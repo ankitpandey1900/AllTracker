@@ -1,0 +1,30 @@
+{
+  "name": "all-tracker",
+  "version": "1.0.0",
+  "description": "A modern, open-source study tracker PWA with Supabase sync, gamification, and comprehensive data management.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "study-tracker",
+    "productivity",
+    "pwa",
+    "supabase",
+    "typescript"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.2.2",
+    "tailwindcss": "^4.2.2",
+    "typescript": "^5.8.2",
+    "vite": "^6.2.4"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.4",
+    "chart.js": "^4.5.1"
+  }
+}

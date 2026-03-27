@@ -1,0 +1,78 @@
+:root {
+  --bg-primary: #030611;
+  --bg-secondary: #070c1b;
+  --bg-tertiary: #0a1121;
+  --surface: #090f1f;
+  --surface-2: #070d1a;
+  --text-primary: #f2f6ff;
+  --text-secondary: #8b9cc4;
+  --text-muted: #6f80a9;
+  --border: rgba(99, 118, 169, 0.28);
+  --border-strong: rgba(115, 133, 184, 0.42);
+  --success: #2ac7a0;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --info: #5b7dff;
+  --accent-blue: #6a86ff;
+  --accent-purple: #8b5cf6;
+  --accent-cyan: #22d3ee;
+  --phase-1: #2ad3ae;
+  --phase-2: #617fff;
+  --phase-3: #9b63eb;
+  --zen-accent: #6a86ff;
+  --zen-text-muted: #8b9cc4;
+  --etn-accent: #6a86ff;
+  --etn-secondary: #8b5cf6;
+  --etn-success: #2ac7a0;
+  --etn-text-muted: #8b9cc4;
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; min-height: 100%; }
+
+body {
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  color: var(--text-primary);
+  background:
+    radial-gradient(1200px 420px at 20% -8%, rgba(106, 134, 255, 0.18), transparent 45%),
+    radial-gradient(900px 340px at 84% -8%, rgba(139, 92, 246, 0.16), transparent 45%),
+    var(--bg-primary);
+}
+
+h1, h2, h3, h4, h5, h6, .brand, .label, .label-caps { 
+  font-family: 'Tektur', sans-serif;
+  margin: 0; 
+}
+
+.label {
+  font-size: 0.79rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.big {
+  margin-top: 6px;
+  font-size: clamp(1.6rem, 2.25vw, 2.35rem);
+  font-weight: 800;
+  color: #f5f8ff;
+  line-height: 1.04;
+}
+
+.row { display: flex; align-items: center; gap: 8px; }
+.row-between { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+
+.empty-state {
+  border: 1px dashed var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  color: var(--text-secondary);
+  text-align: center;
+  background: rgba(8, 13, 26, 0.7);
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: #071022; }
+::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #314f95, #4e6fe2); border-radius: 999px; }

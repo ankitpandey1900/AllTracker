@@ -1,0 +1,106 @@
+﻿.table-card { overflow: auto; padding: 0; border-radius: 16px; }
+
+table { width: 100%; border-collapse: collapse; }
+
+th, td {
+  border-bottom: 1px solid rgba(90, 112, 163, 0.2);
+  padding: 9px 8px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+th {
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8e9fc6;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: rgba(8, 13, 25, 0.98);
+}
+
+/* Header polish */
+#trackerTable thead th {
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+
+/* Inputs centered vertically and visually consistent */
+.cell-input {
+  height: 42px;
+}
+
+.topics-input,
+.project-input {
+  height: 42px;
+  min-height: 42px;
+}
+
+/* Checkbox look */
+.completed-check {
+  width: 16px;
+  height: 16px;
+  accent-color: #6c87ff;
+}
+
+/* Freeze first two columns for coder-dash feel */
+#trackerTable th:nth-child(1),
+#trackerTable td:nth-child(1) {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  background: rgba(8, 13, 25, 0.98);
+}
+
+#trackerTable th:nth-child(2),
+#trackerTable td:nth-child(2) {
+  position: sticky;
+  left: 70px;
+  z-index: 3;
+  background: rgba(8, 13, 25, 0.98);
+}
+
+#trackerTable th:nth-child(1) { width: 70px; }
+#trackerTable th:nth-child(2) { width: 130px; }
+#trackerTable th:nth-child(7) { width: 110px; } /* problems */
+#trackerTable th:nth-child(10) { width: 90px; } /* done */
+
+/* Row rhythm */
+#trackerTable tbody tr:nth-child(even) td {
+  background: rgba(4, 8, 18, 0.15);
+}
+
+#trackerTable tbody tr:hover td {
+  background: rgba(97, 127, 255, 0.07);
+}
+
+tr.phase-1 { box-shadow: inset 3px 0 0 #2ad3ae; }
+tr.phase-2 { box-shadow: inset 3px 0 0 #617fff; }
+tr.phase-3 { box-shadow: inset 3px 0 0 #9b63eb; }
+tr.today { background: rgba(97, 127, 255, 0.1); }
+tr.completed { background: rgba(44, 189, 132, 0.1); }
+tr.hidden { display: none; }
+
+.cell-input {
+  width: 100%;
+  border: 1px solid rgba(99, 121, 177, 0.3);
+  border-radius: 10px;
+  background: #060c18;
+  color: #edf3ff;
+  padding: 7px 8px;
+  font-size: 0.9rem;
+}
+
+.cell-input:focus {
+  outline: none;
+  border-color: rgba(110, 136, 235, 0.6);
+  box-shadow: 0 0 0 3px rgba(108, 135, 255, 0.16);
+}
+
+.topics-input, .project-input { min-height: 36px; resize: vertical; }
+.checkbox-container { display: inline-flex; align-items: center; }
+.checkmark { width: 14px; height: 14px; border: 1px solid rgba(105, 128, 184, 0.32); }
+
+.highlight-update { animation: flash-highlight 1.6s ease; }
+@keyframes flash-highlight { 0%,100% { background: transparent; } 50% { background: rgba(97,127,255,0.25); } }

@@ -1,0 +1,31 @@
+﻿@media (max-width: 1150px) {
+  .grid-2 { grid-template-columns: 1fr; }
+  .kpi-grid, .stats-strip { grid-template-columns: repeat(2, minmax(170px, 1fr)); }
+  .project-summary-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 920px) {
+  .layout { padding: 12px; }
+  .header-actions { justify-content: flex-end; }
+  .toolbar.card { grid-template-columns: 1fr; }
+  .section-heading h3::after { width: 90px; }
+  #deadlineTimer.deadline-grid { grid-template-columns: repeat(3, minmax(90px, 1fr)); }
+  #trackerTable th:nth-child(2),
+  #trackerTable td:nth-child(2) { left: 64px; }
+  #trackerTable th:nth-child(1) { width: 64px; }
+}
+
+@media (max-width: 640px) {
+  .app-header { padding: 11px; }
+  .brand { font-size: 0.98rem; }
+  .tabs { gap: 6px; }
+  .nav-item { padding: 7px 12px; font-size: 0.84rem; }
+  .card { padding: 12px; border-radius: 13px; }
+  .kpi-grid, .stats-strip, .project-summary-grid { grid-template-columns: 1fr; }
+  .hero-top h1 { font-size: 1.65rem; }
+  .hero-day-chip { min-width: 76px; padding: 8px; }
+  .hero-day-chip #currentDay { font-size: 1.7rem; }
+  .form-grid { grid-template-columns: 1fr; }
+  .small { max-width: 100%; }
+  #deadlineTimer.deadline-grid { grid-template-columns: 1fr; }
+}

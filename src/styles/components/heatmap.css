@@ -1,0 +1,8 @@
+﻿.heatmap-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(12px, 1fr)); gap: 3px; margin-top: 8px; }
+.heatmap-cell { width: 100%; aspect-ratio: 1/1; border-radius: 3px; background: #182338; border: 1px solid rgba(255,255,255,0.04); transition: transform 0.15s ease, filter 0.15s ease; }
+.heatmap-cell:hover { transform: scale(1.12); filter: brightness(1.2); z-index: 1; }
+.heatmap-cell[data-level="1"] { background: #1f3f8f; }
+.heatmap-cell[data-level="2"] { background: #345de0; }
+.heatmap-cell[data-level="3"] { background: #6d54da; }
+.heatmap-cell[data-level="4"] { background: #24b67a; }
+.heatmap-cell[data-level="5"] { background: #f0a23d; }

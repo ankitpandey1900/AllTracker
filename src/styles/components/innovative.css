@@ -1,0 +1,21 @@
+﻿.focus-hud { position: fixed; inset: 0; pointer-events: none; z-index: 30; }
+.focus-hud.active {
+  pointer-events: auto;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(106, 134, 255, 0.16), transparent 35%),
+    radial-gradient(circle at 80% 10%, rgba(139, 92, 246, 0.17), transparent 35%),
+    rgba(4,8,16,0.92);
+}
+#activeTimerSection {
+  width: min(580px, calc(100vw - 30px));
+  margin: 40px auto;
+  text-align: center;
+  padding: 20px;
+  border: 1px solid rgba(103,126,183,0.34);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(10,16,30,0.98), rgba(7,11,22,0.99));
+}
+.timer-display { font-size: clamp(2rem, 8vw, 3.2rem); font-weight: 800; letter-spacing: 0.08em; color: #eef3ff; text-shadow: 0 0 24px rgba(106, 134, 255, 0.45); }
+.control-row, .session-goal-row { margin-top: 12px; display: flex; gap: 8px; justify-content: center; align-items: center; flex-wrap: wrap; }
+.progress-ring__circle { transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dashoffset 0.3s; }
+body.focus-minimized #activeTimerSection { opacity: 0.42; transform: scale(0.95); }

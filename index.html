@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Tracker | Neon Arena</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Tektur:wght@400..900&display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#0b0e1a">
+</head>
+<body class="antialiased selection:bg-indigo-500/30 selection:text-white">
+  <header id="appHeader" class="app-header backdrop-blur-md">
+    <div class="brand">ALL TRACKER <span>ARENA</span></div>
+    <div class="header-actions">
+      <button id="startTimerBtn" class="btn btn-primary">Start Timer</button>
+      <button id="openQuickEntryBtn" class="btn">Quick Entry</button>
+      <button id="settingsBtn" class="btn">Settings</button>
+      <div id="headerRight">
+        <button class="btn-auth-trigger" id="authTriggerBtn">Sync / Login</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="layout mx-auto">
+    <nav class="tabs">
+      <button class="nav-item active" data-target="dashboardPane">Dashboard</button>
+      <button class="nav-item" data-target="routinePane">Routine</button>
+
+      <button class="nav-item" data-target="bookmarksPane">Bookmarks</button>
+    </nav>
+
+    <section id="dashboardPane" class="view-pane active">
+      <article class="hero card shadow-2xl">
+        <div class="row-between hero-top">
+          <h1 id="heroStatusTitle">Initializing...</h1>
+          <div class="hero-day-chip">
+            <div id="currentDay">DAY 0</div>
+            <small>OF <span class="hero-total-days">365</span></small>
+          </div>
+        </div>
+        <p class="hero-subtitle">Day <span id="heroDayMirror">0</span> of <span class="hero-total-days">365</span> • Started Jan 1, 2026</p>
+        <div class="hero-level-row">
+          <span id="levelBadge">LVL 0</span>
+          <div class="xp-track"><div id="xpFill" class="xp-fill"></div></div>
+        </div>
+      </article>
+
+      <div class="grid-top kpi-grid items-stretch">
+        <article class="card">
+          <div class="label">Completion</div>
+          <div id="completionPercent" class="big">0%</div>
+          <div class="meta">0 / <span class="hero-total-days">365</span> days</div>
+        </article>
+        <article class="card">
+          <div class="label">Total Hours</div>
+          <div id="totalHours" class="big">0.0h</div>
+          <div class="meta">hours studied</div>
+        </article>
+        <article class="card">
+          <div class="label">Avg / Day</div>
+          <div class="big" id="avgHoursPerDay">0</div>
+          <div class="meta">hrs/day avg</div>
+        </article>
+        <article class="card rank-card">
+          <div class="label">Study Rank</div>
+          <div id="studyRank" class="big">IRON</div>
+          <div class="rank-tier-row"><span id="rankTierText">IV</span></div>
+          <div class="meta">World rank: #40,000,000</div>
+          <div class="xp-track"><div id="rankXPBar" class="rank-fill"></div></div>
+        </article>
+      </div>
+
+      <div class="grid-top stats-strip">
+        <article class="card compact">
+          <div class="label">Consistency</div>
+          <div class="big" id="consistencyStat">0%</div>
+          <div class="meta">last 7 days</div>
+        </article>
+        <article class="card compact">
+          <div class="label">Current Streak</div>
+          <div id="currentStreak" class="big">0 DAYS</div>
+          <div class="meta">days in a row</div>
+        </article>
+        <article class="card compact">
+          <div class="label">Best Streak</div>
+          <div class="big" id="bestStreakStat">0</div>
+          <div class="meta">days (all time)</div>
+        </article>
+        <article class="card compact">
+          <div class="label">Estimated Finish</div>
+          <div class="big" id="estimatedFinishDate">-</div>
+          <div class="meta" id="startDateLabel">Start: -</div>
+        </article>
+      </div>
+
+
+      <div class="row-between section-heading"><h3>Category Progress</h3></div>
+      <div id="categoryCards" class="grid-top"></div>
+
+      <article class="card project-summary-card">
+        <div class="row-between section-heading"><h3>Project Work Summary</h3></div>
+        <div class="project-summary-grid">
+          <div class="project-summary-block">
+            <div class="label">Today's Project</div>
+            <div id="todayProjectTitle" class="project-summary-title">No project logged</div>
+          </div>
+          <div class="project-summary-block">
+            <div class="label">What You Did</div>
+            <div id="todayTopicsSummary" class="project-summary-text">Add your work details in Topics and Project fields.</div>
+          </div>
+          <div class="project-summary-block mini">
+            <div class="label">Project Hrs (7d)</div>
+            <div id="weekProjectHours" class="big">0.0h</div>
+          </div>
+          <div class="project-summary-block mini">
+            <div class="label">Problems Solved (7d)</div>
+            <div id="weekProblemCount" class="big">0</div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="row-between section-heading">
+          <h3>Overall Progress</h3>
+          <span id="completionPercentMirror">0%</span>
+        </div>
+        <div id="allocationBar" class="allocation-bar"></div>
+        <div id="allocationLegend" class="legend"></div>
+        <div class="allocation-scale">
+          <span>Day 1</span>
+          <span>Day <span class="hero-total-days">365</span></span>
+        </div>
+      </article>
+
+      <div class="card study-log-controls">
+        <div class="study-log-top">
+          <div class="row-between section-heading">
+            <h3>Study Log</h3>
+            <div class="study-log-pills">
+              <label class="pill"><input id="filterWithHours" type="checkbox"> With Hours</label>
+              <label class="pill"><input id="filterCompleted" type="checkbox"> Completed</label>
+            </div>
+          </div>
+          <div class="study-log-actions">
+            <button id="quickEntryBtn" class="btn">Quick Entry</button>
+            <button id="historyBtn" class="btn">History</button>
+            <button id="heatmapViewBtn" class="btn">Heatmap</button>
+            <button id="weeklyViewBtn" class="btn">Weekly Summary</button>
+            <button id="exportAllDataBtn" class="btn btn-primary">Export All</button>
+            <button id="importBtn" class="btn">Import</button>
+            <button id="exportCsvBtn" class="btn">Export CSV</button>
+            <button id="resetBtn" class="btn btn-danger">Reset</button>
+          </div>
+        </div>
+        <div class="study-log-search-row">
+          <div class="search-shell">
+            <span class="search-icon">⌕</span>
+            <input id="tableSearch" class="input search-input" placeholder="Search by day, date, topic, or project...">
+          </div>
+        </div>
+      </div>
+
+      <article class="card table-card overflow-hidden study-log-table">
+        <table id="trackerTable">
+          <thead>
+            <tr>
+              <th>Day</th>
+              <th>Date</th>
+              <th>Col 1</th>
+              <th>Col 2</th>
+              <th>Col 3</th>
+              <th>Col 4</th>
+              <th>Problems</th>
+              <th>Topics</th>
+              <th>Project Work</th>
+              <th>Done</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </article>
+
+      <div class="grid-2">
+        <article class="card">
+          <div class="row-between"><div class="label">Study Heatmap</div></div>
+          <div id="heatmapGrid" class="heatmap-grid"></div>
+          <div class="stats-line">
+            <span>Total Study Days: <strong id="heatmapStudyDays">0</strong></span>
+            <span>Average Hours/Day: <strong id="heatmapAvgHours">0</strong></span>
+            <span>Best Day: <strong id="heatmapBestDay">-</strong></span>
+          </div>
+        </article>
+        <article class="card">
+          <div class="label">Badges</div>
+          <div id="badgeGrid" class="badge-grid"></div>
+        </article>
+      </div>
+
+      <div class="grid-2" style="margin-top: 20px;">
+        <article class="card">
+          <div class="row-between">
+            <h2>Study Output Trends</h2>
+            <div class="label" id="studyTrendLabel">Last 21 Days</div>
+          </div>
+          <div class="chart-wrap"><canvas id="studyTrendChart"></canvas></div>
+        </article>
+        <article class="card">
+          <div class="row-between">
+            <h2>Subject Focus</h2>
+            <div class="label" id="subjectRadarLabel">Last 21 Days</div>
+          </div>
+          <div class="chart-wrap radar-wrap"><canvas id="subjectRadarChart"></canvas></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="routinePane" class="view-pane">
+      <article class="card">
+        <div class="row-between">
+          <h2>Routine</h2>
+          <button id="addRoutineBtn" class="btn btn-primary">Add Routine</button>
+        </div>
+        <div id="routineList"></div>
+      </article>
+    <div class="grid-2">
+      <article class="card">
+        <div class="row-between">
+          <h2>Routine Performance</h2>
+          <div class="filter-row">
+            <select id="chartDateFilter" class="input">
+              <option value="21">Last 21 days</option>
+              <option value="60">Last 60 days</option>
+              <option value="all">All</option>
+              <option value="custom">Custom</option>
+            </select>
+            <div id="customChartRange" style="display:none;">
+              <input id="chartStartDay" class="input small" type="number" placeholder="Start day">
+              <input id="chartEndDay" class="input small" type="number" placeholder="End day">
+              <button id="applyChartFilterBtn" class="btn">Apply</button>
+            </div>
+          </div>
+        </div>
+        <div class="stats-line">
+          <span>Active Days: <strong id="habitActiveDays">0</strong></span>
+          <span>Consistency: <strong id="habitConsistency">0%</strong></span>
+        </div>
+        <div class="chart-wrap"><canvas id="performanceChart"></canvas></div>
+      </article>
+
+      <article class="card">
+        <div class="row-between">
+          <h2>Arena Skill Radar</h2>
+          <div class="label">Today's Stats</div>
+        </div>
+        <div class="chart-wrap radar-wrap"><canvas id="skillRadarChart"></canvas></div>
+        <div class="stats-line mini">
+          <span>Discipline: <strong id="radarDiscipline">0%</strong></span>
+          <span>Endurance: <strong id="radarEndurance">0%</strong></span>
+        </div>
+      </article>
+    </div>
+  </section>
+
+
+
+    <section id="bookmarksPane" class="view-pane">
+      <article class="card">
+        <div class="row-between">
+          <h2>Bookmarks Vault</h2>
+          <button id="addBookmarkBtn" class="btn btn-primary">Add Bookmark</button>
+        </div>
+        <div id="bookmarkFilters" class="bookmark-filters"></div>
+        <div id="bookmarkList"></div>
+      </article>
+    </section>
+  </main>
+
+  <div id="focusHud" class="focus-hud">
+    <div id="activeTimerSection" style="display:none;">
+      <div class="label" id="timerSubject">DEEP FOCUS</div>
+      <div id="timerDisplay" class="timer-display">00:00:00</div>
+      <div id="focusActiveTaskContainer" style="display:none;">Current Task: <span id="nowPlayingTask">--</span></div>
+      <div class="ring-wrap">
+        <svg class="progress-ring" width="280" height="280">
+          <circle class="progress-ring__bg" stroke="rgba(255,255,255,0.15)" stroke-width="10" fill="transparent" r="120" cx="140" cy="140"></circle>
+          <circle class="progress-ring__circle" stroke="var(--accent-purple)" stroke-width="10" fill="transparent" r="120" cx="140" cy="140"></circle>
+        </svg>
+      </div>
+      <div class="control-row">
+        <button id="timerPauseBtn" class="btn">Pause</button>
+        <button id="timerStopBtn" class="btn btn-danger">Stop</button>
+        <button id="manualFocusToggle" class="btn"><span id="focusToggleText">Minimize HUD</span></button>
+      </div>
+      <div class="session-goal-row">
+        <label for="sessionGoalInput">Session Goal (mins)</label>
+        <input id="sessionGoalInput" class="input small" type="number" min="1" value="60">
+      </div>
+    </div>
+  </div>
+
+  <div id="toastContainer" class="toast-container"></div>
+
+  <div class="modal" id="timerModal">
+    <div class="modal-content">
+      <div class="modal-header"><h2>Start Session</h2><button id="closeTimerModal" class="modal-close">&times;</button></div>
+      <div class="modal-body">
+        <select id="timerCategorySelect" class="input"></select>
+        <button id="confirmStartTimerBtn" class="btn btn-primary">Start Timer</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="settingsModal">
+    <div class="modal-content wide">
+      <div class="modal-header"><h2>Settings</h2><button id="closeSettingsModal" class="modal-close">&times;</button></div>
+      <div class="modal-body">
+        <div class="settings-section">
+          <div class="settings-card">
+            <div class="settings-card-header"><h4>Date Range</h4></div>
+            <div class="range-grid">
+              <div class="settings-group">
+                <label>Start Date</label>
+                <input id="startDateInput" class="settings-input" type="date">
+              </div>
+              <div class="settings-group">
+                <label>End Date</label>
+                <input id="endDateInput" class="settings-input" type="date">
+              </div>
+            </div>
+            <button id="applyDateSettings" class="btn btn-primary w-full">Apply Dates</button>
+          </div>
+
+          <div class="settings-card">
+            <div class="settings-card-header"><h4>Default Columns & Targets</h4></div>
+            <div class="range-columns-grid">
+              <div class="settings-group-row">
+                <div class="settings-group"><label>Column 1</label><input id="col1Default" class="settings-input" placeholder="e.g., Coding"></div>
+                <div class="settings-group"><label>Target</label><input id="col1Target" class="settings-input" type="number" min="0"></div>
+              </div>
+              <div class="settings-group-row">
+                <div class="settings-group"><label>Column 2</label><input id="col2Default" class="settings-input" placeholder="e.g., Research"></div>
+                <div class="settings-group"><label>Target</label><input id="col2Target" class="settings-input" type="number" min="0"></div>
+              </div>
+              <div class="settings-group-row">
+                <div class="settings-group"><label>Column 3</label><input id="col3Default" class="settings-input" placeholder="e.g., Reading"></div>
+                <div class="settings-group"><label>Target</label><input id="col3Target" class="settings-input" type="number" min="0"></div>
+              </div>
+              <div class="settings-group-row">
+                <div class="settings-group"><label>Column 4</label><input id="col4Default" class="settings-input" placeholder="e.g., Fitness"></div>
+                <div class="settings-group"><label>Target</label><input id="col4Target" class="settings-input" type="number" min="0"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="settings-section">
+          <div class="row-between section-heading" style="margin-top:10px;">
+            <h3>Extra Columns (Optional)</h3>
+            <button id="addExtraColumnBtn" class="btn btn-primary">+ Add Column</button>
+          </div>
+          <div id="extraColumnsList"></div>
+          
+          <div class="row-between section-heading" style="margin-top:20px;">
+            <h3>Custom Ranges</h3>
+            <button id="addCustomRangeBtn" class="btn btn-primary">+ Add Range</button>
+          </div>
+          <div id="customRangesList"></div>
+          
+          <div class="row-between section-heading" style="margin-top:20px;">
+            <div class="settings-group" style="flex-direction: row; align-items: center; gap: 10px;">
+              <input id="beastModeToggle" type="checkbox" style="width:18px; height:18px; accent-color:var(--accent-blue);">
+              <label for="beastModeToggle" style="margin:0; cursor:pointer;">Beast Mode</label>
+            </div>
+            <button id="applyColumnSettings" class="btn btn-primary" style="padding: 12px 30px;">Apply All Changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="quickEntryModal">
+    <div class="modal-content wide">
+      <div class="modal-header"><h2>Quick Entry</h2><button id="closeQuickEntryModal" class="modal-close">&times;</button></div>
+      <div class="modal-body">
+        <h3>Single Day</h3>
+        <div class="form-grid">
+          <input id="quickEntryDay" class="input" type="number" min="1" placeholder="Day #">
+          <label id="quickCol1Label">Col 1 Hours:</label><input id="quickCol1" class="input" type="number" step="0.5" min="0">
+          <label id="quickCol2Label">Col 2 Hours:</label><input id="quickCol2" class="input" type="number" step="0.5" min="0">
+          <label id="quickCol3Label">Col 3 Hours:</label><input id="quickCol3" class="input" type="number" step="0.5" min="0">
+          <label id="quickCol4Label">Col 4 Hours:</label><input id="quickCol4" class="input" type="number" step="0.5" min="0">
+          <input id="quickProblems" class="input" type="number" min="0" placeholder="Problems solved">
+          <input id="quickProject" class="input" placeholder="Project">
+          <textarea id="quickTopics" class="input" placeholder="Topics"></textarea>
+          <label><input id="quickCompleted" type="checkbox"> Completed</label>
+          <button id="saveQuickEntryBtn" class="btn btn-primary">Save Day</button>
+        </div>
+
+        <h3>Bulk Entry</h3>
+        <div class="form-grid">
+          <input id="bulkStartDay" class="input" type="number" min="1" placeholder="Start day">
+          <input id="bulkEndDay" class="input" type="number" min="1" placeholder="End day">
+          <label id="bulkCol1Label">Col 1 Hours (per day):</label><input id="bulkCol1" class="input" type="number" step="0.5" min="0">
+          <label id="bulkCol2Label">Col 2 Hours (per day):</label><input id="bulkCol2" class="input" type="number" step="0.5" min="0">
+          <label id="bulkCol3Label">Col 3 Hours (per day):</label><input id="bulkCol3" class="input" type="number" step="0.5" min="0">
+          <label id="bulkCol4Label">Col 4 Hours (per day):</label><input id="bulkCol4" class="input" type="number" step="0.5" min="0">
+          <label><input id="bulkCompleted" type="checkbox"> Mark completed</label>
+          <button id="saveBulkEntryBtn" class="btn">Apply Bulk</button>
+        </div>
+
+        <h3>Jump to Day</h3>
+        <div class="row">
+          <input id="jumpToDay" class="input small" type="number" min="1" placeholder="Day #">
+          <button id="jumpToDayBtn" class="btn">Jump</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="weeklyModal">
+    <div class="modal-content wide">
+      <div class="modal-header"><h2>Weekly Summary</h2><button id="closeWeeklyModal" class="modal-close">&times;</button></div>
+      <div id="weeklySummaryContent" class="modal-body"></div>
+    </div>
+  </div>
+
+  <div class="modal" id="heatmapModal">
+    <div class="modal-content">
+      <div class="modal-header"><h2>Heatmap</h2><button id="closeHeatmapModal" class="modal-close">&times;</button></div>
+      <div class="modal-body"><div id="heatmapModalGrid" class="heatmap-grid"></div></div>
+    </div>
+  </div>
+
+  <div class="modal" id="historyModal">
+    <div class="modal-content wide">
+      <div class="modal-header"><h2>Session History</h2><button id="closeHistoryModal" class="modal-close">&times;</button></div>
+      <div class="modal-body">
+        <table>
+          <thead><tr><th>Date</th><th>Time</th><th>Category</th><th>Hours</th></tr></thead>
+          <tbody id="recentSessionsBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="importModal">
+    <div class="modal-content wide">
+      <div class="modal-header"><h2>Import Data</h2><button id="closeImportModal" class="modal-close">&times;</button></div>
+      <div class="modal-body">
+        <h3>Import JSON</h3>
+        <textarea id="importJsonData" class="input" rows="6" placeholder="Paste tracker JSON array"></textarea>
+        <button id="importJsonBtn" class="btn btn-primary">Import JSON</button>
+        <h3>Import CSV</h3>
+        <input id="importCsvFile" type="file" accept=".csv">
+        <button id="importCsvBtn" class="btn">Import CSV</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="routineModal">
+    <div class="modal-content">
+      <div class="modal-header"><h2>Add New Routine Item</h2><button id="closeRoutineModal" class="modal-close">&times;</button></div>
+      <div class="modal-body">
+        <input id="routineTitleInput" class="input" placeholder="Title">
+        <input id="routineTimeInput" class="input" type="time">
+        <textarea id="routineNoteInput" class="input" rows="3" placeholder="Notes"></textarea>
+        <button id="saveRoutineBtn" class="btn btn-primary">Add to Routine</button>
+      </div>
+    </div>
+  </div>
+
+
+
+  <div class="modal" id="bookmarkModal">
+    <div class="modal-content">
+      <div class="modal-header"><h2>Add Bookmark</h2><button id="closeBookmarkModal" class="modal-close">&times;</button></div>
+      <div class="modal-body">
+        <input id="bookmarkTitleInput" class="input" placeholder="Bookmark title">
+        <input id="bookmarkUrlInput" class="input" placeholder="https://...">
+        <select id="bookmarkCategoryInput" class="input">
+          <option>Development</option>
+          <option>Learning</option>
+          <option>Work</option>
+          <option>Social</option>
+          <option>Personal</option>
+          <option>Random</option>
+          <option>Other</option>
+        </select>
+        <button id="saveBookmarkBtn" class="btn btn-primary">Save Bookmark</button>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="modal" id="authModal">
+    <div class="modal-content">
+      <div class="modal-header"><h2 id="authModalTitle">Connect Your Sync ID</h2><button id="closeAuthModal" class="modal-close">&times;</button></div>
+      <div class="modal-body">
+        <form id="authForm">
+          <input id="syncIdInput" class="input" placeholder="Enter Sync ID">
+          <div class="row">
+            <button id="generateIdBtn" type="button" class="btn">Generate</button>
+            <button id="authSubmitBtn" type="submit" class="btn btn-primary">Connect</button>
+          </div>
+          <div id="authError" class="error" style="display:none;"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
