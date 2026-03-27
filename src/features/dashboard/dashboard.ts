@@ -162,6 +162,10 @@ export function updateDashboard(): void {
   // Update Bento Cards
   setTxt('currentDay', `DAY ${today.day}`);
   setTxt('heroDayMirror', today.day);
+  setTxt('heroStartDateMirror', `Started ${formatDate(appState.startDate)}`);
+  document.querySelectorAll('.hero-total-days').forEach(el => {
+    el.textContent = appState.totalDays.toString();
+  });
   setTxt('totalHours', `${totalHours.toFixed(1)}h`);
   setTxt('currentStreak', `${streak} DAYS`);
   setTxt('completionPercent', `${Math.round(completionRate)}%`);
