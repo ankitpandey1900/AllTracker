@@ -109,7 +109,7 @@ The project was completely re-architected from a massive monolithic `script.js` 
 ### Local Development Setup
 1. **Clone & Install:**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/ankitpandey1900/Tracker.git
    cd all-tracker
    npm install
    ```
