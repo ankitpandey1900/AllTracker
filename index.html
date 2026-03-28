@@ -15,7 +15,7 @@
     <div class="brand">ALL TRACKER <span>ARENA</span></div>
     <div class="header-actions">
       <button id="startTimerBtn" class="btn btn-primary">Start Timer</button>
-      <button id="openQuickEntryBtn" class="btn">Quick Entry</button>
+      <button id="userManualBtn" class="btn">User Manual</button>
       <button id="settingsBtn" class="btn">Settings</button>
       <div id="headerRight">
         <button class="btn-auth-trigger" id="authTriggerBtn">Sync / Login</button>
@@ -99,28 +99,6 @@
       <div class="row-between section-heading"><h3>Category Progress</h3></div>
       <div id="categoryCards" class="grid-top"></div>
 
-      <article class="card project-summary-card">
-        <div class="row-between section-heading"><h3>Project Work Summary</h3></div>
-        <div class="project-summary-grid">
-          <div class="project-summary-block">
-            <div class="label">Today's Project</div>
-            <div id="todayProjectTitle" class="project-summary-title">No project logged</div>
-          </div>
-          <div class="project-summary-block">
-            <div class="label">What You Did</div>
-            <div id="todayTopicsSummary" class="project-summary-text">Add your work details in Topics and Project fields.</div>
-          </div>
-          <div class="project-summary-block mini">
-            <div class="label">Project Hrs (7d)</div>
-            <div id="weekProjectHours" class="big">0.0h</div>
-          </div>
-          <div class="project-summary-block mini">
-            <div class="label">Problems Solved (7d)</div>
-            <div id="weekProblemCount" class="big">0</div>
-          </div>
-        </div>
-      </article>
-
       <article class="card">
         <div class="row-between section-heading">
           <h3>Overall Progress</h3>
@@ -147,6 +125,8 @@
             <button id="quickEntryBtn" class="btn">Quick Entry</button>
             <button id="historyBtn" class="btn">History</button>
             <button id="heatmapViewBtn" class="btn">Heatmap</button>
+            <button id="analyticsViewBtn" class="btn">Analytics</button>
+            <button id="badgesViewBtn" class="btn">Badges</button>
             <button id="weeklyViewBtn" class="btn">Weekly Summary</button>
             <button id="exportAllDataBtn" class="btn btn-primary">Export All</button>
             <button id="importBtn" class="btn">Import</button>
@@ -182,38 +162,7 @@
         </table>
       </article>
 
-      <div class="grid-2">
-        <article class="card">
-          <div class="row-between"><div class="label">Study Heatmap</div></div>
-          <div id="heatmapGrid" class="heatmap-grid"></div>
-          <div class="stats-line">
-            <span>Total Study Days: <strong id="heatmapStudyDays">0</strong></span>
-            <span>Average Hours/Day: <strong id="heatmapAvgHours">0</strong></span>
-            <span>Best Day: <strong id="heatmapBestDay">-</strong></span>
-          </div>
-        </article>
-        <article class="card">
-          <div class="label">Badges</div>
-          <div id="badgeGrid" class="badge-grid"></div>
-        </article>
-      </div>
 
-      <div class="grid-2" style="margin-top: 20px;">
-        <article class="card">
-          <div class="row-between">
-            <h2>Study Output Trends</h2>
-            <div class="label" id="studyTrendLabel">Last 21 Days</div>
-          </div>
-          <div class="chart-wrap"><canvas id="studyTrendChart"></canvas></div>
-        </article>
-        <article class="card">
-          <div class="row-between">
-            <h2>Subject Focus</h2>
-            <div class="label" id="subjectRadarLabel">Last 21 Days</div>
-          </div>
-          <div class="chart-wrap radar-wrap"><canvas id="subjectRadarChart"></canvas></div>
-        </article>
-      </div>
     </section>
 
     <section id="routinePane" class="view-pane">
@@ -308,6 +257,99 @@
       <div class="modal-body">
         <select id="timerCategorySelect" class="input"></select>
         <button id="confirmStartTimerBtn" class="btn btn-primary">Start Timer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Manual Modal -->
+  <div class="modal" id="userManualModal">
+    <div class="modal-content wide user-manual">
+      <div class="modal-header">
+        <h2>📖 All Tracker: Guide for Legends (and Noobs)</h2>
+        <button id="closeUserManualModal" class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body manual-body">
+        <section>
+          <h3>🚀 Welcome to the Arena!</h3>
+          <p>Bhai/Behen, agar tu yahan hai, toh matlab tere paas bohot bade goals hain par shayad thodi discipline ki kami hai. Don't worry, Yeh Neon Arena tujhe discipline sikhayega aur agar nahi sikha toh roast toh zaroor karega! 😆</p>
+        </section>
+
+        <section>
+          <h3>🛠️ 1. Getting Started (Pehle Yeh Kar!)</h3>
+          <ul>
+            <li><strong>Settings (Ctrl+,):</strong> Sabse pehle jaake apna <strong>Start Date</strong> aur <strong>End Date</strong> fix kar. Default dates pe mat chor, warna tracker tujhe hamesha 'Loading' hi dikhayega. </li>
+            <li><strong>Column Labels:</strong> 'Python', 'DSA' ye toh default hain. Agar tujhe 'Web Dev' ya 'Hacking' pasand hai, toh Settings mein jaake unhe rename karle. It's your world!</li>
+            <li><strong>Beast Mode:</strong> Isse on kar agar tujhe thori extra motivation chahiye. Neon glowing vibes milengi! 🌌</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>📝 2. Daily Tracking (Data Bharna Seekh!)</h3>
+          <ul>
+            <li><strong>The Tracker Table:</strong> Table pe seedha click kar kisi bhi cell pe aur value likh de. Ctrl+S dabane ki zarurat nahi, auto-save hota hai. Smart hai bro!</li>
+            <li><strong>Quick Entry (Ctrl+K):</strong> Agar table scroll karne mein alas aa raha hai, toh Ctrl+K daba aur jaldi se data bhar ke nikal le. </li>
+            <li><strong>Bulk Entry:</strong> Agar pura week miss kar diya (shame!), toh Bulk Entry use kar ke ek saath saare dino ka record thik karle. Par aage se mat karna! 🤨</li>
+          </ul>
+        </section>
+
+        <section class="highlight-section">
+          <h3>🔥 How to Use Neon Arena Like a Legend (Step-by-Step)</h3>
+          <div class="steps-flow">
+            <div class="step">
+              <span class="step-num">01</span>
+              <h4>Niyat Saaf Kar (Setup)</h4>
+              <p>Sabse pehle <strong>Settings</strong> mein jaake apne dates set kar. Agar end date 2099 hai toh bhai tu amar hai kya? 💀 Realistic dates rakh aur <strong>Sync/Login</strong> zarur karle warna local storage udd gaya toh tera career bhi udd jayega.</p>
+            </div>
+            <div class="step">
+              <span class="step-num">02</span>
+              <h4>Morning Rituals (Routine)</h4>
+              <p>Din shuru hote hi <strong>Routine</strong> tab pe ja. Wahan tere daily tasks (Exercise, Meditation, etc.) wait kar rahe hain. Unpe checkmark lagana shuru kar. Productivity ka nasha yahin se shuru hoga!</p>
+            </div>
+            <div class="step">
+              <span class="step-num">03</span>
+              <h4>Deep Work Mode (Timer)</h4>
+              <p>Jab padhne baitho toh <strong>Start Timer</strong> button dabao. Category select kar aur phone ko fek de. Jab tak timer chal raha hai, tu duniya ke liye gayab hai. Focus kar, distract mat ho.</p>
+            </div>
+            <div class="step">
+              <span class="step-num">04</span>
+              <h4>Log the Grind (Entry)</h4>
+              <p>Padhai khatam? Ab <strong>Quick Entry</strong> (Ctrl+K) khol. Kitne ghante padha, kitne problems solve kiye, aur kya topics cover kiye—sab likh. Topic mein "Padh liya" mat likhna, details likh taaki baad mein revision mein kaam aaye.</p>
+            </div>
+            <div class="step">
+              <span class="step-num">05</span>
+              <h4>Mirror Check (Review)</h4>
+              <p>Hafte ke end mein <strong>Heatmap</strong> (Ctrl+H) aur <strong>Analytics</strong> khol ke dekh. Agar chart niche ja raha hai toh mirror mein dekh ke khud ko do-char gaali de aur agle hafte backup kar. 📈</p>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h3>⌨️ 3. Keyboard Shortcuts (Pro Level!)</h3>
+          <div class="shortcuts-grid">
+            <div class="shortcut-item"><code>Ctrl + K</code> <span>Quick Entry (Aaj ka ya purana data)</span></div>
+            <div class="shortcut-item"><code>Ctrl + T</code> <span>Today's Entry (Seedha aaj ka status)</span></div>
+            <div class="shortcut-item"><code>Ctrl + H</code> <span>Heatmap (Dekh kitna green hua hai table)</span></div>
+            <div class="shortcut-item"><code>Ctrl + W</code> <span>Weekly Summary (Pura week kitna padha?)</span></div>
+            <div class="shortcut-item"><code>Ctrl + ,</code> <span>Settings (Dates aur Labels badalne ke liye)</span></div>
+            <div class="shortcut-item"><code>Ctrl + F</code> <span>Search (Purana data dhundne ke liye)</span></div>
+            <div class="shortcut-item"><code>Esc</code> <span>Close Modal (Bas band kar de modals!)</span></div>
+          </div>
+        </section>
+
+        <section>
+          <h3>📊 4. Analytics & Motivation</h3>
+          <p>Dashboard pe charts aur badges dekhte rehna. Agar <strong>"Study Output Trends"</strong> niche ja raha hai, toh bhai/behen, phone band kar aur padhne baith. 📉</p>
+          <p><strong>Badges:</strong> Ye achievements tere self-respect ke liye hain. Sab unlock kar aur proud feel kar!</p>
+        </section>
+
+        <section>
+          <h3>☁️ 5. Cloud Sync (Data Bachao!)</h3>
+          <p>Agar tu chahta hai ki tera data browser crash hone pe bhi safe rahe, toh <strong>Sync / Login</strong> button pe click kar. Supabase se connect ho ja aur chain ki neend so. 😴</p>
+        </section>
+
+        <div class="manual-footer highlight">
+          <p><strong>Pro Tip:</strong> Roz table ko 'green' dekhne ki koshish kar. Consistency hi tujhe legend banayegi. Ab jaake padh le bsdk! ❤️</p>
+        </div>
       </div>
     </div>
   </div>
@@ -426,9 +468,49 @@
   </div>
 
   <div class="modal" id="heatmapModal">
-    <div class="modal-content">
-      <div class="modal-header"><h2>Heatmap</h2><button id="closeHeatmapModal" class="modal-close">&times;</button></div>
-      <div class="modal-body"><div id="heatmapModalGrid" class="heatmap-grid"></div></div>
+    <div class="modal-content wide">
+      <div class="modal-header"><h2>Study Heatmap</h2><button id="closeHeatmapModal" class="modal-close">&times;</button></div>
+      <div class="modal-body">
+        <div id="heatmapGrid" class="heatmap-grid"></div>
+        <div class="stats-line" style="margin-top:20px;">
+          <span>Total Study Days: <strong id="heatmapStudyDays">0</strong></span>
+          <span>Average Hours/Day: <strong id="heatmapAvgHours">0</strong></span>
+          <span>Best Day: <strong id="heatmapBestDay">-</strong></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="analyticsModal">
+    <div class="modal-content wide" style="max-width: 1000px;">
+      <div class="modal-header"><h2>Analytics</h2><button id="closeAnalyticsModal" class="modal-close">&times;</button></div>
+      <div class="modal-body">
+        <div class="grid-2">
+          <article class="card">
+            <div class="row-between">
+              <h2>Study Output Trends</h2>
+              <div class="label" id="studyTrendLabel">Last 21 Days</div>
+            </div>
+            <div class="chart-wrap"><canvas id="studyTrendChart"></canvas></div>
+          </article>
+          <article class="card">
+            <div class="row-between">
+              <h2>Subject Focus</h2>
+              <div class="label" id="subjectRadarLabel">Last 21 Days</div>
+            </div>
+            <div class="chart-wrap radar-wrap"><canvas id="subjectRadarChart"></canvas></div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="badgesModal">
+    <div class="modal-content wide">
+      <div class="modal-header"><h2>Earned Badges</h2><button id="closeBadgesModal" class="modal-close">&times;</button></div>
+      <div class="modal-body">
+        <div id="badgeGrid" class="badge-grid"></div>
+      </div>
     </div>
   </div>
 

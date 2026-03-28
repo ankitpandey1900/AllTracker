@@ -27,7 +27,7 @@ import { updateDashboard, renderSessionHistory, toggleFocusHUD } from '@/feature
 import { checkBadges, renderBadges } from '@/features/dashboard/badges';
 import { generateTable, setupTableSearch } from '@/features/tracker/tracker';
 import { loadTimerState, startTimer, pauseTimer, stopTimer, openTimerModal, resumeTimerIfNeeded, setupFocusListeners } from '@/features/timer/timer';
-import { renderHeatmap, renderHeatmapModal } from '@/features/heatmap/heatmap';
+import { renderHeatmap } from '@/features/heatmap/heatmap';
 import { renderRoutine, setupRoutineListeners, checkDailyRoutineReset } from '@/features/routines/routines';
 import { renderPerformanceCurve, setupChartFilters } from '@/features/routines/performance-chart';
 import { renderRadarStats } from '@/features/routines/radar-stats';
@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 5. Bootstrap UI
   generateTable();
   updateDashboard();
-  renderHeatmap();
+  // heatmap and charts are rendered on demand when their modals open
   renderPerformanceCurve();
   renderRadarStats();
   renderRoutine();
@@ -194,10 +194,19 @@ function setupEventListeners(): void {
   bindClick('closeTimerModal', () => document.getElementById('timerModal')?.classList.remove('active'));
   bindClick('weeklyViewBtn', showWeeklySummary);
   bindClick('closeWeeklyModal', () => document.getElementById('weeklyModal')?.classList.remove('active'));
-  bindClick('heatmapViewBtn', () => { document.getElementById('heatmapModal')?.classList.add('active'); renderHeatmapModal(); });
+  bindClick('heatmapViewBtn', () => { document.getElementById('heatmapModal')?.classList.add('active'); renderHeatmap(); });
   bindClick('closeHeatmapModal', () => document.getElementById('heatmapModal')?.classList.remove('active'));
+  bindClick('analyticsViewBtn', () => {
+    document.getElementById('analyticsModal')?.classList.add('active');
+    import('@/features/dashboard/study-analytics').then((m) => m.renderStudyAnalytics());
+  });
+  bindClick('closeAnalyticsModal', () => document.getElementById('analyticsModal')?.classList.remove('active'));
+  bindClick('badgesViewBtn', () => { document.getElementById('badgesModal')?.classList.add('active'); renderBadges(); });
+  bindClick('closeBadgesModal', () => document.getElementById('badgesModal')?.classList.remove('active'));
   bindClick('historyBtn', () => { document.getElementById('historyModal')?.classList.add('active'); renderSessionHistory(); });
   bindClick('closeHistoryModal', () => document.getElementById('historyModal')?.classList.remove('active'));
+  bindClick('userManualBtn', () => document.getElementById('userManualModal')?.classList.add('active'));
+  bindClick('closeUserManualModal', () => document.getElementById('userManualModal')?.classList.remove('active'));
 
   // Import
   bindClick('importBtn', () => document.getElementById('importModal')?.classList.add('active'));
@@ -270,7 +279,6 @@ export async function refreshApplicationUI(): Promise<void> {
     calculateDates();
     generateTable();
     updateDashboard();
-    renderHeatmap();
     renderPerformanceCurve();
     renderRoutine();
     renderBookmarks();

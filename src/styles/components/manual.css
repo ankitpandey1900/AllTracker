@@ -1,0 +1,141 @@
+/* User Manual Styles */
+.user-manual {
+  max-width: 800px;
+}
+
+.manual-body {
+  line-height: 1.6;
+  color: #e2e8f0;
+}
+
+.manual-body section {
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.manual-body section:last-of-type {
+  border-bottom: none;
+}
+
+.manual-body h3 {
+  color: #6c87ff;
+  margin-bottom: 10px;
+  font-family: 'Tektur', sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.manual-body ul {
+  padding-left: 20px;
+  list-style-type: none;
+}
+
+.manual-body ul li {
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.manual-body ul li::before {
+  content: "→";
+  position: absolute;
+  left: -20px;
+  color: #25bd84;
+}
+
+.shortcuts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.shortcut-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.shortcut-item code {
+  background: #1e293b;
+  color: #fbbf24;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.85em;
+  font-family: monospace;
+  border: 1px solid rgba(251, 191, 36, 0.2);
+  min-width: 85px;
+  text-align: center;
+}
+
+.shortcut-item span {
+  font-size: 0.9em;
+  color: #94a3b8;
+}
+
+.manual-footer {
+  margin-top: 30px;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(108, 135, 255, 0.1), rgba(37, 189, 132, 0.1));
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+}
+
+.manual-footer.highlight p {
+  color: #fff;
+  font-size: 1.1em;
+}
+
+.highlight-section {
+  background: rgba(108, 135, 255, 0.05);
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid rgba(108, 135, 255, 0.2);
+}
+
+.steps-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 15px;
+}
+
+.step {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  transition: transform 0.2s ease;
+}
+
+.step:hover {
+  transform: translateX(5px);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.step-num {
+  font-family: 'Tektur', sans-serif;
+  font-size: 1.5em;
+  color: rgba(108, 135, 255, 0.4);
+  font-weight: 800;
+  line-height: 1;
+}
+
+.step h4 {
+  color: #fff;
+  margin-bottom: 5px;
+  font-size: 1.1em;
+}
+
+.step p {
+  font-size: 0.95em;
+  color: #94a3b8;
+  margin: 0;
+}

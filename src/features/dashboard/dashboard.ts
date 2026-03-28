@@ -187,7 +187,6 @@ export function updateDashboard(): void {
   renderSectorTokens(today);
   
   renderAllocationBar(today, totalHours);
-  renderProjectSummary(todayIndex >= 0 ? todayIndex : data.length - 1);
   renderStudyAnalytics();
   
   // Dynamic Hero Status
@@ -244,24 +243,6 @@ function calculateEstimatedFinishDate(currentDayNumber: number, completedDays: n
   const eta = new Date();
   eta.setDate(eta.getDate() + daysNeeded);
   return formatDate(eta);
-}
-
-function renderProjectSummary(todayIndex: number): void {
-  const data = appState.trackerData;
-  if (!data.length) return;
-
-  const safeIdx = Math.max(0, Math.min(todayIndex, data.length - 1));
-  const today = data[safeIdx];
-  const start = Math.max(0, safeIdx - 6);
-  const last7 = data.slice(start, safeIdx + 1);
-
-  const weeklyProjectHours = last7.reduce((sum, d) => sum + d.projectHours, 0);
-  const weeklyProblems = last7.reduce((sum, d) => sum + d.dsaProblems, 0);
-
-  setTxt('todayProjectTitle', today.project?.trim() || 'No project logged');
-  setTxt('todayTopicsSummary', today.topics?.trim() || 'Add your work details in Topics and Project fields.');
-  setTxt('weekProjectHours', `${weeklyProjectHours.toFixed(1)}h`);
-  setTxt('weekProblemCount', weeklyProblems);
 }
 
 function renderSectorTokens(today: any): void { // Changed type to 'any' as TrackerDay is not defined here
