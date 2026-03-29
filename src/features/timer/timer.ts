@@ -340,18 +340,89 @@ export function resumeTimerIfNeeded(): void {
   }
 }
 
-/** Sets up focus mode toggle */
+/** Sets up focus mode toggle and draggable mini-player */
 export function setupFocusListeners(): void {
   const toggle = document.getElementById('manualFocusToggle');
   const toggleText = document.getElementById('focusToggleText');
+  const hudSection = document.getElementById('activeTimerSection');
+  const dragHandle = document.querySelector('.hud-drag-handle') as HTMLElement;
+
   if (toggle) {
     toggle.addEventListener('click', () => {
-      document.body.classList.toggle('focus-minimized');
-      if (toggleText) {
-        toggleText.textContent = document.body.classList.contains('focus-minimized')
-          ? 'Restore Focus'
-          : 'Minimize HUD';
+      const isMin = document.body.classList.toggle('focus-minimized');
+      document.documentElement.classList.toggle('focus-minimized-scroll', isMin);
+      const hud = document.getElementById('focusHud');
+
+      if (isMin) {
+        if (toggleText) toggleText.textContent = 'Restore HUD';
+        document.body.style.overflow = '';
+        document.documentElement.style.overflow = '';
+        if (hud) hud.classList.remove('active');
+      } else {
+        if (toggleText) toggleText.textContent = 'Minimize HUD';
+        document.body.style.overflow = 'hidden';
+        if (hud) hud.classList.add('active');
+      }
+
+      // Reset drag on restore perfectly
+      if (!isMin && hudSection) {
+        hudSection.style.setProperty('--drag-x', '0px');
+        hudSection.style.setProperty('--drag-y', '0px');
+        currX = 0; currY = 0;
       }
     });
+  }
+
+  // Draggable Logic
+  let currX = 0, currY = 0;
+  if (dragHandle && hudSection) {
+    let isDragging = false;
+    let lastX = 0, lastY = 0;
+
+    const onMove = (e: MouseEvent | TouchEvent) => {
+      if (!isDragging || !document.body.classList.contains('focus-minimized')) return;
+      e.preventDefault();
+      const cx = e.type.includes('mouse') ? (e as MouseEvent).clientX : (e as TouchEvent).touches[0].clientX;
+      const cy = e.type.includes('mouse') ? (e as MouseEvent).clientY : (e as TouchEvent).touches[0].clientY;
+      
+      const dx = cx - lastX;
+      const dy = cy - lastY;
+      lastX = cx;
+      lastY = cy;
+
+      // The translate() function precedes scale() in CSS, natively moving in 1:1 screen pixels.
+      currX += dx;
+      currY += dy;
+      
+      hudSection.style.setProperty('--drag-x', `${currX}px`);
+      hudSection.style.setProperty('--drag-y', `${currY}px`);
+    };
+
+    const stopDrag = () => { 
+      if (!isDragging) return;
+      isDragging = false; 
+      hudSection.style.transition = 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s';
+      
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('touchmove', onMove);
+      window.removeEventListener('mouseup', stopDrag);
+      window.removeEventListener('touchend', stopDrag);
+    };
+
+    const startDrag = (cx: number, cy: number) => {
+      if (!document.body.classList.contains('focus-minimized')) return;
+      isDragging = true;
+      hudSection.style.transition = 'none'; // Disable transition for 1:1 sync
+      lastX = cx;
+      lastY = cy;
+
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('touchmove', onMove, { passive: false });
+      window.addEventListener('mouseup', stopDrag);
+      window.addEventListener('touchend', stopDrag);
+    };
+
+    dragHandle.addEventListener('mousedown', (e) => startDrag(e.clientX, e.clientY));
+    dragHandle.addEventListener('touchstart', (e) => startDrag(e.touches[0].clientX, e.touches[0].clientY), { passive: false });
   }
 }

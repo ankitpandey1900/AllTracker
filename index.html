@@ -6,7 +6,7 @@
     <title>All Tracker | Neon Arena</title>
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="shortcut icon" href="/favicon.png" type="image/x-icon" />
-    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.jpg" />
     <link rel="manifest" href="/manifest.json" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -46,37 +46,9 @@
         <button class="nav-item" data-target="tasksPane">Tasks</button>
 
         <button class="nav-item" data-target="bookmarksPane">Bookmarks</button>
-        <button
-          id="excalidraw"
-          style="
-            color: #edf3ff;
-            border-color: rgba(112, 132, 196, 0.58);
-            background: linear-gradient(
-              180deg,
-              rgba(59, 76, 152, 0.43),
-              rgba(30, 42, 90, 0.48)
-            );
-            padding: 6px;
-            border-radius: 10%;
-          "
-        >
-          Excalidraw
-        </button>
-        <button
-          id="hideExcalidraw"
-          style="
-            color: #edf3ff;
-            border-color: rgba(112, 132, 196, 0.58);
-            background: linear-gradient(
-              180deg,
-              rgba(59, 76, 152, 0.43),
-              rgba(30, 42, 90, 0.48)
-            );
-            padding: 6px;
-            border-radius: 10%;
-          "
-        >
-          Hide
+        <button id="excalidrawToggle" class="nav-item" style="margin-left: auto; display: flex; align-items: center; gap: 6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          Canvas
         </button>
       </nav>
 
@@ -366,39 +338,42 @@
 
     <div id="focusHud" class="focus-hud">
       <div id="activeTimerSection" style="display: none">
-        <div class="label" id="timerSubject">DEEP FOCUS</div>
-        <div id="timerDisplay" class="timer-display">00:00:00</div>
-        <div id="focusActiveTaskContainer" style="display: none">
-          Current Task: <span id="nowPlayingTask">--</span>
-        </div>
-        <div class="ring-wrap">
-          <svg class="progress-ring" width="280" height="280">
-            <circle
-              class="progress-ring__bg"
-              stroke="rgba(255,255,255,0.15)"
-              stroke-width="10"
-              fill="transparent"
-              r="120"
-              cx="140"
-              cy="140"
-            ></circle>
-            <circle
-              class="progress-ring__circle"
-              stroke="var(--accent-purple)"
-              stroke-width="10"
-              fill="transparent"
-              r="120"
-              cx="140"
-              cy="140"
-            ></circle>
-          </svg>
-        </div>
-        <div class="control-row">
-          <button id="timerPauseBtn" class="btn">Pause</button>
-          <button id="timerStopBtn" class="btn btn-danger">Stop</button>
-          <button id="manualFocusToggle" class="btn">
-            <span id="focusToggleText">Minimize HUD</span>
+        <div class="hud-top-bar">
+          <div class="hud-drag-handle" title="Drag to move">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/></svg>
+          </div>
+          <button id="manualFocusToggle" class="btn-icon minimize-btn" title="Toggle Mini-Player">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h6v6"/><path d="M20 10h-6V4"/><path d="M14 10l7-7"/><path d="M3 21l7-7"/></svg>
+            <span id="focusToggleText" style="display:none;">Minimize HUD</span>
           </button>
+        </div>
+
+        <div class="timer-circle-container">
+          <div class="ring-wrap">
+            <svg class="progress-ring" width="280" height="280">
+              <defs>
+                <linearGradient id="timerRingGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#22d3ee" />
+                  <stop offset="50%" stop-color="#6a86ff" />
+                  <stop offset="100%" stop-color="#8b5cf6" />
+                </linearGradient>
+              </defs>
+              <circle class="progress-ring__bg" stroke="rgba(255,255,255,0.04)" stroke-width="2" fill="transparent" r="130" cx="140" cy="140"></circle>
+              <circle class="progress-ring__circle" stroke="url(#timerRingGradient)" stroke-linecap="round" stroke-width="6" fill="transparent" r="130" cx="140" cy="140"></circle>
+            </svg>
+          </div>
+          <div class="timer-center-content">
+            <div class="label" id="timerSubject">DEEP FOCUS</div>
+            <div id="timerDisplay" class="timer-display">00:00:00</div>
+            <div id="focusActiveTaskContainer" style="display: none">
+              <span id="nowPlayingTask" class="timer-task-text">--</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="control-row">
+          <button id="timerPauseBtn" class="btn btn-outline">Pause</button>
+          <button id="timerStopBtn" class="btn btn-danger glow-danger">Stop</button>
         </div>
         <div class="session-goal-row">
           <label for="sessionGoalInput">Session Goal (mins)</label>

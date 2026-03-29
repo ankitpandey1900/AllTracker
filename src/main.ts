@@ -179,18 +179,23 @@ function setupEventListeners(): void {
     });
   });
 
-  // excalidraw btn
-  const btn = document.getElementById("excalidraw");
-  const container: any = document.getElementById("drawSection");
+  // Excalidraw Toggle
+  const excalidrawBtn = document.getElementById("excalidrawToggle");
+  const drawSection = document.getElementById("drawSection");
 
-  btn?.addEventListener("click", () => {
-    container.style.display = "block";
-  });
-
-  const hideBtn = document.getElementById("hideExcalidraw");
-  hideBtn?.addEventListener("click", () => {
-    console.log("Called");
-    container.style.display = "none";
+  excalidrawBtn?.addEventListener("click", () => {
+    if (!drawSection) return;
+    const isHidden = drawSection.style.display === "none" || drawSection.style.display === "";
+    
+    if (isHidden) {
+      drawSection.style.display = "block";
+      excalidrawBtn.classList.add("active");
+      excalidrawBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg> Hide Canvas`;
+    } else {
+      drawSection.style.display = "none";
+      excalidrawBtn.classList.remove("active");
+      excalidrawBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Canvas`;
+    }
   });
 
   // Dashboard buttons
@@ -232,8 +237,6 @@ function setupEventListeners(): void {
     stopTimer();
     toggleFocusHUD(false);
   });
-
-  bindClick("manualFocusToggle", () => toggleFocusHUD(false));
 
   // Session goal
   const goalInput = document.getElementById(

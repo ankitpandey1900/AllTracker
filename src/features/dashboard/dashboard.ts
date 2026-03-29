@@ -43,7 +43,10 @@ export function toggleFocusHUD(show: boolean, subject: string = '', time: string
     document.body.style.overflow = 'hidden';
   } else {
     hud.classList.remove('active');
+    document.body.classList.remove('focus-minimized');
     document.body.style.overflow = '';
+    const toggleText = document.getElementById("focusToggleText");
+    if (toggleText) toggleText.textContent = "Minimize HUD";
   }
 }
 
