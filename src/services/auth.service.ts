@@ -87,9 +87,6 @@ async function handleSyncIdEstablished(syncId: string): Promise<void> {
         <span id="syncStatus" class="sync-status" style="font-size: 0.8rem; color: var(--success);">
           ✅ Synced
         </span>
-        <span class="user-email" style="font-size: 0.85rem; color: var(--text-secondary); opacity: 0.8;">
-          ID: ${syncId}
-        </span>
         <button class="btn btn-secondary btn-sm" id="logoutBtn" style="padding: 5px 12px; font-size: 0.75rem;">
           Disconnect
         </button>
