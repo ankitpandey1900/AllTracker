@@ -66,12 +66,9 @@ export function renderPerformanceCurve(): void {
     completedHabits += routineCount;
     
     // Calculate total hours for this day
-    const dayHours = 
-      (dayData.pythonHours || 0) +
-      (dayData.dsaHours || 0) +
-      (dayData.projectHours || 0) +
-      (dayData.col4Hours || 0) +
-      (Array.isArray(dayData.extraHours) ? dayData.extraHours.reduce((s, n) => s + (n || 0), 0) : 0);
+    const dayHours = Array.isArray(dayData.studyHours)
+      ? dayData.studyHours.reduce((s, n) => s + (n || 0), 0)
+      : 0;
 
     const dateObj = new Date(dayData.date);
     const dateLabel = dateObj.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });

@@ -15,11 +15,16 @@
 
 ### 1. 📊 The Pinnacle Dashboard & Study Log
 - **Bento-Grid Command Center:** A meticulously centered, sleek dashboard tracking your real-time total hours, completion percentage, active streaks, and Study Heatmap.
-- **Dynamic Rank System:** Automatically calculates your XP based on hours studied and assigns you 10 dynamic Tiers (Iron → Bronze → Silver → Gold → Platinum → Diamond → Ascendant → Immortal → Radiant → Eternal).
+- **Dynamic Rank & World Standing:** Automatically calculates your XP (100 XP/hr) and assigns you 10 dynamic Tiers. It also projects your **Absolute World Ranking** (from #40,000,000 down to #1) to visualize your global climb.
 - **Intelligent Feedback Loop:** Displays live, dynamic messages that taunt you if you are falling behind your pacing schedule or praise your discipline when you pull ahead.
 - **Interactive Daily Tracker:** A massive, searchable main table to log daily hours across customizable columns (e.g., Python, DSA, Project), Topics, and Problems Solved.
 
-### 2. 🧠 Dual-Metric Analytics Engine
+### 2. 🦾 Mission Control (Daily Tasks)
+- **Granular Milestone Tracking:** Manage specific daily study objectives (e.g., "Complete React Hooks Lec") that sit outside your recurring routines.
+- **24-Hour Backlog System:** Incomplete tasks are automatically shifted into a dedicated **Backlog** after 24 hours, ensuring no objective is ever forgotten.
+- **Auto-Cleanup Engine:** To keep your dashboard high-performance, completed tasks in the history are automatically purged after 3 days.
+
+### 3. 🧠 Dual-Metric Analytics Engine
 - **Study Output Trends:** Interactive Line Charts plotting your Study Hours against Problems Solved over a 21-day moving window.
 - **Arena Skill Radar:** Multi-dimensional Radar Charts mapping out your Focus, Discipline, Output, Endurance, and Subject Versatility.
 - *Analytics are integrated into both the Dashboard and the Routine check-in panes, utilizing Chart.js.*
@@ -62,6 +67,7 @@ The project was completely re-architected from a massive monolithic `script.js` 
  ┃ ┃ ┣ 📂 routines/        # Routine checklist UI + Radar/Performance Chart Engines
  ┃ ┃ ┣ 📂 settings/        # App Configuration, Cloud Keys, Custom Column mapping
  ┃ ┃ ┣ 📂 shortcuts/       # Global Keyboard Interceptors + Quick Entry Modal
+ ┃ ┃ ┣ 📂 tasks/           # Mission Control (Daily tasks & Backlog logic)
  ┃ ┃ ┣ 📂 timer/           # Focus HUD logic, setInterval engines, session tracking
  ┃ ┃ ┗ 📂 tracker/         # Core 354-day Table generation & Search engines
  ┃ ┣ 📂 services/          # External APIs & Storage

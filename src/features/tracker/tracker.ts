@@ -12,26 +12,16 @@ import { saveTrackerDataToStorage } from '@/services/data-bridge';
 import type { TrackerDay } from '@/types/tracker.types';
 
 function getHourAt(day: TrackerDay, idx: number): number {
-  if (idx === 0) return day.pythonHours || 0;
-  if (idx === 1) return day.dsaHours || 0;
-  if (idx === 2) return day.projectHours || 0;
-  if (idx === 3) return day.col4Hours || 0;
-  return (day.extraHours?.[idx - 4] ?? 0) as number;
+  return (day.studyHours?.[idx] ?? 0) as number;
 }
 
 function setHourAt(day: TrackerDay, idx: number, value: number): void {
-  if (idx === 0) { day.pythonHours = value; return; }
-  if (idx === 1) { day.dsaHours = value; return; }
-  if (idx === 2) { day.projectHours = value; return; }
-  if (idx === 3) { day.col4Hours = value; return; }
-  if (!Array.isArray(day.extraHours)) day.extraHours = [];
-  day.extraHours[idx - 4] = value;
+  if (!Array.isArray(day.studyHours)) day.studyHours = [];
+  day.studyHours[idx] = value;
 }
 
 function getTotalHours(day: TrackerDay): number {
-  const base = (day.pythonHours || 0) + (day.dsaHours || 0) + (day.projectHours || 0) + (day.col4Hours || 0);
-  const extras = Array.isArray(day.extraHours) ? day.extraHours.reduce((s, n) => s + (n || 0), 0) : 0;
-  return base + extras;
+  return Array.isArray(day.studyHours) ? day.studyHours.reduce((s, n) => s + (n || 0), 0) : 0;
 }
 
 // ─── Table Generation ────────────────────────────────────────
@@ -52,7 +42,7 @@ export function generateTable(): void {
       <th>Day</th>
       <th>Date</th>
       ${labels.map((l) => `<th>${l} Hrs</th>`).join('')}
-      <th>Problems</th>
+      <th>Problems Solved</th>
       <th>Topics</th>
       <th>Project Work</th>
       <th>Done</th>
@@ -79,16 +69,17 @@ export function generateTable(): void {
           <span class="day-number">${day.day}</span>
         </td>
         <td class="date-cell">${formatDate(new Date(day.date))}</td>
-        ${dayLabels
-          .map((label, ci) => {
-            const v = getHourAt(day, ci);
-            return `<td><input type="number" class="cell-input hour-input" data-col="${ci}" value="${v}" min="0" step="0.5" title="${label}"></td>`;
-          })
-          .join('')}
-        <td><input type="number" class="cell-input dsa-problems" value="${day.dsaProblems}" min="0" step="1"></td>
+        ${dayLabels.length > 0 
+          ? dayLabels.map((label, ci) => {
+              const v = getHourAt(day, ci);
+              return `<td><input type="number" class="cell-input hour-input" data-col="${ci}" value="${v}" min="0" step="0.5" title="${label}"></td>`;
+            }).join('') 
+          : `<td colspan="1" class="no-cat-warning">No Categories Define (Check Settings)</td>`
+        }
+        <td><input type="number" class="cell-input topics-solved" value="${day.problemsSolved}" min="0" step="1"></td>
         <td>
           <div class="topics-cell">
-            <textarea class="cell-input topics-input" rows="1">${day.topics}</textarea>
+            <textarea class="cell-input topics-input" rows="1">${day.topics || ''}</textarea>
           </div>
         </td>
         <td>
@@ -111,13 +102,8 @@ export function generateTable(): void {
   // Attach listeners
   attachInputListeners();
 
-  // Scroll to today
-  const todayRow = tbody.querySelector('.today');
-  if (todayRow) {
-    setTimeout(() => {
-      todayRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 300);
-  }
+  // Attach listeners
+  attachInputListeners();
 }
 
 // ─── Input Listeners ─────────────────────────────────────────

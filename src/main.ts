@@ -11,7 +11,7 @@ import './styles/main.css';
 
 // ─── Core ────────────────────────────────────────────────────
 import { appState, calculateDates, initializeData } from '@/state/app-state';
-import { STORAGE_KEYS } from '@/config/constants';
+import { DEFAULT_START_DATE, DEFAULT_END_DATE, DEFAULT_COLUMNS, STORAGE_KEYS } from '@/config/constants';
 import {
   loadTrackerDataFromStorage,
   loadSettingsFromStorage,
@@ -22,9 +22,10 @@ import {
 } from '@/services/data-bridge';
 import { initSyncAuth, setupHeaderScroll } from '@/services/auth.service';
 
-// ─── Features ────────────────────────────────────────────────
+// ─── Study Categories ────────────────────────────────────────────────
 import { updateDashboard, renderSessionHistory, toggleFocusHUD } from '@/features/dashboard/dashboard';
 import { checkBadges, renderBadges } from '@/features/dashboard/badges';
+import type { Badge, TrackerDay } from '@/types/tracker.types';
 import { generateTable, setupTableSearch } from '@/features/tracker/tracker';
 import { loadTimerState, startTimer, pauseTimer, stopTimer, openTimerModal, resumeTimerIfNeeded, setupFocusListeners } from '@/features/timer/timer';
 import { renderHeatmap } from '@/features/heatmap/heatmap';
@@ -33,13 +34,27 @@ import { renderPerformanceCurve, setupChartFilters } from '@/features/routines/p
 import { renderRadarStats } from '@/features/routines/radar-stats';
 
 import { renderBookmarks, setupBookmarkListeners } from '@/features/bookmarks/bookmarks';
-import { openSettingsModal, applyDateSettings, applyColumnSettings, addCustomRange, addExtraColumn } from '@/features/settings/settings';
+import { initTasks, renderTasks } from '@/features/tasks/task-list';
+import {
+  openSettingsModal,
+  applyDateSettings,
+  applyColumnSettings,
+  addCustomRange,
+} from '@/features/settings/settings';
 import { exportAllData, exportTrackerDataCSV } from '@/features/export/export';
 import { importFromJSON, importFromCSV } from '@/features/import/import';
 import {
-  setupKeyboardShortcuts, openQuickEntryModal, openTodayEntry,
-  saveQuickEntry, saveBulkEntry, jumpToDay, showWeeklySummary,
-  handleReset, updateQuickEntryLabels, updateBulkEntryLabels,
+  setupKeyboardShortcuts,
+  openQuickEntryModal,
+  openTodayEntry,
+  saveQuickEntry,
+  saveBulkEntry,
+  jumpToDay,
+  showWeeklySummary,
+  handleReset,
+  renderQuickEntryFields,
+  renderBulkEntryFields,
+  scrollToToday,
 } from '@/features/shortcuts/shortcuts';
 
 // ─── Initialize ──────────────────────────────────────────────
@@ -52,7 +67,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (savedSettings) {
     appState.settings = { ...appState.settings, ...savedSettings };
   }
-  calculateDates();
 
   // 2. Load tracker data
   const savedData = await loadTrackerDataFromStorage();
@@ -79,7 +93,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 5. Bootstrap UI
   generateTable();
   updateDashboard();
-  // heatmap and charts are rendered on demand when their modals open
   renderPerformanceCurve();
   renderRadarStats();
   renderRoutine();
@@ -99,6 +112,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 7. Auth & header
   initSyncAuth();
   setupHeaderScroll();
+  initTasks();
 
   // 8. Innovations
   await checkDailyRoutineReset();
@@ -125,7 +139,10 @@ function setupEventListeners(): void {
 
       item.classList.add('active');
       const view = item.getAttribute('data-target');
-      if (view) document.getElementById(view)?.classList.add('active');
+      if (view) {
+        document.getElementById(view)?.classList.add('active');
+        if (view === 'tasksPane') renderTasks();
+      }
     });
   });
 
@@ -133,6 +150,7 @@ function setupEventListeners(): void {
   bindClick('startTimerBtn', openTimerModal);
   bindClick('openQuickEntryBtn', openQuickEntryModal);
   bindClick('quickEntryBtn', openTodayEntry);
+  bindClick('jumpToTodayBtn', scrollToToday);
   bindClick('exportAllDataBtn', exportAllData);
 
   // Timer controls
@@ -142,7 +160,7 @@ function setupEventListeners(): void {
       const select = document.getElementById('timerCategorySelect') as HTMLSelectElement;
       if (select) {
         const cat = select.options[select.selectedIndex].textContent || '';
-        startTimer(select.value, cat);
+        startTimer(parseInt(select.value, 10) || 0, cat);
         toggleFocusHUD(true, cat, '00:00:00');
         document.getElementById('timerModal')?.classList.remove('active');
       }
@@ -154,7 +172,7 @@ function setupEventListeners(): void {
 
   bindClick('timerPauseBtn', () => {
     if (appState.activeTimer.isRunning) pauseTimer();
-    else startTimer(appState.activeTimer.category || 'col1', appState.activeTimer.colName || '');
+    else startTimer(parseInt(appState.activeTimer.category || '0', 10), appState.activeTimer.colName || '');
   });
   
   bindClick('timerStopBtn', () => {
@@ -174,32 +192,53 @@ function setupEventListeners(): void {
 
   // Settings
   bindClick('settingsBtn', openSettingsModal);
+  bindClick('userManualBtn', () => document.getElementById('userManualModal')?.classList.add('active'));
+  bindClick('closeUserManualModal', () => document.getElementById('userManualModal')?.classList.remove('active'));
   bindClick('applyDateSettings', applyDateSettings);
   bindClick('applyColumnSettings', applyColumnSettings);
-  bindClick('addExtraColumnBtn', addExtraColumn);
+
   bindClick('addCustomRangeBtn', addCustomRange);
   bindClick('closeSettingsModal', () => document.getElementById('settingsModal')?.classList.remove('active'));
 
   // Quick entry
+  bindClick('quickEntryDay', renderQuickEntryFields);
+  bindClick('bulkStartDay', renderBulkEntryFields);
   bindClick('saveQuickEntryBtn', saveQuickEntry);
   bindClick('saveBulkEntryBtn', saveBulkEntry);
   bindClick('jumpToDayBtn', jumpToDay);
   bindClick('closeQuickEntryModal', () => document.getElementById('quickEntryModal')?.classList.remove('active'));
 
   // Quick entry label updates
-  document.getElementById('quickEntryDay')?.addEventListener('input', updateQuickEntryLabels);
-  document.getElementById('bulkStartDay')?.addEventListener('input', updateBulkEntryLabels);
+  document.getElementById('quickEntryDay')?.addEventListener('input', renderQuickEntryFields);
+  document.getElementById('bulkStartDay')?.addEventListener('input', renderBulkEntryFields);
 
   // Modals
   bindClick('closeTimerModal', () => document.getElementById('timerModal')?.classList.remove('active'));
   bindClick('weeklyViewBtn', showWeeklySummary);
   bindClick('closeWeeklyModal', () => document.getElementById('weeklyModal')?.classList.remove('active'));
-  bindClick('heatmapViewBtn', () => { document.getElementById('heatmapModal')?.classList.add('active'); renderHeatmap(); });
   bindClick('closeHeatmapModal', () => document.getElementById('heatmapModal')?.classList.remove('active'));
+  
+  const heatmapYearSelect = document.getElementById('heatmapYearSelect') as HTMLSelectElement;
+  if (heatmapYearSelect) {
+    heatmapYearSelect.addEventListener('change', () => {
+      import('@/features/heatmap/heatmap').then((m) => m.renderHeatmapModal());
+    });
+  }
+
+  bindClick('heatmapViewBtn', () => {
+    document.getElementById('heatmapModal')?.classList.add('active');
+    import('@/features/heatmap/heatmap').then((m) => {
+      m.renderHeatmap();
+      m.renderHeatmapModal();
+    });
+  });
+
   bindClick('analyticsViewBtn', () => {
     document.getElementById('analyticsModal')?.classList.add('active');
-    import('@/features/dashboard/study-analytics').then((m) => m.renderStudyAnalytics());
+    renderPerformanceCurve();
+    renderRadarStats();
   });
+
   bindClick('closeAnalyticsModal', () => document.getElementById('analyticsModal')?.classList.remove('active'));
   bindClick('badgesViewBtn', () => { document.getElementById('badgesModal')?.classList.add('active'); renderBadges(); });
   bindClick('closeBadgesModal', () => document.getElementById('badgesModal')?.classList.remove('active'));
@@ -257,22 +296,25 @@ export async function refreshApplicationUI(): Promise<void> {
       loadBookmarksFromStorage(),
     ]);
 
-    if (settings) appState.settings = { ...appState.settings, ...settings };
-    if (!Array.isArray(appState.settings.extraColumns)) appState.settings.extraColumns = [];
+    if (settings) {
+      appState.settings = { ...appState.settings, ...settings };
+    }
+    
+    // Ensure essential arrays exist
+    if (!Array.isArray(appState.settings.columns)) appState.settings.columns = [...DEFAULT_COLUMNS];
     if (!Array.isArray(appState.settings.customRanges)) appState.settings.customRanges = [];
-    appState.settings.customRanges.forEach((r: any) => {
-      if (!Array.isArray(r.extraColumns)) r.extraColumns = [];
-    });
 
-    if (data && data.length) appState.trackerData = data;
-    // migrate trackerData to include correct extraHours shape
-    const extrasCount = appState.settings.extraColumns?.length || 0;
-    appState.trackerData.forEach((d: any) => {
-      if (!Array.isArray(d.extraHours)) d.extraHours = [];
-      if (d.extraHours.length < extrasCount) d.extraHours = [...d.extraHours, ...Array.from({ length: extrasCount - d.extraHours.length }, () => 0)];
-      if (d.extraHours.length > extrasCount) d.extraHours = d.extraHours.slice(0, extrasCount);
-    });
+    if (data && data.length) {
+      appState.trackerData = data;
+    }
+
+    // 4. Migrate data format if necessary (Architectural Shift)
+    const { migrateDataFormat } = await import('@/state/app-state');
+    migrateDataFormat();
+    
     appState.routines = routines;
+    appState.routineHistory = history;
+    appState.bookmarks = bookmarks;
     appState.routineHistory = history;
     appState.bookmarks = bookmarks;
 

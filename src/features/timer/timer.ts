@@ -5,7 +5,7 @@
  * Saves completed sessions to today's tracker data.
  */
 
-import { appState, getAllHourColumnLabels } from '@/state/app-state';
+import { appState, getAllHourColumnLabels, getColumnsForDay } from '@/state/app-state';
 import { STORAGE_KEYS } from '@/config/constants';
 import { formatMsToTime, formatClockTime } from '@/utils/date.utils';
 import { showToast } from '@/utils/dom.utils';
@@ -32,7 +32,7 @@ function saveTimerState(): void {
 
 // ─── Timer Actions ───────────────────────────────────────────
 
-export function startTimer(categoryKey: string, categoryName: string): void {
+export function startTimer(categoryIdx: number, categoryName: string): void {
   if (appState.activeTimer.isRunning) return;
 
   appState.activeTimer.isRunning = true;
@@ -42,7 +42,7 @@ export function startTimer(categoryKey: string, categoryName: string): void {
     appState.activeTimer.sessionStartClock = appState.activeTimer.startTime;
   }
 
-  appState.activeTimer.category = categoryKey;
+  appState.activeTimer.category = String(categoryIdx);
   appState.activeTimer.colName = categoryName;
 
   saveTimerState();
@@ -78,8 +78,8 @@ export function stopTimer(): void {
   const totalHours = Math.floor(totalElapsed / 1000) / 3600;
 
   try {
-    if (totalHours > 0 && appState.activeTimer.category) {
-      saveSessionToToday(appState.activeTimer.category, totalHours);
+    if (totalHours > 0 && appState.activeTimer.category !== null) {
+      saveSessionToToday(parseInt(appState.activeTimer.category), totalHours);
       showToast(`Session saved: ${formatMsToTime(totalElapsed)}`, 'success');
     }
   } catch (error) {
@@ -111,17 +111,9 @@ export function stopTimer(): void {
   generateTable();
 }
 
-function categoryKeyToIndex(key: string): number {
-  // supports col1..col99
-  const m = /^col(\d+)$/.exec(key);
-  if (!m) return 0;
-  const n = parseInt(m[1]);
-  return isNaN(n) ? 0 : Math.max(0, n - 1);
-}
-
 // ─── Session Save ────────────────────────────────────────────
 
-function saveSessionToToday(categoryKey: string, hoursToAdd: number): void {
+function saveSessionToToday(colIdx: number, hoursToAdd: number): void {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -140,30 +132,20 @@ function saveSessionToToday(categoryKey: string, hoursToAdd: number): void {
     return;
   }
 
-  const colIdx = categoryKeyToIndex(categoryKey);
   const day = appState.trackerData[todayIndex];
   const fixed = (n: number) => parseFloat(n.toFixed(2));
 
-  if (colIdx === 0) day.pythonHours = fixed((day.pythonHours || 0) + hoursToAdd);
-  else if (colIdx === 1) day.dsaHours = fixed((day.dsaHours || 0) + hoursToAdd);
-  else if (colIdx === 2) day.projectHours = fixed((day.projectHours || 0) + hoursToAdd);
-  else if (colIdx === 3) day.col4Hours = fixed((day.col4Hours || 0) + hoursToAdd);
-  else {
-    if (!Array.isArray(day.extraHours)) day.extraHours = [];
-    const extraIdx = colIdx - 4;
-    day.extraHours[extraIdx] = fixed((day.extraHours[extraIdx] || 0) + hoursToAdd);
-  }
+  if (!Array.isArray(day.studyHours)) day.studyHours = [];
+  day.studyHours[colIdx] = fixed((day.studyHours[colIdx] || 0) + hoursToAdd);
 
   // Log session
-  const currentDayNum = appState.trackerData[todayIndex].day;
-  const labels = getAllHourColumnLabels(currentDayNum);
-  const categoryNameMap: Record<string, string> = {};
-  labels.forEach((l, i) => { categoryNameMap[`col${i + 1}`] = l; });
+  const cols = getColumnsForDay(day.day);
+  const categoryName = cols[colIdx]?.name || `Category ${colIdx + 1}`;
 
   const sessionLog = {
     date: new Date().toISOString(),
-    category: categoryKey,
-    categoryName: categoryNameMap[categoryKey] || categoryKey,
+    category: `col${colIdx + 1}`,
+    categoryName,
     duration: hoursToAdd,
     timeRange: appState.activeTimer.sessionStartClock
       ? `${formatClockTime(new Date(appState.activeTimer.sessionStartClock))} - ${formatClockTime(new Date())}`
@@ -191,6 +173,7 @@ function saveSessionToToday(categoryKey: string, hoursToAdd: number): void {
     setTimeout(() => row.classList.remove('highlight-update'), 2000);
   }
 }
+
 
 // ─── Timer Display ───────────────────────────────────────────
 
@@ -324,24 +307,22 @@ export function openTimerModal(): void {
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  let currentDayNum = 1;
+  let todayDay = 1;
 
   for (let i = 0; i < appState.trackerData.length; i++) {
     const d = new Date(appState.trackerData[i].date);
     d.setHours(0, 0, 0, 0);
     if (d.getTime() === today.getTime()) {
-      currentDayNum = appState.trackerData[i].day;
+      todayDay = appState.trackerData[i].day;
       break;
     }
   }
 
-  const labels = getAllHourColumnLabels(currentDayNum);
-  const options = labels.map((label, i) => ({ key: `col${i + 1}`, label }));
-
-  options.forEach((opt) => {
+  const cols = getColumnsForDay(todayDay);
+  cols.forEach((col, i) => {
     const el = document.createElement('option');
-    el.value = opt.key;
-    el.textContent = opt.label;
+    el.value = String(i);
+    el.textContent = col.name;
     select.appendChild(el);
   });
 

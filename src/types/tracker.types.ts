@@ -11,43 +11,28 @@
 export interface TrackerDay {
   day: number;
   date: string;
-  pythonHours: number;
-  dsaHours: number;
-  projectHours: number;
-  col4Hours: number;
-  /** Extra dynamic hour columns beyond the default 4 (col5+). Index 0 => col5 */
-  extraHours?: number[];
+  /** Array of hours for each study category. Index matches Settings.columns. */
+  studyHours: number[];
   topics: string;
-  dsaProblems: number;
+  problemsSolved: number;
   project: string;
   completed: boolean;
 }
 
 // ─── Column Configuration ────────────────────────────────────
 
-/** Names for the four customizable hour-tracking columns */
-export interface ColumnNames {
-  col1: string;
-  col2: string;
-  col3: string;
-  col4: string;
+/** A study category with its target hours */
+export interface StudyCategory {
+  name: string;
+  target: number;
 }
 
 /** A date-range override for column names and targets */
-export interface CustomRange extends ColumnNames {
+export interface CustomRange {
   startDay: number;
   endDay: number;
-  col1Target: number;
-  col2Target: number;
-  col3Target: number;
-  col4Target: number;
-  /** Extra dynamic hour columns for this range (col5+). Overrides defaults. */
-  extraColumns?: ExtraColumn[];
-}
-
-export interface ExtraColumn {
-  name: string;
-  target: number;
+  /** Overridden categories for this range. */
+  columns: StudyCategory[];
 }
 
 // ─── Session Logging ─────────────────────────────────────────
@@ -67,13 +52,11 @@ export interface SessionLog {
 export interface Settings {
   startDate: string;
   endDate: string;
-  defaultColumns: ColumnNames;
-  /** Extra dynamic hour columns beyond the default 4 (col5+). */
-  extraColumns?: ExtraColumn[];
+  /** Unified list of study categories. */
+  columns: StudyCategory[];
   customRanges: CustomRange[];
   beastMode: boolean;
   unlockedBadges: string[];
-  targets: Record<string, number>;
   sessionLogs: SessionLog[];
 }
 
@@ -105,5 +88,6 @@ export interface RankDetails extends RankTier {
   worldPos: string;
   tierXP: number;
   level: number;
+  absolutePos: number;
 }
 

@@ -14,37 +14,29 @@ export function renderRadarStats(): void {
   const todayData = appState.trackerData.find(d => d.date.startsWith(todayStr));
   
   // 1. Discipline (Routine %)
-  const routineCompleted = appState.routineHistory[todayStr] || 0;
+  const routineCompletedCount = (appState.routines || []).filter(r => r.completed).length;
   const routineTotal = appState.routines.length || 1;
-  const discipline = Math.min(100, Math.round((routineCompleted / routineTotal) * 100));
+  const discipline = Math.min(100, Math.round((routineCompletedCount / routineTotal) * 100));
 
   // 2. Endurance (Hours %) - Target 8h = 100%
-  const todayHours = todayData ? (
-    (todayData.pythonHours || 0) +
-    (todayData.dsaHours || 0) +
-    (todayData.projectHours || 0) +
-    (todayData.col4Hours || 0) +
-    (Array.isArray(todayData.extraHours) ? todayData.extraHours.reduce((s, n) => s + (n || 0), 0) : 0)
-  ) : 0;
+  const todayHours = todayData && Array.isArray(todayData.studyHours) 
+    ? todayData.studyHours.reduce((s, n) => s + (n || 0), 0)
+    : 0;
   const endurance = Math.min(100, Math.round((todayHours / 8) * 100));
 
-  // 3. Focus (Based on session count or consistency - using a placeholder logic for now: Hours > 0 + Routine > 50%)
+  // 3. Focus (Based on consistency - placeholder logic)
   const focus = (todayHours > 0 && discipline > 50) ? 90 : (todayHours > 0 ? 60 : 20);
 
   // 4. Output (Problems solved) - Target 5 = 100%
-  const problems = todayData?.dsaProblems || 0;
+  const problems = todayData?.problemsSolved || 0;
   const output = Math.min(100, Math.round((problems / 5) * 100));
 
   // 5. Versatility (Subjects covered)
   let subjects = 0;
-  if (todayData) {
-    if ((todayData.pythonHours || 0) > 0) subjects++;
-    if ((todayData.dsaHours || 0) > 0) subjects++;
-    if ((todayData.projectHours || 0) > 0) subjects++;
-    if ((todayData.col4Hours || 0) > 0) subjects++;
-    if (Array.isArray(todayData.extraHours) && todayData.extraHours.some(h => (h || 0) > 0)) subjects++;
+  if (todayData && Array.isArray(todayData.studyHours)) {
+    subjects = todayData.studyHours.filter(h => (h || 0) > 0).length;
   }
-  const versatility = Math.min(100, (subjects / 4) * 100);
+  const versatility = Math.min(100, (subjects / Math.max(1, appState.settings.columns.length)) * 100);
 
   setTxt('radarDiscipline', `${discipline}%`);
   setTxt('radarEndurance', `${endurance}%`);

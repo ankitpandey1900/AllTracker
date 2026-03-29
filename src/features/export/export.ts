@@ -5,7 +5,7 @@
  * Deduplicates the previously duplicated export code.
  */
 
-import { appState, getColumnNames } from '@/state/app-state';
+import { appState, getColumnsForDay } from '@/state/app-state';
 import { arrayToCSV, downloadFile } from '@/utils/csv.utils';
 import { generateExportTimestamp } from '@/utils/date.utils';
 import { showToast, startConfetti } from '@/utils/dom.utils';
@@ -14,19 +14,47 @@ import { showToast, startConfetti } from '@/utils/dom.utils';
 
 export function exportTrackerDataCSV(): void {
   const timestamp = generateExportTimestamp();
-  const exportData = appState.trackerData.map((day) => {
-    const cols = getColumnNames(day.day);
-    const h1 = day.pythonHours || 0, h2 = day.dsaHours || 0, h3 = day.projectHours || 0, h4 = day.col4Hours || 0;
-    return {
-      Day: day.day, Date: day.date, Col1_Name: cols.col1, Col1_Hrs: h1,
-      Col2_Name: cols.col2, Col2_Hrs: h2, Col3_Name: cols.col3, Col3_Hrs: h3,
-      Col4_Name: cols.col4, Col4_Hrs: h4, Problems: day.dsaProblems || 0,
-      Topics: (day.topics || '').replace(/\n/g, ' '), Project: (day.project || '').replace(/\n/g, ' '), Completed: day.completed ? 'Yes' : 'No',
-      Total_Hrs: (h1 + h2 + h3 + h4).toFixed(2),
-    };
+  
+  // Find the maximum number of columns across all days to normalize headers
+  let maxCols = 0;
+  appState.trackerData.forEach(d => {
+    maxCols = Math.max(maxCols, (d.studyHours || []).length);
   });
-  const headers = ['Day', 'Date', 'Col1_Name', 'Col1_Hrs', 'Col2_Name', 'Col2_Hrs', 'Col3_Name', 'Col3_Hrs', 'Col4_Name', 'Col4_Hrs', 'Problems', 'Topics', 'Project', 'Completed', 'Total_Hrs'];
-  downloadFile(arrayToCSV(exportData, headers), `tracker_data_${timestamp}.csv`);
+
+  const exportData = appState.trackerData.map((day) => {
+    const cols = getColumnsForDay(day.day);
+    const row: any = {
+      Day: day.day,
+      Date: day.date,
+      Completed: day.completed ? 'Yes' : 'No',
+      Problems_Solved: day.problemsSolved || 0,
+      Topics: (day.topics || '').replace(/\n/g, ' '),
+      Project: (day.project || '').replace(/\n/g, ' '),
+    };
+
+    let totalHrs = 0;
+    for (let i = 0; i < maxCols; i++) {
+        const catName = cols[i]?.name || `Category_${i+1}`;
+        const hrs = (day.studyHours?.[i] || 0);
+        row[`${catName}_Hrs`] = hrs;
+        totalHrs += hrs;
+    }
+    
+    row['Total_Hrs'] = totalHrs.toFixed(2);
+    return row;
+  });
+
+  // Dynamically determine headers based on the first record's keys (or max columns)
+  const baseHeaders = ['Day', 'Date', 'Completed', 'Problems_Solved'];
+  const dynamicHeaders: string[] = [];
+  const sampleCols = getColumnsForDay(1); // Use Day 1 as reference for column order if possible
+  for(let i=0; i < maxCols; i++) {
+    dynamicHeaders.push(`${sampleCols[i]?.name || `Category_${i+1}`}_Hrs`);
+  }
+  const footerHeaders = ['Topics', 'Project', 'Total_Hrs'];
+  
+  const finalHeaders = [...baseHeaders, ...dynamicHeaders, ...footerHeaders];
+  downloadFile(arrayToCSV(exportData, finalHeaders), `tracker_data_${timestamp}.csv`);
 }
 
 // ─── 2. Session Logs CSV ─────────────────────────────────────

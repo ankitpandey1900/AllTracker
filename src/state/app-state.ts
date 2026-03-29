@@ -8,10 +8,11 @@
  * library — to keep the migration straightforward.
  */
 
-import type { TrackerDay, Settings, ColumnNames, ExtraColumn } from '@/types/tracker.types';
+import type { TrackerDay, Settings, StudyCategory, CustomRange } from '@/types/tracker.types';
 import type { ActiveTimer } from '@/types/timer.types';
 import type { RoutineItem, RoutineHistory } from '@/types/routine.types';
 import type { Bookmark } from '@/types/bookmark.types';
+import type { StudyTask } from '@/types/task.types';
 import { DEFAULT_START_DATE, DEFAULT_END_DATE, DEFAULT_COLUMNS, STORAGE_KEYS } from '@/config/constants';
 
 // ─── Default Settings ────────────────────────────────────────
@@ -20,12 +21,10 @@ function createDefaultSettings(): Settings {
   return {
     startDate: DEFAULT_START_DATE.toISOString().split('T')[0],
     endDate: DEFAULT_END_DATE.toISOString().split('T')[0],
-    defaultColumns: { ...DEFAULT_COLUMNS },
-    extraColumns: [],
+    columns: [...DEFAULT_COLUMNS],
     customRanges: [],
     beastMode: false,
     unlockedBadges: [],
-    targets: { col1: 0, col2: 0, col3: 0, col4: 0 },
     sessionLogs: [],
   };
 }
@@ -54,12 +53,14 @@ export const appState = {
   routines: JSON.parse(localStorage.getItem(STORAGE_KEYS.ROUTINES) || '[]') as RoutineItem[],
 
 
-
   /** Routine completion history by date */
   routineHistory: JSON.parse(localStorage.getItem(STORAGE_KEYS.ROUTINE_HISTORY) || '{}') as RoutineHistory,
 
   /** Saved bookmarks */
   bookmarks: JSON.parse(localStorage.getItem(STORAGE_KEYS.BOOKMARKS) || '[]') as Bookmark[],
+
+  /** Study tasks (To-Do list) */
+  tasks: JSON.parse(localStorage.getItem(STORAGE_KEYS.TASKS) || '[]') as StudyTask[],
 
   /** Active study timer */
   activeTimer: createDefaultTimer(),
@@ -101,44 +102,77 @@ export function calculateDates(): void {
   appState.phase3End = appState.totalDays;
 }
 
-// ─── Column Name Resolution ──────────────────────────────────
+/** Migrates data from the old col1-4 format to the new dynamic studyHours array */
+export function migrateDataFormat(): void {
+  let modified = false;
 
-/** Returns the column names for a given day (custom range overrides first) */
-export function getColumnNames(day: number): ColumnNames {
-  for (const range of appState.settings.customRanges) {
-    if (day >= range.startDay && day <= range.endDay) {
-      return {
-        col1: range.col1 || DEFAULT_COLUMNS.col1,
-        col2: range.col2 || DEFAULT_COLUMNS.col2,
-        col3: range.col3 || DEFAULT_COLUMNS.col3,
-        col4: range.col4 || DEFAULT_COLUMNS.col4,
-      };
+  // Migration for Tracker Data
+  appState.trackerData.forEach((day: any) => {
+    // 1. Rename dsaProblems to problemsSolved
+    if ('dsaProblems' in day) {
+      day.problemsSolved = day.dsaProblems;
+      delete day.dsaProblems;
+      modified = true;
     }
+
+    // 2. Migrate named hour columns to studyHours array
+    if (!day.studyHours) {
+      const hours = [
+        day.pythonHours || 0,
+        day.dsaHours || 0,
+        day.projectHours || 0,
+        day.col4Hours || 0,
+      ];
+      if (Array.isArray(day.extraHours)) {
+        hours.push(...day.extraHours);
+      }
+      day.studyHours = hours;
+
+      // Clean up old fields
+      delete day.pythonHours;
+      delete day.dsaHours;
+      delete day.projectHours;
+      delete day.col4Hours;
+      delete day.extraHours;
+      modified = true;
+    }
+  });
+
+  // 3. Migrate Global Categories to a Default Range
+  const s = appState.settings as any;
+  if (s.columns && s.columns.length > 0 && (!s.customRanges || s.customRanges.length === 0)) {
+    // Determine the max day
+    const maxDay = appState.totalDays > 0 ? appState.totalDays : 365;
+    s.customRanges = [
+      {
+        startDay: 1,
+        endDay: maxDay,
+        columns: [...s.columns]
+      }
+    ];
+    // Keep internal columns for now to avoid breaking existing data migration, 
+    // but clear them after confirm
   }
 
-  return {
-    col1: appState.settings.defaultColumns.col1 || DEFAULT_COLUMNS.col1,
-    col2: appState.settings.defaultColumns.col2 || DEFAULT_COLUMNS.col2,
-    col3: appState.settings.defaultColumns.col3 || DEFAULT_COLUMNS.col3,
-    col4: appState.settings.defaultColumns.col4 || DEFAULT_COLUMNS.col4,
-  };
+  if (modified) {
+    console.log('Data migration to Range-Only Category Management completed.');
+  }
 }
 
-/** Returns extra columns config for a given day (custom range overrides first) */
-function getExtraColumns(day: number): ExtraColumn[] {
+/** Returns the study categories for a given day (custom range overrides first) */
+export function getColumnsForDay(day: number): StudyCategory[] {
   for (const range of appState.settings.customRanges) {
     if (day >= range.startDay && day <= range.endDay) {
-      return Array.isArray(range.extraColumns) ? range.extraColumns : [];
+      return Array.isArray(range.columns) ? range.columns : [];
     }
   }
-  return Array.isArray(appState.settings.extraColumns) ? appState.settings.extraColumns : [];
+  return []; // No range, no categories.
 }
 
-/** Returns full hour column labels (default 4 + extras) */
+/** Returns full hour column labels */
 export function getAllHourColumnLabels(day: number): string[] {
-  const base = getColumnNames(day);
-  const extras = getExtraColumns(day);
-  return [base.col1, base.col2, base.col3, base.col4, ...extras.map((c, i) => (c?.name || `Extra ${i + 1}`))];
+  const cols = getColumnsForDay(day);
+  return cols.map((c) => c.name);
 }
 
 // ─── Date Generation ─────────────────────────────────────────
@@ -159,17 +193,13 @@ function generateDates(): Date[] {
 /** Creates a fresh tracker data array for all days in the date range */
 export function initializeData(): TrackerDay[] {
   const dates = generateDates();
-  const extrasCount = (appState.settings.extraColumns || []).length;
+  const colCount = (appState.settings.columns || []).length;
   return dates.map((date, index) => ({
     day: index + 1,
     date: date.toISOString(),
-    pythonHours: 0,
-    dsaHours: 0,
-    projectHours: 0,
-    col4Hours: 0,
-    extraHours: extrasCount > 0 ? Array.from({ length: extrasCount }, () => 0) : [],
+    studyHours: Array.from({ length: colCount }, () => 0),
     topics: '',
-    dsaProblems: 0,
+    problemsSolved: 0,
     project: '',
     completed: false,
   }));

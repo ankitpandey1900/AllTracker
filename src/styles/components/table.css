@@ -1,4 +1,4 @@
-﻿.table-card { overflow: auto; padding: 0; border-radius: 16px; }
+.table-card { overflow: auto; padding: 0; border-radius: 16px; }
 
 table { width: 100%; border-collapse: collapse; }
 
@@ -37,11 +37,64 @@ th {
   min-height: 42px;
 }
 
-/* Checkbox look */
+/* Checkbox look - Modern & Premium */
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+}
+
 .completed-check {
-  width: 16px;
-  height: 16px;
-  accent-color: #6c87ff;
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.checkmark {
+  display: block;
+  width: 22px;
+  height: 22px;
+  background: rgba(13, 22, 45, 0.4);
+  border: 1.5px solid rgba(105, 128, 184, 0.35);
+  border-radius: 7px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.checkbox-container:hover .checkmark {
+  border-color: rgba(108, 135, 255, 0.6);
+  background: rgba(108, 135, 255, 0.08);
+}
+
+.completed-check:checked ~ .checkmark {
+  background: var(--success);
+  border-color: var(--success);
+  box-shadow: 0 0 12px rgba(44, 199, 160, 0.45);
+}
+
+.checkmark::after {
+  content: "";
+  position: absolute;
+  display: none;
+  left: 7px;
+  top: 3px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2.5px 2.5px 0;
+  transform: rotate(45deg) scale(0);
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.completed-check:checked ~ .checkmark::after {
+  display: block;
+  transform: rotate(45deg) scale(1);
 }
 
 /* Freeze first two columns for coder-dash feel */
@@ -99,8 +152,12 @@ tr.hidden { display: none; }
 }
 
 .topics-input, .project-input { min-height: 36px; resize: vertical; }
-.checkbox-container { display: inline-flex; align-items: center; }
-.checkmark { width: 14px; height: 14px; border: 1px solid rgba(105, 128, 184, 0.32); }
-
 .highlight-update { animation: flash-highlight 1.6s ease; }
 @keyframes flash-highlight { 0%,100% { background: transparent; } 50% { background: rgba(97,127,255,0.25); } }
+
+.no-cat-warning {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-style: italic;
+  text-align: center;
+}

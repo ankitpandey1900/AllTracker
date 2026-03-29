@@ -1,15 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>All Tracker | Neon Arena</title>
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="shortcut icon" href="/favicon.png" type="image/x-icon" />
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link rel="manifest" href="/manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Tektur:wght@400..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Tektur:wght@400..900&display=swap"
+    rel="stylesheet">
   <meta name="theme-color" content="#0b0e1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
+
 <body class="antialiased selection:bg-indigo-500/30 selection:text-white">
   <header id="appHeader" class="app-header backdrop-blur-md">
     <div class="brand">ALL TRACKER <span>ARENA</span></div>
@@ -27,6 +35,7 @@
     <nav class="tabs">
       <button class="nav-item active" data-target="dashboardPane">Dashboard</button>
       <button class="nav-item" data-target="routinePane">Routine</button>
+      <button class="nav-item" data-target="tasksPane">Tasks</button>
 
       <button class="nav-item" data-target="bookmarksPane">Bookmarks</button>
     </nav>
@@ -40,10 +49,13 @@
             <small>OF <span class="hero-total-days">-</span></small>
           </div>
         </div>
-        <p class="hero-subtitle">Day <span id="heroDayMirror">0</span> of <span class="hero-total-days">-</span> • <span id="heroStartDateMirror">Loading...</span></p>
+        <p class="hero-subtitle">Day <span id="heroDayMirror">0</span> of <span class="hero-total-days">-</span> • <span
+            id="heroStartDateMirror">Loading...</span></p>
         <div class="hero-level-row">
           <span id="levelBadge">LVL 0</span>
-          <div class="xp-track"><div id="xpFill" class="xp-fill"></div></div>
+          <div class="xp-track">
+            <div id="xpFill" class="xp-fill"></div>
+          </div>
         </div>
       </article>
 
@@ -67,8 +79,10 @@
           <div class="label">Study Rank</div>
           <div id="studyRank" class="big">IRON</div>
           <div class="rank-tier-row"><span id="rankTierText">IV</span></div>
-          <div class="meta">World rank: #40,000,000</div>
-          <div class="xp-track"><div id="rankXPBar" class="rank-fill"></div></div>
+          <div class="meta">World rank: <span id="worldRankPos">#40,000,000</span></div>
+          <div class="xp-track">
+            <div id="rankXPBar" class="rank-fill"></div>
+          </div>
         </article>
       </div>
 
@@ -95,8 +109,9 @@
         </article>
       </div>
 
-
-      <div class="row-between section-heading"><h3>Category Progress</h3></div>
+      <div class="row-between section-heading">
+        <h3>Category Progress</h3>
+      </div>
       <div id="categoryCards" class="grid-top"></div>
 
       <article class="card">
@@ -123,6 +138,7 @@
           </div>
           <div class="study-log-actions">
             <button id="quickEntryBtn" class="btn">Quick Entry</button>
+            <button id="jumpToTodayBtn" class="btn">Go to Today</button>
             <button id="historyBtn" class="btn">History</button>
             <button id="heatmapViewBtn" class="btn">Heatmap</button>
             <button id="analyticsViewBtn" class="btn">Analytics</button>
@@ -152,7 +168,7 @@
               <th>Col 2</th>
               <th>Col 3</th>
               <th>Col 4</th>
-              <th>Problems</th>
+              <th id="problemsSolvedHeader">Problems Solved</th>
               <th>Topics</th>
               <th>Project Work</th>
               <th>Done</th>
@@ -173,44 +189,77 @@
         </div>
         <div id="routineList"></div>
       </article>
-    <div class="grid-2">
-      <article class="card">
-        <div class="row-between">
-          <h2>Routine Performance</h2>
-          <div class="filter-row">
-            <select id="chartDateFilter" class="input">
-              <option value="21">Last 21 days</option>
-              <option value="60">Last 60 days</option>
-              <option value="all">All</option>
-              <option value="custom">Custom</option>
-            </select>
-            <div id="customChartRange" style="display:none;">
-              <input id="chartStartDay" class="input small" type="number" placeholder="Start day">
-              <input id="chartEndDay" class="input small" type="number" placeholder="End day">
-              <button id="applyChartFilterBtn" class="btn">Apply</button>
+      <div class="grid-2">
+        <article class="card">
+          <div class="row-between">
+            <h2>Routine Performance</h2>
+            <div class="filter-row">
+              <select id="chartDateFilter" class="input">
+                <option value="21">Last 21 days</option>
+                <option value="60">Last 60 days</option>
+                <option value="all">All</option>
+                <option value="custom">Custom</option>
+              </select>
+              <div id="customChartRange" style="display:none;">
+                <input id="chartStartDay" class="input small" type="number" placeholder="Start day">
+                <input id="chartEndDay" class="input small" type="number" placeholder="End day">
+                <button id="applyChartFilterBtn" class="btn">Apply</button>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="stats-line">
-          <span>Active Days: <strong id="habitActiveDays">0</strong></span>
-          <span>Consistency: <strong id="habitConsistency">0%</strong></span>
-        </div>
-        <div class="chart-wrap"><canvas id="performanceChart"></canvas></div>
-      </article>
+          <div class="stats-line">
+            <span>Active Days: <strong id="habitActiveDays">0</strong></span>
+            <span>Consistency: <strong id="habitConsistency">0%</strong></span>
+          </div>
+          <div class="chart-wrap"><canvas id="performanceChart"></canvas></div>
+        </article>
 
+        <article class="card">
+          <div class="row-between">
+            <h2>Arena Skill Radar</h2>
+            <div class="label">Today's Stats</div>
+          </div>
+          <div class="chart-wrap radar-wrap"><canvas id="skillRadarChart"></canvas></div>
+          <div class="stats-line mini">
+            <span>Discipline: <strong id="radarDiscipline">0%</strong></span>
+            <span>Endurance: <strong id="radarEndurance">0%</strong></span>
+          </div>
+        </article>
+      </div>
+    </section>
+    
+    <section id="tasksPane" class="view-pane">
       <article class="card">
         <div class="row-between">
-          <h2>Arena Skill Radar</h2>
-          <div class="label">Today's Stats</div>
+          <h2>Mission Control</h2>
+          <div class="task-stats">
+            <span id="backlogCount" class="badge-backlog">0 Backlog</span>
+          </div>
         </div>
-        <div class="chart-wrap radar-wrap"><canvas id="skillRadarChart"></canvas></div>
-        <div class="stats-line mini">
-          <span>Discipline: <strong id="radarDiscipline">0%</strong></span>
-          <span>Endurance: <strong id="radarEndurance">0%</strong></span>
+        
+        <div class="task-input-wrap">
+          <input id="newTaskInput" class="input" placeholder="Add a new objective (e.g., React Lec - 1)...">
+          <button id="addTaskBtn" class="btn btn-primary">Add Task</button>
+        </div>
+
+        <div class="tasks-container">
+          <div class="task-section">
+            <h3 class="section-title today-title">Today's Missions</h3>
+            <div id="todayTasksList" class="task-list"></div>
+          </div>
+
+          <div class="task-section">
+            <h3 class="section-title backlog-title">The Backlog</h3>
+            <div id="backlogTasksList" class="task-list"></div>
+          </div>
+
+          <div class="task-section">
+            <h3 class="section-title history-title">History</h3>
+            <div id="completedTasksList" class="task-list"></div>
+          </div>
         </div>
       </article>
-    </div>
-  </section>
+    </section>
 
 
 
@@ -233,8 +282,10 @@
       <div id="focusActiveTaskContainer" style="display:none;">Current Task: <span id="nowPlayingTask">--</span></div>
       <div class="ring-wrap">
         <svg class="progress-ring" width="280" height="280">
-          <circle class="progress-ring__bg" stroke="rgba(255,255,255,0.15)" stroke-width="10" fill="transparent" r="120" cx="140" cy="140"></circle>
-          <circle class="progress-ring__circle" stroke="var(--accent-purple)" stroke-width="10" fill="transparent" r="120" cx="140" cy="140"></circle>
+          <circle class="progress-ring__bg" stroke="rgba(255,255,255,0.15)" stroke-width="10" fill="transparent" r="120"
+            cx="140" cy="140"></circle>
+          <circle class="progress-ring__circle" stroke="var(--accent-purple)" stroke-width="10" fill="transparent"
+            r="120" cx="140" cy="140"></circle>
         </svg>
       </div>
       <div class="control-row">
@@ -253,7 +304,9 @@
 
   <div class="modal" id="timerModal">
     <div class="modal-content">
-      <div class="modal-header"><h2>Start Session</h2><button id="closeTimerModal" class="modal-close">&times;</button></div>
+      <div class="modal-header">
+        <h2>Start Session</h2><button id="closeTimerModal" class="modal-close">&times;</button>
+      </div>
       <div class="modal-body">
         <select id="timerCategorySelect" class="input"></select>
         <button id="confirmStartTimerBtn" class="btn btn-primary">Start Timer</button>
@@ -269,86 +322,154 @@
         <button id="closeUserManualModal" class="modal-close">&times;</button>
       </div>
       <div class="modal-body manual-body">
-        <section>
-          <h3>🚀 Welcome to the Arena!</h3>
-          <p>Bhai/Behen, agar tu yahan hai, toh matlab tere paas bohot bade goals hain par shayad thodi discipline ki kami hai. Don't worry, Yeh Neon Arena tujhe discipline sikhayega aur agar nahi sikha toh roast toh zaroor karega! 😆</p>
+        <section class="manual-section">
+          <h3>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+            🚀 Welcome to the Arena!
+          </h3>
+          <p>Bhai/Behen, agar tu yahan hai, toh matlab tere paas bohot bade goals hain par shayad thodi discipline ki
+            kami hai. Don't worry, Yeh Neon Arena tujhe discipline sikhayega aur agar nahi sikha toh roast toh zaroor
+            karega! 😆</p>
         </section>
 
-        <section>
-          <h3>🛠️ 1. Getting Started (Pehle Yeh Kar!)</h3>
+        <section class="manual-section">
+          <h3>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+            🛠️ 1. Getting Started (Pehle Yeh Kar!)
+          </h3>
           <ul>
-            <li><strong>Settings (Ctrl+,):</strong> Sabse pehle jaake apna <strong>Start Date</strong> aur <strong>End Date</strong> fix kar. Default dates pe mat chor, warna tracker tujhe hamesha 'Loading' hi dikhayega. </li>
-            <li><strong>Column Labels:</strong> 'Python', 'DSA' ye toh default hain. Agar tujhe 'Web Dev' ya 'Hacking' pasand hai, toh Settings mein jaake unhe rename karle. It's your world!</li>
-            <li><strong>Beast Mode:</strong> Isse on kar agar tujhe thori extra motivation chahiye. Neon glowing vibes milengi! 🌌</li>
+            <li><strong>Settings (Ctrl+,):</strong> Sabse pehle jaake apna <strong>Start Date</strong> aur <strong>End
+                Date</strong> fix kar. Default dates pe mat chor, warna tracker tujhe hamesha 'Loading' hi dikhayega.
+            </li>
+            <li><strong>Column Labels:</strong> 'Python', 'DSA' ye toh default hain. Agar tujhe 'Web Dev' ya 'Hacking'
+              pasand hai, toh Settings mein jaake unhe rename karle. It's your world!</li>
+            <li><strong>Beast Mode:</strong> Isse on kar agar tujhe thori extra motivation chahiye. Neon glowing vibes
+              milengi! 🌌</li>
           </ul>
         </section>
 
-        <section>
-          <h3>📝 2. Daily Tracking (Data Bharna Seekh!)</h3>
+        <section class="manual-section">
+          <h3>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+            📝 2. Daily Tracking (Data Bharna Seekh!)
+          </h3>
           <ul>
-            <li><strong>The Tracker Table:</strong> Table pe seedha click kar kisi bhi cell pe aur value likh de. Ctrl+S dabane ki zarurat nahi, auto-save hota hai. Smart hai bro!</li>
-            <li><strong>Quick Entry (Ctrl+K):</strong> Agar table scroll karne mein alas aa raha hai, toh Ctrl+K daba aur jaldi se data bhar ke nikal le. </li>
-            <li><strong>Bulk Entry:</strong> Agar pura week miss kar diya (shame!), toh Bulk Entry use kar ke ek saath saare dino ka record thik karle. Par aage se mat karna! 🤨</li>
+            <li><strong>The Tracker Table:</strong> Table pe seedha click kar kisi bhi cell pe aur value likh de. Ctrl+S
+              dabane ki zarurat nahi, auto-save hota hai. Smart hai bro!</li>
+            <li><strong>Go to Today:</strong> Agar table mein kho gaye ho, toh Study Log toolbar mein <strong>"Go to Today"</strong> button dabao. Table apne aap scroll hoke aaj ke din pe aa jayega.</li>
+            <li><strong>Quick Entry (Ctrl+K):</strong> Agar table scroll karne mein alas aa raha hai, toh Ctrl+K daba
+              aur jaldi se data bhar ke nikal le. </li>
+            <li><strong>Bulk Entry:</strong> Agar pura week miss kar diya (shame!), toh Bulk Entry use kar ke ek saath
+              saare dino ka record thik karle. Par aage se mat karna! 🤨</li>
           </ul>
         </section>
 
-        <section class="highlight-section">
-          <h3>🔥 How to Use Neon Arena Like a Legend (Step-by-Step)</h3>
+        <section class="manual-section">
+          <h3>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            🦾 3. Mission Control (Specific Tasks)
+          </h3>
+          <ul>
+            <li><strong>Daily Objectives:</strong> Yeh un tasks ke liye hai jo routine ka part nahi hain (e.g., "Complete React Hooks Video").</li>
+            <li><strong>The Backlog:</strong> Agar aaj koi task reh gaya, toh kal woh apne aap <strong>Backlog</strong> mein shift ho jayega. Use khatam kar warna badge orange hi rahega!</li>
+            <li><strong>Auto-Cleanup:</strong> History ko saaf rakhne ke liye, completed tasks <strong>3 din</strong> baad apne aap delete ho jayenge. Focus on the future!</li>
+          </ul>
+        </section>
+
+        <section class="manual-section highlight-section">
+          <h3>
+             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+             🔥 How to Use Neon Arena Like a Legend (Step-by-Step)
+          </h3>
           <div class="steps-flow">
             <div class="step">
               <span class="step-num">01</span>
-              <h4>Niyat Saaf Kar (Setup)</h4>
-              <p>Sabse pehle <strong>Settings</strong> mein jaake apne dates set kar. Agar end date 2099 hai toh bhai tu amar hai kya? 💀 Realistic dates rakh aur <strong>Sync/Login</strong> zarur karle warna local storage udd gaya toh tera career bhi udd jayega.</p>
+              <div class="step-content">
+                <h4>Niyat Saaf Kar (Setup)</h4>
+                <p>Sabse pehle <strong>Settings</strong> mein jaake apne dates set kar. Agar end date 2099 hai toh bhai tu
+                  amar hai kya? 💀 Realistic dates rakh aur <strong>Sync/Login</strong> zarur karle warna local storage
+                  udd gaya toh tera career bhi udd jayega.</p>
+              </div>
             </div>
             <div class="step">
               <span class="step-num">02</span>
-              <h4>Morning Rituals (Routine)</h4>
-              <p>Din shuru hote hi <strong>Routine</strong> tab pe ja. Wahan tere daily tasks (Exercise, Meditation, etc.) wait kar rahe hain. Unpe checkmark lagana shuru kar. Productivity ka nasha yahin se shuru hoga!</p>
+              <div class="step-content">
+                <h4>Morning Rituals (Routine)</h4>
+                <p>Din shuru hote hi <strong>Routine</strong> tab pe ja. Wahan tere daily tasks (Exercise, Meditation,
+                  etc.) wait kar rahe hain. Unpe checkmark lagana shuru kar. Productivity ka nasha yahin se shuru hoga!
+                </p>
+              </div>
             </div>
             <div class="step">
               <span class="step-num">03</span>
-              <h4>Deep Work Mode (Timer)</h4>
-              <p>Jab padhne baitho toh <strong>Start Timer</strong> button dabao. Category select kar aur phone ko fek de. Jab tak timer chal raha hai, tu duniya ke liye gayab hai. Focus kar, distract mat ho.</p>
+              <div class="step-content">
+                <h4>Deep Work Mode (Timer)</h4>
+                <p>Jab padhne baitho toh <strong>Start Timer</strong> button dabao. Category select kar aur phone ko fek
+                  de. Jab tak timer chal raha hai, tu duniya ke liye gayab hai. Focus kar, distract mat ho.</p>
+              </div>
             </div>
             <div class="step">
               <span class="step-num">04</span>
-              <h4>Log the Grind (Entry)</h4>
-              <p>Padhai khatam? Ab <strong>Quick Entry</strong> (Ctrl+K) khol. Kitne ghante padha, kitne problems solve kiye, aur kya topics cover kiye—sab likh. Topic mein "Padh liya" mat likhna, details likh taaki baad mein revision mein kaam aaye.</p>
+              <div class="step-content">
+                <h4>Log the Grind (Entry)</h4>
+                <p>Padhai khatam? Ab <strong>Quick Entry</strong> (Ctrl+K) khol. Kitne ghante padha, kitne problems solve
+                  kiye, aur kya topics cover kiye—sab likh. Topic mein "Padh liya" mat likhna, details likh taaki baad
+                  mein revision mein kaam aaye.</p>
+              </div>
             </div>
             <div class="step">
               <span class="step-num">05</span>
-              <h4>Mirror Check (Review)</h4>
-              <p>Hafte ke end mein <strong>Heatmap</strong> (Ctrl+H) aur <strong>Analytics</strong> khol ke dekh. Agar chart niche ja raha hai toh mirror mein dekh ke khud ko do-char gaali de aur agle hafte backup kar. 📈</p>
+              <div class="step-content">
+                <h4>Mirror Check (Review)</h4>
+                <p>Hafte ke end mein <strong>Heatmap</strong> (Ctrl+H) aur <strong>Analytics</strong> khol ke dekh. Agar
+                  chart niche ja raha hai toh mirror mein dekh ke khud ko do-char gaali de aur agle hafte backup kar. 📈
+                </p>
+              </div>
             </div>
           </div>
         </section>
 
-        <section>
-          <h3>⌨️ 3. Keyboard Shortcuts (Pro Level!)</h3>
+        <section class="manual-section">
+          <h3>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            ⌨️ 4. Keyboard Shortcuts (Pro Level!)
+          </h3>
           <div class="shortcuts-grid">
             <div class="shortcut-item"><code>Ctrl + K</code> <span>Quick Entry (Aaj ka ya purana data)</span></div>
             <div class="shortcut-item"><code>Ctrl + T</code> <span>Today's Entry (Seedha aaj ka status)</span></div>
             <div class="shortcut-item"><code>Ctrl + H</code> <span>Heatmap (Dekh kitna green hua hai table)</span></div>
             <div class="shortcut-item"><code>Ctrl + W</code> <span>Weekly Summary (Pura week kitna padha?)</span></div>
-            <div class="shortcut-item"><code>Ctrl + ,</code> <span>Settings (Dates aur Labels badalne ke liye)</span></div>
+            <div class="shortcut-item"><code>Ctrl + ,</code> <span>Settings (Dates aur Labels badalne ke liye)</span>
+            </div>
             <div class="shortcut-item"><code>Ctrl + F</code> <span>Search (Purana data dhundne ke liye)</span></div>
             <div class="shortcut-item"><code>Esc</code> <span>Close Modal (Bas band kar de modals!)</span></div>
           </div>
         </section>
 
-        <section>
-          <h3>📊 4. Analytics & Motivation</h3>
-          <p>Dashboard pe charts aur badges dekhte rehna. Agar <strong>"Study Output Trends"</strong> niche ja raha hai, toh bhai/behen, phone band kar aur padhne baith. 📉</p>
-          <p><strong>Badges:</strong> Ye achievements tere self-respect ke liye hain. Sab unlock kar aur proud feel kar!</p>
+        <section class="manual-section">
+          <h3>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
+            📊 5. Analytics & World Ranking
+          </h3>
+          <p>Dashboard pe charts aur badges dekhte rehna. Agar <strong>"Study Output Trends"</strong> niche ja raha hai,
+            toh bhai/behen, phone band kar aur padhne baith. 📉</p>
+          <p><strong>World Ranking:</strong> Tu akela nahi hai! Tera <strong>#Rank</strong> dikhata hai ki tu duniya ke 40 million students mein kahan khada hai. Jitna padhega, utna rank #1 ke kareeb jayega.</p>
+          <p><strong>Badges:</strong> Ye achievements tere self-respect ke liye hain. Sab unlock kar aur proud feel kar!
+          </p>
         </section>
 
-        <section>
-          <h3>☁️ 5. Cloud Sync (Data Bachao!)</h3>
-          <p>Agar tu chahta hai ki tera data browser crash hone pe bhi safe rahe, toh <strong>Sync / Login</strong> button pe click kar. Supabase se connect ho ja aur chain ki neend so. 😴</p>
+        <section class="manual-section">
+          <h3>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11l5 4V15z"></path></svg>
+            ☁️ 6. Cloud Sync (Data Bachao!)
+          </h3>
+          <p>Agar tu chahta hai ki tera data browser crash hone pe bhi safe rahe, toh <strong>Sync / Login</strong>
+            button pe click kar. Supabase se connect ho ja aur chain ki neend so. 😴</p>
         </section>
 
         <div class="manual-footer highlight">
-          <p><strong>Pro Tip:</strong> Roz table ko 'green' dekhne ki koshish kar. Consistency hi tujhe legend banayegi. Ab jaake padh le bsdk! ❤️</p>
+          <p><strong>Pro Tip:</strong> Roz table ko 'green' dekhne ki koshish kar. Consistency hi tujhe legend banayegi.
+            Ab jaake padh le ❤️</p>
         </div>
       </div>
     </div>
@@ -356,11 +477,15 @@
 
   <div class="modal" id="settingsModal">
     <div class="modal-content wide">
-      <div class="modal-header"><h2>Settings</h2><button id="closeSettingsModal" class="modal-close">&times;</button></div>
+      <div class="modal-header">
+        <h2>Settings</h2><button id="closeSettingsModal" class="modal-close">&times;</button>
+      </div>
       <div class="modal-body">
         <div class="settings-section">
           <div class="settings-card">
-            <div class="settings-card-header"><h4>Date Range</h4></div>
+            <div class="settings-card-header">
+              <h4>Date Range</h4>
+            </div>
             <div class="range-grid">
               <div class="settings-group">
                 <label>Start Date</label>
@@ -373,48 +498,25 @@
             </div>
             <button id="applyDateSettings" class="btn btn-primary w-full">Apply Dates</button>
           </div>
-
-          <div class="settings-card">
-            <div class="settings-card-header"><h4>Default Columns & Targets</h4></div>
-            <div class="range-columns-grid">
-              <div class="settings-group-row">
-                <div class="settings-group"><label>Column 1</label><input id="col1Default" class="settings-input" placeholder="e.g., Coding"></div>
-                <div class="settings-group"><label>Target</label><input id="col1Target" class="settings-input" type="number" min="0"></div>
-              </div>
-              <div class="settings-group-row">
-                <div class="settings-group"><label>Column 2</label><input id="col2Default" class="settings-input" placeholder="e.g., Research"></div>
-                <div class="settings-group"><label>Target</label><input id="col2Target" class="settings-input" type="number" min="0"></div>
-              </div>
-              <div class="settings-group-row">
-                <div class="settings-group"><label>Column 3</label><input id="col3Default" class="settings-input" placeholder="e.g., Reading"></div>
-                <div class="settings-group"><label>Target</label><input id="col3Target" class="settings-input" type="number" min="0"></div>
-              </div>
-              <div class="settings-group-row">
-                <div class="settings-group"><label>Column 4</label><input id="col4Default" class="settings-input" placeholder="e.g., Fitness"></div>
-                <div class="settings-group"><label>Target</label><input id="col4Target" class="settings-input" type="number" min="0"></div>
-              </div>
-            </div>
-          </div>
         </div>
+
         <div class="settings-section">
           <div class="row-between section-heading" style="margin-top:10px;">
-            <h3>Extra Columns (Optional)</h3>
-            <button id="addExtraColumnBtn" class="btn btn-primary">+ Add Column</button>
-          </div>
-          <div id="extraColumnsList"></div>
-          
-          <div class="row-between section-heading" style="margin-top:20px;">
-            <h3>Custom Ranges</h3>
-            <button id="addCustomRangeBtn" class="btn btn-primary">+ Add Range</button>
+            <h3>Range-Based Category Management</h3>
+            <button id="addCustomRangeBtn" class="btn btn-primary">+ Add New Study Phase (Range)</button>
           </div>
           <div id="customRangesList"></div>
-          
+        </div>
+
+        <div class="settings-section">
           <div class="row-between section-heading" style="margin-top:20px;">
             <div class="settings-group" style="flex-direction: row; align-items: center; gap: 10px;">
-              <input id="beastModeToggle" type="checkbox" style="width:18px; height:18px; accent-color:var(--accent-blue);">
+              <input id="beastModeToggle" type="checkbox"
+                style="width:18px; height:18px; accent-color:var(--accent-blue);">
               <label for="beastModeToggle" style="margin:0; cursor:pointer;">Beast Mode</label>
             </div>
-            <button id="applyColumnSettings" class="btn btn-primary" style="padding: 12px 30px;">Apply All Changes</button>
+            <button id="applyColumnSettings" class="btn btn-primary" style="padding: 12px 30px;">Apply All
+              Changes</button>
           </div>
         </div>
       </div>
@@ -423,16 +525,15 @@
 
   <div class="modal" id="quickEntryModal">
     <div class="modal-content wide">
-      <div class="modal-header"><h2>Quick Entry</h2><button id="closeQuickEntryModal" class="modal-close">&times;</button></div>
+      <div class="modal-header">
+        <h2>Quick Entry</h2><button id="closeQuickEntryModal" class="modal-close">&times;</button>
+      </div>
       <div class="modal-body">
         <h3>Single Day</h3>
         <div class="form-grid">
           <input id="quickEntryDay" class="input" type="number" min="1" placeholder="Day #">
-          <label id="quickCol1Label">Col 1 Hours:</label><input id="quickCol1" class="input" type="number" step="0.5" min="0">
-          <label id="quickCol2Label">Col 2 Hours:</label><input id="quickCol2" class="input" type="number" step="0.5" min="0">
-          <label id="quickCol3Label">Col 3 Hours:</label><input id="quickCol3" class="input" type="number" step="0.5" min="0">
-          <label id="quickCol4Label">Col 4 Hours:</label><input id="quickCol4" class="input" type="number" step="0.5" min="0">
-          <input id="quickProblems" class="input" type="number" min="0" placeholder="Problems solved">
+          <div id="quickEntryHoursGrid" class="form-grid-full"></div>
+          <input id="quickProblems" class="input" type="number" min="0" placeholder="Problems Solved">
           <input id="quickProject" class="input" placeholder="Project">
           <textarea id="quickTopics" class="input" placeholder="Topics"></textarea>
           <label><input id="quickCompleted" type="checkbox"> Completed</label>
@@ -443,10 +544,7 @@
         <div class="form-grid">
           <input id="bulkStartDay" class="input" type="number" min="1" placeholder="Start day">
           <input id="bulkEndDay" class="input" type="number" min="1" placeholder="End day">
-          <label id="bulkCol1Label">Col 1 Hours (per day):</label><input id="bulkCol1" class="input" type="number" step="0.5" min="0">
-          <label id="bulkCol2Label">Col 2 Hours (per day):</label><input id="bulkCol2" class="input" type="number" step="0.5" min="0">
-          <label id="bulkCol3Label">Col 3 Hours (per day):</label><input id="bulkCol3" class="input" type="number" step="0.5" min="0">
-          <label id="bulkCol4Label">Col 4 Hours (per day):</label><input id="bulkCol4" class="input" type="number" step="0.5" min="0">
+          <div id="bulkEntryHoursGrid" class="form-grid-full"></div>
           <label><input id="bulkCompleted" type="checkbox"> Mark completed</label>
           <button id="saveBulkEntryBtn" class="btn">Apply Bulk</button>
         </div>
@@ -462,20 +560,65 @@
 
   <div class="modal" id="weeklyModal">
     <div class="modal-content wide">
-      <div class="modal-header"><h2>Weekly Summary</h2><button id="closeWeeklyModal" class="modal-close">&times;</button></div>
+      <div class="modal-header">
+        <h2>Weekly Summary</h2><button id="closeWeeklyModal" class="modal-close">&times;</button>
+      </div>
       <div id="weeklySummaryContent" class="modal-body"></div>
     </div>
   </div>
 
   <div class="modal" id="heatmapModal">
     <div class="modal-content wide">
-      <div class="modal-header"><h2>Study Heatmap</h2><button id="closeHeatmapModal" class="modal-close">&times;</button></div>
+      <div class="modal-header">
+        <div class="row-between w-full">
+          <h2>Study Heatmap</h2>
+          <div class="row" style="gap: 15px; margin-right: 40px;">
+            <select id="heatmapYearSelect" class="btn small" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
+              <option value="2025">2025</option>
+              <option value="2026" selected>2026</option>
+              <option value="2027">2027</option>
+            </select>
+          </div>
+        </div>
+        <button id="closeHeatmapModal" class="modal-close">&times;</button>
+      </div>
       <div class="modal-body">
-        <div id="heatmapGrid" class="heatmap-grid"></div>
-        <div class="stats-line" style="margin-top:20px;">
-          <span>Total Study Days: <strong id="heatmapStudyDays">0</strong></span>
-          <span>Average Hours/Day: <strong id="heatmapAvgHours">0</strong></span>
-          <span>Best Day: <strong id="heatmapBestDay">-</strong></span>
+        <div class="heatmap-matrix-hub">
+          <!-- KPI Row -->
+          <div class="heatmap-kpi-row">
+            <div class="kpi-card">
+              <div class="label">Total Study Days</div>
+              <div id="heatmapModalStudyDays" class="value">0</div>
+            </div>
+            <div class="kpi-card highlight">
+              <div class="label">Daily Average</div>
+              <div class="value"><span id="heatmapModalAvgHours">0</span>h</div>
+            </div>
+            <div class="kpi-card shadow-gold">
+              <div class="label">Best Performance</div>
+              <div id="heatmapModalBestDay" class="value small-txt">-</div>
+            </div>
+          </div>
+
+          <!-- Grid Row -->
+          <div class="heatmap-grid-area">
+             <div id="heatmapModalMonths" class="heatmap-months"></div>
+             <div id="heatmapModalGrid" class="heatmap-grid centered-grid"></div>
+          </div>
+
+          <!-- Legend Footer -->
+          <div class="heatmap-legend-footer">
+            <div class="legend-content">
+              <span>Less</span>
+              <div class="heatmap-cell" data-level="0"></div>
+              <div class="heatmap-cell" data-level="1"></div>
+              <div class="heatmap-cell" data-level="2"></div>
+              <div class="heatmap-cell" data-level="3"></div>
+              <div class="heatmap-cell" data-level="4"></div>
+              <div class="heatmap-cell" data-level="5"></div>
+              <span>More</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -483,7 +626,9 @@
 
   <div class="modal" id="analyticsModal">
     <div class="modal-content wide" style="max-width: 1000px;">
-      <div class="modal-header"><h2>Analytics</h2><button id="closeAnalyticsModal" class="modal-close">&times;</button></div>
+      <div class="modal-header">
+        <h2>Analytics</h2><button id="closeAnalyticsModal" class="modal-close">&times;</button>
+      </div>
       <div class="modal-body">
         <div class="grid-2">
           <article class="card">
@@ -507,7 +652,9 @@
 
   <div class="modal" id="badgesModal">
     <div class="modal-content wide">
-      <div class="modal-header"><h2>Earned Badges</h2><button id="closeBadgesModal" class="modal-close">&times;</button></div>
+      <div class="modal-header">
+        <h2>Earned Badges</h2><button id="closeBadgesModal" class="modal-close">&times;</button>
+      </div>
       <div class="modal-body">
         <div id="badgeGrid" class="badge-grid"></div>
       </div>
@@ -516,10 +663,19 @@
 
   <div class="modal" id="historyModal">
     <div class="modal-content wide">
-      <div class="modal-header"><h2>Session History</h2><button id="closeHistoryModal" class="modal-close">&times;</button></div>
+      <div class="modal-header">
+        <h2>Session History</h2><button id="closeHistoryModal" class="modal-close">&times;</button>
+      </div>
       <div class="modal-body">
         <table>
-          <thead><tr><th>Date</th><th>Time</th><th>Category</th><th>Hours</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Category</th>
+              <th>Hours</th>
+            </tr>
+          </thead>
           <tbody id="recentSessionsBody"></tbody>
         </table>
       </div>
@@ -528,7 +684,9 @@
 
   <div class="modal" id="importModal">
     <div class="modal-content wide">
-      <div class="modal-header"><h2>Import Data</h2><button id="closeImportModal" class="modal-close">&times;</button></div>
+      <div class="modal-header">
+        <h2>Import Data</h2><button id="closeImportModal" class="modal-close">&times;</button>
+      </div>
       <div class="modal-body">
         <h3>Import JSON</h3>
         <textarea id="importJsonData" class="input" rows="6" placeholder="Paste tracker JSON array"></textarea>
@@ -542,7 +700,9 @@
 
   <div class="modal" id="routineModal">
     <div class="modal-content">
-      <div class="modal-header"><h2>Add New Routine Item</h2><button id="closeRoutineModal" class="modal-close">&times;</button></div>
+      <div class="modal-header">
+        <h2>Add New Routine Item</h2><button id="closeRoutineModal" class="modal-close">&times;</button>
+      </div>
       <div class="modal-body">
         <input id="routineTitleInput" class="input" placeholder="Title">
         <input id="routineTimeInput" class="input" type="time">
@@ -556,7 +716,9 @@
 
   <div class="modal" id="bookmarkModal">
     <div class="modal-content">
-      <div class="modal-header"><h2>Add Bookmark</h2><button id="closeBookmarkModal" class="modal-close">&times;</button></div>
+      <div class="modal-header">
+        <h2>Add Bookmark</h2><button id="closeBookmarkModal" class="modal-close">&times;</button>
+      </div>
       <div class="modal-body">
         <input id="bookmarkTitleInput" class="input" placeholder="Bookmark title">
         <input id="bookmarkUrlInput" class="input" placeholder="https://...">
@@ -577,7 +739,10 @@
 
   <div class="modal" id="authModal">
     <div class="modal-content">
-      <div class="modal-header"><h2 id="authModalTitle">Connect Your Sync ID</h2><button id="closeAuthModal" class="modal-close">&times;</button></div>
+      <div class="modal-header">
+        <h2 id="authModalTitle">Connect Your Sync ID</h2><button id="closeAuthModal"
+          class="modal-close">&times;</button>
+      </div>
       <div class="modal-body">
         <form id="authForm">
           <input id="syncIdInput" class="input" placeholder="Enter Sync ID">
@@ -592,4 +757,5 @@
   </div>
   <script type="module" src="/src/main.ts"></script>
 </body>
+
 </html>

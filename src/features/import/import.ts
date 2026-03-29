@@ -58,10 +58,12 @@ export function importFromCSV(): void {
       const completedIdx = headers.indexOf('Completed');
 
       const findCol = (patterns: string[]) => headers.findIndex((h) => patterns.some((p) => h.includes(p)));
-      const col1Idx = findCol(['Col1_Hrs', 'Python Hours', 'Column 1']);
-      const col2Idx = findCol(['Col2_Hrs', 'DSA Hours', 'Column 2']);
-      const col3Idx = findCol(['Col3_Hrs', 'Project Hours', 'Column 3']);
-      const col4Idx = findCol(['Col4_Hrs', 'College', 'Column 4']);
+      const hourColIndices = [
+        findCol(['Col1_Hrs', 'Python Hours', 'Column 1']),
+        findCol(['Col2_Hrs', 'DSA Hours', 'Column 2']),
+        findCol(['Col3_Hrs', 'Project Hours', 'Column 3']),
+        findCol(['Col4_Hrs', 'College', 'Column 4'])
+      ];
       const topicsIdx = headers.indexOf('Topics') !== -1 ? headers.indexOf('Topics') : headers.indexOf('Topics Studied');
       const projectIdx = headers.indexOf('Project') !== -1 ? headers.indexOf('Project') : headers.indexOf('Project Worked On');
       const problemsIdx = headers.indexOf('Problems') !== -1 ? headers.indexOf('Problems') : headers.indexOf('DSA Problems Solved');
@@ -77,14 +79,14 @@ export function importFromCSV(): void {
         let date = new Date();
         if (dateIdx !== -1 && values[dateIdx]) date = new Date(values[dateIdx]);
 
+        const studyHours = hourColIndices.map(idx => (idx !== -1 ? parseFloat(values[idx]) || 0 : 0));
+
         imported.push({
-          day, date: date.toISOString(),
-          pythonHours: col1Idx !== -1 ? parseFloat(values[col1Idx]) || 0 : 0,
-          dsaHours: col2Idx !== -1 ? parseFloat(values[col2Idx]) || 0 : 0,
-          projectHours: col3Idx !== -1 ? parseFloat(values[col3Idx]) || 0 : 0,
-          col4Hours: col4Idx !== -1 ? parseFloat(values[col4Idx]) || 0 : 0,
+          day, 
+          date: date.toISOString(),
+          studyHours,
           topics: topicsIdx !== -1 ? values[topicsIdx] || '' : '',
-          dsaProblems: problemsIdx !== -1 ? parseInt(values[problemsIdx]) || 0 : 0,
+          problemsSolved: problemsIdx !== -1 ? parseInt(values[problemsIdx]) || 0 : 0,
           project: projectIdx !== -1 ? values[projectIdx] || '' : '',
           completed: completedIdx !== -1 ? values[completedIdx]?.toLowerCase() === 'yes' : false,
         });

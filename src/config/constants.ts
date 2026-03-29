@@ -5,7 +5,7 @@
  * column names, and badge definitions.
  */
 
-import type { Badge, ColumnNames, TrackerDay } from '@/types/tracker.types';
+import type { Badge, TrackerDay } from '@/types/tracker.types';
 
 // ─── Storage Keys ────────────────────────────────────────────
 
@@ -21,6 +21,7 @@ export const STORAGE_KEYS = {
   DEADLINE: 'trackerDeadline',
   DEADLINE_TITLE: 'trackerDeadlineTitle',
   SESSION_GOAL: 'trackerSessionGoal',
+  TASKS: 'studyTrackerTasks',
 } as const;
 
 // ─── Default Dates ───────────────────────────────────────────
@@ -30,12 +31,12 @@ export const DEFAULT_END_DATE = new Date('2026-12-31');
 
 // ─── Default Column Names ────────────────────────────────────
 
-export const DEFAULT_COLUMNS: ColumnNames = {
-  col1: 'Python',
-  col2: 'DSA',
-  col3: 'Python(2)',
-  col4: 'College/Backends',
-};
+export const DEFAULT_COLUMNS = [
+  { name: 'Python',           target: 100 },
+  { name: 'DSA',              target: 150 },
+  { name: 'Python(2)',        target: 80 },
+  { name: 'College/Backends', target: 200 },
+];
 
 // ─── Supabase Table Names ────────────────────────────────────
 
@@ -72,12 +73,7 @@ function getStreak(data: TrackerDay[]): number {
 function getTotalHours(data: TrackerDay[]): number {
   return data.reduce(
     (sum, day) =>
-      sum
-      + (day.pythonHours || 0)
-      + (day.dsaHours || 0)
-      + (day.projectHours || 0)
-      + (day.col4Hours || 0)
-      + (Array.isArray(day.extraHours) ? day.extraHours.reduce((s, n) => s + (n || 0), 0) : 0),
+      sum + (Array.isArray(day.studyHours) ? day.studyHours.reduce((s, n) => s + (n || 0), 0) : 0),
     0,
   );
 }
@@ -86,12 +82,7 @@ function hasWeekendStudy(data: TrackerDay[]): boolean {
   return data.some((d) => {
     const date = new Date(d.date);
     const dayOfWeek = date.getDay();
-    const hours =
-      (d.pythonHours || 0)
-      + (d.dsaHours || 0)
-      + (d.projectHours || 0)
-      + (d.col4Hours || 0)
-      + (Array.isArray(d.extraHours) ? d.extraHours.reduce((s, n) => s + (n || 0), 0) : 0);
+    const hours = Array.isArray(d.studyHours) ? d.studyHours.reduce((s, n) => s + (n || 0), 0) : 0;
     return (dayOfWeek === 0 || dayOfWeek === 6) && hours > 0;
   });
 }
@@ -152,11 +143,7 @@ export const TIER_TITLES: Record<string, string[]> = {
 
 /** Maps CSS class names to TrackerDay property names (for table inputs) */
 export const NUMBER_FIELD_MAP: Record<string, keyof TrackerDay> = {
-  'python-hours':  'pythonHours',
-  'dsa-hours':     'dsaHours',
-  'project-hours': 'projectHours',
-  'col4-hours':    'col4Hours',
-  'dsa-problems':  'dsaProblems',
+  'topics-solved': 'problemsSolved',
 };
 
 

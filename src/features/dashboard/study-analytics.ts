@@ -28,14 +28,11 @@ function renderStudyTrendChart(): void {
     const dateObj = new Date(dayData.date);
     const dateLabel = dateObj.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
     
-    const dayHours = 
-      (dayData.pythonHours || 0) +
-      (dayData.dsaHours || 0) +
-      (dayData.projectHours || 0) +
-      (dayData.col4Hours || 0) +
-      (Array.isArray(dayData.extraHours) ? dayData.extraHours.reduce((s, n) => s + (n || 0), 0) : 0);
+    const dayHours = Array.isArray(dayData.studyHours) 
+      ? dayData.studyHours.reduce((s, n) => s + (n || 0), 0) 
+      : 0;
 
-    const dayProblems = dayData.dsaProblems || 0;
+    const dayProblems = dayData.problemsSolved || 0;
 
     labels.push(dateLabel);
     hoursData.push(dayHours);
@@ -159,15 +156,10 @@ function renderSubjectRadarChart(): void {
   const totals: number[] = new Array(columnLabels.length).fill(0);
 
   chartData.forEach(dayData => {
-    totals[0] += (dayData.pythonHours || 0);
-    totals[1] += (dayData.dsaHours || 0);
-    totals[2] += (dayData.projectHours || 0);
-    totals[3] += (dayData.col4Hours || 0);
-    
-    if (Array.isArray(dayData.extraHours)) {
-      dayData.extraHours.forEach((val, idx) => {
-        if (totals.length > 4 + idx) {
-          totals[4 + idx] += (val || 0);
+    if (Array.isArray(dayData.studyHours)) {
+      dayData.studyHours.forEach((val, idx) => {
+        if (totals.length > idx) {
+          totals[idx] += (val || 0);
         }
       });
     }

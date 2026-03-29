@@ -8,12 +8,14 @@
  *  - Daily target progress cards
  */
 
-import { appState, getAllHourColumnLabels, getColumnNames } from '@/state/app-state';
+import { appState, getAllHourColumnLabels, getColumnsForDay } from '@/state/app-state';
 import { RANK_TIERS, TIER_TITLES } from '@/config/constants';
 import { setTxt } from '@/utils/dom.utils';
 import { formatDate } from '@/utils/date.utils';
 import type { RankDetails } from '@/types/tracker.types';
 import { renderStudyAnalytics } from './study-analytics';
+
+const formatNum = (num: number) => new Intl.NumberFormat().format(num);
 
 // ─── XP & Level System ───────────────────────────────────────
 
@@ -74,6 +76,7 @@ function getRank(totalHours: number): RankDetails {
         worldPos,
         tierXP,
         level,
+        absolutePos: Math.floor(40000000 / (1 + Math.pow(totalHours / 20, 1.6))),
       };
     }
   }
@@ -90,6 +93,7 @@ function getRank(totalHours: number): RankDetails {
     worldPos: 'Top 0.01%',
     tierXP: 100,
     level: 50,
+    absolutePos: 1,
   };
 }
 
@@ -140,13 +144,17 @@ export function updateDashboard(): void {
   // Re-implementing based on original logic for now, as calculateStats/calculateLevel are not provided.
   let totalHours = 0;
   let completedDays = 0;
+  let studyDays = 0;
+  
   for (const day of data) {
-    totalHours += day.pythonHours + day.dsaHours + day.projectHours + day.col4Hours + (Array.isArray(day.extraHours) ? day.extraHours.reduce((s, n) => s + (n || 0), 0) : 0);
+    const dayTotal = Array.isArray(day.studyHours) ? day.studyHours.reduce((s, n) => s + (n || 0), 0) : 0;
+    totalHours += dayTotal;
     if (day.completed) completedDays++;
+    if (dayTotal > 0) studyDays++;
   }
+  
   const streak = calculateStreak();
-  const completionRate = completedDays > 0 ? (completedDays / appState.totalDays) * 100 : 0;
-  const studyDays = data.filter((d) => (d.pythonHours + d.dsaHours + d.projectHours + d.col4Hours + (Array.isArray(d.extraHours) ? d.extraHours.reduce((s, n) => s + (n || 0), 0) : 0)) > 0).length;
+  const completionRate = completedDays > 0 ? (completedDays / (appState.totalDays || 1)) * 100 : 0;
   const avgHoursPerStudyDay = studyDays > 0 ? totalHours / studyDays : 0;
 
   const xpData = calculateXP(totalHours);
@@ -177,6 +185,7 @@ export function updateDashboard(): void {
   setTxt('consistencyStat', `${Math.round(completionRate)}%`);
   setTxt('bestStreakStat', streak);
   setTxt('startDateLabel', `Start: ${formatDate(appState.startDate)}`);
+  setTxt('worldRankPos', `#${formatNum(rankData.absolutePos || 40000000)}`);
 
   const estimatedFinish = calculateEstimatedFinishDate(today.day, completedDays);
   setTxt('estimatedFinishDate', estimatedFinish);
@@ -245,28 +254,24 @@ function calculateEstimatedFinishDate(currentDayNumber: number, completedDays: n
   return formatDate(eta);
 }
 
-function renderSectorTokens(today: any): void { // Changed type to 'any' as TrackerDay is not defined here
+function renderSectorTokens(today: any): void {
   const container = document.getElementById('categoryCards');
   if (!container) return;
 
-  const labels = getAllHourColumnLabels(today.day);
+  const currentCols = appState.settings.columns || [];
   const totals = appState.trackerData.reduce(
     (acc, d) => {
-      acc.col1 += d.pythonHours;
-      acc.col2 += d.dsaHours;
-      acc.col3 += d.projectHours;
-      acc.col4 += d.col4Hours;
-      if (Array.isArray(d.extraHours)) {
-        d.extraHours.forEach((v, i) => {
-          acc.extras[i] = (acc.extras[i] || 0) + (v || 0);
+      if (Array.isArray(d.studyHours)) {
+        d.studyHours.forEach((v, i) => {
+          acc.studyHours[i] = (acc.studyHours[i] || 0) + (v || 0);
         });
       }
-      acc.problems += d.dsaProblems;
+      acc.problems += (d.problemsSolved || 0);
       return acc;
     },
-    { col1: 0, col2: 0, col3: 0, col4: 0, extras: [] as number[], problems: 0 },
+    { studyHours: [] as number[], problems: 0 },
   );
-  const targets = appState.settings.targets || {};
+
   const daysElapsed = Math.max(1, today.day);
   const estimateTargetDate = (total: number, target: number): string => {
     if (target <= 0) return '-';
@@ -282,60 +287,24 @@ function renderSectorTokens(today: any): void { // Changed type to 'any' as Trac
   };
 
   const accentCycle = ['accent-teal', 'accent-blue', 'accent-purple', 'accent-gold', 'accent-red'];
-  const baseCats = [
-    {
-      label: labels[0] || 'Col 1',
-      value: totals.col1,
-      target: targets.col1 || 0,
-      accent: accentCycle[0],
-      detail: `${totals.col1.toFixed(1)} / ${(targets.col1 || 0).toFixed(0)} hrs`,
-      finish: estimateTargetDate(totals.col1, targets.col1 || 0),
-    },
-    {
-      label: labels[1] || 'Col 2',
-      value: totals.col2,
-      target: targets.col2 || 0,
-      accent: accentCycle[1],
-      detail: `${totals.col2.toFixed(1)} / ${(targets.col2 || 0).toFixed(0)} hrs`,
-      finish: estimateTargetDate(totals.col2, targets.col2 || 0),
-    },
-    {
-      label: labels[2] || 'Col 3',
-      value: totals.col3,
-      target: targets.col3 || 0,
-      accent: accentCycle[2],
-      detail: `${totals.col3.toFixed(1)} / ${(targets.col3 || 0).toFixed(0)} hrs`,
-      finish: estimateTargetDate(totals.col3, targets.col3 || 0),
-    },
-    {
-      label: labels[3] || 'Col 4',
-      value: totals.col4,
-      target: targets.col4 || 0,
-      accent: accentCycle[3],
-      detail: `${totals.col4.toFixed(1)} / ${(targets.col4 || 0).toFixed(0)} hrs`,
-      finish: estimateTargetDate(totals.col4, targets.col4 || 0),
-    },
-  ];
-
-  const extraTargets = (appState.settings.extraColumns || []).map((c) => c.target || 0);
-  const extraCats = totals.extras.map((v, i) => {
-    const t = extraTargets[i] || 0;
-    const label = labels[i + 4] || `Extra ${i + 1}`;
+  
+  const studyCats = currentCols.map((col, i) => {
+    const total = totals.studyHours[i] || 0;
+    const target = col.target || 0;
     return {
-      label,
-      value: v,
-      target: t,
-      accent: accentCycle[(i + 4) % accentCycle.length],
-      detail: `${v.toFixed(1)} / ${t.toFixed(0)} hrs`,
-      finish: estimateTargetDate(v, t),
+      label: col.name,
+      value: total,
+      target: target,
+      accent: accentCycle[i % accentCycle.length],
+      detail: `${total.toFixed(1)} / ${target.toFixed(0)} hrs`,
+      finish: estimateTargetDate(total, target),
     };
   });
 
   const categories = [
-    ...baseCats,
-    ...extraCats,
+    ...studyCats,
     {
-      label: 'DSA Problems',
+      label: 'Problems Solved',
       value: totals.problems,
       target: 0,
       accent: 'accent-red',
@@ -347,7 +316,7 @@ function renderSectorTokens(today: any): void { // Changed type to 'any' as Trac
   container.innerHTML = categories.map(cat => `
     <div class="zen-card metric-item category-progress-card ${cat.accent}" style="flex: 1;">
       <span class="label-caps">${cat.label}</span>
-      <div class="metric-value">${typeof cat.value === 'number' ? cat.value.toFixed(cat.label === 'DSA Problems' ? 0 : 1) : cat.value}</div>
+      <div class="metric-value">${typeof cat.value === 'number' ? cat.value.toFixed(cat.label === 'Problems Solved' ? 0 : 1) : cat.value}</div>
       <div class="category-progress-track-wrap">
         <div class="category-progress-track">
           <div class="category-progress-fillline" style="width:${cat.target > 0 ? Math.min(100, Math.round((cat.value / cat.target) * 100)) : Math.min(100, cat.value > 0 ? 100 : 0)}%"></div>
@@ -365,32 +334,26 @@ function renderAllocationBar(today: any, total: number): void {
   const bar = document.getElementById('allocationBar');
   if (!bar || total === 0) return;
 
-  const labels = getAllHourColumnLabels(1);
-  const values = [
-    today.pythonHours || 0,
-    today.dsaHours || 0,
-    today.projectHours || 0,
-    today.col4Hours || 0,
-    ...(Array.isArray(today.extraHours) ? today.extraHours.map((n: number) => n || 0) : []),
-  ];
+  const labels = getAllHourColumnLabels(today.day);
+  const values = today.studyHours || [];
   const palette = ['var(--zen-accent)', '#8b5cf6', '#10b981', '#64748b', '#f59e0b', '#22c55e', '#60a5fa', '#c084fc'];
 
   let segments = values
-    .map((v, i) => ({ name: labels[i] || `Col ${i + 1}`, value: v, color: palette[i % palette.length] }))
-    .filter((s) => s.value > 0);
+    .map((v: number, i: number) => ({ name: labels[i] || `Col ${i + 1}`, value: v, color: palette[i % palette.length] }))
+    .filter((s: { value: number }) => s.value > 0);
 
   // keep bar readable: show top 6, merge remainder into "Other"
   if (segments.length > 6) {
-    segments.sort((a, b) => b.value - a.value);
+    segments.sort((a: { value: number }, b: { value: number }) => b.value - a.value);
     const top = segments.slice(0, 6);
     const rest = segments.slice(6);
-    const otherVal = rest.reduce((s, x) => s + x.value, 0);
+    const otherVal = rest.reduce((s: number, x: { value: number }) => s + x.value, 0);
     if (otherVal > 0) top.push({ name: 'Other', value: otherVal, color: '#334155' });
     segments = top;
   }
 
   bar.innerHTML = segments
-    .map((s) => {
+    .map((s: { name: string; value: number; color: string }) => {
       const pct = ((s.value / total) * 100).toFixed(1);
       return `<div class="allocation-segment" style="width:${pct}%;background:${s.color}" title="${s.name}: ${s.value.toFixed(1)}h (${pct}%)"></div>`;
     })
@@ -400,10 +363,13 @@ function renderAllocationBar(today: any, total: number): void {
   const legend = document.getElementById('allocationLegend');
   if (legend) {
     legend.innerHTML = segments
-      .map(
-        (s) =>
-          `<span class="legend-item"><span class="legend-dot" style="background:${s.color}"></span>${s.name}: ${s.value.toFixed(1)}h</span>`,
-      )
+      .map((s: { name: string; value: number; color: string }) => `
+        <div class="legend-item">
+          <span class="legend-dot" style="background:${s.color}"></span>
+          <span class="legend-label">${s.name}</span>
+          <span class="legend-value">${s.value.toFixed(1)}h</span>
+        </div>
+      `)
       .join('');
   }
 }

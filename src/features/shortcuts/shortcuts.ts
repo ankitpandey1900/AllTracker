@@ -33,7 +33,7 @@ export function setupKeyboardShortcuts(): void {
 }
 
 // These are imported dynamically by main.ts and need to be importable
-import { appState, getColumnNames, initializeData } from '@/state/app-state';
+import { appState, getColumnsForDay, initializeData } from '@/state/app-state';
 import { formatDate } from '@/utils/date.utils';
 import { showToast, jumpToDayInTable } from '@/utils/dom.utils';
 import { saveTrackerDataToStorage } from '@/services/data-bridge';
@@ -45,72 +45,115 @@ import { renderPerformanceCurve } from '@/features/routines/performance-chart';
 // ─── Quick Entry ─────────────────────────────────────────────
 
 export function openQuickEntryModal(): void {
-  updateQuickEntryLabels();
-  updateBulkEntryLabels();
+  renderQuickEntryFields();
+  renderBulkEntryFields();
   document.getElementById('quickEntryModal')?.classList.add('active');
 }
 
-export function updateQuickEntryLabels(): void {
+export function renderQuickEntryFields(): void {
+  const container = document.getElementById('quickEntryHoursGrid');
+  if (!container) return;
+
   const day = parseInt((document.getElementById('quickEntryDay') as HTMLInputElement)?.value);
-  const cols = getColumnNames(day && day >= 1 ? day : 1);
-  const ids = ['quickCol1Label', 'quickCol2Label', 'quickCol3Label', 'quickCol4Label'];
-  const names = [cols.col1, cols.col2, cols.col3, cols.col4];
-  ids.forEach((id, i) => { const el = document.getElementById(id); if (el) el.textContent = `${names[i]} Hours:`; });
+  const cols = getColumnsForDay(day && day >= 1 ? day : 1);
+
+  container.innerHTML = cols.map((col, i) => `
+    <div class="row-between" style="border-bottom: 1px solid var(--border-color); padding: 5px 0;">
+      <label>${col.name}:</label>
+      <input type="number" class="input small quick-hour-input" data-idx="${i}" step="0.5" min="0" placeholder="0">
+    </div>
+  `).join('');
 }
 
-export function updateBulkEntryLabels(): void {
+export function renderBulkEntryFields(): void {
+  const container = document.getElementById('bulkEntryHoursGrid');
+  if (!container) return;
+
   const startDay = parseInt((document.getElementById('bulkStartDay') as HTMLInputElement)?.value);
-  const cols = getColumnNames(startDay && startDay >= 1 ? startDay : 1);
-  const ids = ['bulkCol1Label', 'bulkCol2Label', 'bulkCol3Label', 'bulkCol4Label'];
-  const names = [cols.col1, cols.col2, cols.col3, cols.col4];
-  ids.forEach((id, i) => { const el = document.getElementById(id); if (el) el.textContent = `${names[i]} Hours (per day):`; });
+  const cols = getColumnsForDay(startDay && startDay >= 1 ? startDay : 1);
+
+  container.innerHTML = cols.map((col, i) => `
+    <div class="row-between" style="border-bottom: 1px solid var(--border-color); padding: 5px 0;">
+      <label>${col.name} (per day):</label>
+      <input type="number" class="input small bulk-hour-input" data-idx="${i}" step="0.5" min="0" placeholder="0">
+    </div>
+  `).join('');
 }
 
 export function saveQuickEntry(): void {
   const day = parseInt((document.getElementById('quickEntryDay') as HTMLInputElement).value);
-  if (!day || day < 1 || day > appState.totalDays) { showToast(`Please enter a valid day number (1-${appState.totalDays})`, 'error'); return; }
+  if (!day || day < 1 || day > appState.totalDays) {
+    showToast(`Please enter a valid day number (1-${appState.totalDays})`, 'error');
+    return;
+  }
 
   const idx = day - 1;
-  const col1 = parseFloat((document.getElementById('quickCol1') as HTMLInputElement).value) || 0;
-  const col2 = parseFloat((document.getElementById('quickCol2') as HTMLInputElement).value) || 0;
-  const col3 = parseFloat((document.getElementById('quickCol3') as HTMLInputElement).value) || 0;
-  const col4 = parseFloat((document.getElementById('quickCol4') as HTMLInputElement).value) || 0;
+  const hourInputs = document.querySelectorAll<HTMLInputElement>('.quick-hour-input');
+  const studyHours: number[] = [];
+  hourInputs.forEach(input => {
+    const colIdx = parseInt(input.getAttribute('data-idx') || '0');
+    studyHours[colIdx] = parseFloat(input.value) || 0;
+  });
+
   const topics = (document.getElementById('quickTopics') as HTMLTextAreaElement).value.trim();
   const problems = parseInt((document.getElementById('quickProblems') as HTMLInputElement).value) || 0;
   const project = (document.getElementById('quickProject') as HTMLInputElement).value.trim();
   const completed = (document.getElementById('quickCompleted') as HTMLInputElement).checked;
 
-  if (completed && col1 === 0 && col2 === 0 && col3 === 0 && col4 === 0) { showToast('Please enter at least some study hours before marking as completed.', 'warning'); return; }
+  const totalHrs = studyHours.reduce((s, h) => s + h, 0);
+  if (completed && totalHrs === 0) {
+    showToast('Please enter at least some study hours before marking as completed.', 'warning');
+    return;
+  }
 
-  Object.assign(appState.trackerData[idx], { pythonHours: col1, dsaHours: col2, projectHours: col3, col4Hours: col4, topics, dsaProblems: problems, project, completed });
+  Object.assign(appState.trackerData[idx], {
+    studyHours,
+    topics,
+    problemsSolved: problems,
+    project,
+    completed
+  });
+
   saveTrackerDataToStorage(appState.trackerData);
   generateTable(); updateDashboard(); renderHeatmap(); renderPerformanceCurve();
   jumpToDayInTable(day);
 
-  ['quickEntryDay', 'quickCol1', 'quickCol2', 'quickCol3', 'quickCol4', 'quickTopics', 'quickProblems', 'quickProject'].forEach((id) => { (document.getElementById(id) as HTMLInputElement).value = ''; });
+  // Reset fields
+  ['quickEntryDay', 'quickProblems', 'quickProject', 'quickTopics'].forEach(id => {
+    (document.getElementById(id) as HTMLInputElement).value = '';
+  });
   (document.getElementById('quickCompleted') as HTMLInputElement).checked = false;
+  document.querySelectorAll('.quick-hour-input').forEach(inp => (inp as HTMLInputElement).value = '');
+  
   showToast(`Day ${day} updated successfully!`, 'success');
 }
 
 export function saveBulkEntry(): void {
   const startDay = parseInt((document.getElementById('bulkStartDay') as HTMLInputElement).value);
   const endDay = parseInt((document.getElementById('bulkEndDay') as HTMLInputElement).value);
-  if (!startDay || !endDay || startDay < 1 || endDay > appState.totalDays || startDay > endDay) { showToast(`Please enter a valid day range (1-${appState.totalDays})`, 'error'); return; }
+  if (!startDay || !endDay || startDay < 1 || endDay > appState.totalDays || startDay > endDay) {
+    showToast(`Please enter a valid day range (1-${appState.totalDays})`, 'error');
+    return;
+  }
 
-  const col1 = parseFloat((document.getElementById('bulkCol1') as HTMLInputElement).value) || 0;
-  const col2 = parseFloat((document.getElementById('bulkCol2') as HTMLInputElement).value) || 0;
-  const col3 = parseFloat((document.getElementById('bulkCol3') as HTMLInputElement).value) || 0;
-  const col4 = parseFloat((document.getElementById('bulkCol4') as HTMLInputElement).value) || 0;
+  const hourInputs = document.querySelectorAll<HTMLInputElement>('.bulk-hour-input');
+  const studyHours: number[] = [];
+  hourInputs.forEach(input => {
+    const colIdx = parseInt(input.getAttribute('data-idx') || '0');
+    studyHours[colIdx] = parseFloat(input.value) || 0;
+  });
+
   const completed = (document.getElementById('bulkCompleted') as HTMLInputElement).checked;
+  const totalHrs = studyHours.reduce((s, h) => s + h, 0);
 
-  if (completed && col1 === 0 && col2 === 0 && col3 === 0 && col4 === 0) { showToast('Please enter at least some study hours.', 'warning'); return; }
+  if (completed && totalHrs === 0) {
+    showToast('Please enter at least some study hours.', 'warning');
+    return;
+  }
 
   for (let d = startDay; d <= endDay; d++) {
     const i = d - 1;
-    appState.trackerData[i].pythonHours = col1;
-    appState.trackerData[i].dsaHours = col2;
-    appState.trackerData[i].projectHours = col3;
-    appState.trackerData[i].col4Hours = col4;
+    appState.trackerData[i].studyHours = [...studyHours];
     if (completed) appState.trackerData[i].completed = true;
   }
 
@@ -135,18 +178,40 @@ export function openTodayEntry(): void {
 
   const dayData = appState.trackerData[todayDay - 1];
   (document.getElementById('quickEntryDay') as HTMLInputElement).value = String(todayDay);
-  (document.getElementById('quickCol1') as HTMLInputElement).value = String(dayData.pythonHours || '');
-  (document.getElementById('quickCol2') as HTMLInputElement).value = String(dayData.dsaHours || '');
-  (document.getElementById('quickCol3') as HTMLInputElement).value = String(dayData.projectHours || '');
-  (document.getElementById('quickCol4') as HTMLInputElement).value = String(dayData.col4Hours || '');
   (document.getElementById('quickTopics') as HTMLTextAreaElement).value = dayData.topics || '';
-  (document.getElementById('quickProblems') as HTMLInputElement).value = String(dayData.dsaProblems || '');
+  (document.getElementById('quickProblems') as HTMLInputElement).value = String(dayData.problemsSolved || '');
   (document.getElementById('quickProject') as HTMLInputElement).value = dayData.project || '';
   (document.getElementById('quickCompleted') as HTMLInputElement).checked = dayData.completed || false;
 
-  updateQuickEntryLabels();
+  renderQuickEntryFields();
+  
+  // Fill hours
+  const inputs = document.querySelectorAll<HTMLInputElement>('.quick-hour-input');
+  inputs.forEach(inp => {
+    const idx = parseInt(inp.getAttribute('data-idx') || '0');
+    inp.value = String(dayData.studyHours[idx] || '');
+  });
+
   document.getElementById('quickEntryModal')?.classList.add('active');
   setTimeout(() => jumpToDayInTable(todayDay!), 100);
+}
+
+export function scrollToToday(): void {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  let todayDay: number | null = null;
+  for (let i = 0; i < appState.trackerData.length; i++) {
+    const d = new Date(appState.trackerData[i].date);
+    d.setHours(0, 0, 0, 0);
+    if (d.getTime() === today.getTime()) { todayDay = appState.trackerData[i].day; break; }
+  }
+
+  if (todayDay !== null) {
+    jumpToDayInTable(todayDay);
+  } else {
+    showToast('Today is not within the tracking range.', 'warning');
+  }
 }
 
 // ─── Weekly Summary ──────────────────────────────────────────
@@ -162,15 +227,15 @@ export function showWeeklySummary(): void {
   }
 
   content.innerHTML = weeks.map((week, wi) => {
-    const cols = getColumnNames(week[0].day);
-    const stats = {
-      completed: week.filter((d) => d.completed).length,
-      totalHours: week.reduce((s, d) => s + d.pythonHours + d.dsaHours + d.projectHours + d.col4Hours + (Array.isArray(d.extraHours) ? d.extraHours.reduce((x, n) => x + (n || 0), 0) : 0), 0),
-      col1: week.reduce((s, d) => s + d.pythonHours, 0),
-      col2: week.reduce((s, d) => s + d.dsaHours, 0),
-      col3: week.reduce((s, d) => s + d.projectHours, 0),
-      col4: week.reduce((s, d) => s + d.col4Hours, 0),
-    };
+    const cols = getColumnsForDay(week[0].day);
+    const completed = week.filter((d) => d.completed).length;
+    const totalHours = week.reduce((s, d) => s + (Array.isArray(d.studyHours) ? d.studyHours.reduce((x, n) => x + (n || 0), 0) : 0), 0);
+    
+    // Calculate totals per category
+    const categoryTotals = cols.map((col, ci) => {
+      return week.reduce((s, d) => s + (d.studyHours?.[ci] || 0), 0);
+    });
+
     return `
       <section class="weekly-card">
         <header class="weekly-card-header">
@@ -181,28 +246,18 @@ export function showWeeklySummary(): void {
         <div class="weekly-grid">
           <div class="weekly-metric">
             <div class="weekly-label">Days Completed</div>
-            <div class="weekly-value">${stats.completed}<span class="weekly-sub">/${week.length}</span></div>
+            <div class="weekly-value">${completed}<span class="weekly-sub">/${week.length}</span></div>
           </div>
           <div class="weekly-metric">
             <div class="weekly-label">Total Hours</div>
-            <div class="weekly-value">${stats.totalHours.toFixed(1)}<span class="weekly-sub">h</span></div>
+            <div class="weekly-value">${totalHours.toFixed(1)}<span class="weekly-sub">h</span></div>
           </div>
-          <div class="weekly-metric">
-            <div class="weekly-label">${cols.col1}</div>
-            <div class="weekly-value">${stats.col1.toFixed(1)}<span class="weekly-sub">h</span></div>
-          </div>
-          <div class="weekly-metric">
-            <div class="weekly-label">${cols.col2}</div>
-            <div class="weekly-value">${stats.col2.toFixed(1)}<span class="weekly-sub">h</span></div>
-          </div>
-          <div class="weekly-metric">
-            <div class="weekly-label">${cols.col3}</div>
-            <div class="weekly-value">${stats.col3.toFixed(1)}<span class="weekly-sub">h</span></div>
-          </div>
-          <div class="weekly-metric">
-            <div class="weekly-label">${cols.col4}</div>
-            <div class="weekly-value">${stats.col4.toFixed(1)}<span class="weekly-sub">h</span></div>
-          </div>
+          ${cols.map((col, ci) => `
+            <div class="weekly-metric">
+              <div class="weekly-label">${col.name}</div>
+              <div class="weekly-value">${categoryTotals[ci].toFixed(1)}<span class="weekly-sub">h</span></div>
+            </div>
+          `).join('')}
         </div>
       </section>
     `;
