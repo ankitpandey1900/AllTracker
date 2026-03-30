@@ -230,13 +230,14 @@ export async function syncDataOnLogin(): Promise<void> {
   updateSyncStatus('syncing');
 
   try {
-    const [cloudTracker, cloudSettings, cloudRoutines, cloudHistory, cloudBookmarks, cloudTasks] = await Promise.all([
+    const [cloudTracker, cloudSettings, cloudRoutines, cloudHistory, cloudBookmarks, cloudTasks, cloudTimer] = await Promise.all([
       loadTrackerDataCloud(),
       loadSettingsCloud(),
       loadRoutinesCloud(),
       loadRoutineHistoryCloud(),
       loadBookmarksCloud(),
       loadTasksCloud(),
+      loadTimerStateCloud(),
     ]);
 
     // Cloud wins if it exists
@@ -246,6 +247,7 @@ export async function syncDataOnLogin(): Promise<void> {
     if (cloudHistory) setRoutineHistory(cloudHistory, false);
     if (cloudBookmarks) setBookmarks(cloudBookmarks, false);
     if (cloudTasks) setTasks(cloudTasks, false);
+    if (cloudTimer) setTimerState(cloudTimer, false);
 
     const cloudReset = await loadRoutineResetCloud();
     if (cloudReset) setRoutineReset(cloudReset, false);

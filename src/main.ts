@@ -23,6 +23,7 @@ import {
   loadRoutinesFromStorage,
   loadRoutineHistoryFromStorage,
   loadBookmarksFromStorage,
+  loadTimerStateFromStorage,
   saveTrackerDataToStorage,
 } from "@/services/data-bridge";
 import { initSyncAuth, setupHeaderScroll } from "@/services/auth.service";
@@ -105,17 +106,20 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // 3. Load other data
-  const [routines, history, bookmarks] = await Promise.all([
+  const [routines, history, bookmarks, savedTimer] = await Promise.all([
     loadRoutinesFromStorage(),
     loadRoutineHistoryFromStorage(),
     loadBookmarksFromStorage(),
+    loadTimerStateFromStorage(),
   ]);
   appState.routines = routines;
   appState.routineHistory = history;
   appState.bookmarks = bookmarks;
 
   // 4. Load timer state
-  loadTimerState();
+  if (savedTimer) {
+    Object.assign(appState.activeTimer, savedTimer);
+  }
 
   // 5. Bootstrap UI
   generateTable();
@@ -390,12 +394,13 @@ function bindClick(id: string, handler: () => void): void {
 export async function refreshApplicationUI(): Promise<void> {
   console.log("Refreshing UI after sync...");
   try {
-    const [settings, data, routines, history, bookmarks] = await Promise.all([
+    const [settings, data, routines, history, bookmarks, timer] = await Promise.all([
       loadSettingsFromStorage(),
       loadTrackerDataFromStorage(),
       loadRoutinesFromStorage(),
       loadRoutineHistoryFromStorage(),
       loadBookmarksFromStorage(),
+      loadTimerStateFromStorage(),
     ]);
 
     if (settings) {
@@ -421,6 +426,9 @@ export async function refreshApplicationUI(): Promise<void> {
     appState.bookmarks = bookmarks;
     appState.routineHistory = history;
     appState.bookmarks = bookmarks;
+    if (timer) {
+      Object.assign(appState.activeTimer, timer);
+    }
 
     calculateDates();
     generateTable();
@@ -428,6 +436,10 @@ export async function refreshApplicationUI(): Promise<void> {
     renderPerformanceCurve();
     renderRoutine();
     renderBookmarks();
+    
+    // Resume timer UI if it was restored
+    const { resumeTimerIfNeeded } = await import('@/features/timer/timer');
+    resumeTimerIfNeeded();
 
     console.log("UI Refresh complete.");
   } catch (error) {

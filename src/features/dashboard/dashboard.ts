@@ -65,7 +65,8 @@ function getRank(totalHours: number): RankDetails {
 
       const titles = TIER_TITLES[tier.name] || ['Unknown'];
       const title = titles[divIndex] || titles[0];
-      const worldPos = `Top ${Math.max(1, Math.round(100 - (totalHours / 50) * 10))}%`;
+      const pct = Math.max(0.01, (100 * Math.exp(-totalHours / 250)));
+      const worldPos = `Top ${pct < 1 ? pct.toFixed(2) : Math.round(pct)}%`;
       const tierXP = Math.round((tierProgress / tierRange) * 100);
       const level = i * 5 + divIndex + 1;
 
@@ -149,10 +150,19 @@ export function updateDashboard(): void {
   let completedDays = 0;
   let studyDays = 0;
   
+  let maxStreak = 0;
+  let runningBest = 0;
+
   for (const day of data) {
     const dayTotal = Array.isArray(day.studyHours) ? day.studyHours.reduce((s, n) => s + (n || 0), 0) : 0;
     totalHours += dayTotal;
-    if (day.completed) completedDays++;
+    if (day.completed) {
+      completedDays++;
+      runningBest++;
+      if (runningBest > maxStreak) maxStreak = runningBest;
+    } else {
+      runningBest = 0;
+    }
     if (dayTotal > 0) studyDays++;
   }
   
@@ -180,13 +190,14 @@ export function updateDashboard(): void {
   setTxt('totalHours', `${totalHours.toFixed(1)}h`);
   setTxt('currentStreak', `${streak} DAYS`);
   setTxt('completionPercent', `${Math.round(completionRate)}%`);
+  setTxt('completedDaysCount', completedDays.toString());
   setTxt('completionPercentMirror', `${Math.round(completionRate)}%`);
   setTxt('avgHoursPerDay', avgHoursPerStudyDay.toFixed(1));
 
   setTxt('studyRank', rankData.name.toUpperCase());
   setTxt('rankTierText', rankData.division);
   setTxt('consistencyStat', `${Math.round(completionRate)}%`);
-  setTxt('bestStreakStat', streak);
+  setTxt('bestStreakStat', maxStreak.toString());
   setTxt('startDateLabel', `Start: ${formatDate(appState.startDate)}`);
   setTxt('worldRankPos', `#${formatNum(rankData.absolutePos || 40000000)}`);
 
@@ -198,7 +209,7 @@ export function updateDashboard(): void {
   // Render Sector Tokens (Category Cards)
   renderSectorTokens(today);
   
-  renderAllocationBar(today, totalHours);
+  renderAllocationBar();
   renderStudyAnalytics();
   
   // Dynamic Hero Status
@@ -208,11 +219,27 @@ export function updateDashboard(): void {
   }
 }
 
+// Cached status message — only re-randomised when the pace category changes.
+let _cachedStatusMsg = '';
+let _cachedPaceCategory = '';
+
 function getDynamicStatusMessage(currentDay: number, completedDays: number): string {
   const totalDays = appState.totalDays || 365;
   const expectedPace = currentDay / totalDays;
   const actualPace = completedDays / totalDays;
   const diff = actualPace - expectedPace;
+
+  // Determine which bucket this sits in
+  let category: string;
+  if (diff < -0.05)  category = 'behind';
+  else if (diff > 0.10) category = 'ahead-high';
+  else if (diff > 0)    category = 'ahead-low';
+  else                  category = 'steady';
+
+  // Return the cached message if the pace category hasn't changed
+  if (category === _cachedPaceCategory && _cachedStatusMsg) {
+    return _cachedStatusMsg;
+  }
 
   const taunts = [
     "The clock is ticking. Get moving!",
@@ -239,10 +266,15 @@ function getDynamicStatusMessage(currentDay: number, completedDays: number): str
     "God tier discipline. Unstoppable!"
   ];
 
-  if (diff < -0.05) return taunts[Math.floor(Math.random() * taunts.length)];
-  if (diff > 0.10) return appreciation[Math.floor(Math.random() * appreciation.length)];
-  if (diff > 0) return appreciation[Math.floor(Math.random() * 3)]; // Lower tier appreciation
-  return steady[Math.floor(Math.random() * steady.length)];
+  let msg: string;
+  if (category === 'behind')    msg = taunts[Math.floor(Math.random() * taunts.length)];
+  else if (category === 'ahead-high') msg = appreciation[Math.floor(Math.random() * appreciation.length)];
+  else if (category === 'ahead-low')  msg = appreciation[Math.floor(Math.random() * 3)];
+  else                                msg = steady[Math.floor(Math.random() * steady.length)];
+
+  _cachedPaceCategory = category;
+  _cachedStatusMsg = msg;
+  return msg;
 }
 
 function calculateEstimatedFinishDate(currentDayNumber: number, completedDays: number): string {
@@ -331,19 +363,32 @@ function renderSectorTokens(today: any): void {
   `).join('');
 }
 
-function renderAllocationBar(today: any, _totalAllTime: number): void {
+function renderAllocationBar(): void {
   const bar = document.getElementById('allocationBar');
   if (!bar) return;
 
-  const labels = getAllHourColumnLabels(today.day);
-  const values: number[] = today.studyHours || [];
+  const currentCols = appState.settings.columns || [];
+  const labels = currentCols.map(c => c.name);
+  
+  const values = appState.trackerData.reduce(
+    (acc, d) => {
+      if (Array.isArray(d.studyHours)) {
+        d.studyHours.forEach((v, i) => {
+          acc[i] = (acc[i] || 0) + (v || 0);
+        });
+      }
+      return acc;
+    },
+    [] as number[]
+  );
+
   const palette = ['#6a8fff', '#8b5cf6', '#10b981', '#f59e0b', '#22c55e', '#60a5fa', '#c084fc', '#f43f5e'];
 
   let segments = values
     .map((v: number, i: number) => ({ name: labels[i] || `Col ${i + 1}`, value: v, color: palette[i % palette.length] }))
     .filter((s: { value: number }) => s.value > 0);
 
-  // If today has no study data, show overall completion progress bar
+  // If no study data at all, show overall completion progress bar
   if (segments.length === 0) {
     const completedDays = appState.trackerData.filter(d => d.completed).length;
     const totalDays = appState.totalDays || 1;
@@ -354,8 +399,7 @@ function renderAllocationBar(today: any, _totalAllTime: number): void {
     return;
   }
 
-  // Use today's total as the denominator so proportions are correct
-  const todayTotal = segments.reduce((s: number, x: { value: number }) => s + x.value, 0);
+  const allTimeTotal = segments.reduce((s: number, x: { value: number }) => s + x.value, 0);
 
   // keep bar readable: show top 6, merge remainder into "Other"
   if (segments.length > 6) {
@@ -369,12 +413,11 @@ function renderAllocationBar(today: any, _totalAllTime: number): void {
 
   bar.innerHTML = segments
     .map((s: { name: string; value: number; color: string }) => {
-      const pct = ((s.value / todayTotal) * 100).toFixed(1);
+      const pct = ((s.value / allTimeTotal) * 100).toFixed(1);
       return `<div class="allocation-segment" style="width:${pct}%;background:${s.color}" title="${s.name}: ${s.value.toFixed(1)}h (${pct}%)"></div>`;
     })
     .join('');
 
-  // Legend
   const legend = document.getElementById('allocationLegend');
   if (legend) {
     legend.innerHTML = segments
