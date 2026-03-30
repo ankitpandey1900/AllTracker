@@ -331,19 +331,31 @@ function renderSectorTokens(today: any): void {
   `).join('');
 }
 
-// ─── Allocation Bar ──────────────────────────────────────────
-
-function renderAllocationBar(today: any, total: number): void {
+function renderAllocationBar(today: any, _totalAllTime: number): void {
   const bar = document.getElementById('allocationBar');
-  if (!bar || total === 0) return;
+  if (!bar) return;
 
   const labels = getAllHourColumnLabels(today.day);
-  const values = today.studyHours || [];
-  const palette = ['var(--zen-accent)', '#8b5cf6', '#10b981', '#64748b', '#f59e0b', '#22c55e', '#60a5fa', '#c084fc'];
+  const values: number[] = today.studyHours || [];
+  const palette = ['#6a8fff', '#8b5cf6', '#10b981', '#f59e0b', '#22c55e', '#60a5fa', '#c084fc', '#f43f5e'];
 
   let segments = values
     .map((v: number, i: number) => ({ name: labels[i] || `Col ${i + 1}`, value: v, color: palette[i % palette.length] }))
     .filter((s: { value: number }) => s.value > 0);
+
+  // If today has no study data, show overall completion progress bar
+  if (segments.length === 0) {
+    const completedDays = appState.trackerData.filter(d => d.completed).length;
+    const totalDays = appState.totalDays || 1;
+    const pct = Math.round((completedDays / totalDays) * 100);
+    bar.innerHTML = `<div class="allocation-segment" style="width:${pct}%;background:linear-gradient(90deg,#6a8fff,#8b5cf6)" title="Overall: ${pct}% complete"></div>`;
+    const legend = document.getElementById('allocationLegend');
+    if (legend) legend.innerHTML = `<div class="legend-item"><span class="legend-dot" style="background:#6a8fff"></span><span class="legend-label">Overall Completion</span><span class="legend-value">${pct}%</span></div>`;
+    return;
+  }
+
+  // Use today's total as the denominator so proportions are correct
+  const todayTotal = segments.reduce((s: number, x: { value: number }) => s + x.value, 0);
 
   // keep bar readable: show top 6, merge remainder into "Other"
   if (segments.length > 6) {
@@ -357,7 +369,7 @@ function renderAllocationBar(today: any, total: number): void {
 
   bar.innerHTML = segments
     .map((s: { name: string; value: number; color: string }) => {
-      const pct = ((s.value / total) * 100).toFixed(1);
+      const pct = ((s.value / todayTotal) * 100).toFixed(1);
       return `<div class="allocation-segment" style="width:${pct}%;background:${s.color}" title="${s.name}: ${s.value.toFixed(1)}h (${pct}%)"></div>`;
     })
     .join('');
@@ -376,6 +388,7 @@ function renderAllocationBar(today: any, total: number): void {
       .join('');
   }
 }
+
 
 
 // ─── History Modal ───────────────────────────────────────────

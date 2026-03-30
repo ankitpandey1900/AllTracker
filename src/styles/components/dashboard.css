@@ -143,7 +143,14 @@
 
 #completionPercentMirror { color: #8ea0c9; }
 .allocation-bar { height: 8px; border-radius: 999px; background: rgba(255,255,255,0.08); margin: 10px 0 8px; overflow: hidden; display: flex; }
+.allocation-segment { height: 100%; transition: width 0.4s ease; }
 .allocation-scale { display: flex; justify-content: space-between; color: #7f90b8; font-size: 0.95rem; }
+
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.legend-label { color: #9aaed4; }
+.legend-value { color: #c5d5f0; font-weight: 600; margin-left: 2px; }
+
 
 .toolbar.card {
   padding: 10px;
@@ -195,14 +202,145 @@
 .legend, .stats-line, .filter-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; color: #8f9fc7; }
 .chart-wrap { min-height: 260px; }
 
-.badge-grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
-.badge, .weekly-summary-item {
-  border: 1px solid rgba(100, 123, 180, 0.28);
-  border-radius: 12px;
-  padding: 11px;
-  background: rgba(8, 13, 24, 0.93);
+.badge-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+
+.badge {
+  border-radius: 16px;
+  padding: 16px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  cursor: default;
 }
-.badge.locked { opacity: 0.56; }
+
+/* ── Locked state ── */
+.badge.locked {
+  border: 1px solid rgba(100, 123, 180, 0.18);
+  background: rgba(8, 13, 24, 0.6);
+  opacity: 0.52;
+  filter: grayscale(0.4);
+}
+
+/* ── Unlocked state ── */
+.badge.unlocked {
+  border: 1px solid rgba(251, 191, 36, 0.45);
+  background: linear-gradient(145deg, rgba(35, 25, 8, 0.98) 0%, rgba(20, 14, 4, 0.98) 100%);
+  box-shadow:
+    0 0 18px rgba(251, 180, 36, 0.12),
+    0 4px 20px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 220, 100, 0.08);
+}
+
+.badge.unlocked::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -60%;
+  width: 40%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 210, 80, 0.06), transparent);
+  transform: skewX(-20deg);
+  animation: badgeShimmer 3.5s ease-in-out infinite;
+}
+
+@keyframes badgeShimmer {
+  0%   { left: -60%; }
+  60%  { left: 130%; }
+  100% { left: 130%; }
+}
+
+.badge.unlocked:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 0 28px rgba(251, 191, 36, 0.22),
+    0 8px 28px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 220, 100, 0.12);
+}
+
+/* ── Icon wrapper ── */
+.badge-icon-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.badge-icon {
+  font-size: 2rem;
+  line-height: 1;
+  display: block;
+}
+
+.badge.unlocked .badge-icon {
+  filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.55));
+}
+
+.badge.locked .badge-icon {
+  filter: grayscale(1);
+}
+
+/* ── Status dot (✓ / 🔒) ── */
+.badge-status-dot {
+  position: absolute;
+  top: -4px;
+  right: -10px;
+  font-size: 0.65rem;
+  line-height: 1;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.badge.unlocked .badge-status-dot {
+  background: rgba(251, 191, 36, 0.2);
+  border: 1px solid rgba(251, 191, 36, 0.5);
+  color: #fbbf24;
+  font-weight: 700;
+}
+
+.badge.locked .badge-status-dot {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  font-size: 0.55rem;
+}
+
+/* ── Text ── */
+.badge-name {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+}
+
+.badge.unlocked .badge-name {
+  color: #fde68a;
+}
+
+.badge.locked .badge-name {
+  color: #6a7ca0;
+}
+
+.badge-desc {
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+.badge.unlocked .badge-desc {
+  color: rgba(253, 230, 138, 0.55);
+}
+
+.badge.locked .badge-desc {
+  color: #3d4f6b;
+}
 /* ─── Routine Checklist ─────────────────────────────────────── */
 #routineList {
   display: flex;

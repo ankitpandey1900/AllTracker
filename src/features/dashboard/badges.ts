@@ -38,8 +38,12 @@ export function renderBadges(): void {
     const unlocked = appState.settings.unlockedBadges.includes(badge.id);
     return `
       <div class="badge ${unlocked ? 'unlocked' : 'locked'}" title="${badge.description}">
-        <span class="badge-icon">${badge.icon}</span>
+        <div class="badge-icon-wrap">
+          <span class="badge-icon">${badge.icon || '🏅'}</span>
+          <span class="badge-status-dot">${unlocked ? '✓' : '🔒'}</span>
+        </div>
         <span class="badge-name">${badge.name}</span>
+        <span class="badge-desc">${badge.description}</span>
       </div>
     `;
   }).join('');

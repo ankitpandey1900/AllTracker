@@ -16,13 +16,14 @@ import {
   saveRoutineHistoryCloud, loadRoutineHistoryCloud,
   saveTimerStateCloud, loadTimerStateCloud,
   saveRoutineResetCloud, loadRoutineResetCloud,
+  saveTasksCloud, loadTasksCloud,
   updateSyncStatus,
 } from '@/services/supabase.service';
 import type { TrackerDay, Settings } from '@/types/tracker.types';
 import type { RoutineItem, RoutineHistory } from '@/types/routine.types';
-
 import type { Bookmark } from '@/types/bookmark.types';
 import type { ActiveTimer } from '@/types/timer.types';
+import type { StudyTask } from '@/types/task.types';
 import { appState, calculateDates } from '@/state/app-state';
 
 // ─── Auth Check ──────────────────────────────────────────────
@@ -191,6 +192,29 @@ export async function saveRoutineResetToStorage(reset: string): Promise<void> {
   setRoutineReset(reset);
 }
 
+// ─── Tasks ───────────────────────────────────────────────────
+
+function setTasks(tasks: StudyTask[], pushToCloud = true): void {
+  localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(tasks));
+  if (pushToCloud && isAuthenticated()) {
+    saveTasksCloud(tasks);
+  }
+}
+
+export async function loadTasksFromStorage(): Promise<StudyTask[]> {
+  if (isAuthenticated()) {
+    const cloud = await loadTasksCloud();
+    if (cloud) { setTasks(cloud, false); return cloud; }
+  }
+  const saved = localStorage.getItem(STORAGE_KEYS.TASKS);
+  if (saved) { try { return JSON.parse(saved); } catch { return []; } }
+  return [];
+}
+
+export async function saveTasksToStorage(tasks: StudyTask[]): Promise<void> {
+  setTasks(tasks);
+}
+
 // ─── Clear All ───────────────────────────────────────────────
 
 export function clearLocalData(): void {
@@ -206,21 +230,22 @@ export async function syncDataOnLogin(): Promise<void> {
   updateSyncStatus('syncing');
 
   try {
-    const [cloudTracker, cloudSettings, cloudRoutines, cloudHistory, cloudBookmarks] = await Promise.all([
+    const [cloudTracker, cloudSettings, cloudRoutines, cloudHistory, cloudBookmarks, cloudTasks] = await Promise.all([
       loadTrackerDataCloud(),
       loadSettingsCloud(),
       loadRoutinesCloud(),
       loadRoutineHistoryCloud(),
       loadBookmarksCloud(),
+      loadTasksCloud(),
     ]);
 
     // Cloud wins if it exists
     if (cloudTracker) setTrackerData(cloudTracker, false);
     if (cloudSettings) setSettings(cloudSettings, false);
     if (cloudRoutines) setRoutines(cloudRoutines, false);
-
     if (cloudHistory) setRoutineHistory(cloudHistory, false);
     if (cloudBookmarks) setBookmarks(cloudBookmarks, false);
+    if (cloudTasks) setTasks(cloudTasks, false);
 
     const cloudReset = await loadRoutineResetCloud();
     if (cloudReset) setRoutineReset(cloudReset, false);

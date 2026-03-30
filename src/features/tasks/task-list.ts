@@ -5,8 +5,8 @@
  */
 
 import { appState } from '@/state/app-state';
-import { STORAGE_KEYS } from '@/config/constants';
 import { showToast } from '@/utils/dom.utils';
+import { saveTasksToStorage } from '@/services/data-bridge';
 import type { StudyTask } from '@/types/task.types';
 
 // ─── Initialization ──────────────────────────────────────────
@@ -153,5 +153,5 @@ export function deleteTask(id: number): void {
 }
 
 function saveTasks(): void {
-  localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(appState.tasks));
+  saveTasksToStorage(appState.tasks);
 }

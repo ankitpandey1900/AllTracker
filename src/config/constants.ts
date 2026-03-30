@@ -48,6 +48,7 @@ export const SUPABASE_TABLES = {
   ROUTINE_HISTORY: 'routine_history',
   TIMER_STATE: 'timer_state',
   ROUTINE_RESET: 'routine_reset',
+  TASKS: 'tasks',
 } as const;
 
 // ─── Helper functions needed by badge conditions ─────────────
@@ -90,13 +91,13 @@ function hasWeekendStudy(data: TrackerDay[]): boolean {
 // ─── Badge Definitions ───────────────────────────────────────
 
 export const BADGES: Badge[] = [
-  { id: 'streak_3',        name: 'Momentum Builder',  icon: '', description: '3 Day Streak',         condition: (data) => getStreak(data) >= 3 },
-  { id: 'streak_7',        name: 'Unstoppable',       icon: '', description: '7 Day Streak',         condition: (data) => getStreak(data) >= 7 },
-  { id: 'streak_30',       name: 'Code Warrior',      icon: '', description: '30 Day Streak',        condition: (data) => getStreak(data) >= 30 },
-  { id: 'hours_10',        name: 'Getting Serious',   icon: '', description: '10 Total Hours',       condition: (data) => getTotalHours(data) >= 10 },
-  { id: 'hours_50',        name: 'Deep Dive',         icon: '', description: '50 Total Hours',       condition: (data) => getTotalHours(data) >= 50 },
-  { id: 'hours_100',       name: 'Mastery Path',      icon: '', description: '100 Total Hours',      condition: (data) => getTotalHours(data) >= 100 },
-  { id: 'weekend_warrior', name: 'Weekend Warrior',   icon: '', description: 'Study on a Weekend',   condition: (data) => hasWeekendStudy(data) },
+  { id: 'streak_3',        name: 'Momentum Builder',  icon: '🔥', description: '3 Day Streak',         condition: (data) => getStreak(data) >= 3 },
+  { id: 'streak_7',        name: 'Unstoppable',       icon: '⚡', description: '7 Day Streak',         condition: (data) => getStreak(data) >= 7 },
+  { id: 'streak_30',       name: 'Code Warrior',      icon: '⚔️', description: '30 Day Streak',        condition: (data) => getStreak(data) >= 30 },
+  { id: 'hours_10',        name: 'Getting Serious',   icon: '📚', description: '10 Total Hours',       condition: (data) => getTotalHours(data) >= 10 },
+  { id: 'hours_50',        name: 'Deep Dive',         icon: '🌊', description: '50 Total Hours',       condition: (data) => getTotalHours(data) >= 50 },
+  { id: 'hours_100',       name: 'Mastery Path',      icon: '🎓', description: '100 Total Hours',      condition: (data) => getTotalHours(data) >= 100 },
+  { id: 'weekend_warrior', name: 'Weekend Warrior',   icon: '🛡️', description: 'Study on a Weekend',   condition: (data) => hasWeekendStudy(data) },
 ];
 
 // ─── Bookmark Categories ─────────────────────────────────────

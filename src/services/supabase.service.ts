@@ -8,6 +8,7 @@
 import { supabaseClient } from '@/config/supabase';
 import { SUPABASE_TABLES } from '@/config/constants';
 import type { TrackerDay, Settings } from '@/types/tracker.types';
+import type { StudyTask } from '@/types/task.types';
 import type { RoutineItem, RoutineHistory } from '@/types/routine.types';
 import type { Bookmark } from '@/types/bookmark.types';
 import type { ActiveTimer } from '@/types/timer.types';
@@ -171,5 +172,17 @@ export async function saveRoutineResetCloud(reset: string): Promise<void> {
 export async function loadRoutineResetCloud(): Promise<string | null> {
   const result = await fetchFromSupabase(SUPABASE_TABLES.ROUTINE_RESET);
   if (result?.data?.data) return result.data.data as string;
+  return null;
+}
+
+// ─── Tasks ───────────────────────────────────────────────────
+
+export async function saveTasksCloud(tasks: StudyTask[]): Promise<void> {
+  await upsertToSupabase(SUPABASE_TABLES.TASKS, { data: tasks, updated_at: new Date() });
+}
+
+export async function loadTasksCloud(): Promise<StudyTask[] | null> {
+  const result = await fetchFromSupabase(SUPABASE_TABLES.TASKS);
+  if (result?.data?.data) return result.data.data as StudyTask[];
   return null;
 }
