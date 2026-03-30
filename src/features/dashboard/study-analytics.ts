@@ -15,29 +15,39 @@ function renderStudyTrendChart(): void {
   const canvas = document.getElementById('studyTrendChart') as HTMLCanvasElement;
   if (!canvas) return;
 
-  // We'll show the last 21 days by default
-  const daysToShow = 21;
-  const sortedData = [...appState.trackerData].sort((a, b) => a.day - b.day);
-  const chartData = sortedData.slice(-daysToShow);
+  // Calculate today's day number based on current date vs start date
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  const start = new Date(appState.startDate);
+  start.setHours(0, 0, 0, 0);
+  const diffTime = now.getTime() - start.getTime();
+  const todayDay = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
 
+  const daysToShow = 21;
   const labels: string[] = [];
   const hoursData: number[] = [];
   const problemsData: number[] = [];
 
-  chartData.forEach((dayData) => {
-    const dateObj = new Date(dayData.date);
-    const dateLabel = dateObj.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  // Generate a full 21-day window ending at todayDay
+  for (let i = todayDay - (daysToShow - 1); i <= todayDay; i++) {
+    const dayData = appState.trackerData.find(d => d.day === i);
     
-    const dayHours = Array.isArray(dayData.studyHours) 
+    // Label calculation
+    let dateLabel = `Day ${i}`;
+    const d = new Date(start);
+    d.setDate(d.getDate() + (i - 1));
+    dateLabel = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+
+    const dayHours = dayData && Array.isArray(dayData.studyHours) 
       ? dayData.studyHours.reduce((s, n) => s + (n || 0), 0) 
       : 0;
 
-    const dayProblems = dayData.problemsSolved || 0;
+    const dayProblems = dayData ? (dayData.problemsSolved || 0) : 0;
 
     labels.push(dateLabel);
     hoursData.push(dayHours);
     problemsData.push(dayProblems);
-  });
+  }
 
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
@@ -146,24 +156,30 @@ function renderSubjectRadarChart(): void {
   const canvas = document.getElementById('subjectRadarChart') as HTMLCanvasElement;
   if (!canvas) return;
 
-  const daysToShow = 21;
-  const sortedData = [...appState.trackerData].sort((a, b) => a.day - b.day);
-  const chartData = sortedData.slice(-daysToShow);
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  const start = new Date(appState.startDate);
+  start.setHours(0, 0, 0, 0);
+  const diffTime = now.getTime() - start.getTime();
+  const todayDay = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
 
-  const columnLabels = getAllHourColumnLabels(1);
+  const daysToShow = 21;
+  const columnLabels = getAllHourColumnLabels(todayDay);
   
   // Initialize totals
   const totals: number[] = new Array(columnLabels.length).fill(0);
 
-  chartData.forEach(dayData => {
-    if (Array.isArray(dayData.studyHours)) {
+  // Accumulate data for the last 21 days ending today
+  for (let i = todayDay - (daysToShow - 1); i <= todayDay; i++) {
+    const dayData = appState.trackerData.find(d => d.day === i);
+    if (dayData && Array.isArray(dayData.studyHours)) {
       dayData.studyHours.forEach((val, idx) => {
         if (totals.length > idx) {
           totals[idx] += (val || 0);
         }
       });
     }
-  });
+  }
 
   const ctx = canvas.getContext('2d');
   if (!ctx) return;

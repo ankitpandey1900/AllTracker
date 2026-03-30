@@ -37,19 +37,46 @@ export function renderPerformanceCurve(): void {
   const startInput = document.getElementById('chartStartDay') as HTMLInputElement;
   const endInput = document.getElementById('chartEndDay') as HTMLInputElement;
 
-  let filterValue = filterSelect ? filterSelect.value : '21';
+  const filterValue = filterSelect ? filterSelect.value : '21';
   
   // Sort trackerData by day/date ascending
   const sortedData = [...appState.trackerData].sort((a, b) => a.day - b.day);
-  let chartData = sortedData;
+
+  // Calculate today's day number based on current date vs start date
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  const startDateObj = new Date(appState.startDate);
+  startDateObj.setHours(0, 0, 0, 0);
+  const diffTime = now.getTime() - startDateObj.getTime();
+  const todayDay = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+  let chartData: any[] = [];
+  let daysToShow = parseInt(filterValue) || 21;
 
   if (filterValue === 'custom') {
-    const start = parseInt(startInput?.value) || 1;
-    const end = parseInt(endInput?.value) || 999999;
-    chartData = sortedData.filter(d => d.day >= start && d.day <= end);
-  } else if (filterValue !== 'all') {
-    const daysToShow = parseInt(filterValue) || 21;
-    chartData = sortedData.slice(-daysToShow);
+    const startRange = parseInt(startInput?.value) || 1;
+    const endRange = parseInt(endInput?.value) || 999999;
+    chartData = sortedData.filter((d: any) => d.day >= startRange && d.day <= endRange);
+  } else if (filterValue === 'all') {
+    chartData = sortedData;
+  } else {
+    // Generate full contiguous range ending today
+    for (let i = todayDay - (daysToShow - 1); i <= todayDay; i++) {
+      const existing = sortedData.find((d: any) => d.day === i);
+      if (existing) {
+        chartData.push(existing);
+      } else {
+        const d = new Date(startDateObj);
+        d.setDate(d.getDate() + (i - 1));
+        chartData.push({
+          day: i,
+          date: d.toISOString(),
+          studyHours: [],
+          problemsSolved: 0,
+          completed: false
+        });
+      }
+    }
   }
 
   const labels: string[] = [];
@@ -67,7 +94,7 @@ export function renderPerformanceCurve(): void {
     
     // Calculate total hours for this day
     const dayHours = Array.isArray(dayData.studyHours)
-      ? dayData.studyHours.reduce((s, n) => s + (n || 0), 0)
+      ? dayData.studyHours.reduce((s: number, n: number) => s + (n || 0), 0)
       : 0;
 
     const dateObj = new Date(dayData.date);
