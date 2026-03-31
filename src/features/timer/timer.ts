@@ -116,9 +116,10 @@ export async function stopTimer(): Promise<void> {
 
 async function showSessionNoteModal(): Promise<string> {
   return new Promise((resolve) => {
-    const modal = document.getElementById('sessionNoteModal');
+    const modal = document.getElementById('sessionNoteModal') as HTMLElement;
     const input = document.getElementById('sessionNoteInput') as HTMLTextAreaElement;
-    const saveBtn = document.getElementById('saveSessionNoteBtn');
+    const saveBtn = document.getElementById('saveSessionNoteBtn') as HTMLElement;
+    const skipBtn = document.getElementById('skipSessionNoteBtn') as HTMLElement;
 
     if (!modal || !input || !saveBtn) {
       resolve('');
@@ -129,24 +130,35 @@ async function showSessionNoteModal(): Promise<string> {
     modal.classList.add('active');
 
     // Create unique handlers to avoid leaks
-    const handleSave = () => {
+    function cleanup() {
+      if (saveBtn) saveBtn.removeEventListener('click', handleSave);
+      if (skipBtn) skipBtn.removeEventListener('click', handleSkip);
+      if (modal) modal.removeEventListener('click', handleClose);
+    }
+
+    function handleSave() {
       const note = input.value.trim();
       modal.classList.remove('active');
-      saveBtn.removeEventListener('click', handleSave);
-      modal.removeEventListener('click', handleClose);
+      cleanup();
       resolve(note);
-    };
+    }
 
-    const handleClose = (e: MouseEvent) => {
+    function handleSkip() {
+      modal.classList.remove('active');
+      cleanup();
+      resolve('');
+    }
+
+    function handleClose(e: MouseEvent) {
       if ((e.target as HTMLElement).id === 'sessionNoteModal') {
         modal.classList.remove('active');
-        saveBtn.removeEventListener('click', handleSave);
-        modal.removeEventListener('click', handleClose);
+        cleanup();
         resolve('');
       }
-    };
+    }
 
     saveBtn.addEventListener('click', handleSave);
+    if (skipBtn) skipBtn.addEventListener('click', handleSkip);
     modal.addEventListener('click', handleClose);
   });
 }

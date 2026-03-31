@@ -269,50 +269,73 @@
 }
 
 #sessionNoteModal .modal-content {
-  box-shadow: 0 0 50px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(106, 134, 255, 0.08);
-  border-color: rgba(106, 134, 255, 0.25);
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(106, 134, 255, 0.1);
+  border-color: rgba(106, 134, 255, 0.3);
+  backdrop-filter: blur(15px);
+  background: rgba(10, 16, 30, 0.95);
 }
 
 .reflection-sub {
   color: #93a5cf;
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   text-align: center;
-  margin-bottom: 12px;
-  opacity: 0.8;
+  margin-bottom: 16px;
+  opacity: 0.85;
 }
 
 .reflection-textarea {
-  background: rgba(102, 124, 181, 0.05);
-  border: 1px solid rgba(102, 124, 181, 0.2);
-  color: #fff;
-  padding: 18px;
-  border-radius: 16px;
-  resize: vertical;
-  min-height: 120px;
-  font-size: 0.95rem;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  background: rgba(8, 13, 24, 0.6) !important;
+  border: 1px solid rgba(102, 124, 181, 0.25) !important;
+  color: #fff !important;
+  padding: 18px !important;
+  border-radius: 16px !important;
+  resize: none !important;
+  min-height: 140px !important;
+  font-size: 0.98rem !important;
+  line-height: 1.5 !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 .reflection-textarea:focus {
-  border-color: rgba(34, 211, 238, 0.5);
-  background: rgba(102, 124, 181, 0.1);
-  box-shadow: 0 0 20px rgba(34, 211, 238, 0.15), inset 0 0 10px rgba(34, 211, 238, 0.05);
+  border-color: var(--accent-blue) !important;
+  background: rgba(10, 20, 40, 0.7) !important;
+  box-shadow: 0 0 25px rgba(108, 135, 255, 0.2) !important;
 }
 
 .glow-blue {
-  background: linear-gradient(135deg, #1e40af, #2563eb, #3b82f6) !important;
-  border: 1px solid rgba(106, 134, 255, 0.45) !important;
-  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.35) !important;
-  padding: 12px 24px !important;
-  font-weight: 700 !important;
+  background: linear-gradient(135deg, #2563eb, #3b82f6) !important;
+  border: none !important;
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3) !important;
+  color: #fff !important;
+  text-transform: uppercase !important;
   letter-spacing: 0.05em !important;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 .glow-blue:hover {
   transform: translateY(-2px);
-  box-shadow: 0 15px 35px rgba(37, 99, 235, 0.45) !important;
+  box-shadow: 0 15px 30px rgba(37, 99, 235, 0.4) !important;
   filter: brightness(1.1);
+}
+
+.btn-ghost {
+  background: rgba(255, 255, 255, 0.03);
+  transition: all 0.2s ease;
+}
+
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Pulse pencil animation */
+#sessionNoteModal .modal-header svg {
+  animation: pencil-pulse 2s infinite ease-in-out;
+}
+
+@keyframes pencil-pulse {
+  0%, 100% { filter: drop-shadow(0 0 2px var(--accent-blue)); transform: scale(1); }
+  50% { filter: drop-shadow(0 0 8px var(--accent-blue)); transform: scale(1.1); }
 }
 
 .notif-active {
