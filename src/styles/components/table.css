@@ -239,17 +239,50 @@ tr.hidden {
   box-shadow: inset 3px 0 0 var(--accent-blue);
 }
 
-#trackerTable tbody tr.rest-day {
-  background: rgba(34, 211, 238, 0.03) !important;
-  opacity: 0.6;
-  filter: grayscale(0.4);
-}
-
 .no-cat-warning {
   font-size: 0.8rem;
   color: #64748b;
   font-style: italic;
   text-align: center;
+}
+
+/* 🔒 Iron-Gate Locking Styles */
+tr.locked-row {
+  opacity: 0.55;
+  filter: grayscale(0.5);
+  cursor: not-allowed !important;
+  background: rgba(15, 23, 42, 0.4) !important;
+}
+
+tr.locked-row:hover td {
+  background: rgba(15, 23, 42, 0.4) !important;
+  border-bottom-color: rgba(135, 155, 230, 0.08) !important;
+}
+
+tr.locked-row .cell-input {
+  background: #0b1222;
+  border-color: rgba(99, 121, 177, 0.1);
+  color: #64748b;
+  pointer-events: none;
+}
+
+tr.locked-row .checkmark {
+  background: rgba(15, 23, 42, 0.6);
+  border-color: rgba(105, 128, 184, 0.1);
+  cursor: not-allowed;
+}
+
+.lock-icon {
+  font-size: 0.7rem;
+  margin-left: 4px;
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.2));
+  opacity: 0.8;
+}
+
+.disabled-btn {
+  opacity: 0.3 !important;
+  pointer-events: none;
+  filter: grayscale(1);
 }
 
 .row-actions {

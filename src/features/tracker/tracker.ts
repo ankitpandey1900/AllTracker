@@ -10,6 +10,7 @@ import { formatDate } from '@/utils/date.utils';
 import { showToast } from '@/utils/dom.utils';
 import { saveTrackerDataToStorage } from '@/services/data-bridge';
 import type { TrackerDay } from '@/types/tracker.types';
+import { isRowEditable } from '@/services/integrity';
 
 function getHourAt(day: TrackerDay, idx: number): number {
   return (day.studyHours?.[idx] ?? 0) as number;
@@ -55,46 +56,49 @@ export function generateTable(): void {
     const day = data[i];
     const dayDate = new Date(day.date);
     const phase = getPhase(day.day);
-    const isToday = dayDate.setHours(0, 0, 0, 0) === today.getTime();
-    const totalHours = getTotalHours(day);
+    const isToday = new Date(day.date).setHours(0, 0, 0, 0) === today.getTime();
+    const editable = isRowEditable(day.date);
     const dayLabels = getAllHourColumnLabels(day.day);
+    const totalHours = getTotalHours(day);
 
     let rowClass = phase;
     if (day.completed) rowClass += ' completed';
     if (day.restDay) rowClass += ' rest-day';
     if (isToday) rowClass += ' today';
+    if (!editable) rowClass += ' locked-row';
 
     html += `
       <tr class="${rowClass}" data-day="${i}">
         <td class="day-cell">
           <span class="day-number">${day.day}</span>
+          ${!editable ? '<span class="lock-icon" title="Locked by Iron-Gate Integrity Engine">🔒</span>' : ''}
         </td>
         <td class="date-cell">${formatDate(new Date(day.date))}</td>
         ${dayLabels.length > 0 
-          ? dayLabels.map((label, ci) => {
+          ? dayLabels.map((label: string, ci: number) => {
               const v = getHourAt(day, ci);
-              return `<td><input type="number" class="cell-input hour-input" data-col="${ci}" value="${v}" min="0" step="0.5" title="${label}"></td>`;
+              return `<td><input type="number" class="cell-input hour-input" data-col="${ci}" value="${v}" min="0" step="0.5" title="${label}" ${!editable ? 'disabled' : ''}></td>`;
             }).join('') 
-          : `<td colspan="1" class="no-cat-warning">No Categories Define (Check Settings)</td>`
+          : `<td colspan="1" class="no-cat-warning">No Categories Defined (Check Settings)</td>`
         }
-        <td><input type="number" class="cell-input topics-solved" value="${day.problemsSolved}" min="0" step="1"></td>
+        <td><input type="number" class="cell-input topics-solved" value="${day.problemsSolved}" min="0" step="1" ${!editable ? 'disabled' : ''}></td>
         <td>
           <div class="topics-cell">
-            <textarea class="cell-input topics-input" rows="1">${day.topics || ''}</textarea>
+            <textarea class="cell-input topics-input" rows="1" ${!editable ? 'readonly' : ''}>${day.topics || ''}</textarea>
           </div>
         </td>
         <td>
           <div class="topics-cell">
-            <textarea class="cell-input project-input" rows="1">${day.project || ''}</textarea>
+            <textarea class="cell-input project-input" rows="1" ${!editable ? 'readonly' : ''}>${day.project || ''}</textarea>
           </div>
         </td>
         <td class="action-cell">
           <div class="row-actions">
             <label class="checkbox-container" title="Mark as Completed">
-              <input type="checkbox" class="completed-check" ${day.completed ? 'checked' : ''}>
+              <input type="checkbox" class="completed-check" ${day.completed ? 'checked' : ''} ${!editable ? 'disabled' : ''}>
               <span class="checkmark"></span>
             </label>
-            <button class="btn-rest-day ${day.restDay ? 'active' : ''}" data-day="${i}" title="Streak Freeze / Rest Day">
+            <button class="btn-rest-day ${day.restDay ? 'active' : ''} ${!editable ? 'disabled-btn' : ''}" data-day="${i}" title="${!editable ? 'Locked' : 'Streak Freeze / Rest Day'}" ${!editable ? 'disabled' : ''}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 17.58A5 5 0 0 0 18 8.1V5a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v3.1a5 5 0 0 0-2 9.48V20a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-2.42z"/><circle cx="12" cy="13" r="2"/></svg>
             </button>
           </div>

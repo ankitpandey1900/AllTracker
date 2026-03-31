@@ -150,6 +150,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   await checkDailyRoutineReset();
   const { initNotifications } = await import('@/features/notifications/notifications');
   initNotifications();
+  
+  const { initIntegrityService } = await import('@/services/integrity');
+  initIntegrityService();
 
   // 9. Restore timer if it was running
   resumeTimerIfNeeded();
