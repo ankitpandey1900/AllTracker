@@ -55,19 +55,38 @@ export function renderTasks(): void {
 }
 
 function renderTaskList(tasks: StudyTask[]): string {
-  if (tasks.length === 0) return '<div class="empty-list">No tasks here.</div>';
-
-  return tasks.map(task => `
-    <div class="task-item ${task.completed ? 'completed' : ''}" data-task-id="${task.id}">
-      <div class="task-check" data-id="${task.id}" data-action="toggle">
-        <div class="check-box ${task.completed ? 'checked' : ''}"></div>
+  if (tasks.length === 0) {
+    return `
+      <div class="empty-state-modern">
+        <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <polyline points="9 11 12 14 22 4"></polyline>
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+        </svg>
+        <div class="empty-state-title">No Missions Found</div>
+        <div class="empty-state-text">Your terminal is clear. Add a new objective above to begin.</div>
       </div>
-      <div class="task-label">${task.text}</div>
-      <button class="btn-task-delete" data-id="${task.id}" data-action="delete" title="Delete">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-      </button>
-    </div>
-  `).join('');
+    `;
+  }
+
+  return tasks.map(task => {
+    const priorityClass = task.priority === 3 ? 'priority-high' : (task.priority === 2 ? 'priority-med' : 'priority-low');
+    const priorityLabel = task.priority === 3 ? 'High' : (task.priority === 2 ? 'Med' : 'Low');
+
+    return `
+      <div class="task-item ${task.completed ? 'completed' : ''}" data-task-id="${task.id}">
+        <div class="task-check" data-id="${task.id}" data-action="toggle">
+          <div class="check-box ${task.completed ? 'checked' : ''}"></div>
+        </div>
+        <div class="task-label-group">
+          <span class="priority-badge ${priorityClass}">${priorityLabel}</span>
+          <div class="task-label">${task.text}</div>
+        </div>
+        <button class="btn-task-delete" data-id="${task.id}" data-action="delete" title="Delete">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+        </button>
+      </div>
+    `;
+  }).join('');
 }
 
 // ─── Actions ─────────────────────────────────────────────────
@@ -75,12 +94,26 @@ function renderTaskList(tasks: StudyTask[]): string {
 function setupTaskListeners(): void {
   const addBtn = document.getElementById('addTaskBtn');
   const input = document.getElementById('newTaskInput') as HTMLInputElement;
+  const selector = document.getElementById('taskPrioritySelector');
+  const buttons = selector?.querySelectorAll('.priority-btn');
+
+  let activePriority: 1 | 2 | 3 = 2; // Default to Med
+
+  if (buttons) {
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        buttons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activePriority = parseInt(btn.getAttribute('data-priority') || '2') as 1 | 2 | 3;
+      });
+    });
+  }
 
   if (addBtn && input) {
     const handleAdd = () => {
       const text = input.value.trim();
       if (!text) return;
-      addTask(text);
+      addTask(text, activePriority);
       input.value = '';
     };
 
@@ -98,13 +131,14 @@ function handleTaskAction(e: Event): void {
   if (action === 'delete') deleteTask(id);
 }
 
-export function addTask(text: string): void {
+export function addTask(text: string, priority: 1 | 2 | 3 = 2): void {
   const newTask: StudyTask = {
     id: Date.now(),
     text,
     completed: false,
     date: new Date().toISOString().split('T')[0],
-    createdAt: Date.now()
+    createdAt: Date.now(),
+    priority
   };
 
   appState.tasks.push(newTask);

@@ -23,6 +23,7 @@ import {
   loadRoutinesFromStorage,
   loadRoutineHistoryFromStorage,
   loadBookmarksFromStorage,
+  loadTasksFromStorage,
   loadTimerStateFromStorage,
   saveTrackerDataToStorage,
 } from "@/services/data-bridge";
@@ -145,8 +146,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   setupHeaderScroll();
   initTasks();
 
-  // 8. Innovations
+  // 8. Mutations & Integrations
   await checkDailyRoutineReset();
+  const { initNotifications } = await import('@/features/notifications/notifications');
+  initNotifications();
 
   // 9. Restore timer if it was running
   resumeTimerIfNeeded();
@@ -262,6 +265,9 @@ function setupEventListeners(): void {
   );
   bindClick("applyDateSettings", applyDateSettings);
   bindClick("applyColumnSettings", applyColumnSettings);
+  bindClick("enableNotificationsBtn", () => {
+    import('@/features/notifications/notifications').then(m => m.requestNotificationPermission());
+  });
 
   bindClick("addCustomRangeBtn", addCustomRange);
   bindClick("closeSettingsModal", () =>
@@ -335,6 +341,17 @@ function setupEventListeners(): void {
     document.getElementById("historyModal")?.classList.add("active");
     renderSessionHistory();
   });
+
+  const historyDateFilter = document.getElementById("historyDateFilter") as HTMLInputElement;
+  if (historyDateFilter) {
+    historyDateFilter.addEventListener("change", () => renderSessionHistory());
+  }
+
+  bindClick("clearHistoryFilter", () => {
+    if (historyDateFilter) historyDateFilter.value = "";
+    renderSessionHistory();
+  });
+
   bindClick("closeHistoryModal", () =>
     document.getElementById("historyModal")?.classList.remove("active"),
   );
@@ -394,12 +411,13 @@ function bindClick(id: string, handler: () => void): void {
 export async function refreshApplicationUI(): Promise<void> {
   console.log("Refreshing UI after sync...");
   try {
-    const [settings, data, routines, history, bookmarks, timer] = await Promise.all([
+    const [settings, data, routines, history, bookmarks, tasks, timer] = await Promise.all([
       loadSettingsFromStorage(),
       loadTrackerDataFromStorage(),
       loadRoutinesFromStorage(),
       loadRoutineHistoryFromStorage(),
       loadBookmarksFromStorage(),
+      loadTasksFromStorage(),
       loadTimerStateFromStorage(),
     ]);
 
@@ -424,8 +442,8 @@ export async function refreshApplicationUI(): Promise<void> {
     appState.routines = routines;
     appState.routineHistory = history;
     appState.bookmarks = bookmarks;
-    appState.routineHistory = history;
-    appState.bookmarks = bookmarks;
+    appState.tasks = tasks;
+
     if (timer) {
       Object.assign(appState.activeTimer, timer);
     }
@@ -436,6 +454,7 @@ export async function refreshApplicationUI(): Promise<void> {
     renderPerformanceCurve();
     renderRoutine();
     renderBookmarks();
+    renderTasks();
     
     // Resume timer UI if it was restored
     const { resumeTimerIfNeeded } = await import('@/features/timer/timer');

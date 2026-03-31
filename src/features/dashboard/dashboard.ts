@@ -9,7 +9,7 @@
  */
 
 import { appState, getAllHourColumnLabels, getColumnsForDay } from '@/state/app-state';
-import { RANK_TIERS, TIER_TITLES } from '@/config/constants';
+import { RANK_TIERS, TIER_TITLES, CATEGORY_COLORS } from '@/config/constants';
 import { setTxt } from '@/utils/dom.utils';
 import { formatDate } from '@/utils/date.utils';
 import type { RankDetails } from '@/types/tracker.types';
@@ -108,13 +108,23 @@ function calculateStreak(): number {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
+  // Scan backwards from today
   for (let i = appState.trackerData.length - 1; i >= 0; i--) {
-    if (appState.trackerData[i].completed) {
+    const day = appState.trackerData[i];
+    const dayDate = new Date(day.date);
+    dayDate.setHours(0, 0, 0, 0);
+
+    // Skip future days
+    if (dayDate > today) continue;
+
+    if (day.completed) {
       streak++;
+    } else if (day.restDay) {
+      // Rest Day: Freeze streak (don't break, but don't increment)
+      continue;
     } else {
-      const dayDate = new Date(appState.trackerData[i].date);
-      dayDate.setHours(0, 0, 0, 0);
-      if (dayDate >= today) continue;
+      // If we are looking at precisely "Today", don't break yet if it's not done
+      if (dayDate.getTime() === today.getTime()) continue;
       break;
     }
   }
@@ -321,7 +331,7 @@ function renderSectorTokens(today: any): void {
     return formatDate(d);
   };
 
-  const accentCycle = ['accent-teal', 'accent-blue', 'accent-purple', 'accent-gold', 'accent-red'];
+  const accentClasses = ['accent-teal', 'accent-blue', 'accent-purple', 'accent-gold', 'accent-red', 'accent-cyan', 'accent-purple', 'accent-red'];
   
   const studyCats = currentCols.map((col, i) => {
     const total = totals.studyHours[i] || 0;
@@ -330,7 +340,8 @@ function renderSectorTokens(today: any): void {
       label: col.name,
       value: total,
       target: target,
-      accent: accentCycle[i % accentCycle.length],
+      accent: accentClasses[i % accentClasses.length],
+      hexColor: CATEGORY_COLORS[i % CATEGORY_COLORS.length],
       detail: `${total.toFixed(1)} / ${target.toFixed(0)} hrs`,
       finish: estimateTargetDate(total, target),
     };
@@ -343,18 +354,19 @@ function renderSectorTokens(today: any): void {
       value: totals.problems,
       target: 0,
       accent: 'accent-red',
+      hexColor: '#f87171',
       detail: 'total solved',
       finish: '-',
     },
   ];
 
   container.innerHTML = categories.map(cat => `
-    <div class="zen-card metric-item category-progress-card ${cat.accent}" style="flex: 1;">
+    <div class="zen-card metric-item category-progress-card ${cat.accent}" style="flex: 1; border-bottom: 2px solid ${cat.hexColor}">
       <span class="label-caps">${cat.label}</span>
       <div class="metric-value">${typeof cat.value === 'number' ? cat.value.toFixed(cat.label === 'Problems Solved' ? 0 : 1) : cat.value}</div>
       <div class="category-progress-track-wrap">
         <div class="category-progress-track">
-          <div class="category-progress-fillline" style="width:${cat.target > 0 ? Math.min(100, Math.round((cat.value / cat.target) * 100)) : Math.min(100, cat.value > 0 ? 100 : 0)}%"></div>
+          <div class="category-progress-fillline" style="width:${cat.target > 0 ? Math.min(100, Math.round((cat.value / cat.target) * 100)) : Math.min(100, cat.value > 0 ? 100 : 0)}%; background: ${cat.hexColor}"></div>
         </div>
       </div>
       <div class="category-progress-meta">${cat.detail}</div>
@@ -385,7 +397,7 @@ function renderAllocationBar(): void {
   const palette = ['#6a8fff', '#8b5cf6', '#10b981', '#f59e0b', '#22c55e', '#60a5fa', '#c084fc', '#f43f5e'];
 
   let segments = values
-    .map((v: number, i: number) => ({ name: labels[i] || `Col ${i + 1}`, value: v, color: palette[i % palette.length] }))
+    .map((v: number, i: number) => ({ name: labels[i] || `Col ${i + 1}`, value: v, color: CATEGORY_COLORS[i % CATEGORY_COLORS.length] }))
     .filter((s: { value: number }) => s.value > 0);
 
   // If no study data at all, show overall completion progress bar
@@ -438,24 +450,37 @@ function renderAllocationBar(): void {
 
 export function renderSessionHistory(): void {
   const tbody = document.getElementById('recentSessionsBody');
+  const filterInput = document.getElementById('historyDateFilter') as HTMLInputElement;
   if (!tbody) return;
 
-  const logs = appState.settings.sessionLogs || [];
+  let logs = appState.settings.sessionLogs || [];
+  const filterVal = filterInput?.value; // YYYY-MM-DD
+
+  if (filterVal) {
+    logs = logs.filter(log => {
+      const logDate = log.date.split('T')[0];
+      return logDate === filterVal;
+    });
+  }
+
   if (logs.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--text-secondary);">No sessions recorded yet.</td></tr>';
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:40px; color:var(--text-secondary);">
+      ${filterVal ? `No sessions found for ${filterVal}.` : 'No sessions recorded yet.'}
+    </td></tr>`;
     return;
   }
 
   tbody.innerHTML = logs
-    .slice(0, 50)
+    .slice(0, 100)
     .map((log) => {
       const d = new Date(log.date);
       return `
       <tr>
-        <td>${d.toLocaleDateString()}</td>
+        <td style="white-space:nowrap;">${d.toLocaleDateString()}</td>
         <td>${log.timeRange || '--'}</td>
-        <td>${log.categoryName}</td>
-        <td>${log.duration.toFixed(2)}h</td>
+        <td><span class="history-cat-badge">${log.categoryName}</span></td>
+        <td style="font-weight:700; color:var(--accent-blue);">${log.duration.toFixed(2)}h</td>
+        <td class="session-log-note" title="${log.note || ''}">${log.note || '--'}</td>
       </tr>
     `;
     })

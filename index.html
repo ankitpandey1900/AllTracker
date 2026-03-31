@@ -1,1157 +1,1074 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>All Tracker | Neon Arena</title>
-    <link rel="icon" type="image/png" href="/favicon.png" />
-    <link rel="shortcut icon" href="/favicon.png" type="image/x-icon" />
-    <link rel="apple-touch-icon" href="/favicon.png" />
-    <link rel="manifest" href="/manifest.json" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Tektur:wght@400..900&display=swap"
-      rel="stylesheet"
-    />
-    <meta name="theme-color" content="#0b0e1a" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta
-      name="apple-mobile-web-app-status-bar-style"
-      content="black-translucent"
-    />
-  </head>
 
-  <body class="antialiased selection:bg-indigo-500/30 selection:text-white">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>All Tracker | Neon Arena</title>
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link rel="shortcut icon" href="/logo.png" type="image/x-icon" />
+  <link rel="apple-touch-icon" href="/logo.png" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Tektur:wght@400..900&display=swap"
+    rel="stylesheet" />
+  <meta name="theme-color" content="#0b0e1a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+</head>
+
+<body class="antialiased selection:bg-indigo-500/30 selection:text-white">
     <header id="appHeader" class="app-header backdrop-blur-md">
-      <div class="brand">ALL TRACKER <span>ARENA</span></div>
-      <div class="header-actions">
-        <button id="startTimerBtn" class="btn btn-primary">Start Timer</button>
-        <button id="userManualBtn" class="btn">User Manual</button>
-        <button id="settingsBtn" class="btn">Settings</button>
-        <div id="headerRight">
-          <button class="btn-auth-trigger" id="authTriggerBtn">
-            Sync / Login
-          </button>
-        </div>
+      <div class="brand-group">
+        <img src="/logo.png" alt="AllTracker Arena Logo" class="app-logo">
+        <div class="brand">ALL TRACKER <span>ARENA</span></div>
       </div>
-    </header>
-
-    <main class="layout mx-auto">
-      <nav class="tabs">
-        <button class="nav-item active" data-target="dashboardPane">
-          Dashboard
+    <div class="header-actions">
+      <button id="startTimerBtn" class="btn btn-primary">Start Timer</button>
+      <button id="userManualBtn" class="btn">User Manual</button>
+      <button id="settingsBtn" class="btn">Settings</button>
+      <div id="headerRight">
+        <button class="btn-auth-trigger" id="authTriggerBtn">
+          Sync / Login
         </button>
-        <button class="nav-item" data-target="routinePane">Routine</button>
-        <button class="nav-item" data-target="tasksPane">Tasks</button>
-
-        <button class="nav-item" data-target="bookmarksPane">Bookmarks</button>
-        <button id="excalidrawToggle" class="nav-item" style="margin-left: auto; display: flex; align-items: center; gap: 6px;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-          Canvas
-        </button>
-      </nav>
-
-      <div id="drawSection" style="display: none; height: 600px">
-        <iframe
-          src="https://excalidraw.com"
-          width="100%"
-          height="80%"
-          style="border: 1px solid #ccc"
-          frameborder="0"
-        ></iframe>
       </div>
+    </div>
+  </header>
 
-      <section id="dashboardPane" class="view-pane active">
-        <article class="hero card shadow-2xl">
-          <div class="row-between hero-top">
-            <h1 id="heroStatusTitle">Initializing...</h1>
-            <div class="hero-day-chip">
-              <div id="currentDay">DAY 0</div>
-              <small>OF <span class="hero-total-days">-</span></small>
-            </div>
+  <main class="layout mx-auto">
+    <nav class="tabs">
+      <button class="nav-item active" data-target="dashboardPane">
+        Dashboard
+      </button>
+      <button class="nav-item" data-target="routinePane">Routine</button>
+      <button class="nav-item" data-target="tasksPane">Tasks</button>
+
+      <button class="nav-item" data-target="bookmarksPane">Bookmarks</button>
+      <button id="excalidrawToggle" class="nav-item"
+        style="margin-left: auto; display: flex; align-items: center; gap: 6px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 20h9" />
+          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+        </svg>
+        Canvas
+      </button>
+    </nav>
+
+    <div id="drawSection" style="display: none; height: 600px">
+      <iframe src="https://excalidraw.com" width="100%" height="80%" style="border: 1px solid #ccc"
+        frameborder="0"></iframe>
+    </div>
+
+    <section id="dashboardPane" class="view-pane active">
+      <article class="hero card shadow-2xl">
+        <div class="row-between hero-top">
+          <h1 id="heroStatusTitle">Initializing...</h1>
+          <div class="hero-day-chip">
+            <div id="currentDay">DAY 0</div>
+            <small>OF <span class="hero-total-days">-</span></small>
           </div>
-          <p class="hero-subtitle">
-            Day <span id="heroDayMirror">0</span> of
-            <span class="hero-total-days">-</span> •
-            <span id="heroStartDateMirror">Loading...</span>
-          </p>
-          <div class="hero-level-row">
-            <span id="levelBadge">LVL 0</span>
-            <div class="xp-track">
-              <div id="xpFill" class="xp-fill"></div>
-            </div>
+        </div>
+        <p class="hero-subtitle">
+          Day <span id="heroDayMirror">0</span> of
+          <span class="hero-total-days">-</span> •
+          <span id="heroStartDateMirror">Loading...</span>
+        </p>
+        <div class="hero-level-row">
+          <span id="levelBadge">LVL 0</span>
+          <div class="xp-track">
+            <div id="xpFill" class="xp-fill"></div>
+          </div>
+        </div>
+      </article>
+
+      <div class="grid-top kpi-grid items-stretch">
+        <article class="card">
+          <div class="label">Completion</div>
+          <div id="completionPercent" class="big">0%</div>
+          <div class="meta">
+            <span id="completedDaysCount">0</span> / <span class="hero-total-days">-</span> days
           </div>
         </article>
+        <article class="card">
+          <div class="label">Total Hours</div>
+          <div id="totalHours" class="big">0.0h</div>
+          <div class="meta">hours studied</div>
+        </article>
+        <article class="card">
+          <div class="label">Avg / Day</div>
+          <div class="big" id="avgHoursPerDay">0</div>
+          <div class="meta">hrs/day avg</div>
+        </article>
+        <article class="card rank-card">
+          <div class="label">Study Rank</div>
+          <div id="studyRank" class="big">IRON</div>
+          <div class="rank-tier-row"><span id="rankTierText">IV</span></div>
+          <div class="meta">
+            World rank: <span id="worldRankPos">#40,000,000</span>
+          </div>
+          <div class="xp-track">
+            <div id="rankXPBar" class="rank-fill"></div>
+          </div>
+        </article>
+      </div>
 
-        <div class="grid-top kpi-grid items-stretch">
-          <article class="card">
-            <div class="label">Completion</div>
-            <div id="completionPercent" class="big">0%</div>
-            <div class="meta">
-              <span id="completedDaysCount">0</span> / <span class="hero-total-days">-</span> days
-            </div>
-          </article>
-          <article class="card">
-            <div class="label">Total Hours</div>
-            <div id="totalHours" class="big">0.0h</div>
-            <div class="meta">hours studied</div>
-          </article>
-          <article class="card">
-            <div class="label">Avg / Day</div>
-            <div class="big" id="avgHoursPerDay">0</div>
-            <div class="meta">hrs/day avg</div>
-          </article>
-          <article class="card rank-card">
-            <div class="label">Study Rank</div>
-            <div id="studyRank" class="big">IRON</div>
-            <div class="rank-tier-row"><span id="rankTierText">IV</span></div>
-            <div class="meta">
-              World rank: <span id="worldRankPos">#40,000,000</span>
-            </div>
-            <div class="xp-track">
-              <div id="rankXPBar" class="rank-fill"></div>
-            </div>
-          </article>
-        </div>
+      <div class="grid-top stats-strip">
+        <article class="card compact">
+          <div class="label">Consistency</div>
+          <div class="big" id="consistencyStat">0%</div>
+          <div class="meta">last 7 days</div>
+        </article>
+        <article class="card compact">
+          <div class="label">Current Streak</div>
+          <div id="currentStreak" class="big">0 DAYS</div>
+          <div class="meta">days in a row</div>
+        </article>
+        <article class="card compact">
+          <div class="label">Best Streak</div>
+          <div class="big" id="bestStreakStat">0</div>
+          <div class="meta">days (all time)</div>
+        </article>
+        <article class="card compact">
+          <div class="label">Estimated Finish</div>
+          <div class="big" id="estimatedFinishDate">-</div>
+          <div class="meta" id="startDateLabel">Start: -</div>
+        </article>
+      </div>
 
-        <div class="grid-top stats-strip">
-          <article class="card compact">
-            <div class="label">Consistency</div>
-            <div class="big" id="consistencyStat">0%</div>
-            <div class="meta">last 7 days</div>
-          </article>
-          <article class="card compact">
-            <div class="label">Current Streak</div>
-            <div id="currentStreak" class="big">0 DAYS</div>
-            <div class="meta">days in a row</div>
-          </article>
-          <article class="card compact">
-            <div class="label">Best Streak</div>
-            <div class="big" id="bestStreakStat">0</div>
-            <div class="meta">days (all time)</div>
-          </article>
-          <article class="card compact">
-            <div class="label">Estimated Finish</div>
-            <div class="big" id="estimatedFinishDate">-</div>
-            <div class="meta" id="startDateLabel">Start: -</div>
-          </article>
-        </div>
+      <div class="row-between section-heading">
+        <h3>Category Progress</h3>
+      </div>
+      <div id="categoryCards" class="grid-top"></div>
 
+      <article class="card">
         <div class="row-between section-heading">
-          <h3>Category Progress</h3>
+          <h3>Overall Progress</h3>
+          <span id="completionPercentMirror">0%</span>
         </div>
-        <div id="categoryCards" class="grid-top"></div>
+        <div id="allocationBar" class="allocation-bar"></div>
+        <div id="allocationLegend" class="legend"></div>
+        <div class="allocation-scale">
+          <span>Day 1</span>
+          <span>Day <span class="hero-total-days">-</span></span>
+        </div>
+      </article>
 
-        <article class="card">
+      <div class="card study-log-controls">
+        <div class="study-log-top">
           <div class="row-between section-heading">
-            <h3>Overall Progress</h3>
-            <span id="completionPercentMirror">0%</span>
-          </div>
-          <div id="allocationBar" class="allocation-bar"></div>
-          <div id="allocationLegend" class="legend"></div>
-          <div class="allocation-scale">
-            <span>Day 1</span>
-            <span>Day <span class="hero-total-days">-</span></span>
-          </div>
-        </article>
-
-        <div class="card study-log-controls">
-          <div class="study-log-top">
-            <div class="row-between section-heading">
-              <h3>Study Log</h3>
-              <div class="study-log-pills">
-                <label class="pill"
-                  ><input id="filterWithHours" type="checkbox" /> With
-                  Hours</label
-                >
-                <label class="pill"
-                  ><input id="filterCompleted" type="checkbox" />
-                  Completed</label
-                >
-              </div>
-            </div>
-            <div class="study-log-actions">
-              <button id="quickEntryBtn" class="btn">Quick Entry</button>
-              <button id="jumpToTodayBtn" class="btn">Go to Today</button>
-              <button id="historyBtn" class="btn">History</button>
-              <button id="heatmapViewBtn" class="btn">Heatmap</button>
-              <button id="analyticsViewBtn" class="btn">Analytics</button>
-              <button id="badgesViewBtn" class="btn">Badges</button>
-              <button id="weeklyViewBtn" class="btn">Weekly Summary</button>
-              <button id="exportAllDataBtn" class="btn btn-primary">
-                Export All
-              </button>
-              <button id="importBtn" class="btn">Import</button>
-              <button id="exportCsvBtn" class="btn">Export CSV</button>
-              <button id="resetBtn" class="btn btn-danger">Reset</button>
+            <h3>Study Log</h3>
+            <div class="study-log-pills">
+              <label class="pill"><input id="filterWithHours" type="checkbox" /> With
+                Hours</label>
+              <label class="pill"><input id="filterCompleted" type="checkbox" />
+                Completed</label>
             </div>
           </div>
-          <div class="study-log-search-row">
-            <div class="search-shell">
-              <span class="search-icon">⌕</span>
-              <input
-                id="tableSearch"
-                class="input search-input"
-                placeholder="Search by day, date, topic, or project..."
-              />
-            </div>
+          <div class="study-log-actions">
+            <button id="quickEntryBtn" class="btn">Quick Entry</button>
+            <button id="jumpToTodayBtn" class="btn">Go to Today</button>
+            <button id="historyBtn" class="btn">History</button>
+            <button id="heatmapViewBtn" class="btn">Heatmap</button>
+            <button id="analyticsViewBtn" class="btn">Analytics</button>
+            <button id="badgesViewBtn" class="btn">Badges</button>
+            <button id="weeklyViewBtn" class="btn">Weekly Summary</button>
+            <button id="exportAllDataBtn" class="btn btn-primary">
+              Export All
+            </button>
+            <button id="importBtn" class="btn">Import</button>
+            <button id="exportCsvBtn" class="btn">Export CSV</button>
+            <button id="resetBtn" class="btn btn-danger">Reset</button>
           </div>
         </div>
-
-        <article class="card table-card overflow-hidden study-log-table">
-          <table id="trackerTable">
-            <thead>
-              <tr>
-                <th>Day</th>
-                <th>Date</th>
-                <th>Col 1</th>
-                <th>Col 2</th>
-                <th>Col 3</th>
-                <th>Col 4</th>
-                <th id="problemsSolvedHeader">Problems Solved</th>
-                <th>Topics</th>
-                <th>Project Work</th>
-                <th>Done</th>
-              </tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-          </table>
-        </article>
-      </section>
-
-      <section id="routinePane" class="view-pane">
-        <article class="card">
-          <div class="row-between">
-            <h2>Routine</h2>
-            <button id="addRoutineBtn" class="btn btn-primary">
-              Add Routine
-            </button>
+        <div class="study-log-search-row">
+          <div class="search-shell">
+            <span class="search-icon">⌕</span>
+            <input id="tableSearch" class="input search-input"
+              placeholder="Search by day, date, topic, or project..." />
           </div>
-          <div id="routineList"></div>
-        </article>
-        <div class="grid-2">
-          <article class="card">
-            <div class="row-between">
-              <h2>Routine Performance</h2>
-              <div class="filter-row">
-                <select id="chartDateFilter" class="input">
-                  <option value="21">Last 21 days</option>
-                  <option value="60">Last 60 days</option>
-                  <option value="all">All</option>
-                  <option value="custom">Custom</option>
-                </select>
-                <div id="customChartRange" style="display: none">
-                  <input
-                    id="chartStartDay"
-                    class="input small"
-                    type="number"
-                    placeholder="Start day"
-                  />
-                  <input
-                    id="chartEndDay"
-                    class="input small"
-                    type="number"
-                    placeholder="End day"
-                  />
-                  <button id="applyChartFilterBtn" class="btn">Apply</button>
-                </div>
-              </div>
-            </div>
-            <div class="stats-line">
-              <span>Active Days: <strong id="habitActiveDays">0</strong></span>
-              <span
-                >Consistency: <strong id="habitConsistency">0%</strong></span
-              >
-            </div>
-            <div class="chart-wrap">
-              <canvas id="performanceChart"></canvas>
-            </div>
-          </article>
-
-          <article class="card">
-            <div class="row-between">
-              <h2>Arena Skill Radar</h2>
-              <div class="label">Today's Stats</div>
-            </div>
-            <div class="chart-wrap radar-wrap">
-              <canvas id="skillRadarChart"></canvas>
-            </div>
-            <div class="stats-line mini">
-              <span>Discipline: <strong id="radarDiscipline">0%</strong></span>
-              <span>Endurance: <strong id="radarEndurance">0%</strong></span>
-            </div>
-          </article>
         </div>
-      </section>
+      </div>
 
-      <section id="tasksPane" class="view-pane">
-        <article class="card">
-          <div class="row-between">
-            <h2>Mission Control</h2>
-            <div class="task-stats">
-              <span id="backlogCount" class="badge-backlog">0 Backlog</span>
-            </div>
-          </div>
+      <article class="card table-card overflow-hidden study-log-table">
+        <table id="trackerTable">
+          <thead>
+            <tr>
+              <th>Day</th>
+              <th>Date</th>
+              <th>Col 1</th>
+              <th>Col 2</th>
+              <th>Col 3</th>
+              <th>Col 4</th>
+              <th id="problemsSolvedHeader">Problems Solved</th>
+              <th>Topics</th>
+              <th>Project Work</th>
+              <th>Done</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </article>
+    </section>
 
-          <div class="task-input-wrap">
-            <input
-              id="newTaskInput"
-              class="input"
-              placeholder="Add a new objective (e.g., React Lec - 1)..."
-            />
-            <button id="addTaskBtn" class="btn btn-primary">Add Task</button>
-          </div>
-
-          <div class="tasks-container">
-            <div class="task-section">
-              <h3 class="section-title today-title">Today's Missions</h3>
-              <div id="todayTasksList" class="task-list"></div>
-            </div>
-
-            <div class="task-section">
-              <h3 class="section-title backlog-title">The Backlog</h3>
-              <div id="backlogTasksList" class="task-list"></div>
-            </div>
-
-            <div class="task-section">
-              <h3 class="section-title history-title">History</h3>
-              <div id="completedTasksList" class="task-list"></div>
-            </div>
-          </div>
-        </article>
-      </section>
-
-      <section id="bookmarksPane" class="view-pane">
-        <article class="card">
-          <div class="row-between">
-            <h2>Bookmarks Vault</h2>
-            <button id="addBookmarkBtn" class="btn btn-primary">
-              Add Bookmark
-            </button>
-          </div>
-          <div id="bookmarkFilters" class="bookmark-filters"></div>
-          <div id="bookmarkList"></div>
-        </article>
-      </section>
-    </main>
-
-    <div id="focusHud" class="focus-hud">
-      <div id="activeTimerSection" style="display: none">
-        <div class="hud-top-bar">
-          <div class="hud-drag-handle" title="Drag to move">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/></svg>
-          </div>
-          <button id="manualFocusToggle" class="btn-icon minimize-btn" title="Toggle Mini-Player">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h6v6"/><path d="M20 10h-6V4"/><path d="M14 10l7-7"/><path d="M3 21l7-7"/></svg>
-            <span id="focusToggleText" style="display:none;">Minimize HUD</span>
+    <section id="routinePane" class="view-pane">
+      <article class="card">
+        <div class="row-between">
+          <h2>Routine</h2>
+          <button id="addRoutineBtn" class="btn btn-primary">
+            Add Routine
           </button>
         </div>
+        <div id="routineList"></div>
+      </article>
+      <div class="grid-2">
+        <article class="card">
+          <div class="row-between">
+            <h2>Routine Performance</h2>
+            <div class="filter-row">
+              <select id="chartDateFilter" class="input">
+                <option value="21">Last 21 days</option>
+                <option value="60">Last 60 days</option>
+                <option value="all">All</option>
+                <option value="custom">Custom</option>
+              </select>
+              <div id="customChartRange" style="display: none">
+                <input id="chartStartDay" class="input small" type="number" placeholder="Start day" />
+                <input id="chartEndDay" class="input small" type="number" placeholder="End day" />
+                <button id="applyChartFilterBtn" class="btn">Apply</button>
+              </div>
+            </div>
+          </div>
+          <div class="stats-line">
+            <span>Active Days: <strong id="habitActiveDays">0</strong></span>
+            <span>Consistency: <strong id="habitConsistency">0%</strong></span>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="performanceChart"></canvas>
+          </div>
+        </article>
 
-        <div class="timer-circle-container">
-          <div class="ring-wrap">
-            <svg class="progress-ring" width="280" height="280">
-              <defs>
-                <linearGradient id="timerRingGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#22d3ee" />
-                  <stop offset="50%" stop-color="#6a86ff" />
-                  <stop offset="100%" stop-color="#8b5cf6" />
-                </linearGradient>
-              </defs>
-              <circle class="progress-ring__bg" stroke="rgba(255,255,255,0.04)" stroke-width="2" fill="transparent" r="130" cx="140" cy="140"></circle>
-              <circle class="progress-ring__circle" stroke="url(#timerRingGradient)" stroke-linecap="round" stroke-width="6" fill="transparent" r="130" cx="140" cy="140"></circle>
+        <article class="card">
+          <div class="row-between">
+            <h2>Arena Skill Radar</h2>
+            <div class="label">Today's Stats</div>
+          </div>
+          <div class="chart-wrap radar-wrap">
+            <canvas id="skillRadarChart"></canvas>
+          </div>
+          <div class="stats-line mini">
+            <span>Discipline: <strong id="radarDiscipline">0%</strong></span>
+            <span>Endurance: <strong id="radarEndurance">0%</strong></span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="tasksPane" class="view-pane">
+      <article class="card">
+        <div class="row-between">
+          <h2>Mission Control</h2>
+          <div class="task-stats">
+            <span id="backlogCount" class="badge-backlog">0 Backlog</span>
+          </div>
+        </div>
+
+        <div class="task-input-wrap">
+          <input id="newTaskInput" class="input" placeholder="Add a new objective (e.g., React Lec - 1)..." />
+          <div id="taskPrioritySelector" class="priority-segmented-control">
+            <button type="button" class="priority-btn" data-priority="1" title="Low Priority">L</button>
+            <button type="button" class="priority-btn active" data-priority="2" title="Medium Priority">M</button>
+            <button type="button" class="priority-btn" data-priority="3" title="High Priority">H</button>
+          </div>
+          <button id="addTaskBtn" class="btn btn-primary">Add Task</button>
+        </div>
+
+        <div class="tasks-container">
+          <div class="task-section">
+            <h3 class="section-title today-title">Today's Missions</h3>
+            <div id="todayTasksList" class="task-list"></div>
+          </div>
+
+          <div class="task-section">
+            <h3 class="section-title backlog-title">The Backlog</h3>
+            <div id="backlogTasksList" class="task-list"></div>
+          </div>
+
+          <div class="task-section">
+            <h3 class="section-title history-title">History</h3>
+            <div id="completedTasksList" class="task-list"></div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section id="bookmarksPane" class="view-pane">
+      <article class="card">
+        <div class="row-between">
+          <h2>Bookmarks Vault</h2>
+          <button id="addBookmarkBtn" class="btn btn-primary">
+            Add Bookmark
+          </button>
+        </div>
+        <div id="bookmarkFilters" class="bookmark-filters"></div>
+        <div id="bookmarkList"></div>
+      </article>
+    </section>
+  </main>
+
+  <div id="focusHud" class="focus-hud">
+    <div id="activeTimerSection" style="display: none">
+      <div class="hud-top-bar">
+        <div class="hud-drag-handle" title="Drag to move">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="9" cy="12" r="1" />
+            <circle cx="9" cy="5" r="1" />
+            <circle cx="9" cy="19" r="1" />
+            <circle cx="15" cy="12" r="1" />
+            <circle cx="15" cy="5" r="1" />
+            <circle cx="15" cy="19" r="1" />
+          </svg>
+        </div>
+        <button id="manualFocusToggle" class="btn-icon minimize-btn" title="Toggle Mini-Player">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 14h6v6" />
+            <path d="M20 10h-6V4" />
+            <path d="M14 10l7-7" />
+            <path d="M3 21l7-7" />
+          </svg>
+          <span id="focusToggleText" style="display:none;">Minimize HUD</span>
+        </button>
+      </div>
+
+      <div class="timer-circle-container">
+        <div class="ring-wrap">
+          <svg class="progress-ring" width="280" height="280">
+            <defs>
+              <linearGradient id="timerRingGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#22d3ee" />
+                <stop offset="50%" stop-color="#6a86ff" />
+                <stop offset="100%" stop-color="#8b5cf6" />
+              </linearGradient>
+            </defs>
+            <circle class="progress-ring__bg" stroke="rgba(255,255,255,0.04)" stroke-width="2" fill="transparent"
+              r="130" cx="140" cy="140"></circle>
+            <circle class="progress-ring__circle" stroke="url(#timerRingGradient)" stroke-linecap="round"
+              stroke-width="6" fill="transparent" r="130" cx="140" cy="140"></circle>
+          </svg>
+        </div>
+        <div class="timer-center-content">
+          <div class="label" id="timerSubject">DEEP FOCUS</div>
+          <div id="timerDisplay" class="timer-display">00:00:00</div>
+          <div id="focusActiveTaskContainer" style="display: none">
+            <span id="nowPlayingTask" class="timer-task-text">--</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="control-row">
+        <button id="timerPauseBtn" class="btn btn-outline">Pause</button>
+        <button id="timerStopBtn" class="btn btn-danger glow-danger">Stop</button>
+      </div>
+      <div class="session-goal-row">
+        <label for="sessionGoalInput">Session Goal (mins)</label>
+        <input id="sessionGoalInput" class="input small" type="number" min="1" value="60" />
+      </div>
+    </div>
+  </div>
+
+  <div id="toastContainer" class="toast-container"></div>
+
+  <div class="modal" id="timerModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Start Session</h2>
+        <button id="closeTimerModal" class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <select id="timerCategorySelect" class="input"></select>
+        <button id="confirmStartTimerBtn" class="btn btn-primary">
+          Start Timer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Manual Modal -->
+  <div class="modal" id="userManualModal">
+    <div class="modal-content wide user-manual">
+      <div class="modal-header">
+        <h2>📖 All Tracker: Guide for Legends (and Noobs)</h2>
+        <button id="closeUserManualModal" class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body manual-body">
+        <section class="manual-section">
+          <h3>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
             </svg>
-          </div>
-          <div class="timer-center-content">
-            <div class="label" id="timerSubject">DEEP FOCUS</div>
-            <div id="timerDisplay" class="timer-display">00:00:00</div>
-            <div id="focusActiveTaskContainer" style="display: none">
-              <span id="nowPlayingTask" class="timer-task-text">--</span>
+            🚀 Welcome to the Arena!
+          </h3>
+          <p>
+            Bhai/Behen, agar tu yahan hai, toh matlab tere paas bohot bade
+            goals hain par shayad thodi discipline ki kami hai. Don't worry,
+            Yeh Neon Arena tujhe discipline sikhayega aur agar nahi sikha toh
+            roast toh zaroor karega! 😆
+          </p>
+        </section>
+
+        <section class="manual-section">
+          <h3>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path
+                d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z">
+              </path>
+            </svg>
+            🛠️ 1. Getting Started (Pehle Yeh Kar!)
+          </h3>
+          <ul>
+            <li>
+              <strong>Settings (Ctrl+,):</strong> Sabse pehle jaake apna
+              <strong>Start Date</strong> aur <strong>End Date</strong> fix
+              kar. Default dates pe mat chor, warna tracker tujhe hamesha
+              'Loading' hi dikhayega.
+            </li>
+            <li>
+              <strong>Column Labels:</strong> 'Python', 'DSA' ye toh default
+              hain. Agar tujhe 'Web Dev' ya 'Hacking' pasand hai, toh Settings
+              mein jaake unhe rename karle. It's your world!
+            </li>
+            <li>
+              <strong>Beast Mode:</strong> Isse on kar agar tujhe thori extra
+              motivation chahiye. Neon glowing vibes milengi! 🌌
+            </li>
+          </ul>
+        </section>
+
+        <section class="manual-section">
+          <h3>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+            📝 2. Daily Tracking (Data Bharna Seekh!)
+          </h3>
+          <ul>
+            <li>
+              <strong>The Tracker Table:</strong> Table pe seedha click kar
+              kisi bhi cell pe aur value likh de. Ctrl+S dabane ki zarurat
+              nahi, auto-save hota hai. Smart hai bro!
+            </li>
+            <li>
+              <strong>Go to Today:</strong> Agar table mein kho gaye ho, toh
+              Study Log toolbar mein <strong>"Go to Today"</strong> button
+              dabao. Table apne aap scroll hoke aaj ke din pe aa jayega.
+            </li>
+            <li>
+              <strong>Quick Entry (Ctrl+K):</strong> Agar table scroll karne
+              mein alas aa raha hai, toh Ctrl+K daba aur jaldi se data bhar ke
+              nikal le.
+            </li>
+            <li>
+              <strong>Bulk Entry:</strong> Agar pura week miss kar diya
+              (shame!), toh Bulk Entry use kar ke ek saath saare dino ka
+              record thik karle. Par aage se mat karna! 🤨
+            </li>
+          </ul>
+        </section>
+
+        <section class="manual-section">
+          <h3>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            🦾 3. Mission Control (Specific Tasks)
+          </h3>
+          <ul>
+            <li>
+              <strong>Daily Objectives:</strong> Yeh un tasks ke liye hai jo
+              routine ka part nahi hain (e.g., "Complete React Hooks Video").
+            </li>
+            <li>
+              <strong>The Backlog:</strong> Agar aaj koi task reh gaya, toh
+              kal woh apne aap <strong>Backlog</strong> mein shift ho jayega.
+              Use khatam kar warna badge orange hi rahega!
+            </li>
+            <li>
+              <strong>Auto-Cleanup:</strong> History ko saaf rakhne ke liye,
+              completed tasks <strong>3 din</strong> baad apne aap delete ho
+              jayenge. Focus on the future!
+            </li>
+          </ul>
+        </section>
+
+        <section class="manual-section highlight-section">
+          <h3>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+            </svg>
+            🔥 How to Use Neon Arena Like a Legend (Step-by-Step)
+          </h3>
+          <div class="steps-flow">
+            <div class="step">
+              <span class="step-num">01</span>
+              <div class="step-content">
+                <h4>Niyat Saaf Kar (Setup)</h4>
+                <p>
+                  Sabse pehle <strong>Settings</strong> mein jaake apne dates
+                  set kar. Agar end date 2099 hai toh bhai tu amar hai kya? 💀
+                  Realistic dates rakh aur <strong>Sync/Login</strong> zarur
+                  karle warna local storage udd gaya toh tera career bhi udd
+                  jayega.
+                </p>
+              </div>
+            </div>
+            <div class="step">
+              <span class="step-num">02</span>
+              <div class="step-content">
+                <h4>Morning Rituals (Routine)</h4>
+                <p>
+                  Din shuru hote hi <strong>Routine</strong> tab pe ja. Wahan
+                  tere daily tasks (Exercise, Meditation, etc.) wait kar rahe
+                  hain. Unpe checkmark lagana shuru kar. Productivity ka nasha
+                  yahin se shuru hoga!
+                </p>
+              </div>
+            </div>
+            <div class="step">
+              <span class="step-num">03</span>
+              <div class="step-content">
+                <h4>Deep Work Mode (Timer)</h4>
+                <p>
+                  Jab padhne baitho toh <strong>Start Timer</strong> button
+                  dabao. Category select kar aur phone ko fek de. Jab tak
+                  timer chal raha hai, tu duniya ke liye gayab hai. Focus kar,
+                  distract mat ho.
+                </p>
+              </div>
+            </div>
+            <div class="step">
+              <span class="step-num">04</span>
+              <div class="step-content">
+                <h4>Log the Grind (Entry)</h4>
+                <p>
+                  Padhai khatam? Ab <strong>Quick Entry</strong> (Ctrl+K)
+                  khol. Kitne ghante padha, kitne problems solve kiye, aur kya
+                  topics cover kiye—sab likh. Topic mein "Padh liya" mat
+                  likhna, details likh taaki baad mein revision mein kaam
+                  aaye.
+                </p>
+              </div>
+            </div>
+            <div class="step">
+              <span class="step-num">05</span>
+              <div class="step-content">
+                <h4>Mirror Check (Review)</h4>
+                <p>
+                  Hafte ke end mein <strong>Heatmap</strong> (Ctrl+H) aur
+                  <strong>Analytics</strong> khol ke dekh. Agar chart niche ja
+                  raha hai toh mirror mein dekh ke khud ko do-char gaali de
+                  aur agle hafte backup kar. 📈
+                </p>
+              </div>
             </div>
           </div>
-        </div>
+        </section>
 
-        <div class="control-row">
-          <button id="timerPauseBtn" class="btn btn-outline">Pause</button>
-          <button id="timerStopBtn" class="btn btn-danger glow-danger">Stop</button>
-        </div>
-        <div class="session-goal-row">
-          <label for="sessionGoalInput">Session Goal (mins)</label>
-          <input
-            id="sessionGoalInput"
-            class="input small"
-            type="number"
-            min="1"
-            value="60"
-          />
+        <section class="manual-section">
+          <h3>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            ⌨️ 4. Keyboard Shortcuts (Pro Level!)
+          </h3>
+          <div class="shortcuts-grid">
+            <div class="shortcut-item">
+              <code>Ctrl + K</code>
+              <span>Quick Entry (Aaj ka ya purana data)</span>
+            </div>
+            <div class="shortcut-item">
+              <code>Ctrl + T</code>
+              <span>Today's Entry (Seedha aaj ka status)</span>
+            </div>
+            <div class="shortcut-item">
+              <code>Ctrl + H</code>
+              <span>Heatmap (Dekh kitna green hua hai table)</span>
+            </div>
+            <div class="shortcut-item">
+              <code>Ctrl + W</code>
+              <span>Weekly Summary (Pura week kitna padha?)</span>
+            </div>
+            <div class="shortcut-item">
+              <code>Ctrl + ,</code>
+              <span>Settings (Dates aur Labels badalne ke liye)</span>
+            </div>
+            <div class="shortcut-item">
+              <code>Ctrl + F</code>
+              <span>Search (Purana data dhundne ke liye)</span>
+            </div>
+            <div class="shortcut-item">
+              <code>Esc</code>
+              <span>Close Modal (Bas band kar de modals!)</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="manual-section">
+          <h3>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path>
+              <path d="M22 12A10 10 0 0 0 12 2v10z"></path>
+            </svg>
+            📊 5. Analytics & World Ranking
+          </h3>
+          <p>
+            Dashboard pe charts aur badges dekhte rehna. Agar
+            <strong>"Study Output Trends"</strong> niche ja raha hai, toh
+            bhai/behen, phone band kar aur padhne baith. 📉
+          </p>
+          <p>
+            <strong>World Ranking:</strong> Tu akela nahi hai! Tera
+            <strong>#Rank</strong> dikhata hai ki tu duniya ke 40 million
+            students mein kahan khada hai. Jitna padhega, utna rank #1 ke
+            kareeb jayega.
+          </p>
+          <p>
+            <strong>Badges:</strong> Ye achievements tere self-respect ke liye
+            hain. Sab unlock kar aur proud feel kar!
+          </p>
+        </section>
+
+        <section class="manual-section highlight-section">
+          <h3>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+              <path d="M2 17l10 5 10-5"></path>
+              <path d="M2 12l10 5 10-5"></path>
+            </svg>
+            💎 6. Eternity Edition — Naya Maal!
+          </h3>
+          <p>
+            Yeh update un logon ke liye hai jo serious hain. Naye features use
+            kar aur pro ban:
+          </p>
+          <ul>
+            <li>
+              <strong>Streak Freeze (Snowflake):</strong> Agar kisi din
+              emergency aa jaye ya 'Rest Day' chahiye, toh table row mein
+              <strong>Snowflake icon</strong> daba de. Tera streak break nahi
+              hoga. Isse hamesha use mat karna, warna rank gir jayega! ❄️
+            </li>
+            <li>
+              <strong>Mission Alerts:</strong> Ab Arena tujhe khud bulayega.
+              <strong>8 PM Reminder</strong> milega agar tune padhai nahi ki,
+              aur <strong>15-Min Mission Alert</strong> milega har routine
+              item se pehle. Notifications ON rakhna! ⚡
+            </li>
+            <li>
+              <strong>Priority Control:</strong> Mission Control mein tasks ko
+              <strong>High (🔴)</strong>, <strong>Med (🟡)</strong>, ya
+              <strong>Low (🟢)</strong> priority de. Sabse pehle Red wala
+              khatam kar!
+            </li>
+            <li>
+              <strong>Session Reflection:</strong> Timer band karte hi note
+              likhna mat bhoolna. Tera note apne aap <strong>History</strong>
+              aur table ke <strong>Topics</strong> column mein sync ho jayega.
+              Professional setup, bro! 📝
+            </li>
+            <li>
+              <strong>History Filter:</strong> Purana note nahi mil raha?
+              History khol aur date filter use kar. Precision engineering!
+            </li>
+          </ul>
+        </section>
+
+        <section class="manual-section">
+          <h3>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11l5 4V15z"></path>
+            </svg>
+            ☁️ 6. Cloud Sync (Data Bachao!)
+          </h3>
+          <p>
+            Agar tu chahta hai ki tera data browser crash hone pe bhi safe
+            rahe, toh <strong>Sync / Login</strong> button pe click kar.
+            Supabase se connect ho ja aur chain ki neend so. 😴
+          </p>
+        </section>
+
+        <div class="manual-footer highlight">
+          <p>
+            <strong>Pro Tip:</strong> Roz table ko 'green' dekhne ki koshish
+            kar. Consistency hi tujhe legend banayegi. Ab jaake padh le ❤️
+          </p>
         </div>
       </div>
     </div>
+  </div>
 
-    <div id="toastContainer" class="toast-container"></div>
-
-    <div class="modal" id="timerModal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>Start Session</h2>
-          <button id="closeTimerModal" class="modal-close">&times;</button>
-        </div>
-        <div class="modal-body">
-          <select id="timerCategorySelect" class="input"></select>
-          <button id="confirmStartTimerBtn" class="btn btn-primary">
-            Start Timer
-          </button>
-        </div>
+  <div class="modal" id="settingsModal">
+    <div class="modal-content wide">
+      <div class="modal-header">
+        <h2>Settings</h2>
+        <button id="closeSettingsModal" class="modal-close">&times;</button>
       </div>
-    </div>
-
-    <!-- User Manual Modal -->
-    <div class="modal" id="userManualModal">
-      <div class="modal-content wide user-manual">
-        <div class="modal-header">
-          <h2>📖 All Tracker: Guide for Legends (and Noobs)</h2>
-          <button id="closeUserManualModal" class="modal-close">&times;</button>
-        </div>
-        <div class="modal-body manual-body">
-          <section class="manual-section">
-            <h3>
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
-              </svg>
-              🚀 Welcome to the Arena!
-            </h3>
-            <p>
-              Bhai/Behen, agar tu yahan hai, toh matlab tere paas bohot bade
-              goals hain par shayad thodi discipline ki kami hai. Don't worry,
-              Yeh Neon Arena tujhe discipline sikhayega aur agar nahi sikha toh
-              roast toh zaroor karega! 😆
-            </p>
-          </section>
-
-          <section class="manual-section">
-            <h3>
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path
-                  d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"
-                ></path>
-              </svg>
-              🛠️ 1. Getting Started (Pehle Yeh Kar!)
-            </h3>
-            <ul>
-              <li>
-                <strong>Settings (Ctrl+,):</strong> Sabse pehle jaake apna
-                <strong>Start Date</strong> aur <strong>End Date</strong> fix
-                kar. Default dates pe mat chor, warna tracker tujhe hamesha
-                'Loading' hi dikhayega.
-              </li>
-              <li>
-                <strong>Column Labels:</strong> 'Python', 'DSA' ye toh default
-                hain. Agar tujhe 'Web Dev' ya 'Hacking' pasand hai, toh Settings
-                mein jaake unhe rename karle. It's your world!
-              </li>
-              <li>
-                <strong>Beast Mode:</strong> Isse on kar agar tujhe thori extra
-                motivation chahiye. Neon glowing vibes milengi! 🌌
-              </li>
-            </ul>
-          </section>
-
-          <section class="manual-section">
-            <h3>
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path
-                  d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
-                ></path>
-                <path
-                  d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
-                ></path>
-              </svg>
-              📝 2. Daily Tracking (Data Bharna Seekh!)
-            </h3>
-            <ul>
-              <li>
-                <strong>The Tracker Table:</strong> Table pe seedha click kar
-                kisi bhi cell pe aur value likh de. Ctrl+S dabane ki zarurat
-                nahi, auto-save hota hai. Smart hai bro!
-              </li>
-              <li>
-                <strong>Go to Today:</strong> Agar table mein kho gaye ho, toh
-                Study Log toolbar mein <strong>"Go to Today"</strong> button
-                dabao. Table apne aap scroll hoke aaj ke din pe aa jayega.
-              </li>
-              <li>
-                <strong>Quick Entry (Ctrl+K):</strong> Agar table scroll karne
-                mein alas aa raha hai, toh Ctrl+K daba aur jaldi se data bhar ke
-                nikal le.
-              </li>
-              <li>
-                <strong>Bulk Entry:</strong> Agar pura week miss kar diya
-                (shame!), toh Bulk Entry use kar ke ek saath saare dino ka
-                record thik karle. Par aage se mat karna! 🤨
-              </li>
-            </ul>
-          </section>
-
-          <section class="manual-section">
-            <h3>
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-              </svg>
-              🦾 3. Mission Control (Specific Tasks)
-            </h3>
-            <ul>
-              <li>
-                <strong>Daily Objectives:</strong> Yeh un tasks ke liye hai jo
-                routine ka part nahi hain (e.g., "Complete React Hooks Video").
-              </li>
-              <li>
-                <strong>The Backlog:</strong> Agar aaj koi task reh gaya, toh
-                kal woh apne aap <strong>Backlog</strong> mein shift ho jayega.
-                Use khatam kar warna badge orange hi rahega!
-              </li>
-              <li>
-                <strong>Auto-Cleanup:</strong> History ko saaf rakhne ke liye,
-                completed tasks <strong>3 din</strong> baad apne aap delete ho
-                jayenge. Focus on the future!
-              </li>
-            </ul>
-          </section>
-
-          <section class="manual-section highlight-section">
-            <h3>
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-              </svg>
-              🔥 How to Use Neon Arena Like a Legend (Step-by-Step)
-            </h3>
-            <div class="steps-flow">
-              <div class="step">
-                <span class="step-num">01</span>
-                <div class="step-content">
-                  <h4>Niyat Saaf Kar (Setup)</h4>
-                  <p>
-                    Sabse pehle <strong>Settings</strong> mein jaake apne dates
-                    set kar. Agar end date 2099 hai toh bhai tu amar hai kya? 💀
-                    Realistic dates rakh aur <strong>Sync/Login</strong> zarur
-                    karle warna local storage udd gaya toh tera career bhi udd
-                    jayega.
-                  </p>
-                </div>
+      <div class="modal-body">
+        <div class="settings-section">
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <h4>Date Range</h4>
+            </div>
+            <div class="range-grid">
+              <div class="settings-group">
+                <label>Start Date</label>
+                <input id="startDateInput" class="settings-input" type="date" />
               </div>
-              <div class="step">
-                <span class="step-num">02</span>
-                <div class="step-content">
-                  <h4>Morning Rituals (Routine)</h4>
-                  <p>
-                    Din shuru hote hi <strong>Routine</strong> tab pe ja. Wahan
-                    tere daily tasks (Exercise, Meditation, etc.) wait kar rahe
-                    hain. Unpe checkmark lagana shuru kar. Productivity ka nasha
-                    yahin se shuru hoga!
-                  </p>
-                </div>
-              </div>
-              <div class="step">
-                <span class="step-num">03</span>
-                <div class="step-content">
-                  <h4>Deep Work Mode (Timer)</h4>
-                  <p>
-                    Jab padhne baitho toh <strong>Start Timer</strong> button
-                    dabao. Category select kar aur phone ko fek de. Jab tak
-                    timer chal raha hai, tu duniya ke liye gayab hai. Focus kar,
-                    distract mat ho.
-                  </p>
-                </div>
-              </div>
-              <div class="step">
-                <span class="step-num">04</span>
-                <div class="step-content">
-                  <h4>Log the Grind (Entry)</h4>
-                  <p>
-                    Padhai khatam? Ab <strong>Quick Entry</strong> (Ctrl+K)
-                    khol. Kitne ghante padha, kitne problems solve kiye, aur kya
-                    topics cover kiye—sab likh. Topic mein "Padh liya" mat
-                    likhna, details likh taaki baad mein revision mein kaam
-                    aaye.
-                  </p>
-                </div>
-              </div>
-              <div class="step">
-                <span class="step-num">05</span>
-                <div class="step-content">
-                  <h4>Mirror Check (Review)</h4>
-                  <p>
-                    Hafte ke end mein <strong>Heatmap</strong> (Ctrl+H) aur
-                    <strong>Analytics</strong> khol ke dekh. Agar chart niche ja
-                    raha hai toh mirror mein dekh ke khud ko do-char gaali de
-                    aur agle hafte backup kar. 📈
-                  </p>
-                </div>
+              <div class="settings-group">
+                <label>End Date</label>
+                <input id="endDateInput" class="settings-input" type="date" />
               </div>
             </div>
-          </section>
-
-          <section class="manual-section">
-            <h3>
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                <path
-                  d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
-                ></path>
-              </svg>
-              ⌨️ 4. Keyboard Shortcuts (Pro Level!)
-            </h3>
-            <div class="shortcuts-grid">
-              <div class="shortcut-item">
-                <code>Ctrl + K</code>
-                <span>Quick Entry (Aaj ka ya purana data)</span>
-              </div>
-              <div class="shortcut-item">
-                <code>Ctrl + T</code>
-                <span>Today's Entry (Seedha aaj ka status)</span>
-              </div>
-              <div class="shortcut-item">
-                <code>Ctrl + H</code>
-                <span>Heatmap (Dekh kitna green hua hai table)</span>
-              </div>
-              <div class="shortcut-item">
-                <code>Ctrl + W</code>
-                <span>Weekly Summary (Pura week kitna padha?)</span>
-              </div>
-              <div class="shortcut-item">
-                <code>Ctrl + ,</code>
-                <span>Settings (Dates aur Labels badalne ke liye)</span>
-              </div>
-              <div class="shortcut-item">
-                <code>Ctrl + F</code>
-                <span>Search (Purana data dhundne ke liye)</span>
-              </div>
-              <div class="shortcut-item">
-                <code>Esc</code>
-                <span>Close Modal (Bas band kar de modals!)</span>
-              </div>
-            </div>
-          </section>
-
-          <section class="manual-section">
-            <h3>
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path>
-                <path d="M22 12A10 10 0 0 0 12 2v10z"></path>
-              </svg>
-              📊 5. Analytics & World Ranking
-            </h3>
-            <p>
-              Dashboard pe charts aur badges dekhte rehna. Agar
-              <strong>"Study Output Trends"</strong> niche ja raha hai, toh
-              bhai/behen, phone band kar aur padhne baith. 📉
-            </p>
-            <p>
-              <strong>World Ranking:</strong> Tu akela nahi hai! Tera
-              <strong>#Rank</strong> dikhata hai ki tu duniya ke 40 million
-              students mein kahan khada hai. Jitna padhega, utna rank #1 ke
-              kareeb jayega.
-            </p>
-            <p>
-              <strong>Badges:</strong> Ye achievements tere self-respect ke liye
-              hain. Sab unlock kar aur proud feel kar!
-            </p>
-          </section>
-
-          <section class="manual-section">
-            <h3>
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path
-                  d="M21 15V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11l5 4V15z"
-                ></path>
-              </svg>
-              ☁️ 6. Cloud Sync (Data Bachao!)
-            </h3>
-            <p>
-              Agar tu chahta hai ki tera data browser crash hone pe bhi safe
-              rahe, toh <strong>Sync / Login</strong> button pe click kar.
-              Supabase se connect ho ja aur chain ki neend so. 😴
-            </p>
-          </section>
-
-          <div class="manual-footer highlight">
-            <p>
-              <strong>Pro Tip:</strong> Roz table ko 'green' dekhne ki koshish
-              kar. Consistency hi tujhe legend banayegi. Ab jaake padh le ❤️
-            </p>
+            <button id="applyDateSettings" class="btn btn-primary w-full">
+              Apply Dates
+            </button>
           </div>
         </div>
-      </div>
-    </div>
 
-    <div class="modal" id="settingsModal">
-      <div class="modal-content wide">
-        <div class="modal-header">
-          <h2>Settings</h2>
-          <button id="closeSettingsModal" class="modal-close">&times;</button>
+        <div class="settings-section">
+          <div class="row-between section-heading" style="margin-top: 10px">
+            <h3>Range-Based Category Management</h3>
+            <button id="addCustomRangeBtn" class="btn btn-primary">
+              + Add New Study Phase (Range)
+            </button>
+          </div>
+          <div id="customRangesList"></div>
         </div>
-        <div class="modal-body">
-          <div class="settings-section">
-            <div class="settings-card">
-              <div class="settings-card-header">
-                <h4>Date Range</h4>
-              </div>
-              <div class="range-grid">
-                <div class="settings-group">
-                  <label>Start Date</label>
-                  <input
-                    id="startDateInput"
-                    class="settings-input"
-                    type="date"
-                  />
-                </div>
-                <div class="settings-group">
-                  <label>End Date</label>
-                  <input id="endDateInput" class="settings-input" type="date" />
-                </div>
-              </div>
-              <button id="applyDateSettings" class="btn btn-primary w-full">
-                Apply Dates
-              </button>
-            </div>
-          </div>
 
-          <div class="settings-section">
-            <div class="row-between section-heading" style="margin-top: 10px">
-              <h3>Range-Based Category Management</h3>
-              <button id="addCustomRangeBtn" class="btn btn-primary">
-                + Add New Study Phase (Range)
-              </button>
-            </div>
-            <div id="customRangesList"></div>
-          </div>
-
-          <div class="settings-section">
-            <div class="row-between section-heading" style="margin-top: 20px">
-              <div
-                class="settings-group"
-                style="flex-direction: row; align-items: center; gap: 10px"
-              >
-                <input
-                  id="beastModeToggle"
-                  type="checkbox"
-                  style="
+        <div class="settings-section">
+          <div class="row-between section-heading" style="margin-top: 20px">
+            <div class="settings-group" style="flex-direction: row; align-items: center; gap: 10px">
+              <input id="beastModeToggle" type="checkbox" style="
                     width: 18px;
                     height: 18px;
                     accent-color: var(--accent-blue);
-                  "
-                />
-                <label for="beastModeToggle" style="margin: 0; cursor: pointer"
-                  >Beast Mode</label
-                >
-              </div>
-              <button
-                id="applyColumnSettings"
-                class="btn btn-primary"
-                style="padding: 12px 30px"
-              >
-                Apply All Changes
-              </button>
+                  " />
+              <label for="beastModeToggle" style="margin: 0; cursor: pointer">Beast Mode</label>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal" id="quickEntryModal">
-      <div class="modal-content wide">
-        <div class="modal-header">
-          <h2>Quick Entry</h2>
-          <button id="closeQuickEntryModal" class="modal-close">&times;</button>
-        </div>
-        <div class="modal-body">
-          <h3>Single Day</h3>
-          <div class="form-grid">
-            <input
-              id="quickEntryDay"
-              class="input"
-              type="number"
-              min="1"
-              placeholder="Day #"
-            />
-            <div id="quickEntryHoursGrid" class="form-grid-full"></div>
-            <input
-              id="quickProblems"
-              class="input"
-              type="number"
-              min="0"
-              placeholder="Problems Solved"
-            />
-            <input id="quickProject" class="input" placeholder="Project" />
-            <textarea
-              id="quickTopics"
-              class="input"
-              placeholder="Topics"
-            ></textarea>
-            <label
-              ><input id="quickCompleted" type="checkbox" /> Completed</label
-            >
-            <button id="saveQuickEntryBtn" class="btn btn-primary">
-              Save Day
+            <button id="enableNotificationsBtn" class="btn">
+              Enable Study Notifications
+            </button>
+            <button id="applyColumnSettings" class="btn btn-primary" style="padding: 12px 30px">
+              Apply All Changes
             </button>
           </div>
-
-          <h3>Bulk Entry</h3>
-          <div class="form-grid">
-            <input
-              id="bulkStartDay"
-              class="input"
-              type="number"
-              min="1"
-              placeholder="Start day"
-            />
-            <input
-              id="bulkEndDay"
-              class="input"
-              type="number"
-              min="1"
-              placeholder="End day"
-            />
-            <div id="bulkEntryHoursGrid" class="form-grid-full"></div>
-            <label
-              ><input id="bulkCompleted" type="checkbox" /> Mark
-              completed</label
-            >
-            <button id="saveBulkEntryBtn" class="btn">Apply Bulk</button>
-          </div>
-
-          <h3>Jump to Day</h3>
-          <div class="row">
-            <input
-              id="jumpToDay"
-              class="input small"
-              type="number"
-              min="1"
-              placeholder="Day #"
-            />
-            <button id="jumpToDayBtn" class="btn">Jump</button>
-          </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <div class="modal" id="weeklyModal">
-      <div class="modal-content wide">
-        <div class="modal-header">
-          <h2>Weekly Summary</h2>
-          <button id="closeWeeklyModal" class="modal-close">&times;</button>
+  <div class="modal" id="quickEntryModal">
+    <div class="modal-content wide">
+      <div class="modal-header">
+        <h2>Quick Entry</h2>
+        <button id="closeQuickEntryModal" class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <h3>Single Day</h3>
+        <div class="form-grid">
+          <input id="quickEntryDay" class="input" type="number" min="1" placeholder="Day #" />
+          <div id="quickEntryHoursGrid" class="form-grid-full"></div>
+          <input id="quickProblems" class="input" type="number" min="0" placeholder="Problems Solved" />
+          <input id="quickProject" class="input" placeholder="Project" />
+          <textarea id="quickTopics" class="input" placeholder="Topics"></textarea>
+          <label><input id="quickCompleted" type="checkbox" /> Completed</label>
+          <button id="saveQuickEntryBtn" class="btn btn-primary">
+            Save Day
+          </button>
         </div>
-        <div id="weeklySummaryContent" class="modal-body"></div>
+
+        <h3>Bulk Entry</h3>
+        <div class="form-grid">
+          <input id="bulkStartDay" class="input" type="number" min="1" placeholder="Start day" />
+          <input id="bulkEndDay" class="input" type="number" min="1" placeholder="End day" />
+          <div id="bulkEntryHoursGrid" class="form-grid-full"></div>
+          <label><input id="bulkCompleted" type="checkbox" /> Mark
+            completed</label>
+          <button id="saveBulkEntryBtn" class="btn">Apply Bulk</button>
+        </div>
+
+        <h3>Jump to Day</h3>
+        <div class="row">
+          <input id="jumpToDay" class="input small" type="number" min="1" placeholder="Day #" />
+          <button id="jumpToDayBtn" class="btn">Jump</button>
+        </div>
       </div>
     </div>
+  </div>
 
-    <div class="modal" id="heatmapModal">
-      <div class="modal-content wide">
-        <div class="modal-header">
-          <div class="row-between w-full">
-            <h2>Study Heatmap</h2>
-            <div class="row" style="gap: 15px; margin-right: 40px">
-              <select
-                id="heatmapYearSelect"
-                class="btn small"
-                style="
+  <div class="modal" id="weeklyModal">
+    <div class="modal-content wide">
+      <div class="modal-header">
+        <h2>Weekly Summary</h2>
+        <button id="closeWeeklyModal" class="modal-close">&times;</button>
+      </div>
+      <div id="weeklySummaryContent" class="modal-body"></div>
+    </div>
+  </div>
+
+  <div class="modal" id="heatmapModal">
+    <div class="modal-content wide">
+      <div class="modal-header">
+        <div class="row-between w-full">
+          <h2>Study Heatmap</h2>
+          <div class="row" style="gap: 15px; margin-right: 40px">
+            <select id="heatmapYearSelect" class="btn small" style="
                   background: rgba(255, 255, 255, 0.05);
                   border: 1px solid rgba(255, 255, 255, 0.1);
                   color: #fff;
-                "
-              >
-                <option value="2025">2025</option>
-                <option value="2026" selected>2026</option>
-                <option value="2027">2027</option>
-              </select>
+                ">
+              <option value="2025">2025</option>
+              <option value="2026" selected>2026</option>
+              <option value="2027">2027</option>
+            </select>
+          </div>
+        </div>
+        <button id="closeHeatmapModal" class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="heatmap-matrix-hub">
+          <!-- KPI Row -->
+          <div class="heatmap-kpi-row">
+            <div class="kpi-card">
+              <div class="label">Total Study Days</div>
+              <div id="heatmapModalStudyDays" class="value">0</div>
+            </div>
+            <div class="kpi-card highlight">
+              <div class="label">Daily Average</div>
+              <div class="value">
+                <span id="heatmapModalAvgHours">0</span>h
+              </div>
+            </div>
+            <div class="kpi-card shadow-gold">
+              <div class="label">Best Performance</div>
+              <div id="heatmapModalBestDay" class="value small-txt">-</div>
             </div>
           </div>
-          <button id="closeHeatmapModal" class="modal-close">&times;</button>
-        </div>
-        <div class="modal-body">
-          <div class="heatmap-matrix-hub">
-            <!-- KPI Row -->
-            <div class="heatmap-kpi-row">
-              <div class="kpi-card">
-                <div class="label">Total Study Days</div>
-                <div id="heatmapModalStudyDays" class="value">0</div>
-              </div>
-              <div class="kpi-card highlight">
-                <div class="label">Daily Average</div>
-                <div class="value">
-                  <span id="heatmapModalAvgHours">0</span>h
-                </div>
-              </div>
-              <div class="kpi-card shadow-gold">
-                <div class="label">Best Performance</div>
-                <div id="heatmapModalBestDay" class="value small-txt">-</div>
-              </div>
-            </div>
 
-            <!-- Grid Row -->
-            <div class="heatmap-grid-area">
-              <div id="heatmapModalMonths" class="heatmap-months"></div>
-              <div
-                id="heatmapModalGrid"
-                class="heatmap-grid centered-grid"
-              ></div>
-            </div>
+          <!-- Grid Row -->
+          <div class="heatmap-grid-area">
+            <div id="heatmapModalMonths" class="heatmap-months"></div>
+            <div id="heatmapModalGrid" class="heatmap-grid centered-grid"></div>
+          </div>
 
-            <!-- Legend Footer -->
-            <div class="heatmap-legend-footer">
-              <div class="legend-content">
-                <span>Less</span>
-                <div class="heatmap-cell" data-level="0"></div>
-                <div class="heatmap-cell" data-level="1"></div>
-                <div class="heatmap-cell" data-level="2"></div>
-                <div class="heatmap-cell" data-level="3"></div>
-                <div class="heatmap-cell" data-level="4"></div>
-                <div class="heatmap-cell" data-level="5"></div>
-                <span>More</span>
-              </div>
+          <!-- Legend Footer -->
+          <div class="heatmap-legend-footer">
+            <div class="legend-content">
+              <span>Less</span>
+              <div class="heatmap-cell" data-level="0"></div>
+              <div class="heatmap-cell" data-level="1"></div>
+              <div class="heatmap-cell" data-level="2"></div>
+              <div class="heatmap-cell" data-level="3"></div>
+              <div class="heatmap-cell" data-level="4"></div>
+              <div class="heatmap-cell" data-level="5"></div>
+              <span>More</span>
             </div>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <div class="modal" id="analyticsModal">
-      <div class="modal-content wide" style="max-width: 1000px">
-        <div class="modal-header">
-          <h2>Analytics</h2>
-          <button id="closeAnalyticsModal" class="modal-close">&times;</button>
-        </div>
-        <div class="modal-body">
-          <div class="grid-2">
-            <article class="card">
-              <div class="row-between">
-                <h2>Study Output Trends</h2>
-                <div class="label" id="studyTrendLabel">Last 21 Days</div>
-              </div>
-              <div class="chart-wrap">
-                <canvas id="studyTrendChart"></canvas>
-              </div>
-            </article>
-            <article class="card">
-              <div class="row-between">
-                <h2>Subject Focus</h2>
-                <div class="label" id="subjectRadarLabel">Last 21 Days</div>
-              </div>
-              <div class="chart-wrap radar-wrap">
-                <canvas id="subjectRadarChart"></canvas>
-              </div>
-            </article>
-          </div>
-        </div>
+  <div class="modal" id="analyticsModal">
+    <div class="modal-content wide" style="max-width: 1000px">
+      <div class="modal-header">
+        <h2>Analytics</h2>
+        <button id="closeAnalyticsModal" class="modal-close">&times;</button>
       </div>
-    </div>
-
-    <div class="modal" id="badgesModal">
-      <div class="modal-content wide">
-        <div class="modal-header">
-          <h2>Earned Badges</h2>
-          <button id="closeBadgesModal" class="modal-close">&times;</button>
-        </div>
-        <div class="modal-body">
-          <div id="badgeGrid" class="badge-grid"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal" id="historyModal">
-      <div class="modal-content wide">
-        <div class="modal-header">
-          <h2>Session History</h2>
-          <button id="closeHistoryModal" class="modal-close">&times;</button>
-        </div>
-        <div class="modal-body">
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Time</th>
-                <th>Category</th>
-                <th>Hours</th>
-              </tr>
-            </thead>
-            <tbody id="recentSessionsBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal" id="importModal">
-      <div class="modal-content wide">
-        <div class="modal-header">
-          <h2>Import Data</h2>
-          <button id="closeImportModal" class="modal-close">&times;</button>
-        </div>
-        <div class="modal-body">
-          <h3>Import JSON</h3>
-          <textarea
-            id="importJsonData"
-            class="input"
-            rows="6"
-            placeholder="Paste tracker JSON array"
-          ></textarea>
-          <button id="importJsonBtn" class="btn btn-primary">
-            Import JSON
-          </button>
-          <h3>Import CSV</h3>
-          <input id="importCsvFile" type="file" accept=".csv" />
-          <button id="importCsvBtn" class="btn">Import CSV</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal" id="routineModal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>Add New Routine Item</h2>
-          <button id="closeRoutineModal" class="modal-close">&times;</button>
-        </div>
-        <div class="modal-body">
-          <input id="routineTitleInput" class="input" placeholder="Title" />
-          <input id="routineTimeInput" class="input" type="time" />
-          <textarea
-            id="routineNoteInput"
-            class="input"
-            rows="3"
-            placeholder="Notes"
-          ></textarea>
-          <button id="saveRoutineBtn" class="btn btn-primary">
-            Add to Routine
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal" id="bookmarkModal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>Add Bookmark</h2>
-          <button id="closeBookmarkModal" class="modal-close">&times;</button>
-        </div>
-        <div class="modal-body">
-          <input
-            id="bookmarkTitleInput"
-            class="input"
-            placeholder="Bookmark title"
-          />
-          <input
-            id="bookmarkUrlInput"
-            class="input"
-            placeholder="https://..."
-          />
-          <select id="bookmarkCategoryInput" class="input">
-            <option>Development</option>
-            <option>Learning</option>
-            <option>Work</option>
-            <option>Social</option>
-            <option>Personal</option>
-            <option>Random</option>
-            <option>Other</option>
-          </select>
-          <button id="saveBookmarkBtn" class="btn btn-primary">
-            Save Bookmark
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal" id="authModal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2 id="authModalTitle">Connect Your Sync ID</h2>
-          <button id="closeAuthModal" class="modal-close">&times;</button>
-        </div>
-        <div class="modal-body">
-          <form id="authForm">
-            <input id="syncIdInput" class="input" placeholder="Enter Sync ID" />
-            <div class="row">
-              <button id="generateIdBtn" type="button" class="btn">
-                Generate
-              </button>
-              <button id="authSubmitBtn" type="submit" class="btn btn-primary">
-                Connect
-              </button>
+      <div class="modal-body">
+        <div class="grid-2">
+          <article class="card">
+            <div class="row-between">
+              <h2>Study Output Trends</h2>
+              <div class="label" id="studyTrendLabel">Last 21 Days</div>
             </div>
-            <div id="authError" class="error" style="display: none"></div>
-          </form>
+            <div class="chart-wrap">
+              <canvas id="studyTrendChart"></canvas>
+            </div>
+          </article>
+          <article class="card">
+            <div class="row-between">
+              <h2>Subject Focus</h2>
+              <div class="label" id="subjectRadarLabel">Last 21 Days</div>
+            </div>
+            <div class="chart-wrap radar-wrap">
+              <canvas id="subjectRadarChart"></canvas>
+            </div>
+          </article>
         </div>
       </div>
     </div>
-    <script type="module" src="/src/main.ts"></script>
-  </body>
+  </div>
+
+  <div class="modal" id="badgesModal">
+    <div class="modal-content wide">
+      <div class="modal-header">
+        <h2>Earned Badges</h2>
+        <button id="closeBadgesModal" class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="badgeGrid" class="badge-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="historyModal">
+    <div class="modal-content wide">
+      <div class="modal-header">
+        <h2>Session History</h2>
+        <button id="closeHistoryModal" class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="history-filter-bar">
+          <div class="filter-group">
+            <label for="historyDateFilter" class="label-caps small">Filter by Date</label>
+            <input type="date" id="historyDateFilter" class="input small">
+          </div>
+          <button id="clearHistoryFilter" class="btn btn-outline small">Clear Filter</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Category</th>
+              <th>Hours</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody id="recentSessionsBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="importModal">
+    <div class="modal-content wide">
+      <div class="modal-header">
+        <h2>Import Data</h2>
+        <button id="closeImportModal" class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <h3>Import JSON</h3>
+        <textarea id="importJsonData" class="input" rows="6" placeholder="Paste tracker JSON array"></textarea>
+        <button id="importJsonBtn" class="btn btn-primary">
+          Import JSON
+        </button>
+        <h3>Import CSV</h3>
+        <input id="importCsvFile" type="file" accept=".csv" />
+        <button id="importCsvBtn" class="btn">Import CSV</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="routineModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Add New Routine Item</h2>
+        <button id="closeRoutineModal" class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input id="routineTitleInput" class="input" placeholder="Title" />
+        <input id="routineTimeInput" class="input" type="time" />
+        <textarea id="routineNoteInput" class="input" rows="3" placeholder="Notes"></textarea>
+        <button id="saveRoutineBtn" class="btn btn-primary">
+          Add to Routine
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="bookmarkModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Add Bookmark</h2>
+        <button id="closeBookmarkModal" class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input id="bookmarkTitleInput" class="input" placeholder="Bookmark title" />
+        <input id="bookmarkUrlInput" class="input" placeholder="https://..." />
+        <select id="bookmarkCategoryInput" class="input">
+          <option>Development</option>
+          <option>Learning</option>
+          <option>Work</option>
+          <option>Social</option>
+          <option>Personal</option>
+          <option>Random</option>
+          <option>Other</option>
+        </select>
+        <button id="saveBookmarkBtn" class="btn btn-primary">
+          Save Bookmark
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="sessionNoteModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          style="margin-right: 10px; color: var(--accent-blue);">
+          <path d="M12 20h9"></path>
+          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+        </svg>
+        <h2 class="gradient-text">Mission Reflection</h2>
+      </div>
+      <div class="modal-body">
+        <p class="reflection-sub">What did you accomplish in this session?</p>
+        <textarea id="sessionNoteInput" class="input reflection-textarea" rows="3"
+          placeholder="e.g., Completed 5 DSA problems on Graphs..."></textarea>
+        <button id="saveSessionNoteBtn" class="btn btn-primary glow-blue">
+          Secure Reflection
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="authModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="authModalTitle">Connect Your Sync ID</h2>
+        <button id="closeAuthModal" class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="authForm">
+          <input id="syncIdInput" class="input" placeholder="Enter Sync ID" />
+          <div class="row">
+            <button id="generateIdBtn" type="button" class="btn">
+              Generate
+            </button>
+            <button id="authSubmitBtn" type="submit" class="btn btn-primary">
+              Connect
+            </button>
+          </div>
+          <div id="authError" class="error" style="display: none"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+
 </html>

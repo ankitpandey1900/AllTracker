@@ -42,7 +42,15 @@ export function renderBookmarks(): void {
   renderBookmarkFilters();
 
   if (appState.bookmarks.length === 0) {
-    list.innerHTML = '<div class="empty-state">No bookmarks saved yet. Add your favorite study links!</div>';
+    list.innerHTML = `
+      <div class="empty-state-modern">
+        <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+        </svg>
+        <div class="empty-state-title">Vault is Empty</div>
+        <div class="empty-state-text">No bookmarks saved yet. Secure your favorite study resources here.</div>
+      </div>
+    `;
     return;
   }
 
@@ -51,7 +59,16 @@ export function renderBookmarks(): void {
     : appState.bookmarks.filter(b => (b.category || 'Other') === activeCategory);
 
   if (filteredBookmarks.length === 0) {
-    list.innerHTML = `<div class="empty-state">No bookmarks in "${activeCategory}" yet.</div>`;
+    list.innerHTML = `
+      <div class="empty-state-modern">
+        <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <div class="empty-state-title">No Matches in "${activeCategory}"</div>
+        <div class="empty-state-text">Try switching categories or add a new bookmark to this sector.</div>
+      </div>
+    `;
     return;
   }
 

@@ -15,4 +15,6 @@ export interface StudyTask {
   createdAt: number;
   /** Timestamp when completed (if applicable) */
   completedAt?: number;
+  /** Importance level: 1 (Low), 2 (Med), 3 (High) */
+  priority?: 1 | 2 | 3;
 }

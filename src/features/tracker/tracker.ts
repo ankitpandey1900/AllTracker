@@ -61,6 +61,7 @@ export function generateTable(): void {
 
     let rowClass = phase;
     if (day.completed) rowClass += ' completed';
+    if (day.restDay) rowClass += ' rest-day';
     if (isToday) rowClass += ' today';
 
     html += `
@@ -87,11 +88,16 @@ export function generateTable(): void {
             <textarea class="cell-input project-input" rows="1">${day.project || ''}</textarea>
           </div>
         </td>
-        <td>
-          <label class="checkbox-container">
-            <input type="checkbox" class="completed-check" ${day.completed ? 'checked' : ''}>
-            <span class="checkmark"></span>
-          </label>
+        <td class="action-cell">
+          <div class="row-actions">
+            <label class="checkbox-container" title="Mark as Completed">
+              <input type="checkbox" class="completed-check" ${day.completed ? 'checked' : ''}>
+              <span class="checkmark"></span>
+            </label>
+            <button class="btn-rest-day ${day.restDay ? 'active' : ''}" data-day="${i}" title="Streak Freeze / Rest Day">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 17.58A5 5 0 0 0 18 8.1V5a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v3.1a5 5 0 0 0-2 9.48V20a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-2.42z"/><circle cx="12" cy="13" r="2"/></svg>
+            </button>
+          </div>
         </td>
       </tr>
     `;
@@ -125,6 +131,11 @@ function attachInputListeners(): void {
   // Checkbox inputs (completed)
   tbody.querySelectorAll<HTMLInputElement>('.completed-check').forEach((input) => {
     input.addEventListener('change', handleCheckboxInput);
+  });
+
+  // Rest day buttons
+  tbody.querySelectorAll<HTMLButtonElement>('.btn-rest-day').forEach((btn) => {
+    btn.addEventListener('click', handleRestDayToggle);
   });
 }
 
@@ -197,6 +208,26 @@ function handleCheckboxInput(e: Event): void {
   if (row) {
     row.classList.toggle('completed', input.checked);
   }
+}
+
+function handleRestDayToggle(e: Event): void {
+  const target = e.currentTarget as HTMLElement;
+  const btn = target.closest('.btn-rest-day') as HTMLButtonElement;
+  const idx = parseInt(btn.getAttribute('data-day') || '-1');
+  if (idx < 0) return;
+
+  const day = appState.trackerData[idx];
+  day.restDay = !day.restDay;
+  
+  if (day.restDay) {
+    day.completed = false; // Cannot be both completed and rest
+  }
+
+  saveTrackerDataToStorage(appState.trackerData);
+  generateTable(); // Refresh to update visuals
+  
+  // Also update dashboard to refresh streak
+  import('@/features/dashboard/dashboard').then(m => m.updateDashboard());
 }
 
 // ─── Table Search & Filter ───────────────────────────────────

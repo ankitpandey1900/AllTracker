@@ -66,7 +66,7 @@ export function pauseTimer(): void {
   updateTimerUI(true);
 }
 
-export function stopTimer(): void {
+export async function stopTimer(): Promise<void> {
   if (!appState.activeTimer.isRunning && appState.activeTimer.elapsedAcc === 0) return;
 
   if (appState.timerInterval) clearInterval(appState.timerInterval);
@@ -77,9 +77,12 @@ export function stopTimer(): void {
   }
   const totalHours = Math.floor(totalElapsed / 1000) / 3600;
 
+  // Modern modal for session note
+  const note = await showSessionNoteModal();
+
   try {
     if (totalHours > 0 && appState.activeTimer.category !== null) {
-      saveSessionToToday(parseInt(appState.activeTimer.category), totalHours);
+      saveSessionToToday(parseInt(appState.activeTimer.category), totalHours, note);
       showToast(`Session saved: ${formatMsToTime(totalElapsed)}`, 'success');
     }
   } catch (error) {
@@ -111,9 +114,46 @@ export function stopTimer(): void {
   generateTable();
 }
 
+async function showSessionNoteModal(): Promise<string> {
+  return new Promise((resolve) => {
+    const modal = document.getElementById('sessionNoteModal');
+    const input = document.getElementById('sessionNoteInput') as HTMLTextAreaElement;
+    const saveBtn = document.getElementById('saveSessionNoteBtn');
+
+    if (!modal || !input || !saveBtn) {
+      resolve('');
+      return;
+    }
+
+    input.value = '';
+    modal.classList.add('active');
+
+    // Create unique handlers to avoid leaks
+    const handleSave = () => {
+      const note = input.value.trim();
+      modal.classList.remove('active');
+      saveBtn.removeEventListener('click', handleSave);
+      modal.removeEventListener('click', handleClose);
+      resolve(note);
+    };
+
+    const handleClose = (e: MouseEvent) => {
+      if ((e.target as HTMLElement).id === 'sessionNoteModal') {
+        modal.classList.remove('active');
+        saveBtn.removeEventListener('click', handleSave);
+        modal.removeEventListener('click', handleClose);
+        resolve('');
+      }
+    };
+
+    saveBtn.addEventListener('click', handleSave);
+    modal.addEventListener('click', handleClose);
+  });
+}
+
 // ─── Session Save ────────────────────────────────────────────
 
-function saveSessionToToday(colIdx: number, hoursToAdd: number): void {
+function saveSessionToToday(colIdx: number, hoursToAdd: number, note: string = ''): void {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -142,6 +182,22 @@ function saveSessionToToday(colIdx: number, hoursToAdd: number): void {
   const cols = getColumnsForDay(day.day);
   const categoryName = cols[colIdx]?.name || `Category ${colIdx + 1}`;
 
+  // Propagate note to Tracker Table (Topics/Project)
+  if (note) {
+    const formattedNote = `${categoryName}: ${note}`;
+    const isProject = categoryName.toLowerCase().includes('project');
+    const targetField = isProject ? 'project' : 'topics';
+
+    if (day[targetField]) {
+      // Append if already contains text
+      if (!day[targetField].includes(formattedNote)) {
+        day[targetField] += ` | ${formattedNote}`;
+      }
+    } else {
+      day[targetField] = formattedNote;
+    }
+  }
+
   const sessionLog = {
     date: new Date().toISOString(),
     category: `col${colIdx + 1}`,
@@ -150,6 +206,7 @@ function saveSessionToToday(colIdx: number, hoursToAdd: number): void {
     timeRange: appState.activeTimer.sessionStartClock
       ? `${formatClockTime(new Date(appState.activeTimer.sessionStartClock))} - ${formatClockTime(new Date())}`
       : formatClockTime(new Date()),
+    note: note || undefined,
   };
 
   if (!appState.settings.sessionLogs) appState.settings.sessionLogs = [];

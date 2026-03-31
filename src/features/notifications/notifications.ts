@@ -1,0 +1,138 @@
+import { appState } from '@/state/app-state';
+import { showToast } from '@/utils/dom.utils';
+
+/**
+ * Notification Service
+ * 
+ * Handles permission requests and triggers daily study reminders.
+ */
+
+// TRACKING: Map to ensure each routine item only triggers one alert per day
+const notifiedRoutineIds = new Set<string>();
+
+export async function initNotifications(): Promise<void> {
+  if (!("Notification" in window)) {
+    console.log("This browser does not support desktop notification");
+    return;
+  }
+
+  // Sync UI state
+  syncNotificationUI();
+
+  // Setup daily check & routine check
+  setupStudyReminder();
+  setupRoutineAlerts();
+}
+
+export function requestNotificationPermission(): void {
+    if (!("Notification" in window)) return;
+    Notification.requestPermission().then(permission => {
+        if (permission === "granted") {
+            showToast("Notifications Enabled! The Arena will remind you to stay consistent.", "success");
+            syncNotificationUI();
+        }
+    });
+}
+
+function syncNotificationUI(): void {
+  const btn = document.getElementById('enableNotificationsBtn');
+  if (!btn) return;
+
+  if (Notification.permission === "granted") {
+    btn.classList.add('notif-active');
+    btn.innerHTML = `
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px;">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+      </svg>
+      Notifications Active
+    `;
+  }
+}
+
+function setupStudyReminder(): void {
+  // Check every hour
+  setInterval(() => {
+    checkAndNotify();
+  }, 1000 * 60 * 60);
+
+  // Also check immediately on load
+  setTimeout(checkAndNotify, 5000);
+}
+
+function setupRoutineAlerts(): void {
+  // Check every minute for precision
+  setInterval(() => {
+    checkRoutineTimers();
+  }, 1000 * 60);
+
+  // Initial check
+  setTimeout(checkRoutineTimers, 3000);
+}
+
+function checkRoutineTimers(): void {
+  const now = new Date();
+  const todayStr = now.toISOString().split('T')[0];
+  const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
+
+  appState.routines.forEach(item => {
+    if (item.completed) return;
+
+    const [hours, minutes] = item.time.split(':').map(Number);
+    const routineTimeInMinutes = hours * 60 + minutes;
+    const diff = routineTimeInMinutes - currentTimeInMinutes;
+
+    // Trigger exactly 15 minutes before
+    if (diff === 15) {
+      const key = `${todayStr}-${item.id}`;
+      if (!notifiedRoutineIds.has(key)) {
+        sendNotification(
+          "Mission Alert! ⚡",
+          `Your objective "${item.title}" starts in 15 minutes. Prepare for deployment.`
+        );
+        notifiedRoutineIds.add(key);
+      }
+    }
+  });
+
+  // Cleanup old keys from different days if the app stays open
+  if (notifiedRoutineIds.size > 20) {
+    const keys = Array.from(notifiedRoutineIds);
+    keys.forEach(k => {
+      if (!k.startsWith(todayStr)) notifiedRoutineIds.delete(k);
+    });
+  }
+}
+
+function checkAndNotify(): void {
+  const now = new Date();
+  const currentHour = now.getHours();
+  
+  // Only notify in the evening (8 PM - 10 PM)
+  if (currentHour < 20 || currentHour > 22) return;
+
+  const today = new Date().toISOString().split('T')[0];
+  const todayData = appState.trackerData.find(d => d.date.startsWith(today));
+
+  if (todayData) {
+    const totalHours = (todayData.studyHours || []).reduce((a, b) => a + (b || 0), 0);
+    if (totalHours === 0 && !todayData.completed && !todayData.restDay) {
+      sendNotification(
+        "The Arena Awaits! 🌌",
+        "You haven't logged any progress today. Don't let your streak freeze!"
+      );
+    }
+  }
+}
+
+function sendNotification(title: string, body: string): void {
+  if (Notification.permission === "granted") {
+    new Notification(title, {
+      body,
+      icon: "/favicon.png",
+      badge: "/favicon.png",
+      tag: title.includes("Mission") ? "routine-alert" : "study-reminder",
+      renotify: true
+    } as any);
+  }
+}

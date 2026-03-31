@@ -17,6 +17,8 @@ export interface TrackerDay {
   problemsSolved: number;
   project: string;
   completed: boolean;
+  /** If true, this day is a "Rest Day" and doesn't break streaks. */
+  restDay?: boolean;
 }
 
 // ─── Column Configuration ────────────────────────────────────
@@ -44,6 +46,7 @@ export interface SessionLog {
   categoryName: string;
   duration: number;
   timeRange: string;
+  note?: string;
 }
 
 // ─── Settings ────────────────────────────────────────────────

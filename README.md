@@ -41,7 +41,16 @@
 - **Actionable Repository:** Save your essential learning links, organized by technical category tags (e.g., Frontend, Backend, Tooling, Docs).
 - **Category Filtering:** Quickly isolate and retrieve relevant resources using the new interactive Category Filter Pills.
 
-### 6. ☁️ Architecture & Data Synchronization
+### 6. 💎 Eternity Feature Suite (Version Update)
+- **Streak Freeze (Snowflake):** Protect your long-term consistency by manually flagging "Rest Days" in the tracker table, preventing streak decay without inflating hours.
+- **Mission Alert System:** A dual-mode notification engine.
+  - **The 8:00 PM Check:** Automatically triggers if no study hours have been logged for the current day.
+  - **15-Min Precision Alert:** Dispatches a "Mission Alert" exactly 15 minutes before any uncompleted routine item.
+- **Tactical Priority Control:** High (🔴), Medium (🟡), and Low (🟢) priority management for all Mission Control objectives.
+- **Auto-Sync Reflection:** Stop-timer flows now capture session notes that automatically propagate to both your **Session History** and the **Daily Topics** column.
+- **Archival Date Filtering:** A precision-engineered filter in the History modal for instantaneous retrieval of past session metrics.
+
+### 7. ☁️ Architecture & Data Synchronization
 - **Zero-Latency State:** Utilizes a custom global `appState` pattern with zero framework overhead.
 - **Hybrid Storage:** Combines millisecond-fast browser `localStorage` with bulletproof cloud synchronization via **Supabase**.
 - **Data Portability:** Full support for bulk Data Import/Export using both structured JSON and CSV formats.
@@ -64,6 +73,7 @@ The project was completely re-architected from a massive monolithic `script.js` 
  ┃ ┃ ┣ 📂 export/          # JSON and CSV export serializers
  ┃ ┃ ┣ 📂 heatmap/         # GitHub-style activity contribution graphs
  ┃ ┃ ┣ 📂 import/          # File parsing and data restoration logic
+ ┃ ┃ ┣ 📂 notifications/   # Mission Alert Engine (Routine & Daily reminders)
  ┃ ┃ ┣ 📂 routines/        # Routine checklist UI + Radar/Performance Chart Engines
  ┃ ┃ ┣ 📂 settings/        # App Configuration, Cloud Keys, Custom Column mapping
  ┃ ┃ ┣ 📂 shortcuts/       # Global Keyboard Interceptors + Quick Entry Modal
@@ -96,6 +106,7 @@ The project was completely re-architected from a massive monolithic `script.js` 
 ## 🎨 UI/UX & Aesthetics
 
 - **Eternity Arena Theme:** A meticulously curated deep "neon space" aesthetic heavily reliant on `#0a0f1e` backgrounds intersected with `#6c87ff` (Blue) and `#25bd84` (Green) neon assertions.
+- **Infinity Sharpness:** Standardized 12px squircle geometry, high-contrast borders, and high-performance SVG iconography.
 - **Glassmorphism:** Generous use of translucent, backdrop-blurred cards combined with sub-pixel white borders `rgba(255, 255, 255, 0.05)` to establish depth and hierarchy.
 - **Precision Typography:**
   - **Headers & Technical Data:** [Tektur](https://fonts.google.com/specimen/Tektur) for an aggressive, futuristic edge.

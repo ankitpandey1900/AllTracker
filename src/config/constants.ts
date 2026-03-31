@@ -38,6 +38,18 @@ export const DEFAULT_COLUMNS = [
   { name: 'College/Backends', target: 200 },
 ];
 
+/** Shared palette for dashboard analytics and category tokens. Index-aligned. */
+export const CATEGORY_COLORS = [
+  '#2dd4bf', // Teal (accent-teal)
+  '#60a5fa', // Blue (accent-blue)
+  '#818cf8', // Indigo (accent-purple)
+  '#fbbf24', // Amber (accent-gold)
+  '#f87171', // Red (accent-red)
+  '#22d3ee', // Cyan
+  '#c084fc', // Purple
+  '#f472b6', // Pink
+];
+
 // ─── Supabase Table Names ────────────────────────────────────
 
 export const SUPABASE_TABLES = {
