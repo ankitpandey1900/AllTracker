@@ -12,6 +12,7 @@ import type { StudyTask } from '@/types/task.types';
 import type { RoutineItem, RoutineHistory } from '@/types/routine.types';
 import type { Bookmark } from '@/types/bookmark.types';
 import type { ActiveTimer } from '@/types/timer.types';
+import type { GlobalProfile } from '@/types/profile.types';
 import { getCurrentUserId } from '@/services/auth.service';
 
 // ─── Helpers ─────────────────────────────────────────────────
@@ -185,4 +186,41 @@ export async function loadTasksCloud(): Promise<StudyTask[] | null> {
   const result = await fetchFromSupabase(SUPABASE_TABLES.TASKS);
   if (result?.data?.data) return result.data.data as StudyTask[];
   return null;
+}
+
+// ─── Global Leaderboard (World Stage) ────────────────────────
+
+/** Broadcasts high-level stats to the public leaderboard table */
+export async function broadcastGlobalStats(profile: Partial<GlobalProfile>): Promise<void> {
+  if (!isSupabaseReady()) return;
+  const syncId = getCurrentUserId();
+  if (!syncId) return;
+
+  const payload = {
+    ...profile,
+    sync_id: syncId,
+    last_active: new Date().toISOString()
+  };
+
+  await supabaseClient!
+    .from(SUPABASE_TABLES.GLOBAL_PROFILES)
+    .upsert(payload, { onConflict: 'sync_id' });
+}
+
+/** Fetches the top 10 learners for the World Stage */
+export async function fetchLeaderboard(): Promise<GlobalProfile[]> {
+  if (!isSupabaseReady()) return [];
+
+  const { data, error } = await supabaseClient!
+    .from(SUPABASE_TABLES.GLOBAL_PROFILES)
+    .select('*')
+    .order('total_hours', { ascending: false })
+    .limit(10);
+
+  if (error) {
+    console.error('Error fetching World Stage:', error);
+    return [];
+  }
+
+  return (data || []) as GlobalProfile[];
 }

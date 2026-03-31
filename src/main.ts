@@ -8,6 +8,7 @@
 
 // ─── Styles ──────────────────────────────────────────────────
 import "./styles/main.css";
+import "./styles/components/leaderboard.css";
 
 // ─── Core ────────────────────────────────────────────────────
 import { appState, calculateDates, initializeData } from "@/state/app-state";
@@ -85,6 +86,7 @@ import {
   renderBulkEntryFields,
   scrollToToday,
 } from "@/features/shortcuts/shortcuts";
+import { initWorldStage, checkProfileIdentity, syncProfileBroadcast } from "@/features/dashboard/leaderboard";
 
 // ─── Initialize ──────────────────────────────────────────────
 
@@ -163,6 +165,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     "sessionGoalInput",
   ) as HTMLInputElement;
   if (savedGoal && goalInput) goalInput.value = savedGoal;
+
+  // 11. World Stage Leaderboard
+  await initWorldStage();
+  checkProfileIdentity();
 
   console.log("✅ App initialized successfully.");
 });
@@ -462,6 +468,9 @@ export async function refreshApplicationUI(): Promise<void> {
     // Resume timer UI if it was restored
     const { resumeTimerIfNeeded } = await import('@/features/timer/timer');
     resumeTimerIfNeeded();
+
+    // 5. Broadcast stats after sync to ensure leaderboard is fresh
+    syncProfileBroadcast();
 
     console.log("UI Refresh complete.");
   } catch (error) {

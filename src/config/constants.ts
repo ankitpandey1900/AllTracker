@@ -22,6 +22,7 @@ export const STORAGE_KEYS = {
   DEADLINE_TITLE: 'trackerDeadlineTitle',
   SESSION_GOAL: 'trackerSessionGoal',
   TASKS: 'studyTrackerTasks',
+  USER_PROFILE: 'studyTrackerUserProfile',
 } as const;
 
 // ─── Default Dates ───────────────────────────────────────────
@@ -61,6 +62,7 @@ export const SUPABASE_TABLES = {
   TIMER_STATE: 'timer_state',
   ROUTINE_RESET: 'routine_reset',
   TASKS: 'tasks',
+  GLOBAL_PROFILES: 'global_profiles',
 } as const;
 
 // ─── Helper functions needed by badge conditions ─────────────

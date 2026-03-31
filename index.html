@@ -62,98 +62,120 @@
     </div>
 
     <section id="dashboardPane" class="view-pane active">
-      <article class="hero card shadow-2xl">
-        <div class="row-between hero-top">
-          <h1 id="heroStatusTitle">Initializing...</h1>
-          <div class="hero-day-chip">
-            <div id="currentDay">DAY 0</div>
-            <small>OF <span class="hero-total-days">-</span></small>
-          </div>
-        </div>
-        <p class="hero-subtitle">
-          Day <span id="heroDayMirror">0</span> of
-          <span class="hero-total-days">-</span> •
-          <span id="heroStartDateMirror">Loading...</span>
-        </p>
-        <div class="hero-level-row">
-          <span id="levelBadge">LVL 0</span>
-          <div class="xp-track">
-            <div id="xpFill" class="xp-fill"></div>
-          </div>
-        </div>
-      </article>
+      <div class="dashboard-arena-layout">
+        <div class="dashboard-main-content">
+          <article class="hero card shadow-2xl">
+            <div class="row-between hero-top">
+              <h1 id="heroStatusTitle">Initializing...</h1>
+              <div class="hero-day-chip">
+                <div id="currentDay">DAY 0</div>
+                <small>OF <span class="hero-total-days">-</span></small>
+              </div>
+            </div>
+            <p class="hero-subtitle">
+              Day <span id="heroDayMirror">0</span> of
+              <span class="hero-total-days">-</span> •
+              <span id="heroStartDateMirror">Loading...</span>
+            </p>
+            <div class="hero-level-row">
+              <span id="levelBadge">LVL 0</span>
+              <div class="xp-track">
+                <div id="xpFill" class="xp-fill"></div>
+              </div>
+            </div>
+          </article>
 
-      <div class="grid-top kpi-grid items-stretch">
-        <article class="card">
-          <div class="label">Completion</div>
-          <div id="completionPercent" class="big">0%</div>
-          <div class="meta">
-            <span id="completedDaysCount">0</span> / <span class="hero-total-days">-</span> days
+          <div class="grid-top kpi-grid items-stretch">
+            <article class="card">
+              <div class="label">Completion</div>
+              <div id="completionPercent" class="big">0%</div>
+              <div class="meta">
+                <span id="completedDaysCount">0</span> / <span class="hero-total-days">-</span> days
+              </div>
+            </article>
+            <article class="card">
+              <div class="label">Total Hours</div>
+              <div id="totalHours" class="big">0.0h</div>
+              <div class="meta">hours studied</div>
+            </article>
+            <article class="card">
+              <div class="label">Avg / Day</div>
+              <div class="big" id="avgHoursPerDay">0</div>
+              <div class="meta">hrs/day avg</div>
+            </article>
+            <article class="card rank-card">
+              <div class="label">Study Rank</div>
+              <div id="studyRank" class="big">IRON</div>
+              <div class="rank-tier-row"><span id="rankTierText">IV</span></div>
+              <div class="meta">
+                World rank: <span id="worldRankPos">#40,000,000</span>
+              </div>
+              <div class="xp-track">
+                <div id="rankXPBar" class="rank-fill"></div>
+              </div>
+            </article>
           </div>
-        </article>
-        <article class="card">
-          <div class="label">Total Hours</div>
-          <div id="totalHours" class="big">0.0h</div>
-          <div class="meta">hours studied</div>
-        </article>
-        <article class="card">
-          <div class="label">Avg / Day</div>
-          <div class="big" id="avgHoursPerDay">0</div>
-          <div class="meta">hrs/day avg</div>
-        </article>
-        <article class="card rank-card">
-          <div class="label">Study Rank</div>
-          <div id="studyRank" class="big">IRON</div>
-          <div class="rank-tier-row"><span id="rankTierText">IV</span></div>
-          <div class="meta">
-            World rank: <span id="worldRankPos">#40,000,000</span>
+
+          <div class="grid-top stats-strip">
+            <article class="card compact">
+              <div class="label">Consistency</div>
+              <div class="big" id="consistencyStat">0%</div>
+              <div class="meta">last 7 days</div>
+            </article>
+            <article class="card compact">
+              <div class="label">Current Streak</div>
+              <div id="currentStreak" class="big">0 DAYS</div>
+              <div class="meta">days in a row</div>
+            </article>
+            <article class="card compact">
+              <div class="label">Best Streak</div>
+              <div class="big" id="bestStreakStat">0</div>
+              <div class="meta">days (all time)</div>
+            </article>
+            <article class="card compact">
+              <div class="label">Estimated Finish</div>
+              <div class="big" id="estimatedFinishDate">-</div>
+              <div class="meta" id="startDateLabel">Start: -</div>
+            </article>
           </div>
-          <div class="xp-track">
-            <div id="rankXPBar" class="rank-fill"></div>
+
+          <div class="row-between section-heading">
+            <h3>Category Progress</h3>
           </div>
-        </article>
+          <div id="categoryCards" class="grid-top"></div>
+
+          <article class="card">
+            <div class="row-between section-heading">
+              <h3>Overall Progress</h3>
+              <span id="completionPercentMirror">0%</span>
+            </div>
+            <div id="allocationBar" class="allocation-bar"></div>
+            <div id="allocationLegend" class="legend"></div>
+            <div class="allocation-scale">
+              <span>Day 1</span>
+              <span>Day <span class="hero-total-days">-</span></span>
+            </div>
+          </article>
+        </div>
+
+        <aside class="dashboard-sidebar">
+          <!-- World Stage Card -->
+          <article class="card world-stage-card overflow-hidden">
+            <div class="row-between section-heading" style="margin-bottom: 20px;">
+              <h3>World Stage</h3>
+              <span class="badge-live-pulse">LIVE</span>
+            </div>
+            <div id="leaderboardList" class="leaderboard-list">
+              <div class="leaderboard-placeholder">Connecting to Arena...</div>
+            </div>
+            <div class="arena-footer" style="margin-top: auto; padding-top: 20px; text-align: center;">
+              <p style="font-size: 0.72rem; color: var(--text-secondary); opacity: 0.5;">
+                Leaderboard updates every 5 mins
+              </p>
+            </div>
+          </article>
+        </aside>
       </div>
-
-      <div class="grid-top stats-strip">
-        <article class="card compact">
-          <div class="label">Consistency</div>
-          <div class="big" id="consistencyStat">0%</div>
-          <div class="meta">last 7 days</div>
-        </article>
-        <article class="card compact">
-          <div class="label">Current Streak</div>
-          <div id="currentStreak" class="big">0 DAYS</div>
-          <div class="meta">days in a row</div>
-        </article>
-        <article class="card compact">
-          <div class="label">Best Streak</div>
-          <div class="big" id="bestStreakStat">0</div>
-          <div class="meta">days (all time)</div>
-        </article>
-        <article class="card compact">
-          <div class="label">Estimated Finish</div>
-          <div class="big" id="estimatedFinishDate">-</div>
-          <div class="meta" id="startDateLabel">Start: -</div>
-        </article>
-      </div>
-
-      <div class="row-between section-heading">
-        <h3>Category Progress</h3>
-      </div>
-      <div id="categoryCards" class="grid-top"></div>
-
-      <article class="card">
-        <div class="row-between section-heading">
-          <h3>Overall Progress</h3>
-          <span id="completionPercentMirror">0%</span>
-        </div>
-        <div id="allocationBar" class="allocation-bar"></div>
-        <div id="allocationLegend" class="legend"></div>
-        <div class="allocation-scale">
-          <span>Day 1</span>
-          <span>Day <span class="hero-total-days">-</span></span>
-        </div>
-      </article>
 
       <div class="card study-log-controls">
         <div class="study-log-top">
@@ -1075,6 +1097,54 @@
       </div>
     </div>
   </div>
+  <div class="modal" id="profileSetupModal">
+    <div class="modal-content" style="max-width: 450px;">
+      <div class="modal-header">
+        <h2>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px; color: var(--accent-blue);">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <span class="gradient-text">ARENA IDENTITY</span>
+        </h2>
+      </div>
+      <div class="modal-body profile-setup-body">
+        <p class="reflection-sub">Choose your public alias for the World Stage.</p>
+        <div class="settings-group">
+          <input id="profileNameInput" class="input" placeholder="Display Name (e.g., NeonAtlas)" />
+        </div>
+        <div class="range-grid" style="margin-top: 15px;">
+          <div class="settings-group">
+            <label>Age</label>
+            <input id="profileAgeInput" class="input" type="number" placeholder="e.g., 21" />
+          </div>
+          <div class="settings-group">
+            <label>Nation</label>
+            <select id="profileNationInput" class="input">
+              <option value="Global">🏳️ Global</option>
+              <option value="India">🇮🇳 India</option>
+              <option value="USA">🇺🇸 USA</option>
+              <option value="UK">🇬🇧 UK</option>
+              <option value="Canada">🇨🇦 Canada</option>
+              <option value="Germany">🇩🇪 Germany</option>
+              <option value="Japan">🇯🇵 Japan</option>
+              <option value="Other">🌍 Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-actions" style="margin-top: 25px;">
+          <button id="saveProfileBtn" class="btn btn-primary glow-blue w-full">
+            ACTIVATE MISSION PROFILE
+          </button>
+        </div>
+        <p class="text-xs color-secondary text-center mt-3" style="font-size: 0.75rem; opacity: 0.6;">
+          Your Sync ID remains 100% private. This info is for the leaderboard only.
+        </p>
+      </div>
+    </div>
+  </div>
+
   <script type="module" src="/src/main.ts"></script>
 </body>
 

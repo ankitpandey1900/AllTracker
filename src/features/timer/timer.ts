@@ -7,6 +7,7 @@
 
 import { appState, getAllHourColumnLabels, getColumnsForDay } from '@/state/app-state';
 import { STORAGE_KEYS } from '@/config/constants';
+import { syncProfileBroadcast } from '@/features/dashboard/leaderboard';
 import { formatMsToTime, formatClockTime } from '@/utils/date.utils';
 import { showToast } from '@/utils/dom.utils';
 import { saveTrackerDataToStorage, saveSettingsToStorage, saveTimerStateToStorage } from '@/services/data-bridge';
@@ -37,6 +38,9 @@ export function startTimer(categoryIdx: number, categoryName: string): void {
 
   appState.activeTimer.isRunning = true;
   appState.activeTimer.startTime = Date.now();
+
+  // Broadcast focus status to World Stage
+  syncProfileBroadcast();
 
   if (appState.activeTimer.elapsedAcc === 0) {
     appState.activeTimer.sessionStartClock = appState.activeTimer.startTime;
@@ -100,6 +104,9 @@ export async function stopTimer(): Promise<void> {
   appState.activeTimer.category = null;
   appState.activeTimer.colName = '';
   appState.activeTimer.sessionStartClock = null;
+
+  // Broadcast status update
+  syncProfileBroadcast();
 
   saveTimerState();
 
