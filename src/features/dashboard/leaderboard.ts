@@ -273,8 +273,14 @@ async function handleIdentityMigration(): Promise<void> {
 
 /** Helper to calculate total study hours for the current local date */
 function calculateTodayStudyHours(): number {
-  const todayStr = new Date().toISOString().split('T')[0];
-  const todayEntry = appState.trackerData.find(d => d.date === todayStr);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const todayEntry = appState.trackerData.find(d => {
+    const dDate = new Date(d.date);
+    dDate.setHours(0, 0, 0, 0);
+    return dDate.getTime() === today.getTime();
+  });
   
   if (!todayEntry || !Array.isArray(todayEntry.studyHours)) return 0;
   return todayEntry.studyHours.reduce((sum, h) => sum + (h || 0), 0);

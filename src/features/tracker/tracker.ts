@@ -11,6 +11,7 @@ import { showToast } from '@/utils/dom.utils';
 import { saveTrackerDataToStorage } from '@/services/data-bridge';
 import type { TrackerDay } from '@/types/tracker.types';
 import { isRowEditable } from '@/services/integrity';
+import { syncProfileBroadcast } from '@/features/dashboard/leaderboard';
 
 function getHourAt(day: TrackerDay, idx: number): number {
   return (day.studyHours?.[idx] ?? 0) as number;
@@ -158,6 +159,7 @@ function handleNumberInput(e: Event): void {
     if (!isNaN(colIdx)) {
       setHourAt(appState.trackerData[idx], colIdx, parseFloat(input.value) || 0);
       saveTrackerDataToStorage(appState.trackerData);
+      syncProfileBroadcast();
       return;
     }
   }
@@ -171,6 +173,7 @@ function handleNumberInput(e: Event): void {
   }
 
   saveTrackerDataToStorage(appState.trackerData);
+  syncProfileBroadcast();
 }
 
 function handleTextInput(e: Event): void {
@@ -186,6 +189,7 @@ function handleTextInput(e: Event): void {
   }
 
   saveTrackerDataToStorage(appState.trackerData);
+  syncProfileBroadcast();
 }
 
 function handleCheckboxInput(e: Event): void {
@@ -204,6 +208,7 @@ function handleCheckboxInput(e: Event): void {
 
   day.completed = input.checked;
   saveTrackerDataToStorage(appState.trackerData);
+  syncProfileBroadcast();
 
   // Update row styling
   const row = input.closest('tr');
@@ -227,6 +232,7 @@ function handleRestDayToggle(e: Event): void {
 
   saveTrackerDataToStorage(appState.trackerData);
   generateTable(); // Refresh to update visuals
+  syncProfileBroadcast();
   
   // Also update dashboard to refresh streak
   import('@/features/dashboard/dashboard').then(m => m.updateDashboard());
