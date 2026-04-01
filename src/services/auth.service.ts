@@ -7,7 +7,7 @@
 
 import { STORAGE_KEYS } from '@/config/constants';
 import { syncDataOnLogin } from '@/services/data-bridge';
-import { isUsernameTaken, loadUserProfileCloud, verifyUserCredentials, broadcastGlobalStats } from '@/services/supabase.service';
+import { isUsernameTaken, loadUserProfileCloud, verifyUserCredentials, broadcastGlobalStats, checkIfSyncIdHasData } from '@/services/supabase.service';
 import { supabaseClient } from '@/config/supabase';
 
 // ─── State ───────────────────────────────────────────────────
@@ -342,16 +342,24 @@ async function handleLegacySubmission(e: Event): Promise<void> {
     const cloudProfile = await loadUserProfileCloud(syncId);
     
     if (!cloudProfile) {
-      errorMsg.textContent = 'Vault Not Found: This Legacy ID does not exist securely in the cloud.';
-      errorMsg.style.display = 'block';
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'FETCH VAULT';
-      return;
+      // Fallback Check: Does data exist for this ID even if no profile does?
+      const dataExists = await checkIfSyncIdHasData(syncId);
+      
+      if (!dataExists) {
+        errorMsg.textContent = 'Vault Not Found: This Legacy ID does not exist securely in any cloud archives.';
+        errorMsg.style.display = 'block';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'FETCH VAULT';
+        return;
+      }
+
+      // If data exists but no profile, they are a "Legacy Pilot" who needs to migrate
+      console.warn('Legacy data found but no profile exists. Proceeding to migration.');
     }
 
     // Success - Emulate setting them up.
     // Use whatever name they have, or generate a placeholder.
-    const tempName = cloudProfile.display_name || `Legacy_${syncId.substring(0,5)}`;
+    const tempName = cloudProfile?.display_name || `Legacy_${syncId.substring(0,5)}`;
     localStorage.setItem('tracker_username', tempName);
     await handleSyncIdEstablished(syncId);
 

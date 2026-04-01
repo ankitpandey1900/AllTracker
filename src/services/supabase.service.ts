@@ -244,6 +244,25 @@ export async function loadUserProfileCloud(syncId?: string): Promise<GlobalProfi
   return data as GlobalProfile;
 }
 
+/** Checks if any data exists in the tracker_data table for a specific sync_id */
+export async function checkIfSyncIdHasData(syncId: string): Promise<boolean> {
+  if (!isSupabaseReady()) return false;
+  
+  const { data, error } = await supabaseClient!
+    .from(SUPABASE_TABLES.TRACKER_DATA)
+    .select('sync_id')
+    .eq('sync_id', syncId.trim())
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    console.error('Error checking sync_id existence:', error);
+    return false;
+  }
+  
+  return !!data;
+}
+
 /** Deletes all data for a specific sync_id (used during migration) */
 export async function deleteOldSyncIdData(oldSyncId: string): Promise<void> {
   if (!isSupabaseReady()) return;
