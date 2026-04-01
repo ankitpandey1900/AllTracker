@@ -4,7 +4,7 @@
  * Global keyboard shortcuts for quick navigation.
  */
 
-import { openTimerModal } from '@/features/timer/timer';
+
 import { openSettingsModal } from '@/features/settings/settings';
 import { renderHeatmapModal } from '@/features/heatmap/heatmap';
 
@@ -232,7 +232,7 @@ export function showWeeklySummary(): void {
     const totalHours = week.reduce((s, d) => s + (Array.isArray(d.studyHours) ? d.studyHours.reduce((x, n) => x + (n || 0), 0) : 0), 0);
     
     // Calculate totals per category
-    const categoryTotals = cols.map((col, ci) => {
+    const categoryTotals = cols.map((_, ci) => {
       return week.reduce((s, d) => s + (d.studyHours?.[ci] || 0), 0);
     });
 

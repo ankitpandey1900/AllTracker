@@ -15,14 +15,21 @@
 }
 
 .modal-content {
-  width: min(760px, 100%);
+  width: min(480px, 100%);
   max-height: 90vh;
   overflow: auto;
-  border-radius: 16px;
-  border: 1px solid rgba(102, 124, 181, 0.3);
-  background: linear-gradient(180deg, rgba(10, 16, 30, 0.98), rgba(7, 11, 22, 0.99));
-  box-shadow: 0 26px 65px rgba(2, 8, 20, 0.72);
-  animation: pop-in 0.2s ease;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(13, 17, 23, 0.72);
+  backdrop-filter: blur(14px) saturate(180%);
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  animation: zenith-pop-in 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+@keyframes zenith-pop-in {
+  from { opacity: 0; transform: scale(0.96) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 .modal-content.wide {
@@ -39,10 +46,13 @@
 }
 
 .modal-header h2 {
-  font-size: 1.08rem;
-  letter-spacing: 0.06em;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #dee8ff;
+  font-weight: 800;
+  color: #fff;
+  filter: drop-shadow(0 0 8px rgba(255,255,255,0.2));
 }
 
 .modal-body {
@@ -303,12 +313,81 @@
 }
 
 .glow-blue {
-  background: linear-gradient(135deg, #2563eb, #3b82f6) !important;
-  border: none !important;
-  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3) !important;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3) !important;
   color: #fff !important;
   text-transform: uppercase !important;
-  letter-spacing: 0.05em !important;
+  letter-spacing: 0.15em !important;
+  font-weight: 900 !important;
+  font-size: 0.75rem !important;
+  padding: 14px !important;
+  border-radius: 12px !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.glow-blue::after {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%; width: 200%; height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+  transform: rotate(45deg);
+  animation: button-shimmer 3s infinite;
+}
+
+@keyframes button-shimmer {
+  0% { transform: translateX(-100%) rotate(45deg); }
+  100% { transform: translateX(100%) rotate(45deg); }
+}
+
+.data-stream-active {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px;
+  background: rgba(16, 185, 129, 0.1) !important;
+  border: 1px solid rgba(16, 185, 129, 0.2) !important;
+  padding: 4px 10px !important;
+  border-radius: 20px !important;
+  color: #10b981 !important;
+  font-size: 0.65rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.1em !important;
+  animation: data-pulse 2s infinite ease-in-out;
+}
+
+@keyframes data-pulse {
+  0%, 100% { opacity: 0.8; box-shadow: 0 0 5px rgba(16, 185, 129, 0.1); }
+  50% { opacity: 1; box-shadow: 0 0 15px rgba(16, 185, 129, 0.3); }
+}
+
+/* Benefit Card Refinement */
+.benefit-item {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.benefit-item:hover {
+  background: rgba(37, 99, 235, 0.1) !important;
+  border-color: rgba(37, 99, 235, 0.3) !important;
+  transform: translateX(5px);
+}
+
+.benefit-item div:first-child {
+  transition: transform 0.3s ease;
+}
+
+.benefit-item:hover div:first-child {
+  transform: scale(1.2) rotate(5deg);
+}
+
+#backToWelcome {
+  opacity: 0.7;
+  transition: all 0.2s ease;
+}
+
+#backToWelcome:hover {
+  opacity: 1;
+  transform: translateX(-5px);
 }
 
 .glow-blue:hover {

@@ -5,7 +5,7 @@
  * Saves completed sessions to today's tracker data.
  */
 
-import { appState, getAllHourColumnLabels, getColumnsForDay } from '@/state/app-state';
+import { appState, getColumnsForDay } from '@/state/app-state';
 import { STORAGE_KEYS } from '@/config/constants';
 import { syncProfileBroadcast } from '@/features/dashboard/leaderboard';
 import { formatMsToTime, formatClockTime } from '@/utils/date.utils';

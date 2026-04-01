@@ -8,7 +8,7 @@
  * library — to keep the migration straightforward.
  */
 
-import type { TrackerDay, Settings, StudyCategory, CustomRange } from '@/types/tracker.types';
+import type { TrackerDay, Settings, StudyCategory } from '@/types/tracker.types';
 import type { ActiveTimer } from '@/types/timer.types';
 import type { RoutineItem, RoutineHistory } from '@/types/routine.types';
 import type { Bookmark } from '@/types/bookmark.types';

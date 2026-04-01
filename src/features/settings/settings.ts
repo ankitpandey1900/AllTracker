@@ -4,8 +4,7 @@
  * Settings modal, date configuration, column names, and custom ranges.
  */
 
-import { appState, calculateDates, initializeData, getColumnsForDay } from '@/state/app-state';
-import { DEFAULT_COLUMNS } from '@/config/constants';
+import { appState, calculateDates, initializeData } from '@/state/app-state';
 import { showToast } from '@/utils/dom.utils';
 import { saveSettingsToStorage, saveTrackerDataToStorage } from '@/services/data-bridge';
 import { generateTable } from '@/features/tracker/tracker';
@@ -64,7 +63,6 @@ export function applyDateSettings(): void {
 // ─── Apply Column Settings ───────────────────────────────────
 
 export function applyColumnSettings(): void {
-  const oldRanges = [...appState.settings.customRanges];
   appState.settings.customRanges = [];
 
   document.querySelectorAll('.custom-range-item').forEach((item) => {

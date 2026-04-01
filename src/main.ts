@@ -9,12 +9,11 @@
 // ─── Styles ──────────────────────────────────────────────────
 import "./styles/main.css";
 import "./styles/components/leaderboard.css";
+import "./styles/components/intelligence.css";
 
 // ─── Core ────────────────────────────────────────────────────
 import { appState, calculateDates, initializeData } from "@/state/app-state";
 import {
-  DEFAULT_START_DATE,
-  DEFAULT_END_DATE,
   DEFAULT_COLUMNS,
   STORAGE_KEYS,
 } from "@/config/constants";
@@ -37,10 +36,9 @@ import {
   toggleFocusHUD,
 } from "@/features/dashboard/dashboard";
 import { checkBadges, renderBadges } from "@/features/dashboard/badges";
-import type { Badge, TrackerDay } from "@/types/tracker.types";
+
 import { generateTable, setupTableSearch } from "@/features/tracker/tracker";
 import {
-  loadTimerState,
   startTimer,
   pauseTimer,
   stopTimer,
@@ -48,7 +46,6 @@ import {
   resumeTimerIfNeeded,
   setupFocusListeners,
 } from "@/features/timer/timer";
-import { renderHeatmap } from "@/features/heatmap/heatmap";
 import {
   renderRoutine,
   setupRoutineListeners,
@@ -71,6 +68,7 @@ import {
   applyColumnSettings,
   addCustomRange,
 } from "@/features/settings/settings";
+import { renderIntelligenceBriefing } from "@/features/intelligence/intelligence.ui";
 import { exportAllData, exportTrackerDataCSV } from "@/features/export/export";
 import { importFromJSON, importFromCSV } from "@/features/import/import";
 import {
@@ -191,6 +189,7 @@ function setupEventListeners(): void {
       if (view) {
         document.getElementById(view)?.classList.add("active");
         if (view === "tasksPane") renderTasks();
+        if (view === "intelligencePane") renderIntelligenceBriefing();
       }
     });
   });

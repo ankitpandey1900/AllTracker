@@ -127,11 +127,243 @@
   gap: 8px;
 }
 
-.lb-hours {
+.lb-hours-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.lb-total-hours {
   font-family: 'Tektur', cursive;
-  color: var(--accent-blue);
+  color: var(--accent-amber);
   font-weight: 800;
+  font-size: 0.95rem;
+}
+
+/* 🛂 Zenith Arena Passport - Compact & Professional Update */
+.profile-passport-card {
+  background: rgba(13, 17, 23, 0.95) !important;
+  border: 1px solid rgba(16, 185, 129, 0.2) !important;
+  border-radius: 16px !important;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), inset 0 0 40px rgba(16, 185, 129, 0.05);
+  position: relative;
+  font-family: 'Outfit', sans-serif;
+  max-width: 440px !important; /* Cap width for a more compact modal */
+  margin: 0 auto;
+}
+
+/* Tactical HUD Grid Overlay */
+.profile-passport-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 15px 15px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Holographic Scanline Engine */
+.profile-passport-card::after {
+  content: '';
+  position: absolute;
+  top: -100px;
+  left: 0;
+  width: 100%;
+  height: 30px;
+  background: linear-gradient(to bottom, transparent, rgba(16, 185, 129, 0.1) 50%, rgba(16, 185, 129, 0.2) 100%);
+  z-index: 10;
+  pointer-events: none;
+  animation: radar-scan 6s linear infinite;
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.1);
+}
+
+@keyframes radar-scan {
+  0% { transform: translateY(-100px); }
+  100% { transform: translateY(600px); }
+}
+
+/* Tactical Brackets */
+.passport-header::before, .passport-header::after {
+  content: '';
+  position: absolute;
+  width: 8px; height: 8px;
+  border: 2px solid #10b981;
+  opacity: 0.5;
+  z-index: 2;
+}
+
+.passport-header::before { top: 12px; left: 12px; border-right: 0; border-bottom: 0; }
+.passport-header::after { top: 12px; right: 12px; border-left: 0; border-bottom: 0; }
+
+.passport-header {
+  position: relative;
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.95));
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(16, 185, 129, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  z-index: 1;
+}
+
+.passport-avatar {
+  width: 42px;
+  height: 42px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  border-radius: 8px; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.passport-identity {
+  flex: 1;
+}
+
+.passport-handle {
+  display: block;
+  font-family: 'Tektur', cursive;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.1);
+}
+
+.passport-rank-badge {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  color: #94a3b8;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+  margin-top: 2px;
+  display: inline-block;
+}
+
+.passport-body {
+  position: relative;
+  z-index: 1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Form Styling inside Passport */
+.passport-form .settings-group label {
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  color: #94a3b8;
+  margin-bottom: 4px;
+  display: block;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.passport-form .input {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 10px 12px;
   font-size: 0.9rem;
+  color: #f8fafc;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.passport-form .input:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15);
+  outline: none;
+}
+
+.passport-form select option {
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+.passport-form .btn {
+  padding: 10px;
+  font-size: 0.8rem;
+  margin-top: 15px;
+}
+
+/* Security Migration Adjustments */
+.security-migration-section {
+  margin-top: 15px !important;
+  padding-top: 15px !important;
+}
+
+.security-migration-section .intel-label {
+  font-size: 0.7rem;
+  margin-bottom: 4px !important;
+}
+
+.security-migration-section .reflection-sub {
+  margin-bottom: 12px !important;
+}
+
+.security-migration-section .settings-group label {
+  color: #64748b;
+  font-weight: 700;
+  font-size: 0.55rem;
+  margin-bottom: 4px;
+}
+
+.security-migration-section .input {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  padding: 10px 12px;
+  font-size: 0.85rem;
+  border-radius: 6px;
+}
+
+.security-migration-section .input:focus {
+  border-style: solid;
+  border-color: #ef4444;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1);
+}
+
+.security-migration-section .btn {
+  padding: 8px;
+  font-size: 0.65rem;
+  margin-top: 12px !important;
+}
+
+.input-with-eye {
+  display: flex;
+  align-items: center;
+}
+
+.input-with-eye .input {
+  padding-right: 32px;
+}
+
+.eye-toggle {
+  opacity: 0.5;
+  transition: opacity 0.2s;
+  font-size: 0.8rem;
+}
+
+.eye-toggle:hover {
+  opacity: 1;
+}
+
+/* Dashboard Leaderboard Elements inherited */
+.lb-today-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 1px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
 }
 
 .active-pulse {
@@ -157,16 +389,4 @@
   font-size: 0.85rem;
   font-style: italic;
   opacity: 0.6;
-}
-
-/* Profile Setup Styling */
-#profileSetupModal .modal-content {
-  background: rgba(10, 15, 30, 0.98);
-  border: 1px solid rgba(106, 134, 255, 0.3);
-  box-shadow: 0 0 60px rgba(0, 0, 0, 0.8);
-}
-
-.profile-setup-body .settings-group label {
-  margin-bottom: 6px;
-  display: block;
 }

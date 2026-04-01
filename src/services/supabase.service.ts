@@ -224,3 +224,95 @@ export async function fetchLeaderboard(): Promise<GlobalProfile[]> {
 
   return (data || []) as GlobalProfile[];
 }
+
+/** Loads the profile for a specific user from the cloud */
+export async function loadUserProfileCloud(syncId?: string): Promise<GlobalProfile | null> {
+  if (!isSupabaseReady()) return null;
+  const targetId = syncId || getCurrentUserId();
+  if (!targetId) return null;
+
+  const { data, error } = await supabaseClient!
+    .from(SUPABASE_TABLES.GLOBAL_PROFILES)
+    .select('*')
+    .eq('sync_id', targetId)
+    .maybeSingle();
+
+  if (error) {
+    console.error('Error loading cloud profile:', error);
+    return null;
+  }
+  return data as GlobalProfile;
+}
+
+/** Deletes all data for a specific sync_id (used during migration) */
+export async function deleteOldSyncIdData(oldSyncId: string): Promise<void> {
+  if (!isSupabaseReady()) return;
+  
+  const tables = Object.values(SUPABASE_TABLES);
+  
+  for (const table of tables) {
+    await supabaseClient!
+      .from(table)
+      .delete()
+      .eq('sync_id', oldSyncId);
+  }
+}
+
+/** Transfers record from one sync_id to another */
+export async function transferCloudRecord(table: string, oldSyncId: string, newSyncId: string): Promise<void> {
+  if (!isSupabaseReady()) return;
+
+  const { data } = await supabaseClient!
+    .from(table)
+    .select('*')
+    .eq('sync_id', oldSyncId)
+    .maybeSingle();
+
+  if (data) {
+    const payload = { ...data, sync_id: newSyncId };
+    delete payload.id; // Let Supabase gen new ID or handle it
+    await supabaseClient!.from(table).upsert(payload, { onConflict: 'sync_id' });
+  }
+}
+
+/** Checks if a Username is already in use by another Sync ID */
+export async function isUsernameTaken(username: string, excludeSyncId?: string | null): Promise<boolean> {
+  if (!isSupabaseReady()) return false;
+
+  let query = supabaseClient!
+    .from(SUPABASE_TABLES.GLOBAL_PROFILES)
+    .select('display_name')
+    .ilike('display_name', username.trim()); // Case-insensitive match
+
+  if (excludeSyncId) {
+    query = query.neq('sync_id', excludeSyncId);
+  }
+
+  const { data, error } = await query.maybeSingle();
+  
+  if (error) {
+    console.error('Error checking username uniqueness:', error);
+    return false;
+  }
+
+  return !!data;
+}
+
+/** Verifies if a user exists with the exact display_name (User ID) and sync_id (Password) */
+export async function verifyUserCredentials(username: string, syncId: string): Promise<boolean> {
+  if (!isSupabaseReady()) return false;
+
+  const { data, error } = await supabaseClient!
+    .from(SUPABASE_TABLES.GLOBAL_PROFILES)
+    .select('display_name')
+    .ilike('display_name', username.trim())
+    .eq('sync_id', syncId.trim())
+    .maybeSingle();
+    
+  if (error || !data) {
+    if (error) console.error('Credential verification error:', error);
+    return false;
+  }
+  
+  return true;
+}

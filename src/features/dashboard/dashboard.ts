@@ -8,9 +8,10 @@
  *  - Daily target progress cards
  */
 
-import { appState, getAllHourColumnLabels, getColumnsForDay } from '@/state/app-state';
+import { appState } from '@/state/app-state';
 import { RANK_TIERS, TIER_TITLES, CATEGORY_COLORS } from '@/config/constants';
 import { setTxt } from '@/utils/dom.utils';
+import { renderIntelligenceBriefing } from '@/features/intelligence/intelligence.ui';
 import { formatDate } from '@/utils/date.utils';
 import type { RankDetails } from '@/types/tracker.types';
 import { renderStudyAnalytics } from './study-analytics';
@@ -227,6 +228,9 @@ export function updateDashboard(): void {
   if (statusEl) {
     statusEl.textContent = getDynamicStatusMessage(today.day, completedDays);
   }
+
+  // Intelligence Briefing
+  renderIntelligenceBriefing();
 }
 
 // Cached status message — only re-randomised when the pace category changes.
@@ -394,7 +398,7 @@ function renderAllocationBar(): void {
     [] as number[]
   );
 
-  const palette = ['#6a8fff', '#8b5cf6', '#10b981', '#f59e0b', '#22c55e', '#60a5fa', '#c084fc', '#f43f5e'];
+
 
   let segments = values
     .map((v: number, i: number) => ({ name: labels[i] || `Col ${i + 1}`, value: v, color: CATEGORY_COLORS[i % CATEGORY_COLORS.length] }))

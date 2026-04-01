@@ -19,18 +19,19 @@
 </head>
 
 <body class="antialiased selection:bg-indigo-500/30 selection:text-white">
-    <header id="appHeader" class="app-header backdrop-blur-md">
-      <div class="brand-group">
-        <img src="/logo.png" alt="AllTracker Arena Logo" class="app-logo">
-        <div class="brand">ALL TRACKER <span>ARENA</span></div>
-      </div>
+  <header id="appHeader" class="app-header backdrop-blur-md">
+    <div class="brand-group">
+      <img src="/logo.png" alt="AllTracker Arena Logo" class="app-logo">
+      <div class="brand">ALL TRACKER <span>ARENA</span></div>
+    </div>
     <div class="header-actions">
       <button id="startTimerBtn" class="btn btn-primary">Start Timer</button>
       <button id="userManualBtn" class="btn">User Manual</button>
       <button id="settingsBtn" class="btn">Settings</button>
       <div id="headerRight">
-        <button class="btn-auth-trigger" id="authTriggerBtn">
-          Sync / Login
+        <button class="btn btn-primary glow-blue" id="authTriggerBtn" style="font-size: 0.65rem; font-weight: 800; letter-spacing: 1px; padding: 6px 14px; display: flex; align-items: center; justify-content: center; gap: 6px; border-radius: 6px; height: 32px; background: #10b981; border: none; color: white;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+          LOGIN
         </button>
       </div>
     </div>
@@ -43,7 +44,7 @@
       </button>
       <button class="nav-item" data-target="routinePane">Routine</button>
       <button class="nav-item" data-target="tasksPane">Tasks</button>
-
+      <button class="nav-item" data-target="intelligencePane">Strategist</button>
       <button class="nav-item" data-target="bookmarksPane">Bookmarks</button>
       <button id="excalidrawToggle" class="nav-item"
         style="margin-left: auto; display: flex; align-items: center; gap: 6px;">
@@ -232,6 +233,23 @@
           <tbody id="tableBody"></tbody>
         </table>
       </article>
+    </section>
+
+    <!-- Intelligence Strategist Pane -->
+    <section id="intelligencePane" class="view-pane">
+      <div class="section-header">
+        <h2 class="gradient-text"
+          style="font-size: 2.2rem; font-weight: 900; letter-spacing: -1px; margin-bottom: 4px;">STUDY STRATEGIST</h2>
+        <p style="color: var(--text-secondary); opacity: 0.7; font-size: 0.95rem; margin-bottom: 30px;">AI-Driven
+          Mission Analysis & Tactical Advisory</p>
+      </div>
+
+      <div class="intelligence-full-view">
+        <div id="intelligenceFullBody">
+          <!-- Populated by intelligence.ui.ts -->
+          <div class="leaderboard-placeholder">Initializing Strategist HUD...</div>
+        </div>
+      </div>
     </section>
 
     <section id="routinePane" class="view-pane">
@@ -1067,7 +1085,8 @@
           <button id="saveSessionNoteBtn" class="btn btn-primary glow-blue" style="flex: 2;">
             Secure Reflection
           </button>
-          <button id="skipSessionNoteBtn" class="btn btn-ghost" style="flex: 1; border: 1px solid rgba(255,255,255,0.1); color: #94a3b8;">
+          <button id="skipSessionNoteBtn" class="btn btn-ghost"
+            style="flex: 1; border: 1px solid rgba(255,255,255,0.1); color: #94a3b8;">
             Skip
           </button>
         </div>
@@ -1076,71 +1095,276 @@
   </div>
 
   <div class="modal" id="authModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2 id="authModalTitle">Connect Your Sync ID</h2>
-        <button id="closeAuthModal" class="modal-close">&times;</button>
+    <div class="modal-content" style="max-width: 440px;">
+      <div class="modal-header"
+        style="justify-content: center; padding: 20px; border-bottom: 2px solid rgba(16, 185, 129, 0.2);">
+        <div class="intel-label" style="color: #10b981; font-size: 0.85rem; font-weight: 800; letter-spacing: 2px;">
+          [ SECURE ARENA ACCESS ]
+        </div>
+        <button id="closeAuthModal" class="modal-close" style="top: 15px; right: 15px;">&times;</button>
       </div>
-      <div class="modal-body">
-        <form id="authForm">
-          <input id="syncIdInput" class="input" placeholder="Enter Sync ID" />
-          <div class="row">
-            <button id="generateIdBtn" type="button" class="btn">
-              Generate
+
+      <div class="auth-tabs"
+        style="display: flex; border-bottom: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.2);">
+        <button id="tabLoginBtn" class="auth-tab active"
+          style="flex: 1; padding: 14px; background: transparent; color: #fff; font-size: 0.75rem; font-weight: 800; letter-spacing: 1px; border: none; border-bottom: 2px solid #10b981; cursor: pointer; transition: all 0.2s;">
+          LOGIN
+        </button>
+        <button id="tabRegisterBtn" class="auth-tab"
+          style="flex: 1; padding: 14px; background: transparent; color: #64748b; font-size: 0.75rem; font-weight: 800; letter-spacing: 1px; border: none; border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.2s;">
+          NEW PARTICIPANT
+        </button>
+      </div>
+
+      <div class="modal-body"
+        style="padding: 24px; min-height: 380px; position: relative; overflow: hidden; background: transparent;">
+
+        <!-- LOGIN VIEW -->
+        <div id="authLoginView" class="auth-view"
+          style="transition: all 0.3s ease; position: absolute; inset: 24px; display: block;">
+          <form id="loginForm" class="passport-form">
+            <div class="settings-group">
+              <label>USER ID (HANDLE)</label>
+              <input id="loginUsernameInput" class="input" placeholder="e.g., NeonAtlas" required />
+            </div>
+            <div class="settings-group" style="margin-top: 18px;">
+              <label>PASSWORD (VAULT KEY)</label>
+              <div class="input-with-eye" style="position: relative;">
+                <input id="loginPasswordInput" class="input" type="password" placeholder="••••••••" required />
+                <span id="toggleLoginPass" class="eye-toggle"
+                  style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); cursor: pointer;">👁️</span>
+              </div>
+            </div>
+
+            <div id="loginErrorMsg" class="auth-error-msg"
+              style="display: none; color: #ef4444; font-size: 0.75rem; margin-top: 15px; background: rgba(239, 68, 68, 0.1); padding: 10px; border-radius: 6px; border: 1px solid rgba(239, 68, 68, 0.3);">
+            </div>
+
+            <button type="submit" id="loginSubmitBtn" class="btn btn-primary w-full"
+              style="margin-top: 25px; padding: 14px; background: #10b981; border: none; font-weight: 800; letter-spacing: 1px;">
+              AUTHENTICATE
             </button>
-            <button id="authSubmitBtn" type="submit" class="btn btn-primary">
-              Connect
+            <div style="margin-top: 20px; text-align: center; display: flex; flex-direction: column; gap: 8px;">
+              <span id="legacyAuthTrigger"
+                style="font-size: 0.7rem; color: var(--glow-blue); font-weight: 800; cursor: pointer; border-bottom: 1px dashed rgba(59, 130, 246, 0.5); transition: all 0.2s;">Legacy
+                Pilot? Login with Sync ID.</span>
+              <span id="recoveryAuthTrigger"
+                style="font-size: 0.6rem; color: #ef4444; font-weight: 800; cursor: pointer; transition: all 0.2s;">Lost
+                your Vault Key? Recover it here.</span>
+            </div>
+          </form>
+        </div>
+
+        <!-- REGISTER VIEW -->
+        <div id="authRegisterView" class="auth-view"
+          style="transition: all 0.3s ease; position: absolute; inset: 24px; transform: translateX(120%); opacity: 0; pointer-events: none;">
+          <form id="registerForm" class="passport-form">
+            <div class="grid-2" style="gap: 15px;">
+              <div class="settings-group">
+                <label>USER ID</label>
+                <input id="regUsernameInput" class="input" placeholder="Handle" required pattern="^[a-zA-Z0-9_]{3,15}$"
+                  title="3-15 alphanumeric chars (no spaces)." />
+                <div id="regUsernameStatus"
+                  style="font-size: 0.65rem; margin-top: 4px; font-weight: 800; height: 12px;"></div>
+              </div>
+              <div class="settings-group">
+                <label>PASSWORD</label>
+                <div class="input-with-eye" style="position: relative;">
+                  <input id="regPasswordInput" class="input" type="password" placeholder="••••••••" required />
+                  <span id="toggleRegPass" class="eye-toggle"
+                    style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 0.8rem;">👁️</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid-2" style="margin-top: 18px; gap: 15px;">
+              <div class="settings-group">
+                <label>AGE</label>
+                <input id="regAgeInput" class="input" type="number" placeholder="Years" required min="10" max="99" />
+              </div>
+              <div class="settings-group">
+                <label>NATION</label>
+                <select id="regNationSelect" class="input" required>
+                  <option value="Global">Global</option>
+                  <option value="India">India</option>
+                  <option value="USA">USA</option>
+                  <option value="UK">UK</option>
+                  <option value="Canada">Canada</option>
+                  <option value="Germany">Germany</option>
+                  <option value="Japan">Japan</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+
+            <div id="regErrorMsg" class="auth-error-msg"
+              style="display: none; color: #ef4444; font-size: 0.75rem; margin-top: 15px; background: rgba(239, 68, 68, 0.1); padding: 10px; border-radius: 6px; border: 1px solid rgba(239, 68, 68, 0.3);">
+            </div>
+
+            <button type="submit" id="regSubmitBtn" class="btn btn-primary glow-blue w-full"
+              style="margin-top: 25px; padding: 14px; font-weight: 800; letter-spacing: 1px;">
+              CREATE PROFILE
             </button>
+          </form>
+        </div>
+
+        <!-- LEGACY VIEW -->
+        <div id="authLegacyView" class="auth-view"
+          style="transition: all 0.3s ease; position: absolute; inset: 24px; transform: translateX(-120%); opacity: 0; pointer-events: none;">
+          <div
+            style="display: flex; align-items: center; gap: 8px; margin-bottom: 15px; cursor: pointer; color: #94a3b8; transition: all 0.2s;"
+            id="backToLoginFromLegacy" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#94a3b8'">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+            <span style="font-size: 0.65rem; font-weight: 900; text-transform: uppercase;">Back to Main Login</span>
           </div>
-          <div id="authError" class="error" style="display: none"></div>
-        </form>
+          <p style="font-size: 0.8rem; color: #fff; margin-bottom: 25px; line-height: 1.4;">Enter your old Sync ID to
+            access your vault and setup your new Identity Profile.</p>
+          <form id="legacyForm" class="passport-form">
+            <div class="settings-group">
+              <label>LEGACY SYNC ID / VAULT KEY</label>
+              <div class="input-with-eye" style="position: relative;">
+                <input id="legacySyncInput" class="input" type="password" placeholder="••••••••" required />
+                <span id="toggleLegacyPass" class="eye-toggle"
+                  style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); cursor: pointer;">👁️</span>
+              </div>
+            </div>
+            <div id="legacyErrorMsg" class="auth-error-msg"
+              style="display: none; color: #ef4444; font-size: 0.75rem; margin-top: 15px; background: rgba(239, 68, 68, 0.1); padding: 10px; border-radius: 6px; border: 1px solid rgba(239, 68, 68, 0.3);">
+            </div>
+            <button type="submit" id="legacySubmitBtn" class="btn btn-primary glow-blue w-full"
+              style="margin-top: 25px; padding: 14px; font-weight: 800; letter-spacing: 1px;">
+              FETCH VAULT
+            </button>
+          </form>
+        </div>
+
+        <!-- RECOVERY VIEW -->
+        <div id="authRecoveryView" class="auth-view"
+          style="transition: all 0.3s ease; position: absolute; inset: 24px; transform: translateX(120%); opacity: 0; pointer-events: none;">
+          <div
+            style="display: flex; align-items: center; gap: 8px; margin-bottom: 15px; cursor: pointer; color: #94a3b8; transition: all 0.2s;"
+            id="backToLoginFromRecovery" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#94a3b8'">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+            <span style="font-size: 0.65rem; font-weight: 900; text-transform: uppercase;">Back to Main Login</span>
+          </div>
+          <p style="font-size: 0.8rem; color: #fff; margin-bottom: 25px; line-height: 1.4;">Enter your User ID and your
+            secure 12-character Recovery Key to discover your lost Vault Key.</p>
+          <form id="recoveryForm" class="passport-form">
+            <div class="settings-group">
+              <label>USER ID (HANDLE)</label>
+              <input id="recUsernameInput" class="input" placeholder="e.g., NeonAtlas" required />
+            </div>
+            <div class="settings-group" style="margin-top: 18px;">
+              <label>RECOVERY KEY</label>
+              <input id="recRecoveryKeyInput" class="input" placeholder="XXXX-XXXX-XXXX" required />
+            </div>
+            <div id="recoveryErrorMsg" class="auth-error-msg"
+              style="display: none; color: #ef4444; font-size: 0.75rem; margin-top: 15px; background: rgba(239, 68, 68, 0.1); padding: 10px; border-radius: 6px; border: 1px solid rgba(239, 68, 68, 0.3);">
+            </div>
+            <div id="recoverySuccessMsg"
+              style="display: none; color: #10b981; font-size: 0.75rem; margin-top: 15px; background: rgba(16, 185, 129, 0.1); padding: 10px; border-radius: 6px; border: 1px solid rgba(16, 185, 129, 0.3); font-weight: 800;">
+            </div>
+            <button type="submit" id="recoverySubmitBtn" class="btn btn-ghost w-full"
+              style="margin-top: 25px; padding: 14px; font-weight: 800; letter-spacing: 1px; border: 1px solid rgba(239, 68, 68, 0.4); color: #ef4444;">
+              DECRYPT VAULT DATA
+            </button>
+          </form>
+        </div>
+
       </div>
     </div>
   </div>
   <div class="modal" id="profileSetupModal">
-    <div class="modal-content" style="max-width: 450px;">
-      <div class="modal-header">
-        <h2>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px; color: var(--accent-blue);">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-            <circle cx="12" cy="7" r="4"></circle>
-          </svg>
-          <span class="gradient-text">ARENA IDENTITY</span>
-        </h2>
+    <div class="modal-content" style="max-width: 440px;">
+      <div class="modal-header"
+        style="justify-content: flex-start; padding: 20px; border-bottom: 2px solid rgba(16, 185, 129, 0.2);">
+        <div class="passport-avatar" id="passportAvatar"
+          style="width: 45px; height: 45px; background: rgba(16, 185, 129, 0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #10b981; margin-right: 15px;">
+          👤</div>
+        <div class="passport-identity" style="display: flex; flex-direction: column;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="passport-handle" id="displayHandle"
+              style="font-weight: 900; font-size: 1.1rem; color: #fff;">@new_participant</span>
+            <span id="verifiedBadge"
+              style="font-size: 0.6rem; background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(16, 185, 129, 0.2); font-weight: 900; letter-spacing: 0.5px;">VERIFIED</span>
+          </div>
+          <span class="passport-rank-badge" id="displayRank"
+            style="font-size: 0.7rem; color: #94a3b8; font-weight: 800; text-transform: uppercase;">UNRANKED •
+            PILOT</span>
+        </div>
+        <button id="closeProfileModal" class="modal-close" style="top: 15px; right: 15px;">&times;</button>
       </div>
-      <div class="modal-body profile-setup-body">
-        <p class="reflection-sub">Choose your public alias for the World Stage.</p>
-        <div class="settings-group">
-          <input id="profileNameInput" class="input" placeholder="Display Name (e.g., NeonAtlas)" />
-        </div>
-        <div class="range-grid" style="margin-top: 15px;">
+
+      <div class="modal-body" style="padding: 24px; max-height: 70vh; overflow-y: auto;">
+        <div class="passport-form">
           <div class="settings-group">
-            <label>Age</label>
-            <input id="profileAgeInput" class="input" type="number" placeholder="e.g., 21" />
+            <label>ARENA DISPLAY NAME</label>
+            <input id="profileNameInput" class="input" placeholder="Enter your display name..." />
           </div>
-          <div class="settings-group">
-            <label>Nation</label>
-            <select id="profileNationInput" class="input">
-              <option value="Global">🏳️ Global</option>
-              <option value="India">🇮🇳 India</option>
-              <option value="USA">🇺🇸 USA</option>
-              <option value="UK">🇬🇧 UK</option>
-              <option value="Canada">🇨🇦 Canada</option>
-              <option value="Germany">🇩🇪 Germany</option>
-              <option value="Japan">🇯🇵 Japan</option>
-              <option value="Other">🌍 Other</option>
-            </select>
+          <div class="grid-2" style="margin-top: 15px;">
+            <div class="settings-group">
+              <label>AGE</label>
+              <input id="profileAgeInput" class="input" type="number" placeholder="Years" />
+            </div>
+            <div class="settings-group">
+              <label>NATION</label>
+              <select id="profileNationSelect" class="input">
+                <option value="Global">Global</option>
+                <option value="India">India</option>
+                <option value="USA">USA</option>
+                <option value="UK">UK</option>
+                <option value="Canada">Canada</option>
+                <option value="Germany">Germany</option>
+                <option value="Japan">Japan</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
           </div>
-        </div>
-        <div class="modal-actions" style="margin-top: 25px;">
-          <button id="saveProfileBtn" class="btn btn-primary glow-blue w-full">
-            ACTIVATE MISSION PROFILE
+          <button id="saveProfileBtn" class="btn btn-primary w-full"
+            style="margin-top: 25px; padding: 14px; background: #10b981; border: none; font-weight: 800; letter-spacing: 1px;">
+            SECURE MISSION IDENTITY
           </button>
         </div>
-        <p class="text-xs color-secondary text-center mt-3" style="font-size: 0.75rem; opacity: 0.6;">
-          Your Sync ID remains 100% private. This info is for the leaderboard only.
-        </p>
+
+        <!-- Security Migration Section -->
+        <div class="security-migration-section"
+          style="margin-top: 40px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.05);">
+          <div class="intel-label"
+            style="display: flex; align-items: center; gap: 8px; color: #ef4444; margin-bottom: 5px; font-weight: 800; letter-spacing: 1px; font-size: 0.75rem;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+            [ VAULT SECURITY MIGRATION ]
+          </div>
+          <p class="reflection-sub" style="font-size: 0.7rem; color: #94a3b8; margin-bottom: 20px;">Move study history
+            to a new vault key.</p>
+
+          <div class="settings-group">
+            <label style="font-size: 0.65rem;">CURRENT VAULT KEY</label>
+            <div class="input-with-eye" style="position: relative;">
+              <input id="currentSecretKeyInput" class="input" type="password" placeholder="Verify current key" />
+              <span id="toggleCurrentKey" class="eye-toggle"
+                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 0.7rem;">👁️</span>
+            </div>
+          </div>
+          <div class="settings-group" style="margin-top: 12px;">
+            <label style="font-size: 0.65rem;">NEW VAULT KEY</label>
+            <div class="input-with-eye" style="position: relative;">
+              <input id="newSecretKeyInput" class="input" type="password" placeholder="Enter target key" />
+              <span id="toggleNewKey" class="eye-toggle"
+                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 0.7rem;">👁️</span>
+            </div>
+          </div>
+          <button id="migrateIdentityBtn" class="btn btn-ghost w-full"
+            style="margin-top: 20px; border: 1px solid rgba(239, 68, 68, 0.2); color: #ef4444; font-size: 0.65rem; font-weight: 800; text-transform: uppercase;">
+            INITIALIZE IDENTITY MIGRATION
+          </button>
+        </div>
       </div>
     </div>
   </div>

@@ -54,12 +54,10 @@ export function generateTable(): void {
   let html = '';
   for (let i = 0; i < data.length; i++) {
     const day = data[i];
-    const dayDate = new Date(day.date);
     const phase = getPhase(day.day);
     const isToday = new Date(day.date).setHours(0, 0, 0, 0) === today.getTime();
     const editable = isRowEditable(day.date);
     const dayLabels = getAllHourColumnLabels(day.day);
-    const totalHours = getTotalHours(day);
 
     let rowClass = phase;
     if (day.completed) rowClass += ' completed';

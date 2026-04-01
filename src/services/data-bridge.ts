@@ -17,6 +17,7 @@ import {
   saveTimerStateCloud, loadTimerStateCloud,
   saveRoutineResetCloud, loadRoutineResetCloud,
   saveTasksCloud, loadTasksCloud,
+  loadUserProfileCloud,
   updateSyncStatus,
 } from '@/services/supabase.service';
 import type { TrackerDay, Settings } from '@/types/tracker.types';
@@ -24,7 +25,7 @@ import type { RoutineItem, RoutineHistory } from '@/types/routine.types';
 import type { Bookmark } from '@/types/bookmark.types';
 import type { ActiveTimer } from '@/types/timer.types';
 import type { StudyTask } from '@/types/task.types';
-import { appState, calculateDates } from '@/state/app-state';
+
 
 // ─── Auth Check ──────────────────────────────────────────────
 
@@ -251,6 +252,19 @@ export async function syncDataOnLogin(): Promise<void> {
 
     const cloudReset = await loadRoutineResetCloud();
     if (cloudReset) setRoutineReset(cloudReset, false);
+
+    // 5. Restore User Profile & Identity
+    const cloudProfile = await loadUserProfileCloud();
+    if (cloudProfile) {
+      const userProfile = {
+        displayName: cloudProfile.display_name,
+        age: cloudProfile.age,
+        nation: cloudProfile.nation,
+        syncId: cloudProfile.sync_id
+      };
+      localStorage.setItem(STORAGE_KEYS.USER_PROFILE, JSON.stringify(userProfile));
+      localStorage.setItem('tracker_username', userProfile.displayName);
+    }
 
     console.log('Sync complete.');
 
