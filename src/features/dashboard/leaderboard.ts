@@ -166,7 +166,7 @@ export function openProfileModal(): void {
 async function handleProfileSave(): Promise<void> {
   const nameInput = document.getElementById('profileNameInput') as HTMLInputElement;
   const ageInput = document.getElementById('profileAgeInput') as HTMLInputElement;
-  const nationInput = document.getElementById('profileNationInput') as HTMLSelectElement;
+  const nationInput = document.getElementById('profileNationSelect') as HTMLSelectElement;
 
   const name = nameInput.value.trim();
   const age = parseInt(ageInput.value) || 0;
