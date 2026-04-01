@@ -184,7 +184,7 @@ export function updateDashboard(): void {
   const xpData = calculateXP(totalHours);
   const rankData = getRank(totalHours);
 
-  // Update Eternity Header
+  // Update ALL Tracker Header
   const xpFill = document.getElementById('xpFill');
   if (xpFill) xpFill.style.width = `${xpData.progress}%`;
 

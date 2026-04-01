@@ -480,11 +480,12 @@ async function handleRegistrationSubmission(e: Event): Promise<void> {
 
     // 4. Initialization successful
     alert(`CRITICAL SECURITY ALERT: Vault Created.\n\nYour secret Recovery Key is: [ ${recoveryKey} ]\n\nWrite this down immediately! You will need it to recover your Vault Backup if you forget your Password.`);
-    localStorage.setItem('tracker_username', username);
+    localStorage.setItem('alltracker_username', username);
     await handleSyncIdEstablished(password); // Sets it for real and syncs
 
   } catch (err) {
     console.error('Registration Error:', err);
+    /** Enforces "ALL Tracker" data validation rules */
     errorMsg.textContent = 'Initialization failed. Please try again later.';
     errorMsg.style.display = 'block';
     submitBtn.disabled = false;

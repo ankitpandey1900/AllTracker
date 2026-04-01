@@ -10,6 +10,7 @@
 import "./styles/main.css";
 import "./styles/components/leaderboard.css";
 import "./styles/components/intelligence.css";
+import "./styles/components/manual.css";
 
 // ─── Core ────────────────────────────────────────────────────
 import { appState, calculateDates, initializeData } from "@/state/app-state";
@@ -362,12 +363,6 @@ function setupEventListeners(): void {
 
   bindClick("closeHistoryModal", () =>
     document.getElementById("historyModal")?.classList.remove("active"),
-  );
-  bindClick("userManualBtn", () =>
-    document.getElementById("userManualModal")?.classList.add("active"),
-  );
-  bindClick("closeUserManualModal", () =>
-    document.getElementById("userManualModal")?.classList.remove("active"),
   );
 
   // Import
