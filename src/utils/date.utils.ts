@@ -10,6 +10,14 @@ export function formatDate(date: Date): string {
   return date.toLocaleDateString('en-GB', options);
 }
 
+/** Formats a Date as "DD/MM/YYYY" */
+export function formatDateDMY(date: Date): string {
+  const d = String(date.getDate()).padStart(2, '0');
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const y = date.getFullYear();
+  return `${d}/${m}/${y}`;
+}
+
 /** Formats a Date as "2:15 PM" */
 export function formatClockTime(date: Date): string {
   return date.toLocaleTimeString('en-US', {

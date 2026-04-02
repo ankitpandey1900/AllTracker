@@ -1,5 +1,6 @@
 import { appState } from '@/state/app-state';
 import type { SessionLog, TrackerDay } from '@/types/tracker.types';
+import { formatDateDMY } from '@/utils/date.utils';
 
 export interface TacticalBriefing {
   peakHour: number;
@@ -88,7 +89,13 @@ export function getTacticalBriefing(): TacticalBriefing {
 export function getTacticalBriefingString(): string {
   const b = getTacticalBriefing();
   
-  const last7Days = (appState.trackerData || []).slice(-7).map(d => ({
+  const todayStr = new Date().toISOString().split('T')[0];
+  const todayIdx = appState.trackerData.findIndex(d => d.date === todayStr);
+  const endIdx = todayIdx === -1 ? appState.trackerData.length : todayIdx + 1;
+  const startIdx = Math.max(0, endIdx - 7);
+
+  const last7Days = appState.trackerData.slice(startIdx, endIdx).map(d => ({
+    dateStr: formatDateDMY(new Date(d.date)),
     dayNumber: d.day,
     completed: d.completed,
     totalHours: (d.studyHours || []).reduce((sum, h) => sum + (h || 0), 0),
@@ -96,11 +103,11 @@ export function getTacticalBriefingString(): string {
     topics: d.topics
   }));
 
-  const todayStr = new Date().toISOString().split('T')[0];
   const pendingTasks = (appState.tasks || []).filter(t => !t.completed).map(t => ({
     text: t.text,
     priority: t.priority,
-    overdue: t.date < todayStr
+    overdue: t.date < todayStr,
+    dueDate: formatDateDMY(new Date(t.date))
   }));
 
   const activeRoutines = (appState.routines || []).map(r => ({
@@ -111,13 +118,37 @@ export function getTacticalBriefingString(): string {
   const recentNotes = (appState.settings.sessionLogs || [])
     .slice(-10)
     .map(log => ({
-      date: log.date,
+      date: formatDateDMY(new Date(log.date)),
       category: log.categoryName,
       duration: log.duration,
       note: log.note || "No note provided."
     }));
 
+  const bookmarks = (appState.bookmarks || []).map(b => ({
+    title: b.title,
+    category: b.category,
+    url: b.url
+  }));
+
+  const activeTimer = appState.activeTimer && appState.activeTimer.isRunning ? {
+    subject: appState.activeTimer.colName,
+    elapsed: Math.floor(appState.activeTimer.elapsedAcc / 60000) + "m",
+    category: appState.activeTimer.category
+  } : "IDLE";
+
+  const username = localStorage.getItem('tracker_username') || "New Participant";
+  
+  // Re-calculate some rank info for AI context
+  const totalHours = (appState.trackerData || []).reduce((sum, day) => {
+    return sum + (day.studyHours || []).reduce((s, h) => s + (h || 0), 0);
+  }, 0);
+
   return JSON.stringify({
+    identity: {
+      handle: "@" + username,
+      totalHours: totalHours.toFixed(1),
+      rank: b.strategicContext.find(s => s.includes('Rank')) || "IRON V (Pilot)"
+    },
     beastModeActive: !!appState.settings.beastMode,
     stats: {
       sustainability: `${b.sustainabilityScore}%`,
@@ -131,10 +162,12 @@ export function getTacticalBriefingString(): string {
       neglectedTopic: b.neglectedTopic
     },
     peakWindow: b.peakHourStr,
+    activeTimer,
     recentHabits_Last7Days: last7Days,
     unclearedTasks: pendingTasks,
     dailyRoutines: activeRoutines,
-    recentSessionNotes: recentNotes
+    recentSessionNotes: recentNotes,
+    bookmarks
   }, null, 2);
 }
 
@@ -371,8 +404,11 @@ function checkTopicAttention(data: TrackerDay[]): string | null {
   let mostNeglected: string | null = null;
   let maxDeficit = 0;
 
+  const trackedDays = data.filter(d => d.studyHours && d.studyHours.some(h => (h || 0) > 0)).length;
+  const elapsedDays = Math.max(7, trackedDays);
+
   categories.forEach(cat => {
-    const totalTarget = cat.target * data.length;
+    const totalTarget = cat.target * elapsedDays;
     if (totalTarget === 0) return;
     
     const deficit = (totalTarget - actuals[cat.name]) / totalTarget;
@@ -420,6 +456,11 @@ export function getStrategicContext(data: TrackerDay[], logs: SessionLog[], task
   context.push(`Task Integrity: Backlog status is ${taskHealth.status} with debt index at ${taskHealth.debtScore}.`);
   context.push(`Daily Intensity: Current session cycle adherence at ${routine}%.`);
   
+  // Add Rank context if possible
+  const totalHours = data.reduce((sum, day) => sum + (day.studyHours || []).reduce((a: number, b: number) => a + (b || 0), 0), 0);
+  const { getRank } = require('./dashboard'); // Dynamic import if possible, but let's just re-calc or simplify
+  context.push(`Arena Standing: Rank analysis active at ${totalHours.toFixed(1)} capacity.`);
+
   if (data.length > 3) {
     const last3 = data.slice(-3);
     const avg3 = last3.reduce((sum, d) => sum + (d.studyHours || []).reduce((a: number, b: number) => a + (b || 0), 0), 0) / 3;

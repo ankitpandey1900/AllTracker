@@ -12,7 +12,7 @@ import { appState } from '@/state/app-state';
 import { RANK_TIERS, TIER_TITLES, CATEGORY_COLORS } from '@/config/constants';
 import { setTxt } from '@/utils/dom.utils';
 import { renderIntelligenceBriefing } from '@/features/intelligence/intelligence.ui';
-import { formatDate } from '@/utils/date.utils';
+import { formatDate, formatDateDMY } from '@/utils/date.utils';
 import type { RankDetails } from '@/types/tracker.types';
 import { renderStudyAnalytics } from './study-analytics';
 
@@ -480,7 +480,7 @@ export function renderSessionHistory(): void {
       const d = new Date(log.date);
       return `
       <tr>
-        <td style="white-space:nowrap;">${d.toLocaleDateString()}</td>
+        <td style="white-space:nowrap;">${formatDateDMY(d)}</td>
         <td>${log.timeRange || '--'}</td>
         <td><span class="history-cat-badge">${log.categoryName}</span></td>
         <td style="font-weight:700; color:var(--accent-blue);">${log.duration.toFixed(2)}h</td>
