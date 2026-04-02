@@ -4,6 +4,22 @@ import { appState } from '@/state/app-state';
 import { MentorMessage } from '@/types/tracker.types';
 import { saveSettingsToStorage } from '@/services/data-bridge';
 
+/** Micro-markdown parser for chat rendering */
+function formatMaamuText(text: string): string {
+  if (!text) return '';
+  let html = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+    
+  html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+  html = html.replace(/^(\s*)[*-]\s+(.*)$/gm, '<li style="margin-left: 1.5rem; list-style-type: disc;">$2</li>');
+  
+  html = html.replace(/\n/g, '<br/>');
+  return html;
+}
+
 /**
  * Renders the Phase 3 'MAAMU' Mentor Interface.
  * Focus: Professional Minimalism (Gemini/Claude style) with integrated guide and config.
@@ -156,7 +172,7 @@ function renderChatHistory(): void {
   }
 
   chatOutput.innerHTML = history.map(msg => `
-    <div class="chat-line ${msg.role === 'user' ? 'user' : 'mentor'}">${msg.content}</div>
+    <div class="chat-line ${msg.role === 'user' ? 'user' : 'mentor'}">${formatMaamuText(msg.content)}</div>
   `).join('');
   
   chatOutput.scrollTop = chatOutput.scrollHeight;
@@ -186,7 +202,7 @@ function setupMentorListeners(): void {
     // Add user query to UI
     const userLine = document.createElement('div');
     userLine.className = 'chat-line user';
-    userLine.textContent = query;
+    userLine.innerHTML = formatMaamuText(query);
     chatOutput.appendChild(userLine);
     input.value = '';
     chatOutput.scrollTop = chatOutput.scrollHeight;
@@ -207,7 +223,7 @@ function setupMentorListeners(): void {
         loadingLine.remove();
         const responseLine = document.createElement('div');
         responseLine.className = 'chat-line mentor';
-        responseLine.textContent = response;
+        responseLine.innerHTML = formatMaamuText(response);
         chatOutput.appendChild(responseLine);
         chatOutput.scrollTop = chatOutput.scrollHeight;
     } catch (err) {
