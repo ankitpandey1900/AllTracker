@@ -26,6 +26,8 @@ function createDefaultSettings(): Settings {
     beastMode: false,
     unlockedBadges: [],
     sessionLogs: [],
+    groqApiKey: '',
+    mentorHistory: [],
   };
 }
 

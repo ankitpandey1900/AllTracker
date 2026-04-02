@@ -53,7 +53,7 @@ export function toggleFocusHUD(show: boolean, subject: string = '', time: string
 
 // ─── Rank Calculation ────────────────────────────────────────
 
-function getRank(totalHours: number): RankDetails {
+export function getRank(totalHours: number): RankDetails {
   for (let i = 0; i < RANK_TIERS.length; i++) {
     const tier = RANK_TIERS[i];
     if (totalHours >= tier.min && totalHours < tier.max) {

@@ -44,7 +44,7 @@
       </button>
       <button class="nav-item" data-target="routinePane">Routine</button>
       <button class="nav-item" data-target="tasksPane">Tasks</button>
-      <button class="nav-item" data-target="intelligencePane">Strategist</button>
+      <button class="nav-item" data-target="intelligencePane">Maamu</button>
       <button class="nav-item" data-target="bookmarksPane">Bookmarks</button>
       <button id="excalidrawToggle" class="nav-item"
         style="margin-left: auto; display: flex; align-items: center; gap: 6px;">
@@ -68,9 +68,12 @@
           <article class="hero card shadow-2xl">
             <div class="row-between hero-top">
               <h1 id="heroStatusTitle">Initializing...</h1>
-              <div class="hero-day-chip">
-                <div id="currentDay">DAY 0</div>
-                <small>OF <span class="hero-total-days">-</span></small>
+              <div style="display:flex; gap:12px; align-items:center;">
+                <button id="shareStatsBtn" class="btn btn-primary" style="font-size: 0.65rem; font-weight:800; padding: 4px 10px; border-radius: 6px; background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.4); color: #60a5fa;">Share Stats 🚀</button>
+                <div class="hero-day-chip">
+                  <div id="currentDay">DAY 0</div>
+                  <small>OF <span class="hero-total-days">-</span></small>
+                </div>
               </div>
             </div>
             <p class="hero-subtitle">
@@ -239,9 +242,8 @@
     <section id="intelligencePane" class="view-pane">
       <div class="section-header">
         <h2 class="gradient-text"
-          style="font-size: 2.2rem; font-weight: 900; letter-spacing: -1px; margin-bottom: 4px;">STUDY STRATEGIST</h2>
-        <p style="color: var(--text-secondary); opacity: 0.7; font-size: 0.95rem; margin-bottom: 30px;">AI-Driven
-          Mission Analysis & Tactical Advisory</p>
+          style="font-size: 2.2rem; font-weight: 900; letter-spacing: -1px; margin-bottom: 4px;">PERSONAL MENTOR</h2>
+        <p style="color: var(--text-secondary); opacity: 0.7; font-size: 0.95rem; margin-bottom: 30px;">The Archon: Adaptive Guidance & Discipline Monitoring</p>
       </div>
 
       <div class="intelligence-full-view">
@@ -476,6 +478,7 @@
             <a class="docs-nav-link" onclick="docScrollTo('doc-shortcuts')">Keyboard Shortcuts</a>
             <a class="docs-nav-link" onclick="docScrollTo('doc-sync')">Cloud Sync</a>
             <a class="docs-nav-link" onclick="docScrollTo('doc-integrity')">Integrity Engine</a>
+            <a class="docs-nav-link" onclick="docScrollTo('doc-maamu')">Maamu AI Mentor</a>
           </div>
         </nav>
 
@@ -797,6 +800,68 @@
 
             <h3 class="docs-h3">Achievement Badges</h3>
             <p>Badges are unlocked by hitting specific milestones (streaks, total hours, problem counts). View your badge collection from the Badges button on the dashboard.</p>
+
+            <h3 class="docs-h3">Arena Share Card 🚀</h3>
+            <p>Flex your progress with the <strong>Arena Share Card</strong>. Click the "Share Stats" button in the dashboard hero to generate a high-fidelity PNG of your current Level, Rank, total hours, and streak. Perfect for sharing your growth in the Arena with others.</p>
+          </section>
+
+          <div class="docs-divider"></div>
+
+          <!-- MAAMU AI MENTOR -->
+          <section class="docs-section" id="doc-maamu">
+            <div class="docs-breadcrumb">Advanced › Maamu AI Mentor</div>
+            <h2 class="docs-h2">The Maamu AI Mentor</h2>
+            <p class="docs-lead">A high-fidelity, Generative AI coach that sees your real tracking data and provides brutally honest feedback.</p>
+            
+            <div class="docs-callout docs-callout-info">
+              <div class="docs-callout-title">🤖 Meet Maamu</div>
+              <p>Maamu is inspired by the ruthless efficiency of Elon Musk and the sass of Grok. He understands English, Hindi, and Hinglish. He sees your last 7 days of performance, sleep sustainability, and task health.</p>
+            </div>
+
+            <h3 class="docs-h3">Setup: Getting Your API Key</h3>
+            <p>Maamu is powered by Groq’s Llama-3 neural core. You need your own free API key to enable him.</p>
+            <div class="docs-steps">
+              <div class="docs-step">
+                <div class="docs-step-num">1</div>
+                <div class="docs-step-body">
+                  <h4>Visit Groq Cloud</h4>
+                  <p>Go to <a href="https://console.groq.com" target="_blank" style="color: var(--accent-blue);">console.groq.com</a> and sign in.</p>
+                </div>
+              </div>
+              <div class="docs-step">
+                <div class="docs-step-num">2</div>
+                <div class="docs-step-body">
+                  <h4>Generate key</h4>
+                  <p>Navigate to <strong>API Keys</strong> and click <strong>Create API Key</strong>. Name it "All Tracker".</p>
+                </div>
+              </div>
+              <div class="docs-step">
+                <div class="docs-step-num">3</div>
+                <div class="docs-step-body">
+                  <h4>Initialize Maamu</h4>
+                  <p>In All Tracker, go to the <strong>Maamu</strong> tab. Paste your key into the <strong>MAAMU CONFIGURATION</strong> sidebar and click <strong>Save Key</strong>.</p>
+                </div>
+              </div>
+            </div>
+
+            <h3 class="docs-h3">Elite Prompting Guide</h3>
+            <p>Maamu works best when you ask for specific reality checks or strategies. Since he already sees your data, you don't need to explain your stats.</p>
+            <div class="docs-table-wrap">
+              <table class="docs-table">
+                <thead><tr><th>Prompt Type</th><th>Example</th></tr></thead>
+                <tbody>
+                  <tr><td>Contextual Trash Talk</td><td>"Ajj bohot alas aa raha hai, reality check de."</td></tr>
+                  <tr><td>Strategy Query</td><td>"Based on my task debt, what should I prioritize tonight?"</td></tr>
+                  <tr><td>Health Check</td><td>"My sustainability is low. Analyze my sleep vs output."</td></tr>
+                  <tr><td>Hinglish Guidance</td><td>"Mera current momentum kaisa hai? Honest feedback chahiye."</td></tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <div class="docs-callout docs-callout-warning">
+              <div class="docs-callout-title">⚠️ Brutal Honesty</div>
+              <p>Maamu is programmed to speak the truth. If your consistency is dropping, he will be harsh. This is designed for your growth, not for sugarcoating.</p>
+            </div>
           </section>
 
           <div class="docs-divider"></div>
@@ -947,14 +1012,6 @@ Phase 2 → Days 101–200: System Design (150h), Projects (100h)</pre>
 
         <div class="settings-section">
           <div class="row-between section-heading" style="margin-top: 20px">
-            <div class="settings-group" style="flex-direction: row; align-items: center; gap: 10px">
-              <input id="beastModeToggle" type="checkbox" style="
-                    width: 18px;
-                    height: 18px;
-                    accent-color: var(--accent-blue);
-                  " />
-              <label for="beastModeToggle" style="margin: 0; cursor: pointer">Beast Mode</label>
-            </div>
             <button id="enableNotificationsBtn" class="btn">
               Enable Study Notifications
             </button>

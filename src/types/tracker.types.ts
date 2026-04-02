@@ -49,6 +49,12 @@ export interface SessionLog {
   note?: string;
 }
 
+export interface MentorMessage {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  timestamp: number;
+}
+
 // ─── Settings ────────────────────────────────────────────────
 
 /** Application-wide settings persisted to storage */
@@ -61,6 +67,8 @@ export interface Settings {
   beastMode: boolean;
   unlockedBadges: string[];
   sessionLogs: SessionLog[];
+  groqApiKey?: string;
+  mentorHistory?: MentorMessage[];
 }
 
 // ─── Badges ──────────────────────────────────────────────────

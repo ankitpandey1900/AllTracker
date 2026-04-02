@@ -1,208 +1,444 @@
-/* Intelligence Engine HUD — Tactical Strategist UI (V2 High-Fidelity) */
-
-#intelligencePane {
-  padding: 40px;
-  max-width: 1300px;
-  margin: 0 auto;
+/* --- Intelligence UI v3 --- */
+:root {
+  --maamu-bg: #09090b;
+  --maamu-card: rgba(255, 255, 255, 0.03);
+  --maamu-border: rgba(255, 255, 255, 0.08);
+  --maamu-accent: #10b981;
+  --maamu-accent-soft: rgba(16, 185, 129, 0.1);
+  --maamu-text: #ffffff;
+  --maamu-text-muted: #a1a1aa;
 }
 
-.intel-full-layout {
-  display: grid;
-  grid-template-columns: 1fr 420px;
-  gap: 60px;
-  margin-top: 30px;
-}
-
-@media (max-width: 1100px) {
-  .intel-full-layout {
-    grid-template-columns: 1fr;
-    gap: 40px;
-  }
-}
-
-.intel-main-briefing {
+.mentor-v2-container {
+  padding: 30px;
+  background: var(--maamu-bg);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
-  gap: 35px;
+  gap: 30px;
 }
 
-.intel-header-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.mentor-v3-content-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr 300px;
+  gap: 25px;
+  align-items: start;
 }
 
-.intel-label {
-  font-family: 'Tektur', cursive;
-  font-size: 0.7rem;
-  font-weight: 800;
-  color: #10b981;
-  letter-spacing: 0.2em;
-  margin-bottom: 15px;
-  opacity: 0.8;
-}
-
-.intel-context-list {
-  list-style: none;
-  padding: 0;
+/* Sidebar Sections */
+.sidebar-section {
   display: flex;
   flex-direction: column;
   gap: 12px;
-}
-
-.intel-context-list li {
-  font-size: 1.05rem;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.intel-context-list li::before {
-  content: "»";
-  color: #10b981;
-  font-weight: 900;
-}
-
-.intel-insight-hero {
-  font-size: 1.75rem;
-  font-weight: 700;
-  line-height: 1.4;
-  color: #fff;
-  background: linear-gradient(90deg, #fff, #8ea0cb);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  max-width: 800px;
-}
-
-/* Neural Matrix Visualization */
-.intel-visuals {
-  background: rgba(10, 16, 30, 0.6);
-  border: 1px solid rgba(16, 185, 129, 0.15);
-  border-radius: 20px;
-  padding: 30px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(10px);
-}
-
-.intel-matrix-title {
-  font-family: 'Tektur', cursive;
-  font-size: 0.75rem;
-  font-weight: 800;
-  color: #10b981;
-  margin-bottom: 30px;
-  text-align: center;
-  letter-spacing: 0.1em;
-}
-
-.intel-matrix-grid {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  height: 220px;
-  gap: 6px;
-  padding-bottom: 25px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.intel-matrix-bar-wrap {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: 100%;
-  position: relative;
-}
-
-.intel-matrix-bar {
-  width: 100%;
-  background: linear-gradient(180deg, #10b981, rgba(16, 185, 129, 0.2));
-  border-radius: 6px 6px 0 0;
-  transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  min-height: 4px;
-  box-shadow: 0 0 15px rgba(16, 185, 129, 0.1);
-}
-
-.intel-matrix-label {
-  font-size: 0.65rem;
-  color: var(--text-secondary);
-  margin-top: 10px;
-  position: absolute;
-  bottom: -22px;
-}
-
-.intel-matrix-footer {
-  margin-top: 40px;
-  font-size: 0.7rem;
-  text-align: center;
-  color: var(--text-secondary);
-  opacity: 0.5;
-}
-
-/* Action Panel */
-.intel-action-panel {
-  margin-top: 50px;
-}
-
-.intel-recommendation.intel-full {
-  background: linear-gradient(145deg, rgba(16, 185, 129, 0.08), rgba(6, 10, 20, 0.4));
-  border: 1px solid rgba(16, 185, 129, 0.2);
-  border-left: 6px solid #10b981;
-  padding: 35px;
-  border-radius: 0 16px 16px 0;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
-}
-
-.intel-rec-label {
-  font-family: 'Tektur', cursive;
-  font-size: 0.8rem;
-  font-weight: 900;
-  color: #10b981;
-  letter-spacing: 0.3em;
   margin-bottom: 20px;
 }
 
-.intel-rec-content {
-  font-size: 1.25rem;
-  font-weight: 500;
-  line-height: 1.6;
-  color: #fff;
-  max-width: 900px;
+.sidebar-header {
+  font-family: 'Tektur', sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 2px;
+  color: var(--maamu-text-muted);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--maamu-border);
+  padding-bottom: 8px;
 }
 
-/* Tags */
-.intel-tags {
+/* Stats Sidebar */
+.mentor-metrics-list {
   display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 15px;
 }
 
-.intel-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 16px;
-  border-radius: 8px;
+.mini-metric {
+  background: var(--maamu-card);
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid var(--maamu-border);
+}
+
+.mini-metric label {
+  display: block;
+  font-size: 0.6rem;
+  font-weight: 800;
+  color: var(--maamu-text-muted);
+  margin-bottom: 5px;
+}
+
+.mini-metric .val {
+  font-family: 'Tektur', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #fff;
+}
+
+.bar-bg {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 1s ease;
+}
+
+/* Chat Main */
+.mentor-main-chat {
+  display: flex;
+  flex-direction: column;
+  height: 600px;
+  background: var(--maamu-card);
+  border-radius: 16px;
+  border: 1px solid var(--maamu-border);
+  overflow: hidden;
+}
+
+.chat-header {
+  font-family: 'Outfit', sans-serif;
   font-size: 0.75rem;
   font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 1px;
+  padding: 15px 20px;
+  background: rgba(255, 255, 255, 0.01);
+  border-bottom: 1px solid var(--maamu-border);
+  color: var(--maamu-text-muted);
 }
 
-.intel-tag-peak {
-  background: rgba(16, 185, 129, 0.1);
-  color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.3);
+.chat-history {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  scrollbar-width: thin;
 }
 
-.intel-tag-momentum {
-  background: rgba(100, 127, 255, 0.1);
-  color: #647fff;
-  border: 1px solid rgba(100, 127, 255, 0.3);
+.chat-history::-webkit-scrollbar {
+  width: 6px;
 }
 
-.intel-tag-vulnerability {
-  background: rgba(239, 68, 68, 0.15);
+.chat-history::-webkit-scrollbar-thumb {
+  background: var(--maamu-border);
+  border-radius: 10px;
+}
+
+.chat-input-wrap {
+  display: flex;
+  gap: 10px;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.2);
+  border-top: 1px solid var(--maamu-border);
+}
+
+.chat-input-wrap input {
+  flex: 1;
+  background: #111;
+  border: 1px solid var(--maamu-border);
+  padding: 12px 18px;
+  border-radius: 10px;
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.9rem;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.chat-input-wrap input:focus {
+  border-color: var(--maamu-accent);
+  box-shadow: 0 0 10px var(--maamu-accent-soft);
+}
+
+.chat-input-wrap button {
+  background: var(--maamu-accent);
+  color: #000;
+  border: none;
+  padding: 0 20px;
+  border-radius: 10px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+
+/* Chat Lines */
+.chat-line {
+  max-width: 85%;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  border-radius: 12px;
+  word-wrap: break-word;
+}
+
+.chat-line.mentor {
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  border-bottom-left-radius: 2px;
+}
+
+.chat-line.user {
+  align-self: flex-end;
+  background: var(--maamu-accent);
+  color: #000;
+  border-bottom-right-radius: 2px;
+  font-weight: 500;
+}
+
+.chat-line.system {
+  align-self: center;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--maamu-text-muted);
+  font-size: 0.8rem;
+  padding: 6px 12px;
+}
+
+/* Config Sidebar */
+.config-card {
+  background: var(--maamu-card);
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid var(--maamu-border);
+}
+
+.config-hint {
+  font-size: 0.7rem;
+  color: var(--maamu-text-muted);
+  margin-bottom: 12px;
+}
+
+.config-hint a {
+  color: var(--maamu-accent);
+  text-decoration: none;
+}
+
+.input-group label {
+  display: block;
+  font-size: 0.6rem;
+  font-weight: 800;
+  color: var(--maamu-text-muted);
+  margin-bottom: 6px;
+}
+
+.input-group input {
+  width: 100%;
+  background: #000;
+  border: 1px solid var(--maamu-border);
+  padding: 8px 12px;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 0.8rem;
+  margin-bottom: 10px;
+}
+
+.btn-micro {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  border: 1px solid var(--maamu-border);
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-micro:hover {
+  background: var(--maamu-accent);
+  color: #000;
+  border-color: var(--maamu-accent);
+}
+
+/* Guide Section */
+.guide-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.guide-item {
+  background: rgba(255, 255, 255, 0.01);
+  padding: 12px;
+  border-radius: 10px;
+  border-left: 3px solid var(--maamu-accent);
+}
+
+.guide-title {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 5px;
+}
+
+.guide-item p {
+  font-size: 0.75rem;
+  color: var(--maamu-text-muted);
+  line-height: 1.4;
+}
+
+.prompt-list {
+  margin-top: 8px;
+  padding-left: 15px;
+  list-style: square;
+}
+
+.prompt-list li {
+  font-size: 0.7rem;
+  color: var(--maamu-accent);
+  font-style: italic;
+  margin-bottom: 5px;
+}
+
+/* Header */
+.mentor-v2-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--maamu-border);
+}
+
+.mentor-status-pulse {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--maamu-accent);
+  box-shadow: 0 0 10px var(--maamu-accent-soft);
+  animation: maamuPulse 2s infinite;
+}
+
+.mentor-status-pulse.critical {
+  background: #ef4444;
+}
+
+.mentor-status-pulse.warning {
+  background: #fbbf24;
+}
+
+.mentor-display-name {
+  font-family: 'Tektur', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 900;
+}
+
+.persona-tag {
+  font-size: 0.7rem;
+  background: var(--maamu-accent-soft);
+  color: var(--maamu-accent);
+  padding: 4px 10px;
+  border-radius: 6px;
+  vertical-align: middle;
+}
+
+.mentor-subtitle {
+  color: var(--maamu-text-muted);
+  font-size: 0.8rem;
+}
+
+@keyframes maamuPulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.05);
+    opacity: 0.7;
+  }
+
+  100% {
+    transform: scale(0.95);
+    opacity: 1;
+  }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1024px) {
+  .mentor-v3-content-grid {
+    grid-template-columns: 1fr 300px;
+  }
+  .mentor-stats-sidebar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 768px) {
+  .mentor-v3-content-grid {
+    grid-template-columns: 1fr;
+  }
+  .mentor-stats-sidebar, .mentor-main-chat, .mentor-config-sidebar {
+    grid-column: span 1;
+    width: 100%;
+  }
+  .mentor-main-chat {
+    height: 500px;
+  }
+  .mentor-v2-container {
+    padding: 15px;
+  }
+}
+
+/* Vulnerability & Missions */
+.mission-card {
+  background: var(--maamu-card);
+  padding: 10px 15px;
+  border-radius: 10px;
+  border-left: 4px solid #6366f1;
+  margin-bottom: 10px;
+}
+
+.mission-card.high {
+  border-left-color: #ef4444;
+}
+
+.mission-card.med {
+  border-left-color: #fbbf24;
+}
+
+.mission-card.low {
+  border-left-color: #6366f1;
+}
+
+.mission-pri {
+  font-size: 0.5rem;
+  font-weight: 800;
+  color: var(--maamu-text-muted);
+  margin-bottom: 4px;
+}
+
+.mission-task {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.vulnerability-card {
+  background: rgba(239, 68, 68, 0.05);
+  border: 1px solid rgba(239, 68, 68, 0.1);
+  padding: 15px;
+  border-radius: 12px;
+}
+
+.vulnerability-card label {
+  font-size: 0.6rem;
+  font-weight: 900;
   color: #ef4444;
-  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.vulnerability-card p {
+  font-size: 0.75rem;
+  color: #fff;
+  margin-top: 5px;
 }

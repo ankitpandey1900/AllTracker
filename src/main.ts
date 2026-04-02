@@ -220,6 +220,9 @@ function setupEventListeners(): void {
   bindClick("quickEntryBtn", openTodayEntry);
   bindClick("jumpToTodayBtn", scrollToToday);
   bindClick("exportAllDataBtn", exportAllData);
+  bindClick("shareStatsBtn", () => {
+    import('@/features/dashboard/share-card').then(m => m.generateShareCard());
+  });
 
   // Timer controls
   const timerStartBtn = document.getElementById("confirmStartTimerBtn"); // In modal
@@ -380,20 +383,6 @@ function setupEventListeners(): void {
 
   // Reset
   bindClick("resetBtn", handleReset);
-
-  // Beast mode
-  const beastToggle = document.getElementById(
-    "beastModeToggle",
-  ) as HTMLInputElement;
-  if (beastToggle) {
-    beastToggle.checked = appState.settings.beastMode || false;
-    beastToggle.addEventListener("change", () => {
-      appState.settings.beastMode = beastToggle.checked;
-      import("@/services/data-bridge").then((m) =>
-        m.saveSettingsToStorage(appState.settings),
-      );
-    });
-  }
 
   // Close modals on backdrop click
   document.querySelectorAll(".modal").forEach((modal) => {
