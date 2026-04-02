@@ -458,7 +458,6 @@ export function getStrategicContext(data: TrackerDay[], logs: SessionLog[], task
   
   // Add Rank context if possible
   const totalHours = data.reduce((sum, day) => sum + (day.studyHours || []).reduce((a: number, b: number) => a + (b || 0), 0), 0);
-  const { getRank } = require('./dashboard'); // Dynamic import if possible, but let's just re-calc or simplify
   context.push(`Arena Standing: Rank analysis active at ${totalHours.toFixed(1)} capacity.`);
 
   if (data.length > 3) {
