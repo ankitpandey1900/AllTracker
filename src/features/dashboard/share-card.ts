@@ -25,7 +25,21 @@ export async function generateShareCard(): Promise<void> {
     else if (!day.restDay) break;
   }
 
-  // 3. Build the DOM Layout (LeetCode/Neon Arena Style)
+  // 3. User Identity
+  const { STORAGE_KEYS } = await import('@/config/constants');
+  const profileRaw = localStorage.getItem(STORAGE_KEYS.USER_PROFILE);
+  let displayName = 'ALL TRACKER';
+  let initial = 'A';
+
+  if (profileRaw) {
+    try {
+      const profile = JSON.parse(profileRaw);
+      displayName = (profile.displayName || 'ALL TRACKER').toUpperCase();
+      initial = displayName.charAt(0);
+    } catch (e) {}
+  }
+
+  // 4. Build the DOM Layout (LeetCode/Neon Arena Style)
   container.innerHTML = `
     <div id="arenaShareCardCapture" style="
       width: 600px;
@@ -43,9 +57,9 @@ export async function generateShareCard(): Promise<void> {
       <!-- Header -->
       <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px;">
         <div style="display: flex; align-items: center; gap: 12px;">
-          <div style="width: 40px; height: 40px; background: #6366f1; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-family: 'Tektur'; font-weight: 900; font-size: 24px;">A</div>
+          <div style="width: 40px; height: 40px; background: #6366f1; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-family: 'Tektur'; font-weight: 900; font-size: 24px;">${initial}</div>
           <div>
-            <div style="font-family: 'Tektur'; font-weight: 800; font-size: 1.2rem; letter-spacing: 2px;">ALL TRACKER</div>
+            <div style="font-family: 'Tektur'; font-weight: 800; font-size: 1.2rem; letter-spacing: 2px;">${displayName}</div>
             <div style="font-size: 0.75rem; color: #a1a1aa; letter-spacing: 4px;">NEON ARENA</div>
           </div>
         </div>
