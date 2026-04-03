@@ -29,19 +29,24 @@
 - **Arena Skill Radar:** Multi-dimensional Radar Charts mapping out your Focus, Discipline, Output, Endurance, and Subject Versatility.
 - *Analytics are integrated into both the Dashboard and the Routine check-in panes, utilizing Chart.js.*
 
-### 3. 🎯 Deep Focus HUD & Timer
+### 4. 🎯 Deep Focus HUD & Timer
 - **Immersion Mode:** A distraction-free modal timer with session logging, automated break calculations, and dynamic background animations to keep you locked in.
 - **Session History:** Automatically logs your completed focus sessions (Date, Category, Duration) directly to the Cloud/Local Storage.
 
-### 4. 📝 Routine Command Center
+### 5. 📝 Routine Command Center
 - **Premium Checklist:** A sleek daily habit tracker featuring native glassmorphic checkboxes, hover-reveal actions, and real-time completion tracking (dimming text & strike-throughs).
 - **Daily Performance Chart:** Visualizes your consistency against your target output for immediate accountability.
 
-### 5. 📚 Integrated Bookmark Vault
+### 6. 🤖 Maamu AI Mentor (Intelligence)
+- **High-Fidelity Coaching:** A context-aware AI mentor that analyzes your study patterns and provides personalized, actionable guidance on your progress.
+- **Markdown Chat Interface:** Richly formatted conversation experience (bolding, lists, code) leveraging the powerful Groq API for near-instant responses.
+- **Arena Integration:** Ties directly into your tracking data to reference your current rank, overall hours, and focus metrics during coaching sessions.
+
+### 7. 📚 Integrated Bookmark Vault
 - **Actionable Repository:** Save your essential learning links, organized by technical category tags (e.g., Frontend, Backend, Tooling, Docs).
 - **Category Filtering:** Quickly isolate and retrieve relevant resources using the new interactive Category Filter Pills.
 
-### 6. 💎 Eternity Feature Suite (Version Update)
+### 8. 💎 Eternity Feature Suite (Version Update)
 - **Streak Freeze (Snowflake):** Protect your long-term consistency by manually flagging "Rest Days" in the tracker table, preventing streak decay without inflating hours.
 - **Mission Alert System:** A dual-mode notification engine.
   - **The 8:00 PM Check:** Automatically triggers if no study hours have been logged for the current day.
@@ -50,7 +55,7 @@
 - **Auto-Sync Reflection:** Stop-timer flows now capture session notes that automatically propagate to both your **Session History** and the **Daily Topics** column.
 - **Archival Date Filtering:** A precision-engineered filter in the History modal for instantaneous retrieval of past session metrics.
 
-### 7. ☁️ Architecture & Data Synchronization
+### 9. ☁️ Architecture & Data Synchronization
 - **Zero-Latency State:** Utilizes a custom global `appState` pattern with zero framework overhead.
 - **Hybrid Storage:** Combines millisecond-fast browser `localStorage` with bulletproof cloud synchronization via **Supabase**.
 - **Data Portability:** Full support for bulk Data Import/Export using both structured JSON and CSV formats.
@@ -73,6 +78,7 @@ The project was completely re-architected from a massive monolithic `script.js` 
  ┃ ┃ ┣ 📂 export/          # JSON and CSV export serializers
  ┃ ┃ ┣ 📂 heatmap/         # GitHub-style activity contribution graphs
  ┃ ┃ ┣ 📂 import/          # File parsing and data restoration logic
+ ┃ ┃ ┣ 📂 intelligence/    # Maamu AI Mentor conversational interface
  ┃ ┃ ┣ 📂 notifications/   # Mission Alert Engine (Routine & Daily reminders)
  ┃ ┃ ┣ 📂 routines/        # Routine checklist UI + Radar/Performance Chart Engines
  ┃ ┃ ┣ 📂 settings/        # App Configuration, Cloud Keys, Custom Column mapping
@@ -83,6 +89,9 @@ The project was completely re-architected from a massive monolithic `script.js` 
  ┃ ┣ 📂 services/          # External APIs & Storage
  ┃ ┃ ┣ 📜 auth.service.ts  # Sync ID handling & initialization
  ┃ ┃ ┣ 📜 data-bridge.ts   # Local Storage interceptors & serializers
+ ┃ ┃ ┣ 📜 groq.service.ts  # Groq AI integration for Maamu Mentor
+ ┃ ┃ ┣ 📜 identity.service.ts # System identity and user tracking logic
+ ┃ ┃ ┣ 📜 integrity.ts     # Application integrity and anti-tamper logic
  ┃ ┃ ┗ 📜 supabase.service.ts # Cloud synchronization logic
  ┃ ┣ 📂 state/             # Global Application Memory
  ┃ ┃ ┗ 📜 app-state.ts     # The central Source of Truth (AppState interface)
@@ -146,3 +155,4 @@ The project was completely re-architected from a massive monolithic `script.js` 
 ---
 
 *“To achieve the impossible, you must measure the unseen.”* — Welcome to the Eternity Edition.
+
