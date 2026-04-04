@@ -141,6 +141,48 @@
   font-weight: 700;
 }
 
+/* --- Hero Routine Next HUD --- */
+.hero-routine-next {
+  margin-top: 15px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(10, 16, 30, 0.5);
+  border: 1px solid rgba(108, 135, 255, 0.3);
+  padding: 8px 16px;
+  border-radius: 12px;
+  max-width: max-content;
+  animation: slide-up-fade 0.4s ease;
+}
+
+.hero-routine-next .label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #60a5fa;
+  background: rgba(59, 130, 246, 0.15);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.hero-routine-next .value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+  font-family: 'Tektur', sans-serif;
+}
+
+.hero-routine-next .time {
+  font-size: 0.85rem;
+  color: #93a5cf;
+  font-weight: 500;
+}
+
+@keyframes slide-up-fade {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .xp-track {
   margin-top: 10px;
   height: 6px;
@@ -575,6 +617,54 @@ textarea:focus {
 }
 
 /* ─── Routine Checklist ─────────────────────────────────────── */
+.habit-pulse-container {
+  background: linear-gradient(135deg, rgba(16, 24, 48, 0.8), rgba(8, 12, 30, 0.8));
+  border: 1px solid rgba(108, 135, 255, 0.2);
+  border-radius: 16px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.habit-pulse-container::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0; width: 100px; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.05));
+  pointer-events: none;
+}
+
+.habit-pulse-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.habit-pulse-header .pulse-icon {
+  font-size: 1.2rem;
+  filter: drop-shadow(0 0 8px #60a5fa);
+}
+
+.habit-pulse-header .pulse-label {
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  color: #60a5fa;
+  text-transform: uppercase;
+}
+
+.habit-pulse-content {
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: #dbe7ff;
+  font-weight: 400;
+  font-style: italic;
+  opacity: 0.9;
+}
+
 #routineList {
   display: flex;
   flex-direction: column;
@@ -724,11 +814,40 @@ textarea:focus {
   border-radius: 4px;
 }
 
+.routine-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .routine-title {
   font-size: 1.05rem;
   font-weight: 500;
   color: #edf2ff;
   transition: all 0.3s ease;
+}
+
+.routine-streak-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #fbbf24;
+  animation: streak-glow 2s infinite ease-in-out;
+}
+
+.streak-fire {
+  font-size: 0.85rem;
+}
+
+@keyframes streak-glow {
+  0%, 100% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.3); }
+  50% { box-shadow: 0 0 12px rgba(245, 158, 11, 0.3); border-color: rgba(245, 158, 11, 0.6); }
 }
 
 /* ─── Analytics Grids ──────────────────────────────────────── */

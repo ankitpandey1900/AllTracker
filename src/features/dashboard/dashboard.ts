@@ -12,7 +12,7 @@ import { appState } from '@/state/app-state';
 import { RANK_TIERS, TIER_TITLES, CATEGORY_COLORS } from '@/config/constants';
 import { setTxt } from '@/utils/dom.utils';
 import { renderIntelligenceBriefing } from '@/features/intelligence/intelligence.ui';
-import { formatDate, formatDateDMY } from '@/utils/date.utils';
+import { formatDate, formatDateDMY, formatTime12h } from '@/utils/date.utils';
 import type { RankDetails } from '@/types/tracker.types';
 import { renderStudyAnalytics } from './study-analytics';
 
@@ -231,6 +231,49 @@ export function updateDashboard(): void {
 
   // Intelligence Briefing
   renderIntelligenceBriefing();
+
+  // Up Next Routine
+  updateHeroRoutine();
+}
+
+/** Finds the next uncompleted routine for today and displays it in the Hero HUD */
+function updateHeroRoutine(): void {
+  const container = document.getElementById('heroRoutineNext');
+  const textEl = document.getElementById('heroNextRoutineText');
+  const timeEl = document.getElementById('heroNextRoutineTime');
+  if (!container || !textEl || !timeEl) return;
+
+  const items = appState.routines || [];
+  if (items.length === 0) {
+    container.style.display = 'none';
+    return;
+  }
+
+  const now = new Date();
+  const currentDay = now.getDay();
+  const nowStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+
+  // Filter for today's uncompleted routines
+  const todayRoutines = items.filter(r => {
+    const activeToday = !r.days || r.days.length === 0 || r.days.includes(currentDay);
+    return activeToday && !r.completed;
+  });
+
+  if (todayRoutines.length === 0) {
+    container.style.display = 'none';
+    return;
+  }
+
+  // Sort by time
+  const sorted = [...todayRoutines].sort((a, b) => a.time.localeCompare(b.time));
+
+  // Find first one upcoming, or first uncompleted if all are past
+  let next = sorted.find(r => r.time >= nowStr);
+  if (!next) next = sorted[0];
+
+  textEl.textContent = next.title;
+  timeEl.textContent = `@ ${formatTime12h(next.time)}`;
+  container.style.display = 'flex';
 }
 
 // Cached status message — only re-randomised when the pace category changes.

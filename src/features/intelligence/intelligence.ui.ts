@@ -7,17 +7,44 @@ import { saveSettingsToStorage } from '@/services/data-bridge';
 /** Micro-markdown parser for chat rendering */
 function formatMaamuText(text: string): string {
   if (!text) return '';
-  let html = text
+
+  // 1. Fenced Code Blocks (```lang\n code \n```)
+  const codeBlocks: string[] = [];
+  let html = text.replace(/```(?:[\w\+]+)?\n?([\s\S]*?)\n?```/g, (_match, code) => {
+    const id = `__CB_${codeBlocks.length}__`;
+    codeBlocks.push(`<div class="code-block-wrapper"><pre><code>${escapeHtml(code.trim())}</code></pre></div>`);
+    return id;
+  });
+
+  // 2. Inline Code (`code`)
+  const inlineCodes: string[] = [];
+  html = html.replace(/`([^`]+)`/g, (_match, code) => {
+    const id = `__IC_${inlineCodes.length}__`;
+    inlineCodes.push(`<code class="inline-code">${escapeHtml(code)}</code>`);
+    return id;
+  });
+
+  // 3. Basic formatting on the remaining text
+  html = escapeHtml(html)
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/^(\s*)[*-]\s+(.*)$/gm, '<li style="margin-left: 1.5rem; list-style-type: disc;">$2</li>');
+
+  // Newlines to BR (but not inside our markers)
+  html = html.replace(/\n/g, '<br/>');
+
+  // 4. Restore Code
+  codeBlocks.forEach((block, i) => { html = html.replace(`__CB_${i}__`, block); });
+  inlineCodes.forEach((ic, i) => { html = html.replace(`__IC_${i}__`, ic); });
+
+  return html;
+}
+
+function escapeHtml(text: string): string {
+  return text
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
-    
-  html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-  html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
-  html = html.replace(/^(\s*)[*-]\s+(.*)$/gm, '<li style="margin-left: 1.5rem; list-style-type: disc;">$2</li>');
-  
-  html = html.replace(/\n/g, '<br/>');
-  return html;
 }
 
 /**

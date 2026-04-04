@@ -81,6 +81,11 @@
               <span class="hero-total-days">-</span> •
               <span id="heroStartDateMirror">Loading...</span>
             </p>
+            <div id="heroRoutineNext" class="hero-routine-next" style="display: none;">
+              <span class="label">UP NEXT</span>
+              <span class="value" id="heroNextRoutineText">--</span>
+              <span class="time" id="heroNextRoutineTime">--</span>
+            </div>
             <div class="hero-level-row">
               <span id="levelBadge">LVL 0</span>
               <div class="xp-track">
@@ -261,6 +266,13 @@
           <button id="addRoutineBtn" class="btn btn-primary">
             Add Routine
           </button>
+        </div>
+        <div id="habitPulseContainer" class="habit-pulse-container" style="display: none;">
+          <div class="habit-pulse-header">
+            <span class="pulse-icon">🧠</span>
+            <span class="pulse-label">MAAMU'S HABIT PULSE</span>
+          </div>
+          <div id="habitPulseContent" class="habit-pulse-content">Analyzing habit patterns...</div>
         </div>
         <div id="routineList"></div>
       </article>
@@ -1238,6 +1250,20 @@ Phase 2 → Days 101–200: System Design (150h), Projects (100h)</pre>
         <input id="routineTitleInput" class="input" placeholder="Title" />
         <input id="routineTimeInput" class="input" type="time" />
         <textarea id="routineNoteInput" class="input" rows="3" placeholder="Notes"></textarea>
+        
+        <div class="routine-days-selector" style="margin: 15px 0;">
+          <label style="display: block; font-size: 0.7rem; font-weight: 800; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;">Repeat on</label>
+          <div style="display: flex; gap: 8px; justify-content: space-between;">
+            <label class="day-chip"><input type="checkbox" data-day="1"><span>M</span></label>
+            <label class="day-chip"><input type="checkbox" data-day="2"><span>T</span></label>
+            <label class="day-chip"><input type="checkbox" data-day="3"><span>W</span></label>
+            <label class="day-chip"><input type="checkbox" data-day="4"><span>T</span></label>
+            <label class="day-chip"><input type="checkbox" data-day="5"><span>F</span></label>
+            <label class="day-chip"><input type="checkbox" data-day="6" class="weekend"><span>S</span></label>
+            <label class="day-chip"><input type="checkbox" data-day="0" class="weekend"><span>S</span></label>
+          </div>
+        </div>
+
         <button id="saveRoutineBtn" class="btn btn-primary">
           Add to Routine
         </button>

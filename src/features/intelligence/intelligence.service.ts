@@ -44,7 +44,7 @@ export function getTacticalBriefing(): TacticalBriefing {
   const momentumData = calculateMomentum(trackerData);
   const taskHealth = calculateTaskHealth(tasks);
   const routineConsistency = calculateRoutineConsistency(routines);
-  const disciplineTrend = calculateDisciplineTrend(routineHistory, routines.length);
+  const disciplineTrend = calculateDisciplineTrend(routineHistory, routines);
   const sustainabilityScore = calculateSustainability(logs);
   
   const context = getStrategicContext(trackerData, logs, taskHealth, routineConsistency, sustainabilityScore);
@@ -92,9 +92,9 @@ export function getTacticalBriefingString(): string {
   const todayStr = new Date().toISOString().split('T')[0];
   const todayIdx = appState.trackerData.findIndex(d => d.date === todayStr);
   const endIdx = todayIdx === -1 ? appState.trackerData.length : todayIdx + 1;
-  const startIdx = Math.max(0, endIdx - 7);
+  const startIdx = Math.max(0, endIdx - 30); // 30 Day Snapshot
 
-  const last7Days = appState.trackerData.slice(startIdx, endIdx).map(d => ({
+  const last30Days = appState.trackerData.slice(startIdx, endIdx).map(d => ({
     dateStr: formatDateDMY(new Date(d.date)),
     dayNumber: d.day,
     completed: d.completed,
@@ -116,19 +116,13 @@ export function getTacticalBriefingString(): string {
   }));
 
   const recentNotes = (appState.settings.sessionLogs || [])
-    .slice(-10)
+    .slice(-30)
     .map(log => ({
       date: formatDateDMY(new Date(log.date)),
       category: log.categoryName,
       duration: log.duration,
       note: log.note || "No note provided."
     }));
-
-  const bookmarks = (appState.bookmarks || []).map(b => ({
-    title: b.title,
-    category: b.category,
-    url: b.url
-  }));
 
   const activeTimer = appState.activeTimer && appState.activeTimer.isRunning ? {
     subject: appState.activeTimer.colName,
@@ -163,11 +157,11 @@ export function getTacticalBriefingString(): string {
     },
     peakWindow: b.peakHourStr,
     activeTimer,
-    recentHabits_Last7Days: last7Days,
+    recentHabits_Last30Days: last30Days, // Renamed and expanded
     unclearedTasks: pendingTasks,
     dailyRoutines: activeRoutines,
-    recentSessionNotes: recentNotes,
-    bookmarks
+    recentSessionNotes: recentNotes
+    // Bookmarks removed as requested
   }, null, 2);
 }
 
@@ -240,9 +234,9 @@ function calculateSustainability(logs: SessionLog[]): number {
   return Math.max(10, 100 - riskScore);
 }
 
-/** 14-Day Discipline Trend: Calculates rolling average of routine completion */
-function calculateDisciplineTrend(history: Record<string, number>, dailyRoutineLength: number): number {
-  if (dailyRoutineLength === 0) return 100;
+/** 14-Day Discipline Trend: Calculates rolling average of routine completion (day-aware) */
+function calculateDisciplineTrend(history: Record<string, number>, allRoutines: any[]): number {
+  if (allRoutines.length === 0) return 100;
   
   const today = new Date();
   let totalComp = 0;
@@ -252,10 +246,18 @@ function calculateDisciplineTrend(history: Record<string, number>, dailyRoutineL
     const date = new Date(today);
     date.setDate(today.getDate() - i);
     const dateStr = date.toISOString().split('T')[0];
+    const dayOfWeek = date.getDay();
     
     if (history[dateStr] !== undefined) {
-      totalComp += (history[dateStr] / dailyRoutineLength) * 100;
-      count++;
+      // Find how many routines were active on that specific day
+      const expectedOnDay = allRoutines.filter(r => 
+        !r.days || r.days.length === 0 || r.days.includes(dayOfWeek)
+      ).length;
+
+      if (expectedOnDay > 0) {
+        totalComp += (history[dateStr] / expectedOnDay) * 100;
+        count++;
+      }
     }
   }
   
@@ -284,11 +286,19 @@ function calculateTaskHealth(tasks: any[]): TacticalBriefing['taskHealth'] {
   return { backlog, completionRate, debtScore, status };
 }
 
-/** Calculates today's completion percentage of daily routines */
+/** Calculates today's completion percentage of daily routines (day-aware) */
 function calculateRoutineConsistency(routines: any[]): number {
   if (routines.length === 0) return 100;
-  const completed = routines.filter(r => r.completed).length;
-  return Math.round((completed / routines.length) * 100);
+  
+  const todayDay = new Date().getDay();
+  const relevant = routines.filter(r => 
+    !r.days || r.days.length === 0 || r.days.includes(todayDay)
+  );
+
+  if (relevant.length === 0) return 100;
+  
+  const completed = relevant.filter(r => r.completed).length;
+  return Math.round((completed / relevant.length) * 100);
 }
 
 function generateMentorAdvice(taskHealth: any, sustainability: number, trend: number, momentum: number): { message: string; persona: string } {
@@ -475,5 +485,25 @@ function formatHour(h: number | string): string {
   const displayHr = hr % 12 || 12;
   return `${displayHr}:00 ${suffix}`;
 }
+/** Analyzes habit patterns to provide a 1-sentence Maamu-style insight */
+export function getHabitPulse(): string {
+  const history = appState.routineHistory || {};
+  const dates = Object.keys(history).sort();
+  if (dates.length < 3) return "Data streams initializing. Maintain your baseline consistency to enable pattern analysis.";
 
+  const last7Days = dates.slice(-7);
+  const completions = last7Days.map(d => history[d]);
+  const avg = completions.reduce((a, b) => a + b, 0) / last7Days.length;
+  
+  const routines = appState.routines || [];
+  const expected = routines.length;
+  if (expected === 0) return "Sector is empty. Design your primary routine to begin architectural optimization.";
 
+  const completionRate = (avg / expected) * 100;
+
+  if (completionRate > 90) return "Exceptional Habit Fidelity. Your current structural adherence is at God-Tier levels. Maintain this frequency.";
+  if (completionRate > 70) return "Operational Stability Confirmed. You are meeting baseline discipline requirements. Look for minor friction points to eliminate.";
+  if (completionRate > 40) return "Pattern Oscillation Detected: Your routine adherence is volatile. Mastery requires boring, repetitive excellence, not bursts of effort.";
+  
+  return "Systemic Discipline Failure: Your routine integrity is compromised. Prioritize 'Easy Wins' to restore your momentum today.";
+}

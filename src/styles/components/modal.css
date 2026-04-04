@@ -423,5 +423,58 @@
   border: 1px solid rgba(42, 199, 160, 0.4) !important;
   box-shadow: 0 0 20px rgba(42, 199, 160, 0.25) !important;
   pointer-events: none;
-  /* Already active */
+}
+
+/* --- Routine Day Selector --- */
+.day-chip {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.day-chip input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.day-chip span {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #64748b;
+  pointer-events: none;
+}
+
+.day-chip:has(input:checked) {
+  background: #2563eb; /* Blue-600 */
+  border-color: #2563eb;
+  box-shadow: 0 0 15px rgba(37, 99, 235, 0.3);
+}
+
+.day-chip:has(input:checked) span {
+  color: #fff;
+}
+
+.day-chip:hover:not(:has(input:checked)) {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.day-chip:has(input.weekend) {
+  border-style: dashed;
+}
+
+.day-chip:has(input.weekend:checked) {
+  border-style: solid;
+  background: #f59e0b; /* Amber-500 */
+  border-color: #f59e0b;
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
 }

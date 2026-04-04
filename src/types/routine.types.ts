@@ -13,6 +13,12 @@ export interface RoutineItem {
   note: string;
   completed: boolean;
   isNext?: boolean;
+  /** Days of week (0-6, Sun-Sat). If empty, active every day. */
+  days?: number[];
+  /** Consecutive completion streak */
+  streak?: number;
+  /** ISO date of last completion for streak calculation */
+  lastCompletedIso?: string;
 }
 
 /** Completion count keyed by ISO date string (e.g. "2026-03-26") */

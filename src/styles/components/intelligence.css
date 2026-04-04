@@ -442,3 +442,53 @@
   color: #fff;
   margin-top: 5px;
 }
+
+/* --- Code & Technical Formatting --- */
+.code-block-wrapper {
+  background: #0d1117; /* GitHub Dark style */
+  border: 1px solid var(--maamu-border);
+  border-radius: 10px;
+  margin: 12px 0;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.code-block-wrapper pre {
+  margin: 0 !important;
+  padding: 16px !important;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: #d1d5db; /* Gray-300 */
+}
+
+.code-block-wrapper code {
+  font-family: inherit !important;
+  white-space: pre !important;
+  display: block;
+}
+
+.inline-code {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9em;
+  color: var(--maamu-accent);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Better roadmap/list spacing */
+.chat-line.mentor li {
+  margin-bottom: 8px;
+}
+
+.chat-line.mentor li:last-child {
+  margin-bottom: 0;
+}
+
+.chat-line.mentor strong {
+  color: var(--maamu-accent);
+}

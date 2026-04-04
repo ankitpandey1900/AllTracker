@@ -10,6 +10,8 @@ import { showToast } from '@/utils/dom.utils';
 import { saveRoutinesToStorage, saveRoutineHistoryToStorage, loadRoutineResetFromStorage, saveRoutineResetToStorage } from '@/services/data-bridge';
 import { renderPerformanceCurve } from './performance-chart';
 import { renderRadarStats } from './radar-stats';
+import { getHabitPulse } from '@/features/intelligence/intelligence.service';
+import { updateDashboard } from '../dashboard/dashboard';
 
 // ─── Render ──────────────────────────────────────────────────
 
@@ -17,12 +19,18 @@ export function renderRoutine(): void {
   const list = document.getElementById('routineList');
   if (!list) return;
 
-  if (appState.routines.length === 0) {
-    list.innerHTML = '<div class="empty-state">Your routine is empty. Start your day with a plan!</div>';
+  const todayDay = new Date().getDay();
+  const filtered = appState.routines.filter(item => {
+    if (!item.days || item.days.length === 0) return true; // Default to all days
+    return item.days.includes(todayDay);
+  });
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="empty-state">No routines scheduled for today. Take a breather!</div>';
     return;
   }
 
-  const sorted = [...appState.routines].sort((a, b) => a.time.localeCompare(b.time));
+  const sorted = [...filtered].sort((a, b) => a.time.localeCompare(b.time));
 
   list.innerHTML = sorted.map((item) => `
     <div class="routine-item ${item.completed ? 'completed' : ''}" data-id="${item.id}">
@@ -41,7 +49,15 @@ export function renderRoutine(): void {
           <span class="routine-time">${formatTime12h(item.time)}</span>
         </div>
         <div class="routine-main">
-          <div class="routine-title" style="font-family: 'Tektur', sans-serif;">${item.title}</div>
+          <div class="routine-title-row">
+            <div class="routine-title" style="font-family: 'Tektur', sans-serif;">${item.title}</div>
+            ${item.streak && item.streak > 0 ? `
+              <div class="routine-streak-badge" title="${item.streak} day streak">
+                <span class="streak-fire">🔥</span>
+                <span class="streak-count">${item.streak}</span>
+              </div>
+            ` : ''}
+          </div>
           ${item.note ? `<div class="routine-note">${item.note}</div>` : ''}
         </div>
       </div>
@@ -65,6 +81,19 @@ export function renderRoutine(): void {
       el.addEventListener('click', handleRoutineAction);
     }
   });
+
+  // Update Habit Pulse
+  renderHabitPulse();
+}
+
+function renderHabitPulse(): void {
+  const container = document.getElementById('habitPulseContainer');
+  const content = document.getElementById('habitPulseContent');
+  if (!container || !content) return;
+
+  const pulse = getHabitPulse();
+  content.textContent = pulse;
+  container.style.display = 'block';
 }
 
 // ─── Actions ─────────────────────────────────────────────────
@@ -85,16 +114,32 @@ function toggleRoutine(id: number): void {
   const item = appState.routines.find((r) => r.id === id);
   if (!item) return;
 
-  item.completed = !item.completed;
-  saveRoutinesToStorage(appState.routines);
-
   const todayStr = new Date().toISOString().split('T')[0];
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayStr = yesterday.toISOString().split('T')[0];
+
   if (!appState.routineHistory[todayStr]) appState.routineHistory[todayStr] = 0;
-  if (item.completed) appState.routineHistory[todayStr]++;
-  else appState.routineHistory[todayStr] = Math.max(0, appState.routineHistory[todayStr] - 1);
+
+  if (item.completed) {
+    appState.routineHistory[todayStr]++;
+    
+    // Streak logic
+    if (item.lastCompletedIso === yesterdayStr) {
+      item.streak = (item.streak || 0) + 1;
+    } else if (item.lastCompletedIso !== todayStr) {
+      item.streak = 1;
+    }
+    item.lastCompletedIso = todayStr;
+  } else {
+    appState.routineHistory[todayStr] = Math.max(0, appState.routineHistory[todayStr] - 1);
+    // We don't strictly reset streak on uncheck within the same day, 
+    // to allow accidental toggle correction.
+  }
 
   saveRoutineHistoryToStorage(appState.routineHistory);
   renderRoutine();
+  updateDashboard(); // Refresh "Up Next"
   renderPerformanceCurve();
   renderRadarStats();
   showToast(item.completed ? 'Routine item completed!' : 'Item marked incomplete');
@@ -118,6 +163,13 @@ function editRoutine(id: number): void {
   if (titleInput) titleInput.value = item.title;
   if (timeInput) timeInput.value = item.time;
   if (noteInput) noteInput.value = item.note || '';
+
+  // Set day checkboxes
+  const dayChecks = modal?.querySelectorAll('.day-chip input') as NodeListOf<HTMLInputElement>;
+  dayChecks.forEach(input => {
+    const day = parseInt(input.getAttribute('data-day') || '-1');
+    input.checked = item.days?.includes(day) || false;
+  });
 
   modal?.classList.add('active');
 }
@@ -152,6 +204,11 @@ export function setupRoutineListeners(): void {
       (document.getElementById('routineTimeInput') as HTMLInputElement).value = '';
       (document.getElementById('routineNoteInput') as HTMLTextAreaElement).value = '';
 
+      // Clear day checkboxes
+      modal.querySelectorAll('.day-chip input').forEach(input => {
+        (input as HTMLInputElement).checked = false;
+      });
+
       modal.classList.add('active');
     });
   }
@@ -168,6 +225,13 @@ export function setupRoutineListeners(): void {
       const title = (document.getElementById('routineTitleInput') as HTMLInputElement).value.trim();
       const time = (document.getElementById('routineTimeInput') as HTMLInputElement).value;
       const note = (document.getElementById('routineNoteInput') as HTMLTextAreaElement).value.trim();
+      
+      // Collect selected days
+      const selectedDays: number[] = [];
+      modal?.querySelectorAll('.day-chip input:checked').forEach(input => {
+        const day = (input as HTMLInputElement).getAttribute('data-day');
+        if (day !== null) selectedDays.push(parseInt(day));
+      });
 
       if (!title || !time) {
         showToast('Please enter both title and time!', 'warning');
@@ -181,9 +245,17 @@ export function setupRoutineListeners(): void {
           item.title = title;
           item.time = time;
           item.note = note;
+          item.days = selectedDays;
         }
       } else {
-        appState.routines.push({ id: Date.now(), title, time, note, completed: false });
+        appState.routines.push({ 
+          id: Date.now(), 
+          title, 
+          time, 
+          note, 
+          completed: false,
+          days: selectedDays 
+        });
       }
 
       saveRoutinesToStorage(appState.routines);
@@ -203,8 +275,22 @@ export async function checkDailyRoutineReset(): Promise<void> {
 
   if (lastReset !== today) {
     console.log('New day detected! Resetting daily routine...');
-    appState.routines.forEach((item) => { item.completed = false; });
+    
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayDay = yesterday.getDay();
+
+    appState.routines.forEach((item) => { 
+      // Reset streak if missed on a scheduled day
+      const scheduledYesterday = !item.days || item.days.length === 0 || item.days.includes(yesterdayDay);
+      if (scheduledYesterday && !item.completed) {
+        item.streak = 0;
+      }
+      item.completed = false; 
+    });
+
     saveRoutinesToStorage(appState.routines);
     await saveRoutineResetToStorage(today);
+    updateDashboard(); // Ensure "Up Next" resets for the new day
   }
 }
