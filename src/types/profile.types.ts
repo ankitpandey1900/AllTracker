@@ -3,6 +3,7 @@ export interface UserProfile {
   age: number | string;
   nation: string;
   syncId: string;
+  avatar?: string;
 }
 
 export interface GlobalProfile {
@@ -15,4 +16,5 @@ export interface GlobalProfile {
   current_rank: string;
   is_focusing_now: boolean;
   last_active: string; // ISO String
+  avatar?: string;
 }

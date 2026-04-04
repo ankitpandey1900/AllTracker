@@ -64,6 +64,7 @@ export async function refreshLeaderboard(): Promise<void> {
   listEl.innerHTML = users.map((u, i) => {
     const isMe = u.sync_id === mySyncId;
     const flag = NATION_FLAGS[u.nation] || '🌍';
+    const avatar = u.avatar || flag; // Show avatar if exists, fallback to flag
     const rankLabel = u.current_rank || 'UNRANKED PILOT';
     
     // Filter stale 'today' hours
@@ -74,7 +75,7 @@ export async function refreshLeaderboard(): Promise<void> {
     return `
       <div class="leaderboard-item ${isMe ? 'is-me' : ''}" title="${u.display_name} | ${u.age} yrs | ${u.nation}">
         <div class="rank-num">${i + 1}</div>
-        <div class="lb-avatar">${flag}</div>
+        <div class="lb-avatar">${avatar}</div>
         <div class="lb-info">
           <div class="lb-name">
             @${u.display_name} 
@@ -141,8 +142,10 @@ export function openProfileModal(): void {
     const saved = localStorage.getItem(STORAGE_KEYS.USER_PROFILE);
     if (saved) {
       const profile = JSON.parse(saved) as UserProfile;
+      const passportAvatar = document.getElementById('passportAvatar');
       if (handleEl) handleEl.textContent = `@${profile.displayName}`;
       if (rankEl) rankEl.textContent = `${totalHours > 100 ? 'VENERATED' : 'PILOT'} • ${profile.nation.toUpperCase()}`;
+      if (passportAvatar) passportAvatar.textContent = profile.avatar || '👤';
       
       const nameInput = document.getElementById('profileNameInput') as HTMLInputElement;
       const ageInput = document.getElementById('profileAgeInput') as HTMLInputElement;
@@ -164,6 +167,30 @@ export function openProfileModal(): void {
       }
       if (ageInput) ageInput.value = profile.age.toString();
       if (nationInput) nationInput.value = profile.nation;
+
+      // Handle Avatars
+      const avatarGrid = document.getElementById('avatarPickerGrid');
+      if (avatarGrid) {
+        avatarGrid.querySelectorAll('.avatar-item').forEach(item => {
+          item.classList.remove('active');
+          if (item.getAttribute('data-avatar') === profile.avatar) {
+            item.classList.add('active');
+          }
+          (item as HTMLElement).onclick = () => {
+            avatarGrid.querySelectorAll('.avatar-item').forEach(a => a.classList.remove('active'));
+            item.classList.add('active');
+          };
+        });
+      }
+    } else {
+      // Default avatar clicks for new users
+      const avatarGrid = document.getElementById('avatarPickerGrid');
+      avatarGrid?.querySelectorAll('.avatar-item').forEach(item => {
+        (item as HTMLElement).onclick = () => {
+          avatarGrid.querySelectorAll('.avatar-item').forEach(a => a.classList.remove('active'));
+          item.classList.add('active');
+        };
+      });
     }
   }
 }
@@ -197,11 +224,14 @@ async function handleProfileSave(): Promise<void> {
     return;
   }
 
+  const avatar = document.querySelector('#avatarPickerGrid .avatar-item.active')?.getAttribute('data-avatar') || '👨‍🚀';
+
   const profile: UserProfile = {
     displayName: name,
     age,
     nation,
-    syncId: getCurrentUserId() || ''
+    syncId: getCurrentUserId() || '',
+    avatar
   };
 
   // Save locally
@@ -245,7 +275,8 @@ export async function syncProfileBroadcast(): Promise<void> {
     total_hours: totalHours,
     today_hours: todayHours,
     current_rank: rank,
-    is_focusing_now: document.body.classList.contains('focus-mode-active') // Assuming class
+    is_focusing_now: document.body.classList.contains('focus-mode-active'),
+    avatar: profile.avatar || '👨‍🚀'
   });
 }
 

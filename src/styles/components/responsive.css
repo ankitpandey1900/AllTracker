@@ -1,4 +1,81 @@
+/* --- Enhanced Universal Responsiveness --- */
+
+:root {
+  --mobile-nav-height: 65px;
+}
+
 @media (max-width: 768px) {
+  .show-mobile { display: flex !important; }
+  .hide-mobile { display: none !important; }
+
+  .layout {
+    padding: 10px 10px calc(var(--mobile-nav-height) + 15px);
+    max-width: 100%;
+  }
+
+  /* Header & Navigation */
+  .app-header {
+    padding: 8px 12px;
+  }
+  .header-desktop-actions { display: none !important; }
+  .brand { font-size: 0.9rem; }
+  .brand span { display: none; }
+  
+  .tabs { display: none !important; }
+
+  /* Mobile Bottom Nav */
+  .mobile-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: var(--mobile-nav-height);
+    background: rgba(8, 13, 24, 0.95);
+    backdrop-filter: blur(15px);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 100;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .mobile-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    color: #71717a;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 8px;
+    flex: 1;
+  }
+
+  .mobile-nav-item svg {
+    opacity: 0.7;
+    transition: all 0.2s;
+  }
+
+  .mobile-nav-item.active {
+    color: #60a5fa;
+  }
+
+  .mobile-nav-item.active svg {
+    opacity: 1;
+    color: #60a5fa;
+    filter: drop-shadow(0 0 8px rgba(96, 165, 250, 0.4));
+  }
+
+  /* Grid & Layout */
+  .dashboard-arena-layout {
+    grid-template-columns: 1fr !important;
+  }
+  
   .grid-top { 
     grid-template-columns: 1fr !important; 
     gap: 12px;
@@ -8,26 +85,68 @@
     grid-template-columns: repeat(2, 1fr) !important;
   }
 
-  .table-card {
-    overflow-x: auto;
+  /* Hero Section scaling */
+  .hero {
+    padding: 12px;
+  }
+  .hero-top {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 15px;
+  }
+  .hero-top h1 { font-size: 1.8rem; }
+  .hero-top > div { width: 100%; justify-content: space-between; }
+
+  /* Modal Fixes */
+  .modal-content {
+    width: 94% !important;
+    max-height: 90vh !important;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .modal-body {
+    flex: 1;
+    overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    width: 100%;
+    padding: 16px !important;
+  }
+
+  /* Profile Modal specific fix for missing button */
+  #profileSetupModal .modal-content {
+    max-height: 90vh;
+  }
+  #profileSetupModal .passport-form {
+    padding-bottom: 20px;
+  }
+
+  /* More Menu Overlay */
+  .header-desktop-actions.mobile-menu-overlay {
+    display: flex !important;
+    position: fixed;
+    top: 60px;
+    right: 15px;
+    background: rgba(10, 16, 30, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    flex-direction: column;
+    padding: 15px;
     border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+    z-index: 200;
+    gap: 15px;
+    animation: menu-pop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
 
-  #trackerTable {
-    min-width: 900px; /* Ensure table has room to breathe */
+  @keyframes menu-pop {
+    from { opacity: 0; transform: scale(0.9) translateY(-10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
   }
-
-  .view-pane { padding: 4px; }
-  .layout { width: 100%; padding: 8px; }
 }
 
 @media (max-width: 480px) {
   .kpi-grid, .stats-strip {
     grid-template-columns: 1fr !important;
   }
-  
-  .brand { font-size: 0.85rem; }
-  .header-actions .btn { padding: 6px 10px; font-size: 0.75rem; }
+  .header-actions #authTriggerBtn .btn-text { display: none; }
+  .header-actions #authTriggerBtn { width: 32px; padding: 0; border-radius: 50%; }
 }

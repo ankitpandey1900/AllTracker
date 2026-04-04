@@ -1,6 +1,7 @@
 import html2canvas from 'html2canvas';
 import { appState } from '@/state/app-state';
 import { getRank } from '@/features/dashboard/dashboard';
+import { openSharePreview } from '@/features/dashboard/share-preview';
 
 export async function generateShareCard(): Promise<void> {
   // 1. Create a hidden container for the card
@@ -29,13 +30,13 @@ export async function generateShareCard(): Promise<void> {
   const { STORAGE_KEYS } = await import('@/config/constants');
   const profileRaw = localStorage.getItem(STORAGE_KEYS.USER_PROFILE);
   let displayName = 'ALL TRACKER';
-  let initial = 'A';
+  let avatar = '👨‍🚀'; 
 
   if (profileRaw) {
     try {
       const profile = JSON.parse(profileRaw);
-      displayName = (profile.displayName || 'ALL TRACKER').toUpperCase();
-      initial = displayName.charAt(0);
+      displayName = profile.displayName || 'ALL TRACKER'; // Removed .toUpperCase()
+      avatar = profile.avatar || '👨‍🚀';
     } catch (e) {}
   }
 
@@ -53,13 +54,14 @@ export async function generateShareCard(): Promise<void> {
       flex-direction: column;
       gap: 30px;
       box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+      margin-bottom: 20px; /* Safety margin for capture */
     ">
       <!-- Header -->
       <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px;">
         <div style="display: flex; align-items: center; gap: 12px;">
-          <div style="width: 40px; height: 40px; background: #6366f1; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-family: 'Tektur'; font-weight: 900; font-size: 24px;">${initial}</div>
+          <div style="width: 50px; height: 50px; background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 28px;">${avatar}</div>
           <div>
-            <div style="font-family: 'Tektur'; font-weight: 800; font-size: 1.2rem; letter-spacing: 2px;">${displayName}</div>
+            <div style="font-family: 'Tektur'; font-weight: 800; font-size: 1.25rem; letter-spacing: 1px;">@${displayName}</div>
             <div style="font-size: 0.75rem; color: #a1a1aa; letter-spacing: 4px;">NEON ARENA</div>
           </div>
         </div>
@@ -96,7 +98,7 @@ export async function generateShareCard(): Promise<void> {
     </div>
   `;
 
-  // 4. Capture Canvas
+  // 5. Capture Canvas
   const captureTarget = document.getElementById('arenaShareCardCapture');
   
   if (captureTarget) {
@@ -107,20 +109,23 @@ export async function generateShareCard(): Promise<void> {
       const canvas = await html2canvas(captureTarget, {
         backgroundColor: null,
         scale: 2, // High resolution
-        logging: false
+        logging: false,
+        useCORS: true,
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: 1000, // Fixed width for capture to ensure layout stability
+        windowHeight: 1200 
       });
   
-      // 5. Trigger Download
-      const link = document.createElement('a');
-      link.download = `Arena_Stats_Lvl${rank.level}_${new Date().toISOString().split('T')[0]}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
+      // 6. Open Share Preview instead of direct download
+      openSharePreview(canvas.toDataURL('image/png'));
+      
     } catch (e) {
       console.error("Error generating share card:", e);
       alert("Failed to generate Share Card. Check console.");
     }
   }
 
-  // 6. Cleanup
+  // 7. Cleanup
   document.body.removeChild(container);
 }

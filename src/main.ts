@@ -175,25 +175,59 @@ document.addEventListener("DOMContentLoaded", async () => {
 // ─── Event Listeners ─────────────────────────────────────────
 
 function setupEventListeners(): void {
-  // Zenith Navigation
-  document.querySelectorAll(".nav-item[data-target]").forEach((item) => {
+  // Universal Navigation (Desktop Tabs + Mobile Bottom Nav)
+  const navItems = document.querySelectorAll(".nav-item[data-target], .mobile-nav-item[data-target]");
+  navItems.forEach((item) => {
     item.addEventListener("click", () => {
-      document
-        .querySelectorAll(".nav-item")
-        .forEach((n) => n.classList.remove("active"));
-      document
-        .querySelectorAll(".view-pane")
-        .forEach((p) => p.classList.remove("active"));
+      const target = item.getAttribute("data-target");
+      if (!target) return;
 
-      item.classList.add("active");
-      const view = item.getAttribute("data-target");
-      if (view) {
-        document.getElementById(view)?.classList.add("active");
-        if (view === "tasksPane") renderTasks();
-        if (view === "intelligencePane") renderIntelligenceBriefing();
+      // 1. Update All Nav States
+      document.querySelectorAll(".nav-item, .mobile-nav-item").forEach((n) => {
+        n.classList.remove("active");
+        if (n.getAttribute("data-target") === target) n.classList.add("active");
+      });
+
+      // 2. Switch View Panes
+      document.querySelectorAll(".view-pane").forEach((p) => p.classList.remove("active"));
+      const targetPane = document.getElementById(target);
+      if (targetPane) {
+        targetPane.classList.add("active");
+        if (target === "tasksPane") renderTasks();
+        if (target === "intelligencePane") renderIntelligenceBriefing();
+        if (target === "routinePane") renderRoutine();
       }
+
+      // 3. Scroll to top on view change
+      window.scrollTo({ top: 0, behavior: "smooth" });
     });
   });
+
+  // Mobile More Menu Toggle
+  const moreBtn = document.getElementById("headerMoreBtn");
+  const desktopActions = document.getElementById("headerDesktopActions");
+  if (moreBtn && desktopActions) {
+    moreBtn.onclick = (e) => {
+      e.stopPropagation();
+      const isHidden = getComputedStyle(desktopActions).display === "none";
+      if (isHidden) {
+        desktopActions.style.display = "flex";
+        desktopActions.classList.add("mobile-menu-overlay");
+      } else {
+        desktopActions.style.display = "";
+        desktopActions.classList.remove("mobile-menu-overlay");
+      }
+    };
+
+    document.addEventListener("click", () => {
+      if (window.innerWidth <= 768) {
+        if (desktopActions) {
+          desktopActions.style.display = "";
+          desktopActions.classList.remove("mobile-menu-overlay");
+        }
+      }
+    });
+  }
 
   // Excalidraw Toggle
   const excalidrawBtn = document.getElementById("excalidrawToggle");
