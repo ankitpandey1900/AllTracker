@@ -66,6 +66,11 @@ export async function refreshLeaderboard(): Promise<void> {
     const flag = NATION_FLAGS[u.nation] || '🌍';
     const rankLabel = u.current_rank || 'UNRANKED PILOT';
     
+    // Filter stale 'today' hours
+    const lastActive = new Date(u.last_active);
+    const isToday = lastActive.toDateString() === new Date().toDateString();
+    const displayTodayHours = isToday ? (u.today_hours || 0) : 0;
+
     return `
       <div class="leaderboard-item ${isMe ? 'is-me' : ''}" title="${u.display_name} | ${u.age} yrs | ${u.nation}">
         <div class="rank-num">${i + 1}</div>
@@ -81,7 +86,7 @@ export async function refreshLeaderboard(): Promise<void> {
         </div>
         <div class="lb-hours-container">
           <div class="lb-total-hours">${u.total_hours.toFixed(1)}h</div>
-          <div class="lb-today-badge">${(u.today_hours || 0).toFixed(1)}h today</div>
+          <div class="lb-today-badge">${displayTodayHours.toFixed(1)}h today</div>
         </div>
       </div>
     `;

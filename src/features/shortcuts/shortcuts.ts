@@ -101,6 +101,11 @@ export function saveQuickEntry(): void {
   const completed = (document.getElementById('quickCompleted') as HTMLInputElement).checked;
 
   const totalHrs = studyHours.reduce((s, h) => s + h, 0);
+  if (totalHrs > 24) {
+    showToast('Illegal timeline: Total hours for one day cannot exceed 24.', 'error');
+    return;
+  }
+
   if (completed && totalHrs === 0) {
     showToast('Please enter at least some study hours before marking as completed.', 'warning');
     return;
@@ -145,6 +150,11 @@ export function saveBulkEntry(): void {
 
   const completed = (document.getElementById('bulkCompleted') as HTMLInputElement).checked;
   const totalHrs = studyHours.reduce((s, h) => s + h, 0);
+
+  if (totalHrs > 24) {
+    showToast('Illegal timeline: Total hours for one day cannot exceed 24.', 'error');
+    return;
+  }
 
   if (completed && totalHrs === 0) {
     showToast('Please enter at least some study hours.', 'warning');

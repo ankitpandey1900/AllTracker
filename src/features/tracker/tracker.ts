@@ -152,12 +152,23 @@ function handleNumberInput(e: Event): void {
   const idx = getRowIndex(input);
   if (idx < 0) return;
 
+  const day = appState.trackerData[idx];
+
   // Dynamic hour columns
   const colIdxStr = input.getAttribute('data-col');
   if (colIdxStr !== null) {
     const colIdx = parseInt(colIdxStr);
     if (!isNaN(colIdx)) {
-      setHourAt(appState.trackerData[idx], colIdx, parseFloat(input.value) || 0);
+      const newVal = parseFloat(input.value) || 0;
+      const otherHours = (day.studyHours || []).reduce((s, h, i) => s + (i === colIdx ? 0 : (h || 0)), 0);
+
+      if (otherHours + newVal > 24) {
+        showToast('Illegal timeline: Total hours for one day cannot exceed 24.', 'error');
+        input.value = String(day.studyHours?.[colIdx] || 0);
+        return;
+      }
+
+      setHourAt(day, colIdx, newVal);
       saveTrackerDataToStorage(appState.trackerData);
       syncProfileBroadcast();
       return;
@@ -167,7 +178,7 @@ function handleNumberInput(e: Event): void {
   // Determine which field to update based on input class
   for (const [className, field] of Object.entries(NUMBER_FIELD_MAP)) {
     if (input.classList.contains(className)) {
-      (appState.trackerData[idx] as unknown as Record<string, number>)[field] = parseFloat(input.value) || 0;
+      (appState.trackerData[idx] as any)[field] = parseFloat(input.value) || 0;
       break;
     }
   }

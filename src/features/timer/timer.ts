@@ -18,6 +18,8 @@ import { renderPerformanceCurve } from '@/features/routines/performance-chart';
 
 // ─── Timer State ─────────────────────────────────────────────
 
+let isStopping = false; // Guard for concurrent stop calls
+
 export function loadTimerState(): void {
   const saved = localStorage.getItem(STORAGE_KEYS.TIMER);
   if (saved) {
@@ -71,8 +73,10 @@ export function pauseTimer(): void {
 }
 
 export async function stopTimer(): Promise<void> {
+  if (isStopping) return;
   if (!appState.activeTimer.isRunning && appState.activeTimer.elapsedAcc === 0) return;
 
+  isStopping = true;
   if (appState.timerInterval) clearInterval(appState.timerInterval);
 
   let totalElapsed = appState.activeTimer.elapsedAcc;
@@ -92,6 +96,8 @@ export async function stopTimer(): Promise<void> {
   } catch (error) {
     console.error('Error saving session:', error);
     showToast('Session data could not be saved', 'error');
+  } finally {
+    isStopping = false;
   }
 
   // Clear focus mode
@@ -123,10 +129,10 @@ export async function stopTimer(): Promise<void> {
 
 async function showSessionNoteModal(): Promise<string> {
   return new Promise((resolve) => {
-    const modal = document.getElementById('sessionNoteModal') as HTMLElement;
+    const modal = document.getElementById('sessionNoteModal');
     const input = document.getElementById('sessionNoteInput') as HTMLTextAreaElement;
-    const saveBtn = document.getElementById('saveSessionNoteBtn') as HTMLElement;
-    const skipBtn = document.getElementById('skipSessionNoteBtn') as HTMLElement;
+    const saveBtn = document.getElementById('saveSessionNoteBtn');
+    const skipBtn = document.getElementById('skipSessionNoteBtn');
 
     if (!modal || !input || !saveBtn) {
       resolve('');
@@ -136,37 +142,30 @@ async function showSessionNoteModal(): Promise<string> {
     input.value = '';
     modal.classList.add('active');
 
-    // Create unique handlers to avoid leaks
-    function cleanup() {
-      if (saveBtn) saveBtn.removeEventListener('click', handleSave);
-      if (skipBtn) skipBtn.removeEventListener('click', handleSkip);
-      if (modal) modal.removeEventListener('click', handleClose);
-    }
-
-    function handleSave() {
+    const handleSave = () => {
       const note = input.value.trim();
-      modal.classList.remove('active');
-      cleanup();
-      resolve(note);
-    }
+      closeModal(note);
+    };
 
-    function handleSkip() {
-      modal.classList.remove('active');
-      cleanup();
-      resolve('');
-    }
+    const handleSkip = () => {
+      closeModal('');
+    };
 
-    function handleClose(e: MouseEvent) {
-      if ((e.target as HTMLElement).id === 'sessionNoteModal') {
-        modal.classList.remove('active');
-        cleanup();
-        resolve('');
-      }
-    }
+    const handleBackdrop = (e: MouseEvent) => {
+      if (e.target === modal) closeModal('');
+    };
+
+    const closeModal = (val: string) => {
+      modal.classList.remove('active');
+      saveBtn.removeEventListener('click', handleSave);
+      if (skipBtn) skipBtn.removeEventListener('click', handleSkip);
+      modal.removeEventListener('click', handleBackdrop);
+      resolve(val);
+    };
 
     saveBtn.addEventListener('click', handleSave);
     if (skipBtn) skipBtn.addEventListener('click', handleSkip);
-    modal.addEventListener('click', handleClose);
+    modal.addEventListener('click', handleBackdrop);
   });
 }
 
@@ -407,8 +406,26 @@ export function openTimerModal(): void {
 
 /** Resumes a timer if it was running when the page loaded */
 export function resumeTimerIfNeeded(): void {
-  if (appState.activeTimer.isRunning || appState.activeTimer.elapsedAcc > 0) {
-    if (appState.activeTimer.isRunning) {
+  const { isRunning, startTime, elapsedAcc } = appState.activeTimer;
+
+  // 1. Check for impossible session (Self-Healing)
+  if (isRunning && startTime) {
+    const elapsedNow = Date.now() - startTime;
+    const TOTAL_IMPOSSIBLE_MS = 18 * 60 * 60 * 1000; // 18 Hours
+
+    if (elapsedNow > TOTAL_IMPOSSIBLE_MS) {
+      console.warn('[Timer] Self-healing: Detected abandoned session (>18h). Resetting.');
+      appState.activeTimer.isRunning = false;
+      appState.activeTimer.startTime = null;
+      appState.activeTimer.elapsedAcc = 0;
+      saveTimerState();
+      showToast('Long inactivity detected. Timer has been reset.', 'info');
+      return;
+    }
+  }
+
+  if (isRunning || elapsedAcc > 0) {
+    if (isRunning) {
       startTimerInterval();
     }
     updateTimerUI(true);

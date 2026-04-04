@@ -15,13 +15,13 @@ import { saveTrackerDataToStorage } from '@/services/data-bridge';
 let lastAutoSealDate = '';
 
 export function initIntegrityService(): void {
-  // Check every minute for the 11:59 PM auto-seal
+  // Check every minute for integrity rules
   setInterval(() => {
-    runMidnightAutoSeal();
+    runIntegrityChecks();
   }, 1000 * 60);
 
   // Initial check
-  runMidnightAutoSeal();
+  runIntegrityChecks();
 }
 
 /**
@@ -57,30 +57,58 @@ export function isRowEditable(dateStr: string): boolean {
 }
 
 /**
- * Auto-marks the current day as "Done" if any hours are logged before midnight.
+ * Robust Integrity Checks:
+ * 1. Auto-seals current day at 11:59 PM.
+ * 2. Catch-up: Seals any previous days that were missed.
+ * 3. Syncs results to the global leaderboard.
  */
-function runMidnightAutoSeal(): void {
+function runIntegrityChecks(): void {
   const now = new Date();
   const todayStr = now.toISOString().split('T')[0];
+  let needsSync = false;
 
-  // We only seal at the very end of the day (11:59 PM)
-  // Or if we detect the day has changed but the previous day isn't sealed
+  // 1. Midnight Auto-Seal (11:59 PM window)
   if (now.getHours() === 23 && now.getMinutes() >= 58) {
-    if (lastAutoSealDate === todayStr) return;
-
-    const todayData = appState.trackerData.find(d => d.date.startsWith(todayStr));
-    if (todayData && !todayData.completed && !todayData.restDay) {
-      const totalHours = (todayData.studyHours || []).reduce((a, b) => a + (b || 0), 0);
-      
-      if (totalHours > 0) {
-        todayData.completed = true;
-        saveTrackerDataToStorage(appState.trackerData);
-        lastAutoSealDate = todayStr;
-        console.log(`[Integrity] Auto-sealed Day ${todayData.day} at ${now.toLocaleTimeString()}`);
-        
-        // Refresh UI if tracker is visible
-        import('@/features/tracker/tracker').then(m => m.generateTable());
+    if (lastAutoSealDate !== todayStr) {
+      const todayData = appState.trackerData.find(d => d.date.startsWith(todayStr));
+      if (todayData && !todayData.completed && !todayData.restDay) {
+        const totalHours = (todayData.studyHours || []).reduce((a, b) => a + (b || 0), 0);
+        if (totalHours > 0) {
+          todayData.completed = true;
+          needsSync = true;
+          lastAutoSealDate = todayStr;
+          console.log(`[Integrity] Auto-sealed Day ${todayData.day} at ${now.toLocaleTimeString()}`);
+        }
       }
     }
+  }
+
+  // 2. Catch-up Sealing (Previous Days)
+  const todayDate = new Date(now);
+  todayDate.setHours(0, 0, 0, 0);
+
+  appState.trackerData.forEach(day => {
+    const dayDate = new Date(day.date);
+    dayDate.setHours(0, 0, 0, 0);
+
+    // If day is in the past, uncompleted, and has hours logged -> SEAL IT
+    if (dayDate < todayDate && !day.completed && !day.restDay) {
+      const totalHours = (day.studyHours || []).reduce((a, b) => a + (b || 0), 0);
+      if (totalHours > 0) {
+        day.completed = true;
+        needsSync = true;
+        console.log(`[Integrity] Catch-up Seal for Day ${day.day} (${day.date})`);
+      }
+    }
+  });
+
+  if (needsSync) {
+    saveTrackerDataToStorage(appState.trackerData);
+    
+    // Refresh Global Leaderboard
+    import('@/features/dashboard/leaderboard').then(m => m.syncProfileBroadcast());
+    
+    // Refresh Local UI if visible
+    import('@/features/tracker/tracker').then(m => m.generateTable());
   }
 }
