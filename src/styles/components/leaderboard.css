@@ -20,8 +20,8 @@
   }
   
   .dashboard-sidebar {
-    order: -1; /* Move leaderboard to top on mobile for visibility */
     margin-bottom: 20px;
+    margin-top: 20px;
   }
 }
 

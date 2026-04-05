@@ -258,7 +258,7 @@ function handleUserSignedOut(): void {
     headerRight.innerHTML = `
       <button class="btn btn-primary glow-blue" id="authTriggerBtn" style="font-size: 0.65rem; font-weight: 800; letter-spacing: 1px; padding: 6px 14px; display: flex; align-items: center; justify-content: center; gap: 6px; border-radius: 6px; height: 32px;">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-        LOGIN
+        <span class="btn-text">LOGIN</span>
       </button>
     `;
     document.getElementById('authTriggerBtn')!.onclick = openAuthModal;

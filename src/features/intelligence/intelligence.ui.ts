@@ -4,6 +4,20 @@ import { appState } from '@/state/app-state';
 import { MentorMessage } from '@/types/tracker.types';
 import { saveSettingsToStorage } from '@/services/data-bridge';
 
+export const intelligenceView = `
+  <div class="section-header">
+    <h2 class="gradient-text"
+      style="font-size: 2.2rem; font-weight: 900; letter-spacing: -1px; margin-bottom: 4px;">PERSONAL MENTOR</h2>
+    <p style="color: var(--text-secondary); opacity: 0.7; font-size: 0.95rem; margin-bottom: 30px;">The Archon: Adaptive Guidance & Discipline Monitoring</p>
+  </div>
+
+  <div class="intelligence-full-view">
+    <div id="intelligenceFullBody">
+      <div class="leaderboard-placeholder">Initializing Strategist HUD...</div>
+    </div>
+  </div>
+`;
+
 /** Micro-markdown parser for chat rendering */
 function formatMaamuText(text: string): string {
   if (!text) return '';
@@ -52,7 +66,7 @@ function escapeHtml(text: string): string {
  * Focus: Professional Minimalism (Gemini/Claude style) with integrated guide and config.
  */
 export function renderIntelligenceBriefing(): void {
-  const container = document.getElementById('intelligencePane');
+  const container = document.getElementById('intelligenceFullBody');
   if (!container) return;
 
   const briefing = getTacticalBriefing();

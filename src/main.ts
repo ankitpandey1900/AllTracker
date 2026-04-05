@@ -29,6 +29,7 @@ import {
   saveTrackerDataToStorage,
 } from "@/services/data-bridge";
 import { initSyncAuth, setupHeaderScroll } from "@/services/auth.service";
+import { initUI } from "@/components/ui-registry";
 
 // ─── Study Categories ────────────────────────────────────────────────
 import {
@@ -91,6 +92,11 @@ import { initWorldStage, checkProfileIdentity, syncProfileBroadcast } from "@/fe
 
 document.addEventListener("DOMContentLoaded", async () => {
   console.log("🚀 All Tracker v2.0 — TypeScript Edition");
+  
+  // 0. Initialize Modular UI Layer
+  await initUI();
+  const { initManualLogic } = await import('@/features/manual/manual');
+  initManualLogic();
 
   // 1. Load settings first (date range controls everything)
   const savedSettings = await loadSettingsFromStorage();
@@ -207,22 +213,15 @@ function setupEventListeners(): void {
   const moreBtn = document.getElementById("headerMoreBtn");
   const desktopActions = document.getElementById("headerDesktopActions");
   if (moreBtn && desktopActions) {
-    moreBtn.onclick = (e) => {
+    moreBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      const isHidden = getComputedStyle(desktopActions).display === "none";
-      if (isHidden) {
-        desktopActions.style.display = "flex";
-        desktopActions.classList.add("mobile-menu-overlay");
-      } else {
-        desktopActions.style.display = "";
-        desktopActions.classList.remove("mobile-menu-overlay");
-      }
-    };
+      e.preventDefault();
+      desktopActions.classList.toggle("mobile-menu-overlay");
+    });
 
-    document.addEventListener("click", () => {
+    document.addEventListener("click", (e) => {
       if (window.innerWidth <= 768) {
-        if (desktopActions) {
-          desktopActions.style.display = "";
+        if (desktopActions && !desktopActions.contains(e.target as Node)) {
           desktopActions.classList.remove("mobile-menu-overlay");
         }
       }
@@ -249,6 +248,24 @@ function setupEventListeners(): void {
   });
 
   // Dashboard buttons
+  bindClick("toggleKpiBtn", () => {
+    const container = document.getElementById("kpiContainer");
+    const btn = document.getElementById("toggleKpiBtn");
+    if (container && btn) {
+      const isExpanded = container.classList.toggle("expanded");
+      btn.textContent = isExpanded ? "Hide" : "Show";
+    }
+  });
+
+  bindClick("toggleCategoryBtn", () => {
+    const container = document.getElementById("categoryCardsContainer");
+    const btn = document.getElementById("toggleCategoryBtn");
+    if (container && btn) {
+      const isExpanded = container.classList.toggle("expanded");
+      btn.textContent = isExpanded ? "Hide" : "Show";
+    }
+  });
+
   bindClick("startTimerBtn", openTimerModal);
   bindClick("openQuickEntryBtn", openQuickEntryModal);
   bindClick("quickEntryBtn", openTodayEntry);
@@ -276,6 +293,7 @@ function setupEventListeners(): void {
 
   // Nav direct start shortcut
   bindClick("startTimerBtn", openTimerModal);
+  bindClick("mobileNavStartTimerBtn", openTimerModal);
 
   bindClick("timerPauseBtn", () => {
     if (appState.activeTimer.isRunning) pauseTimer();
