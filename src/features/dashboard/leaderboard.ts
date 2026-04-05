@@ -278,6 +278,9 @@ export async function syncProfileBroadcast(): Promise<void> {
     is_focusing_now: document.body.classList.contains('focus-mode-active'),
     avatar: profile.avatar || '👨‍🚀'
   });
+
+  // Automatically refresh the UI leaderboard to show the new stat
+  await refreshLeaderboard();
 }
 
 /** Handles the high-stakes Secret Key migration process */
