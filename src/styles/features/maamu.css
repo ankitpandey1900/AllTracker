@@ -527,6 +527,113 @@
 
 .error-msg { color: #ef4444; font-style: italic; font-size: 0.85rem; }
 
+/* ── Streaming Cursor ────────────────────── */
+.stream-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background: #6366f1;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: blink-cursor 0.8s step-end infinite;
+}
+
+@keyframes blink-cursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* ── Status Chips ────────────────────────── */
+.maamu-status-chips {
+  display: flex;
+  gap: 8px;
+  padding: 8px 0 0;
+  flex-wrap: wrap;
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.data-chip { background: rgba(16, 185, 129, 0.08); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.15); }
+.beast-chip { background: rgba(239, 68, 68, 0.1); color: #fca5a5; border: 1px solid rgba(239,68,68,0.2); }
+.model-chip { background: rgba(99, 102, 241, 0.08); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.15); }
+
+/* ── Message Actions ─────────────────────── */
+.msg-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.msg-row:hover .msg-actions { opacity: 1; }
+
+.msg-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  color: #64748b;
+  font-size: 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'Inter', sans-serif;
+}
+
+.msg-action-btn:hover { background: rgba(255,255,255,0.08); color: #94a3b8; }
+
+.regenerate-btn:hover { color: #818cf8; border-color: rgba(99,102,241,0.3); }
+
+/* ── Daily Briefing Banner ───────────────── */
+.daily-briefing-banner {
+  background: rgba(99, 102, 241, 0.06);
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 24px;
+  animation: slide-in 0.4s ease;
+}
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.daily-brief-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: #818cf8;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.daily-brief-body {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: #94a3b8;
+}
+
+.daily-brief-body strong { color: #e2e8f0; }
+
+
 /* ── Welcome Screen ──────────────────────── */
 .maamu-welcome {
   display: flex;
