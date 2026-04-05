@@ -55,6 +55,14 @@ export interface MentorMessage {
   timestamp: number;
 }
 
+export interface ChatSession {
+  id: string;
+  title: string;
+  messages: MentorMessage[];
+  createdAt: number;
+  lastActive: number;
+}
+
 // ─── Settings ────────────────────────────────────────────────
 
 /** Application-wide settings persisted to storage */
@@ -68,7 +76,9 @@ export interface Settings {
   unlockedBadges: string[];
   sessionLogs: SessionLog[];
   groqApiKey?: string;
-  mentorHistory?: MentorMessage[];
+  mentorHistory?: MentorMessage[]; // Legacy flattened history
+  chatSessions?: ChatSession[];    // Multi-session history
+  activeSessionId?: string;       // Currently viewed session
 }
 
 // ─── Badges ──────────────────────────────────────────────────

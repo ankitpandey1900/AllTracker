@@ -439,7 +439,8 @@ export function setupFocusListeners(): void {
   const toggle = document.getElementById('manualFocusToggle');
   const toggleText = document.getElementById('focusToggleText');
   const hudSection = document.getElementById('activeTimerSection');
-  const dragHandle = document.querySelector('.hud-drag-handle') as HTMLElement;
+  const pauseBtn = document.getElementById('timerPauseBtn');
+  const stopBtn = document.getElementById('timerStopBtn');
 
   if (toggle) {
     toggle.addEventListener('click', () => {
@@ -469,9 +470,15 @@ export function setupFocusListeners(): void {
 
   // Draggable Logic
   let currX = 0, currY = 0;
-  if (dragHandle && hudSection) {
+  if (hudSection) {
     let isDragging = false;
     let lastX = 0, lastY = 0;
+
+    // Prevent drag when interacting with buttons
+    [pauseBtn, stopBtn].forEach(btn => {
+      btn?.addEventListener('mousedown', (e) => e.stopPropagation());
+      btn?.addEventListener('touchstart', (e) => e.stopPropagation());
+    });
 
     const onMove = (e: MouseEvent | TouchEvent) => {
       if (!isDragging || !document.body.classList.contains('focus-minimized')) return;
@@ -516,7 +523,11 @@ export function setupFocusListeners(): void {
       window.addEventListener('touchend', stopDrag);
     };
 
-    dragHandle.addEventListener('mousedown', (e) => startDrag(e.clientX, e.clientY));
-    dragHandle.addEventListener('touchstart', (e) => startDrag(e.touches[0].clientX, e.touches[0].clientY), { passive: false });
+    hudSection.addEventListener('mousedown', (e: MouseEvent) => startDrag(e.clientX, e.clientY));
+    hudSection.addEventListener('touchstart', (e: TouchEvent) => {
+      if (e.touches && e.touches.length > 0) {
+        startDrag(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    }, { passive: false });
   }
 }

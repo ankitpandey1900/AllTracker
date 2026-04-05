@@ -273,6 +273,15 @@
     font-size: 1.5rem !important;
   }
 
+  /* Premium Mobile Text & Glass */
+  .gradient-text { font-size: 1.8rem !important; }
+  .section-header p { font-size: 0.8rem !important; line-height: 1.4; }
+  
+  .maamu-gpt-container {
+    height: calc(100vh - 180px) !important;
+    margin-bottom: 80px;
+  }
+
   /* Modal Optimization */
   .modal-content {
     width: 100% !important;

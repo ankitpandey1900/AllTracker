@@ -11,6 +11,7 @@ import "./styles/main.css";
 import "./styles/components/leaderboard.css";
 import "./styles/components/intelligence.css";
 import "./styles/components/manual.css";
+import "./styles/features/maamu.css";
 
 // ─── Core ────────────────────────────────────────────────────
 import { appState, calculateDates, initializeData } from "@/state/app-state";

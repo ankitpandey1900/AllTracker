@@ -1,5 +1,6 @@
 import { appState } from '@/state/app-state';
 import { MentorMessage } from '@/types/tracker.types';
+import { getActiveSession } from '@/features/intelligence/intelligence.service';
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
@@ -26,8 +27,10 @@ export async function getMaamuResponse(userQuery: string, tacticalBrief: string)
        5. If the user is failing, destroy their excuses with logic and sass.`
     : `1. NO SUGARCOATING: Speak the harsh, absolute truth. Be unapologetic and efficient.
        2. REAL-WORLD: Give best-case scenarios and real-world tough advice.`;
+ 
+  const activeSession = getActiveSession();
+  const chatHistory = activeSession ? activeSession.messages : (appState.settings.mentorHistory || []);
 
-  const chatHistory = appState.settings.mentorHistory || [];
   
   // Extract handle for specific personalization
   let userHandle = "@Participant";
@@ -103,20 +106,26 @@ export async function getMaamuResponse(userQuery: string, tacticalBrief: string)
 }
 
 function saveToMentorHistory(role: MentorMessage['role'], content: string) {
-  if (!appState.settings.mentorHistory) {
-    appState.settings.mentorHistory = [];
-  }
+  const activeSession = getActiveSession();
   
-  appState.settings.mentorHistory.push({
+  const newMessage: MentorMessage = {
     role,
     content,
     timestamp: Date.now()
-  });
-  
-  // Keep last 30 messages for context
-  if (appState.settings.mentorHistory.length > 30) {
-    appState.settings.mentorHistory.shift();
+  };
+
+  if (activeSession) {
+    activeSession.messages.push(newMessage);
+    activeSession.lastActive = Date.now();
+    // Keep last 50 messages for deep context in multi-session
+    if (activeSession.messages.length > 50) activeSession.messages.shift();
+  } else {
+    // Fallback for safety
+    if (!appState.settings.mentorHistory) appState.settings.mentorHistory = [];
+    appState.settings.mentorHistory.push(newMessage);
+    if (appState.settings.mentorHistory.length > 30) appState.settings.mentorHistory.shift();
   }
+
   
   // Persist settings (needs to be called from the feature usually, or we do it here)
   import('@/services/data-bridge').then(m => m.saveSettingsToStorage(appState.settings));

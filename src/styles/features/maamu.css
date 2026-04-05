@@ -1,0 +1,328 @@
+/* --- Maamu ChatGPT-Style Interface --- */
+
+.maamu-gpt-container {
+  display: flex;
+  height: calc(100vh - 160px);
+  background: rgba(10, 16, 30, 0.4);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 24px;
+  overflow: hidden;
+  margin-top: 20px;
+}
+
+/* Sidebar */
+.maamu-sidebar {
+  width: 280px;
+  background: rgba(4, 8, 16, 0.6);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 100;
+}
+
+.maamu-sidebar.active {
+  transform: translateX(0);
+}
+
+.sidebar-header .btn-full {
+  width: 100%;
+  margin-bottom: 20px;
+  justify-content: center;
+}
+
+.mission-list {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.mission-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid transparent;
+  transition: all 0.2s;
+  color: #94a3b8;
+}
+
+.mission-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+}
+
+.mission-item.active {
+  background: rgba(96, 165, 250, 0.1);
+  border-color: rgba(96, 165, 250, 0.3);
+  color: #60a5fa;
+}
+
+.mission-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  overflow: hidden;
+}
+
+.mission-info span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.delete-mission-btn {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  font-size: 1.2rem;
+  line-height: 1;
+  padding: 0 5px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.mission-item:hover .delete-mission-btn {
+  opacity: 1;
+}
+
+/* Chat Main */
+.maamu-chat-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+  position: relative;
+}
+
+.chat-header {
+  height: 64px;
+  padding: 0 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.mentor-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mentor-status h2 {
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #f8fafc;
+  margin: 0;
+}
+
+.chat-scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 40px 10%;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* Chat Bubbles */
+.chat-bubble-row {
+  display: flex;
+  width: 100%;
+}
+
+.chat-bubble-row.user { justify-content: flex-end; }
+.chat-bubble-row.assistant { justify-content: flex-start; }
+
+.chat-bubble {
+  max-width: 85%;
+  padding: 16px 20px;
+  border-radius: 20px;
+  position: relative;
+}
+
+.chat-bubble-row.user .chat-bubble {
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-bottom-right-radius: 4px;
+  color: #e2e8f0;
+}
+
+.chat-bubble-row.assistant .chat-bubble {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom-left-radius: 4px;
+  color: #f1f5f9;
+}
+
+.bubble-sender {
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  opacity: 0.5;
+}
+
+.bubble-content {
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+/* Placeholder */
+.chat-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  opacity: 0.6;
+}
+
+.maamu-avatar-large {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: white;
+  margin-bottom: 24px;
+  box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+}
+
+/* Input Container */
+.chat-input-container {
+  padding: 24px 10% 32px;
+  background: linear-gradient(to top, rgba(8, 13, 24, 0.8), transparent);
+}
+
+.chat-input-wrapper {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+}
+
+.chat-input-wrapper textarea {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: white;
+  font-size: 0.95rem;
+  padding: 8px 0;
+  resize: none;
+  max-height: 200px;
+  line-height: 1.5;
+}
+
+.send-btn {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  margin-bottom: 2px;
+}
+
+.send-btn:hover { background: #2563eb; transform: scale(1.05); }
+.send-btn:active { transform: scale(0.95); }
+
+.input-hint {
+  text-align: center;
+  font-size: 0.7rem;
+  color: #64748b;
+  margin-top: 12px;
+}
+
+/* Code Blocks */
+.code-block-wrapper {
+  background: #0f172a;
+  border-radius: 12px;
+  margin: 15px 0;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.code-header {
+  background: rgba(255,255,255,0.05);
+  padding: 8px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.copy-code-btn {
+  background: transparent;
+  border: none;
+  color: #60a5fa;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.code-block-wrapper pre {
+  padding: 16px;
+  margin: 0;
+  overflow-x: auto;
+  font-size: 0.85rem;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 1024px) {
+  .maamu-sidebar {
+    position: absolute;
+    left: 0;
+    top: 64px;
+    height: calc(100% - 64px);
+    transform: translateX(-100%);
+    width: 300px;
+  }
+  .maamu-sidebar.active { transform: translateX(0); }
+  .chat-scroll-area { padding: 30px 20px; }
+  .chat-input-container { padding: 20px; }
+  .chat-bubble { max-width: 95%; }
+}
+
+@media (max-width: 768px) {
+  .maamu-gpt-container {
+    height: calc(100vh - 120px);
+    border-radius: 0;
+    margin-top: 0;
+    border: none;
+  }
+}

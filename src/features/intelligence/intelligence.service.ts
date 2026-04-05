@@ -1,5 +1,5 @@
 import { appState } from '@/state/app-state';
-import type { SessionLog, TrackerDay } from '@/types/tracker.types';
+import type { SessionLog, TrackerDay, ChatSession, MentorMessage } from '@/types/tracker.types';
 import { formatDateDMY } from '@/utils/date.utils';
 
 export interface TacticalBriefing {
@@ -506,4 +506,69 @@ export function getHabitPulse(): string {
   if (completionRate > 40) return "Pattern Oscillation Detected: Your routine adherence is volatile. Mastery requires boring, repetitive excellence, not bursts of effort.";
   
   return "Systemic Discipline Failure: Your routine integrity is compromised. Prioritize 'Easy Wins' to restore your momentum today.";
+}
+// ─── Session Management ───────────────────────────────────────
+
+/** Migrates legacy mentorHistory into a new ChatSession format if needed */
+export function migrateLegacyHistory(): void {
+  const s = appState.settings;
+  if (s.mentorHistory && s.mentorHistory.length > 0 && (!s.chatSessions || s.chatSessions.length === 0)) {
+    const legacySession: ChatSession = {
+      id: 'legacy-mission-' + Date.now(),
+      title: 'Legacy Mission Archive',
+      messages: [...s.mentorHistory],
+      createdAt: Date.now(),
+      lastActive: Date.now()
+    };
+    s.chatSessions = [legacySession];
+    s.activeSessionId = legacySession.id;
+    // Keep mentorHistory for now just in case, but primary is chatSessions
+  }
+
+  // Ensure at least one session exists
+  if (!s.chatSessions || s.chatSessions.length === 0) {
+    createNewSession('New Mission Strategy');
+  }
+}
+
+export function getChatSessions(): ChatSession[] {
+  return appState.settings.chatSessions || [];
+}
+
+export function getActiveSession(): ChatSession | null {
+  const s = appState.settings;
+  if (!s.chatSessions || s.chatSessions.length === 0) return null;
+  return s.chatSessions.find(sess => sess.id === s.activeSessionId) || s.chatSessions[0];
+}
+
+export function createNewSession(title: string = 'New Mission Strategy'): string {
+  if (!appState.settings.chatSessions) appState.settings.chatSessions = [];
+  
+  const newSession: ChatSession = {
+    id: 'session-' + Date.now(),
+    title,
+    messages: [],
+    createdAt: Date.now(),
+    lastActive: Date.now()
+  };
+
+  appState.settings.chatSessions.unshift(newSession); // Newest first
+  appState.settings.activeSessionId = newSession.id;
+  return newSession.id;
+}
+
+export function deleteSession(id: string): void {
+  const s = appState.settings;
+  if (!s.chatSessions) return;
+  s.chatSessions = s.chatSessions.filter(sess => sess.id !== id);
+  if (s.activeSessionId === id) {
+    s.activeSessionId = s.chatSessions[0]?.id || '';
+  }
+  if (s.chatSessions.length === 0) createNewSession();
+}
+
+export function switchSession(id: string): void {
+  appState.settings.activeSessionId = id;
+  const session = getActiveSession();
+  if (session) session.lastActive = Date.now();
 }
