@@ -41,6 +41,7 @@ import { generateTable } from '@/features/tracker/tracker';
 import { updateDashboard } from '@/features/dashboard/dashboard';
 import { renderHeatmap } from '@/features/heatmap/heatmap';
 import { renderPerformanceCurve } from '@/features/routines/performance-chart';
+import { syncProfileBroadcast } from '@/features/dashboard/leaderboard';
 
 // ─── Quick Entry ─────────────────────────────────────────────
 
@@ -121,6 +122,7 @@ export function saveQuickEntry(): void {
 
   saveTrackerDataToStorage(appState.trackerData);
   generateTable(); updateDashboard(); renderHeatmap(); renderPerformanceCurve();
+  syncProfileBroadcast();
   jumpToDayInTable(day);
 
   // Reset fields
@@ -169,6 +171,7 @@ export function saveBulkEntry(): void {
 
   saveTrackerDataToStorage(appState.trackerData);
   generateTable(); updateDashboard(); renderHeatmap(); renderPerformanceCurve();
+  syncProfileBroadcast();
   jumpToDayInTable(startDay);
   showToast(`Updated ${endDay - startDay + 1} days (${startDay}-${endDay}) successfully!`, 'success');
 }

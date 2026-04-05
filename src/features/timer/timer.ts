@@ -239,6 +239,7 @@ function saveSessionToToday(colIdx: number, hoursToAdd: number, note: string = '
   updateDashboard();
   renderHeatmap();
   renderPerformanceCurve();
+  syncProfileBroadcast();
 
   // Highlight row
   const row = document.querySelector(`tr[data-day="${todayIndex}"]`) as HTMLElement;
