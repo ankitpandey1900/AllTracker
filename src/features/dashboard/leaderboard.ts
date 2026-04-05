@@ -275,8 +275,7 @@ export async function syncProfileBroadcast(): Promise<void> {
     total_hours: totalHours,
     today_hours: todayHours,
     current_rank: rank,
-    is_focusing_now: document.body.classList.contains('focus-mode-active'),
-    avatar: profile.avatar || '👨‍🚀'
+    is_focusing_now: document.body.classList.contains('focus-mode-active')
   });
 
   // Automatically refresh the UI leaderboard to show the new stat

@@ -71,6 +71,30 @@
   }
   .header-actions #authTriggerBtn .btn-text { display: none; }
 
+  /* Mobile Header Logged-In State Optimization */
+  .user-info-group { gap: 4px !important; }
+  .user-info-group #headerUserAlias {
+    max-width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 4px 8px !important;
+    font-size: 0.65rem !important;
+  }
+  /* Icon only for Synced status */
+  .user-info-group #syncStatus {
+    font-size: 0 !important;
+    padding: 6px !important;
+  }
+  .user-info-group #syncStatus svg { margin-right: 0 !important; }
+  
+  /* Icon only for Exit Arena */
+  .user-info-group #logoutBtn {
+    font-size: 0 !important;
+    padding: 6px !important;
+  }
+  .user-info-group #logoutBtn svg { margin-right: 0 !important; }
+
   /* Premium Bottom Navigation */
   .mobile-nav {
     position: fixed;

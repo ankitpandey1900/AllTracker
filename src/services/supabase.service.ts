@@ -202,9 +202,19 @@ export async function broadcastGlobalStats(profile: Partial<GlobalProfile>): Pro
     last_active: new Date().toISOString()
   };
 
-  await supabaseClient!
+  const { error } = await supabaseClient!
     .from(SUPABASE_TABLES.GLOBAL_PROFILES)
     .upsert(payload, { onConflict: 'sync_id' });
+
+  if (error) {
+    console.error('🚨 SUPABASE BROADCAST ERROR:', error);
+    try {
+      const { showToast } = await import('@/utils/dom.utils');
+      showToast(`Arena Broadcast Rejected: ${error.message || 'Unknown DB Error'}`, 'error');
+    } catch { /* noop */ }
+  } else {
+    console.log(`✅ BROADCAST SUCCESS: Pushed ${payload.total_hours}h total, ${payload.today_hours}h today for @${payload.display_name}`);
+  }
 }
 
 /** Fetches the top 10 learners for the World Stage */
