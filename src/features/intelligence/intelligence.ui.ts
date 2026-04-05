@@ -11,88 +11,47 @@ import {
 import { getMaamuResponse } from '@/services/groq.service';
 import { appState } from '@/state/app-state';
 import { saveSettingsToStorage } from '@/services/data-bridge';
+import { STORAGE_KEYS } from '@/config/constants';
 
-export const intelligenceView = `
-  <div class="maamu-gpt-container">
-    <!-- Sidebar for Mission History -->
-    <aside class="maamu-sidebar" id="maamuSidebar">
-      <div class="sidebar-header">
-        <button id="newMissionBtn" class="btn btn-pill-outline btn-full">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px;"><path d="M12 5v14M5 12h14"/></svg>
-          New Mission
-        </button>
-      </div>
-      <div class="mission-list" id="missionList">
-        <!-- Sessions injected here -->
-      </div>
-      <div class="sidebar-footer">
-        <div class="mini-metrics-panel" id="miniMetricsPanel">
-          <!-- Quick metrics summary -->
-        </div>
-      </div>
-    </aside>
+// ─── Helpers ────────────────────────────────────────────────────
 
-    <!-- Main Chat Area -->
-    <main class="maamu-chat-main">
-      <header class="chat-header">
-        <div class="header-left">
-          <button id="toggleMaamuSidebar" class="btn-icon show-mobile">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-          </button>
-          <div class="mentor-status">
-            <div class="status-pulse optimal"></div>
-            <h2 id="activeMissionTitle">MISSION STRATEGY</h2>
-          </div>
-        </div>
-        <div class="header-right">
-          <div class="beast-mode-control">
-            <span class="beast-label">BEAST MODE</span>
-            <label class="tactical-switch">
-              <input type="checkbox" id="beastModeToggle" ${appState.settings.beastMode ? 'checked' : ''}>
-              <span class="tactical-slider"></span>
-            </label>
-          </div>
-        </div>
-      </header>
+/** Get user's avatar emoji from local profile storage */
+function getUserAvatar(): string {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.USER_PROFILE);
+    if (raw) {
+      const profile = JSON.parse(raw);
+      return profile.avatar || '👤';
+    }
+  } catch { /* noop */ }
+  return '👤';
+}
 
-      <div id="maamuChatOutput" class="chat-scroll-area">
-        <!-- Messages injected here -->
-      </div>
-
-      <footer class="chat-input-container">
-        <div class="chat-input-wrapper">
-          <textarea id="maamuQueryInput" placeholder="Enter tactical inquiry (Hinglish supported)..." rows="1" spellcheck="false"></textarea>
-          <button id="sendMaamuQuery" class="send-btn">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-          </button>
-        </div>
-        <p class="input-hint">Maamu can provide code, roadmaps, and analytics. Shift + Enter for newline.</p>
-      </footer>
-    </main>
-  </div>
-`;
+/** Get user's display name from local profile storage */
+function getUserDisplayName(): string {
+  return localStorage.getItem('tracker_username') || 'You';
+}
 
 /** Micro-markdown parser for chat rendering */
 function formatMaamuText(text: string): string {
   if (!text) return '';
 
-  // 1. Fenced Code Blocks (```lang\n code \n```)
   const codeBlocks: string[] = [];
   let html = text.replace(/```(?:[\w\+]+)?\n?([\s\S]*?)\n?```/g, (_match, code) => {
     const id = `__CB_${codeBlocks.length}__`;
+    const escaped = escapeHtml(code.trim());
     codeBlocks.push(`
       <div class="code-block-wrapper">
-        <div class="code-header">
-          <span>CODE BLOCK</span>
-          <button class="copy-code-btn" onclick="navigator.clipboard.writeText(\`${code.replace(/`/g, '\\`').trim()}\`)">Copy</button>
+        <div class="code-block-header">
+          <span>CODE</span>
+          <button class="copy-code-btn" onclick="(function(b){navigator.clipboard.writeText(b.closest('.code-block-wrapper').querySelector('code').textContent)})(this)">📋 Copy</button>
         </div>
-        <pre><code>${escapeHtml(code.trim())}</code></pre>
+        <pre><code>${escaped}</code></pre>
       </div>
     `);
     return id;
   });
 
-  // 2. Inline Code (`code`)
   const inlineCodes: string[] = [];
   html = html.replace(/`([^`]+)`/g, (_match, code) => {
     const id = `__IC_${inlineCodes.length}__`;
@@ -100,16 +59,13 @@ function formatMaamuText(text: string): string {
     return id;
   });
 
-  // 3. Basic formatting on the remaining text
   html = escapeHtml(html)
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    .replace(/^(\s*)[*-]\s+(.*)$/gm, '<li style="margin-left: 1.5rem; list-style-type: disc;">$2</li>');
+    .replace(/^(\s*)[*-]\s+(.*)$/gm, '<li>$2</li>');
 
-  // Newlines to BR (but not inside our markers)
   html = html.replace(/\n/g, '<br/>');
 
-  // 4. Restore Code
   codeBlocks.forEach((block, i) => { html = html.replace(`__CB_${i}__`, block); });
   inlineCodes.forEach((ic, i) => { html = html.replace(`__IC_${i}__`, ic); });
 
@@ -120,56 +76,188 @@ function escapeHtml(text: string): string {
   return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+// ─── Static Shell ────────────────────────────────────────────────
+
+export const intelligenceView = `
+  <div class="maamu-gpt-container" id="maamuGptContainer">
+    <!-- Sidebar -->
+    <aside class="maamu-sidebar" id="maamuSidebar">
+      <div class="maamu-sidebar-top">
+        <div class="maamu-brand">
+          <div class="maamu-logo">M</div>
+          <span>MAAMU AI</span>
+        </div>
+        <button id="newMissionBtn" class="new-chat-btn" title="New Mission">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+          New Mission
+        </button>
+      </div>
+      <div class="session-list-label">MISSION LOGS</div>
+      <div class="maamu-session-list" id="maamuSessionList">
+        <!-- sessions injected here -->
+      </div>
+      <div class="maamu-sidebar-footer" id="maamuSidebarFooter">
+        <!-- metrics injected here -->
+      </div>
+    </aside>
+
+    <!-- Main Chat -->
+    <div class="maamu-chat-area">
+      <div class="maamu-chat-header">
+        <div class="chat-header-left">
+          <button class="sidebar-toggle-btn" id="toggleMaamuSidebar">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg>
+          </button>
+          <div class="active-session-info">
+            <div class="session-dot"></div>
+            <span id="activeMissionTitle">MISSION STRATEGY</span>
+          </div>
+        </div>
+        <div class="chat-header-right">
+          <span class="beast-label">BEAST MODE</span>
+          <label class="tactical-switch" title="Toggle Beast Mode">
+            <input type="checkbox" id="beastModeToggle">
+            <span class="tactical-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="maamu-messages" id="maamuChatOutput">
+        <!-- messages injected here -->
+      </div>
+
+      <div class="maamu-input-zone">
+        <div class="maamu-input-box">
+          <div class="user-avatar-chip" id="maamuUserAvatarChip">👤</div>
+          <textarea 
+            id="maamuQueryInput" 
+            class="maamu-textarea"
+            placeholder="Ask Maamu anything — Hinglish, code, strategy..." 
+            rows="1"
+            spellcheck="false"
+          ></textarea>
+          <button id="sendMaamuQuery" class="maamu-send-btn" title="Send (Enter)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+          </button>
+        </div>
+        <p class="maamu-input-hint">Press Enter to send · Shift+Enter for new line · Maamu knows your 30-day data</p>
+      </div>
+    </div>
+  </div>
+`;
+
+// ─── Render Functions ─────────────────────────────────────────────
+
 export function renderIntelligenceBriefing(): void {
-  const container = document.getElementById('intelligenceFullBody');
+  // The pane is injected at startup via ui-registry. We only need to refresh the dynamic content.
+  const container = document.getElementById('intelligencePane');
   if (!container) return;
 
-  // Initialize
   migrateLegacyHistory();
-  const session = getActiveSession();
-
-  container.innerHTML = intelligenceView;
   
-  // Set active title
+  // Only inject static shell once; avoid re-mounting UI on every tab switch
+  if (!document.getElementById('maamuGptContainer')) {
+    container.innerHTML = intelligenceView;
+  }
+
+  // Sync beast mode toggle state
+  const toggle = document.getElementById('beastModeToggle') as HTMLInputElement;
+  if (toggle) toggle.checked = !!appState.settings.beastMode;
+
+  // Sync user avatar in input box
+  const avatarChip = document.getElementById('maamuUserAvatarChip');
+  if (avatarChip) avatarChip.textContent = getUserAvatar();
+
+  // Update session title
+  const session = getActiveSession();
   const titleEl = document.getElementById('activeMissionTitle');
   if (titleEl && session) titleEl.textContent = session.title.toUpperCase();
 
   renderSessionsList();
   renderActiveChat();
-  renderMiniMetrics();
+  renderSidebarMetrics();
   setupListeners();
 }
 
 function renderSessionsList(): void {
-  const list = document.getElementById('missionList');
+  const list = document.getElementById('maamuSessionList');
   if (!list) return;
 
   const sessions = getChatSessions();
   const activeId = getActiveSession()?.id;
 
-  list.innerHTML = sessions.map(sess => `
-    <div class="mission-item ${sess.id === activeId ? 'active' : ''}" data-id="${sess.id}">
-      <div class="mission-info">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        <span>${sess.title}</span>
-      </div>
-      <button class="delete-mission-btn" data-id="${sess.id}">×</button>
-    </div>
-  `).join('');
+  if (sessions.length === 0) {
+    list.innerHTML = `<div class="no-sessions">No missions yet. Start one!</div>`;
+    return;
+  }
 
-  // Bind Switch
-  list.querySelectorAll('.mission-item').forEach(el => {
+  list.innerHTML = sessions.map(sess => {
+    const isActive = sess.id === activeId;
+    const preview = sess.messages.filter(m => m.role === 'user').slice(-1)[0]?.content || 'No messages yet';
+    const previewShort = preview.length > 32 ? preview.slice(0, 32) + '…' : preview;
+    const date = new Date(sess.lastActive).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+    return `
+      <div class="maamu-session-item ${isActive ? 'active' : ''}" data-id="${sess.id}">
+        <div class="session-item-content">
+          <div class="session-item-title">${sess.title}</div>
+          <div class="session-item-meta">
+            <span class="session-preview">${previewShort}</span>
+            <span class="session-date">${date}</span>
+          </div>
+        </div>
+        <button class="session-delete-btn" data-id="${sess.id}" title="Delete">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+    `;
+  }).join('');
+
+  list.querySelectorAll('.maamu-session-item').forEach(el => {
     el.addEventListener('click', (e) => {
       const target = e.target as HTMLElement;
-      if (target.classList.contains('delete-mission-btn')) {
-        deleteSession(target.getAttribute('data-id') || '');
-        renderIntelligenceBriefing();
+      const delBtn = target.closest('.session-delete-btn');
+      if (delBtn) {
+        e.stopPropagation();
+        if (confirm('Delete this mission?')) {
+          deleteSession(delBtn.getAttribute('data-id') || '');
+          saveSettingsToStorage(appState.settings);
+          renderSessionsList();
+          renderActiveChat();
+          const titleEl = document.getElementById('activeMissionTitle');
+          const s = getActiveSession();
+          if (titleEl && s) titleEl.textContent = s.title.toUpperCase();
+        }
         return;
       }
-      switchSession(el.getAttribute('data-id') || '');
-      renderIntelligenceBriefing();
+      const id = el.getAttribute('data-id') || '';
+      switchSession(id);
+      saveSettingsToStorage(appState.settings);
+      renderSessionsList();
+      renderActiveChat();
+      const titleEl = document.getElementById('activeMissionTitle');
+      const s = getActiveSession();
+      if (titleEl && s) titleEl.textContent = s.title.toUpperCase();
+      // Close sidebar on mobile
+      if (window.innerWidth <= 1024) {
+        document.getElementById('maamuSidebar')?.classList.remove('active');
+      }
     });
   });
+}
+
+function buildMessageRow(role: string, content: string): string {
+  const isUser = role === 'user';
+  const avatar = isUser ? getUserAvatar() : '🧠';
+  const name = isUser ? getUserDisplayName() : 'Maamu';
+  return `
+    <div class="msg-row ${role}">
+      <div class="msg-avatar">${avatar}</div>
+      <div class="msg-body">
+        <div class="msg-sender">${name}</div>
+        <div class="msg-content">${formatMaamuText(content)}</div>
+      </div>
+    </div>
+  `;
 }
 
 function renderActiveChat(): void {
@@ -181,120 +269,165 @@ function renderActiveChat(): void {
 
   if (session.messages.length === 0) {
     chatOutput.innerHTML = `
-      <div class="chat-placeholder">
-        <div class="maamu-avatar-large">M</div>
-        <h3>INITIALIZING TACTICAL CORE</h3>
-        <p>Welcome to Mission Strategy. I am THE MAAMU. Your 30-day analytics are synchronized. Ask your inquiry below.</p>
+      <div class="maamu-welcome">
+        <div class="maamu-welcome-avatar">🧠</div>
+        <h3 class="maamu-welcome-title">THE MAAMU</h3>
+        <p class="maamu-welcome-sub">Elite AI mentor. Connected to your 30-day analytics.<br/>Ask anything — strategy, code, career, or reality checks.</p>
+        <div class="maamu-quick-prompts" id="maamuQuickPrompts">
+          <button class="quick-prompt">Analyze my weaknesses this week</button>
+          <button class="quick-prompt">Give me a reality check hindi mein</button>
+          <button class="quick-prompt">Build me a study plan for today</button>
+          <button class="quick-prompt">What should I focus on right now?</button>
+        </div>
       </div>
     `;
+    // Bind quick prompts
+    chatOutput.querySelectorAll('.quick-prompt').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const input = document.getElementById('maamuQueryInput') as HTMLTextAreaElement;
+        if (input) {
+          input.value = (btn as HTMLElement).textContent || '';
+          input.dispatchEvent(new Event('input'));
+          input.focus();
+        }
+      });
+    });
     return;
   }
 
-  chatOutput.innerHTML = session.messages.map(msg => `
-    <div class="chat-bubble-row ${msg.role}">
-      <div class="chat-bubble">
-        <div class="bubble-sender">${msg.role === 'user' ? 'YOU' : 'MAAMU'}</div>
-        <div class="bubble-content">${formatMaamuText(msg.content)}</div>
-      </div>
-    </div>
-  `).join('');
-
+  const userMessages = session.messages.filter(m => m.role !== 'system');
+  chatOutput.innerHTML = userMessages.map(msg => buildMessageRow(msg.role, msg.content)).join('');
   chatOutput.scrollTop = chatOutput.scrollHeight;
 }
 
-function renderMiniMetrics(): void {
-  const panel = document.getElementById('miniMetricsPanel');
-  if (!panel) return;
+function renderSidebarMetrics(): void {
+  const footer = document.getElementById('maamuSidebarFooter');
+  if (!footer) return;
 
   const briefing = getTacticalBriefing();
-  panel.innerHTML = `
-    <div class="mini-stat">
-      <label>SUSTAINABILITY</label>
-      <div class="bar"><div class="fill" style="width:${briefing.sustainabilityScore}%"></div></div>
+  const getColor = (v: number) => v > 75 ? '#10b981' : v > 45 ? '#f59e0b' : '#ef4444';
+  
+  footer.innerHTML = `
+    <div class="sidebar-metrics">
+      <div class="sm-label">ARENA STATS</div>
+      <div class="sm-row">
+        <span>Sustainability</span>
+        <div class="sm-bar"><div class="sm-fill" style="width:${briefing.sustainabilityScore}%;background:${getColor(briefing.sustainabilityScore)}"></div></div>
+        <span class="sm-val">${briefing.sustainabilityScore}%</span>
+      </div>
+      <div class="sm-row">
+        <span>Discipline</span>
+        <div class="sm-bar"><div class="sm-fill" style="width:${briefing.disciplineTrend}%;background:${getColor(briefing.disciplineTrend)}"></div></div>
+        <span class="sm-val">${briefing.disciplineTrend}%</span>
+      </div>
+      <div class="sm-row">
+        <span>Momentum</span>
+        <div class="sm-bar"><div class="sm-fill" style="width:${Math.max(0, Math.min(100, briefing.momentum + 50))}%;background:${getColor(briefing.momentum + 50)}"></div></div>
+        <span class="sm-val">${briefing.momentum > 0 ? '+' : ''}${briefing.momentum}%</span>
+      </div>
     </div>
-    <div class="mini-stat">
-      <label>DISCIPLINE</label>
-      <div class="bar"><div class="fill" style="width:${briefing.disciplineTrend}%"></div></div>
+
+    <div class="sidebar-api-section">
+      <div class="sm-label">GROQ API KEY</div>
+      <input type="password" id="maamuApiKeyInput" class="api-key-input" 
+        value="${appState.settings.groqApiKey || ''}" 
+        placeholder="gsk_...">
+      <button id="saveMaamuApiKey" class="save-api-btn">Save Key</button>
+      <a href="https://console.groq.com" target="_blank" class="api-link">Get free key →</a>
     </div>
   `;
+
+  // Bind API key save
+  document.getElementById('saveMaamuApiKey')?.addEventListener('click', () => {
+    const val = (document.getElementById('maamuApiKeyInput') as HTMLInputElement)?.value.trim();
+    appState.settings.groqApiKey = val;
+    saveSettingsToStorage(appState.settings);
+    const btn = document.getElementById('saveMaamuApiKey');
+    if (btn) { btn.textContent = '✓ Saved!'; setTimeout(() => { btn.textContent = 'Save Key'; }, 2000); }
+  });
 }
 
+// ─── Listeners ────────────────────────────────────────────────────
+
+let listenersAttached = false;
+
 function setupListeners(): void {
+  if (listenersAttached) return;
+  listenersAttached = false; // Always re-attach on render
+
   const input = document.getElementById('maamuQueryInput') as HTMLTextAreaElement;
   const sendBtn = document.getElementById('sendMaamuQuery');
   const chatOutput = document.getElementById('maamuChatOutput');
-  const newMissionBtn = document.getElementById('newMissionBtn');
 
   if (!input || !sendBtn || !chatOutput) return;
 
-  // New Mission
-  newMissionBtn?.addEventListener('click', () => {
-    const title = prompt("Enter Mission Title (e.g. Phase 2 Prep):") || "New Mission Strategy";
+  // New Mission Button
+  document.getElementById('newMissionBtn')?.addEventListener('click', () => {
+    const title = prompt('Mission title (e.g., "Phase 2 Prep"):') || 'New Mission Strategy';
     createNewSession(title);
-    renderIntelligenceBriefing();
+    saveSettingsToStorage(appState.settings);
+    renderSessionsList();
+    renderActiveChat();
+    const titleEl = document.getElementById('activeMissionTitle');
+    const s = getActiveSession();
+    if (titleEl && s) titleEl.textContent = s.title.toUpperCase();
   });
 
   // Auto-grow textarea
   input.addEventListener('input', () => {
     input.style.height = 'auto';
-    input.style.height = (input.scrollHeight) + 'px';
+    input.style.height = Math.min(input.scrollHeight, 160) + 'px';
   });
 
   const handleSend = async () => {
     const query = input.value.trim();
     if (!query) return;
-
-    // Add user msg locally
     const session = getActiveSession();
     if (!session) return;
 
-    // UI Feedback
+    // Show user message immediately
     const userRow = document.createElement('div');
-    userRow.className = 'chat-bubble-row user';
-    userRow.innerHTML = `
-      <div class="chat-bubble">
-        <div class="bubble-sender">YOU</div>
-        <div class="bubble-content">${formatMaamuText(query)}</div>
-      </div>
-    `;
-    chatOutput.appendChild(userRow);
+    userRow.innerHTML = buildMessageRow('user', query);
+    chatOutput.appendChild(userRow.firstElementChild!);
     input.value = '';
     input.style.height = 'auto';
     chatOutput.scrollTop = chatOutput.scrollHeight;
 
-    // Thinking
-    const thinkingRow = document.createElement('div');
-    thinkingRow.className = 'chat-bubble-row assistant thinking';
-    thinkingRow.innerHTML = `<div class="chat-bubble"><div class="bubble-content">Analyzing neural trails...</div></div>`;
-    chatOutput.appendChild(thinkingRow);
+    // Remove welcome screen if visible
+    const welcome = chatOutput.querySelector('.maamu-welcome');
+    if (welcome) welcome.remove();
+
+    // Thinking indicator
+    const thinkRow = document.createElement('div');
+    thinkRow.className = 'msg-row assistant thinking-row';
+    thinkRow.innerHTML = `
+      <div class="msg-avatar">🧠</div>
+      <div class="msg-body">
+        <div class="msg-content thinking-indicator">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+    `;
+    chatOutput.appendChild(thinkRow);
     chatOutput.scrollTop = chatOutput.scrollHeight;
 
     try {
       const tacticalBrief = getTacticalBriefingString();
       const response = await getMaamuResponse(query, tacticalBrief);
+      thinkRow.remove();
 
-      thinkingRow.remove();
-      const assistantRow = document.createElement('div');
-      assistantRow.className = 'chat-bubble-row assistant';
-      assistantRow.innerHTML = `
-        <div class="chat-bubble">
-          <div class="bubble-sender">MAAMU</div>
-          <div class="bubble-content">${formatMaamuText(response)}</div>
-        </div>
-      `;
-      chatOutput.appendChild(assistantRow);
+      const assistantEl = document.createElement('div');
+      assistantEl.innerHTML = buildMessageRow('assistant', response);
+      chatOutput.appendChild(assistantEl.firstElementChild!);
       chatOutput.scrollTop = chatOutput.scrollHeight;
-    } catch (err) {
-      thinkingRow.innerHTML = `<div class="chat-bubble error">Error connecting to core.</div>`;
+    } catch {
+      thinkRow.innerHTML = `<div class="msg-row assistant"><div class="msg-avatar">⚡</div><div class="msg-body"><div class="msg-content error-msg">Connection to AI core failed. Check your API key.</div></div></div>`;
     }
   };
 
   sendBtn.addEventListener('click', handleSend);
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
+  input.addEventListener('keydown', (e: KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
   });
 
   // Beast Mode
@@ -302,13 +435,32 @@ function setupListeners(): void {
   beastToggle?.addEventListener('change', () => {
     appState.settings.beastMode = beastToggle.checked;
     saveSettingsToStorage(appState.settings);
-    alert(beastToggle.checked ? "BEAST MODE: ELITE INTENSITY ENGAGED." : "BEAST MODE: BACK TO STABLE BASELINE.");
+    const msg = beastToggle.checked 
+      ? '🔥 BEAST MODE: ELITE INTENSITY ENGAGED. NO MERCY.' 
+      : '✅ BEAST MODE: Deactivated. Standard mode restored.';
+    // Inject system message into chat  
+    const banner = document.createElement('div');
+    banner.className = 'system-msg';
+    banner.textContent = msg;
+    chatOutput.appendChild(banner);
+    chatOutput.scrollTop = chatOutput.scrollHeight;
   });
 
-  // Sidebar Toggle (Mobile)
-  const sidebarToggle = document.getElementById('toggleMaamuSidebar');
-  const sidebar = document.getElementById('maamuSidebar');
-  sidebarToggle?.addEventListener('click', () => {
-    sidebar?.classList.toggle('active');
+  // Sidebar Toggle (mobile)
+  document.getElementById('toggleMaamuSidebar')?.addEventListener('click', () => {
+    document.getElementById('maamuSidebar')?.classList.toggle('active');
+  });
+
+  // Click outside to close sidebar on mobile
+  document.addEventListener('click', (e: MouseEvent) => {
+    if (window.innerWidth <= 1024) {
+      const sidebar = document.getElementById('maamuSidebar');
+      const toggle = document.getElementById('toggleMaamuSidebar');
+      if (sidebar?.classList.contains('active') 
+          && !sidebar.contains(e.target as Node)
+          && !toggle?.contains(e.target as Node)) {
+        sidebar.classList.remove('active');
+      }
+    }
   });
 }
