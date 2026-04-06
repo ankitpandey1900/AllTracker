@@ -2,7 +2,7 @@ export interface UserProfile {
   displayName: string;
   age: number | string;
   nation: string;
-  syncId: string;
+  syncId?: string;
   avatar?: string;
 }
 

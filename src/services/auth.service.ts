@@ -9,10 +9,12 @@ import { STORAGE_KEYS } from '@/config/constants';
 import { syncDataOnLogin } from '@/services/data-bridge';
 import { isUsernameTaken, loadUserProfileCloud, verifyUserCredentials, broadcastGlobalStats, checkIfSyncIdHasData } from '@/services/supabase.service';
 import { supabaseClient } from '@/config/supabase';
+import { obfuscate, deobfuscate, isObfuscated } from '@/utils/security';
 
 // ─── State ───────────────────────────────────────────────────
 
-let currentSyncId: string | null = localStorage.getItem(STORAGE_KEYS.SYNC_ID) || null;
+const rawId = localStorage.getItem(STORAGE_KEYS.SYNC_ID) || null;
+let currentSyncId: string | null = rawId ? deobfuscate(rawId) : null;
 
 // ─── Public API ──────────────────────────────────────────────
 
@@ -23,6 +25,26 @@ export function getCurrentUserId(): string | null {
 
 /** Initializes auth UI and restores previous session */
 export function initSyncAuth(): void {
+  // 0. High-Stakes Migration: Protect legacy plain-text IDs
+  const raw = localStorage.getItem(STORAGE_KEYS.SYNC_ID);
+  if (raw && !isObfuscated(raw)) {
+    console.log('Security Patch: Encrypting legacy Vault Key...');
+    localStorage.setItem(STORAGE_KEYS.SYNC_ID, obfuscate(raw));
+  }
+
+  // Sanitization: Remove plain-text syncId from the UserProfile object if it exists
+  const profileRaw = localStorage.getItem(STORAGE_KEYS.USER_PROFILE);
+  if (profileRaw) {
+    try {
+      const profile = JSON.parse(profileRaw);
+      if (profile.syncId) {
+        console.log('Security Patch: Purging sensitive Sync-ID from Profile cache...');
+        delete profile.syncId;
+        localStorage.setItem(STORAGE_KEYS.USER_PROFILE, JSON.stringify(profile));
+      }
+    } catch (e) { /* skip malformed junk */ }
+  }
+
   if (currentSyncId) {
     handleSyncIdEstablished(currentSyncId);
   } else {
@@ -211,34 +233,34 @@ export function setupHeaderScroll(): void {
 
 async function handleSyncIdEstablished(syncId: string): Promise<void> {
   currentSyncId = syncId;
-  localStorage.setItem(STORAGE_KEYS.SYNC_ID, syncId);
+  localStorage.setItem(STORAGE_KEYS.SYNC_ID, obfuscate(syncId));
   console.log('Sync ID active:', syncId);
 
-  const headerRight = document.getElementById('headerRight');
-  const userAlias = localStorage.getItem('tracker_username') || 'Arena User';
-  
-  if (headerRight) {
-    headerRight.innerHTML = `
-      <div class="user-info-group" style="display: flex; align-items: center; gap: 10px;">
-        <div id="headerUserAlias" class="alias-pill" style="display: flex; align-items: center; font-size: 0.75rem; background: #161821; padding: 6px 14px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: all 0.2s; font-weight: 800; color: #f8fafc;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="#a855f7" stroke="none" style="margin-right: 8px;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-          ${userAlias}
-        </div>
-        <div id="syncStatus" class="data-stream-active" style="display: flex; align-items: center; background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.3); padding: 6px 14px; border-radius: 24px; font-size: 0.7rem; font-weight: 800; color: #10b981; letter-spacing: 0.5px;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="#10b981" style="margin-right: 6px;"><path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-          Synced
-        </div>
-        <button class="btn btn-ghost" id="logoutBtn" style="display: flex; align-items: center; padding: 6px 14px; border-radius: 24px; font-size: 0.65rem; border: 1px solid rgba(239, 68, 68, 0.4); background: rgba(16, 18, 27, 0.5); color: #ef4444; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; cursor: pointer; transition: all 0.2s;">
-           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="3" style="margin-right: 6px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-           EXIT ARENA
-        </button>
-      </div>
-    `;
-    document.getElementById('logoutBtn')!.onclick = handleDisconnect;
+  // ☁️ CLOUD HYDRATION: Pull profile from Supabase so it "follows" the user to this device
+  try {
+    const { loadUserProfileCloud } = await import('./supabase.service');
+    const cloudProfile = await loadUserProfileCloud();
     
-    // Bind Identity Modal trigger
-    rebindAliasTrigger();
+    if (cloudProfile) {
+      const localProfile = {
+        displayName: cloudProfile.display_name,
+        age: cloudProfile.age,
+        nation: cloudProfile.nation,
+        avatar: cloudProfile.avatar
+      };
+      localStorage.setItem(STORAGE_KEYS.USER_PROFILE, JSON.stringify(localProfile));
+      localStorage.setItem('tracker_username', localProfile.displayName);
+      console.log(`✅ IDENTITY HYDRATED: Loaded @${localProfile.displayName} from cloud.`);
+      
+      // 📡 ALL TRACKER EVENT: Notify the rest of the Arena that identity is ready
+      window.dispatchEvent(new CustomEvent('all-tracker-identity-sync', { detail: localProfile }));
+    }
+  } catch (err) {
+    console.error('Failed to hydrate profile from cloud:', err);
   }
+
+  // Update header UI with latest profile info
+  updateHeaderProfileUI();
 
   // Hide modal
   const modal = document.getElementById('authModal');
@@ -246,6 +268,50 @@ async function handleSyncIdEstablished(syncId: string): Promise<void> {
 
   // Trigger sync
   await syncDataOnLogin();
+}
+
+/** Re-renders the header user pill with the latest avatar/handle from storage */
+export function updateHeaderProfileUI(): void {
+  const headerRight = document.getElementById('headerRight');
+  if (!headerRight) return;
+
+  const userAlias = localStorage.getItem('tracker_username') || 'Arena User';
+  const profileSaved = localStorage.getItem(STORAGE_KEYS.USER_PROFILE);
+  let avatarIcon = '👤';
+  
+  if (profileSaved) {
+    try {
+      const p = JSON.parse(profileSaved);
+      if (p.avatar) avatarIcon = p.avatar;
+    } catch(e) {}
+  }
+
+  const existingAlias = document.getElementById('headerUserAlias');
+  if (existingAlias) {
+    existingAlias.innerHTML = `
+      <div class="pilot-hud-avatar">${avatarIcon}</div>
+      <span>${userAlias}</span>
+    `;
+  } else {
+    headerRight.innerHTML = `
+      <div class="user-info-group" style="display: flex; align-items: center; gap: 12px;">
+        <div id="headerUserAlias" class="pilot-hud-pill">
+          <div class="pilot-hud-avatar">${avatarIcon}</div>
+          <span>${userAlias}</span>
+        </div>
+        <div id="syncStatus" class="data-stream-active" style="display: flex; align-items: center; background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.3); padding: 5px 14px; border-radius: 30px; font-size: 0.65rem; font-weight: 900; color: #10b981; letter-spacing: 1px; text-transform: uppercase;">
+          <div class="pulse-emerald" style="width: 6px; height: 6px; background: #10b981; border-radius: 50%; margin-right: 8px; box-shadow: 0 0 8px #10b981;"></div>
+          Live Ready
+        </div>
+        <button class="btn btn-ghost" id="logoutBtn" style="height: 32px; width: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.05); color: #ef4444; cursor: pointer; transition: all 0.2s;">
+           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
+      </div>
+    `;
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) logoutBtn.onclick = handleUserSignedOut;
+    rebindAliasTrigger();
+  }
 }
 
 function handleUserSignedOut(): void {
@@ -256,12 +322,13 @@ function handleUserSignedOut(): void {
   const headerRight = document.getElementById('headerRight');
   if (headerRight) {
     headerRight.innerHTML = `
-      <button class="btn btn-primary glow-blue" id="authTriggerBtn" style="font-size: 0.65rem; font-weight: 800; letter-spacing: 1px; padding: 6px 14px; display: flex; align-items: center; justify-content: center; gap: 6px; border-radius: 6px; height: 32px;">
+      <button class="btn btn-primary glow-blue" id="authTriggerBtn" style="font-size: 0.65rem; font-weight: 800; letter-spacing: 1px; padding: 6px 14px; display: flex; align-items: center; justify-content: center; gap: 6px; border-radius: 6px; height: 32px; background: #10b981; border: none; color: white;">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
         <span class="btn-text">LOGIN</span>
       </button>
     `;
-    document.getElementById('authTriggerBtn')!.onclick = openAuthModal;
+    const triggerBtn = document.getElementById('authTriggerBtn');
+    if (triggerBtn) triggerBtn.onclick = openAuthModal;
   }
 }
 
@@ -493,7 +560,6 @@ async function handleRegistrationSubmission(e: Event): Promise<void> {
 
   } catch (err) {
     console.error('Registration Error:', err);
-    /** Enforces "ALL Tracker" data validation rules */
     errorMsg.textContent = 'Initialization failed. Please try again later.';
     errorMsg.style.display = 'block';
     submitBtn.disabled = false;

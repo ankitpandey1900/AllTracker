@@ -1,50 +1,64 @@
 export const profileModal = `
   <div class="modal" id="profileSetupModal">
     <div class="modal-content" style="max-width: 440px;">
-      <div class="modal-header"
-        style="justify-content: flex-start; padding: 20px; border-bottom: 2px solid rgba(16, 185, 129, 0.2);">
-        <div class="passport-avatar" id="passportAvatar"
-          style="width: 45px; height: 45px; background: rgba(16, 185, 129, 0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #10b981; margin-right: 15px;">
-          👤</div>
-        <div class="passport-identity" style="display: flex; flex-direction: column;">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span class="passport-handle" id="displayHandle"
-              style="font-weight: 900; font-size: 1.1rem; color: #fff;">@new_participant</span>
-            <span id="verifiedBadge"
-              style="font-size: 0.6rem; background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(16, 185, 129, 0.2); font-weight: 900; letter-spacing: 0.5px;">VERIFIED</span>
+      <div class="modal-header" style="border: none; padding: 0;">
+        <div class="passport-header profile-passport-card" style="width: 100%; border-radius: 12px 12px 0 0; border-bottom: 1px solid rgba(16, 185, 129, 0.3);">
+          <div class="passport-avatar-box">
+            <div class="passport-avatar" id="passportAvatar">👤</div>
           </div>
-          <span class="passport-rank-badge" id="displayRank"
-            style="font-size: 0.7rem; color: #94a3b8; font-weight: 800; text-transform: uppercase;">UNRANKED •
-            PILOT</span>
+          <div class="passport-identity">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span class="passport-handle" id="displayHandle" style="font-weight: 900; font-size: 1.2rem; color: #fff; letter-spacing: -0.5px;">@User</span>
+              <span id="verifiedBadge" style="font-size: 0.6rem; background: rgba(16, 185, 129, 0.15); color: #10b981; padding: 3px 8px; border-radius: 4px; border: 1px solid rgba(16, 185, 129, 0.3); font-weight: 900; letter-spacing: 1px; text-transform: uppercase;">VERIFIED</span>
+            </div>
+            <div id="displayRank" style="font-size: 0.7rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; margin-top: 4px; letter-spacing: 1px;">
+              ALL TRACKER • SECTOR-7
+            </div>
+          </div>
+          <button id="closeProfileModal" class="modal-close" style="top: 20px; right: 20px; opacity: 0.7;">&times;</button>
         </div>
-        <button id="closeProfileModal" class="modal-close" style="top: 15px; right: 15px;">&times;</button>
       </div>
 
       <div class="modal-body" style="padding: 24px;">
         <div class="passport-form">
-          <div class="settings-group" style="margin-bottom: 25px;">
-            <label style="color: #10b981; letter-spacing: 2px;">SELECT PILOT ARCHETYPE</label>
-            <div id="avatarPickerGrid" class="avatar-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 12px; max-height: 250px; overflow-y: auto; padding: 5px;">
-              <div class="avatar-item active" data-avatar="👨‍🚀" title="The Astronaut">👨‍🚀</div>
-              <div class="avatar-item" data-avatar="🦸‍♂️" title="The Avenger">🦸‍♂️</div>
-              <div class="avatar-item" data-avatar="🦇" title="The Dark Knight">🦇</div>
-              <div class="avatar-item" data-avatar="🤖" title="The Automaton">🤖</div>
-              <div class="avatar-item" data-avatar="🦾" title="The Cyborg">🦾</div>
-              <div class="avatar-item" data-avatar="🚀" title="The Martian">🚀</div>
-              <div class="avatar-item" data-avatar="💻" title="The Terminal">💻</div>
-              <div class="avatar-item" data-avatar="📡" title="The Uplink">📡</div>
-              <div class="avatar-item" data-avatar="🔭" title="The Observer">🔭</div>
-              <div class="avatar-item" data-avatar="🧬" title="The Architect">🧬</div>
-              <div class="avatar-item" data-avatar="🥷" title="The Shinobi">🥷</div>
-              <div class="avatar-item" data-avatar="👺" title="The Oni">👺</div>
-              <div class="avatar-item" data-avatar="🍥" title="The Hokage">🍥</div>
-              <div class="avatar-item" data-avatar="🐉" title="The Shenron">🐉</div>
-              <div class="avatar-item" data-avatar="🌌" title="The Nebula">🌌</div>
-              <div class="avatar-item" data-avatar="🏏" title="The Batter">🏏</div>
-              <div class="avatar-item" data-avatar="⚽" title="The Striker">⚽</div>
-              <div class="avatar-item" data-avatar="🏀" title="The Hooper">🏀</div>
-              <div class="avatar-item" data-avatar="🥊" title="The Fighter">🥊</div>
-              <div class="avatar-item" data-avatar="🕶️" title="The Operative">🕶️</div>
+          <div class="settings-group" style="margin-bottom: 20px;">
+            <div id="toggleAvatarPickerBtn" class="btn btn-ghost" style="width: 100%; border: 1px dashed rgba(16, 185, 129, 0.4); justify-content: center; font-size: 0.65rem; color: #10b981; padding: 10px; margin-bottom: 5px;">
+              [ CHANGE PILOT ARCHETYPE ]
+            </div>
+            
+            <div id="avatarPickerContainer" style="display: none; height: 160px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 8px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05);">
+              <div id="avatarPickerGrid" class="avatar-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;">
+                <div class="avatar-item active" data-avatar="👨‍🚀" title="The Astronaut">👨‍🚀</div>
+                <div class="avatar-item" data-avatar="🥷" title="The Shinobi">🥷</div>
+                <div class="avatar-item" data-avatar="👺" title="The Oni">👺</div>
+                <div class="avatar-item" data-avatar="💻" title="The Terminal">💻</div>
+                <div class="avatar-item" data-avatar="🛸" title="The UFO">🛸</div>
+                <div class="avatar-item" data-avatar="👾" title="The Invader">👾</div>
+                <div class="avatar-item" data-avatar="🪐" title="The Saturn">🪐</div>
+                <div class="avatar-item" data-avatar="🛰️" title="The Satellite">🛰️</div>
+                <div class="avatar-item" data-avatar="🖥️" title="The Monitor">🖥️</div>
+                <div class="avatar-item" data-avatar="⌨️" title="The Keyboard">⌨️</div>
+                <div class="avatar-item" data-avatar="💾" title="The Disk">💾</div>
+                <div class="avatar-item" data-avatar="🕸️" title="The Web">🕸️</div>
+                <div class="avatar-item" data-avatar="🧪" title="The Alchemist">🧪</div>
+                <div class="avatar-item" data-avatar="🧬" title="The Architect">🧬</div>
+                <div class="avatar-item" data-avatar="🧿" title="The Guardian">🧿</div>
+                <div class="avatar-item" data-avatar="🔮" title="The Oracle">🔮</div>
+                <div class="avatar-item" data-avatar="🌋" title="The Volcano">🌋</div>
+                <div class="avatar-item" data-avatar="⚡" title="The Kinetic">⚡</div>
+                <div class="avatar-item" data-avatar="🦾" title="The Cyborg">🦾</div>
+                <div class="avatar-item" data-avatar="🤖" title="The Automaton">🤖</div>
+                <div class="avatar-item" data-avatar="🦇" title="The Bat">🦇</div>
+                <div class="avatar-item" data-avatar="🎭" title="The Actor">🎭</div>
+                <div class="avatar-item" data-avatar="🐉" title="The Dragon">🐉</div>
+                <div class="avatar-item" data-avatar="🌌" title="The Nebula">🌌</div>
+                <div class="avatar-item" data-avatar="🕶️" title="The Operative">🕶️</div>
+                <div class="avatar-item" data-avatar="🍥" title="The Hokage">🍥</div>
+                <div class="avatar-item" data-avatar="🦸‍♂️" title="The Avenger">🦸‍♂️</div>
+                <div class="avatar-item" data-avatar="🚀" title="The Rocket">🚀</div>
+                <div class="avatar-item" data-avatar="📡" title="The Uplink">📡</div>
+                <div class="avatar-item" data-avatar="🔭" title="The Observer">🔭</div>
+              </div>
             </div>
           </div>
           <div class="settings-group">

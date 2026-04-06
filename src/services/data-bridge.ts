@@ -58,20 +58,44 @@ export async function saveTrackerDataToStorage(data: TrackerDay[]): Promise<void
 
 // ─── Settings ────────────────────────────────────────────────
 
+import { obfuscate, deobfuscate } from '@/utils/security';
+
 function setSettings(settings: Settings, pushToCloud = true): void {
-  localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
+  // Vault Masking: Obfuscate sensitive keys before saving to local disk
+  const securedSettings = { 
+    ...settings, 
+    groqApiKey: settings.groqApiKey ? obfuscate(settings.groqApiKey) : '' 
+  };
+  
+  localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(securedSettings));
+  
   if (pushToCloud && isAuthenticated()) {
-    saveSettingsCloud(settings);
+    saveSettingsCloud(settings); // Cloud gets the raw key for processing
   }
 }
 
 export async function loadSettingsFromStorage(): Promise<Settings | null> {
   if (isAuthenticated()) {
     const cloud = await loadSettingsCloud();
-    if (cloud) { setSettings(cloud, false); return cloud; }
+    if (cloud) { 
+      setSettings(cloud, false); 
+      return cloud; 
+    }
   }
+  
   const saved = localStorage.getItem(STORAGE_KEYS.SETTINGS);
-  if (saved) { try { return JSON.parse(saved); } catch { return null; } }
+  if (saved) { 
+    try { 
+      const settings = JSON.parse(saved) as Settings;
+      // Vault Unmasking: Deobfuscate sensitive keys for runtime use
+      if (settings.groqApiKey) {
+        settings.groqApiKey = deobfuscate(settings.groqApiKey);
+      }
+      return settings;
+    } catch { 
+      return null; 
+    } 
+  }
   return null;
 }
 
@@ -260,7 +284,7 @@ export async function syncDataOnLogin(): Promise<void> {
         displayName: cloudProfile.display_name,
         age: cloudProfile.age,
         nation: cloudProfile.nation,
-        syncId: cloudProfile.sync_id
+        avatar: cloudProfile.avatar
       };
       localStorage.setItem(STORAGE_KEYS.USER_PROFILE, JSON.stringify(userProfile));
       localStorage.setItem('tracker_username', userProfile.displayName);

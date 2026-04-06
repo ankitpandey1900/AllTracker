@@ -1,0 +1,51 @@
+# 🚀 All Tracker: Pilot Manual
+
+Yo! If you're reading this, you've been recruited into **All Tracker**. This isn't just a habit tracker—it's a clinical command center designed for high-stakes focus and elite consistency.
+
+---
+
+## 👺 Identity System
+Your identity is your legacy in the Arena. 
+
+1.  **Pilot Handle**: Secure a unique `@handle` that represents your presence on the World Stage.
+2.  **Archetype Hangar**: Choose from 30+ out-of-the-box archetypes (Oni 👺, Astronaut 👨‍🚀, UFO 🛸, and more) to find your visual signature.
+3.  **Pilot Passport**: Access your compact HUD via the header to track your live rank, total focus hours, and secure your identity key.
+
+## 🎖️ World Stage & Global Ranking
+The World Stage is where your progress meets the global Arena. 
+
+-   **Zenith Leveling Engine**: Earn **1 Level for every 10 Study Hours**. You start as a **Level 1 Recruit**. 
+-   **Dynamic Titles**: Your title evolves as you conquer more hours:
+    -   **0 - 10h**: RECRUIT 🛡️
+    -   **10 - 30h**: CADET 🛰️
+    -   **30 - 70h**: PILOT 🛸
+    -   **70 - 150h**: OFFICER 🛡️
+    -   **150 - 300h**: COMMANDER 🎖️
+    -   **300 - 600h**: CAPTAIN 👨‍✈️
+    -   **600 - 1200h**: VETERAN 🥇
+    -   **1200 - 2500h**: ELITE 💠
+    -   **2500 - 5000h**: LEGEND 👑
+    -   **5000 - 10000h**: ETERNAL ✨
+    -   **10000 - 20000h**: DEITY 🌌
+    -   **20000h+**: SINGULARITY 🕳️
+-   **Medal Podiums**: The top 3 pilots on the leaderboard are clinical earners of the **🥇 Gold, 🥈 Silver, and 🥉 Bronze** medals.
+
+## 🛡️ Cloud Hydration (The Vault)
+Your identity is cloud-first. 
+
+-   **Secret Key**: Your Zenith ID is anchored to a unique Secret Key (`v1_esc_...`).
+-   **Cross-Device Sync**: Use your Secret Key to reclaim your handle, archetype, and study history on any device instantly.
+-   **Vault Security**: All sensitive mission data is masked and stored in the **Zenith Vault** for maximum operational privacy.
+
+## 🌒 Midnight Mission Protocol
+Never lose a minute to the clock. If you start a session at 11:45 PM and finish at 12:15 AM:
+-   The system **mathematically splits** your time.
+-   15 minutes go to "Yesterday" and 15 minutes go to "Today."
+-   Your **Notes** are copied to both days automatically, ensuring 100% data integrity.
+
+## 🤝 Maamu AI Strategy
+If you're stuck or losing focus, consult the **Maamu AI**. Maamu is your personal strategy coach, built to provide tactical analysis on your routines and provide "Beast Mode" motivation when you need it most.
+
+---
+
+**Victory is earned in the silence of deep work.** 🛸🔥

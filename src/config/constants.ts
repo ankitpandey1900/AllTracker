@@ -129,16 +129,17 @@ export const BOOKMARK_CATEGORIES = [
 // ─── Rank System Tiers ───────────────────────────────────────
 
 export const RANK_TIERS = [
-  { name: 'IRON',        min: 0,    max: 50,     color: '#71717a' },
-  { name: 'BRONZE',      min: 50,   max: 150,    color: '#a85d44' },
-  { name: 'SILVER',      min: 150,  max: 350,    color: '#94a3b8' },
-  { name: 'GOLD',        min: 350,  max: 650,    color: '#fbbf24' },
-  { name: 'PLATINUM',    min: 650,  max: 1050,   color: '#2dd4bf' },
-  { name: 'DIAMOND',     min: 1050, max: 1650,   color: '#60a5fa' },
-  { name: 'MASTER',      min: 1650, max: 2450,   color: '#c084fc' },
-  { name: 'GRANDMASTER', min: 2450, max: 3450,   color: '#f43f5e' },
-  { name: 'CHALLENGER',  min: 3450, max: 5000,   color: '#fb923c' },
-  { name: 'ETERNAL',     min: 5000, max: 100000, color: '#ffffff' },
+  { name: 'IRON',        min: 0,     max: 50,     color: '#71717a' },
+  { name: 'BRONZE',      min: 50,    max: 200,    color: '#a85d44' },
+  { name: 'SILVER',      min: 200,   max: 500,    color: '#94a3b8' },
+  { name: 'GOLD',        min: 500,   max: 1000,   color: '#fbbf24' },
+  { name: 'PLATINUM',    min: 1000,  max: 1750,   color: '#2dd4bf' },
+  { name: 'DIAMOND',     min: 1750,  max: 3000,   color: '#60a5fa' },
+  { name: 'MASTER',      min: 3000,  max: 5000,   color: '#c084fc' },
+  { name: 'ETERNAL',     min: 5000,  max: 9000,   color: '#ffffff' },
+  { name: 'ASCENDED',    min: 9000,  max: 14000,  color: '#ef4444' },
+  { name: 'DEITY',       min: 14000, max: 20000,  color: '#f97316' },
+  { name: 'SINGULARITY', min: 20000, max: 500000, color: '#000000' },
 ] as const;
 
 export const TIER_TITLES: Record<string, string[]> = {
@@ -149,9 +150,10 @@ export const TIER_TITLES: Record<string, string[]> = {
   PLATINUM:    ['Algorithm Apprentice', 'Byte Architect', 'Vector Virtuoso', 'Kernel Knight', 'Stack Sovereign'],
   DIAMOND:     ['Binary Baron', 'Source Seer', 'Neural Nomad', 'Cloud Commander', 'The Singularity'],
   MASTER:      ['Digital Deity', 'Universal Uplink', 'Source Code Supreme', 'Data Druid', 'Memory Monarch'],
-  GRANDMASTER: ['Reality Rewriter', 'Protocol Paladin', 'V8 Vanguard', 'Silicon Sovereign', 'Quantum Master'],
-  CHALLENGER:  ['Kernel Overlord', 'Transcendent Architect', 'System Sage', 'Binary Wraith', 'God-Tier Dev'],
   ETERNAL:     ['ETERNAL ARCHITECT', 'THE SOURCE', 'CONSTRUCTOR OF WORLDS', 'OMNIPRESENT LOGIC', 'LIMITLESS'],
+  ASCENDED:    ['VOID WALKER', 'DIMENSIONAL CODER', 'REALITY SHAPER', 'QUANTUM SYNC', 'IMMORTAL LOGIC'],
+  DEITY:       ['THE ARCHITECT', 'UNIVERSE COMPILED', 'GOD-MODE ACTIVE', 'CORE OF CREATION', 'OMEGA'],
+  SINGULARITY: ['POINT ZERO', 'THE ABSOLUTE', 'BEYOND TIME', 'ONE WITH THE CODE', 'NULL POINTER GOD'],
 };
 
 // ─── Field Mappings ──────────────────────────────────────────

@@ -89,9 +89,37 @@ export async function stopTimer(): Promise<void> {
   const note = await showSessionNoteModal();
 
   try {
-    if (totalHours > 0 && appState.activeTimer.category !== null) {
-      saveSessionToToday(parseInt(appState.activeTimer.category), totalHours, note);
-      showToast(`Session saved: ${formatMsToTime(totalElapsed)}`, 'success');
+    if (totalElapsed > 0 && appState.activeTimer.category !== null) {
+      const colIdx = parseInt(appState.activeTimer.category);
+      const sessionStart = appState.activeTimer.sessionStartClock ? new Date(appState.activeTimer.sessionStartClock) : new Date();
+      const sessionEnd = new Date();
+      
+      // Determine if session crossed midnight
+      const startDayStr = sessionStart.toISOString().split('T')[0];
+      const endDayStr = sessionEnd.toISOString().split('T')[0];
+
+      if (startDayStr !== endDayStr) {
+        // CROSS-MIDNIGHT SPLIT
+        const midnight = new Date(sessionEnd);
+        midnight.setHours(0, 0, 0, 0);
+
+        const msBefore = midnight.getTime() - sessionStart.getTime();
+        const msAfter = sessionEnd.getTime() - midnight.getTime();
+
+        const hoursBefore = Math.max(0, msBefore / (1000 * 60 * 60));
+        const hoursAfter = Math.max(0, msAfter / (1000 * 60 * 60));
+
+        // Save part 1 (Start Day)
+        saveSessionToDate(colIdx, hoursBefore, note, sessionStart);
+        // Save part 2 (End Day)
+        saveSessionToDate(colIdx, hoursAfter, note, sessionEnd);
+
+        showToast(`Midnight Split: ${hoursBefore.toFixed(2)}h (Yesterday) + ${hoursAfter.toFixed(2)}h (Today)`, 'success');
+      } else {
+        // NORMAL SAVE
+        saveSessionToDate(colIdx, totalHours, note, sessionEnd);
+        showToast(`Session saved: ${formatMsToTime(totalElapsed)}`, 'success');
+      }
     }
   } catch (error) {
     console.error('Error saving session:', error);
@@ -171,26 +199,26 @@ async function showSessionNoteModal(): Promise<string> {
 
 // ─── Session Save ────────────────────────────────────────────
 
-function saveSessionToToday(colIdx: number, hoursToAdd: number, note: string = ''): void {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+function saveSessionToDate(colIdx: number, hoursToAdd: number, note: string = '', targetDate: Date): void {
+  const target = new Date(targetDate);
+  target.setHours(0, 0, 0, 0);
 
-  let todayIndex = -1;
+  let targetIndex = -1;
   for (let i = 0; i < appState.trackerData.length; i++) {
     const d = new Date(appState.trackerData[i].date);
     d.setHours(0, 0, 0, 0);
-    if (d.getTime() === today.getTime()) {
-      todayIndex = i;
+    if (d.getTime() === target.getTime()) {
+      targetIndex = i;
       break;
     }
   }
 
-  if (todayIndex === -1) {
-    showToast('Could not find today in tracker data.', 'error');
+  if (targetIndex === -1) {
+    console.warn(`[Timer] Could not find date ${targetDate.toDateString()} in tracker data.`);
     return;
   }
 
-  const day = appState.trackerData[todayIndex];
+  const day = appState.trackerData[targetIndex];
   const fixed = (n: number) => parseFloat(n.toFixed(2));
 
   if (!Array.isArray(day.studyHours)) day.studyHours = [];
@@ -241,8 +269,8 @@ function saveSessionToToday(colIdx: number, hoursToAdd: number, note: string = '
   renderPerformanceCurve();
   syncProfileBroadcast();
 
-  // Highlight row
-  const row = document.querySelector(`tr[data-day="${todayIndex}"]`) as HTMLElement;
+  // Highlight row (using End Date context for UI visual)
+  const row = document.querySelector(`tr[data-day="${targetIndex}"]`) as HTMLElement;
   if (row) {
     row.scrollIntoView({ behavior: 'smooth', block: 'center' });
     row.classList.add('highlight-update');
@@ -315,7 +343,7 @@ function updateSessionProgress(elapsedSeconds: number): void {
   const circle = document.querySelector('.progress-ring__circle') as SVGCircleElement | null;
   if (!circle) return;
 
-  const radius = 120;
+  const radius = 130;
   const circumference = radius * 2 * Math.PI;
 
   circle.style.strokeDasharray = `${circumference} ${circumference}`;

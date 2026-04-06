@@ -23,11 +23,11 @@
   background: rgba(13, 17, 23, 0.72);
   backdrop-filter: blur(14px) saturate(180%);
   box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-  animation: zenith-pop-in 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: all-tracker-pop-in 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
 }
 
-@keyframes zenith-pop-in {
+@keyframes all-tracker-pop-in {
   from { opacity: 0; transform: scale(0.96) translateY(10px); }
   to { opacity: 1; transform: scale(1) translateY(0); }
 }

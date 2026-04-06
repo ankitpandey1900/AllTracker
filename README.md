@@ -1,158 +1,59 @@
 <div align="center">
-  <h1>🌌 All Tracker — Eternity Edition</h1>
-  <p><strong>The ultimate, data-driven command center for mastering development, routines, and deep focus.</strong></p>
+  <img src="/logo.png" width="100" height="100" alt="All Tracker Logo">
+  <h1>🌌 All Tracker — Zenith Arena</h1>
+  <p><strong>I built the ultimate command center for mastering development and deep focus. No more boring habit trackers.</strong></p>
+  <p>
+    <img src="https://img.shields.io/badge/Vibe%20Code-Vibe%20Only-blueviolet?style=flat-square" alt="Vibe Coded">
+    <img src="https://img.shields.io/badge/Vault-Hardened-emerald?style=flat-square" alt="Vault Hardened">
+    <img src="https://img.shields.io/badge/AI%20Brain-Groq-orange?style=flat-square" alt="AI Brain">
+  </p>
 </div>
 
 ---
 
-## 🎯 Overview
+## 🚀 Why I built All Tracker?
+Yo! I was tired of tracking my habits in boring spreadsheets or basic apps. I wanted something that felt like a **Mission Control**—something cool that actually motivated me to grind. So, I built the **Zenith Arena**. 
 
-**All Tracker (Eternity Edition)** is a premium, highly-modular web application engineered to transform your programming and learning journey into a quantifiable, immersive experience. Configured for a **354-day focus sprint** (January 13, 2026 – December 31, 2026), it merges habit tracking, advanced data visualization, deep-work timers, and cloud synchronization into a single, cohesive dashboard featuring a "Neon Space" glassmorphic aesthetic.
-
----
-
-## 🚀 Core Features
-
-### 1. 📊 The Pinnacle Dashboard & Study Log
-- **Bento-Grid Command Center:** A meticulously centered, sleek dashboard tracking your real-time total hours, completion percentage, active streaks, and Study Heatmap.
-- **Dynamic Rank & World Standing:** Automatically calculates your XP (100 XP/hr) and assigns you 10 dynamic Tiers. It also projects your **Absolute World Ranking** (from #40,000,000 down to #1) to visualize your global climb.
-- **Intelligent Feedback Loop:** Displays live, dynamic messages that taunt you if you are falling behind your pacing schedule or praise your discipline when you pull ahead.
-- **Interactive Daily Tracker:** A massive, searchable main table to log daily hours across customizable columns (e.g., Python, DSA, Project), Topics, and Problems Solved.
-
-### 2. 🦾 Mission Control (Daily Tasks)
-- **Granular Milestone Tracking:** Manage specific daily study objectives (e.g., "Complete React Hooks Lec") that sit outside your recurring routines.
-- **24-Hour Backlog System:** Incomplete tasks are automatically shifted into a dedicated **Backlog** after 24 hours, ensuring no objective is ever forgotten.
-- **Auto-Cleanup Engine:** To keep your dashboard high-performance, completed tasks in the history are automatically purged after 3 days.
-
-### 3. 🧠 Dual-Metric Analytics Engine
-- **Study Output Trends:** Interactive Line Charts plotting your Study Hours against Problems Solved over a 21-day moving window.
-- **Arena Skill Radar:** Multi-dimensional Radar Charts mapping out your Focus, Discipline, Output, Endurance, and Subject Versatility.
-- *Analytics are integrated into both the Dashboard and the Routine check-in panes, utilizing Chart.js.*
-
-### 4. 🎯 Deep Focus HUD & Timer
-- **Immersion Mode:** A distraction-free modal timer with session logging, automated break calculations, and dynamic background animations to keep you locked in.
-- **Session History:** Automatically logs your completed focus sessions (Date, Category, Duration) directly to the Cloud/Local Storage.
-
-### 5. 📝 Routine Command Center
-- **Premium Checklist:** A sleek daily habit tracker featuring native glassmorphic checkboxes, hover-reveal actions, and real-time completion tracking (dimming text & strike-throughs).
-- **Daily Performance Chart:** Visualizes your consistency against your target output for immediate accountability.
-
-### 6. 🤖 Maamu AI Mentor (Intelligence)
-- **High-Fidelity Coaching:** A context-aware AI mentor that analyzes your study patterns and provides personalized, actionable guidance on your progress.
-- **Markdown Chat Interface:** Richly formatted conversation experience (bolding, lists, code) leveraging the powerful Groq API for near-instant responses.
-- **Arena Integration:** Ties directly into your tracking data to reference your current rank, overall hours, and focus metrics during coaching sessions.
-
-### 7. 📚 Integrated Bookmark Vault
-- **Actionable Repository:** Save your essential learning links, organized by technical category tags (e.g., Frontend, Backend, Tooling, Docs).
-- **Category Filtering:** Quickly isolate and retrieve relevant resources using the new interactive Category Filter Pills.
-
-### 8. 💎 Eternity Feature Suite (Version Update)
-- **Streak Freeze (Snowflake):** Protect your long-term consistency by manually flagging "Rest Days" in the tracker table, preventing streak decay without inflating hours.
-- **Mission Alert System:** A dual-mode notification engine.
-  - **The 8:00 PM Check:** Automatically triggers if no study hours have been logged for the current day.
-  - **15-Min Precision Alert:** Dispatches a "Mission Alert" exactly 15 minutes before any uncompleted routine item.
-- **Tactical Priority Control:** High (🔴), Medium (🟡), and Low (🟢) priority management for all Mission Control objectives.
-- **Auto-Sync Reflection:** Stop-timer flows now capture session notes that automatically propagate to both your **Session History** and the **Daily Topics** column.
-- **Archival Date Filtering:** A precision-engineered filter in the History modal for instantaneous retrieval of past session metrics.
-
-### 9. ☁️ Architecture & Data Synchronization
-- **Zero-Latency State:** Utilizes a custom global `appState` pattern with zero framework overhead.
-- **Hybrid Storage:** Combines millisecond-fast browser `localStorage` with bulletproof cloud synchronization via **Supabase**.
-- **Data Portability:** Full support for bulk Data Import/Export using both structured JSON and CSV formats.
+It’s got that "Neon Space" aesthetic, deep-work analytics, and even an AI Mentor (Maamu) who actually understands my progress and pushes me to win.
 
 ---
 
-## 📂 Project Architecture & File Structure
+## 🔥 All Tracker's Power Moves
 
-The project was completely re-architected from a massive monolithic `script.js` into a highly maintainable, component-driven **TypeScript** structure securely orchestrated via **Vite**.
+### 🤖 Maamu AI (My Strategist)
+- **AI Coach**: Maamu analyzes my study data and tells me the absolute truth. 
+- **Beast Mode**: A toggle that shifts the AI persona to a "No Mercy" commander for when I'm feeling lazy. 
 
-```text
-📦 all-tracker
- ┣ 📂 public/              # Static assets and icons
- ┣ 📂 src/                 # Application Source Code
- ┃ ┣ 📂 config/            # Constants, Configs, Rank Definitions, Targets
- ┃ ┣ 📂 features/          # Modularized Component Logic
- ┃ ┃ ┣ 📂 bookmarks/       # Bookmark Vault (Filtering & Rendering)
- ┃ ┃ ┣ 📂 dashboard/       # Main Dashboard UI, Rank/XP calculation, and Study Analytics
- ┃ ┃ ┣ 📂 deadline/        # Countdown timer logic
- ┃ ┃ ┣ 📂 export/          # JSON and CSV export serializers
- ┃ ┃ ┣ 📂 heatmap/         # GitHub-style activity contribution graphs
- ┃ ┃ ┣ 📂 import/          # File parsing and data restoration logic
- ┃ ┃ ┣ 📂 intelligence/    # Maamu AI Mentor conversational interface
- ┃ ┃ ┣ 📂 notifications/   # Mission Alert Engine (Routine & Daily reminders)
- ┃ ┃ ┣ 📂 routines/        # Routine checklist UI + Radar/Performance Chart Engines
- ┃ ┃ ┣ 📂 settings/        # App Configuration, Cloud Keys, Custom Column mapping
- ┃ ┃ ┣ 📂 shortcuts/       # Global Keyboard Interceptors + Quick Entry Modal
- ┃ ┃ ┣ 📂 tasks/           # Mission Control (Daily tasks & Backlog logic)
- ┃ ┃ ┣ 📂 timer/           # Focus HUD logic, setInterval engines, session tracking
- ┃ ┃ ┗ 📂 tracker/         # Core 354-day Table generation & Search engines
- ┃ ┣ 📂 services/          # External APIs & Storage
- ┃ ┃ ┣ 📜 auth.service.ts  # Sync ID handling & initialization
- ┃ ┃ ┣ 📜 data-bridge.ts   # Local Storage interceptors & serializers
- ┃ ┃ ┣ 📜 groq.service.ts  # Groq AI integration for Maamu Mentor
- ┃ ┃ ┣ 📜 identity.service.ts # System identity and user tracking logic
- ┃ ┃ ┣ 📜 integrity.ts     # Application integrity and anti-tamper logic
- ┃ ┃ ┗ 📜 supabase.service.ts # Cloud synchronization logic
- ┃ ┣ 📂 state/             # Global Application Memory
- ┃ ┃ ┗ 📜 app-state.ts     # The central Source of Truth (AppState interface)
- ┃ ┣ 📂 styles/            # CSS Architecture
- ┃ ┃ ┣ 📂 components/      # Specific layout files (dashboard.css, base.css, etc.)
- ┃ ┃ ┗ 📜 main.css         # CSS Entry point importing all modules
- ┃ ┣ 📂 types/             # TypeScript Type Definitions (.d.ts)
- ┃ ┣ 📂 utils/             # Helper Functions
- ┃ ┃ ┣ 📜 date.utils.ts    # Date math & formatting
- ┃ ┃ ┗ 📜 dom.utils.ts     # DOM manipulation & Toast notification helpers
- ┃ ┣ 📜 main.ts            # Application Entry Point & Bootstrapper
- ┃ ┗ 📜 vite-env.d.ts      # Vite type declarations
- ┣ 📜 index.html           # Main markup structure (Single Page Application)
- ┣ 📜 package.json         # Build scripts & dependencies (Vite, TypeScript, Chart.js)
- ┣ 📜 tsconfig.json        # TypeScript compiler configuration
- ┗ 📜 README.md            # This documentation file
-```
+### 📊 The Arena Dash (Mission Control)
+- **World Rank**: I can see my climb from #40M down to #1 as I earners XP (100 XP per hour). 
+- **The Glow**: Everything is built with Vanilla CSS for that ultra-sharp glassmorphism vibe. 
+
+### 🛡️ The Zenith Vault (My Security)
+- **No Leaks**: I’ve built a custom masking layer (v1_esc_) to hide IDs and API keys. No secrets exposed! 
+- **Cloud Sync**: All my data is synced between local stuff and Supabase, so it’s always safe.
 
 ---
 
-## 🎨 UI/UX & Aesthetics
+## ✈️ Quickstart (Try it out!)
 
-- **Eternity Arena Theme:** A meticulously curated deep "neon space" aesthetic heavily reliant on `#0a0f1e` backgrounds intersected with `#6c87ff` (Blue) and `#25bd84` (Green) neon assertions.
-- **Infinity Sharpness:** Standardized 12px squircle geometry, high-contrast borders, and high-performance SVG iconography.
-- **Glassmorphism:** Generous use of translucent, backdrop-blurred cards combined with sub-pixel white borders `rgba(255, 255, 255, 0.05)` to establish depth and hierarchy.
-- **Precision Typography:**
-  - **Headers & Technical Data:** [Tektur](https://fonts.google.com/specimen/Tektur) for an aggressive, futuristic edge.
-  - **Grids & Paragraphs:** [Outfit](https://fonts.google.com/specimen/Outfit) for unparalleled readability during long study sessions.
-
----
-
-## ⚙️ Tech Stack & Setup
-
-**Core Dependencies:**
-- Vanilla HTML5 + CSS3 (No bulky UI components—100% bespoke CSS design system).
-- TypeScript for type safety and intelligence.
-- [Vite](https://vitejs.dev/) for instantaneous HMR and optimized building.
-- [Chart.js](https://www.chartjs.org/) for data visualization.
-- [Supabase](https://supabase.com/) for PostgreSQL backend and edge-function syncing.
-
-### Local Development Setup
-1. **Clone & Install:**
+1. **Grab the code**
    ```bash
    git clone https://github.com/ankitpandey1900/Tracker.git
-   cd all-tracker
-   npm install
+   cd all-tracker && npm install
    ```
-2. **Setup Cloud Credentials (Optional but Recommended):**
-   - Create a `.env` file in the root based on `.env.example`.
-   - Add your Supabase `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
-3. **Launch the Engine:**
+2. **Blast Off**
    ```bash
    npm run dev
    ```
-   The commanding dash will be available at `http://localhost:5173`.
-4. **Compile to Production:**
-   ```bash
-   npm run build
-   ```
+3. **Open the Arena**
+   Visit `http://localhost:5173` and start your mission.
 
 ---
 
-*“To achieve the impossible, you must measure the unseen.”* — Welcome to the Eternity Edition.
+## 🛠️ For the Architects
+If you’re a developer like me and want to see how this works or contribute, check out the **`/docs`** folder:
+- **[A Beginner's Guide to All Tracker](./docs/guide.md)**: Start here!
+- **[How I built the Engine](./docs/development.md)**: Deep dive into the logic.
+- **[The Map of Everything](./docs/structure.md)**: Folder tree and data flow.
 
+**Let's win.** 🛸🔥

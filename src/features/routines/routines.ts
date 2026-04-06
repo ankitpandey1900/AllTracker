@@ -114,6 +114,9 @@ function toggleRoutine(id: number): void {
   const item = appState.routines.find((r) => r.id === id);
   if (!item) return;
 
+  // Toggle completion status
+  item.completed = !item.completed;
+
   const todayStr = new Date().toISOString().split('T')[0];
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
@@ -122,6 +125,7 @@ function toggleRoutine(id: number): void {
   if (!appState.routineHistory[todayStr]) appState.routineHistory[todayStr] = 0;
 
   if (item.completed) {
+    // Increment completed count for today
     appState.routineHistory[todayStr]++;
     
     // Streak logic
@@ -132,12 +136,16 @@ function toggleRoutine(id: number): void {
     }
     item.lastCompletedIso = todayStr;
   } else {
+    // Decrement completed count for today
     appState.routineHistory[todayStr] = Math.max(0, appState.routineHistory[todayStr] - 1);
     // We don't strictly reset streak on uncheck within the same day, 
     // to allow accidental toggle correction.
   }
 
+  // Save changes
+  saveRoutinesToStorage(appState.routines);
   saveRoutineHistoryToStorage(appState.routineHistory);
+
   renderRoutine();
   updateDashboard(); // Refresh "Up Next"
   renderPerformanceCurve();

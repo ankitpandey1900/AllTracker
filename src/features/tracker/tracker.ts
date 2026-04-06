@@ -235,6 +235,24 @@ function handleRestDayToggle(e: Event): void {
   if (idx < 0) return;
 
   const day = appState.trackerData[idx];
+  
+  // Validation: Only 4 rest days allowed in a rolling 30-day window
+  if (!day.restDay) {
+    const targetDate = new Date(day.date);
+    const thirtyDaysAgo = new Date(targetDate);
+    thirtyDaysAgo.setDate(targetDate.getDate() - 30);
+
+    const count = appState.trackerData.filter(d => {
+      const dDate = new Date(d.date);
+      return d.restDay && dDate >= thirtyDaysAgo && dDate <= targetDate;
+    }).length;
+
+    if (count >= 4) {
+      showToast('Integrity Alert: Maximum 4 legacy freezes allowed per 30-day cycle.', 'error');
+      return;
+    }
+  }
+
   day.restDay = !day.restDay;
   
   if (day.restDay) {

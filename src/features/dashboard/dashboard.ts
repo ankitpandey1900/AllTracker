@@ -11,7 +11,7 @@
 import { appState } from '@/state/app-state';
 import { RANK_TIERS, TIER_TITLES, CATEGORY_COLORS } from '@/config/constants';
 import { setTxt } from '@/utils/dom.utils';
-import { renderIntelligenceBriefing } from '@/features/intelligence/intelligence.ui';
+import { renderIntelligenceBriefing } from '@/features/intelligence/intelligence';
 import { formatDate, formatDateDMY, formatTime12h } from '@/utils/date.utils';
 import type { RankDetails } from '@/types/tracker.types';
 import { renderStudyAnalytics } from './study-analytics';
@@ -21,11 +21,20 @@ const formatNum = (num: number) => new Intl.NumberFormat().format(num);
 // ─── XP & Level System ───────────────────────────────────────
 
 function calculateXP(totalHours: number): { xp: number; level: number; nextLevelXP: number; progress: number } {
-  const xp = Math.round(totalHours * 100);
-  const level = Math.floor(xp / 1000);
-  const xpInLevel = xp % 1000;
-  const progress = (xpInLevel / 1000) * 100;
-  return { xp, level, nextLevelXP: 1000 - xpInLevel, progress };
+  // 🛰️ All Tracker Leveling Engine: 1 Level = 10 Study Hours
+  const level = Math.floor(totalHours / 10) + 1;
+  const hoursIntoLevel = totalHours % 10;
+  const progress = (hoursIntoLevel / 10) * 100;
+  
+  // XP is purely cosmetic (1000 XP = 1 Level)
+  const totalXP = Math.round(totalHours * 100);
+  
+  return { 
+    xp: totalXP, 
+    level, 
+    nextLevelXP: 1000 - (totalXP % 1000), 
+    progress 
+  };
 }
 
 // ─── Focus HUD Management ────────────────────────────────────

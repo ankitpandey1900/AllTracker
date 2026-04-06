@@ -49,11 +49,11 @@ export const manualModal = `
           <!-- INTRODUCTION -->
           <section class="docs-section" id="doc-intro">
             <div class="docs-breadcrumb">Getting Started › Introduction</div>
-            <h1 class="docs-h1">ALL Tracker</h1>
-            <p class="docs-lead">A professional, self-hosted study command center built for serious learners. Track every hour, visualize your growth, compete globally, and protect your data with secure cloud sync.</p>
+            <h1 class="docs-h1">All Tracker</h1>
+            <p class="docs-lead">An elite, clinical study command center built for high-stakes focus. Track every hour, visualize your growth, compete globally on the World Stage, and secure your legacy in the All Tracker Vault.</p>
             <div class="docs-callout docs-callout-info">
-              <div class="docs-callout-title">📌 What is ALL Tracker?</div>
-              <p>ALL Tracker is a full-featured productivity application designed to track multi-category study hours over a defined date range. It includes a real-time Focus Timer, Routine Checklist, Analytics Engine, Global Leaderboard, and a secure cloud sync system backed by Supabase.</p>
+              <div class="docs-callout-title">🛰️ What is All Tracker?</div>
+              <p>All Tracker is a premium productivity platform designed to track deep-focus study hours across a defined mission range. It features a tactical Focus Timer, Pilot Identity system, Global World Stage, and a secure cloud-first sync system backed by Supabase.</p>
             </div>
           </section>
 
@@ -105,13 +105,13 @@ export const manualModal = `
             <h2 class="docs-h2">Authentication</h2>
             <p>ALL Tracker uses a two-layer identity system: a public <strong>User ID</strong> (your display name in the Arena) and a private <strong>Vault Key</strong> (your password).</p>
 
-            <h3 class="docs-h3">Register</h3>
+            <h3 class="docs-h3">Secure Your Identity</h3>
             <ol class="docs-ol">
               <li>Click <strong>LOGIN</strong> → Switch to the <strong>Register</strong> tab.</li>
-              <li>Enter a unique <strong>User ID</strong> — this becomes your permanent public handle. Choose carefully; it cannot be changed.</li>
-              <li>Enter a <strong>Vault Key</strong> (minimum 6 characters). This is your private password.</li>
-              <li>Fill in your <strong>Age</strong> and <strong>Nation</strong> for the leaderboard.</li>
-              <li>Click <strong>INITIALIZE IDENTITY</strong>. A <strong>12-character Recovery Key</strong> is generated and shown. <em>Save it somewhere safe.</em></li>
+              <li>Claim a unique <strong>Pilot Handle</strong> — this becomes your permanent identity on the World Stage.</li>
+              <li>Create a <strong>Vault Key</strong> (Private Password) and select your <strong>Nation</strong>.</li>
+              <li>Choose your <strong>Pilot Archetype</strong> (Oni, Astronaut, UFO, etc.) from the Hangar.</li>
+              <li>Click <strong>INITIALIZE IDENTITY</strong>. A unique <strong>Secret Key</strong> (Identity Key) is generated. <em>Save it somewhere safe for cross-device sync.</em></li>
             </ol>
 
             <div class="docs-callout docs-callout-warning">
@@ -153,8 +153,8 @@ export const manualModal = `
                   <tr><td><code>Total Hours</code></td><td>Sum of all study hours logged across all categories</td></tr>
                   <tr><td><code>Current Streak</code></td><td>Consecutive completed days. Rest Days freeze without breaking it.</td></tr>
                   <tr><td><code>Completion %</code></td><td>Completed days / total days elapsed × 100</td></tr>
-                  <tr><td><code>World Rank</code></td><td>Estimated global rank based on total hours (simulated vs 40M students)</td></tr>
-                  <tr><td><code>XP / Level</code></td><td>1 hour = 100 XP. 1000 XP = 1 Level. Progress bar fills with each session.</td></tr>
+                  <tr><td><code>World Rank</code></td><td>Estimated global rank based on total hours studied vs the general population.</td></tr>
+                  <tr><td><code>XP / Level</code></td><td><strong>10 Hours = 1 Level</strong>. Leveling starts at LVL 1. Each study session fills your tactical progress bar.</td></tr>
                 </tbody>
               </table>
             </div>
@@ -327,13 +327,33 @@ export const manualModal = `
             <h2 class="docs-h2">World Stage (Leaderboard)</h2>
             <p>The World Stage is a live global leaderboard showing the top 10 users by total study hours. Your row is highlighted.</p>
             <ul class="docs-ul">
-              <li>Data syncs on every timer stop, session entry, or page load.</li>
-              <li>A <strong>green pulse dot</strong> next to a user's name means they are currently in a focus session.</li>
-              <li>Each entry shows: Nation flag, display name, rank, age, today's hours, and total hours.</li>
+              <li>Identity syncs on every timer stop, session entry, or change to your Pilot Passport.</li>
+              <li>A <strong>green pulse dot</strong> next to a user's name means they are currently in a Live Focus session.</li>
+              <li>Each entry shows: Nation flag, Archetype, Display Handle, Level, Tactical Title, and Total Hours.</li>
             </ul>
 
-            <h3 class="docs-h3">Your Identity Profile</h3>
-            <p>Click your name pill in the header to open the Identity Profile modal. You can view your passport stats (total hours, today's hours) and update your age/nation. Your User ID is permanently locked after registration.</p>
+            <h3 class="docs-h3">Dynamic Title Engine</h3>
+            <p>Your title on the World Stage reflects your clinical expertise in the Arena:</p>
+            <div class="docs-table-wrap">
+              <table class="docs-table">
+                <thead><tr><th>Hours</th><th>All Tracker Title</th></tr></thead>
+                <tbody>
+                  <tr><td>0 – 10h</td><td>🛡️ RECRUIT</td></tr>
+                  <tr><td>10 – 30h</td><td>🚀 CADET</td></tr>
+                  <tr><td>30 – 70h</td><td>🛸 PILOT</td></tr>
+                  <tr><td>70 – 150h</td><td>🛰️ OFFICER</td></tr>
+                  <tr><td>150 – 300h</td><td>🎖️ COMMANDER</td></tr>
+                  <tr><td>300 – 600h</td><td>👨‍✈️ CAPTAIN</td></tr>
+                  <tr><td>600 – 1200h</td><td>🥇 VETERAN</td></tr>
+                  <tr><td>1200 – 2500h</td><td>💠 ELITE</td></tr>
+                  <tr><td>2500 – 5000h</td><td>👑 LEGEND</td></tr>
+                  |> 5000h</td><td>✨ ETERNAL / DEITY / SINGULARITY</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h3 class="docs-h3">Pilot Passport</h3>
+            <p>Click your Archetype in the header to open the Pilot Passport. You can view your mission stats (Total Hours, Today's Hours), change your Archetype, and update your Identity metadata. Your Handle and ID remain permanently anchored once secured.</p>
           </section>
 
           <div class="docs-divider"></div>
@@ -345,17 +365,23 @@ export const manualModal = `
 
             <h3 class="docs-h3">Rank Tiers</h3>
             <div class="docs-table-wrap">
+            <div class="docs-table-wrap">
               <table class="docs-table">
-                <thead><tr><th>Rank</th><th>Hours Required</th></tr></thead>
+                <thead><tr><th>Rank</th><th>Mission Hours</th></tr></thead>
                 <tbody>
                   <tr><td>🩶 Iron</td><td>0 – 50h</td></tr>
-                  <tr><td>🟤 Bronze</td><td>50 – 150h</td></tr>
-                  <tr><td>⚪ Silver</td><td>150 – 350h</td></tr>
-                  <tr><td>🟡 Gold</td><td>350 – 700h</td></tr>
-                  <tr><td>💠 Diamond</td><td>700 – 1200h</td></tr>
-                  <tr><td>🔮 Eternal</td><td>1200h+</td></tr>
+                  <tr><td>🟤 Bronze</td><td>50 – 200h</td></tr>
+                  <tr><td>⚪ Silver</td><td>200 – 500h</td></tr>
+                  <tr><td>🟡 Gold</td><td>500 – 1000h</td></tr>
+                  <tr><td>💠 Platinum/Diamond</td><td>1000 – 3000h</td></tr>
+                  <tr><td>🔮 Master</td><td>3000 – 5000h</td></tr>
+                  <tr><td>✨ Eternal</td><td>5000 – 9000h</td></tr>
+                  <tr><td>🔥 Ascended</td><td>9000 – 14000h</td></tr>
+                  <tr><td>🌌 Deity</td><td>14000 – 20000h</td></tr>
+                  <tr><td>🕳️ SINGULARITY</td><td>20000h+</td></tr>
                 </tbody>
               </table>
+            </div>
             </div>
             <p>Each rank has 5 divisions (I–V) and a unique title. Your rank is displayed on the dashboard and broadcast to the leaderboard.</p>
 

@@ -64,14 +64,14 @@ import {
   renderBookmarks,
   setupBookmarkListeners,
 } from "@/features/bookmarks/bookmarks";
-import { initTasks, renderTasks } from "@/features/tasks/task-list";
+import { initTasks, renderTasks } from "@/features/tasks/tasks";
 import {
   openSettingsModal,
   applyDateSettings,
   applyColumnSettings,
   addCustomRange,
 } from "@/features/settings/settings";
-import { renderIntelligenceBriefing } from "@/features/intelligence/intelligence.ui";
+import { renderIntelligenceBriefing } from "@/features/intelligence/intelligence";
 import { exportAllData, exportTrackerDataCSV } from "@/features/export/export";
 import { importFromJSON, importFromCSV } from "@/features/import/import";
 import {
@@ -315,7 +315,7 @@ function setupEventListeners(): void {
     "sessionGoalInput",
   ) as HTMLInputElement;
   if (goalInput) {
-    goalInput.addEventListener("change", () => {
+    goalInput.addEventListener("input", () => {
       localStorage.setItem(STORAGE_KEYS.SESSION_GOAL, goalInput.value);
     });
   }

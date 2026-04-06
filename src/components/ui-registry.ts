@@ -37,7 +37,7 @@ export async function initUI(): Promise<void> {
 
     // 3. Main View Panes
     const { dashboardView } = await import('@/features/dashboard/dashboard.ui.ts');
-    const { routineView } = await import('@/features/routines/routine.ui.ts');
+    const { routineView } = await import('@/features/routines/routines.ui.ts');
     const { tasksView } = await import('@/features/tasks/tasks.ui.ts');
     const { intelligenceView } = await import('@/features/intelligence/intelligence.ui.ts');
     const { bookmarksView } = await import('@/features/bookmarks/bookmarks.ui.ts');

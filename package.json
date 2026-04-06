@@ -15,7 +15,7 @@
     "supabase",
     "typescript"
   ],
-  "author": "",
+  "author": "Ankit Pandey",
   "license": "MIT",
   "devDependencies": {
     "@tailwindcss/vite": "^4.2.2",

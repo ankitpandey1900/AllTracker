@@ -1,19 +1,22 @@
 import { appState } from '@/state/app-state';
-import { STORAGE_KEYS } from '@/config/constants';
+import { STORAGE_KEYS, RANK_TIERS } from '@/config/constants';
 import { broadcastGlobalStats, fetchLeaderboard, isUsernameTaken } from '@/services/supabase.service';
 import type { UserProfile } from '@/types/profile.types';
 import { getCurrentUserId, setupPasswordToggle } from '@/services/auth.service';
 import { initiateIdentityMigration } from '@/services/identity.service';
 
+/** Tracks the last time the user interacted with the app */
+let lastInteractionAt = Date.now();
+
 const NATION_FLAGS: Record<string, string> = {
-  'Global': '🏳️',
-  'India': '🇮🇳',
-  'USA': '🇺🇸',
-  'UK': '🇬🇧',
-  'Canada': '🇨🇦',
-  'Germany': '🇩🇪',
-  'Japan': '🇯🇵',
-  'Other': '🌍'
+  'Global': 'un',
+  'India': 'in',
+  'USA': 'us',
+  'UK': 'gb',
+  'Canada': 'ca',
+  'Germany': 'de',
+  'Japan': 'jp',
+  'Other': 'un'
 };
 
 /** Initializes the World Stage and identity check */
@@ -21,8 +24,8 @@ export async function initWorldStage(): Promise<void> {
   // 1. Initial render (fetch top 10)
   await refreshLeaderboard();
 
-  // 2. Schedule periodic updates (every 5 mins)
-  setInterval(() => refreshLeaderboard(), 300000);
+  // 2. Schedule periodic updates (every 1 min)
+  setInterval(() => refreshLeaderboard(), 60000);
 
   // 3. Bind Profile Setup Modal
   const saveBtn = document.getElementById('saveProfileBtn');
@@ -46,6 +49,62 @@ export async function initWorldStage(): Promise<void> {
   // 5. Bind Password Toggles
   setupPasswordToggle('toggleCurrentKey', 'currentSecretKeyInput');
   setupPasswordToggle('toggleNewKey', 'newSecretKeyInput');
+
+  // 6. Start Activity Tracking & Heartbeat
+  initActivityTracking();
+
+  // 📡 ALL TRACKER REACTIVE HYDRATION: Listen for identity sync to update UI instantly
+  window.addEventListener('all-tracker-identity-sync', (e: any) => {
+    const profile = e.detail as UserProfile;
+    if (!profile) return;
+
+    console.log(`📡 ALL TRACKER REACTIVE SYNC: Updating Passport HUD for @${profile.displayName}`);
+    
+    // Update Header HUD (if modal is open)
+    const passportAvatar = document.getElementById('passportAvatar');
+    const handleEl = document.getElementById('displayHandle');
+    const rankEl = document.getElementById('displayRank');
+
+    if (passportAvatar) passportAvatar.textContent = profile.avatar || '👨‍🚀';
+    if (handleEl) handleEl.textContent = `@${profile.displayName}`;
+    
+    // Update Archetype Grid active state
+    const avatarGrid = document.getElementById('avatarPickerGrid');
+    if (avatarGrid) {
+      avatarGrid.querySelectorAll('.avatar-item').forEach(item => {
+        if (item.getAttribute('data-avatar') === profile.avatar) {
+          item.classList.add('active');
+        } else {
+          item.classList.remove('active');
+        }
+      });
+    }
+
+    // Refresh display inputs (if not active or if legacy)
+    const nameInput = document.getElementById('profileNameInput') as HTMLInputElement;
+    if (nameInput && (!nameInput.value || nameInput.value.startsWith('Legacy_'))) {
+      nameInput.value = profile.displayName;
+    }
+  });
+}
+
+/** Sets up listeners for user activity and a periodic heartbeat to broadcast status */
+export function initActivityTracking(): void {
+  const updateActivity = () => { lastInteractionAt = Date.now(); };
+  window.addEventListener('mousedown', updateActivity);
+  window.addEventListener('keydown', updateActivity);
+  window.addEventListener('touchstart', updateActivity);
+  window.addEventListener('scroll', updateActivity);
+
+  // Heartbeat every 30 seconds: Sync if user is active or timer is running
+  setInterval(() => {
+    const isTimerRunning = appState.activeTimer.isRunning;
+    const isRecentActive = (Date.now() - lastInteractionAt) < 30 * 1000;
+    
+    if (isTimerRunning || isRecentActive) {
+      syncProfileBroadcast();
+    }
+  }, 30000);
 }
 
 /** Fetches and renders the leaderboard list */
@@ -63,28 +122,81 @@ export async function refreshLeaderboard(): Promise<void> {
 
   listEl.innerHTML = users.map((u, i) => {
     const isMe = u.sync_id === mySyncId;
-    const flag = NATION_FLAGS[u.nation] || '🌍';
-    const avatar = u.avatar || flag; // Show avatar if exists, fallback to flag
-    const rankLabel = u.current_rank || 'UNRANKED PILOT';
+    const isoCode = NATION_FLAGS[u.nation] || 'un';
+    const flagUrl = `https://flagcdn.com/w40/${isoCode}.png`;
+    const flagImg = `<img src="${flagUrl}" alt="${u.nation}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+    const avatar = u.avatar || `👤`; // Professional default avatar
+    const rankLabel = u.current_rank || 'RECRUIT';
     
-    // Filter stale 'today' hours
     const lastActive = new Date(u.last_active);
     const isToday = lastActive.toDateString() === new Date().toDateString();
     const displayTodayHours = isToday ? (u.today_hours || 0) : 0;
 
+    const now = new Date();
+    const diffMins = (now.getTime() - lastActive.getTime()) / 60000;
+    
+    let statusClass = 'offline';
+    let statusLabel = 'OFFLINE';
+    
+    if (u.is_focusing_now) {
+      statusClass = 'focusing';
+      statusLabel = 'FOCUSING';
+    } else if (diffMins < 5) {
+      statusClass = 'online';
+      statusLabel = 'ONLINE';
+    }
+
+    // 🏆 Gamification Logic
+    const level = Math.floor(u.total_hours / 10) + 1;
+    const xpPercent = Math.min((u.total_hours % 10) * 10, 100);
+    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '';
+
+    // 🎖️ Zenith 20K Title Engine
+    let title = 'RECRUIT';
+    if (u.total_hours >= 20000) title = 'SINGULARITY';
+    else if (u.total_hours >= 10000) title = 'DEITY';
+    else if (u.total_hours >= 5000) title = 'ETERNAL';
+    else if (u.total_hours >= 2500) title = 'LEGEND';
+    else if (u.total_hours >= 1200) title = 'ELITE';
+    else if (u.total_hours >= 600) title = 'VETERAN';
+    else if (u.total_hours >= 300) title = 'CAPTAIN';
+    else if (u.total_hours >= 150) title = 'COMMANDER';
+    else if (u.total_hours >= 70) title = 'OFFICER';
+    else if (u.total_hours >= 30) title = 'PILOT';
+    else if (u.total_hours >= 10) title = 'CADET';
+
+    const rankColorObj = RANK_TIERS.find(t => t.name === rankLabel);
+    const rankColor = rankColorObj ? rankColorObj.color : '#71717a';
+    
+    const medalClasses = ['lb-medal-gold', 'lb-medal-silver', 'lb-medal-bronze'];
+    const customMedal = i < 3 ? `<span class="pilot-medal ${medalClasses[i]}">${i + 1}</span>` : `${i + 1}`;
+
     return `
-      <div class="leaderboard-item ${isMe ? 'is-me' : ''}" title="${u.display_name} | ${u.age} yrs | ${u.nation}">
-        <div class="rank-num">${i + 1}</div>
-        <div class="lb-avatar">${avatar}</div>
+      <div class="leaderboard-item ${isMe ? 'is-me' : ''}" title="${u.display_name} | Lvl ${level} | ${u.nation}" style="--rank-color: ${rankColor};">
+        <div class="rank-num">
+          ${customMedal}
+        </div>
+        
+        <div class="lb-avatar-wrapper">
+          <div class="lb-avatar" style="border-color: ${rankColor}; box-shadow: 0 0 10px ${rankColor}40;">${avatar}</div>
+          <div class="nation-emblem" title="${u.nation}">${flagImg}</div>
+        </div>
+
         <div class="lb-info">
           <div class="lb-name">
-            @${u.display_name} 
-            ${u.is_focusing_now ? '<span class="active-pulse" title="Currently Focusing"></span>' : ''}
+            <span class="lb-handle">@${u.display_name}</span>
+            <span class="status-tag ${statusClass}">${statusLabel}</span>
           </div>
+          
           <div class="lb-meta">
-            ${rankLabel} • ${u.age} yrs
+            Lvl ${level} ${title} • <span style="color: ${rankColor}; font-weight: 800; text-shadow: 0 0 8px ${rankColor}60;">${rankLabel}</span>
+          </div>
+
+          <div class="lb-xp-container">
+            <div class="lb-xp-bar" style="width: ${xpPercent}%; background: ${rankColor}; box-shadow: 0 0 8px ${rankColor};"></div>
           </div>
         </div>
+
         <div class="lb-hours-container">
           <div class="lb-total-hours">${u.total_hours.toFixed(1)}h</div>
           <div class="lb-today-badge">${displayTodayHours.toFixed(1)}h today</div>
@@ -95,25 +207,44 @@ export async function refreshLeaderboard(): Promise<void> {
 }
 
 /** Checks if user has a profile; if not, triggers the setup modal */
-export function checkProfileIdentity(): void {
+export async function checkProfileIdentity(): Promise<void> {
   const syncId = getCurrentUserId();
   if (!syncId) return;
 
   const profileSaved = localStorage.getItem(STORAGE_KEYS.USER_PROFILE);
   const usernameSaved = localStorage.getItem('tracker_username');
 
-  // Case 1: No profile at all -> Open Setup
+  // Case 1: No local profile -> Attempt Cloud Hydration ☁️
   if (!profileSaved) {
+    console.log('Searching cloud for redundant Mission Profile...');
+    const { loadUserProfileCloud } = await import('@/services/supabase.service');
+    const cloudProfile = await loadUserProfileCloud();
+
+    if (cloudProfile) {
+      const localProfile = {
+        displayName: cloudProfile.display_name,
+        age: cloudProfile.age,
+        nation: cloudProfile.nation,
+        avatar: cloudProfile.avatar
+      };
+      localStorage.setItem(STORAGE_KEYS.USER_PROFILE, JSON.stringify(localProfile));
+      localStorage.setItem('tracker_username', localProfile.displayName);
+      console.log(`✅ CROSS-DEVICE HYDRATION: Reclaimed identity @${localProfile.displayName}`);
+      syncProfileBroadcast();
+      return;
+    }
+
+    // No local or cloud profile -> Open Setup Modal
     openProfileModal();
   } 
-  // Case 2: New Identity system requires Username binding
+  // Case 2: Local profile exists but username needs binding
   else if (!usernameSaved) {
     const profile = JSON.parse(profileSaved) as UserProfile;
     localStorage.setItem('tracker_username', profile.displayName);
     syncProfileBroadcast();
   }
   else {
-    // Both exist, just broadcast
+    // Identity is active, sync stats
     syncProfileBroadcast();
   }
 }
@@ -143,9 +274,29 @@ export function openProfileModal(): void {
     if (saved) {
       const profile = JSON.parse(saved) as UserProfile;
       const passportAvatar = document.getElementById('passportAvatar');
+      const handleEl = document.getElementById('displayHandle');
+      // 🎖️ Title Engine Sync
+      let title = 'RECRUIT';
+      if (totalHours >= 20000) title = 'SINGULARITY';
+      else if (totalHours >= 10000) title = 'DEITY';
+      else if (totalHours >= 5000) title = 'ETERNAL';
+      else if (totalHours >= 2500) title = 'LEGEND';
+      else if (totalHours >= 1200) title = 'ELITE';
+      else if (totalHours >= 600) title = 'VETERAN';
+      else if (totalHours >= 300) title = 'CAPTAIN';
+      else if (totalHours >= 150) title = 'COMMANDER';
+      else if (totalHours >= 70) title = 'OFFICER';
+      else if (totalHours >= 30) title = 'PILOT';
+      else if (totalHours >= 10) title = 'CADET';
+
       if (handleEl) handleEl.textContent = `@${profile.displayName}`;
-      if (rankEl) rankEl.textContent = `${totalHours > 100 ? 'VENERATED' : 'PILOT'} • ${profile.nation.toUpperCase()}`;
-      if (passportAvatar) passportAvatar.textContent = profile.avatar || '👤';
+      if (rankEl) rankEl.textContent = `${title} • ${profile.nation.toUpperCase()}`;
+      
+      // 👺 SYNC FIX: Ensure the modal preview matches the the proven archetype (Header/Cloud)
+      if (passportAvatar) {
+        passportAvatar.textContent = profile.avatar || '👨‍🚀';
+        console.log(`📡 MODAL HUD SYNC: Previewing Archetype ${profile.avatar || '👨‍🚀'}`);
+      }
       
       const nameInput = document.getElementById('profileNameInput') as HTMLInputElement;
       const ageInput = document.getElementById('profileAgeInput') as HTMLInputElement;
@@ -167,28 +318,38 @@ export function openProfileModal(): void {
       }
       if (ageInput) ageInput.value = profile.age.toString();
       if (nationInput) nationInput.value = profile.nation;
+    }
 
-      // Handle Avatars
-      const avatarGrid = document.getElementById('avatarPickerGrid');
-      if (avatarGrid) {
-        avatarGrid.querySelectorAll('.avatar-item').forEach(item => {
+    // ─── Consolidated Avatar Picker Logic ───
+    const avatarGrid = document.getElementById('avatarPickerGrid');
+    const avatarToggle = document.getElementById('toggleAvatarPickerBtn');
+    const avatarContainer = document.getElementById('avatarPickerContainer');
+
+    const profileData = localStorage.getItem(STORAGE_KEYS.USER_PROFILE);
+    const currentAvatar = profileData ? (JSON.parse(profileData) as UserProfile).avatar : '👨‍🚀';
+
+    if (avatarToggle && avatarContainer) {
+      avatarToggle.onclick = () => {
+        const isHidden = avatarContainer.style.display === 'none';
+        avatarContainer.style.display = isHidden ? 'block' : 'none';
+        avatarToggle.textContent = isHidden ? '[ CLOSE ARCHETYPE SELECTION ]' : '[ CHANGE PILOT ARCHETYPE ]';
+      };
+    }
+
+    if (avatarGrid) {
+      // 0. Pre-select current avatar in grid
+      avatarGrid.querySelectorAll('.avatar-item').forEach(item => {
+        if (item.getAttribute('data-avatar') === currentAvatar) {
+          item.classList.add('active');
+        } else {
           item.classList.remove('active');
-          if (item.getAttribute('data-avatar') === profile.avatar) {
-            item.classList.add('active');
-          }
-          (item as HTMLElement).onclick = () => {
-            avatarGrid.querySelectorAll('.avatar-item').forEach(a => a.classList.remove('active'));
-            item.classList.add('active');
-          };
-        });
-      }
-    } else {
-      // Default avatar clicks for new users
-      const avatarGrid = document.getElementById('avatarPickerGrid');
-      avatarGrid?.querySelectorAll('.avatar-item').forEach(item => {
+        }
+
         (item as HTMLElement).onclick = () => {
           avatarGrid.querySelectorAll('.avatar-item').forEach(a => a.classList.remove('active'));
           item.classList.add('active');
+          const livePassAv = document.getElementById('passportAvatar');
+          if (livePassAv) livePassAv.textContent = item.getAttribute('data-avatar') || '👤';
         };
       });
     }
@@ -230,7 +391,6 @@ async function handleProfileSave(): Promise<void> {
     displayName: name,
     age,
     nation,
-    syncId: getCurrentUserId() || '',
     avatar
   };
 
@@ -258,7 +418,7 @@ export async function syncProfileBroadcast(): Promise<void> {
   const profile = JSON.parse(saved) as UserProfile;
   
   // Calculate total hours from appState
-  const totalHours = appState.trackerData.reduce(
+  let totalHours = appState.trackerData.reduce(
     (sum, d) => sum + (Array.isArray(d.studyHours) ? d.studyHours.reduce((s, n) => s + (n || 0), 0) : 0),
     0
   );
@@ -266,16 +426,26 @@ export async function syncProfileBroadcast(): Promise<void> {
   // Get Rank (approximate for leaderboard simple display)
   const rank = document.getElementById('studyRank')?.textContent || 'IRON';
 
-  const todayHours = calculateTodayStudyHours();
+  let todayHours = calculateTodayStudyHours();
+  const isFocusing = appState.activeTimer.isRunning;
+
+  // Real-Time Live Injection: If timer is running, add its progress to the broadcast
+  if (isFocusing && appState.activeTimer.startTime) {
+    const elapsedMs = (Date.now() - appState.activeTimer.startTime) + appState.activeTimer.elapsedAcc;
+    const elapsedHrs = elapsedMs / (1000 * 60 * 60);
+    todayHours += elapsedHrs;
+    totalHours += elapsedHrs;
+  }
 
   await broadcastGlobalStats({
     display_name: profile.displayName,
     age: profile.age,
     nation: profile.nation,
+    avatar: profile.avatar,
     total_hours: totalHours,
     today_hours: todayHours,
     current_rank: rank,
-    is_focusing_now: document.body.classList.contains('focus-mode-active')
+    is_focusing_now: isFocusing
   });
 
   // Automatically refresh the UI leaderboard to show the new stat

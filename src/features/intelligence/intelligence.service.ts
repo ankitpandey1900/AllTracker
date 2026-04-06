@@ -507,29 +507,6 @@ export function getHabitPulse(): string {
   
   return "Systemic Discipline Failure: Your routine integrity is compromised. Prioritize 'Easy Wins' to restore your momentum today.";
 }
-// ─── Session Management ───────────────────────────────────────
-
-/** Migrates legacy mentorHistory into a new ChatSession format if needed */
-export function migrateLegacyHistory(): void {
-  const s = appState.settings;
-  if (s.mentorHistory && s.mentorHistory.length > 0 && (!s.chatSessions || s.chatSessions.length === 0)) {
-    const legacySession: ChatSession = {
-      id: 'legacy-mission-' + Date.now(),
-      title: 'Legacy Mission Archive',
-      messages: [...s.mentorHistory],
-      createdAt: Date.now(),
-      lastActive: Date.now()
-    };
-    s.chatSessions = [legacySession];
-    s.activeSessionId = legacySession.id;
-    // Keep mentorHistory for now just in case, but primary is chatSessions
-  }
-
-  // Ensure at least one session exists
-  if (!s.chatSessions || s.chatSessions.length === 0) {
-    createNewSession('New Mission Strategy');
-  }
-}
 
 export function getChatSessions(): ChatSession[] {
   return appState.settings.chatSessions || [];

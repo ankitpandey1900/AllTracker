@@ -2,15 +2,9 @@ export const hudView = `
   <div id="focusHud" class="focus-hud">
     <div id="activeTimerSection" style="display: none">
       <div class="hud-top-bar">
-        <div class="hud-drag-handle" title="Drag to move">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="9" cy="12" r="1" />
-            <circle cx="9" cy="5" r="1" />
-            <circle cx="9" cy="19" r="1" />
-            <circle cx="15" cy="12" r="1" />
-            <circle cx="15" cy="5" r="1" />
-            <circle cx="15" cy="19" r="1" />
-          </svg>
+        <div class="hud-status" style="display: flex; align-items: center; gap: 8px;">
+          <div class="pulse-emerald" style="width: 8px; height: 8px; border-radius: 50%; background: #10b981;"></div>
+          <span style="font-size: 0.6rem; font-weight: 800; color: #10b981; letter-spacing: 1px;">ACTIVE PHASE</span>
         </div>
         <button id="manualFocusToggle" class="btn-icon minimize-btn" title="Toggle Mini-Player">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"

@@ -27,7 +27,6 @@ function createDefaultSettings(): Settings {
     unlockedBadges: [],
     sessionLogs: [],
     groqApiKey: '',
-    mentorHistory: [],
   };
 }
 

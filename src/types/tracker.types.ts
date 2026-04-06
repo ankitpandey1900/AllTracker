@@ -76,7 +76,6 @@ export interface Settings {
   unlockedBadges: string[];
   sessionLogs: SessionLog[];
   groqApiKey?: string;
-  mentorHistory?: MentorMessage[]; // Legacy flattened history
   chatSessions?: ChatSession[];    // Multi-session history
   activeSessionId?: string;       // Currently viewed session
 }
