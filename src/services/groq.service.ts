@@ -156,4 +156,3 @@ export function generateSessionTitle(firstMessage: string): string {
   const words = cleaned.split(' ').slice(0, 6).join(' ');
   return words.length > 4 ? words : 'Mission Strategy';
 }
-

@@ -382,6 +382,18 @@
   margin-left: 2px;
 }
 
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 12px;
+  width: 100%;
+}
+
+.card {
+  max-width: 100%;
+  box-sizing: border-box;
+}
 
 .toolbar.card {
   padding: 10px;

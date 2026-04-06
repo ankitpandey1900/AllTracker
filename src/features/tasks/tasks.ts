@@ -33,9 +33,41 @@ export function renderTasks(): void {
   const tasks = appState.tasks;
 
   // Partition tasks
-  const todayMissions = tasks.filter(t => !t.completed && t.date === today);
-  const backlogTasks = tasks.filter(t => !t.completed && t.date < today);
+  let todayMissions = tasks.filter(t => !t.completed && t.date === today);
+  let backlogTasks = tasks.filter(t => !t.completed && t.date < today);
   const historyTasks = tasks.filter(t => t.completed).sort((a, b) => b.createdAt - a.createdAt);
+
+  // Tactical Sorting: High Priority (3) -> Low Priority (1)
+  const prioritySort = (a: StudyTask, b: StudyTask) => {
+    const ap = a.priority ?? 1;
+    const bp = b.priority ?? 1;
+    if (bp !== ap) return bp - ap;
+    return a.createdAt - b.createdAt;
+  };
+
+  todayMissions.sort(prioritySort);
+  backlogTasks.sort(prioritySort);
+
+  // Daily Clearance HUD Logic
+  const todayCompleted = historyTasks.filter(t => t.date === today);
+  const totalTodayTasks = todayMissions.length + todayCompleted.length;
+  const clearancePercent = totalTodayTasks > 0 ? Math.round((todayCompleted.length / totalTodayTasks) * 100) : 0;
+  
+  const clearanceText = document.getElementById('clearanceText');
+  const clearanceFill = document.getElementById('clearanceFill');
+  
+  if (clearanceText && clearanceFill) {
+    clearanceText.textContent = `${clearancePercent}%`;
+    clearanceFill.style.width = `${clearancePercent}%`;
+    
+    if (clearancePercent === 100 && totalTodayTasks > 0) {
+      clearanceFill.classList.add('cleared');
+      clearanceText.classList.add('cleared');
+    } else {
+      clearanceFill.classList.remove('cleared');
+      clearanceText.classList.remove('cleared');
+    }
+  }
 
   // Update Badge
   if (backlogBadge) {

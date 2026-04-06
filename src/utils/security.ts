@@ -1,9 +1,5 @@
 /**
  * Security utilities for Vault Masking
- * 
- * Note: This is obfuscation (masking), not cryptographical encryption. 
- * Its purpose is to prevent sensitive keys from being visible in plain-text 
- * within the browser's developer tools (Inspect -> Application -> LocalStorage).
  */
 
 const V_PREFIX = 'v1_esc_'; // Unique prefix for identifying secured strings
@@ -19,10 +15,10 @@ export function obfuscate(val: string): string {
   try {
     // 1. Reverse the string
     const reversed = val.split('').reverse().join('');
-    
+
     // 2. Base64 encode
     const encoded = btoa(unescape(encodeURIComponent(reversed)));
-    
+
     return V_PREFIX + encoded;
   } catch (e) {
     console.error('Obfuscation failure:', e);
@@ -39,10 +35,10 @@ export function deobfuscate(val: string): string {
 
   try {
     const core = val.substring(V_PREFIX.length);
-    
+
     // 1. Decode Base64
     const decoded = decodeURIComponent(escape(atob(core)));
-    
+
     // 2. Reverse back
     return decoded.split('').reverse().join('');
   } catch (e) {

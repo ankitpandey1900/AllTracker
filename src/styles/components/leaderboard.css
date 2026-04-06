@@ -258,9 +258,9 @@
   content: '';
   position: absolute;
   top: -50%; left: -50%; width: 200%; height: 200%;
-  background: linear-gradient(45deg, transparent, rgba(255,255,255,0.4), transparent);
+  background: linear-gradient(45deg, transparent, rgba(255,255,255,0.15), transparent);
   transform: rotate(45deg);
-  animation: medal-shimmer 3s infinite;
+  animation: medal-shimmer 3.5s infinite;
 }
 
 @keyframes medal-shimmer {
@@ -269,24 +269,27 @@
 }
 
 .lb-medal-gold {
-  background: linear-gradient(135deg, #fbbf24, #d97706);
-  border: 1px solid #fef3c7;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-  box-shadow: 0 0 12px rgba(251, 191, 36, 0.4);
+  background: linear-gradient(135deg, #c7a03c, #9c7821);
+  border: 1px solid rgba(199, 160, 60, 0.6);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+  box-shadow: inset 0 0 8px rgba(0,0,0,0.3), 0 4px 6px rgba(0, 0, 0, 0.4);
+  color: #fdf6e3;
 }
 
 .lb-medal-silver {
-  background: linear-gradient(135deg, #cbd5e1, #64748b);
-  border: 1px solid #f8fafc;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-  box-shadow: 0 0 12px rgba(148, 163, 184, 0.4);
+  background: linear-gradient(135deg, #9ca3af, #6b7280);
+  border: 1px solid rgba(156, 163, 175, 0.6);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+  box-shadow: inset 0 0 8px rgba(0,0,0,0.3), 0 4px 6px rgba(0, 0, 0, 0.4);
+  color: #f3f4f6;
 }
 
 .lb-medal-bronze {
-  background: linear-gradient(135deg, #d97706, #9a3412);
-  border: 1px solid #fcd34d;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-  box-shadow: 0 0 12px rgba(217, 119, 6, 0.4);
+  background: linear-gradient(135deg, #a76946, #7a4629);
+  border: 1px solid rgba(167, 105, 70, 0.6);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+  box-shadow: inset 0 0 8px rgba(0,0,0,0.3), 0 4px 6px rgba(0, 0, 0, 0.4);
+  color: #fff1eb;
 }
 
 @keyframes medal-float {
@@ -577,9 +580,10 @@
 }
 
 .status-tag.focusing {
-  background: rgba(139, 92, 246, 0.15);
-  color: #a78bfa;
-  box-shadow: 0 0 10px rgba(139, 92, 246, 0.1);
+  background: rgba(236, 72, 153, 0.15);
+  color: #f472b6;
+  border: 1px solid rgba(236, 72, 153, 0.3);
+  box-shadow: 0 0 12px rgba(236, 72, 153, 0.2);
   animation: focusing-glow 2s infinite ease-in-out;
 }
 
@@ -587,9 +591,9 @@
   content: '';
   width: 5px;
   height: 5px;
-  background: #a78bfa;
+  background: #f472b6;
   border-radius: 50%;
-  box-shadow: 0 0 8px #a78bfa;
+  box-shadow: 0 0 10px #f472b6;
   animation: focus-status-pulse 1.5s infinite;
 }
 
@@ -599,9 +603,41 @@
   opacity: 0.7;
 }
 
+/* --- Mobile Responsiveness for Leaderboard --- */
+@media (max-width: 768px) {
+  .leaderboard-item {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+  
+  .lb-avatar-wrapper {
+    width: 34px;
+    height: 34px;
+  }
+  
+  .lb-handle {
+    max-width: 45%; 
+    font-size: 0.85rem;
+  }
+  
+  .lb-meta {
+    font-size: 0.58rem;
+    gap: 4px;
+  }
+  
+  .lb-total-hours {
+    font-size: 1.05rem;
+  }
+  
+  .lb-today-badge {
+    font-size: 0.6rem;
+    padding: 1px 4px;
+  }
+}
+
 @keyframes focusing-glow {
-  0%, 100% { background: rgba(139, 92, 246, 0.15); }
-  50% { background: rgba(139, 92, 246, 0.25); }
+  0%, 100% { background: rgba(236, 72, 153, 0.15); box-shadow: 0 0 12px rgba(236, 72, 153, 0.2); }
+  50% { background: rgba(236, 72, 153, 0.25); box-shadow: 0 0 20px rgba(236, 72, 153, 0.4); }
 }
 
 @keyframes focus-status-pulse {

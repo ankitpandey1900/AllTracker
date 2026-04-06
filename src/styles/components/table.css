@@ -112,16 +112,17 @@ th {
 #trackerTable td:nth-child(1) {
   position: sticky;
   left: 0;
-  z-index: 3;
-  background: rgba(8, 13, 25, 0.98);
+  z-index: 5;
+  background: rgba(8, 13, 25, 1) !important;
 }
 
 #trackerTable th:nth-child(2),
 #trackerTable td:nth-child(2) {
   position: sticky;
   left: 70px;
-  z-index: 3;
-  background: rgba(8, 13, 25, 0.98);
+  z-index: 5;
+  background: rgba(8, 13, 25, 1) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.05); /* Adds a subtle cutoff line to mark the freeze pane */
 }
 
 #trackerTable th:nth-child(1) {
@@ -144,11 +145,11 @@ th {
 /* done */
 
 /* Row rhythm & Modern Polish */
-#trackerTable tbody tr:nth-child(even) td {
+#trackerTable tbody tr:nth-child(even) td:not(:nth-child(1)):not(:nth-child(2)) {
   background: rgba(255, 255, 255, 0.015);
 }
 
-#trackerTable tbody tr:hover td {
+#trackerTable tbody tr:hover td:not(:nth-child(1)):not(:nth-child(2)) {
   background: rgba(99, 102, 241, 0.08) !important;
   border-bottom-color: rgba(99, 102, 241, 0.3);
 }

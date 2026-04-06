@@ -1,18 +1,14 @@
 <div align="center">
-  <img src="/logo.png" width="100" height="100" alt="All Tracker Logo">
-  <h1>🌌 All Tracker — Zenith Arena</h1>
+  <img src="./public/logo.png" width="100" height="100" alt="All Tracker Logo">
+  <h1> All Tracker — Arena</h1>
   <p><strong>I built the ultimate command center for mastering development and deep focus. No more boring habit trackers.</strong></p>
-  <p>
-    <img src="https://img.shields.io/badge/Vibe%20Code-Vibe%20Only-blueviolet?style=flat-square" alt="Vibe Coded">
-    <img src="https://img.shields.io/badge/Vault-Hardened-emerald?style=flat-square" alt="Vault Hardened">
-    <img src="https://img.shields.io/badge/AI%20Brain-Groq-orange?style=flat-square" alt="AI Brain">
-  </p>
+  
 </div>
 
 ---
 
 ## 🚀 Why I built All Tracker?
-Yo! I was tired of tracking my habits in boring spreadsheets or basic apps. I wanted something that felt like a **Mission Control**—something cool that actually motivated me to grind. So, I built the **Zenith Arena**. 
+I was tired of tracking my habits in boring spreadsheets or basic apps. I wanted something that felt like a **Mission Control**—something cool that actually motivated me to grind. So, I built the **Arena**. 
 
 It’s got that "Neon Space" aesthetic, deep-work analytics, and even an AI Mentor (Maamu) who actually understands my progress and pushes me to win.
 
@@ -28,7 +24,7 @@ It’s got that "Neon Space" aesthetic, deep-work analytics, and even an AI Ment
 - **World Rank**: I can see my climb from #40M down to #1 as I earners XP (100 XP per hour). 
 - **The Glow**: Everything is built with Vanilla CSS for that ultra-sharp glassmorphism vibe. 
 
-### 🛡️ The Zenith Vault (My Security)
+### 🛡️ (My Security)
 - **No Leaks**: I’ve built a custom masking layer (v1_esc_) to hide IDs and API keys. No secrets exposed! 
 - **Cloud Sync**: All my data is synced between local stuff and Supabase, so it’s always safe.
 

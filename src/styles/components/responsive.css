@@ -13,6 +13,13 @@
 .show-mobile { display: none !important; }
 
 @media (max-width: 768px) {
+  /* Absolute Nuclear Flexbox Overflow Fix */
+  * {
+    min-width: 0;
+    word-break: break-word;
+    box-sizing: border-box;
+  }
+
   .show-mobile { display: flex !important; }
   .hide-mobile { display: none !important; }
   
@@ -20,41 +27,136 @@
   .mobile-collapsible { display: none; margin-top: 12px; }
   .mobile-collapsible.expanded { display: block; animation: fadeInUp 0.3s ease-out forwards; }
 
-  body {
+  /* CRITICAL: Hardware clamped anti-scroll lock */
+  html, body {
     background-color: var(--bg-deep);
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden !important; 
+    position: relative;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
   }
 
   .layout {
     padding: 12px var(--mobile-gutter) calc(var(--mobile-nav-height) + 20px);
-    max-width: 100vw;
+    max-width: 100%;
     overflow-x: hidden;
   }
 
   /* Header Optimization */
   .app-header {
-    padding: 10px var(--mobile-gutter);
-    height: 60px;
-    background: rgba(8, 13, 24, 0.8);
+    padding: 0 12px;
+    height: 56px;
+    min-height: 56px;
+    background: rgba(8, 13, 24, 0.95);
     backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--card-border);
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: nowrap !important; /* CRITICAL: Never allow the header to wrap to 2 rows */
+    gap: 8px;
+    overflow: hidden;
+  }
+
+  .brand-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0; /* Never let the brand shrink */
   }
 
   .brand { 
-    font-size: 0.8rem !important;
+    font-size: 0.75rem !important;
     letter-spacing: 0.5px !important;
     white-space: nowrap;
+    flex-shrink: 0;
   }
   .brand span { display: none; }
+
+  .app-logo { width: 28px; height: 28px; }
   
   .header-desktop-actions:not(.mobile-menu-overlay) { display: none !important; }
   .tabs { display: none !important; }
 
+  /* Header right-side group: Pin everything together on one row */
+  .header-actions {
+    display: flex !important;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+    flex-wrap: nowrap;
+    margin-left: auto;
+  }
+
+  #headerRight {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    flex-shrink: 1;
+  }
+
+  #headerMoreBtn {
+    flex-shrink: 0;
+    padding: 6px !important;
+    width: 32px;
+    height: 32px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .header-actions #authTriggerBtn {
+    width: 32px !important; 
+    height: 32px !important;
+    padding: 0 !important; 
+    justify-content: center !important;
+    flex-shrink: 0;
+  }
+  .header-actions #authTriggerBtn .btn-text { display: none; }
+
+  /* Mobile Header Logged-In State Optimization */
+  .user-info-group { 
+    display: flex !important; 
+    align-items: center;
+    gap: 4px !important; 
+    min-width: 0;
+    flex-wrap: nowrap;
+    flex-shrink: 1;
+  }
+  .user-info-group #headerUserAlias {
+    max-width: 65px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 2px 5px !important;
+    font-size: 0.58rem !important;
+    flex-shrink: 1;
+  }
+  /* Icon only for Synced status */
+  .user-info-group #syncStatus {
+    font-size: 0 !important;
+    padding: 4px !important;
+    flex-shrink: 0;
+  }
+  .user-info-group #syncStatus svg { margin-right: 0 !important; width: 13px; height: 13px; }
+  
+  /* Icon only for Exit Arena */
+  .user-info-group #logoutBtn {
+    font-size: 0 !important;
+    padding: 4px !important;
+    flex-shrink: 0;
+  }
+  .user-info-group #logoutBtn svg { margin-right: 0 !important; width: 13px; height: 13px; }
+
   .mobile-menu-overlay {
     display: flex !important;
-    position: absolute;
-    top: 60px;
-    right: 16px;
-    background: rgba(10, 16, 30, 0.95);
+    position: fixed;
+    top: 56px;
+    right: 12px;
+    background: rgba(10, 16, 30, 0.97);
     border: 1px solid var(--card-border);
     backdrop-filter: blur(20px);
     border-radius: 12px;
@@ -63,37 +165,6 @@
     z-index: 1000;
     box-shadow: 0 10px 40px rgba(0,0,0,0.5);
   }
-  
-  .header-actions #authTriggerBtn {
-    width: 36px !important; 
-    padding: 0 !important; 
-    justify-content: center !important;
-  }
-  .header-actions #authTriggerBtn .btn-text { display: none; }
-
-  /* Mobile Header Logged-In State Optimization */
-  .user-info-group { gap: 4px !important; }
-  .user-info-group #headerUserAlias {
-    max-width: 90px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    padding: 4px 8px !important;
-    font-size: 0.65rem !important;
-  }
-  /* Icon only for Synced status */
-  .user-info-group #syncStatus {
-    font-size: 0 !important;
-    padding: 6px !important;
-  }
-  .user-info-group #syncStatus svg { margin-right: 0 !important; }
-  
-  /* Icon only for Exit Arena */
-  .user-info-group #logoutBtn {
-    font-size: 0 !important;
-    padding: 6px !important;
-  }
-  .user-info-group #logoutBtn svg { margin-right: 0 !important; }
 
   /* Premium Bottom Navigation */
   .mobile-nav {
@@ -204,6 +275,14 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .row-between {
+    flex-wrap: wrap; 
+    gap: 12px;
   }
 
   .grid-top {
@@ -341,14 +420,46 @@
   }
 }
 
-/* Specific Tweak for extra-narrow screens */
-@media (max-width: 400px) {
-  .hero-top h1 { font-size: 1.4rem !important; }
+/* --- Ultra-Specific Hardware Scaling (5" to 7" devices) --- */
+
+/* Large Phones / Phablets (iPhone Pro Max, S24 Ultra - 6.7"+ class) */
+@media (max-width: 480px) {
+  .hero-top h1 { font-size: 1.5rem !important; }
   .kpi-grid, .stats-strip {
     grid-template-columns: 1fr !important;
   }
-  .header-actions #authTriggerBtn { width: 34px !important; padding: 0 !important; }
+}
+
+/* Standard Phones (iPhone 13/14, Pixel - 6.1" class) */
+@media (max-width: 430px) {
+  .hero { padding: 16px var(--mobile-gutter) !important; }
+  .card { padding: 14px !important; }
+  .header-actions #authTriggerBtn { width: 36px !important; padding: 0 !important; }
   .header-actions #authTriggerBtn .btn-text { display: none; }
+}
+
+/* Small Phones (iPhone SE, 5" - 5.4" class) */
+@media (max-width: 380px) {
+  .layout { padding: 8px 8px calc(var(--mobile-nav-height) + 15px); }
+  .hero-top h1 { font-size: 1.3rem !important; }
+  .mobile-nav-item { font-size: 0.6rem; padding: 8px 2px; }
+  .mobile-nav-item svg { width: 20px; height: 20px; }
+  .hud-percent { font-size: 1rem; }
+  
+  .row-between { flex-wrap: wrap; gap: 8px; }
+  .card { padding: 12px 10px !important; }
+
+  /* Leaderboard extreme shrinking */
+  .lb-handle { font-size: 0.75rem; max-width: 40%; }
+  .lb-avatar-wrapper { width: 28px; height: 28px; }
+}
+
+/* Narrow Foldables (Galaxy Fold outer screen, < 320px) */
+@media (max-width: 320px) {
+  .hero-top h1 { font-size: 1.15rem !important; }
+  .task-input-wrap { grid-template-columns: 1fr; gap: 8px; } /* Stack input and add button */
+  .priority-segmented-control { width: 100%; justify-content: space-between; }
+  .lb-total-hours { font-size: 0.85rem; }
 }
 
 /* Animations */
