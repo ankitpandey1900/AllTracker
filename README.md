@@ -32,7 +32,7 @@ It’s got that "Neon Space" aesthetic, deep-work analytics, and even an AI Ment
 
 ## ✈️ Quickstart (Try it out!)
 
-  ### Website Link - alltracker.vercel.app
+  ### Website Link - https://alltracker.vercel.app/
 
 1. **Grab the code**
    ```bash
