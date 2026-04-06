@@ -10,7 +10,7 @@ Every feature in the `src/features/` directory must follow the **Logic + UI** se
 2.  **`featureName.ui.ts`**: The "Skin." Contains only the static HTML `view` strings and simple template helpers.
 3.  **Refusal of Mixed Files**: Never put substantial DOM manipulation logic directly inside a `.ui.ts` file.
 
-## 🏺 Zenith Vault (Security Protocol)
+## 🏺 Secure Vault (Security Protocol)
 
 To ensure privacy and professional-grade security, all sensitive keys (Groq API, Sync ID) are **never** stored in plain text.
 

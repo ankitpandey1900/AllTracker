@@ -58,7 +58,6 @@
     justify-content: space-between !important;
     flex-wrap: nowrap !important; /* CRITICAL: Never allow the header to wrap to 2 rows */
     gap: 8px;
-    overflow: hidden;
   }
 
   .brand-group {

@@ -151,7 +151,7 @@ export async function refreshLeaderboard(): Promise<void> {
     const xpPercent = Math.min((u.total_hours % 10) * 10, 100);
     const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '';
 
-    // 🎖️ Zenith 20K Title Engine
+    // 🎖️ 20K Title Engine
     let title = 'RECRUIT';
     if (u.total_hours >= 20000) title = 'SINGULARITY';
     else if (u.total_hours >= 10000) title = 'DEITY';

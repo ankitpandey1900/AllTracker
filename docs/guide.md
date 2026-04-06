@@ -1,6 +1,6 @@
 # 🚀 All Tracker: Pilot Manual
 
-Yo! If you're reading this, you've been recruited into **All Tracker**. This isn't just a habit tracker—it's a clinical command center designed for high-stakes focus and elite consistency.
+If you're reading this, you've been recruited into **All Tracker**. This isn't just a habit tracker—it's a clinical command center designed for high-stakes focus and elite consistency.
 
 ---
 
@@ -14,7 +14,7 @@ Your identity is your legacy in the Arena.
 ## 🎖️ World Stage & Global Ranking
 The World Stage is where your progress meets the global Arena. 
 
--   **Zenith Leveling Engine**: Earn **1 Level for every 10 Study Hours**. You start as a **Level 1 Recruit**. 
+-   **Leveling Engine**: Earn **1 Level for every 10 Study Hours**. You start as a **Level 1 Recruit**. 
 -   **Dynamic Titles**: Your title evolves as you conquer more hours:
     -   **0 - 10h**: RECRUIT 🛡️
     -   **10 - 30h**: CADET 🛰️
@@ -33,9 +33,9 @@ The World Stage is where your progress meets the global Arena.
 ## 🛡️ Cloud Hydration (The Vault)
 Your identity is cloud-first. 
 
--   **Secret Key**: Your Zenith ID is anchored to a unique Secret Key (`v1_esc_...`).
+-   **Secret Key**: Your ID is anchored to a unique Secret Key (`v1_esc_...`).
 -   **Cross-Device Sync**: Use your Secret Key to reclaim your handle, archetype, and study history on any device instantly.
--   **Vault Security**: All sensitive mission data is masked and stored in the **Zenith Vault** for maximum operational privacy.
+-   **Vault Security**: All sensitive mission data is masked and stored in the **Secure Vault** for maximum operational privacy.
 
 ## 🌒 Midnight Mission Protocol
 Never lose a minute to the clock. If you start a session at 11:45 PM and finish at 12:15 AM:
