@@ -4,7 +4,7 @@
   gap: 8px;
   margin-bottom: 20px;
   padding-bottom: 12px;
-  border-bottom: 1px solid rgba(102,124,181,0.12);
+  border-bottom: 1px solid rgba(102, 124, 181, 0.12);
 }
 
 .filter-pill {
@@ -36,7 +36,8 @@
 }
 
 .bookmark-category-section {
-  display: none; /* We will only show the active one via TS or handle All */
+  display: none;
+  /* We will only show the active one via TS or handle All */
 }
 
 .bookmark-category-section.active {
@@ -136,7 +137,8 @@
   align-items: center;
 }
 
-.btn-edit-bookmark, .btn-delete-bookmark {
+.btn-edit-bookmark,
+.btn-delete-bookmark {
   border: 1px solid rgba(135, 155, 207, 0.18);
   border-radius: 8px;
   background: rgba(16, 26, 49, 0.5);
@@ -162,4 +164,3 @@
   border-color: rgba(239, 68, 68, 0.4);
   color: #fff;
 }
-

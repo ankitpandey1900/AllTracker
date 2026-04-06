@@ -1,11 +1,18 @@
-.focus-hud { position: fixed; inset: 0; pointer-events: none; z-index: 30; }
+.focus-hud {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 30;
+}
+
 .focus-hud.active {
   pointer-events: auto;
   background:
     radial-gradient(circle at 20% 20%, rgba(106, 134, 255, 0.16), transparent 35%),
     radial-gradient(circle at 80% 10%, rgba(139, 92, 246, 0.17), transparent 35%),
-    rgba(4,8,16,0.92);
+    rgba(4, 8, 16, 0.92);
 }
+
 #activeTimerSection {
   width: min(420px, calc(100vw - 30px));
   margin: 40px auto;
@@ -91,13 +98,13 @@
   text-transform: uppercase;
 }
 
-.timer-display { 
+.timer-display {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, sans-serif;
-  font-size: 4rem; 
-  font-weight: 300; 
+  font-size: 4rem;
+  font-weight: 300;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.03em; 
-  color: #ffffff; 
+  letter-spacing: -0.03em;
+  color: #ffffff;
   line-height: 1;
 }
 
@@ -110,20 +117,32 @@
   border-radius: 12px;
 }
 
-.control-row { margin-top: 20px; display: flex; gap: 12px; justify-content: center; align-items: center; flex-wrap: wrap; }
-.session-goal-row { 
-  margin-top: 24px; 
-  display: flex; 
-  gap: 12px; 
-  justify-content: center; 
-  align-items: center; 
+.control-row {
+  margin-top: 20px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.session-goal-row {
+  margin-top: 24px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
   background: rgba(0, 0, 0, 0.2);
   padding: 12px;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.03);
 }
 
-.progress-ring__circle { transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dashoffset 0.3s; }
+.progress-ring__circle {
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+  transition: stroke-dashoffset 0.3s;
+}
 
 html.focus-minimized-scroll,
 body.focus-minimized {
@@ -156,6 +175,15 @@ body.focus-minimized #activeTimerSection:hover {
   transform: translate(var(--drag-x, 0px), var(--drag-y, 0px)) scale(0.58);
 }
 
-body.focus-minimized .hud-top-bar { margin-bottom: 8px; }
-body.focus-minimized .hud-drag-handle { opacity: 1; pointer-events: auto; }
-body.focus-minimized .session-goal-row { display: none; }
+body.focus-minimized .hud-top-bar {
+  margin-bottom: 8px;
+}
+
+body.focus-minimized .hud-drag-handle {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+body.focus-minimized .session-goal-row {
+  display: none;
+}

@@ -78,6 +78,7 @@ export interface Settings {
   groqApiKey?: string;
   chatSessions?: ChatSession[];    // Multi-session history
   activeSessionId?: string;       // Currently viewed session
+  theme?: 'midnight' | 'arctic' | 'cyberpunk'; // App Theme
 }
 
 // ─── Badges ──────────────────────────────────────────────────

@@ -23,8 +23,9 @@ import {
 import type { TrackerDay, Settings } from '@/types/tracker.types';
 import type { RoutineItem, RoutineHistory } from '@/types/routine.types';
 import type { Bookmark } from '@/types/bookmark.types';
-import type { ActiveTimer } from '@/types/timer.types';
 import type { StudyTask } from '@/types/task.types';
+import type { ActiveTimer } from '@/types/timer.types';
+import { applyThemeToDOM } from '@/state/app-state';
 
 
 // ─── Auth Check ──────────────────────────────────────────────
@@ -79,6 +80,7 @@ export async function loadSettingsFromStorage(): Promise<Settings | null> {
     const cloud = await loadSettingsCloud();
     if (cloud) { 
       setSettings(cloud, false); 
+      if (cloud.theme) applyThemeToDOM(cloud.theme);
       return cloud; 
     }
   }
@@ -90,6 +92,9 @@ export async function loadSettingsFromStorage(): Promise<Settings | null> {
       // Vault Unmasking: Deobfuscate sensitive keys for runtime use
       if (settings.groqApiKey) {
         settings.groqApiKey = deobfuscate(settings.groqApiKey);
+      }
+      if (settings.theme) {
+        applyThemeToDOM(settings.theme);
       }
       return settings;
     } catch { 

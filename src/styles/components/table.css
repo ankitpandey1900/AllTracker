@@ -122,7 +122,8 @@ th {
   left: 70px;
   z-index: 5;
   background: rgba(8, 13, 25, 1) !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.05); /* Adds a subtle cutoff line to mark the freeze pane */
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  /* Adds a subtle cutoff line to mark the freeze pane */
 }
 
 #trackerTable th:nth-child(1) {

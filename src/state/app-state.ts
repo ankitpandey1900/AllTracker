@@ -27,7 +27,13 @@ function createDefaultSettings(): Settings {
     unlockedBadges: [],
     sessionLogs: [],
     groqApiKey: '',
+    theme: 'midnight',
   };
+}
+
+/** Utility to inject the active theme class into the HTML document root */
+export function applyThemeToDOM(themeName: string = 'midnight') {
+  document.documentElement.setAttribute('data-theme', themeName);
 }
 
 function createDefaultTimer(): ActiveTimer {

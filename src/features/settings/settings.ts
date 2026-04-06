@@ -19,6 +19,9 @@ export function openSettingsModal(): void {
 
   (document.getElementById('startDateInput') as HTMLInputElement).value = s.startDate;
   (document.getElementById('endDateInput') as HTMLInputElement).value = s.endDate;
+  
+  const themeInput = document.getElementById('themeSelectInput') as HTMLSelectElement;
+  if (themeInput) { themeInput.value = s.theme || 'midnight'; }
 
   renderCustomRanges();
   modal?.classList.add('active');
@@ -35,6 +38,7 @@ export function applyDateSettings(): void {
 
   appState.settings.startDate = startDate;
   appState.settings.endDate = endDate;
+  
   saveSettingsToStorage(appState.settings);
   calculateDates();
 
@@ -98,6 +102,18 @@ export function applyColumnSettings(): void {
   generateTable();
   updateDashboard();
   showToast('Range settings applied successfully!', 'success');
+}
+
+// ─── Apply Theme Settings ────────────────────────────────────
+
+export function applyThemeSettings(): void {
+  const themeInput = document.getElementById('themeSelectInput') as HTMLSelectElement;
+  if (themeInput) {
+    appState.settings.theme = themeInput.value as 'midnight' | 'arctic' | 'cyberpunk';
+    import('@/state/app-state').then(m => m.applyThemeToDOM(appState.settings.theme));
+    saveSettingsToStorage(appState.settings);
+    showToast('Theme applied successfully.', 'success');
+  }
 }
 
 

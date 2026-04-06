@@ -25,6 +25,11 @@
   --etn-secondary: #8b5cf6;
   --etn-success: #2ac7a0;
   --etn-text-muted: #8b9cc4;
+
+  /* Theme Defaults (Dark) */
+  --scrollbar-bg: #071022;
+  --scrollbar-thumb: linear-gradient(180deg, #314f95, #4e6fe2);
+  --empty-state-bg: rgba(8, 13, 26, 0.7);
 }
 
 * {
@@ -71,7 +76,7 @@ h6,
   margin-top: 6px;
   font-size: clamp(1.6rem, 2.25vw, 2.35rem);
   font-weight: 800;
-  color: #f5f8ff;
+  color: var(--text-primary);
   line-height: 1.04;
 }
 
@@ -94,7 +99,7 @@ h6,
   padding: 20px;
   color: var(--text-secondary);
   text-align: center;
-  background: rgba(8, 13, 26, 0.7);
+  background: var(--empty-state-bg);
 }
 
 ::-webkit-scrollbar {
@@ -103,10 +108,10 @@ h6,
 }
 
 ::-webkit-scrollbar-track {
-  background: #071022;
+  background: var(--scrollbar-bg);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #314f95, #4e6fe2);
+  background: var(--scrollbar-thumb);
   border-radius: 999px;
 }

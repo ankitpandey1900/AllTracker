@@ -9,7 +9,8 @@
 
 .dashboard-arena-layout {
   display: grid;
-  grid-template-columns: 1fr 420px; /* Refined balance: wider than original, smaller than 50% */
+  grid-template-columns: 1fr 420px;
+  /* Refined balance: wider than original, smaller than 50% */
   gap: 20px;
   align-items: start;
 }
@@ -18,7 +19,7 @@
   .dashboard-arena-layout {
     grid-template-columns: 1fr;
   }
-  
+
   .dashboard-sidebar {
     margin-bottom: 20px;
     margin-top: 20px;
@@ -54,9 +55,20 @@
 }
 
 @keyframes pulse-live {
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.5); opacity: 0.5; }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.5);
+    opacity: 0.5;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .leaderboard-list {
@@ -104,7 +116,10 @@
 .leaderboard-item.is-me::before {
   content: '';
   position: absolute;
-  top: -1px; left: -1px; right: -1px; bottom: -1px;
+  top: -1px;
+  left: -1px;
+  right: -1px;
+  bottom: -1px;
   background: linear-gradient(45deg, transparent, rgba(20, 184, 166, 0.3), transparent);
   z-index: -1;
   border-radius: 15px;
@@ -112,8 +127,15 @@
 }
 
 @keyframes my-glow-pulse {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 1; }
+
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+
+  50% {
+    opacity: 1;
+  }
 }
 
 .rank-num {
@@ -154,20 +176,22 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden; /* Ensures the flag image stays inside the circle */
-  box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+  overflow: hidden;
+  /* Ensures the flag image stays inside the circle */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
   z-index: 5;
 }
 
 .nation-emblem img {
-  width: 130%; /* Slight oversize to hide flag edges */
+  width: 130%;
+  /* Slight oversize to hide flag edges */
   height: 130%;
   object-fit: cover;
 }
 
 .lb-avatar {
   font-size: 1.55rem;
-  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.6));
   line-height: 1;
   display: flex;
   align-items: center;
@@ -175,7 +199,7 @@
 }
 
 .lb-info {
-  flex: 1.5; 
+  flex: 1.5;
   display: flex;
   flex-direction: column;
   min-width: 0;
@@ -198,7 +222,8 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   flex-shrink: 1;
-  max-width: 50%; /* Allows username to take up half the flex row */
+  max-width: 50%;
+  /* Allows username to take up half the flex row */
   min-width: 60px;
 }
 
@@ -238,7 +263,9 @@
   animation: medal-float 2s infinite ease-in-out;
 }
 
-.lb-medal-gold, .lb-medal-silver, .lb-medal-bronze {
+.lb-medal-gold,
+.lb-medal-silver,
+.lb-medal-bronze {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -248,53 +275,70 @@
   font-family: 'Outfit', sans-serif;
   font-weight: 900;
   color: #fff;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
   margin-right: 4px;
   position: relative;
   overflow: hidden;
 }
 
-.lb-medal-gold::after, .lb-medal-silver::after, .lb-medal-bronze::after {
+.lb-medal-gold::after,
+.lb-medal-silver::after,
+.lb-medal-bronze::after {
   content: '';
   position: absolute;
-  top: -50%; left: -50%; width: 200%; height: 200%;
-  background: linear-gradient(45deg, transparent, rgba(255,255,255,0.15), transparent);
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.15), transparent);
   transform: rotate(45deg);
   animation: medal-shimmer 3.5s infinite;
 }
 
 @keyframes medal-shimmer {
-  0% { transform: translateX(-100%) rotate(45deg); }
-  100% { transform: translateX(100%) rotate(45deg); }
+  0% {
+    transform: translateX(-100%) rotate(45deg);
+  }
+
+  100% {
+    transform: translateX(100%) rotate(45deg);
+  }
 }
 
 .lb-medal-gold {
   background: linear-gradient(135deg, #c7a03c, #9c7821);
   border: 1px solid rgba(199, 160, 60, 0.6);
-  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
-  box-shadow: inset 0 0 8px rgba(0,0,0,0.3), 0 4px 6px rgba(0, 0, 0, 0.4);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.3), 0 4px 6px rgba(0, 0, 0, 0.4);
   color: #fdf6e3;
 }
 
 .lb-medal-silver {
   background: linear-gradient(135deg, #9ca3af, #6b7280);
   border: 1px solid rgba(156, 163, 175, 0.6);
-  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
-  box-shadow: inset 0 0 8px rgba(0,0,0,0.3), 0 4px 6px rgba(0, 0, 0, 0.4);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.3), 0 4px 6px rgba(0, 0, 0, 0.4);
   color: #f3f4f6;
 }
 
 .lb-medal-bronze {
   background: linear-gradient(135deg, #a76946, #7a4629);
   border: 1px solid rgba(167, 105, 70, 0.6);
-  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
-  box-shadow: inset 0 0 8px rgba(0,0,0,0.3), 0 4px 6px rgba(0, 0, 0, 0.4);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.3), 0 4px 6px rgba(0, 0, 0, 0.4);
   color: #fff1eb;
 }
 
 @keyframes medal-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-3px);
+  }
 }
 
 .lb-hours-container {
@@ -302,7 +346,8 @@
   flex-direction: column;
   align-items: flex-end;
   gap: 2px;
-  flex-shrink: 0; /* NEVER allow the hours to be cut off */
+  flex-shrink: 0;
+  /* NEVER allow the hours to be cut off */
   margin-left: auto;
 }
 
@@ -333,7 +378,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background-image: 
+  background-image:
     linear-gradient(rgba(16, 185, 129, 0.05) 1px, transparent 1px),
     linear-gradient(90deg, rgba(16, 185, 129, 0.05) 1px, transparent 1px);
   background-size: 20px 20px;
@@ -357,10 +402,23 @@
 }
 
 @keyframes radar-scan {
-  0% { transform: translateY(-20px); opacity: 0; }
-  5% { opacity: 1; }
-  95% { opacity: 1; }
-  100% { transform: translateY(500px); opacity: 0; }
+  0% {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+
+  5% {
+    opacity: 1;
+  }
+
+  95% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(500px);
+    opacity: 0;
+  }
 }
 
 .passport-header {
@@ -399,9 +457,20 @@
 }
 
 @keyframes avatar-pulse {
-  0% { transform: scale(1); opacity: 0.5; }
-  50% { transform: scale(1.1); opacity: 0; }
-  100% { transform: scale(1); opacity: 0.5; }
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+
+  50% {
+    transform: scale(1.1);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
 }
 
 .passport-avatar {
@@ -563,7 +632,8 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  flex-shrink: 0; /* Status must ALWAYS be visible */
+  flex-shrink: 0;
+  /* Status must ALWAYS be visible */
 }
 
 .status-tag.online {
@@ -609,26 +679,26 @@
     padding: 10px 12px;
     gap: 10px;
   }
-  
+
   .lb-avatar-wrapper {
     width: 34px;
     height: 34px;
   }
-  
+
   .lb-handle {
-    max-width: 45%; 
+    max-width: 45%;
     font-size: 0.85rem;
   }
-  
+
   .lb-meta {
     font-size: 0.58rem;
     gap: 4px;
   }
-  
+
   .lb-total-hours {
     font-size: 1.05rem;
   }
-  
+
   .lb-today-badge {
     font-size: 0.6rem;
     padding: 1px 4px;
@@ -636,14 +706,34 @@
 }
 
 @keyframes focusing-glow {
-  0%, 100% { background: rgba(236, 72, 153, 0.15); box-shadow: 0 0 12px rgba(236, 72, 153, 0.2); }
-  50% { background: rgba(236, 72, 153, 0.25); box-shadow: 0 0 20px rgba(236, 72, 153, 0.4); }
+
+  0%,
+  100% {
+    background: rgba(236, 72, 153, 0.15);
+    box-shadow: 0 0 12px rgba(236, 72, 153, 0.2);
+  }
+
+  50% {
+    background: rgba(236, 72, 153, 0.25);
+    box-shadow: 0 0 20px rgba(236, 72, 153, 0.4);
+  }
 }
 
 @keyframes focus-status-pulse {
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.6); opacity: 0.4; }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.6);
+    opacity: 0.4;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .leaderboard-placeholder {
@@ -654,6 +744,7 @@
   font-style: italic;
   opacity: 0.6;
 }
+
 /* Header Tactical Pilot Pill */
 .pilot-hud-pill {
   display: flex;

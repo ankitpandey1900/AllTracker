@@ -1,6 +1,30 @@
-﻿#authModal .modal-content { width: min(520px, 100%); }
-#authForm { display: grid; gap: 10px; }
-#authForm .row { justify-content: flex-end; }
-#authError, .error { color: #fecaca; background: rgba(127,29,29,0.28); border: 1px solid rgba(239,68,68,0.42); border-radius: 10px; padding: 8px 10px; font-size: 0.9rem; }
-.sync-status { font-weight: 600; }
-.user-email { color: var(--text-secondary); }
+#authModal .modal-content {
+    width: min(520px, 100%);
+}
+
+#authForm {
+    display: grid;
+    gap: 10px;
+}
+
+#authForm .row {
+    justify-content: flex-end;
+}
+
+#authError,
+.error {
+    color: #fecaca;
+    background: rgba(127, 29, 29, 0.28);
+    border: 1px solid rgba(239, 68, 68, 0.42);
+    border-radius: 10px;
+    padding: 8px 10px;
+    font-size: 0.9rem;
+}
+
+.sync-status {
+    font-weight: 600;
+}
+
+.user-email {
+    color: var(--text-secondary);
+}

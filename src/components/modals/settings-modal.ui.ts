@@ -9,6 +9,27 @@ export const settingsModal = `
         <div class="settings-section">
           <div class="settings-card">
             <div class="settings-card-header">
+              <h4>Appearance / Theme</h4>
+            </div>
+            <div class="settings-group" style="margin-top: 10px;">
+              <label>Select Arena Visual Theme</label>
+              <div class="row" style="gap: 10px; align-items: stretch;">
+                <select id="themeSelectInput" class="settings-input" style="background:#0f172a; flex: 1;">
+                  <option value="midnight">All Tracker Original</option>
+                  <option value="arctic">Arctic Ghost (Light)</option>
+                  <option value="cyberpunk">Cyberpunk Red</option>
+                </select>
+                <button id="applyThemeBtn" class="btn btn-primary" style="white-space: nowrap; padding: 0 20px;">
+                  Apply
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-card">
+            <div class="settings-card-header">
               <h4>Date Range</h4>
             </div>
             <div class="range-grid">

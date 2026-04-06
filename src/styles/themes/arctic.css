@@ -1,0 +1,189 @@
+/* =========================================================
+   THEME: ARCTIC 2.0 (THE GLACIAL ENGINE)
+   Aesthetic: Glassmorphism, Airy Depth, Clinical Precision
+   ========================================================= */
+
+html[data-theme="arctic"] :root {
+  --bg-primary: #fcfcfd;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #f1f5f9;
+  --surface: rgba(255, 255, 255, 0.65);
+  --surface-2: rgba(255, 255, 255, 0.85);
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --border: rgba(255, 255, 255, 0.5);
+  --border-strong: rgba(148, 163, 184, 0.15);
+  --accent-blue: #2563eb;
+  --accent-purple: #7c3aed;
+  --accent-cyan: #0891b2;
+
+  /* Glassmorphism Core */
+  --glass-blur: blur(25px) saturate(180%);
+  --glass-shadow: 0 20px 40px rgba(0, 0, 0, 0.04), 0 1px 0 rgba(255, 255, 255, 1) inset;
+  --glass-border-outer: rgba(0, 0, 0, 0.05);
+
+  /* Intelligence / Maamu Overrides */
+  --maamu-bg: rgba(255, 255, 255, 0.7);
+  --maamu-card: rgba(255, 255, 255, 0.4);
+  --maamu-border: rgba(0, 0, 0, 0.05);
+  --maamu-text: #0f172a;
+  --maamu-text-muted: #475569;
+  --maamu-accent: #2563eb;
+  --maamu-accent-soft: rgba(37, 99, 235, 0.05);
+
+  /* Global Audit Points */
+  --header-bg: rgba(255, 255, 255, 0.7);
+  --nav-bg: rgba(255, 255, 255, 0.8);
+  --empty-state-bg: rgba(255, 255, 255, 0.3);
+  --scrollbar-bg: #f8fafc;
+  --scrollbar-thumb: rgba(0, 0, 0, 0.08);
+}
+
+html[data-theme="arctic"] body {
+  background-color: #f8fafc;
+  background-image:
+    radial-gradient(at 0% 0%, rgba(224, 242, 254, 0.5) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(245, 243, 255, 0.5) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(236, 254, 255, 0.5) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(240, 249, 255, 0.5) 0px, transparent 50%);
+  color: #0f172a;
+  font-family: 'Outfit', sans-serif !important;
+  letter-spacing: -0.01em;
+}
+
+/* Glass Container Engine */
+html[data-theme="arctic"] .card,
+html[data-theme="arctic"] .hero,
+html[data-theme="arctic"] .metric-card,
+html[data-theme="arctic"] .feature-card,
+html[data-theme="arctic"] .profile-passport-card,
+html[data-theme="arctic"] .leaderboard-item,
+html[data-theme="arctic"] .history-item,
+html[data-theme="arctic"] .tracker-table-container,
+html[data-theme="arctic"] .maamu-gpt-container,
+html[data-theme="arctic"] .modal-content {
+  background: var(--surface) !important;
+  backdrop-filter: var(--glass-blur) !important;
+  -webkit-backdrop-filter: var(--glass-blur) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--glass-shadow) !important;
+  border-radius: 24px !important;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease !important;
+  outline: 1px solid var(--glass-border-outer) !important;
+}
+
+/* Glint Hover Effect */
+html[data-theme="arctic"] .card:hover,
+html[data-theme="arctic"] .metric-card:hover,
+html[data-theme="arctic"] .hero:hover {
+  transform: translateY(-8px) scale(1.01);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.06), 0 0 0 1px #fff inset !important;
+}
+
+/* Header & Nav (Floating Glass) */
+html[data-theme="arctic"] .app-header {
+  background: var(--header-bg) !important;
+  backdrop-filter: var(--glass-blur) !important;
+  border-bottom: 1px solid var(--border) !important;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.02) !important;
+  margin: 12px 16px;
+  border-radius: 20px;
+  width: calc(100% - 32px);
+  position: sticky !important;
+  top: 12px;
+  z-index: 100 !important;
+}
+
+html[data-theme="arctic"] .nav-item {
+  color: #64748b !important;
+  border-radius: 12px;
+  padding: 8px 18px !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+}
+
+html[data-theme="arctic"] .nav-item.active {
+  background: #ffffff !important;
+  color: #2563eb !important;
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.1) !important;
+  border: 1px solid rgba(37, 99, 235, 0.15) !important;
+}
+
+/* Maamu Redesign (Frosted Console) */
+html[data-theme="arctic"] .maamu-sidebar {
+  background: rgba(255, 255, 255, 0.3) !important;
+  border-right: 1px solid var(--border) !important;
+}
+
+html[data-theme="arctic"] .maamu-chat-header {
+  background: rgba(255, 255, 255, 0.5) !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+html[data-theme="arctic"] .msg-row.assistant .msg-body {
+  background: rgba(255, 255, 255, 0.8) !important;
+  border-radius: 4px 20px 20px 20px !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02) !important;
+  border: 1px solid var(--border) !important;
+}
+
+html[data-theme="arctic"] .msg-row.user .msg-body {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border-radius: 20px 4px 20px 20px !important;
+  border: none !important;
+}
+
+/* Tracker Table (Clean & Airy) */
+html[data-theme="arctic"] .tracker-row:nth-child(even) td {
+  background: rgba(0, 0, 0, 0.01) !important;
+}
+
+html[data-theme="arctic"] .modern-table th {
+  background: rgba(0, 0, 0, 0.02) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.7rem;
+  color: #64748b !important;
+}
+
+/* Focus HUD (The Glacial Diamond) */
+html[data-theme="arctic"] .focus-core {
+  background: rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: blur(40px) !important;
+  border: 1px solid #fff !important;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.08), inset 0 0 20px rgba(255, 255, 255, 0.5) !important;
+}
+
+html[data-theme="arctic"] .time-display {
+  color: #0f172a !important;
+  font-family: 'Outfit', sans-serif !important;
+}
+
+/* Buttons (Premium Clinical) */
+html[data-theme="arctic"] .btn {
+  border-radius: 12px !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+html[data-theme="arctic"] .btn-primary {
+  background: #0f172a !important;
+  color: white !important;
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.1) !important;
+}
+
+/* Mobile Polish */
+html[data-theme="arctic"] .mobile-nav {
+  background: rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: blur(20px) !important;
+  border-top: 1px solid var(--border) !important;
+  margin: 0 16px 16px;
+  border-radius: 20px;
+  width: calc(100% - 32px);
+  bottom: 0;
+  position: fixed !important;
+}

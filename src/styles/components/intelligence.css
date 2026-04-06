@@ -367,6 +367,7 @@
   .mentor-v3-content-grid {
     grid-template-columns: 1fr 300px;
   }
+
   .mentor-stats-sidebar {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -379,13 +380,18 @@
   .mentor-v3-content-grid {
     grid-template-columns: 1fr;
   }
-  .mentor-stats-sidebar, .mentor-main-chat, .mentor-config-sidebar {
+
+  .mentor-stats-sidebar,
+  .mentor-main-chat,
+  .mentor-config-sidebar {
     grid-column: span 1;
     width: 100%;
   }
+
   .mentor-main-chat {
     height: 500px;
   }
+
   .mentor-v2-container {
     padding: 15px;
   }
@@ -445,13 +451,14 @@
 
 /* --- Code & Technical Formatting --- */
 .code-block-wrapper {
-  background: #0d1117; /* GitHub Dark style */
+  background: #0d1117;
+  /* GitHub Dark style */
   border: 1px solid var(--maamu-border);
   border-radius: 10px;
   margin: 12px 0;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .code-block-wrapper pre {
@@ -461,7 +468,8 @@
   font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
   font-size: 0.82rem;
   line-height: 1.6;
-  color: #d1d5db; /* Gray-300 */
+  color: #d1d5db;
+  /* Gray-300 */
 }
 
 .code-block-wrapper code {

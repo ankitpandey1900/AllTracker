@@ -12,6 +12,8 @@ import "./styles/components/leaderboard.css";
 import "./styles/components/intelligence.css";
 import "./styles/components/manual.css";
 import "./styles/features/maamu.css";
+import "./styles/themes/arctic.css";
+import "./styles/themes/cyberpunk.css";
 
 // ─── Core ────────────────────────────────────────────────────
 import { appState, calculateDates, initializeData } from "@/state/app-state";
@@ -330,6 +332,9 @@ function setupEventListeners(): void {
   );
   bindClick("applyDateSettings", applyDateSettings);
   bindClick("applyColumnSettings", applyColumnSettings);
+  bindClick("applyThemeBtn", () => {
+    import('@/features/settings/settings').then(m => m.applyThemeSettings());
+  });
   bindClick("enableNotificationsBtn", () => {
     import('@/features/notifications/notifications').then(m => m.requestNotificationPermission());
   });
