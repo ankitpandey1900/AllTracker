@@ -328,3 +328,49 @@
   width: 12px;
   height: 12px;
 }
+
+/* 📱 MOBILE RESPONSIVENESS OVERHAUL */
+@media (max-width: 768px) {
+  .heatmap-matrix-hub {
+    gap: 16px;
+    padding: 4px;
+  }
+
+  .heatmap-kpi-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .kpi-card {
+    padding: 16px;
+  }
+
+  .kpi-card .value {
+    font-size: 1.6rem;
+  }
+
+  .heatmap-grid-area {
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  .centered-grid {
+    margin-top: 16px;
+    overflow-x: auto;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .legend-content {
+    padding: 8px 16px;
+    font-size: 9px;
+    gap: 8px;
+    letter-spacing: 1px;
+  }
+
+  .legend-content .heatmap-cell {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+  }
+}

@@ -58,6 +58,41 @@ export const profileModal = `
                 <div class="avatar-item" data-avatar="🚀" title="The Rocket">🚀</div>
                 <div class="avatar-item" data-avatar="📡" title="The Uplink">📡</div>
                 <div class="avatar-item" data-avatar="🔭" title="The Observer">🔭</div>
+                
+                <!-- 🌌 SPACE SECTOR -->
+                <div class="avatar-item" data-avatar="👩‍🚀" title="The Commander">👩‍🚀</div>
+                <div class="avatar-item" data-avatar="🌍" title="The Terra">🌍</div>
+                <div class="avatar-item" data-avatar="☄️" title="The Meteor">☄️</div>
+                <div class="avatar-item" data-avatar="👽" title="The Zenith">👽</div>
+                <div class="avatar-item" data-avatar="🌓" title="The Lunar">🌓</div>
+
+                <!-- 💻 CODE SECTOR -->
+                <div class="avatar-item" data-avatar="🐍" title="The Pythonic">🐍</div>
+                <div class="avatar-item" data-avatar="☕" title="The JS Engine">☕</div>
+                <div class="avatar-item" data-avatar="⚛️" title="The Reactor">⚛️</div>
+                <div class="avatar-item" data-avatar="🦀" title="The Rusty">🦀</div>
+                <div class="avatar-item" data-avatar="🐧" title="The Kernel">🐧</div>
+
+                <!-- 🛠️ TECH SECTOR -->
+                <div class="avatar-item" data-avatar="⚙️" title="The Mechanic">⚙️</div>
+                <div class="avatar-item" data-avatar="🛠️" title="The Forge">🛠️</div>
+                <div class="avatar-item" data-avatar="🏗️" title="The Civil">🏗️</div>
+                <div class="avatar-item" data-avatar="🔩" title="The Industrial">🔩</div>
+                <div class="avatar-item" data-avatar="📐" title="The Precision">📐</div>
+
+                <!-- 🎲 RANDOM SECTOR -->
+                <div class="avatar-item" data-avatar="🍀" title="The Vector">🍀</div>
+                <div class="avatar-item" data-avatar="🕯️" title="The Scholar">🕯️</div>
+                <div class="avatar-item" data-avatar="🛹" title="The Flow">🛹</div>
+                <div class="avatar-item" data-avatar="🏔️" title="The Zenith Peak">🏔️</div>
+                <div class="avatar-item" data-avatar="🎯" title="The Bullseye">🎯</div>
+
+                <!-- 🍿 POP SECTOR (Anime / GenZ) -->
+                <div class="avatar-item" data-avatar="👒" title="The Straw Hat">👒</div>
+                <div class="avatar-item" data-avatar="🗿" title="The Sigma">🗿</div>
+                <div class="avatar-item" data-avatar="🤞" title="The Domain">🤞</div>
+                <div class="avatar-item" data-avatar="🎧" title="The Audiophile">🎧</div>
+                <div class="avatar-item" data-avatar="🧣" title="The Scout">🧣</div>
               </div>
             </div>
           </div>

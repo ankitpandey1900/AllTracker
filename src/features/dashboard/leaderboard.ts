@@ -115,6 +115,19 @@ export async function refreshLeaderboard(): Promise<void> {
   const users = await fetchLeaderboard();
   const mySyncId = getCurrentUserId();
 
+  // 🏟️ FIFA/ICC Daily Velocity Engine: Calculate Morning Ranks
+  // We determine where everyone stood at 00:00 by subtracting today's hours.
+  const morningRanks = [...users]
+    .sort((a, b) => {
+      const aStart = a.total_hours - (a.today_hours || 0);
+      const bStart = b.total_hours - (b.today_hours || 0);
+      return bStart - aStart; // Sort by starting hours descending
+    })
+    .reduce((acc, u, idx) => {
+      acc[u.sync_id] = idx + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
   if (users.length === 0) {
     listEl.innerHTML = `<div class="leaderboard-placeholder">Arena is dark. Start a session to light it up.</div>`;
     return;
@@ -171,6 +184,47 @@ export async function refreshLeaderboard(): Promise<void> {
     const medalClasses = ['lb-medal-gold', 'lb-medal-silver', 'lb-medal-bronze'];
     const customMedal = i < 3 ? `<span class="pilot-medal ${medalClasses[i]}">${i + 1}</span>` : `${i + 1}`;
 
+    // ⚽ Daily Velocity Jump logic: Compare current rank vs. Morning Position
+    const currentRank = i + 1;
+    const morningRank = morningRanks[u.sync_id];
+    let trendHtml = '';
+
+    if (morningRank || currentRank) {
+      // If no morning rank data, assume they were at least 11th (outside top 10)
+      const effectiveMorningRank = morningRank || 11; 
+      const delta = effectiveMorningRank - currentRank; 
+
+      if (delta > 0) {
+        trendHtml = `
+          <div class="rank-delta trend-up" title="Climbed ${delta} spots since this morning">
+            <svg class="hour-trend-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 4V20M12 4L18 10M12 4L6 10" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>${delta}</span>
+          </div>
+        `;
+      } else if (delta < 0 && morningRank) {
+        trendHtml = `
+          <div class="rank-delta trend-down" title="Dropped ${Math.abs(delta)} spots since this morning">
+            <svg class="hour-trend-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 20V4M12 20L6 14M12 20L18 14" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>${Math.abs(delta)}</span>
+          </div>
+        `;
+      } 
+      // 🚀 Live Momentum Fallback: If rank hasn't changed but they are LIVE, show growth
+      else if (u.is_focusing_now || (u.today_hours > 1)) {
+        trendHtml = `
+          <div class="rank-delta trend-up momentum-only" title="Gaining ground (Live Focus)">
+            <svg class="hour-trend-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 4V20M12 4L18 10M12 4L6 10" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        `;
+      }
+    }
+
     return `
       <div class="leaderboard-item ${isMe ? 'is-me' : ''}" title="${u.display_name} | Lvl ${level} | ${u.nation}" style="--rank-color: ${rankColor};">
         <div class="rank-num">
@@ -199,7 +253,10 @@ export async function refreshLeaderboard(): Promise<void> {
 
         <div class="lb-hours-container">
           <div class="lb-total-hours">${u.total_hours.toFixed(1)}h</div>
-          <div class="lb-today-badge">${displayTodayHours.toFixed(1)}h today</div>
+          <div class="lb-today-badge">
+            ${displayTodayHours.toFixed(1)}h today
+            ${trendHtml}
+          </div>
         </div>
       </div>
     `;

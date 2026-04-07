@@ -169,22 +169,24 @@ export const dashboardView = `
       </div>
 
       <article class="card table-card overflow-hidden study-log-table">
-        <table id="trackerTable">
-          <thead>
-            <tr>
-              <th>Day</th>
-              <th>Date</th>
-              <th>Col 1</th>
-              <th>Col 2</th>
-              <th>Col 3</th>
-              <th>Col 4</th>
-              <th id="problemsSolvedHeader">Problems Solved</th>
-              <th>Topics</th>
-              <th>Project Work</th>
-              <th>Done</th>
-            </tr>
-          </thead>
-          <tbody id="tableBody"></tbody>
-        </table>
+        <div class="responsive-table-container">
+          <table id="trackerTable">
+            <thead>
+              <tr>
+                <th>Day</th>
+                <th>Date</th>
+                <th>Col 1</th>
+                <th>Col 2</th>
+                <th>Col 3</th>
+                <th>Col 4</th>
+                <th id="problemsSolvedHeader">Problems Solved</th>
+                <th>Topics</th>
+                <th>Project Work</th>
+                <th>Done</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
       </article>
 `;

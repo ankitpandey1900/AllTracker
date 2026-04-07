@@ -374,3 +374,32 @@ tr.locked-row .checkmark {
     box-shadow: 0 0 22px rgba(34, 211, 238, 0.4);
   }
 }
+
+/* 📱 MOBILE TABLE RESPONSIVENESS */
+@media (max-width: 600px) {
+  .responsive-table-container {
+    overflow-x: auto;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 20px;
+  }
+
+  table {
+    min-width: 600px; /* Force scroll instead of squashing columns */
+  }
+
+  th, td {
+    padding: 10px 12px;
+    font-size: 0.8rem;
+  }
+
+  /* Release sticky headers on small screens to avoid UI glitches */
+  #trackerTable th:nth-child(1),
+  #trackerTable td:nth-child(1),
+  #trackerTable th:nth-child(2),
+  #trackerTable td:nth-child(2) {
+    position: static !important;
+    background: transparent !important;
+    border-right: none !important;
+  }
+}

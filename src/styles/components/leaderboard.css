@@ -621,6 +621,65 @@
   padding: 1px 6px;
   border-radius: 4px;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.hour-trend-icon {
+  width: 9px;
+  height: 9px;
+  flex-shrink: 0;
+}
+
+.rank-delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-family: 'Tektur', cursive;
+  font-weight: 800;
+  font-size: 0.65rem;
+  padding: 1px 4px;
+  border-radius: 4px;
+  line-height: 1;
+}
+
+.rank-delta span {
+  margin-left: 1px;
+}
+
+.trend-up {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+  filter: drop-shadow(0 0 5px rgba(16, 185, 129, 0.4));
+  animation: trend-float-up 1.5s infinite ease-in-out;
+}
+
+.trend-down {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  filter: drop-shadow(0 0 5px rgba(239, 68, 68, 0.4));
+  animation: trend-pulse-down 2s infinite ease-in-out;
+}
+
+@keyframes trend-float-up {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes trend-pulse-down {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
 }
 
 .status-tag {
