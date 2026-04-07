@@ -375,22 +375,53 @@ tr.locked-row .checkmark {
   }
 }
 
-/* 📱 MOBILE TABLE RESPONSIVENESS */
+/* 📱 PROFESSIONAL TABLE RECONSTRUCTION */
 @media (max-width: 600px) {
   .responsive-table-container {
     overflow-x: auto;
     width: 100%;
     -webkit-overflow-scrolling: touch;
     margin-bottom: 20px;
+    position: relative;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.2);
+  }
+
+  /* The 'Glow-Edge' Hint: Consistent with Heatmap */
+  .responsive-table-container::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 30px;
+    background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.5));
+    pointer-events: none;
+    z-index: 10;
   }
 
   table {
-    min-width: 600px; /* Force scroll instead of squashing columns */
+    min-width: 700px; /* Force tactical density */
   }
 
   th, td {
-    padding: 10px 12px;
-    font-size: 0.8rem;
+    padding: 12px 10px;
+    font-size: 0.75rem;
+  }
+
+  /* Heroic Duration Column */
+  td:nth-child(4), th:nth-child(4) {
+    color: var(--accent-gold);
+    font-weight: 700;
+    background: rgba(240, 162, 61, 0.03);
+  }
+
+  /* Tactical Truncation for Topics */
+  .history-table td:nth-child(3) {
+    max-width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   /* Release sticky headers on small screens to avoid UI glitches */

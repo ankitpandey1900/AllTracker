@@ -115,18 +115,45 @@ export async function refreshLeaderboard(): Promise<void> {
   const users = await fetchLeaderboard();
   const mySyncId = getCurrentUserId();
 
-  // 🏟️ FIFA/ICC Daily Velocity Engine: Calculate Morning Ranks
-  // We determine where everyone stood at 00:00 by subtracting today's hours.
+  // 🧗‍♂️ The 'Climb Engine' + ⚓ Morning Anchor
+  const CLIMB_KEY = 'arena_climb_baselines';
+  const today = new Date().toISOString().split('T')[0];
+  let climbData = { date: today, worst: {} as Record<string, number>, best: {} as Record<string, number> };
+
+  const savedClimb = localStorage.getItem(CLIMB_KEY);
+  if (savedClimb) {
+    const parsed = JSON.parse(savedClimb);
+    if (parsed.date === today) climbData = parsed;
+  }
+
+  // Determine Morning Ranks (Sorted by Total - Today)
   const morningRanks = [...users]
     .sort((a, b) => {
       const aStart = a.total_hours - (a.today_hours || 0);
       const bStart = b.total_hours - (b.today_hours || 0);
-      return bStart - aStart; // Sort by starting hours descending
+      return bStart - aStart;
     })
     .reduce((acc, u, idx) => {
       acc[u.sync_id] = idx + 1;
       return acc;
     }, {} as Record<string, number>);
+
+  // Update live Peaks/Valleys based on both Live data and Morning Anchor
+  users.forEach((u, idx) => {
+    const cur = idx + 1;
+    const morningPos = morningRanks[u.sync_id] || cur;
+
+    // Anchor: Worst rank today is the lower of morning position or current live position
+    if (!climbData.worst[u.sync_id]) climbData.worst[u.sync_id] = morningPos;
+    else if (morningPos > climbData.worst[u.sync_id]) climbData.worst[u.sync_id] = morningPos;
+    if (cur > climbData.worst[u.sync_id]) climbData.worst[u.sync_id] = cur;
+
+    // Anchor: Best rank today is the higher of morning position or current live position
+    if (!climbData.best[u.sync_id]) climbData.best[u.sync_id] = morningPos;
+    else if (morningPos < climbData.best[u.sync_id]) climbData.best[u.sync_id] = morningPos;
+    if (cur < climbData.best[u.sync_id]) climbData.best[u.sync_id] = cur;
+  });
+  localStorage.setItem(CLIMB_KEY, JSON.stringify(climbData));
 
   if (users.length === 0) {
     listEl.innerHTML = `<div class="leaderboard-placeholder">Arena is dark. Start a session to light it up.</div>`;
@@ -184,45 +211,45 @@ export async function refreshLeaderboard(): Promise<void> {
     const medalClasses = ['lb-medal-gold', 'lb-medal-silver', 'lb-medal-bronze'];
     const customMedal = i < 3 ? `<span class="pilot-medal ${medalClasses[i]}">${i + 1}</span>` : `${i + 1}`;
 
-    // ⚽ Daily Velocity Jump logic: Compare current rank vs. Morning Position
+    // ⚽ Climb Engine Jump logic: Best/Worst Peak Delta
     const currentRank = i + 1;
-    const morningRank = morningRanks[u.sync_id];
+    const worstSeen = climbData.worst[u.sync_id] || currentRank;
+    const bestSeen = climbData.best[u.sync_id] || currentRank;
+    
     let trendHtml = '';
 
-    if (morningRank || currentRank) {
-      // If no morning rank data, assume they were at least 11th (outside top 10)
-      const effectiveMorningRank = morningRank || 11; 
-      const delta = effectiveMorningRank - currentRank; 
+    // Calculate Jump (from lowest point) or Drop (from highest point)
+    const jumpDelta = worstSeen - currentRank; 
+    const dropDelta = currentRank - bestSeen;
 
-      if (delta > 0) {
-        trendHtml = `
-          <div class="rank-delta trend-up" title="Climbed ${delta} spots since this morning">
-            <svg class="hour-trend-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 4V20M12 4L18 10M12 4L6 10" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span>${delta}</span>
-          </div>
-        `;
-      } else if (delta < 0 && morningRank) {
-        trendHtml = `
-          <div class="rank-delta trend-down" title="Dropped ${Math.abs(delta)} spots since this morning">
-            <svg class="hour-trend-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 20V4M12 20L6 14M12 20L18 14" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span>${Math.abs(delta)}</span>
-          </div>
-        `;
-      } 
-      // 🚀 Live Momentum Fallback: If rank hasn't changed but they are LIVE, show growth
-      else if (u.is_focusing_now || (u.today_hours > 1)) {
-        trendHtml = `
-          <div class="rank-delta trend-up momentum-only" title="Gaining ground (Live Focus)">
-            <svg class="hour-trend-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 4V20M12 4L18 10M12 4L6 10" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-        `;
-      }
+    if (jumpDelta > 0) {
+      trendHtml = `
+        <div class="rank-delta trend-up" title="Climbed ${jumpDelta} spots from today's lowest point">
+          <svg class="hour-trend-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 4V20M12 4L18 10M12 4L6 10" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>${jumpDelta}</span>
+        </div>
+      `;
+    } else if (dropDelta > 0) {
+      trendHtml = `
+        <div class="rank-delta trend-down" title="Dropped ${dropDelta} spots from today's peak">
+          <svg class="hour-trend-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 20V4M12 20L6 14M12 20L18 14" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>${dropDelta}</span>
+        </div>
+      `;
+    } 
+    // 🚀 High-Focus Momentum: Highlight active climbers even when stable
+    else if (u.is_focusing_now) {
+      trendHtml = `
+        <div class="rank-delta trend-up momentum-only" title="Gaining ground (Live Focus)">
+          <svg class="hour-trend-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 4V20M12 4L18 10M12 4L6 10" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      `;
     }
 
     return `

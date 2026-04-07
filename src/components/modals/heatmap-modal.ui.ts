@@ -40,8 +40,10 @@ export const heatmapModal = `
 
           <!-- Grid Row -->
           <div class="heatmap-grid-area">
-            <div id="heatmapModalMonths" class="heatmap-months"></div>
-            <div id="heatmapModalGrid" class="heatmap-grid centered-grid"></div>
+            <div class="heatmap-scroll-viewport">
+              <div id="heatmapModalMonths" class="heatmap-months"></div>
+              <div id="heatmapModalGrid" class="heatmap-grid centered-grid"></div>
+            </div>
           </div>
 
           <!-- Legend Footer -->

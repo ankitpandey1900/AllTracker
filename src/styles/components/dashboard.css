@@ -1400,3 +1400,8 @@ textarea:focus {
   height: auto;
   display: block;
 }
+
+/* 🛡️ TABLE AREA STABILIZER */
+.study-log-table {
+  min-height: 400px; /* Reserves space for at least 6-8 study rows */
+}
