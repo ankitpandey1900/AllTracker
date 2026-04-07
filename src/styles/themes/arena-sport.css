@@ -1,0 +1,302 @@
+/* =========================================================
+   THEME: ARENA SPORT
+   Aesthetic: ESPN Scoreboard, Athletic HUD
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&display=swap');
+
+html[data-theme="arena-sport"] :root {
+  --bg-primary: #021226; /* Deep Stadium Navy */
+  --bg-secondary: #031A33;
+  --bg-tertiary: #06284B;
+  --surface: #031A33;
+  --surface-2: #052240;
+  --text-primary: #ffffff;
+  --text-secondary: #AFC3D6;
+  --text-muted: #6A86AA;
+  --border: #133961;
+  --border-strong: #FF5C00;
+  --accent-blue: #00A3FF;
+  --accent-purple: #FF5C00; /* Replaced with orange for sporty feel */
+  --accent-cyan: #FFB800;
+
+  /* Intelligence / Maamu Overrides */
+  --maamu-bg: #031A33;
+  --maamu-card: #052240;
+  --maamu-border: #133961;
+  --maamu-text: #ffffff;
+  --maamu-text-muted: #AFC3D6;
+  --maamu-accent: #FF5C00;
+  --maamu-accent-soft: rgba(255, 92, 0, 0.15);
+
+  /* Global */
+  --header-bg: #021226;
+  --nav-bg: #031A33;
+  --empty-state-bg: #031A33;
+  --scrollbar-bg: #021226;
+  --scrollbar-thumb: #133961;
+}
+
+html[data-theme="arena-sport"] body {
+  background-color: var(--bg-primary);
+  background-image: 
+    linear-gradient(45deg, rgba(255, 92, 0, 0.03) 25%, transparent 25%, transparent 75%, rgba(255, 92, 0, 0.03) 75%, rgba(255, 92, 0, 0.03)),
+    linear-gradient(45deg, rgba(255, 92, 0, 0.03) 25%, transparent 25%, transparent 75%, rgba(255, 92, 0, 0.03) 75%, rgba(255, 92, 0, 0.03));
+  background-size: 20px 20px;
+  background-position: 0 0, 10px 10px;
+  color: var(--text-primary);
+  font-family: 'Oswald', 'Tektur', sans-serif !important;
+  text-transform: uppercase;
+}
+
+/* Header & Nav */
+html[data-theme="arena-sport"] .app-header {
+  background: var(--header-bg) !important;
+  border-bottom: 4px solid var(--accent-purple) !important;
+  border-radius: 0;
+  margin: 0;
+  width: 100%;
+}
+
+html[data-theme="arena-sport"] .app-header .brand {
+  color: #fff !important;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  font-style: italic;
+  font-size: 1.5rem;
+}
+
+html[data-theme="arena-sport"] .nav-item {
+  color: var(--text-secondary) !important;
+  border-radius: 0;
+  font-weight: 600;
+  clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%);
+  padding: 8px 24px !important;
+  transition: all 0.2s;
+  background: var(--surface-2) !important;
+}
+
+html[data-theme="arena-sport"] .nav-item.active {
+  background: var(--accent-purple) !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+/* Base Cards */
+html[data-theme="arena-sport"] .card,
+html[data-theme="arena-sport"] .hero,
+html[data-theme="arena-sport"] .metric-card,
+html[data-theme="arena-sport"] .feature-card,
+html[data-theme="arena-sport"] .leaderboard-item,
+html[data-theme="arena-sport"] .history-item,
+html[data-theme="arena-sport"] .profile-passport-card,
+html[data-theme="arena-sport"] .bookmark-card,
+html[data-theme="arena-sport"] .routine-item,
+html[data-theme="arena-sport"] .task-item {
+  background: var(--surface) !important;
+  border: 2px solid var(--border) !important;
+  border-radius: 0 !important;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%);
+}
+
+html[data-theme="arena-sport"] .metric-card,
+html[data-theme="arena-sport"] .routine-item,
+html[data-theme="arena-sport"] .task-item {
+  border-left: 5px solid var(--accent-purple) !important;
+}
+
+/* Modals */
+html[data-theme="arena-sport"] .modal-content {
+  background: var(--bg-primary) !important;
+  border: 4px solid var(--border) !important;
+  border-radius: 0 !important;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0 100%);
+  box-shadow: 20px 20px 0 rgba(255, 92, 0, 0.2) !important;
+}
+
+html[data-theme="arena-sport"] .modal-header {
+  border-bottom: 2px dashed var(--border-strong) !important;
+}
+
+html[data-theme="arena-sport"] .modal-close {
+  color: var(--accent-purple) !important;
+  background: transparent !important;
+}
+
+html[data-theme="arena-sport"] .modal-close:hover {
+  background: var(--accent-purple) !important;
+  color: white !important;
+}
+
+/* Empty States */
+html[data-theme="arena-sport"] .empty-state,
+html[data-theme="arena-sport"] .bookmarks-empty,
+html[data-theme="arena-sport"] .no-sessions,
+html[data-theme="arena-sport"] .leaderboard-placeholder {
+  background: var(--bg-tertiary) !important;
+  border: 2px solid var(--border) !important;
+  border-radius: 0 !important;
+  color: var(--text-secondary) !important;
+  text-transform: uppercase;
+  clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+}
+
+/* Headings */
+html[data-theme="arena-sport"] h1,
+html[data-theme="arena-sport"] h2,
+html[data-theme="arena-sport"] h3,
+html[data-theme="arena-sport"] h4 {
+  font-family: 'Oswald', sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.05em;
+  font-style: italic;
+}
+
+/* Maamu Override */
+html[data-theme="arena-sport"] .mentor-v2-container,
+html[data-theme="arena-sport"] .maamu-gpt-container {
+  background: var(--surface) !important;
+  border: 2px solid var(--border) !important;
+  border-radius: 0 !important;
+}
+
+html[data-theme="arena-sport"] .maamu-sidebar-top,
+html[data-theme="arena-sport"] .maamu-chat-header,
+html[data-theme="arena-sport"] .maamu-sidebar-footer,
+html[data-theme="arena-sport"] .maamu-sidebar {
+  border-color: var(--border) !important;
+  background: var(--surface-2) !important;
+}
+
+html[data-theme="arena-sport"] .msg-row.assistant .msg-body {
+  background: var(--surface) !important;
+  border: 2px solid var(--border) !important;
+  border-radius: 0 !important;
+  border-left: 4px solid var(--accent-purple) !important;
+}
+
+html[data-theme="arena-sport"] .msg-row.user .msg-body {
+  background: var(--accent-purple) !important;
+  color: #fff !important;
+  border-radius: 0 !important;
+  border: none !important;
+}
+
+/* Timer Focus HUB */
+html[data-theme="arena-sport"] .focus-core {
+  background: var(--bg-primary) !important;
+  border: 4px solid var(--accent-purple) !important;
+  border-radius: 0 !important;
+  clip-path: polygon(20px 0%, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
+}
+
+html[data-theme="arena-sport"] .time-display {
+  color: var(--accent-purple) !important;
+  font-family: 'Oswald', sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.05em;
+  font-size: 5rem !important; /* Jumbo scoreboard size */
+}
+
+/* Buttons */
+html[data-theme="arena-sport"] .btn {
+  background: var(--surface-2) !important;
+  color: #fff !important;
+  border: 2px solid var(--border) !important;
+  border-radius: 0 !important;
+  font-weight: 700;
+  clip-path: polygon(10px 0%, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  text-transform: uppercase;
+  font-family: 'Oswald', sans-serif !important;
+}
+
+html[data-theme="arena-sport"] .btn:hover {
+  background: var(--border) !important;
+  border-color: var(--accent-purple) !important;
+}
+
+html[data-theme="arena-sport"] .btn-primary {
+  background: var(--accent-purple) !important;
+  border-color: var(--accent-purple) !important;
+}
+
+html[data-theme="arena-sport"] .btn-primary:hover {
+  background: #E04D00 !important; /* Darker orange */
+  border-color: #E04D00 !important;
+}
+
+/* Inputs */
+html[data-theme="arena-sport"] .settings-input,
+html[data-theme="arena-sport"] .task-input,
+html[data-theme="arena-sport"] select,
+html[data-theme="arena-sport"] textarea {
+  background: var(--surface-2) !important;
+  border: 2px solid var(--border) !important;
+  color: var(--text-primary) !important;
+  border-radius: 0 !important;
+  font-family: inherit !important;
+  text-transform: uppercase;
+}
+
+html[data-theme="arena-sport"] .settings-input:focus,
+html[data-theme="arena-sport"] .task-input:focus {
+  border-color: var(--accent-purple) !important;
+  outline: none;
+}
+
+/* Tracker Table */
+html[data-theme="arena-sport"] .tracker-table-container {
+  background: var(--surface) !important;
+  border: 2px solid var(--border) !important;
+  border-radius: 0 !important;
+}
+
+html[data-theme="arena-sport"] .modern-table th {
+  background: var(--bg-tertiary) !important;
+  color: var(--text-secondary) !important;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid var(--accent-purple) !important;
+}
+
+html[data-theme="arena-sport"] .modern-table td {
+  border-bottom: 1px solid var(--border) !important;
+  font-weight: 600;
+}
+
+/* Badges */
+html[data-theme="arena-sport"] .badge {
+  background: var(--bg-tertiary) !important;
+  border: 2px solid var(--border) !important;
+  border-radius: 0 !important;
+  border-left: 4px solid var(--accent-purple) !important;
+}
+
+/* Mobile Nav */
+html[data-theme="arena-sport"] .mobile-nav {
+  background: var(--bg-primary) !important;
+  border-top: 4px solid var(--accent-purple) !important;
+}
+
+html[data-theme="arena-sport"] .mobile-nav-item.active {
+  color: var(--accent-purple) !important;
+}
+
+/* --- Elite Interactive Layers --- */
+html[data-theme="arena-sport"] ::selection { background: var(--accent-purple); color: #fff; }
+html[data-theme="arena-sport"] ::-webkit-scrollbar { width: 12px; height: 12px; }
+html[data-theme="arena-sport"] ::-webkit-scrollbar-track { background: transparent; }
+html[data-theme="arena-sport"] ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 0; }
+html[data-theme="arena-sport"] { cursor: crosshair; }
+
+html[data-theme="arena-sport"] body {
+  position: relative;
+}
+html[data-theme="arena-sport"] body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  pointer-events: none;
+  background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), rgba(255, 92, 0, 0.05), transparent 40%);
+  z-index: 9999;
+}

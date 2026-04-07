@@ -18,6 +18,10 @@ export const settingsModal = `
                   <option value="midnight">All Tracker Original</option>
                   <option value="arctic">Arctic Ghost (Light)</option>
                   <option value="cyberpunk">Cyberpunk Red</option>
+                  <option value="coder-terminal">Coder Terminal</option>
+                  <option value="apex-corporate">Apex Corporate</option>
+                  <option value="sakura-overdrive">Sakura Overdrive</option>
+                  <option value="arena-sport">Arena Sport</option>
                 </select>
                 <button id="applyThemeBtn" class="btn btn-primary" style="white-space: nowrap; padding: 0 20px;">
                   Apply

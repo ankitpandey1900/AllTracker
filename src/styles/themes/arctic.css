@@ -1,189 +1,323 @@
 /* =========================================================
-   THEME: ARCTIC 2.0 (THE GLACIAL ENGINE)
-   Aesthetic: Glassmorphism, Airy Depth, Clinical Precision
+   THEME: ARCTIC 4.0 (SUB-ZERO CHROME)
+   Aesthetic: Sci-Fi, High-Contrast Icy White/Cyan, Hard Edges
    ========================================================= */
 
-html[data-theme="arctic"] :root {
-  --bg-primary: #fcfcfd;
-  --bg-secondary: #f8fafc;
-  --bg-tertiary: #f1f5f9;
-  --surface: rgba(255, 255, 255, 0.65);
-  --surface-2: rgba(255, 255, 255, 0.85);
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #64748b;
-  --border: rgba(255, 255, 255, 0.5);
-  --border-strong: rgba(148, 163, 184, 0.15);
-  --accent-blue: #2563eb;
-  --accent-purple: #7c3aed;
-  --accent-cyan: #0891b2;
+@import url('https://fonts.googleapis.com/css2?family=Tektur:wght@400;600;700&display=swap');
 
-  /* Glassmorphism Core */
-  --glass-blur: blur(25px) saturate(180%);
-  --glass-shadow: 0 20px 40px rgba(0, 0, 0, 0.04), 0 1px 0 rgba(255, 255, 255, 1) inset;
-  --glass-border-outer: rgba(0, 0, 0, 0.05);
+html[data-theme="arctic"] :root {
+  --bg-primary: #e0f2fe; /* Ice blue background */
+  --bg-secondary: #ffffff; /* Blinding white */
+  --bg-tertiary: #bae6fd;
+  --surface: #ffffff;
+  --surface-2: #f0f9ff;
+  --text-primary: #082f49; /* Deep icy navy */
+  --text-secondary: #0ea5e9;
+  --text-muted: #7dd3fc;
+  --border: #38bdf8; /* Sharp thick borders */
+  --border-strong: #0284c7;
+  --accent-blue: #0284c7;
+  --accent-purple: #0ea5e9;
+  --accent-cyan: #00f0ff; /* Neon frost */
 
   /* Intelligence / Maamu Overrides */
-  --maamu-bg: rgba(255, 255, 255, 0.7);
-  --maamu-card: rgba(255, 255, 255, 0.4);
-  --maamu-border: rgba(0, 0, 0, 0.05);
-  --maamu-text: #0f172a;
-  --maamu-text-muted: #475569;
-  --maamu-accent: #2563eb;
-  --maamu-accent-soft: rgba(37, 99, 235, 0.05);
+  --maamu-bg: #e0f2fe;
+  --maamu-card: #ffffff;
+  --maamu-border: #38bdf8;
+  --maamu-text: #082f49;
+  --maamu-text-muted: #0ea5e9;
+  --maamu-accent: #00E5FF;
+  --maamu-accent-soft: rgba(0, 229, 255, 0.15);
 
   /* Global Audit Points */
-  --header-bg: rgba(255, 255, 255, 0.7);
-  --nav-bg: rgba(255, 255, 255, 0.8);
-  --empty-state-bg: rgba(255, 255, 255, 0.3);
-  --scrollbar-bg: #f8fafc;
-  --scrollbar-thumb: rgba(0, 0, 0, 0.08);
+  --header-bg: #ffffff;
+  --nav-bg: #e0f2fe;
+  --empty-state-bg: transparent;
 }
 
 html[data-theme="arctic"] body {
-  background-color: #f8fafc;
-  background-image:
-    radial-gradient(at 0% 0%, rgba(224, 242, 254, 0.5) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(245, 243, 255, 0.5) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(236, 254, 255, 0.5) 0px, transparent 50%),
-    radial-gradient(at 0% 100%, rgba(240, 249, 255, 0.5) 0px, transparent 50%);
-  color: #0f172a;
-  font-family: 'Outfit', sans-serif !important;
-  letter-spacing: -0.01em;
+  background-color: var(--bg-primary);
+  background-image: 
+    linear-gradient(90deg, rgba(56, 189, 248, 0.05) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(56, 189, 248, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px; /* Precise laboratory grid */
+  color: var(--text-primary);
+  font-family: 'Tektur', sans-serif !important;
+  letter-spacing: 0.02em;
 }
 
-/* Glass Container Engine */
+/* Header & Nav */
+html[data-theme="arctic"] .app-header {
+  background: var(--header-bg) !important;
+  border-bottom: 3px solid var(--border-strong) !important;
+  border-radius: 0;
+  margin: 0;
+  width: 100%;
+  box-shadow: 0 4px 15px rgba(2, 132, 199, 0.1) !important;
+}
+
+html[data-theme="arctic"] .app-header .brand {
+  color: var(--accent-blue) !important;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+html[data-theme="arctic"] .nav-item {
+  color: var(--text-secondary) !important;
+  font-weight: 600;
+  border-radius: 0;
+  background: var(--surface-2) !important;
+  border: 1px solid var(--border) !important;
+  border-bottom: 2px solid var(--border-strong) !important;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+
+html[data-theme="arctic"] .nav-item.active {
+  background: var(--surface) !important;
+  color: var(--accent-blue) !important;
+  border-color: var(--accent-cyan) !important;
+  box-shadow: inset 0 0 10px rgba(0, 240, 255, 0.2) !important;
+}
+
+/* Cards & Surfaces (Sharp Chrome Blocks) */
 html[data-theme="arctic"] .card,
 html[data-theme="arctic"] .hero,
 html[data-theme="arctic"] .metric-card,
 html[data-theme="arctic"] .feature-card,
-html[data-theme="arctic"] .profile-passport-card,
 html[data-theme="arctic"] .leaderboard-item,
 html[data-theme="arctic"] .history-item,
-html[data-theme="arctic"] .tracker-table-container,
-html[data-theme="arctic"] .maamu-gpt-container,
+html[data-theme="arctic"] .profile-passport-card,
+html[data-theme="arctic"] .bookmark-card,
+html[data-theme="arctic"] .routine-item,
+html[data-theme="arctic"] .task-item {
+  background: var(--surface) !important;
+  border: 2px solid var(--border) !important;
+  border-radius: 0 !important;
+  border-left: 4px solid var(--accent-blue) !important;
+  box-shadow: 4px 4px 0 rgba(2, 132, 199, 0.1) !important;
+  transition: all 0.2s ease !important;
+}
+
+html[data-theme="arctic"] .metric-card:hover,
+html[data-theme="arctic"] .bookmark-card:hover,
+html[data-theme="arctic"] .routine-item:hover,
+html[data-theme="arctic"] .task-item:hover,
+html[data-theme="arctic"] .hero:hover {
+  transform: translate(-2px, -2px);
+  border-left-color: var(--accent-cyan) !important;
+  box-shadow: 6px 6px 0 rgba(0, 240, 255, 0.3) !important; /* Cyberpunk style hard shadow */
+}
+
+/* Typography Overrides */
+html[data-theme="arctic"] h1,
+html[data-theme="arctic"] h2,
+html[data-theme="arctic"] h3,
+html[data-theme="arctic"] h4 {
+  font-weight: 700 !important;
+  color: var(--text-primary) !important;
+  text-transform: uppercase;
+}
+
+html[data-theme="arctic"] .stat-value {
+  color: var(--accent-blue) !important;
+  font-weight: 700 !important;
+}
+
+/* Modals (Laboratory Popup) */
 html[data-theme="arctic"] .modal-content {
   background: var(--surface) !important;
-  backdrop-filter: var(--glass-blur) !important;
-  -webkit-backdrop-filter: var(--glass-blur) !important;
-  border: 1px solid var(--border) !important;
-  box-shadow: var(--glass-shadow) !important;
-  border-radius: 24px !important;
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease !important;
-  outline: 1px solid var(--glass-border-outer) !important;
+  border: 3px solid var(--accent-cyan) !important;
+  border-radius: 0 !important;
+  box-shadow: 0 0 50px rgba(0, 240, 255, 0.2), 15px 15px 0 rgba(2, 132, 199, 0.1) !important;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%);
 }
 
-/* Glint Hover Effect */
-html[data-theme="arctic"] .card:hover,
-html[data-theme="arctic"] .metric-card:hover,
-html[data-theme="arctic"] .hero:hover {
-  transform: translateY(-8px) scale(1.01);
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.06), 0 0 0 1px #fff inset !important;
+html[data-theme="arctic"] .modal-header {
+  border-bottom: 2px solid var(--border) !important;
+  background: var(--surface-2) !important;
 }
 
-/* Header & Nav (Floating Glass) */
-html[data-theme="arctic"] .app-header {
-  background: var(--header-bg) !important;
-  backdrop-filter: var(--glass-blur) !important;
-  border-bottom: 1px solid var(--border) !important;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.02) !important;
-  margin: 12px 16px;
-  border-radius: 20px;
-  width: calc(100% - 32px);
-  position: sticky !important;
-  top: 12px;
-  z-index: 100 !important;
-}
-
-html[data-theme="arctic"] .nav-item {
-  color: #64748b !important;
-  border-radius: 12px;
-  padding: 8px 18px !important;
+/* Empty States */
+html[data-theme="arctic"] .empty-state,
+html[data-theme="arctic"] .bookmarks-empty,
+html[data-theme="arctic"] .no-sessions,
+html[data-theme="arctic"] .leaderboard-placeholder {
   background: transparent !important;
-  border: 1px solid transparent !important;
+  border: 2px dashed var(--accent-blue) !important;
+  border-radius: 0 !important;
+  color: var(--text-secondary) !important;
+  text-transform: uppercase;
+  font-weight: 600;
 }
 
-html[data-theme="arctic"] .nav-item.active {
-  background: #ffffff !important;
-  color: #2563eb !important;
-  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.1) !important;
-  border: 1px solid rgba(37, 99, 235, 0.15) !important;
+html[data-theme="arctic"] .empty-state::before,
+html[data-theme="arctic"] .no-sessions::before {
+  content: "DATA STREAM: EMPTY";
+  display: block;
+  color: var(--accent-cyan);
+  margin-bottom: 10px;
 }
 
-/* Maamu Redesign (Frosted Console) */
+/* Mentor UI */
+html[data-theme="arctic"] .mentor-v2-container,
+html[data-theme="arctic"] .maamu-gpt-container {
+  background: var(--surface) !important;
+  border-radius: 0 !important;
+  border: 2px solid var(--border) !important;
+  border-right: 4px solid var(--accent-blue) !important;
+}
+
+html[data-theme="arctic"] .maamu-sidebar-top,
+html[data-theme="arctic"] .maamu-chat-header,
+html[data-theme="arctic"] .maamu-sidebar-footer,
 html[data-theme="arctic"] .maamu-sidebar {
-  background: rgba(255, 255, 255, 0.3) !important;
-  border-right: 1px solid var(--border) !important;
-}
-
-html[data-theme="arctic"] .maamu-chat-header {
-  background: rgba(255, 255, 255, 0.5) !important;
-  border-bottom: 1px solid var(--border) !important;
+  border-color: var(--border) !important;
+  background: var(--surface-2) !important;
 }
 
 html[data-theme="arctic"] .msg-row.assistant .msg-body {
-  background: rgba(255, 255, 255, 0.8) !important;
-  border-radius: 4px 20px 20px 20px !important;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02) !important;
+  background: var(--surface) !important;
   border: 1px solid var(--border) !important;
+  border-left: 3px solid var(--accent-cyan) !important;
+  color: var(--text-primary) !important;
+  border-radius: 0 !important;
 }
 
 html[data-theme="arctic"] .msg-row.user .msg-body {
-  background: #0f172a !important;
-  color: #ffffff !important;
-  border-radius: 20px 4px 20px 20px !important;
+  background: var(--accent-blue) !important;
+  color: #fff !important;
   border: none !important;
+  border-radius: 0 !important;
+  border-right: 3px solid var(--accent-cyan) !important;
 }
 
-/* Tracker Table (Clean & Airy) */
-html[data-theme="arctic"] .tracker-row:nth-child(even) td {
-  background: rgba(0, 0, 0, 0.01) !important;
+/* Tracker Table */
+html[data-theme="arctic"] .tracker-table-container {
+  background: var(--surface) !important;
+  border: 2px solid var(--border) !important;
+  border-radius: 0 !important;
+  box-shadow: 4px 4px 0 rgba(2, 132, 199, 0.1) !important;
 }
 
 html[data-theme="arctic"] .modern-table th {
-  background: rgba(0, 0, 0, 0.02) !important;
+  background: var(--border-strong) !important;
+  color: #fff !important;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-size: 0.7rem;
-  color: #64748b !important;
+  border-bottom: none !important;
 }
 
-/* Focus HUD (The Glacial Diamond) */
+html[data-theme="arctic"] .modern-table td {
+  border-bottom: 1px solid var(--border) !important;
+}
+
+/* Focus HUD Tracker */
 html[data-theme="arctic"] .focus-core {
-  background: rgba(255, 255, 255, 0.8) !important;
-  backdrop-filter: blur(40px) !important;
-  border: 1px solid #fff !important;
-  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.08), inset 0 0 20px rgba(255, 255, 255, 0.5) !important;
+  background: var(--surface) !important;
+  border: 4px solid var(--accent-cyan) !important;
+  border-radius: 0 !important;
+  box-shadow: 0 0 30px rgba(0, 240, 255, 0.3), inset 0 0 15px rgba(0, 240, 255, 0.1) !important;
+  clip-path: polygon(0 20px, 20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%);
 }
 
 html[data-theme="arctic"] .time-display {
-  color: #0f172a !important;
-  font-family: 'Outfit', sans-serif !important;
+  color: var(--text-primary) !important;
+  font-weight: 700 !important;
+  text-shadow: 2px 2px 0px rgba(2, 132, 199, 0.2);
 }
 
-/* Buttons (Premium Clinical) */
+/* Buttons */
 html[data-theme="arctic"] .btn {
-  border-radius: 12px !important;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  background: var(--surface-2) !important;
+  color: var(--text-primary) !important;
+  border: 2px solid var(--border) !important;
+  border-radius: 0 !important;
   font-weight: 700;
-  transition: all 0.2s ease;
+  text-transform: uppercase;
+}
+
+html[data-theme="arctic"] .btn:hover {
+  background: var(--border) !important;
+  border-color: var(--accent-cyan) !important;
+  color: #fff !important;
 }
 
 html[data-theme="arctic"] .btn-primary {
-  background: #0f172a !important;
-  color: white !important;
-  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.1) !important;
+  background: var(--accent-blue) !important;
+  color: #ffffff !important;
+  border: 2px solid var(--accent-cyan) !important;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.4) !important;
 }
 
-/* Mobile Polish */
+html[data-theme="arctic"] .btn-primary:hover {
+  background: #00f0ff !important;
+  color: #082f49 !important;
+}
+
+/* Inputs */
+html[data-theme="arctic"] .settings-input,
+html[data-theme="arctic"] .task-input,
+html[data-theme="arctic"] select,
+html[data-theme="arctic"] textarea {
+  background: var(--surface) !important;
+  border: 2px solid var(--border) !important;
+  color: var(--text-primary) !important;
+  border-radius: 0 !important;
+  font-family: inherit !important;
+}
+
+html[data-theme="arctic"] .settings-input:focus,
+html[data-theme="arctic"] .task-input:focus {
+  border-color: var(--accent-cyan) !important;
+  background: var(--surface-2) !important;
+  outline: none;
+}
+
+/* Checkboxes */
+html[data-theme="arctic"] .routine-checkbox {
+  border-radius: 0 !important;
+  border: 2px solid var(--border-strong) !important;
+  background: var(--surface) !important;
+}
+
+/* Badges */
+html[data-theme="arctic"] .badge {
+  background: var(--surface-2) !important;
+  border: 1px solid var(--accent-cyan) !important;
+  border-radius: 0 !important;
+  font-weight: 600;
+  color: var(--accent-blue) !important;
+}
+
+/* Mobile Nav */
 html[data-theme="arctic"] .mobile-nav {
-  background: rgba(255, 255, 255, 0.8) !important;
-  backdrop-filter: blur(20px) !important;
-  border-top: 1px solid var(--border) !important;
-  margin: 0 16px 16px;
-  border-radius: 20px;
-  width: calc(100% - 32px);
-  bottom: 0;
-  position: fixed !important;
+  background: var(--surface) !important;
+  border-top: 3px solid var(--accent-cyan) !important;
+  box-shadow: 0 -5px 15px rgba(2, 132, 199, 0.1) !important;
+}
+
+html[data-theme="arctic"] .mobile-nav-item.active {
+  color: var(--accent-blue) !important;
+  text-shadow: 0 0 5px rgba(0, 240, 255, 0.5) !important;
+}
+
+/* --- Elite Interactive Layers --- */
+html[data-theme="arctic"] ::selection { background: var(--accent-cyan); color: #082f49; }
+html[data-theme="arctic"] ::-webkit-scrollbar { width: 10px; height: 10px; }
+html[data-theme="arctic"] ::-webkit-scrollbar-track { background: var(--bg-primary); }
+html[data-theme="arctic"] ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 0; border: 1px solid var(--accent-cyan); }
+html[data-theme="arctic"] ::-webkit-scrollbar-thumb:hover { background: var(--accent-cyan); }
+
+html[data-theme="arctic"] { cursor: crosshair; }
+
+html[data-theme="arctic"] body {
+  position: relative;
+}
+html[data-theme="arctic"] body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  pointer-events: none;
+  background: radial-gradient(400px circle at var(--mouse-x) var(--mouse-y), rgba(0, 240, 255, 0.15), transparent 40%); /* Bright icy tracking glow */
+  z-index: 9999;
 }

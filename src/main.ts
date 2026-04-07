@@ -14,6 +14,10 @@ import "./styles/components/manual.css";
 import "./styles/features/maamu.css";
 import "./styles/themes/arctic.css";
 import "./styles/themes/cyberpunk.css";
+import "./styles/themes/coder-terminal.css";
+import "./styles/themes/apex-corporate.css";
+import "./styles/themes/sakura-overdrive.css";
+import "./styles/themes/arena-sport.css";
 
 // ─── Core ────────────────────────────────────────────────────
 import { appState, calculateDates, initializeData } from "@/state/app-state";
@@ -177,6 +181,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   // 11. World Stage Leaderboard
   await initWorldStage();
   checkProfileIdentity();
+
+  // 12. Elite Interactive Mouse Tracking
+  document.addEventListener("mousemove", (e) => {
+    document.documentElement.style.setProperty("--mouse-x", `${e.clientX}px`);
+    document.documentElement.style.setProperty("--mouse-y", `${e.clientY}px`);
+  });
 
   console.log("✅ App initialized successfully.");
 });

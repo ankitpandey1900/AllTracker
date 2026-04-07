@@ -1,0 +1,290 @@
+/* =========================================================
+   THEME: CODER TERMINAL
+   Aesthetic: GitHub-style dark theme, monospace fonts
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&display=swap');
+
+html[data-theme="coder-terminal"] :root {
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-tertiary: #010409;
+  --surface: #0d1117;
+  --surface-2: #161b22;
+  --text-primary: #c9d1d9;
+  --text-secondary: #8b949e;
+  --text-muted: #6e7681;
+  --border: #30363d;
+  --border-strong: #8b949e;
+  --accent-blue: #58a6ff;
+  --accent-purple: #bc8cff;
+  --accent-cyan: #3fb950;
+
+  /* Intelligence / Maamu Overrides */
+  --maamu-bg: #161b22;
+  --maamu-card: #0d1117;
+  --maamu-border: #30363d;
+  --maamu-text: #c9d1d9;
+  --maamu-text-muted: #8b949e;
+  --maamu-accent: #58a6ff;
+  --maamu-accent-soft: rgba(88, 166, 255, 0.1);
+
+  /* Global Audit Points */
+  --header-bg: #161b22;
+  --nav-bg: #0d1117;
+  --empty-state-bg: #0d1117;
+  --scrollbar-bg: #0d1117;
+  --scrollbar-thumb: #30363d;
+}
+
+html[data-theme="coder-terminal"] body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Fira Code', 'Courier New', Courier, monospace !important;
+  letter-spacing: -0.02em;
+}
+
+/* Global Container Fixes */
+html[data-theme="coder-terminal"] .app-header {
+  background: var(--header-bg) !important;
+  border-bottom: 1px solid var(--border) !important;
+  box-shadow: none !important;
+  border-radius: 0;
+  margin: 0;
+  width: 100%;
+}
+
+html[data-theme="coder-terminal"] .app-header .brand {
+  color: var(--text-primary) !important;
+  font-weight: 500;
+}
+
+html[data-theme="coder-terminal"] .app-header::before {
+  content: ">_";
+  color: var(--accent-cyan);
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+html[data-theme="coder-terminal"] .nav-item {
+  color: var(--text-secondary) !important;
+  border: 1px solid transparent !important;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+html[data-theme="coder-terminal"] .nav-item.active {
+  background: transparent !important;
+  color: var(--text-primary) !important;
+  border-bottom: 2px solid #f78166 !important; /* GitHub Orange accent */
+  border-radius: 0;
+}
+
+/* Cards & Surfaces */
+html[data-theme="coder-terminal"] .card,
+html[data-theme="coder-terminal"] .hero,
+html[data-theme="coder-terminal"] .metric-card,
+html[data-theme="coder-terminal"] .feature-card,
+html[data-theme="coder-terminal"] .leaderboard-item,
+html[data-theme="coder-terminal"] .history-item,
+html[data-theme="coder-terminal"] .routine-item,
+html[data-theme="coder-terminal"] .task-item,
+html[data-theme="coder-terminal"] .bookmark-card,
+html[data-theme="coder-terminal"] .profile-passport-card {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="coder-terminal"] .metric-card {
+  border-left: 3px solid var(--accent-blue) !important;
+}
+
+/* Empty States mimicking terminal */
+html[data-theme="coder-terminal"] .empty-state,
+html[data-theme="coder-terminal"] .bookmarks-empty,
+html[data-theme="coder-terminal"] .no-sessions,
+html[data-theme="coder-terminal"] .leaderboard-placeholder {
+  background: var(--surface) !important;
+  border: 1px dashed var(--border-strong) !important;
+  border-radius: 6px !important;
+}
+
+html[data-theme="coder-terminal"] .empty-state::before,
+html[data-theme="coder-terminal"] .bookmarks-empty::before,
+html[data-theme="coder-terminal"] .no-sessions::before {
+  content: "404: Not Found.\A $ cursor_";
+  white-space: pre-wrap;
+  color: var(--accent-cyan);
+  display: block;
+  margin-bottom: 10px;
+}
+
+/* Modals (Command Palette style) */
+html[data-theme="coder-terminal"] .modal-content {
+  background: var(--surface-2) !important;
+  border: 1px solid #484f58 !important; /* Higher contrast border */
+  border-radius: 12px !important;
+  box-shadow: 0 16px 32px rgba(0,0,0,0.5) !important;
+}
+
+html[data-theme="coder-terminal"] .modal-header {
+  border-bottom: 1px solid var(--border) !important;
+}
+
+/* Maamu Chat Terminal */
+html[data-theme="coder-terminal"] .mentor-v2-container,
+html[data-theme="coder-terminal"] .maamu-gpt-container {
+  background: var(--bg-primary) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 6px !important;
+}
+
+html[data-theme="coder-terminal"] .maamu-sidebar-top,
+html[data-theme="coder-terminal"] .maamu-chat-header,
+html[data-theme="coder-terminal"] .maamu-sidebar-footer,
+html[data-theme="coder-terminal"] .maamu-sidebar {
+  background: var(--surface-2) !important;
+  border-color: var(--border) !important;
+}
+
+html[data-theme="coder-terminal"] .msg-row.assistant .msg-body {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text-primary) !important;
+  border-radius: 6px !important;
+}
+
+html[data-theme="coder-terminal"] .msg-row.user .msg-body {
+  background: var(--surface-2) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text-primary) !important;
+  border-radius: 6px !important;
+  border-left: 3px solid var(--accent-purple) !important;
+}
+
+/* Tracker Table */
+html[data-theme="coder-terminal"] .tracker-table-container,
+html[data-theme="coder-terminal"] .modern-table {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 6px !important;
+}
+
+html[data-theme="coder-terminal"] .modern-table th {
+  background: var(--surface-2) !important;
+  color: var(--text-secondary) !important;
+  font-weight: 500;
+  text-transform: none;
+  font-size: 0.85rem;
+  border-bottom: 1px solid var(--border) !important;
+  border-right: 1px solid var(--border) !important;
+}
+
+html[data-theme="coder-terminal"] .modern-table td,
+html[data-theme="coder-terminal"] .tracker-cell {
+  background: var(--surface) !important;
+  border-bottom: 1px solid var(--border) !important;
+  border-right: 1px solid var(--border) !important;
+  color: var(--text-primary) !important;
+  font-size: 0.85rem;
+}
+
+/* Focus HUD */
+html[data-theme="coder-terminal"] .focus-core {
+  background: var(--surface-2) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5) !important;
+}
+
+html[data-theme="coder-terminal"] .time-display {
+  color: var(--accent-cyan) !important; /* Green like a console output */
+}
+
+/* Buttons */
+html[data-theme="coder-terminal"] .btn {
+  background: var(--surface-2) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 6px !important;
+  font-weight: 500;
+  text-transform: none;
+}
+
+html[data-theme="coder-terminal"] .btn:hover {
+  background: #30363d !important;
+  border-color: #8b949e !important;
+}
+
+html[data-theme="coder-terminal"] .btn-primary {
+  background: #238636 !important; /* GitHub Success Green */
+  color: #ffffff !important;
+  border: 1px solid rgba(240, 246, 252, 0.1) !important;
+}
+
+html[data-theme="coder-terminal"] .btn-primary:hover {
+  background: #2ea043 !important;
+}
+
+/* Inputs & Form */
+html[data-theme="coder-terminal"] .settings-input,
+html[data-theme="coder-terminal"] .task-input,
+html[data-theme="coder-terminal"] select,
+html[data-theme="coder-terminal"] textarea {
+  background: var(--bg-tertiary) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text-primary) !important;
+  border-radius: 6px;
+  font-family: inherit !important;
+}
+
+html[data-theme="coder-terminal"] .settings-input:focus {
+  border-color: var(--accent-blue) !important;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.3) !important;
+}
+
+/* Checkboxes */
+html[data-theme="coder-terminal"] .routine-checkbox {
+  border-radius: 2px !important;
+  border: 1px solid var(--border-strong) !important;
+  background: var(--surface-2) !important;
+}
+
+/* Badges */
+html[data-theme="coder-terminal"] .badge {
+  background: var(--surface-2) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 4px !important;
+}
+
+/* Mobile Nav */
+html[data-theme="coder-terminal"] .mobile-nav {
+  background: var(--surface-2) !important;
+  border-top: 1px solid var(--border) !important;
+}
+
+html[data-theme="coder-terminal"] .mobile-nav-item.active {
+  color: var(--accent-blue) !important;
+}
+
+/* --- Elite Interactive Layers --- */
+html[data-theme="coder-terminal"] ::selection { background: var(--accent-blue); color: #fff; }
+html[data-theme="coder-terminal"] ::-webkit-scrollbar { width: 8px; height: 8px; }
+html[data-theme="coder-terminal"] ::-webkit-scrollbar-track { background: transparent; }
+html[data-theme="coder-terminal"] ::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 4px; }
+html[data-theme="coder-terminal"] { cursor: crosshair; }
+
+html[data-theme="coder-terminal"] body {
+  position: relative;
+}
+html[data-theme="coder-terminal"] body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  pointer-events: none;
+  background: radial-gradient(400px circle at var(--mouse-x) var(--mouse-y), rgba(88, 166, 255, 0.05), transparent 40%);
+  z-index: 9999;
+}
