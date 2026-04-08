@@ -1,19 +1,16 @@
 # Pilot Profile: Ankit Pandey
 
-- **Role**: Lead Architect & Systems Orchestrator
-- **LinkedIn**: [Add your LinkedIn here]
-- **X (Twitter)**: [Add your X here]
+- **Role**: Lead Architect & Project Manager
+- **LinkedIn**: [https://www.linkedin.com/in/ankit-pandey-a082a2303/]
+- **X (Twitter)**: [https://x.com/AnkitPande5641]
 - **GitHub**: [ankitpandey1900](https://github.com/ankitpandey1900)
 
 ---
-
 ### 🛠️ Mission Contributions
-
-- **Core Architecture**: Designed and implemented the "First Principles" modular engine using Vanilla TypeScript.
-- **Neon Arena UI**: Created the high-fidelity Glassmorphic interface and semantic theme engine.
-- **World Stage Sync**: Integrated Supabase for real-time global leaderboard broadcasting and secure cloud storage.
-- **Humanization Audit**: Led the project-wide effort to ensure documentation is direct, instructional, and accessible.
-
+- **Core Architecture**: Built the main system from scratch using simple logic (first principles) with basic TypeScript (no heavy frameworks).
+- **Neon Arena UI**: Designed a modern, glass-style interface with clean themes and good visual look.
+- **World Stage Sync**: Connected Supabase to show live global leaderboard and safely store data in cloud.
+- **Humanization Audit**: Made sure all project docs are easy to understand, simple, and useful for everyone.
 ### 💬 Dispatch Message
 
-"The Arena is a testament to the power of deep, focused work. Let's build something that makes us better everyday."
+"This platform shows what focused work can do. Let’s build something that improves us every day."
