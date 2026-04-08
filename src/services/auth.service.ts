@@ -1,8 +1,8 @@
 /**
- * Auth service — Sync ID management
- *
- * Provides a frictionless "login" via a text-based Sync ID.
- * No email/password required — users just pick an ID and their data syncs.
+ * Handles the login/logout logic.
+ * 
+ * Users don't need an email—they just use a text-based "Secret Key" to sync 
+ * their data across devices.
  */
 
 import { STORAGE_KEYS } from '@/config/constants';
@@ -11,12 +11,12 @@ import { isUsernameTaken, loadUserProfileCloud, verifyUserCredentials, broadcast
 import { supabaseClient } from '@/config/supabase';
 import { obfuscate, deobfuscate, isObfuscated } from '@/utils/security';
 
-// ─── State ───────────────────────────────────────────────────
+// --- Internal State ---
 
 const rawId = localStorage.getItem(STORAGE_KEYS.SYNC_ID) || null;
 let currentSyncId: string | null = rawId ? deobfuscate(rawId) : null;
 
-// ─── Public API ──────────────────────────────────────────────
+// --- Public Functions ---
 
 /** Returns the current Sync ID, or null if not connected */
 export function getCurrentUserId(): string | null {
@@ -25,14 +25,14 @@ export function getCurrentUserId(): string | null {
 
 /** Initializes auth UI and restores previous session */
 export function initSyncAuth(): void {
-  // 0. High-Stakes Migration: Protect legacy plain-text IDs
+  // Security fix: Make sure old plain-text keys are masked properly in storage.
   const raw = localStorage.getItem(STORAGE_KEYS.SYNC_ID);
   if (raw && !isObfuscated(raw)) {
     console.log('Security Patch: Encrypting legacy Vault Key...');
     localStorage.setItem(STORAGE_KEYS.SYNC_ID, obfuscate(raw));
   }
 
-  // Sanitization: Remove plain-text syncId from the UserProfile object if it exists
+  // Security fix: Remove the plain-text syncId from the profile object if it's still there.
   const profileRaw = localStorage.getItem(STORAGE_KEYS.USER_PROFILE);
   if (profileRaw) {
     try {
@@ -229,14 +229,14 @@ export function setupHeaderScroll(): void {
   });
 }
 
-// ─── UI State ────────────────────────────────────────────────
+// --- UI Updates ---
 
 async function handleSyncIdEstablished(syncId: string): Promise<void> {
   currentSyncId = syncId;
   localStorage.setItem(STORAGE_KEYS.SYNC_ID, obfuscate(syncId));
   console.log('Sync ID active:', syncId);
 
-  // ☁️ CLOUD HYDRATION: Pull profile from Supabase so it "follows" the user to this device
+  // Pull the profile from Supabase so it follows the user to this device.
   try {
     const { loadUserProfileCloud } = await import('./supabase.service');
     const cloudProfile = await loadUserProfileCloud();
@@ -332,7 +332,7 @@ function handleUserSignedOut(): void {
   }
 }
 
-// ─── Actions ─────────────────────────────────────────────────
+// --- Core Actions ---
 
 function openAuthModal(): void {
   const modal = document.getElementById('authModal');
@@ -390,7 +390,7 @@ async function handleLoginSubmission(e: Event): Promise<void> {
   }
 }
 
-/** Handles legacy user login (Sync ID only) */
+/** Handles users from the old system (Sync ID only, no handle yet) */
 async function handleLegacySubmission(e: Event): Promise<void> {
   e.preventDefault();
 
@@ -446,7 +446,7 @@ async function handleLegacySubmission(e: Event): Promise<void> {
   }
 }
 
-/** Handles vault recovery via Discovery Key */
+/** Helps recover a lost Secret Key using a Discovery Key */
 async function handleRecoverySubmission(e: Event): Promise<void> {
   e.preventDefault();
   const userInp = document.getElementById('recUsernameInput') as HTMLInputElement;

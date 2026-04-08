@@ -1,7 +1,8 @@
 /**
- * Badge system
- *
- * Checks badge unlock conditions against tracker data and renders the badge grid.
+ * Handles the Badge System (Achievements).
+ * 
+ * It looks at your study data to see if you've earned any new badges, 
+ * and then draws the grid on the dashboard.
  */
 
 import { appState } from '@/state/app-state';

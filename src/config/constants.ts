@@ -1,13 +1,13 @@
 /**
- * Application constants
- *
- * Central place for all magic values, storage keys, default dates,
- * column names, and badge definitions.
+ * All the 'magic values' and defaults for the app.
+ * 
+ * This is the central place for things like storage keys, 
+ * default dates, column names, and badge rules.
  */
 
 import type { Badge, TrackerDay } from '@/types/tracker.types';
 
-// ─── Storage Keys ────────────────────────────────────────────
+// --- Storage Keys ---
 
 export const STORAGE_KEYS = {
   TRACKER_DATA: 'programmingTrackerData',
@@ -25,12 +25,12 @@ export const STORAGE_KEYS = {
   USER_PROFILE: 'studyTrackerUserProfile',
 } as const;
 
-// ─── Default Dates ───────────────────────────────────────────
+// --- Default Dates ---
 
 export const DEFAULT_START_DATE = new Date('2026-01-13');
 export const DEFAULT_END_DATE = new Date('2026-12-31');
 
-// ─── Default Column Names ────────────────────────────────────
+// --- Default Study Groups ---
 
 export const DEFAULT_COLUMNS = [
   { name: 'Python',           target: 100 },
@@ -39,7 +39,7 @@ export const DEFAULT_COLUMNS = [
   { name: 'College/Backends', target: 200 },
 ];
 
-/** Shared palette for dashboard analytics and category tokens. Index-aligned. */
+/** Colors for the different study categories in the analytics */
 export const CATEGORY_COLORS = [
   '#2dd4bf', // Teal (accent-teal)
   '#60a5fa', // Blue (accent-blue)
@@ -51,7 +51,7 @@ export const CATEGORY_COLORS = [
   '#f472b6', // Pink
 ];
 
-// ─── Supabase Table Names ────────────────────────────────────
+// --- Supabase Tables ---
 
 export const SUPABASE_TABLES = {
   TRACKER_DATA: 'tracker_data',
@@ -65,7 +65,7 @@ export const SUPABASE_TABLES = {
   GLOBAL_PROFILES: 'global_profiles',
 } as const;
 
-// ─── Helper functions needed by badge conditions ─────────────
+// --- Badge Condition Helpers ---
 
 function getStreak(data: TrackerDay[]): number {
   let streak = 0;
@@ -102,7 +102,7 @@ function hasWeekendStudy(data: TrackerDay[]): boolean {
   });
 }
 
-// ─── Badge Definitions ───────────────────────────────────────
+// --- Badge Rules ---
 
 export const BADGES: Badge[] = [
   { id: 'streak_3',        name: 'Momentum Builder',  icon: '🔥', description: '3 Day Streak',         condition: (data) => getStreak(data) >= 3 },
@@ -114,7 +114,7 @@ export const BADGES: Badge[] = [
   { id: 'weekend_warrior', name: 'Weekend Warrior',   icon: '🛡️', description: 'Study on a Weekend',   condition: (data) => hasWeekendStudy(data) },
 ];
 
-// ─── Bookmark Categories ─────────────────────────────────────
+// --- Bookmark Folders ---
 
 export const BOOKMARK_CATEGORIES = [
   'Development',
@@ -126,7 +126,7 @@ export const BOOKMARK_CATEGORIES = [
   'Other',
 ] as const;
 
-// ─── Rank System Tiers ───────────────────────────────────────
+// --- World Stage Tiers ---
 
 export const RANK_TIERS = [
   { name: 'IRON',        min: 0,     max: 50,     color: '#71717a' },
@@ -156,7 +156,7 @@ export const TIER_TITLES: Record<string, string[]> = {
   SINGULARITY: ['POINT ZERO', 'THE ABSOLUTE', 'BEYOND TIME', 'ONE WITH THE CODE', 'NULL POINTER GOD'],
 };
 
-// ─── Field Mappings ──────────────────────────────────────────
+// --- Field Mapping ---
 
 /** Maps CSS class names to TrackerDay property names (for table inputs) */
 export const NUMBER_FIELD_MAP: Record<string, keyof TrackerDay> = {

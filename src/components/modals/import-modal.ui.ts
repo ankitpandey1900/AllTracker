@@ -1,3 +1,6 @@
+/**
+ * The Data Import modal.
+ */
 export const importModal = `
   <div class="modal" id="importModal">
     <div class="modal-content wide">

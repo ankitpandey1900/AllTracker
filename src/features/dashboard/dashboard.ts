@@ -1,11 +1,10 @@
 /**
- * Dashboard feature
- *
- * Computes and renders all dashboard statistics:
- *  - Current day, total hours, streak, completion rate
- *  - Rank system (Iron → Eternal)
- *  - Category allocation bar
- *  - Daily target progress cards
+ * Handles the Dashboard logic.
+ * 
+ * It calculates and displays all your stats:
+ * - Current day, total hours, streak, and completion rate.
+ * - Rank (Iron → Eternal).
+ * - Category bars and progress cards.
  */
 
 import { appState } from '@/state/app-state';
@@ -18,7 +17,7 @@ import { renderStudyAnalytics } from './study-analytics';
 
 const formatNum = (num: number) => new Intl.NumberFormat().format(num);
 
-// ─── XP & Level System ───────────────────────────────────────
+// --- Leveling System ---
 
 function calculateXP(totalHours: number): { xp: number; level: number; nextLevelXP: number; progress: number } {
   // 🛰️ All Tracker Leveling Engine: 1 Level = 10 Study Hours
@@ -37,7 +36,7 @@ function calculateXP(totalHours: number): { xp: number; level: number; nextLevel
   };
 }
 
-// ─── Focus HUD Management ────────────────────────────────────
+// --- Timer HUD Logic ---
 
 export function toggleFocusHUD(show: boolean, subject: string = '', time: string = ''): void {
   const hud = document.getElementById('focusHud');
@@ -60,7 +59,7 @@ export function toggleFocusHUD(show: boolean, subject: string = '', time: string
   }
 }
 
-// ─── Rank Calculation ────────────────────────────────────────
+// --- Rank Logic ---
 
 export function getRank(totalHours: number): RankDetails {
   for (let i = 0; i < RANK_TIERS.length; i++) {
@@ -111,7 +110,7 @@ export function getRank(totalHours: number): RankDetails {
   };
 }
 
-// ─── Streak Calculation ──────────────────────────────────────
+// --- Streak Logic ---
 
 function calculateStreak(): number {
   let streak = 0;
@@ -141,7 +140,7 @@ function calculateStreak(): number {
   return streak;
 }
 
-// ─── Today Detection ─────────────────────────────────────────
+// --- Day Detection ---
 
 function findTodayIndex(): number {
   const today = new Date();
@@ -155,7 +154,7 @@ function findTodayIndex(): number {
   return -1;
 }
 
-// ─── Main Dashboard Update ───────────────────────────────────
+// --- Main UI Refresh ---
 
 export function updateDashboard(): void {
   const data = appState.trackerData;
@@ -502,7 +501,7 @@ function renderAllocationBar(): void {
 
 
 
-// ─── History Modal ───────────────────────────────────────────
+// --- Session History Popup ---
 
 export function renderSessionHistory(): void {
   const tbody = document.getElementById('recentSessionsBody');

@@ -1,3 +1,6 @@
+/**
+ * HTML template for the Analytics popup.
+ */
 export const analyticsModal = `
   <div class="modal" id="analyticsModal">
     <div class="modal-content wide" style="max-width: 1000px">

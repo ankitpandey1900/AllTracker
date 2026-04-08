@@ -1,3 +1,6 @@
+/**
+ * The Login/Register modal.
+ */
 export const authModal = `
   <div class="modal" id="authModal">
     <div class="modal-content" style="position: relative;">

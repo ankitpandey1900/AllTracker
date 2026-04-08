@@ -1,3 +1,9 @@
+/**
+ * The 'Focus HUD' overlay.
+ * 
+ * This is the timer that floats on top of everything when you're 
+ * in a deep focus session.
+ */
 export const hudView = `
   <div id="focusHud" class="focus-hud">
     <div id="activeTimerSection" style="display: none">

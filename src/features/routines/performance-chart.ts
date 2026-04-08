@@ -1,3 +1,9 @@
+/**
+ * Handles the 'Performance' chart on the routines page.
+ * 
+ * We use Chart.js to show how many routines you finish compared 
+ * to how many hours you study each day.
+ */
 import { Chart, registerables } from 'chart.js';
 import { appState } from '@/state/app-state';
 import { setTxt } from '@/utils/dom.utils';

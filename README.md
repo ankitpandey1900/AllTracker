@@ -1,57 +1,95 @@
 <div align="center">
   <img src="./public/logo.png" width="100" height="100" alt="All Tracker Logo">
-  <h1> All Tracker — Arena</h1>
-  <p><strong>I built the ultimate command center for mastering development and deep focus. No more boring habit trackers.</strong></p>
-  
+  <h1> All Tracker Arena</h1>
+  <p><strong>The High-Performance Mission Control for Focused Development & Study.</strong></p>
+
+  <p>
+    <a href="https://alltracker.online"><strong>Live Arena</strong></a> |
+    <a href="https://github.com/ankitpandey1900/Tracker/issues">Report Issue</a> |
+    <a href="https://github.com/ankitpandey1900/Tracker/pulls">Contribute</a>
+  </p>
 </div>
 
 ---
 
-## 🚀 Why I built All Tracker?
-I was tired of tracking my habits in boring spreadsheets or basic apps. I wanted something that felt like a **Mission Control**—something cool that actually motivated me to grind. So, I built the **Arena**. 
-
-It’s got that "Neon Space" aesthetic, deep-work analytics, and even an AI Mentor (Maamu) who actually understands my progress and pushes me to win.
+## 🚀 The Vision
+All Tracker Arena is a revolutionary, gamified productivity command center. Designed for those who "grind" in silent hours, it transforms boring habit tracking into a high-stakes **World Stage** arena. With a "Neon Space" aesthetic and deep-focus analytics, it’s built to keep you obsessed with your own progress.
 
 ---
 
-## 🔥 All Tracker's Power Moves
+## 🔥 Core Features
 
-### 🤖 Maamu AI (My Strategist)
-- **AI Coach**: Maamu analyzes my study data and tells me the absolute truth. 
-- **Beast Mode**: A toggle that shifts the AI persona to a "No Mercy" commander for when I'm feeling lazy. 
+### 📡 Global Arena (World Stage)
+Compete with users worldwide on a high-fidelity leaderboard. Earn XP (100 XP per hour) and climb through 20+ rank tiers from **Recruit** to **Singularity**.
 
-### 📊 The Arena Dash (Mission Control)
-- **World Rank**: I can see my climb from #40M down to #1 as I earners XP (100 XP per hour). 
-- **The Glow**: Everything is built with Vanilla CSS for that ultra-sharp glassmorphism vibe. 
+### 🤖 Maamu AI Strategist
+Your personal AI mentor who analyzes your study data and provides mission briefings. Features a **Beast Mode** toggle for those who need a "No Mercy" coaching style.
 
-### 🛡️ (My Security)
-- **No Leaks**: I’ve built a custom masking layer (v1_esc_) to hide IDs and API keys. No secrets exposed! 
-- **Cloud Sync**: All my data is synced between local stuff and Supabase, so it’s always safe.
+### 🛡️ Privacy-First Architecture
+- **Sync ID Pattern**: No complex OAuth required. Use a private "Secret Key" for cross-device cloud sync.
+- **Vault Masking**: Local data masking layer identifying secured strings to prevent plain-text viewing in DOM or LocalStorage.
 
 ---
 
-## ✈️ Quickstart (Try it out!)
+## 🛠️ Technical Stack
+Built with a "First Principles" approach to performance and design:
+- **Engine**: [Vite](https://vitejs.dev/) + [TypeScript](https://www.typescriptlang.org/) (Monolithic Vanilla TS for zero-overhead)
+- **Database/Backend**: [Supabase](https://supabase.com/) (Real-time broadcasting & persistent storage)
+- **Styling**: Vanilla CSS (High-fidelity Glassmorphism & Semantic Variable System)
+- **Deployment**: Vercel Edge Network
 
-  ### Website Link - https://alltracker.vercel.app/
+---
 
-1. **Grab the code**
+## ✈️ Getting Started
+
+### Prerequisites
+- Node.js (v18+)
+- A Supabase Project (for cloud sync)
+
+### Installation
+1. **Clone the repository**
    ```bash
    git clone https://github.com/ankitpandey1900/Tracker.git
-   cd all-tracker && npm install
+   cd Tracker
    ```
-2. **Blast Off**
+
+2. **Setup Environment**
    ```bash
+   cp .env.example .env
+   # Open .env and add your VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
+   ```
+
+3. **Install & Launch**
+   ```bash
+   npm install
    npm run dev
    ```
-3. **Open the Arena**
-   Visit `http://localhost:5173` and start your mission.
 
 ---
 
-## 🛠️ For the Architects
-If you’re a developer like me and want to see how this works or contribute, check out the **`/docs`** folder:
-- **[A Beginner's Guide to All Tracker](./docs/guide.md)**: Start here!
-- **[How I built the Engine](./docs/development.md)**: Deep dive into the logic.
-- **[The Map of Everything](./docs/structure.md)**: Folder tree and data flow.
+## 📜 Repository Guidelines
 
-**Let's win.** 🛸🔥
+### Architecture
+Detailed documentation of the system internals can be found in the [**/docs**](./docs) folder:
+- **[A Beginner's Guide](./docs/guide.md)**: Setup and core concepts.
+- **[Development Deep Dive](./docs/development.md)**: Logic and engine architecture.
+- **[System Structure](./docs/structure.md)**: Folder hierarchy and data flow.
+
+### Contributing
+We welcome architects! Open an issue first to discuss major changes, then submit a PR following the existing functional programming patterns.
+
+---
+
+## 👤 Author
+**Ankit Pandey**
+- GitHub: [@ankitpandey1900](https://github.com/ankitpandey1900)
+- Global Arena Identity: All Tracker Architect
+
+---
+
+## ⚖️ License
+Distributed under the **MIT License**. See `LICENSE` for more information.
+
+---
+
+<p align="center"><strong>Let's win.</strong> 🛸🔥</p>

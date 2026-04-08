@@ -1,7 +1,8 @@
 /**
- * Mission Control (Tasks) Feature
+ * Handles the Task List (Daily Missions).
  *
- * Handles date-wise study tasks with an automatic 24-hour backlog system.
+ * It deals with adding tasks, moving unfinished ones to the 'Backlog', 
+ * and cleaning up old history items.
  */
 
 import { appState } from '@/state/app-state';
@@ -9,7 +10,7 @@ import { showToast } from '@/utils/dom.utils';
 import { saveTasksToStorage } from '@/services/data-bridge';
 import type { StudyTask } from '@/types/task.types';
 
-// ─── Initialization ──────────────────────────────────────────
+// --- Starting Up ---
 
 /** Initializes the task feature and performs the backlog/cleanup check */
 export function initTasks(): void {
@@ -18,7 +19,7 @@ export function initTasks(): void {
   setupTaskListeners();
 }
 
-// ─── Rendering ───────────────────────────────────────────────
+// --- Showing the Tasks ---
 
 export function renderTasks(): void {
   const today = new Date().toISOString().split('T')[0];
@@ -37,7 +38,7 @@ export function renderTasks(): void {
   let backlogTasks = tasks.filter(t => !t.completed && t.date < today);
   const historyTasks = tasks.filter(t => t.completed).sort((a, b) => b.createdAt - a.createdAt);
 
-  // Tactical Sorting: High Priority (3) -> Low Priority (1)
+  // Sort by Priority: High (3) -> Med (2) -> Low (1)
   const prioritySort = (a: StudyTask, b: StudyTask) => {
     const ap = a.priority ?? 1;
     const bp = b.priority ?? 1;
@@ -48,7 +49,7 @@ export function renderTasks(): void {
   todayMissions.sort(prioritySort);
   backlogTasks.sort(prioritySort);
 
-  // Daily Clearance HUD Logic
+  // Update the 'Clearance' progress bar at the top
   const todayCompleted = historyTasks.filter(t => t.date === today);
   const totalTodayTasks = todayMissions.length + todayCompleted.length;
   const clearancePercent = totalTodayTasks > 0 ? Math.round((todayCompleted.length / totalTodayTasks) * 100) : 0;
@@ -121,7 +122,7 @@ function renderTaskList(tasks: StudyTask[]): string {
   }).join('');
 }
 
-// ─── Actions ─────────────────────────────────────────────────
+// --- Handling Clicks and Inputs ---
 
 function setupTaskListeners(): void {
   const addBtn = document.getElementById('addTaskBtn');
@@ -194,7 +195,7 @@ export function toggleTask(id: number): void {
   }
 }
 
-/** Automatically deletes tasks that have been in history (completed) for more than 3 days */
+/** Automatically deletes tasks that have been in history for more than 3 days */
 function cleanupTasks(): void {
   const threeDaysInMs = 3 * 24 * 60 * 60 * 1000;
   const now = Date.now();

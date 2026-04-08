@@ -1,3 +1,6 @@
+/**
+ * The User Manual / Documentation reader modal.
+ */
 export const manualModal = `
   <div class="modal" id="userManualModal">
     <div class="modal-content docs-modal">

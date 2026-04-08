@@ -1,7 +1,8 @@
 /**
- * Tracker table feature
- *
- * Generates the main data table and handles inline editing of each row.
+ * This file handles the main Tracker table.
+ * 
+ * It builds the table where you enter your study hours, 
+ * topics, and solved problems.
  */
 
 import { appState, getAllHourColumnLabels, getPhase } from '@/state/app-state';
@@ -26,7 +27,7 @@ function getTotalHours(day: TrackerDay): number {
   return Array.isArray(day.studyHours) ? day.studyHours.reduce((s, n) => s + (n || 0), 0) : 0;
 }
 
-// ─── Table Generation ────────────────────────────────────────
+// --- Building the Table ---
 
 export function generateTable(): void {
   const tbody = document.getElementById('tableBody');
@@ -115,7 +116,7 @@ export function generateTable(): void {
   attachInputListeners();
 }
 
-// ─── Input Listeners ─────────────────────────────────────────
+// --- Listening for Changes ---
 
 function attachInputListeners(): void {
   const tbody = document.getElementById('tableBody');
@@ -267,7 +268,7 @@ function handleRestDayToggle(e: Event): void {
   import('@/features/dashboard/dashboard').then(m => m.updateDashboard());
 }
 
-// ─── Table Search & Filter ───────────────────────────────────
+// --- Table Search and Filters ---
 
 export function setupTableSearch(): void {
   const searchInput = document.getElementById('tableSearch');

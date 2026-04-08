@@ -1,8 +1,8 @@
 /**
- * Share Preview Logic
+ * Handles the 'Share Card' popup.
  * 
- * Handles the "Preview BEFORE Share" experience.
- * Integrates Web Share API (native WhatsApp/IG) and provides high-res downloads.
+ * It shows the image we generated and lets you download it or 
+ * share it using your phone's native share menu.
  */
 
 import { showToast } from '@/utils/dom.utils';

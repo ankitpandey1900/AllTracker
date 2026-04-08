@@ -1,3 +1,6 @@
+/**
+ * HTML templates for the daily routine page.
+ */
 export const routineView = `
       <article class="card">
         <div class="row-between">

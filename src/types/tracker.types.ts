@@ -1,13 +1,13 @@
 /**
- * Core tracker data types
- *
- * Every day in the tracker is represented by a `TrackerDay`.
- * Column names are customizable per date range via `ColumnNames` and `CustomRange`.
+ * Main types for the tracker data.
+ * 
+ * Each day in the tracker is stored as a `TrackerDay`.
+ * We also define the Settings and Badge layouts here.
  */
 
-// ─── Day Entry ───────────────────────────────────────────────
+// --- Day Entry ---
 
-/** A single day's worth of study data */
+/** Data for one specific day in the tracker */
 export interface TrackerDay {
   day: number;
   date: string;
@@ -21,7 +21,7 @@ export interface TrackerDay {
   restDay?: boolean;
 }
 
-// ─── Column Configuration ────────────────────────────────────
+// --- Column Setup ---
 
 /** A study category with its target hours */
 export interface StudyCategory {
@@ -37,9 +37,9 @@ export interface CustomRange {
   columns: StudyCategory[];
 }
 
-// ─── Session Logging ─────────────────────────────────────────
+// --- Timer Logs ---
 
-/** A recorded study session (from the timer) */
+/** A single study session from the timer */
 export interface SessionLog {
   date: string;
   category: string;
@@ -63,9 +63,9 @@ export interface ChatSession {
   lastActive: number;
 }
 
-// ─── Settings ────────────────────────────────────────────────
+// --- App Settings ---
 
-/** Application-wide settings persisted to storage */
+/** Global settings that we save to storage */
 export interface Settings {
   startDate: string;
   endDate: string;
@@ -81,7 +81,7 @@ export interface Settings {
   theme?: 'midnight' | 'arctic' | 'cyberpunk' | 'coder-terminal' | 'apex-corporate' | 'sakura-overdrive' | 'arena-sport'; // App Theme
 }
 
-// ─── Badges ──────────────────────────────────────────────────
+// --- Badges ---
 
 /** A badge that can be unlocked by meeting a condition */
 export interface Badge {
@@ -92,7 +92,7 @@ export interface Badge {
   condition: (data: TrackerDay[]) => boolean;
 }
 
-// ─── Rank System ─────────────────────────────────────────────
+// --- Rank System ---
 
 /** Tier definition for the gamified rank system */
 export interface RankTier {

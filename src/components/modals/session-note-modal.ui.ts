@@ -1,3 +1,6 @@
+/**
+ * The Modal for adding notes to a timer session.
+ */
 export const sessionNoteModal = `
   <div id="sessionNoteModal" class="modal">
     <div class="modal-content" style="max-width: 500px;">

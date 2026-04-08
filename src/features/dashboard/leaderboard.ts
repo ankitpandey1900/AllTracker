@@ -5,7 +5,7 @@ import type { UserProfile } from '@/types/profile.types';
 import { getCurrentUserId, setupPasswordToggle } from '@/services/auth.service';
 import { initiateIdentityMigration } from '@/services/identity.service';
 
-/** Tracks the last time the user interacted with the app */
+// Tracks the last time the user did something in the app
 let lastInteractionAt = Date.now();
 
 const NATION_FLAGS: Record<string, string> = {
@@ -19,9 +19,11 @@ const NATION_FLAGS: Record<string, string> = {
   'Other': 'un'
 };
 
-/** Initializes the World Stage and identity check */
+/**
+ * Starts the leaderboard and checks your profile.
+ */
 export async function initWorldStage(): Promise<void> {
-  // 1. Initial render (fetch top 10)
+  // 1. Fetch the top 10 users initially
   await refreshLeaderboard();
 
   // 2. Schedule periodic updates (every 1 min)
@@ -86,7 +88,7 @@ export async function initWorldStage(): Promise<void> {
   });
 }
 
-/** Sets up listeners for user activity and a periodic heartbeat to broadcast status */
+/** Tracks mouse/keyboard activity and sends a 'heartbeat' every 30s */
 export function initActivityTracking(): void {
   const updateActivity = () => { lastInteractionAt = Date.now(); };
   window.addEventListener('mousedown', updateActivity);
@@ -113,7 +115,7 @@ export async function refreshLeaderboard(): Promise<void> {
   const users = await fetchLeaderboard();
   const mySyncId = getCurrentUserId();
 
-  // 🧗‍♂️ The 'Climb Engine' + ⚓ Morning Anchor
+  // Logic for the 'Climb Engine' (shows if you moved up/down today)
   const CLIMB_KEY = 'arena_climb_baselines';
   const today = new Date().toISOString().split('T')[0];
   let climbData = { date: today, worst: {} as Record<string, number>, best: {} as Record<string, number> };
@@ -229,7 +231,7 @@ export async function refreshLeaderboard(): Promise<void> {
     const medalClasses = ['lb-medal-gold', 'lb-medal-silver', 'lb-medal-bronze'];
     const customMedal = i < 3 ? `<span class="pilot-medal ${medalClasses[i]}">${i + 1}</span>` : `${i + 1}`;
 
-    // ⚽ Climb Engine Jump logic: Best/Worst Peak Delta
+    // Calculate if the user moved up or down since the morning
     const currentRank = i + 1;
     const worstSeen = climbData.worst[u.sync_id] || currentRank;
     const bestSeen = climbData.best[u.sync_id] || currentRank;
@@ -308,7 +310,7 @@ export async function refreshLeaderboard(): Promise<void> {
   }).join('');
 }
 
-/** Checks if user has a profile; if not, triggers the setup modal */
+/** Checks if you've set your name/avatar; if not, asks you to do it */
 export async function checkProfileIdentity(): Promise<void> {
   const syncId = getCurrentUserId();
   if (!syncId) return;
@@ -316,7 +318,7 @@ export async function checkProfileIdentity(): Promise<void> {
   const profileSaved = localStorage.getItem(STORAGE_KEYS.USER_PROFILE);
   const usernameSaved = localStorage.getItem('tracker_username');
 
-  // Case 1: No local profile -> Attempt Cloud Hydration ☁️
+  // No local profile? Try to load it from Supabase.
   if (!profileSaved) {
     const { loadUserProfileCloud } = await import('@/services/supabase.service');
     const cloudProfile = await loadUserProfileCloud();
@@ -419,7 +421,7 @@ export function openProfileModal(): void {
       if (nationInput) nationInput.value = profile.nation;
     }
 
-    // ─── Consolidated Avatar Picker Logic ───
+    // --- Avatar Selection Logic ---
     const avatarGrid = document.getElementById('avatarPickerGrid');
     const avatarToggle = document.getElementById('toggleAvatarPickerBtn');
     const avatarContainer = document.getElementById('avatarPickerContainer');
@@ -466,7 +468,7 @@ async function handleProfileSave(): Promise<void> {
   const syncId = getCurrentUserId() || '';
 
   if (!name || age <= 0 || !nation) {
-    alert("Bhai/Behen, please complete your Mission Profile fully!");
+    alert("Please complete your Mission Profile fully!");
     return;
   }
 
@@ -506,7 +508,7 @@ async function handleProfileSave(): Promise<void> {
   await refreshLeaderboard();
 }
 
-/** Pulls current local stats and broadcasts to the global leaderboard */
+/** Syncs your local study hours to the global leaderboard */
 export async function syncProfileBroadcast(): Promise<void> {
   const syncId = getCurrentUserId();
   if (!syncId) return;
@@ -528,7 +530,7 @@ export async function syncProfileBroadcast(): Promise<void> {
   let todayHours = calculateTodayStudyHours();
   const isFocusing = appState.activeTimer.isRunning;
 
-  // Real-Time Live Injection: If timer is running, add its progress to the broadcast
+  // If timer is running, add its progress to the broadcast immediately
   if (isFocusing && appState.activeTimer.startTime) {
     const elapsedMs = (Date.now() - appState.activeTimer.startTime) + appState.activeTimer.elapsedAcc;
     const elapsedHrs = elapsedMs / (1000 * 60 * 60);
@@ -551,7 +553,7 @@ export async function syncProfileBroadcast(): Promise<void> {
   await refreshLeaderboard();
 }
 
-/** Handles the high-stakes Secret Key migration process */
+/** Moves all your study data to a new Secret Key */
 async function handleIdentityMigration(): Promise<void> {
   const currentKeyInput = document.getElementById('currentSecretKeyInput') as HTMLInputElement;
   const newKeyInput = document.getElementById('newSecretKeyInput') as HTMLInputElement;
@@ -560,7 +562,7 @@ async function handleIdentityMigration(): Promise<void> {
   const newKey = newKeyInput.value.trim();
 
   if (!currentKey || !newKey) {
-    alert("Bhai/Behen, please provide both current and new Secret Keys!");
+    alert("Please provide both current and new Secret Keys!");
     return;
   }
 

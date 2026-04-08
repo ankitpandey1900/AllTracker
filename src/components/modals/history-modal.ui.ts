@@ -1,3 +1,6 @@
+/**
+ * The Session History modal.
+ */
 export const historyModal = `
   <div class="modal" id="historyModal">
     <div class="modal-content wide">

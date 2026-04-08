@@ -1,3 +1,6 @@
+/**
+ * The Badges collection modal.
+ */
 export const badgesModal = `
   <div class="modal" id="badgesModal">
     <div class="modal-content wide">

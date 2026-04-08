@@ -1,3 +1,6 @@
+/**
+ * HTML templates for the Bookmarks page.
+ */
 export const bookmarksView = `
   <article class="card">
     <div class="row-between">

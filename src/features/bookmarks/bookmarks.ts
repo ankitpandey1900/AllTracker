@@ -1,7 +1,8 @@
 /**
- * Bookmarks feature
- *
- * Bookmark CRUD, category grouping, and modal management.
+ * Handles the Bookmarks list.
+ * 
+ * It deals with adding, editing, and deleting bookmarks, 
+ * plus grouping them by category.
  */
 
 import { appState } from '@/state/app-state';
@@ -10,11 +11,11 @@ import { showToast } from '@/utils/dom.utils';
 import { saveBookmarksToStorage } from '@/services/data-bridge';
 import type { BookmarkCategory } from '@/types/bookmark.types';
 
-// ─── State ───────────────────────────────────────────────────
+// --- State ---
 
 let activeCategory: string | 'All' = 'All';
 
-// ─── Render ──────────────────────────────────────────────────
+// --- Rendering ---
 
 function renderBookmarkFilters(): void {
   const container = document.getElementById('bookmarkFilters');
@@ -137,7 +138,7 @@ export function renderBookmarks(): void {
   });
 }
 
-// ─── Actions ─────────────────────────────────────────────────
+// --- Handling Actions ---
 
 function editBookmark(id: number): void {
   const item = appState.bookmarks.find((b) => b.id === id);
@@ -169,7 +170,7 @@ function deleteBookmark(id: number): void {
   }
 }
 
-// ─── Bookmark Modal Setup ────────────────────────────────────
+// --- Popup Modal Setup ---
 
 export function setupBookmarkListeners(): void {
   const addBtn = document.getElementById('addBookmarkBtn');

@@ -1,8 +1,8 @@
 /**
- * Supabase service layer
- *
- * Handles all direct Supabase API calls using the Sync ID pattern.
- * Each function is a thin wrapper around upsert/select with proper typing.
+ * Handles all communication with Supabase (the cloud database).
+ * 
+ * It saves and loads your study data, routines, and leaderboard 
+ * stats so you don't lose anything if you change devices.
  */
 
 import { supabaseClient } from '@/config/supabase';
@@ -15,7 +15,7 @@ import type { ActiveTimer } from '@/types/timer.types';
 import type { GlobalProfile } from '@/types/profile.types';
 import { getCurrentUserId } from '@/services/auth.service';
 
-// ─── Helpers ─────────────────────────────────────────────────
+// --- Setup Helpers ---
 
 function isSupabaseReady(): boolean {
   return supabaseClient !== null;
@@ -40,7 +40,7 @@ export function updateSyncStatus(status: 'syncing' | 'synced' | 'error' | 'offli
   }
 }
 
-/** Generic upsert to a Supabase table (keyed by sync_id) */
+/** Generic function to save data to any table (using the sync_id) */
 async function upsertToSupabase(table: string, payload: Record<string, unknown>): Promise<{ data?: unknown; error?: unknown }> {
   if (!isSupabaseReady()) return { error: 'Supabase client not initialized' };
 
@@ -65,7 +65,7 @@ async function upsertToSupabase(table: string, payload: Record<string, unknown>)
   return { data };
 }
 
-/** Generic fetch from a Supabase table (filtered by sync_id) */
+/** Generic function to get data from any table (filtered by sync_id) */
 async function fetchFromSupabase(table: string): Promise<{ data?: Record<string, unknown> | null; error?: unknown }> {
   if (!isSupabaseReady()) return { error: 'Supabase client not initialized' };
 
@@ -90,7 +90,7 @@ async function fetchFromSupabase(table: string): Promise<{ data?: Record<string,
   return { data };
 }
 
-// ─── Tracker Data ────────────────────────────────────────────
+// --- Tracker Data ---
 
 export async function saveTrackerDataCloud(data: TrackerDay[]): Promise<void> {
   await upsertToSupabase(SUPABASE_TABLES.TRACKER_DATA, { data, updated_at: new Date() });
@@ -102,7 +102,7 @@ export async function loadTrackerDataCloud(): Promise<TrackerDay[] | null> {
   return null;
 }
 
-// ─── Settings ────────────────────────────────────────────────
+// --- Settings Sync ---
 
 export async function saveSettingsCloud(settings: Settings): Promise<void> {
   await upsertToSupabase(SUPABASE_TABLES.SETTINGS, { data: settings, updated_at: new Date() });
@@ -114,7 +114,7 @@ export async function loadSettingsCloud(): Promise<Settings | null> {
   return null;
 }
 
-// ─── Routines ────────────────────────────────────────────────
+// --- Routine Sync ---
 
 export async function saveRoutinesCloud(routines: RoutineItem[]): Promise<void> {
   await upsertToSupabase(SUPABASE_TABLES.ROUTINES, { data: routines, updated_at: new Date() });
@@ -128,7 +128,7 @@ export async function loadRoutinesCloud(): Promise<RoutineItem[] | null> {
 
 
 
-// ─── Bookmarks ───────────────────────────────────────────────
+// --- Bookmark Sync ---
 
 export async function saveBookmarksCloud(bookmarks: Bookmark[]): Promise<void> {
   await upsertToSupabase(SUPABASE_TABLES.BOOKMARKS, { data: bookmarks, updated_at: new Date() });
@@ -140,7 +140,7 @@ export async function loadBookmarksCloud(): Promise<Bookmark[] | null> {
   return null;
 }
 
-// ─── Routine History ─────────────────────────────────────────
+// --- History Sync ---
 
 export async function saveRoutineHistoryCloud(history: RoutineHistory): Promise<void> {
   await upsertToSupabase(SUPABASE_TABLES.ROUTINE_HISTORY, { data: history, updated_at: new Date() });
@@ -152,7 +152,7 @@ export async function loadRoutineHistoryCloud(): Promise<RoutineHistory | null> 
   return null;
 }
 
-// ─── Timer State ─────────────────────────────────────────────
+// --- Timer State Sync ---
 
 export async function saveTimerStateCloud(state: ActiveTimer): Promise<void> {
   await upsertToSupabase(SUPABASE_TABLES.TIMER_STATE, { data: state, updated_at: new Date() });
@@ -164,7 +164,7 @@ export async function loadTimerStateCloud(): Promise<ActiveTimer | null> {
   return null;
 }
 
-// ─── Routine Reset ───────────────────────────────────────────
+// --- Routine Resets ---
 
 export async function saveRoutineResetCloud(reset: string): Promise<void> {
   await upsertToSupabase(SUPABASE_TABLES.ROUTINE_RESET, { data: reset, updated_at: new Date() });
@@ -176,7 +176,7 @@ export async function loadRoutineResetCloud(): Promise<string | null> {
   return null;
 }
 
-// ─── Tasks ───────────────────────────────────────────────────
+// --- Task List ---
 
 export async function saveTasksCloud(tasks: StudyTask[]): Promise<void> {
   await upsertToSupabase(SUPABASE_TABLES.TASKS, { data: tasks, updated_at: new Date() });
@@ -188,9 +188,9 @@ export async function loadTasksCloud(): Promise<StudyTask[] | null> {
   return null;
 }
 
-// ─── Global Leaderboard (World Stage) ────────────────────────
+// --- World Stage Logic (Leaderboard) ---
 
-/** Broadcasts high-level stats to the public leaderboard table */
+/** Sends your stats (total hours, etc.) to the global leaderboard */
 export async function broadcastGlobalStats(profile: Partial<GlobalProfile>): Promise<void> {
   if (!isSupabaseReady()) return;
   const syncId = getCurrentUserId();
@@ -217,7 +217,7 @@ export async function broadcastGlobalStats(profile: Partial<GlobalProfile>): Pro
   }
 }
 
-/** Fetches the top 10 learners for the World Stage */
+/** Gets the Top 10 people for the World Stage leaderboard */
 export async function fetchLeaderboard(): Promise<GlobalProfile[]> {
   if (!isSupabaseReady()) return [];
 

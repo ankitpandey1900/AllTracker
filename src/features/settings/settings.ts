@@ -1,7 +1,8 @@
 /**
- * Settings feature
- *
- * Settings modal, date configuration, column names, and custom ranges.
+ * Handles the App Settings page.
+ * 
+ * It deals with setting the start/end dates, managing 
+ * study categories, and changing themes.
  */
 
 import { appState, calculateDates, initializeData } from '@/state/app-state';
@@ -27,7 +28,7 @@ export function openSettingsModal(): void {
   modal?.classList.add('active');
 }
 
-// ─── Apply Date Settings ─────────────────────────────────────
+// --- Date Settings ---
 
 export function applyDateSettings(): void {
   const startDate = (document.getElementById('startDateInput') as HTMLInputElement).value;
@@ -64,7 +65,7 @@ export function applyDateSettings(): void {
   showToast('Dates updated successfully!', 'success');
 }
 
-// ─── Apply Column Settings ───────────────────────────────────
+// --- Category Settings ---
 
 export function applyColumnSettings(): void {
   appState.settings.customRanges = [];
@@ -104,7 +105,7 @@ export function applyColumnSettings(): void {
   showToast('Range settings applied successfully!', 'success');
 }
 
-// ─── Apply Theme Settings ────────────────────────────────────
+// --- Theme Settings ---
 
 export function applyThemeSettings(): void {
   const themeInput = document.getElementById('themeSelectInput') as HTMLSelectElement;
@@ -118,7 +119,7 @@ export function applyThemeSettings(): void {
 
 
 
-// ─── Custom Ranges ───────────────────────────────────────────
+// --- Study Phases (Custom Ranges) ---
 
 function renderCustomRanges(): void {
   const list = document.getElementById('customRangesList');

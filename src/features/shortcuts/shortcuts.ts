@@ -1,7 +1,8 @@
 /**
- * Keyboard shortcuts
- *
- * Global keyboard shortcuts for quick navigation.
+ * Handles Keyboard Shortcuts (Hotkeys).
+ * 
+ * It allows you to use keys like 'Ctrl+K' for Quick Entry, 
+ * 'Ctrl+T' to jump to Today, and 'Esc' to close popups.
  */
 
 
@@ -43,7 +44,7 @@ import { renderHeatmap } from '@/features/heatmap/heatmap';
 import { renderPerformanceCurve } from '@/features/routines/performance-chart';
 import { syncProfileBroadcast } from '@/features/dashboard/leaderboard';
 
-// ─── Quick Entry ─────────────────────────────────────────────
+// --- Quick Entry Popups ---
 
 export function openQuickEntryModal(): void {
   renderQuickEntryFields();
@@ -227,7 +228,7 @@ export function scrollToToday(): void {
   }
 }
 
-// ─── Weekly Summary ──────────────────────────────────────────
+// --- Weekly Progress Summary ---
 
 export function showWeeklySummary(): void {
   const modal = document.getElementById('weeklyModal');

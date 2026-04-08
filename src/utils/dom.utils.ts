@@ -1,15 +1,13 @@
 /**
- * DOM utility functions
- *
- * Shared helpers for toast notifications, text updates, and scrolling.
+ * Helpers for the UI.
+ * 
+ * This handles pop-up messages, updating text on the page, 
+ * and scrolling the table to specific days.
  */
 
-// ─── Toast Notifications ─────────────────────────────────────
+// --- Pop-up messages (Toasts) ---
 
-/**
- * Shows a toast notification.
- * Creates the toast container if it doesn't exist yet.
- */
+/** Show a quick message on the screen */
 export function showToast(message: string, type: 'success' | 'error' | 'warning' | 'info' = 'info', duration = 3000): void {
   let container = document.getElementById('toastContainer');
 
@@ -47,17 +45,17 @@ export function showToast(message: string, type: 'success' | 'error' | 'warning'
   }, duration);
 }
 
-// ─── Safe Text Setter ────────────────────────────────────────
+// --- Updating Text Safely ---
 
-/** Safely sets textContent of an element by ID */
+/** Update text on the page by finding the ID */
 export function setTxt(id: string, text: string | number): void {
   const el = document.getElementById(id);
   if (el) el.textContent = String(text);
 }
 
-// ─── Table Scroll ────────────────────────────────────────────
+// --- Table Scrolling ---
 
-/** Scrolls to a specific day row in the tracker table and briefly highlights it */
+/** Scroll the table to show a specific day and highlight it briefly */
 export function jumpToDayInTable(day: number): void {
   const dayIndex = day - 1;
   const row = document.querySelector(`tr[data-day="${dayIndex}"]`) as HTMLElement | null;
@@ -71,9 +69,9 @@ export function jumpToDayInTable(day: number): void {
   }
 }
 
-// ─── Confetti Effect ─────────────────────────────────────────
+// --- Celebration Effect ---
 
-/** Fires a simple CSS-based confetti animation */
+/** Fire a quick confetti animation */
 export function startConfetti(): void {
   const colors = ['#ff0055', '#bc13fe', '#00f3ff', '#ffd700', '#00ff9d'];
 

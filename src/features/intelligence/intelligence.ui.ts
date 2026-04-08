@@ -1,11 +1,11 @@
 /**
- * Maamu AI Intelligence UI Templates
+ * HTML templates for the Maamu AI chat.
  * 
- * Contains only the HTML strings and basic string formatting 
- * for the AI mentor feature.
+ * This file contains the HTML strings for the chat interface, 
+ * messages, and the welcome screen.
  */
 
-// ─── Markdown Parser (Basic) ──────────────────────────────────────
+// --- Simple Markdown Parser ---
 
 function escapeHtml(text: string): string {
   return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -31,7 +31,7 @@ export function formatMaamuText(text: string): string {
   return html;
 }
 
-// ─── Static Shell ─────────────────────────────────────────────────
+// --- UI Skeleton ---
 
 export const intelligenceView = `
   <div class="maamu-gpt-container" id="maamuGptContainer">
@@ -126,7 +126,7 @@ export const intelligenceView = `
   </div>
 `;
 
-// ─── Templates ────────────────────────────────────────────────────
+// --- HTML Templates ---
 
 export function buildWelcomeScreen(): string {
   return `

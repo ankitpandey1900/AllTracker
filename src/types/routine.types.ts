@@ -1,8 +1,7 @@
 /**
- * Routine types
+ * Types for the daily routine.
  *
- * Routines are daily scheduled tasks that reset each day.
- * History tracks how many tasks were completed per date.
+ * Routines are things you do every day that reset each morning.
  */
 
 /** A single routine item in the daily schedule */

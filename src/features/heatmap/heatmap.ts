@@ -1,14 +1,14 @@
 /**
- * Heatmap feature
- *
- * Renders study heatmaps (both inline and modal) showing daily study intensity.
+ * Handles the 'Frequency' (Heatmap) grid.
+ * 
+ * This draws the grid of squares that show how much you studied each day.
  */
 
 import { appState } from '@/state/app-state';
 import { formatDate } from '@/utils/date.utils';
 import { setTxt } from '@/utils/dom.utils';
 
-// ─── Intensity Level ─────────────────────────────────────────
+// --- Work out the color level ---
 
 function getHeatmapLevel(hours: number): number {
   if (hours === 0) return 0;
@@ -19,7 +19,7 @@ function getHeatmapLevel(hours: number): number {
   return 5;
 }
 
-// ─── Grid Rendering ──────────────────────────────────────────
+// --- Draw the Grid ---
 
 export function renderHeatmap(): void {
   const grid = document.getElementById('heatmapGrid');
@@ -69,7 +69,7 @@ function renderAdvancedHeatmap(grid: HTMLElement, labels: HTMLElement, mode: 'da
   grid.innerHTML = '';
   if (appState.trackerData.length === 0) return;
 
-  // 1. Data Map for fast lookup (Key: YYYY-MM-DD)
+  // 1. Map the data by date for quick access
   const dataMap = new Map<string, number>();
   let totalStudyDays = 0;
   let totalHours = 0;

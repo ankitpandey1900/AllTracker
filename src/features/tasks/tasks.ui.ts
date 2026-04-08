@@ -1,3 +1,6 @@
+/**
+ * HTML templates for the Study Tasks (Daily Missions) page.
+ */
 export const tasksView = `
       <article class="card">
         <div class="row-between">

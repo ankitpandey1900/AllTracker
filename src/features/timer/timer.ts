@@ -1,8 +1,9 @@
 /**
- * Timer feature
- *
- * Manages the study timer state machine: start → pause → resume → stop.
- * Saves completed sessions to today's tracker data.
+ * Handles the Focus Timer logic.
+ * 
+ * It deals with starting, pausing, and stopping the timer, 
+ * plus the special 'Midnight Split' logic to save time correctly 
+ * if you study past 12:00 AM.
  */
 
 import { appState, getColumnsForDay } from '@/state/app-state';
@@ -16,9 +17,9 @@ import { updateDashboard, toggleFocusHUD } from '@/features/dashboard/dashboard'
 import { renderHeatmap } from '@/features/heatmap/heatmap';
 import { renderPerformanceCurve } from '@/features/routines/performance-chart';
 
-// ─── Timer State ─────────────────────────────────────────────
+// --- Timer State ---
 
-let isStopping = false; // Guard for concurrent stop calls
+let isStopping = false; // Stops the 'stop' function from running twice at once
 
 export function loadTimerState(): void {
   const saved = localStorage.getItem(STORAGE_KEYS.TIMER);
@@ -33,7 +34,7 @@ function saveTimerState(): void {
   saveTimerStateToStorage(appState.activeTimer);
 }
 
-// ─── Timer Actions ───────────────────────────────────────────
+// --- Timer Controls ---
 
 export function startTimer(categoryIdx: number, categoryName: string): void {
   if (appState.activeTimer.isRunning) return;
@@ -41,7 +42,7 @@ export function startTimer(categoryIdx: number, categoryName: string): void {
   appState.activeTimer.isRunning = true;
   appState.activeTimer.startTime = Date.now();
 
-  // Broadcast focus status to World Stage
+  // Tell the leaderboard that we are studying right now
   syncProfileBroadcast();
 
   if (appState.activeTimer.elapsedAcc === 0) {
@@ -85,7 +86,7 @@ export async function stopTimer(): Promise<void> {
   }
   const totalHours = Math.floor(totalElapsed / 1000) / 3600;
 
-  // Modern modal for session note
+  // Show the popup to add a note for the session
   const note = await showSessionNoteModal();
 
   try {
@@ -94,12 +95,12 @@ export async function stopTimer(): Promise<void> {
       const sessionStart = appState.activeTimer.sessionStartClock ? new Date(appState.activeTimer.sessionStartClock) : new Date();
       const sessionEnd = new Date();
       
-      // Determine if session crossed midnight
+      // Check if the study session started yesterday and ended today
       const startDayStr = sessionStart.toISOString().split('T')[0];
       const endDayStr = sessionEnd.toISOString().split('T')[0];
 
       if (startDayStr !== endDayStr) {
-        // CROSS-MIDNIGHT SPLIT
+        // MIDNIGHT SPLIT: If you study past 12:00 AM, we split the time between two days.
         const midnight = new Date(sessionEnd);
         midnight.setHours(0, 0, 0, 0);
 
@@ -197,7 +198,7 @@ async function showSessionNoteModal(): Promise<string> {
   });
 }
 
-// ─── Session Save ────────────────────────────────────────────
+// --- Saving to Tracker ---
 
 function saveSessionToDate(colIdx: number, hoursToAdd: number, note: string = '', targetDate: Date): void {
   const target = new Date(targetDate);
@@ -279,7 +280,7 @@ function saveSessionToDate(colIdx: number, hoursToAdd: number, note: string = ''
 }
 
 
-// ─── Timer Display ───────────────────────────────────────────
+// --- Updating the UI ---
 
 function startTimerInterval(): void {
   if (appState.timerInterval) clearInterval(appState.timerInterval);
@@ -337,7 +338,7 @@ function updateTimerUI(isVisible: boolean): void {
   }
 }
 
-// ─── Session Progress Ring ───────────────────────────────────
+// --- The Progress HUD ---
 
 function updateSessionProgress(elapsedSeconds: number): void {
   const circle = document.querySelector('.progress-ring__circle') as SVGCircleElement | null;
@@ -367,7 +368,7 @@ function updateSessionProgress(elapsedSeconds: number): void {
   }
 }
 
-// ─── Focus Mode ──────────────────────────────────────────────
+// --- Focus Mode Logic ---
 
 function updateFocusTask(): void {
   const now = new Date();
@@ -400,7 +401,7 @@ function updateFocusTask(): void {
   }
 }
 
-// ─── Timer Modal ─────────────────────────────────────────────
+// --- Modal Logic ---
 
 export function openTimerModal(): void {
   const modal = document.getElementById('timerModal');
@@ -437,7 +438,7 @@ export function openTimerModal(): void {
 export function resumeTimerIfNeeded(): void {
   const { isRunning, startTime, elapsedAcc } = appState.activeTimer;
 
-  // 1. Check for impossible session (Self-Healing)
+  // 1. Check for abandoned sessions (over 18 hours) and reset them
   if (isRunning && startTime) {
     const elapsedNow = Date.now() - startTime;
     const TOTAL_IMPOSSIBLE_MS = 18 * 60 * 60 * 1000; // 18 Hours

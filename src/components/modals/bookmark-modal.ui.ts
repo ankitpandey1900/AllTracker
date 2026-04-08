@@ -1,3 +1,6 @@
+/**
+ * Modal for managing browser bookmarks.
+ */
 export const bookmarkModal = `
   <div class="modal" id="bookmarkModal">
     <div class="modal-content">

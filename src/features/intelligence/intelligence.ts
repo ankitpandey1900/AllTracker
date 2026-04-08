@@ -1,8 +1,8 @@
 /**
- * Maamu AI Intelligence Feature
+ * Handles the Maamu AI chat logic.
  * 
- * Handles the logic for chat sessions, streaming responses, 
- * and side-effect management for the AI mentor.
+ * This file deals with starting new chats, showing the responses, 
+ * and managing the AI mentor's state.
  */
 
 import { 
@@ -25,7 +25,7 @@ import {
   formatMaamuText 
 } from './intelligence.ui';
 
-// ─── Helpers ─────────────────────────────────────────────────────
+// --- Helpers ---
 
 function getUserAvatar(): string {
   try {
@@ -47,7 +47,7 @@ function getRelativeTime(ts: number): string {
   return new Date(ts).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
 }
 
-// ─── Main Render ──────────────────────────────────────────────────
+// --- Main Chat UI ---
 
 export function renderIntelligenceBriefing(): void {
   const container = document.getElementById('intelligencePane');
@@ -76,7 +76,7 @@ export function renderIntelligenceBriefing(): void {
   setupListeners();
 }
 
-// ─── Session List ─────────────────────────────────────────────────
+// --- Session Management ---
 
 function renderSessionsList(): void {
   const list = document.getElementById('maamuSessionList');
@@ -153,7 +153,7 @@ function renderSessionsList(): void {
   });
 }
 
-// ─── Chat Render ──────────────────────────────────────────────────
+// --- Chat Rendering ---
 
 function renderActiveChat(): void {
   const chatOutput = document.getElementById('maamuChatOutput');
@@ -217,7 +217,7 @@ function bindMsgActions(chatOutput: HTMLElement): void {
   });
 }
 
-// ─── Streaming ────────────────────────────────────────────────────
+// --- Streaming AI Responses ---
 
 function streamResponse(query: string, chatOutput: HTMLElement): void {
   const tacticalBrief = getTacticalBriefingString();
@@ -285,7 +285,7 @@ function streamResponse(query: string, chatOutput: HTMLElement): void {
   );
 }
 
-// ─── Sidebar Footer ───────────────────────────────────────────────
+// --- Sidebar Stats ---
 
 function renderSidebarMetrics(): void {
   const footer = document.getElementById('maamuSidebarFooter');
@@ -316,7 +316,7 @@ function renderSidebarMetrics(): void {
   });
 }
 
-// ─── Listeners ────────────────────────────────────────────────────
+// --- Event Listeners ---
 
 function openNewMissionDialog(): void {
   const overlay = document.getElementById('newMissionOverlay');

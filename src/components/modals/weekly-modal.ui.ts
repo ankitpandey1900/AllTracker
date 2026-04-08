@@ -1,3 +1,6 @@
+/**
+ * The Weekly Progress view modal.
+ */
 export const weeklyModal = `
   <div class="modal" id="weeklyModal">
     <div class="modal-content wide">

@@ -2,9 +2,10 @@ import { appState } from '@/state/app-state';
 import { showToast } from '@/utils/dom.utils';
 
 /**
- * Notification Service
+ * Handles showing Desktop Notifications.
  * 
- * Handles permission requests and triggers daily study reminders.
+ * It asks for permission to send alerts and reminds you to study 
+ * if you haven't logged any time today.
  */
 
 // TRACKING: Map to ensure each routine item only triggers one alert per day

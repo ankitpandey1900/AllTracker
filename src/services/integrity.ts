@@ -3,12 +3,11 @@ import { saveTrackerDataToStorage } from '@/services/data-bridge';
 
 
 /**
- * Integrity Service
+ * Enforces the rules for editing data.
  * 
- * Enforces "Eternity Mode" rules:
- * 1. 4:00 AM Grace Period for previous day editing.
- * 2. Midnight Auto-Seal: Ticks "Done" if hours > 0 at 11:59:59 PM.
- * 3. Iron-Gate Locking: Disallows editing of past/future rows.
+ * 1. 4:00 AM Grace Period: You can edit yesterday's data until 4 AM today.
+ * 2. Auto-Seal: Ticks 'Done' automatically at midnight if you logged hours.
+ * 3. Locking: Disallows editing of past or future rows once the window is closed.
  */
 
 // Daily Auto-Seal Tracking to avoid redundant storage writes

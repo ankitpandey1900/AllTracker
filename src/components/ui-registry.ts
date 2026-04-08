@@ -1,8 +1,8 @@
 /**
- * UI Component Registry
+ * The UI Engine (Registry).
  * 
- * Handles the dynamic injection of HTML templates into the application shell.
- * This keeps index.html clean and modular.
+ * It manages how we inject all our HTML templates into the 
+ * index.html file. This keeps our main file clean.
  */
 
 export function injectHTML(containerId: string, html: string, position: 'prepend' | 'append' | 'replace' = 'replace'): void {

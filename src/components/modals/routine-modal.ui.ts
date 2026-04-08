@@ -1,3 +1,6 @@
+/**
+ * The Routine Editor / Session Log modal.
+ */
 export const routineModalContents = `
   <div class="modal" id="routineModal">
     <div class="modal-content">

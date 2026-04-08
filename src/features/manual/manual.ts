@@ -1,7 +1,8 @@
 /**
- * Manual Modal Logic
+ * Handles the documentation scrolling logic.
  * 
- * Specifically handles the internal documentation scrolling and active link highlighting.
+ * It makes the 'User Guide' links scroll to the right section 
+ * and highlights the active link.
  */
 
 declare global {

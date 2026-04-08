@@ -1,3 +1,9 @@
+/**
+ * Handles the 'Arena Statistics' charts (Analytics).
+ * 
+ * It builds the line chart showing your 21-day study trend 
+ * and the radar chart showing your subject-wise hours.
+ */
 import { Chart, registerables } from 'chart.js';
 import { appState, getAllHourColumnLabels } from '@/state/app-state';
 

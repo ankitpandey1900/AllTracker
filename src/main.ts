@@ -1,12 +1,11 @@
 /**
- * Application entry point
- *
- * Bootstraps the entire app: loads data, initializes UI features, and
- * wires up all event listeners. This replaces the init() function and
- * DOMContentLoaded handler from the old monolithic script.js.
+ * Main App Setup
+ * 
+ * This is where everything starts. We load the data, setup the UI, 
+ * and add all the click listeners for buttons. Replaces the old monolithic script.js.
  */
 
-// ─── Styles ──────────────────────────────────────────────────
+// --- Styles ---
 import "./styles/main.css";
 import "./styles/components/leaderboard.css";
 import "./styles/components/intelligence.css";
@@ -19,7 +18,7 @@ import "./styles/themes/apex-corporate.css";
 import "./styles/themes/sakura-overdrive.css";
 import "./styles/themes/arena-sport.css";
 
-// ─── Core ────────────────────────────────────────────────────
+// --- Core Setup ---
 import { appState, calculateDates, initializeData } from "@/state/app-state";
 import {
   DEFAULT_COLUMNS,
@@ -95,10 +94,10 @@ import {
 } from "@/features/shortcuts/shortcuts";
 import { initWorldStage, checkProfileIdentity, syncProfileBroadcast } from "@/features/dashboard/leaderboard";
 
-// ─── Initialize ──────────────────────────────────────────────
+// --- App Start ---
 
 document.addEventListener("DOMContentLoaded", async () => {
-  // 0. Initialize Modular UI Layer
+  // 0. Setup the UI system
   await initUI();
   const { initManualLogic } = await import('@/features/manual/manual');
   initManualLogic();
@@ -187,7 +186,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 });
 
-// ─── Event Listeners ─────────────────────────────────────────
+// --- Logic for Buttons and Navigation ---
 
 function setupEventListeners(): void {
   // Universal Navigation (Desktop Tabs + Mobile Bottom Nav)

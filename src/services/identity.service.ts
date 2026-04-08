@@ -1,15 +1,15 @@
 /**
- * Identity service — Account Migration & Identity Protocol
- *
- * Handles the "Reset Secret Key" (Password) mission, ensuring high-fidelity
- * data portability and security between different Sync IDs.
+ * Identity service
+ * 
+ * This handles moving your data between different "Secret Keys." 
+ * It's useful if someone wants to change their password/key but keep their progress.
  */
 
 import { SUPABASE_TABLES, STORAGE_KEYS } from '@/config/constants';
 import { transferCloudRecord, updateSyncStatus } from '@/services/supabase.service';
 import { getCurrentUserId } from '@/services/auth.service';
 
-/** Moves all cloud data from current Secret Key to a new one */
+/** Moves everything in the cloud to the new Secret Key ID */
 export async function initiateIdentityMigration(newSecretKey: string): Promise<boolean> {
   const currentId = getCurrentUserId();
   if (!currentId || !newSecretKey || currentId === newSecretKey) return false;
@@ -44,7 +44,7 @@ export async function initiateIdentityMigration(newSecretKey: string): Promise<b
   }
 }
 
-/** Binds a Username to the current Sync ID if not already established */
+/** Links a username to the current Secret Key in the local profile */
 export function bindIdentityToLocalProfile(username: string): void {
   const saved = localStorage.getItem(STORAGE_KEYS.USER_PROFILE);
   if (!saved) return;

@@ -1,3 +1,6 @@
+/**
+ * The Bottom Navigation for Mobile devices.
+ */
 export const mobileNav = `
   <nav class="mobile-nav show-mobile">
     <button class="mobile-nav-item active" data-target="dashboardPane">

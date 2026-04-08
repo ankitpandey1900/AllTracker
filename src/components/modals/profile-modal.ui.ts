@@ -1,3 +1,6 @@
+/**
+ * The Pilot Profile / Identity editor modal.
+ */
 export const profileModal = `
   <div class="modal" id="profileSetupModal">
     <div class="modal-content" style="max-width: 440px;">

@@ -1,3 +1,9 @@
+/**
+ * Handles generating the 'Share Card' image.
+ * 
+ * It takes your stats (rank, hours, streak) and turns them into a 
+ * beautiful image (using html2canvas) that you can share on social media.
+ */
 import html2canvas from 'html2canvas';
 import { appState } from '@/state/app-state';
 import { getRank } from '@/features/dashboard/dashboard';
@@ -12,8 +18,8 @@ export async function generateShareCard(): Promise<void> {
   document.body.appendChild(container);
 
   // 2. Fetch current stats
-  const totalHours = appState.trackerData.reduce((acc, current) => {
-    return acc + (current.studyHours || []).reduce((a, b) => a + (b || 0), 0);
+  const totalHours = appState.trackerData.reduce((acc: any, current: any) => {
+    return acc + (current.studyHours || []).reduce((a: any, b: any) => a + (b || 0), 0);
   }, 0);
   
   const rank = getRank(totalHours);

@@ -1,7 +1,7 @@
 /**
- * Date formatting utilities
- *
- * Pure functions for formatting dates and times, used across the app.
+ * Date formatting helpers.
+ * 
+ * Simple functions to turn raw dates into pretty strings for the UI.
  */
 
 /** Formats a Date as "26 Mar 2026" */

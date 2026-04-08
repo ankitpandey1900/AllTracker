@@ -30,7 +30,7 @@ export interface TacticalBriefing {
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-/** Analyzes study patterns to generate tactical advice */
+/** Analyzes your study data to give you advice */
 export function getTacticalBriefing(): TacticalBriefing {
   const logs = appState.settings.sessionLogs || [];
   const trackerData = appState.trackerData || [];
@@ -85,7 +85,7 @@ export function getTacticalBriefing(): TacticalBriefing {
   };
 }
 
-/** Summarizes the current state for the AI Mentor */
+/** Gets a summary of your data for the AI to read */
 export function getTacticalBriefingString(): string {
   const b = getTacticalBriefing();
   
@@ -165,7 +165,7 @@ export function getTacticalBriefingString(): string {
   }, null, 2);
 }
 
-/** Finds the most productive hour (sum of durations) */
+/** Calculates your 'Peak Hour' based on when you study most */
 function calculatePeakHour(logs: SessionLog[]): number {
   if (logs.length === 0) return 6;
 
@@ -188,7 +188,7 @@ function calculatePeakHour(logs: SessionLog[]): number {
   return Object.entries(hourStats).reduce((a, b) => (b[1] > (a[1] as number) ? b : a), [-1, 0] as [any, number])[0] as unknown as number;
 }
 
-/** Sustainability: Analyzes session timing for sleep hygiene (11 PM - 5 AM is risky) */
+/** Checks if you're overworking or sleeping late (11 PM - 5 AM is risky) */
 function calculateSustainability(logs: SessionLog[]): number {
   if (logs.length === 0) return 100;
   
@@ -234,7 +234,7 @@ function calculateSustainability(logs: SessionLog[]): number {
   return Math.max(10, 100 - riskScore);
 }
 
-/** 14-Day Discipline Trend: Calculates rolling average of routine completion (day-aware) */
+/** Checks how consistent you've been with routines lately */
 function calculateDisciplineTrend(history: Record<string, number>, allRoutines: any[]): number {
   if (allRoutines.length === 0) return 100;
   
@@ -265,7 +265,7 @@ function calculateDisciplineTrend(history: Record<string, number>, allRoutines: 
   return Math.round(totalComp / count);
 }
 
-/** Calculates task backlog and overall health */
+/** Checks how many tasks are overdue */
 function calculateTaskHealth(tasks: any[]): TacticalBriefing['taskHealth'] {
   const today = new Date().toISOString().split('T')[0];
   const activeTasks = tasks.filter(t => !t.completed);

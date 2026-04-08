@@ -1,8 +1,7 @@
 /**
- * Timer state types
- *
- * The timer runs a study session against one of the four
- * customizable columns (col1–col4).
+ * Types for the study timer.
+ * 
+ * The timer tracks how long you study a specific category.
  */
 
 /** Current state of the active study timer */

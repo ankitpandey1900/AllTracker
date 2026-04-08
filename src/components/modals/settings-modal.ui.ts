@@ -1,3 +1,6 @@
+/**
+ * The App Settings modal.
+ */
 export const settingsModal = `
   <div class="modal" id="settingsModal">
     <div class="modal-content wide">

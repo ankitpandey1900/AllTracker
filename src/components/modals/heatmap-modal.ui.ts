@@ -1,3 +1,6 @@
+/**
+ * The Heatmap visualization modal.
+ */
 export const heatmapModal = `
   <div class="modal" id="heatmapModal">
     <div class="modal-content wide">

@@ -1,11 +1,9 @@
 /**
- * Centralized application state
- *
- * Replaces all the scattered global `let` variables in the old script.js.
- * Every module imports `appState` and reads/writes the properties it needs.
- *
- * This is intentionally simple mutable state — not a full state management
- * library — to keep the migration straightforward.
+ * The App's Memory (State).
+ * 
+ * Instead of having variables scattered everywhere, we keep everything 
+ * in this 'appState' object. This makes it easy for any part of the 
+ * app to see or change data.
  */
 
 import type { TrackerDay, Settings, StudyCategory } from '@/types/tracker.types';
@@ -15,7 +13,7 @@ import type { Bookmark } from '@/types/bookmark.types';
 import type { StudyTask } from '@/types/task.types';
 import { DEFAULT_START_DATE, DEFAULT_END_DATE, DEFAULT_COLUMNS, STORAGE_KEYS } from '@/config/constants';
 
-// ─── Default Settings ────────────────────────────────────────
+// --- Starting Defaults ---
 
 function createDefaultSettings(): Settings {
   return {
@@ -31,7 +29,7 @@ function createDefaultSettings(): Settings {
   };
 }
 
-/** Utility to inject the active theme class into the HTML document root */
+/** Applies the theme class to the HTML tag */
 export function applyThemeToDOM(themeName: string = 'midnight') {
   document.documentElement.setAttribute('data-theme', themeName);
 }
@@ -47,7 +45,7 @@ function createDefaultTimer(): ActiveTimer {
   };
 }
 
-// ─── App State ───────────────────────────────────────────────
+// --- The Main State Object ---
 
 export const appState = {
   /** Daily tracker entries */
@@ -78,7 +76,7 @@ export const appState = {
   /** Deadline countdown interval reference */
   deadlineInterval: null as ReturnType<typeof setInterval> | null,
 
-  // ─── Computed date values ────────────────────────────────
+  // --- Dates for internal use ---
 
   startDate: new Date(DEFAULT_START_DATE),
   endDate: new Date(DEFAULT_END_DATE),
@@ -88,9 +86,9 @@ export const appState = {
   phase3End: 0,
 };
 
-// ─── Date Calculation ────────────────────────────────────────
+// --- Calculating Dates and Phases ---
 
-/** Recalculates totalDays and phase boundaries from current settings */
+/** Works out the total days and phase splits based on start/end dates */
 export function calculateDates(): void {
   let sDate = new Date(appState.settings.startDate);
   let eDate = new Date(appState.settings.endDate);
@@ -109,7 +107,7 @@ export function calculateDates(): void {
   appState.phase3End = appState.totalDays;
 }
 
-/** Migrates data from the old col1-4 format to the new dynamic studyHours array */
+/** Fixes old data formats to match the new dynamic Category system */
 export function migrateDataFormat(): void {
   let modified = false;
 
@@ -182,7 +180,7 @@ export function getAllHourColumnLabels(day: number): string[] {
   return cols.map((c) => c.name);
 }
 
-// ─── Date Generation ─────────────────────────────────────────
+// --- Building the Calendar ---
 
 /** Generates an array of Date objects from startDate to endDate */
 function generateDates(): Date[] {

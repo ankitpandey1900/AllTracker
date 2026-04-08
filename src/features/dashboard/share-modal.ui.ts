@@ -1,3 +1,6 @@
+/**
+ * HTML template for the Share Card preview popup.
+ */
 export const shareModal = `
   <div class="modal share-modal" id="sharePreviewModal" style="z-index: 1000; display: none;">
     <div class="modal-content" style="max-width: 650px; background: #09090b; padding: 0; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">

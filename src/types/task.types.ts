@@ -1,8 +1,7 @@
 /**
- * Study Task Types
+ * Types for study tasks.
  *
- * One-off daily study goals (e.g., "Complete Lec 1 of React").
- * Unlike Routines, these represent specific milestones for a date.
+ * These are one-off goals for a specific day (like "Finish Homework").
  */
 
 export interface StudyTask {

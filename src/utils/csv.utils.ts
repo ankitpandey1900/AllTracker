@@ -1,7 +1,7 @@
 /**
- * CSV and file download utilities
- *
- * Used by the export feature to generate CSV files and trigger downloads.
+ * Utils for creating and downloading CSV files.
+ * 
+ * This helps the "Export" button generate files and save them to your computer.
  */
 
 /** Converts an array of objects to a CSV string */

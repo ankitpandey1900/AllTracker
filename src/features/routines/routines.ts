@@ -1,7 +1,8 @@
 /**
- * Routines feature
- *
- * Daily routine CRUD, rendering, toggle completion, and daily auto-reset.
+ * Handles the daily routine list.
+ * 
+ * It deals with adding, editing, and checking off routine items, 
+ * plus the automatic reset every morning.
  */
 
 import { appState } from '@/state/app-state';
@@ -13,7 +14,7 @@ import { renderRadarStats } from './radar-stats';
 import { getHabitPulse } from '@/features/intelligence/intelligence.service';
 import { updateDashboard } from '../dashboard/dashboard';
 
-// ─── Render ──────────────────────────────────────────────────
+// --- Showing the Routine List ---
 
 export function renderRoutine(): void {
   const list = document.getElementById('routineList');
@@ -96,7 +97,7 @@ function renderHabitPulse(): void {
   container.style.display = 'block';
 }
 
-// ─── Actions ─────────────────────────────────────────────────
+// --- Handling Button Clicks ---
 
 function handleRoutineAction(e: Event): void {
   const target = e.currentTarget as HTMLElement;
@@ -193,7 +194,7 @@ function deleteRoutine(id: number): void {
   }
 }
 
-// ─── Routine Modal Setup ─────────────────────────────────────
+// --- Setup the Popup Modal ---
 
 export function setupRoutineListeners(): void {
   const addBtn = document.getElementById('addRoutineBtn');
@@ -275,7 +276,7 @@ export function setupRoutineListeners(): void {
   }
 }
 
-// ─── Daily Reset ─────────────────────────────────────────────
+// --- Morning Reset Logic ---
 
 export async function checkDailyRoutineReset(): Promise<void> {
   const today = new Date().toISOString().split('T')[0];

@@ -1,8 +1,8 @@
 /**
- * Export feature
- *
- * Comprehensive data export: 6 individual exports + master export.
- * Deduplicates the previously duplicated export code.
+ * Handles data exports (CSV and JSON).
+ * 
+ * You can download your study data, session logs, routines, 
+ * and bookmarks as files to keep them safe.
  */
 
 import { appState, getColumnsForDay } from '@/state/app-state';
@@ -10,7 +10,7 @@ import { arrayToCSV, downloadFile } from '@/utils/csv.utils';
 import { generateExportTimestamp } from '@/utils/date.utils';
 import { showToast, startConfetti } from '@/utils/dom.utils';
 
-// ─── 1. Tracker Data CSV ─────────────────────────────────────
+// --- 1. Study Data ---
 
 export function exportTrackerDataCSV(): void {
   const timestamp = generateExportTimestamp();
@@ -57,7 +57,7 @@ export function exportTrackerDataCSV(): void {
   downloadFile(arrayToCSV(exportData, finalHeaders), `tracker_data_${timestamp}.csv`);
 }
 
-// ─── 2. Session Logs CSV ─────────────────────────────────────
+// --- 2. Session Logs ---
 
 function exportSessionLogsCSV(): void {
   const timestamp = generateExportTimestamp();
@@ -69,7 +69,7 @@ function exportSessionLogsCSV(): void {
   downloadFile(arrayToCSV(exportData, ['Timestamp', 'Date', 'Time', 'Category', 'CategoryName', 'DurationHours', 'TimeRange']), `session_logs_${timestamp}.csv`);
 }
 
-// ─── 3. Routines CSV ─────────────────────────────────────────
+// --- 3. Routines ---
 
 function exportRoutinesCSV(): void {
   const timestamp = generateExportTimestamp();
@@ -81,7 +81,7 @@ function exportRoutinesCSV(): void {
 }
 
 
-// ─── 5. Bookmarks CSV ───────────────────────────────────────
+// --- 5. Bookmarks ---
 
 function exportBookmarksCSV(): void {
   const timestamp = generateExportTimestamp();
@@ -89,7 +89,7 @@ function exportBookmarksCSV(): void {
   downloadFile(arrayToCSV(exportData, ['BookmarkID', 'Title', 'URL', 'Category']), `bookmarks_${timestamp}.csv`);
 }
 
-// ─── 6. Settings JSON ───────────────────────────────────────
+// --- 6. Settings and Metadata ---
 
 function exportSettingsJSON(): void {
   const timestamp = generateExportTimestamp();
@@ -101,7 +101,7 @@ function exportSettingsJSON(): void {
   downloadFile(JSON.stringify(metadata, null, 2), `settings_metadata_${timestamp}.json`, 'application/json');
 }
 
-// ─── Master Export ───────────────────────────────────────────
+// --- The 'Export All' Trigger ---
 
 export function exportAllData(): void {
   const fns = [

@@ -1,7 +1,7 @@
 /**
- * Bookmark types
+ * Types for the bookmarks.
  *
- * Bookmarks are saved links organized by category.
+ * Bookmarks are just saved links organized by folder.
  */
 
 /** Allowed bookmark categories */

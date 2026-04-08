@@ -1,3 +1,6 @@
+/**
+ * Types for the user profile and leaderboard entries.
+ */
 export interface UserProfile {
   displayName: string;
   age: number | string;

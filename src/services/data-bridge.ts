@@ -1,9 +1,8 @@
 /**
- * Data bridge — hybrid cloud + local storage layer
- *
- * Every save/load operation goes through this bridge.
- * If the user is authenticated (has a Sync ID), data syncs to Supabase.
- * Local storage is always used as the primary cache.
+ * Data Bridge — Handles saving and loading data.
+ * 
+ * This bridges the browser storage and the cloud (Supabase).
+ * If you're logged in, everything saves to both places automatically.
  */
 
 import { STORAGE_KEYS } from '@/config/constants';
@@ -28,13 +27,13 @@ import type { ActiveTimer } from '@/types/timer.types';
 import { applyThemeToDOM } from '@/state/app-state';
 
 
-// ─── Auth Check ──────────────────────────────────────────────
+// --- Auth Check ---
 
 function isAuthenticated(): boolean {
   return getCurrentUserId() !== null;
 }
 
-// ─── Tracker Data ────────────────────────────────────────────
+// --- Tracker Data Functions ---
 
 function setTrackerData(data: TrackerDay[], pushToCloud = true): void {
   localStorage.setItem(STORAGE_KEYS.TRACKER_DATA, JSON.stringify(data));
@@ -57,12 +56,12 @@ export async function saveTrackerDataToStorage(data: TrackerDay[]): Promise<void
   setTrackerData(data);
 }
 
-// ─── Settings ────────────────────────────────────────────────
+// --- Settings Functions ---
 
 import { obfuscate, deobfuscate } from '@/utils/security';
 
 function setSettings(settings: Settings, pushToCloud = true): void {
-  // Vault Masking: Obfuscate sensitive keys before saving to local disk
+  // Security: Mask the AI key before saving to the browser's disk
   const securedSettings = { 
     ...settings, 
     groqApiKey: settings.groqApiKey ? obfuscate(settings.groqApiKey) : '' 
@@ -89,7 +88,7 @@ export async function loadSettingsFromStorage(): Promise<Settings | null> {
   if (saved) { 
     try { 
       const settings = JSON.parse(saved) as Settings;
-      // Vault Unmasking: Deobfuscate sensitive keys for runtime use
+      // Security: Unmask the AI key for use in the app
       if (settings.groqApiKey) {
         settings.groqApiKey = deobfuscate(settings.groqApiKey);
       }
@@ -108,7 +107,7 @@ export async function saveSettingsToStorage(settings: Settings): Promise<void> {
   setSettings(settings);
 }
 
-// ─── Routines ────────────────────────────────────────────────
+// --- Routine Functions ---
 
 function setRoutines(routines: RoutineItem[], pushToCloud = true): void {
   localStorage.setItem(STORAGE_KEYS.ROUTINES, JSON.stringify(routines));
@@ -133,7 +132,7 @@ export async function saveRoutinesToStorage(routines: RoutineItem[]): Promise<vo
 
 
 
-// ─── Routine History ─────────────────────────────────────────
+// --- History Functions ---
 
 function setRoutineHistory(history: RoutineHistory, pushToCloud = true): void {
   localStorage.setItem(STORAGE_KEYS.ROUTINE_HISTORY, JSON.stringify(history));
@@ -156,7 +155,7 @@ export async function saveRoutineHistoryToStorage(history: RoutineHistory): Prom
   setRoutineHistory(history);
 }
 
-// ─── Bookmarks ───────────────────────────────────────────────
+// --- Bookmark Functions ---
 
 function setBookmarks(bookmarks: Bookmark[], pushToCloud = true): void {
   localStorage.setItem(STORAGE_KEYS.BOOKMARKS, JSON.stringify(bookmarks));
@@ -179,7 +178,7 @@ export async function saveBookmarksToStorage(bookmarks: Bookmark[]): Promise<voi
   setBookmarks(bookmarks);
 }
 
-// ─── Timer State ─────────────────────────────────────────────
+// --- Timer Functions ---
 
 function setTimerState(state: ActiveTimer, pushToCloud = true): void {
   localStorage.setItem(STORAGE_KEYS.TIMER, JSON.stringify(state));
@@ -200,7 +199,7 @@ export async function saveTimerStateToStorage(state: ActiveTimer): Promise<void>
   setTimerState(state);
 }
 
-// ─── Routine Reset ───────────────────────────────────────────
+// --- Reset Functions ---
 
 function setRoutineReset(reset: string, pushToCloud = true): void {
   localStorage.setItem(STORAGE_KEYS.ROUTINE_RESET, reset);
@@ -222,7 +221,7 @@ export async function saveRoutineResetToStorage(reset: string): Promise<void> {
   setRoutineReset(reset);
 }
 
-// ─── Tasks ───────────────────────────────────────────────────
+// --- Task Functions ---
 
 function setTasks(tasks: StudyTask[], pushToCloud = true): void {
   localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(tasks));
@@ -245,7 +244,7 @@ export async function saveTasksToStorage(tasks: StudyTask[]): Promise<void> {
   setTasks(tasks);
 }
 
-// ─── Clear All ───────────────────────────────────────────────
+// --- Logout/Clear Functions ---
 
 export function clearLocalData(): void {
   Object.values(STORAGE_KEYS).forEach((key) => {
@@ -253,7 +252,7 @@ export function clearLocalData(): void {
   });
 }
 
-// ─── Full Sync (called on login) ────────────────────────────
+// --- Cloud Sync Logic ---
 
 export async function syncDataOnLogin(): Promise<void> {
   console.log('Initiating data sync...');
@@ -307,7 +306,7 @@ export async function syncDataOnLogin(): Promise<void> {
   }
 }
 
-/** Refreshes app state and UI after cloud sync */
+/** Updates the UI after the cloud data is finished downloading */
 async function refreshAppAfterSync(): Promise<void> {
   // Reimport dynamically to avoid circular deps at startup
   const { refreshApplicationUI } = await import('@/main');

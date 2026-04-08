@@ -1,3 +1,6 @@
+/**
+ * The Quick Entry / Mini-Log modal.
+ */
 export const quickEntryModal = `
   <div class="modal" id="quickEntryModal">
     <div class="modal-content wide">

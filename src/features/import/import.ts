@@ -1,7 +1,5 @@
 /**
- * Import feature
- *
- * JSON and CSV import for tracker data.
+ * Handles importing your study data (JSON/CSV).
  */
 
 import { appState } from '@/state/app-state';
@@ -12,7 +10,7 @@ import { updateDashboard } from '@/features/dashboard/dashboard';
 import { renderHeatmap } from '@/features/heatmap/heatmap';
 import { renderPerformanceCurve } from '@/features/routines/performance-chart';
 
-// ─── JSON Import ─────────────────────────────────────────────
+// --- JSON Import ---
 
 export function importFromJSON(): void {
   const jsonData = (document.getElementById('importJsonData') as HTMLTextAreaElement)?.value.trim();
@@ -38,7 +36,7 @@ export function importFromJSON(): void {
   }
 }
 
-// ─── CSV Import ──────────────────────────────────────────────
+// --- CSV Import ---
 
 export function importFromCSV(): void {
   const fileInput = document.getElementById('importCsvFile') as HTMLInputElement;

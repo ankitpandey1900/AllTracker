@@ -1,3 +1,9 @@
+/**
+ * Handles the 'Skill Radar' chart on the routines page.
+ * 
+ * This shows your current levels for Discipline, Endurance, 
+ * Focus, Output, and Versatility.
+ */
 import { Chart, registerables } from 'chart.js';
 import { appState } from '@/state/app-state';
 import { setTxt } from '@/utils/dom.utils';

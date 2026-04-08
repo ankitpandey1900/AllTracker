@@ -1,3 +1,6 @@
+/**
+ * The Focus Timer selection / start modal.
+ */
 export const timerModal = `
   <div id="focusHud" class="focus-hud">
     <div id="activeTimerSection" style="display: none">
