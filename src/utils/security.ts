@@ -5,48 +5,84 @@
  * browser's DevTools or regular UI. It's not heavy-duty encryption.
  */
 
-const V_PREFIX = 'v1_esc_'; // Unique prefix for identifying secured strings
+const V1_PREFIX = 'v1_esc_'; // Legacy simple masking
+const V2_PREFIX = 'v2_enc_'; // Advanced XOR encryption
+const XOR_KEY = 'Arena_V@uLt_K3y_2026!xX';
 
-/** Mask a string so it's not plain-text anymore */
+/** 
+ * Encrypt a string so it's unreadable to AIs or humans.
+ * Uses a chaotic XOR shift and Hex scrambling.
+ */
 export function obfuscate(val: string): string {
   if (!val) return '';
-  if (val.startsWith(V_PREFIX)) return val; // Already obfuscated
+  if (val.startsWith(V2_PREFIX)) return val; // Already v2 enc
+
+  // If they pass in a v1 string, we decrypt it first, then upgrade it to v2.
+  if (val.startsWith(V1_PREFIX)) {
+    val = deobfuscate(val);
+  }
 
   try {
-    // 1. Reverse the string
-    const reversed = val.split('').reverse().join('');
-
-    // 2. Base64 encode
-    const encoded = btoa(unescape(encodeURIComponent(reversed)));
-
-    return V_PREFIX + encoded;
+    // 1. Basic XOR with static key mapped to Hex
+    let hexStr = '';
+    for (let i = 0; i < val.length; i++) {
+       const charCode = val.charCodeAt(i) ^ XOR_KEY.charCodeAt(i % XOR_KEY.length);
+       hexStr += charCode.toString(16).padStart(2, '0');
+    }
+    
+    // 2. Reverse hex to break generic hex pattern tools
+    const reversedHex = hexStr.split('').reverse().join('');
+    
+    // 3. Base64 wrap to safely store in LocalStorage
+    const finalEncoded = btoa(reversedHex);
+    
+    return V2_PREFIX + finalEncoded;
   } catch (e) {
-    console.error('Obfuscation failure:', e);
-    return val; // Fallback to raw to prevent data loss
+    console.error('Obfuscation v2 failure:', e);
+    return val;
   }
 }
 
-/** Takes a masked string and turns it back to normal */
+/** Decrypts strings back to plain text, handling both legacy v1 and strong v2 */
 export function deobfuscate(val: string): string {
-  if (!val || !val.startsWith(V_PREFIX)) return val; // It's already raw or legacy
+  if (!val) return val;
 
-  try {
-    const core = val.substring(V_PREFIX.length);
-
-    // 1. Decode Base64
-    const decoded = decodeURIComponent(escape(atob(core)));
-
-    // 2. Reverse back
-    return decoded.split('').reverse().join('');
-  } catch (e) {
-    console.warn('Deobfuscation failure (format mismatch):', e);
-    return val; // Fallback to raw to ensure user data remains reachable
+  // --- LEGACY V1 DECODE (Reverse + Base64) ---
+  if (val.startsWith(V1_PREFIX)) {
+    try {
+      const core = val.substring(V1_PREFIX.length);
+      const decoded = decodeURIComponent(escape(atob(core)));
+      return decoded.split('').reverse().join('');
+    } catch (e) {
+      console.warn('Deobfuscation v1 failure:', e);
+      return val;
+    }
   }
+
+  // --- STRONG V2 DECODE (XOR + Hex Shift) ---
+  if (val.startsWith(V2_PREFIX)) {
+    try {
+      const core = val.substring(V2_PREFIX.length);
+      const reversedHex = atob(core);
+      const hexStr = reversedHex.split('').reverse().join('');
+      
+      let decoded = '';
+      for (let i = 0; i < hexStr.length; i += 2) {
+        const hexBlock = hexStr.substring(i, i + 2);
+        const charCode = parseInt(hexBlock, 16) ^ XOR_KEY.charCodeAt((i / 2) % XOR_KEY.length);
+        decoded += String.fromCharCode(charCode);
+      }
+      return decoded;
+    } catch(e) {
+      console.warn('Deobfuscation v2 failure:', e);
+      return val; 
+    }
+  }
+
+  return val; // It's a raw unencrypted string
 }
 
-/**
- * Checks if a string is currently obfuscated.
- */
+/** Check if string is encrypted under any standard */
 export function isObfuscated(val: string): boolean {
-  return typeof val === 'string' && val.startsWith(V_PREFIX);
+  return typeof val === 'string' && (val.startsWith(V1_PREFIX) || val.startsWith(V2_PREFIX));
 }

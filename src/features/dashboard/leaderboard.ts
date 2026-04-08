@@ -116,7 +116,9 @@ export async function refreshLeaderboard(): Promise<void> {
   const mySyncId = getCurrentUserId();
 
   // Logic for the 'Climb Engine' (shows if you moved up/down today)
-  const CLIMB_KEY = 'arena_climb_baselines';
+  const CLIMB_KEY = 'arena_climb_v2';
+  localStorage.removeItem('arena_climb_baselines'); // 🚨 SECURITY WIPE: Purge old exposed sync_ids
+  
   const today = new Date().toISOString().split('T')[0];
   let climbData = { date: today, worst: {} as Record<string, number>, best: {} as Record<string, number> };
 
@@ -134,24 +136,24 @@ export async function refreshLeaderboard(): Promise<void> {
       return bStart - aStart;
     })
     .reduce((acc, u, idx) => {
-      acc[u.sync_id] = idx + 1;
+      acc[u.display_name] = idx + 1;
       return acc;
     }, {} as Record<string, number>);
 
   // Update live Peaks/Valleys based on both Live data and Morning Anchor
   users.forEach((u, idx) => {
     const cur = idx + 1;
-    const morningPos = morningRanks[u.sync_id] || cur;
+    const morningPos = morningRanks[u.display_name] || cur;
 
     // Anchor: Worst rank today is the lower of morning position or current live position
-    if (!climbData.worst[u.sync_id]) climbData.worst[u.sync_id] = morningPos;
-    else if (morningPos > climbData.worst[u.sync_id]) climbData.worst[u.sync_id] = morningPos;
-    if (cur > climbData.worst[u.sync_id]) climbData.worst[u.sync_id] = cur;
+    if (!climbData.worst[u.display_name]) climbData.worst[u.display_name] = morningPos;
+    else if (morningPos > climbData.worst[u.display_name]) climbData.worst[u.display_name] = morningPos;
+    if (cur > climbData.worst[u.display_name]) climbData.worst[u.display_name] = cur;
 
     // Anchor: Best rank today is the higher of morning position or current live position
-    if (!climbData.best[u.sync_id]) climbData.best[u.sync_id] = morningPos;
-    else if (morningPos < climbData.best[u.sync_id]) climbData.best[u.sync_id] = morningPos;
-    if (cur < climbData.best[u.sync_id]) climbData.best[u.sync_id] = cur;
+    if (!climbData.best[u.display_name]) climbData.best[u.display_name] = morningPos;
+    else if (morningPos < climbData.best[u.display_name]) climbData.best[u.display_name] = morningPos;
+    if (cur < climbData.best[u.display_name]) climbData.best[u.display_name] = cur;
   });
   localStorage.setItem(CLIMB_KEY, JSON.stringify(climbData));
 
@@ -160,8 +162,11 @@ export async function refreshLeaderboard(): Promise<void> {
     return;
   }
 
+  const profileData = localStorage.getItem(STORAGE_KEYS.USER_PROFILE);
+  const myDisplayName = profileData ? JSON.parse(profileData).displayName : null;
+
   listEl.innerHTML = users.map((u, i) => {
-    const isMe = u.sync_id === mySyncId;
+    const isMe = myDisplayName ? u.display_name === myDisplayName : false;
     const isoCode = NATION_FLAGS[u.nation] || 'un';
     const flagUrl = `https://flagcdn.com/w40/${isoCode}.png`;
     const flagImg = `<img src="${flagUrl}" alt="${u.nation}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
@@ -233,8 +238,8 @@ export async function refreshLeaderboard(): Promise<void> {
 
     // Calculate if the user moved up or down since the morning
     const currentRank = i + 1;
-    const worstSeen = climbData.worst[u.sync_id] || currentRank;
-    const bestSeen = climbData.best[u.sync_id] || currentRank;
+    const worstSeen = climbData.worst[u.display_name] || currentRank;
+    const bestSeen = climbData.best[u.display_name] || currentRank;
     
     let trendHtml = '';
 
