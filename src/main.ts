@@ -98,8 +98,6 @@ import { initWorldStage, checkProfileIdentity, syncProfileBroadcast } from "@/fe
 // ─── Initialize ──────────────────────────────────────────────
 
 document.addEventListener("DOMContentLoaded", async () => {
-  console.log("🚀 All Tracker v2.0 — TypeScript Edition");
-  
   // 0. Initialize Modular UI Layer
   await initUI();
   const { initManualLogic } = await import('@/features/manual/manual');
@@ -187,8 +185,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.documentElement.style.setProperty("--mouse-x", `${e.clientX}px`);
     document.documentElement.style.setProperty("--mouse-y", `${e.clientY}px`);
   });
-
-  console.log("✅ App initialized successfully.");
 });
 
 // ─── Event Listeners ─────────────────────────────────────────
@@ -469,7 +465,6 @@ function bindClick(id: string, handler: () => void): void {
 // ─── Refresh (used by data-bridge after sync) ────────────────
 
 export async function refreshApplicationUI(): Promise<void> {
-  console.log("Refreshing UI after sync...");
   try {
     const [settings, data, routines, history, bookmarks, tasks, timer] = await Promise.all([
       loadSettingsFromStorage(),
@@ -522,8 +517,6 @@ export async function refreshApplicationUI(): Promise<void> {
 
     // 5. Broadcast stats after sync to ensure leaderboard is fresh
     syncProfileBroadcast();
-
-    console.log("UI Refresh complete.");
   } catch (error) {
     console.error("Error during UI refresh:", error);
   }

@@ -57,8 +57,6 @@ export async function initWorldStage(): Promise<void> {
   window.addEventListener('all-tracker-identity-sync', (e: any) => {
     const profile = e.detail as UserProfile;
     if (!profile) return;
-
-    console.log(`📡 ALL TRACKER REACTIVE SYNC: Updating Passport HUD for @${profile.displayName}`);
     
     // Update Header HUD (if modal is open)
     const passportAvatar = document.getElementById('passportAvatar');
@@ -320,7 +318,6 @@ export async function checkProfileIdentity(): Promise<void> {
 
   // Case 1: No local profile -> Attempt Cloud Hydration ☁️
   if (!profileSaved) {
-    console.log('Searching cloud for redundant Mission Profile...');
     const { loadUserProfileCloud } = await import('@/services/supabase.service');
     const cloudProfile = await loadUserProfileCloud();
 
@@ -333,7 +330,6 @@ export async function checkProfileIdentity(): Promise<void> {
       };
       localStorage.setItem(STORAGE_KEYS.USER_PROFILE, JSON.stringify(localProfile));
       localStorage.setItem('tracker_username', localProfile.displayName);
-      console.log(`✅ CROSS-DEVICE HYDRATION: Reclaimed identity @${localProfile.displayName}`);
       syncProfileBroadcast();
       return;
     }
@@ -399,7 +395,6 @@ export function openProfileModal(): void {
       // 👺 SYNC FIX: Ensure the modal preview matches the the proven archetype (Header/Cloud)
       if (passportAvatar) {
         passportAvatar.textContent = profile.avatar || '👨‍🚀';
-        console.log(`📡 MODAL HUD SYNC: Previewing Archetype ${profile.avatar || '👨‍🚀'}`);
       }
       
       const nameInput = document.getElementById('profileNameInput') as HTMLInputElement;
