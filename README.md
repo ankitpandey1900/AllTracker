@@ -85,6 +85,7 @@ We welcome architects! Open an issue first to discuss major changes, then submit
 The Arena is built by elite pilots who contribute their skills to push the mission forward. Each pilot has a detailed record of their contributions and social dispatch logs.
 
 - **[Lead Architect: Ankit Pandey](./arena-pilots/ankit-pandey.md)**
+- -**[Full Stack Developer: Saumya Jha](./arena-pilots/saumya-jha.md)**
 - **[Contribution Template](./arena-pilots/TEMPLATE.md)**: Add your record to the Arena.
 
 ---
