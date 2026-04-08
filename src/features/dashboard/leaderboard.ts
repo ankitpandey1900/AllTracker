@@ -176,7 +176,7 @@ export async function refreshLeaderboard(): Promise<void> {
     const diffMins = (now.getTime() - lastActive.getTime()) / 60000;
     
     let statusClass = 'offline';
-    let statusLabel = 'OFFLINE';
+    let statusLabel = '';
     
     if (u.is_focusing_now) {
       statusClass = 'focusing';
@@ -184,6 +184,26 @@ export async function refreshLeaderboard(): Promise<void> {
     } else if (diffMins < 5) {
       statusClass = 'online';
       statusLabel = 'ONLINE';
+    } else {
+      const isToday = now.toDateString() === lastActive.toDateString();
+      const yesterday = new Date(now);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const isYesterday = yesterday.toDateString() === lastActive.toDateString();
+      
+      const timeStr = lastActive.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
+      
+      if (isToday) {
+        if (diffMins < 60) {
+          statusLabel = `last seen ${Math.floor(diffMins)} mins ago`;
+        } else {
+          statusLabel = `last seen today at ${timeStr}`;
+        }
+      } else if (isYesterday) {
+        statusLabel = `last seen yesterday at ${timeStr}`;
+      } else {
+        const dateStr = lastActive.toLocaleDateString([], { day: 'numeric', month: 'short' });
+        statusLabel = `last seen ${dateStr}`;
+      }
     }
 
     // 🏆 Gamification Logic
