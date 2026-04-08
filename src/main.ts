@@ -134,14 +134,19 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // 5. Bootstrap UI
+  // Core UI must be synchronous to prevent Cumulative Layout Shift (CLS) on load
   generateTable();
   updateDashboard();
-  renderPerformanceCurve();
-  renderRadarStats();
-  renderRoutine();
-  renderBookmarks();
-  renderBadges();
-  checkBadges();
+
+  // Secondary components can be deferred to improve INP
+  setTimeout(() => {
+    renderPerformanceCurve();
+    renderRadarStats();
+    renderRoutine();
+    renderBookmarks();
+    renderBadges();
+    checkBadges();
+  }, 0);
 
   // 6. Set up event listeners
   setupEventListeners();
@@ -207,9 +212,12 @@ function setupEventListeners(): void {
       const targetPane = document.getElementById(target);
       if (targetPane) {
         targetPane.classList.add("active");
-        if (target === "tasksPane") renderTasks();
-        if (target === "intelligencePane") renderIntelligenceBriefing();
-        if (target === "routinePane") renderRoutine();
+        // Yield to allow CSS paint for new 'active' class
+        setTimeout(() => {
+          if (target === "tasksPane") renderTasks();
+          if (target === "intelligencePane") renderIntelligenceBriefing();
+          if (target === "routinePane") renderRoutine();
+        }, 0);
       }
 
       // 3. Scroll to top on view change
@@ -390,16 +398,20 @@ function setupEventListeners(): void {
 
   bindClick("heatmapViewBtn", () => {
     document.getElementById("heatmapModal")?.classList.add("active");
-    import("@/features/heatmap/heatmap").then((m) => {
-      m.renderHeatmap();
-      m.renderHeatmapModal();
-    });
+    setTimeout(() => {
+      import("@/features/heatmap/heatmap").then((m) => {
+        m.renderHeatmap();
+        m.renderHeatmapModal();
+      });
+    }, 0);
   });
 
   bindClick("analyticsViewBtn", () => {
     document.getElementById("analyticsModal")?.classList.add("active");
-    renderPerformanceCurve();
-    renderRadarStats();
+    setTimeout(() => {
+      renderPerformanceCurve();
+      renderRadarStats();
+    }, 0);
   });
 
   bindClick("closeAnalyticsModal", () =>
@@ -407,14 +419,18 @@ function setupEventListeners(): void {
   );
   bindClick("badgesViewBtn", () => {
     document.getElementById("badgesModal")?.classList.add("active");
-    renderBadges();
+    setTimeout(() => {
+      renderBadges();
+    }, 0);
   });
   bindClick("closeBadgesModal", () =>
     document.getElementById("badgesModal")?.classList.remove("active"),
   );
   bindClick("historyBtn", () => {
     document.getElementById("historyModal")?.classList.add("active");
-    renderSessionHistory();
+    setTimeout(() => {
+      renderSessionHistory();
+    }, 0);
   });
 
   const historyDateFilter = document.getElementById("historyDateFilter") as HTMLInputElement;
@@ -461,7 +477,7 @@ function bindClick(id: string, handler: () => void): void {
   document.getElementById(id)?.addEventListener("click", handler);
 }
 
-// ─── Refresh (used by data-bridge after sync) ────────────────
+// --- Refresh (used by data-bridge after sync) ────────────────
 
 export async function refreshApplicationUI(): Promise<void> {
   try {
@@ -519,4 +535,13 @@ export async function refreshApplicationUI(): Promise<void> {
   } catch (error) {
     console.error("Error during UI refresh:", error);
   }
+}
+
+// ─── PWA Service Worker Registration ──────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('Service Worker registered', reg))
+      .catch(err => console.error('Service Worker registration failed', err));
+  });
 }
