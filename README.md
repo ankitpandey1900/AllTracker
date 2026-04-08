@@ -27,7 +27,8 @@ Your personal AI mentor who analyzes your study data and provides mission briefi
 
 ### 🛡️ Privacy-First Architecture
 - **Sync ID Pattern**: No complex OAuth required. Use a private "Secret Key" for cross-device cloud sync.
-- **Vault Masking**: Local data masking layer identifying secured strings to prevent plain-text viewing in DOM or LocalStorage.
+- **Vault Masking Engine**: Upgrades plain-text storage to a secure XOR + Hex encoded cipher (`v2_enc_`). This prevents AI pattern-matching and DevTools inspection from decoding your credentials.
+- **Zero-Knowledge Network Payload**: Supabase leaderboard queries proactively strip sensitive Identity Sync IDs to fully mitigate network interception vulnerabilities.
 
 ---
 

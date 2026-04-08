@@ -523,9 +523,21 @@ export async function refreshApplicationUI(): Promise<void> {
 
 // ─── PWA Service Worker Registration ──────────────────────────
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then(reg => console.log('Service Worker registered', reg))
-      .catch(err => console.error('Service Worker registration failed', err));
-  });
+  if (import.meta.env.PROD) {
+    // Only register caching Service Worker in Production completely
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('Service Worker registered', reg))
+        .catch(err => console.error('Service Worker registration failed', err));
+    });
+  } else {
+    // In local development, unregister any existing service worker so it doesn't break Hot Reloading
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (const registration of registrations) {
+        registration.unregister().then(() => {
+          console.log('Dev Mode: Unregistered rogue Service Worker to prevent caching.');
+        });
+      }
+    });
+  }
 }
