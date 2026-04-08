@@ -83,7 +83,7 @@ We welcome architects! Open an issue first to discuss major changes, then submit
 ## 👤 Author
 **Ankit Pandey**
 - GitHub: [@ankitpandey1900](https://github.com/ankitpandey1900)
-- Global Arena Identity: All Tracker Architect
+- Linkedln: https://www.linkedin.com/in/ankit-pandey-a082a2303/
 
 ---
 
