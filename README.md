@@ -80,6 +80,15 @@ We welcome architects! Open an issue first to discuss major changes, then submit
 
 ---
 
+## 🏆 Hall of Fame
+
+The Arena is built by elite pilots who contribute their skills to push the mission forward. Each pilot has a detailed record of their contributions and social dispatch logs.
+
+- **[Lead Architect: Ankit Pandey](./arena-pilots/ankit-pandey.md)**
+- **[Contribution Template](./arena-pilots/TEMPLATE.md)**: Add your record to the Arena.
+
+---
+
 ## 👤 Author
 **Ankit Pandey**
 - GitHub: [@ankitpandey1900](https://github.com/ankitpandey1900)
