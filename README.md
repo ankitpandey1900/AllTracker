@@ -49,8 +49,8 @@ Built with a "First Principles" approach to performance and design:
 ### Installation
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/ankitpandey1900/Tracker.git
-   cd Tracker
+   git clone https://github.com/ankitpandey1900/AllTracker.git
+   cd ALLTracker
    ```
 
 2. **Setup Environment**
