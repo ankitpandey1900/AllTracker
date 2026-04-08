@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./public/logo.png" width="100" height="100" alt="All Tracker Logo">
+  <img src="./public/icons/Logo.svg" width="100" height="100" alt="All Tracker Logo">
   <h1> All Tracker Arena</h1>
   <p><strong>The High-Performance Mission Control for Focused Development & Study.</strong></p>
 
