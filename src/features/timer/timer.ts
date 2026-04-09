@@ -58,6 +58,9 @@ export function startTimer(categoryIdx: number, categoryName: string): void {
 
   document.getElementById('timerModal')?.classList.remove('active');
   showToast(`Timer started for ${categoryName}`, 'success');
+  
+  // 📡 WORLD STAGE: Broadcast status instantly
+  import('@/features/dashboard/leaderboard').then(m => m.syncProfileBroadcast());
 }
 
 export function pauseTimer(): void {
@@ -71,6 +74,9 @@ export function pauseTimer(): void {
   saveTimerState();
   if (appState.timerInterval) clearInterval(appState.timerInterval);
   updateTimerUI(true);
+
+  // 📡 WORLD STAGE: Broadcast status instantly (Away/Paused)
+  import('@/features/dashboard/leaderboard').then(m => m.syncProfileBroadcast());
 }
 
 export async function stopTimer(): Promise<void> {
@@ -220,7 +226,7 @@ function saveSessionToDate(colIdx: number, hoursToAdd: number, note: string = ''
   }
 
   const day = appState.trackerData[targetIndex];
-  const fixed = (n: number) => parseFloat(n.toFixed(2));
+  const fixed = (n: number) => parseFloat(n.toFixed(4)); // Standardized 4-decimal precision for Perfect Sync
 
   if (!Array.isArray(day.studyHours)) day.studyHours = [];
   day.studyHours[colIdx] = fixed((day.studyHours[colIdx] || 0) + hoursToAdd);
@@ -291,8 +297,8 @@ function startTimerInterval(): void {
       const elapsedSeconds = Math.floor(totalElapsedMs / 1000);
       updateSessionProgress(elapsedSeconds);
 
-      // 💓 HEARBEAT SYNC: Every 60 seconds, push the live state to Supabase for "Perfect Sync"
-      if (elapsedSeconds > 0 && elapsedSeconds % 60 === 0) {
+      // 💓 HEARBEAT SYNC: Every 30 seconds, push the live state to Supabase for "Perfect Sync"
+      if (elapsedSeconds > 0 && elapsedSeconds % 30 === 0) {
         console.log('[Timer] Heartbeat: Pulsing live state to Cloud.');
         saveTimerState();
       }

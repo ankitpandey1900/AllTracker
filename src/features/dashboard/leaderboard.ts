@@ -1,5 +1,5 @@
 import { appState } from '@/state/app-state';
-import { STORAGE_KEYS, RANK_TIERS } from '@/config/constants';
+import { STORAGE_KEYS, RANK_TIERS, SUPABASE_TABLES } from '@/config/constants';
 import { broadcastGlobalStats, fetchLeaderboard, isUsernameTaken } from '@/services/supabase.service';
 import type { UserProfile } from '@/types/profile.types';
 import { getCurrentUserId, setupPasswordToggle } from '@/services/auth.service';
@@ -31,8 +31,20 @@ export async function initWorldStage(): Promise<void> {
   // 1. Fetch the top 10 users initially
   await refreshLeaderboard();
 
-  // 2. Schedule periodic updates (every 1 min)
-  setInterval(() => refreshLeaderboard(), 60000);
+  // 2. ⚡ REAL-TIME UPGRADE: Listen for instant database changes
+  import('@/config/supabase').then(({ supabaseClient }) => {
+    if (supabaseClient) {
+      supabaseClient
+        .channel('leaderboard-realtime')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: SUPABASE_TABLES.GLOBAL_PROFILES }, () => refreshLeaderboard())
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: SUPABASE_TABLES.GLOBAL_PROFILES }, () => refreshLeaderboard())
+        .on('postgres_changes', { event: 'DELETE', schema: 'public', table: SUPABASE_TABLES.GLOBAL_PROFILES }, () => refreshLeaderboard())
+        .subscribe();
+    }
+  });
+
+  // 3. Fallback Periodic updates (Enforced 30s refresh for maximum accuracy)
+  setInterval(() => refreshLeaderboard(), 30000);
 
   // 3. Bind Profile Setup Modal
   const saveBtn = document.getElementById('saveProfileBtn');
@@ -101,15 +113,30 @@ export function initActivityTracking(): void {
   window.addEventListener('touchstart', updateActivity);
   window.addEventListener('scroll', updateActivity);
 
-  // Heartbeat every 30 seconds: Sync if user is active or timer is running
+  // 🚀 PERFECT SYNC HEARTBEAT: Heartbeat every 25 seconds for focuses
+  // This ensures updates hit the DB under the 30s user request.
   setInterval(() => {
     const isTimerRunning = appState.activeTimer.isRunning;
     const isRecentActive = (Date.now() - lastInteractionAt) < 30 * 1000;
     
+    // We broadcast if focusing (to update time) or if we just stopped focusing (to clear status)
     if (isTimerRunning || isRecentActive) {
       syncProfileBroadcast();
     }
-  }, 30000);
+  }, 25000);
+
+  // 🛰️ LIFECYCLE CLEANUP: Prevent Zombie Focusing
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      // Force an immediate 'Not Focusing' broadcast if the tab is hidden or closed
+      syncProfileBroadcast();
+    }
+  });
+
+  window.addEventListener('beforeunload', () => {
+    // One final broadcast before the user leaves
+    syncProfileBroadcast();
+  });
 }
 
 /** Fetches and renders the leaderboard list */
@@ -188,7 +215,10 @@ export async function refreshLeaderboard(): Promise<void> {
     let statusClass = 'offline';
     let statusLabel = '';
     
-    if (u.is_focusing_now) {
+    // 🛡️ ZOMBIE PROTECTION: Only show as 'Focusing' if the last heartbeat was within 5 minutes
+    const isStale = diffMins > 5;
+
+    if (u.is_focusing_now && !isStale) {
       statusClass = 'focusing';
       statusLabel = 'FOCUSING';
     } else if (diffMins < 5) {

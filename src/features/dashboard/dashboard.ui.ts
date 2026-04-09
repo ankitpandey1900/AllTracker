@@ -125,7 +125,7 @@ export const dashboardView = `
             </div>
             <div class="arena-footer" style="margin-top: auto; padding-top: 20px; text-align: center;">
               <p style="font-size: 0.72rem; color: var(--text-secondary); opacity: 0.5;">
-                Leaderboard updates every 5 mins
+                Live Real-time Sync (30s Fallback)
               </p>
             </div>
           </article>
