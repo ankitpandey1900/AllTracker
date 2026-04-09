@@ -536,8 +536,26 @@ if ('serviceWorker' in navigator) {
     // Only register caching Service Worker in Production completely
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('/sw.js')
-        .then(reg => console.log('Service Worker registered', reg))
+        .then(reg => {
+          console.log('Service Worker registered', reg);
+          
+          // Detect manual or automatic SW updates
+          reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            newWorker?.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                console.log('New version available! Refreshing...');
+              }
+            });
+          });
+        })
         .catch(err => console.error('Service Worker registration failed', err));
+
+      // Handle automatic reload when the new Service Worker takes over
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        console.log('Controller changed. Reloading page for latest version.');
+        window.location.reload();
+      });
     });
   } else {
     // In local development, unregister any existing service worker so it doesn't break Hot Reloading
