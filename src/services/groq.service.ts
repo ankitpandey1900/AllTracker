@@ -102,7 +102,8 @@ export async function getMaamuResponseStream(
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'deepseek-r1-distill-llama-70b',
+        model: 'llama-3.3-70b-versatile',
+
         messages,
         temperature: 0.6,
         max_tokens: 2048,
