@@ -1,4 +1,4 @@
-const CACHE_NAME = 'all-tracker-v1.2'; // V1.2 to purge the large 66MB v1.1 cache
+const CACHE_NAME = 'alltracker-cache-v1.3.0'; // V1.3.0: Perfect Sync & Health Patch
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -70,14 +70,20 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 3. Asset Strategy: Stale-While-Revalidate (only for same-origin or fonts/flags)
+  // 3. Asset Strategy: Selective Stale-While-Revalidate
   const isInternal = url.startsWith(self.location.origin);
-  if (isInternal || isExternalCacheable(url)) {
+  const cacheableExtensions = ['.js', '.css', '.woff2', '.png', '.svg', '.jpg'];
+  const isCacheableFile = cacheableExtensions.some(ext => url.toLowerCase().endsWith(ext));
+
+  if ((isInternal && isCacheableFile) || isExternalCacheable(url)) {
     event.respondWith(
       caches.match(event.request).then((cachedResponse) => {
         const fetchPromise = fetch(event.request).then((networkResponse) => {
-          const responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
+          // Only cache successful GET responses that aren't too massive
+          if (networkResponse.ok) {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
+          }
           return networkResponse;
         });
         return cachedResponse || fetchPromise;

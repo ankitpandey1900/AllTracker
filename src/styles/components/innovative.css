@@ -187,3 +187,38 @@ body.focus-minimized .hud-drag-handle {
 body.focus-minimized .session-goal-row {
   display: none;
 }
+
+/* 🛰️ SYNC STATUS INDICATOR */
+.sync-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+  opacity: 0.8;
+}
+
+.sync-indicator svg {
+  transition: stroke 0.4s;
+}
+
+.sync-live {
+  color: #60a5fa; /* Electric Blue */
+  filter: drop-shadow(0 0 8px rgba(96, 165, 250, 0.4));
+  animation: sync-float 3s infinite ease-in-out;
+}
+
+.sync-offline {
+  color: #ef4444; /* Alert Red */
+  filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.5));
+  animation: sync-offline-pulse 2s infinite ease-in-out;
+}
+
+@keyframes sync-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+@keyframes sync-offline-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(0.9); }
+  50% { opacity: 0.8; transform: scale(1.1); }
+}

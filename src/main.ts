@@ -113,7 +113,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   ]);
 
   // 2. Assign to App State
-  if (settings) appState.settings = { ...appState.settings, ...settings };
+  if (settings) {
+    appState.settings = { ...appState.settings, ...settings };
+    // ⚡ CRITICAL: Calculate dates immediately so dashboard isn't 0/0
+    calculateDates();
+  }
   if (trackerData && trackerData.length > 0) {
     appState.trackerData = trackerData;
   } else {

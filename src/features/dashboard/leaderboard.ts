@@ -165,6 +165,12 @@ export async function refreshLeaderboard(): Promise<void> {
     .sort((a, b) => {
       const aStart = a.total_hours - (a.today_hours || 0);
       const bStart = b.total_hours - (b.today_hours || 0);
+      
+      // 🛡️ STABLE TIE-BREAKER: If morning scores are identical, use all-time total
+      // This prevents "Phantom jumps" for new users or same-day starters
+      if (Math.abs(bStart - aStart) < 0.0001) {
+        return b.total_hours - a.total_hours;
+      }
       return bStart - aStart;
     })
     .reduce((acc, u, idx) => {
@@ -302,7 +308,7 @@ export async function refreshLeaderboard(): Promise<void> {
       `;
     } 
     // 🚀 High-Focus Momentum: Highlight active climbers even when stable
-    else if (u.is_focusing_now) {
+    else if (u.is_focusing_now && !isStale) {
       trendHtml = `
         <div class="rank-delta trend-up momentum-only" title="Gaining ground (Live Focus)">
           <svg class="hour-trend-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -23,20 +23,37 @@ function isSupabaseReady(): boolean {
 
 export function updateSyncStatus(status: 'syncing' | 'synced' | 'error' | 'offline'): void {
   const el = document.getElementById('syncStatus');
-  if (!el) return;
-
-  const config: Record<string, { text: string; color: string }> = {
-    syncing: { text: '🔄 Syncing...',   color: '#3498db' },
-    synced:  { text: '✅ Synced',        color: '#2ecc71' },
-    error:   { text: '❌ Sync Error',    color: '#e74c3c' },
-    offline: { text: '📶 Offline',       color: '#f39c12' },
+  const hudIcon = document.getElementById('timerSyncStatus');
+  
+  const config: Record<string, { text: string; color: string; isLive: boolean }> = {
+    syncing: { text: '🔄 Syncing...',   color: '#3498db', isLive: true },
+    synced:  { text: '✅ Synced',        color: '#2ecc71', isLive: true },
+    error:   { text: '❌ Sync Error',    color: '#e74c3c', isLive: false },
+    offline: { text: '📶 Offline',       color: '#f39c12', isLive: false },
   };
 
   const c = config[status];
-  el.textContent = c.text;
-  el.style.color = c.color;
-  if (status === 'error') {
-    el.title = 'Check console for details or verify project credentials.';
+
+  // Update Main Dashboard Text
+  if (el) {
+    el.textContent = c.text;
+    el.style.color = c.color;
+    if (status === 'error') {
+      el.title = 'Check console for details or verify project credentials.';
+    }
+  }
+
+  // Update HUD Cloud Icon
+  if (hudIcon) {
+    if (c.isLive) {
+      hudIcon.classList.add('sync-live');
+      hudIcon.classList.remove('sync-offline');
+      hudIcon.title = status === 'syncing' ? 'Syncing with Cloud...' : 'Cloud Sync Active';
+    } else {
+      hudIcon.classList.add('sync-offline');
+      hudIcon.classList.remove('sync-live');
+      hudIcon.title = status === 'error' ? 'Connection Error' : 'Offline: Local Only';
+    }
   }
 }
 

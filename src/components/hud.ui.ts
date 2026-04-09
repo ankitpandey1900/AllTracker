@@ -11,6 +11,13 @@ export const hudView = `
         <div class="hud-status" style="display: flex; align-items: center; gap: 8px;">
           <div class="pulse-emerald" style="width: 8px; height: 8px; border-radius: 50%; background: #10b981;"></div>
           <span style="font-size: 0.6rem; font-weight: 800; color: #10b981; letter-spacing: 1px;">ACTIVE PHASE</span>
+          
+          <!-- Sync Status Indicator -->
+          <div id="timerSyncStatus" class="sync-indicator sync-live" title="Cloud Sync Active" style="margin-left: 4px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17.5 19c.7 0 1.3-.2 1.8-.7.5-.4.7-1 .7-1.7 0-1.4-1.1-2.5-2.5-2.5-.2 0-.4 0-.6.1C16 12.1 14.2 11 12.1 11c-2.6 0-4.8 1.8-5.4 4.3-.1 0-.2 0-.3 0-1.4 0-2.5 1.1-2.5 2.5s1.1 2.5 2.5 2.5h11.1z" />
+            </svg>
+          </div>
         </div>
         <button id="manualFocusToggle" class="btn-icon minimize-btn" title="Toggle Mini-Player">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"

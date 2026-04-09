@@ -343,14 +343,19 @@ function getDynamicStatusMessage(currentDay: number, completedDays: number): str
 }
 
 function calculateEstimatedFinishDate(currentDayNumber: number, completedDays: number): string {
-  if (currentDayNumber <= 0 || completedDays <= 0) return '-';
+  if (currentDayNumber <= 0) return 'Analyzing...';
+  if (completedDays <= 0) return 'Need 1 session';
+  
   const pace = completedDays / currentDayNumber;
-  if (pace <= 0) return '-';
+  if (pace <= 0) return 'Studying...';
+  
   const remainingCompletions = Math.max(0, appState.totalDays - completedDays);
-  if (remainingCompletions === 0) return 'Done';
+  if (remainingCompletions === 0) return 'Goal Completed! 🏆';
+
   const daysNeeded = Math.ceil(remainingCompletions / pace);
   const eta = new Date();
   eta.setDate(eta.getDate() + daysNeeded);
+  
   return formatDate(eta);
 }
 

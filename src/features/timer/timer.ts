@@ -9,13 +9,42 @@
 import { appState, getColumnsForDay } from '@/state/app-state';
 import { STORAGE_KEYS } from '@/config/constants';
 import { syncProfileBroadcast } from '@/features/dashboard/leaderboard';
-import { formatMsToTime, formatClockTime } from '@/utils/date.utils';
-import { showToast } from '@/utils/dom.utils';
+import { saveTimerStateCloud, updateSyncStatus } from '@/services/supabase.service';
 import { saveTrackerDataToStorage, saveSettingsToStorage, saveTimerStateToStorage } from '@/services/data-bridge';
 import { generateTable } from '@/features/tracker/tracker';
 import { updateDashboard, toggleFocusHUD } from '@/features/dashboard/dashboard';
 import { renderHeatmap } from '@/features/heatmap/heatmap';
 import { renderPerformanceCurve } from '@/features/routines/performance-chart';
+import { formatMsToTime, formatClockTime } from '@/utils/date.utils';
+import { showToast } from '@/utils/dom.utils';
+
+/**
+ * Initializes listeners for the Sync Status HUD
+ */
+export function initTimerModules(): void {
+  // Connectivity Listeners
+  window.addEventListener('online',  () => updateSyncIndicator(true));
+  window.addEventListener('offline', () => updateSyncIndicator(false));
+  
+  // Initial Check
+  updateSyncIndicator(window.navigator.onLine);
+}
+
+/** Updates the HUD cloud icon color based on network status */
+export function updateSyncIndicator(isOnline: boolean): void {
+  const el = document.getElementById('timerSyncStatus');
+  if (!el) return;
+
+  if (isOnline) {
+    el.classList.add('sync-live');
+    el.classList.remove('sync-offline');
+    el.title = "Cloud Sync Active";
+  } else {
+    el.classList.add('sync-offline');
+    el.classList.remove('sync-live');
+    el.title = "Offline: Saving Locally";
+  }
+}
 
 // --- Timer State ---
 
@@ -32,6 +61,7 @@ export function loadTimerState(): void {
 
 function saveTimerState(): void {
   saveTimerStateToStorage(appState.activeTimer);
+  saveTimerStateCloud(appState.activeTimer);
 }
 
 // --- Timer Controls ---
