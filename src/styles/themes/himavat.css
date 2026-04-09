@@ -193,6 +193,13 @@ html[data-theme="himavat"] .settings-input {
   color: #ffffff !important;
 }
 
+/* ❄️ FIX: Dropdown Menu Options (Overrides OS default white background) */
+html[data-theme="himavat"] select option,
+html[data-theme="himavat"] .settings-input option {
+  background: #0f172a !important; 
+  color: #ffffff !important;
+}
+
 html[data-theme="himavat"] .mobile-nav {
   background: rgba(10, 17, 24, 0.4) !important;
   backdrop-filter: blur(30px);
