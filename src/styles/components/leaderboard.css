@@ -692,7 +692,11 @@
   align-items: center;
   gap: 4px;
   flex-shrink: 0;
-  /* Status must ALWAYS be visible */
+  /* Status must ALWAYS be visible but not overlap */
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .status-tag.online {
@@ -764,6 +768,10 @@
   .lb-today-badge {
     font-size: 0.6rem;
     padding: 1px 4px;
+  }
+
+  .status-tag {
+    max-width: 80px;
   }
 }
 
