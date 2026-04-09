@@ -240,8 +240,12 @@ export const manualModal = `
             <h3 class="docs-h3">Session Note</h3>
             <p>On stopping, a prompt asks for an optional session note. Notes are saved to both the <strong>Session History</strong> and auto-filled into the matching Topics or Project column of the Study Log.</p>
 
-            <h3 class="docs-h3">Session Goal Ring</h3>
+            <h3 class="docs-h3">Session Goal Ring & ETA</h3>
             <p>Set a session goal (in minutes) in the header. The progress ring fills as you study, turning gold at 80% and green at 100%.</p>
+            <div class="docs-callout docs-callout-info">
+              <div class="docs-callout-title">🎯 Goal ETA Prediction</div>
+              <p>The HUD now features a predictive <strong>Goal ETA</strong> engine. It calculates the exact wall-clock time (e.g., 10:45 PM) you will reach your study goal based on your current elapsed time. If you update your goal minutes mid-session, the ETA recalibrates instantly.</p>
+            </div>
           </section>
 
           <div class="docs-divider"></div>
@@ -520,6 +524,9 @@ Phase 2 → Days 101–200: System Design (150h), Projects (100h)</pre>
               <div class="docs-callout-title">⚠️ Important</div>
               <p>If you use the app on a new device without logging in first, your local data will be replaced by cloud data upon login. Always sync before switching devices.</p>
             </div>
+
+            <h3 class="docs-h3">Perfect Sync (Cross-Device Heartbeat)</h3>
+            <p>The Focus Timer now uses a <strong>Live Heartbeat</strong> protocol. While a timer is running, it pushes its exact state to the cloud every 60 seconds. This allows you to start a session on one device and see the live, synchronized countdown on any other device instantly.</p>
           </section>
 
           <div class="docs-divider"></div>

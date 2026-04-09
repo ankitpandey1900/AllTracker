@@ -287,9 +287,15 @@ function startTimerInterval(): void {
   appState.timerInterval = setInterval(() => {
     updateTimerDisplay();
     if (appState.activeTimer.isRunning && appState.activeTimer.startTime) {
-      const elapsed = appState.activeTimer.elapsedAcc + (Date.now() - appState.activeTimer.startTime);
-      const elapsedSeconds = Math.floor(elapsed / 1000);
+      const totalElapsedMs = appState.activeTimer.elapsedAcc + (Date.now() - appState.activeTimer.startTime);
+      const elapsedSeconds = Math.floor(totalElapsedMs / 1000);
       updateSessionProgress(elapsedSeconds);
+
+      // 💓 HEARBEAT SYNC: Every 60 seconds, push the live state to Supabase for "Perfect Sync"
+      if (elapsedSeconds > 0 && elapsedSeconds % 60 === 0) {
+        console.log('[Timer] Heartbeat: Pulsing live state to Cloud.');
+        saveTimerState();
+      }
     }
   }, 1000);
 }
@@ -438,7 +444,22 @@ export function openTimerModal(): void {
 export function resumeTimerIfNeeded(): void {
   const { isRunning, startTime, elapsedAcc } = appState.activeTimer;
 
-  // 1. Check for abandoned sessions (over 18 hours) and reset them
+  // 1. Handle Remote Stop: If timer was running locally but is now stopped on another device
+  if (!isRunning) {
+    if (appState.timerInterval) {
+      clearInterval(appState.timerInterval);
+      appState.timerInterval = null;
+    }
+    updateTimerUI(false);
+    
+    // If we have some elapsed time showing, we keep it visible in the UI pause state
+    // but if elapsedAcc is 0, it means it was fully stopped/saved.
+    if (elapsedAcc === 0) {
+       return; 
+    }
+  }
+
+  // 2. Check for abandoned sessions (over 18 hours) and reset them
   if (isRunning && startTime) {
     const elapsedNow = Date.now() - startTime;
     const TOTAL_IMPOSSIBLE_MS = 18 * 60 * 60 * 1000; // 18 Hours
@@ -450,6 +471,7 @@ export function resumeTimerIfNeeded(): void {
       appState.activeTimer.elapsedAcc = 0;
       saveTimerState();
       showToast('Long inactivity detected. Timer has been reset.', 'info');
+      updateTimerUI(false);
       return;
     }
   }

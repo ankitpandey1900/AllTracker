@@ -235,10 +235,26 @@ function setTimerState(state: ActiveTimer, pushToCloud = true): void {
 }
 
 export async function loadTimerStateFromStorage(): Promise<ActiveTimer | null> {
+  const syncId = getCurrentUserId();
+  
+  if (syncId) {
+    try {
+      const cloud = await loadTimerStateCloud();
+      if (cloud) {
+        // Only accept cloud if it's running or has actual elapsed time
+        if (cloud.isRunning || cloud.elapsedAcc > 0) {
+          localStorage.setItem(STORAGE_KEYS.TIMER, JSON.stringify(cloud));
+          return cloud;
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to fetch timer state from cloud:', err);
+    }
+  }
+
   const saved = localStorage.getItem(STORAGE_KEYS.TIMER);
   let local: ActiveTimer | null = null;
   if (saved) { try { local = JSON.parse(saved); } catch { /* noop */ } }
-  if (!local && isAuthenticated()) return await loadTimerStateCloud();
   return local;
 }
 
