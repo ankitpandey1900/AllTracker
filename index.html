@@ -91,9 +91,95 @@
   <meta name="theme-color" content="#0b0e1a" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+  <!-- 🎨 Bootstrap Loader Styles (Safe & Instant) -->
+  <style>
+    #app-bootstrap-loader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #030611;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+      transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.6s;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    #app-bootstrap-loader.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .loader-content {
+      text-align: center;
+      animation: loader-pulse 2s ease-in-out infinite;
+    }
+
+    .loader-logo {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 24px;
+      filter: drop-shadow(0 0 15px rgba(106, 134, 255, 0.4));
+    }
+
+    .loader-text {
+      color: #8b9cc4;
+      font-size: 0.85rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-family: 'Tektur', sans-serif;
+      margin-top: 10px;
+    }
+
+    .loader-progress {
+      width: 120px;
+      height: 2px;
+      background: rgba(106, 134, 255, 0.1);
+      margin: 20px auto 0;
+      border-radius: 4px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .loader-progress-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 40%;
+      height: 100%;
+      background: #6a86ff;
+      border-radius: 4px;
+      animation: progress-slide 1.5s ease-in-out infinite;
+    }
+
+    @keyframes loader-pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.02); opacity: 0.8; }
+    }
+
+    @keyframes progress-slide {
+      0% { left: -40%; }
+      100% { left: 100%; }
+    }
+  </style>
 </head>
 
 <body class="antialiased selection:bg-indigo-500/30 selection:text-white">
+  <!-- 🚀 Initial Sync Loader -->
+  <div id="app-bootstrap-loader">
+    <div class="loader-content">
+      <img src="/icons/Logo.svg" class="loader-logo" alt="All Tracker">
+      <div class="loader-text">Synchronizing Identity</div>
+      <div class="loader-progress">
+        <div class="loader-progress-bar"></div>
+      </div>
+    </div>
+  </div>
   <header id="appHeader" class="app-header backdrop-blur-md">
     <div class="brand-group">
       <img src="/icons/Logo.svg" alt="All Tracker: The High-Performance Study Dashboard" class="app-logo"

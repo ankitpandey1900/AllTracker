@@ -188,6 +188,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.documentElement.style.setProperty("--mouse-x", `${e.clientX}px`);
     document.documentElement.style.setProperty("--mouse-y", `${e.clientY}px`);
   });
+
+  // 🏁 8. Finalize Boot: Remove the Bootstrap Loader (Safe)
+  const removeLoader = () => {
+    const loader = document.getElementById('app-bootstrap-loader');
+    if (loader) {
+      loader.classList.add('hidden');
+      setTimeout(() => loader.remove(), 600); // matches CSS transition
+    }
+  };
+
+  // Immediate removal after data loaded
+  removeLoader();
+  
+  // Safety fallback: if anything above fails/hangs, ensure loader is gone after 5s
+  setTimeout(removeLoader, 5000);
 });
 
 // --- Logic for Buttons and Navigation ---

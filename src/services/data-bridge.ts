@@ -47,6 +47,14 @@ function setTrackerData(data: TrackerDay[], pushToCloud = true): void {
 }
 
 export async function loadTrackerDataFromStorage(): Promise<TrackerDay[]> {
+  if (isAuthenticated()) {
+    const cloud = await loadTrackerDataCloud();
+    if (cloud && cloud.length > 0) {
+      setTrackerData(cloud, false);
+      return cloud;
+    }
+  }
+
   const saved = localStorage.getItem(STORAGE_KEYS.TRACKER_DATA);
   let localData: TrackerDay[] = [];
   if (saved) { 
@@ -56,8 +64,6 @@ export async function loadTrackerDataFromStorage(): Promise<TrackerDay[]> {
       localData = []; 
     } 
   }
-
-  // Background fetch is now handled centrally in performBackgroundSync()
   return localData;
 }
 
@@ -96,6 +102,17 @@ function setSettings(settings: Settings, pushToCloud = true): void {
 }
 
 export async function loadSettingsFromStorage(): Promise<Settings | null> {
+  if (isAuthenticated()) {
+    const cloud = await loadSettingsCloud();
+    if (cloud) {
+      if (cloud.theme) {
+        applyThemeToDOM(cloud.theme);
+      }
+      setSettings(cloud, false);
+      return cloud;
+    }
+  }
+
   const saved = localStorage.getItem(STORAGE_KEYS.SETTINGS);
   let localSettings: Settings | null = null;
   
@@ -115,8 +132,6 @@ export async function loadSettingsFromStorage(): Promise<Settings | null> {
       localSettings = null; 
     } 
   }
-
-  // Background fetch is now handled centrally in performBackgroundSync()
   return localSettings;
 }
 
@@ -134,11 +149,17 @@ function setRoutines(routines: RoutineItem[], pushToCloud = true): void {
 }
 
 export async function loadRoutinesFromStorage(): Promise<RoutineItem[]> {
+  if (isAuthenticated()) {
+    const cloud = await loadRoutinesCloud();
+    if (cloud) {
+      setRoutines(cloud, false);
+      return cloud;
+    }
+  }
+
   const saved = localStorage.getItem(STORAGE_KEYS.ROUTINES);
   let localRoutines: RoutineItem[] = [];
   if (saved) { try { localRoutines = JSON.parse(saved); } catch { localRoutines = []; } }
-
-  // Background fetch is now handled centrally in performBackgroundSync()
   return localRoutines;
 }
 
@@ -158,11 +179,17 @@ function setRoutineHistory(history: RoutineHistory, pushToCloud = true): void {
 }
 
 export async function loadRoutineHistoryFromStorage(): Promise<RoutineHistory> {
+  if (isAuthenticated()) {
+    const cloud = await loadRoutineHistoryCloud();
+    if (cloud) {
+      setRoutineHistory(cloud, false);
+      return cloud;
+    }
+  }
+
   const saved = localStorage.getItem(STORAGE_KEYS.ROUTINE_HISTORY);
   let localHistory: RoutineHistory = {};
   if (saved) { try { localHistory = JSON.parse(saved); } catch { localHistory = {}; } }
-
-  // Background fetch is now handled centrally in performBackgroundSync()
   return localHistory;
 }
 
@@ -180,11 +207,17 @@ function setBookmarks(bookmarks: Bookmark[], pushToCloud = true): void {
 }
 
 export async function loadBookmarksFromStorage(): Promise<Bookmark[]> {
+  if (isAuthenticated()) {
+    const cloud = await loadBookmarksCloud();
+    if (cloud) {
+      setBookmarks(cloud, false);
+      return cloud;
+    }
+  }
+
   const saved = localStorage.getItem(STORAGE_KEYS.BOOKMARKS);
   let localBookmarks: Bookmark[] = [];
   if (saved) { try { localBookmarks = JSON.parse(saved); } catch { localBookmarks = []; } }
-
-  // Background fetch is now handled centrally in performBackgroundSync()
   return localBookmarks;
 }
 
@@ -245,11 +278,17 @@ function setTasks(tasks: StudyTask[], pushToCloud = true): void {
 }
 
 export async function loadTasksFromStorage(): Promise<StudyTask[]> {
+  if (isAuthenticated()) {
+    const cloud = await loadTasksCloud();
+    if (cloud) {
+      setTasks(cloud, false);
+      return cloud;
+    }
+  }
+
   const saved = localStorage.getItem(STORAGE_KEYS.TASKS);
   let localTasks: StudyTask[] = [];
   if (saved) { try { localTasks = JSON.parse(saved); } catch { localTasks = []; } }
-
-  // Background fetch is now handled centrally in performBackgroundSync()
   return localTasks;
 }
 
