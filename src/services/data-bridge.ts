@@ -36,20 +36,29 @@ function isAuthenticated(): boolean {
 // --- Tracker Data Functions ---
 
 function setTrackerData(data: TrackerDay[], pushToCloud = true): void {
-  localStorage.setItem(STORAGE_KEYS.TRACKER_DATA, JSON.stringify(data));
+  const current = localStorage.getItem(STORAGE_KEYS.TRACKER_DATA);
+  const next = JSON.stringify(data);
+  if (current === next) return; // Prevent redundant local saves
+
+  localStorage.setItem(STORAGE_KEYS.TRACKER_DATA, next);
   if (pushToCloud && isAuthenticated()) {
     saveTrackerDataCloud(data);
   }
 }
 
 export async function loadTrackerDataFromStorage(): Promise<TrackerDay[]> {
-  if (isAuthenticated()) {
-    const cloud = await loadTrackerDataCloud();
-    if (cloud) { setTrackerData(cloud, false); return cloud; }
-  }
   const saved = localStorage.getItem(STORAGE_KEYS.TRACKER_DATA);
-  if (saved) { try { return JSON.parse(saved); } catch { return []; } }
-  return [];
+  let localData: TrackerDay[] = [];
+  if (saved) { 
+    try { 
+      localData = JSON.parse(saved); 
+    } catch { 
+      localData = []; 
+    } 
+  }
+
+  // Background fetch is now handled centrally in performBackgroundSync()
+  return localData;
 }
 
 export async function saveTrackerDataToStorage(data: TrackerDay[]): Promise<void> {
@@ -61,13 +70,25 @@ export async function saveTrackerDataToStorage(data: TrackerDay[]): Promise<void
 import { obfuscate, deobfuscate } from '@/utils/security';
 
 function setSettings(settings: Settings, pushToCloud = true): void {
-  // Security: Mask the AI key before saving to the browser's disk
+  const syncId = getCurrentUserId() || '';
+  
+  // 🛡️ AUTH WALL: Prevent saving sensitive API keys if not authenticated
+  if (!syncId && settings.groqApiKey) {
+    console.warn('🔒 SECURITY BLOCKED: Cannot save API keys without an active Mission Profile.');
+    settings.groqApiKey = ''; 
+  }
+
+  // 🔐 IDENTITY-LINKED VAULT (V3): Mask the AI key using user ID as a salt
   const securedSettings = { 
     ...settings, 
-    groqApiKey: settings.groqApiKey ? obfuscate(settings.groqApiKey) : '' 
+    groqApiKey: settings.groqApiKey ? obfuscate(settings.groqApiKey, syncId) : '' 
   };
   
-  localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(securedSettings));
+  const current = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+  const next = JSON.stringify(securedSettings);
+  if (current === next) return;
+
+  localStorage.setItem(STORAGE_KEYS.SETTINGS, next);
   
   if (pushToCloud && isAuthenticated()) {
     saveSettingsCloud(settings); // Cloud gets the raw key for processing
@@ -75,32 +96,28 @@ function setSettings(settings: Settings, pushToCloud = true): void {
 }
 
 export async function loadSettingsFromStorage(): Promise<Settings | null> {
-  if (isAuthenticated()) {
-    const cloud = await loadSettingsCloud();
-    if (cloud) { 
-      setSettings(cloud, false); 
-      if (cloud.theme) applyThemeToDOM(cloud.theme);
-      return cloud; 
-    }
-  }
-  
   const saved = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+  let localSettings: Settings | null = null;
+  
   if (saved) { 
     try { 
-      const settings = JSON.parse(saved) as Settings;
-      // Security: Unmask the AI key for use in the app
-      if (settings.groqApiKey) {
-        settings.groqApiKey = deobfuscate(settings.groqApiKey);
+      localSettings = JSON.parse(saved) as Settings;
+      
+      // 🔐 IDENTITY-LINKED VAULT (V3): Decrypt using current user ID
+      if (localSettings.groqApiKey) {
+        const syncId = getCurrentUserId() || '';
+        localSettings.groqApiKey = deobfuscate(localSettings.groqApiKey, syncId);
       }
-      if (settings.theme) {
-        applyThemeToDOM(settings.theme);
+      if (localSettings.theme) {
+        applyThemeToDOM(localSettings.theme);
       }
-      return settings;
     } catch { 
-      return null; 
+      localSettings = null; 
     } 
   }
-  return null;
+
+  // Background fetch is now handled centrally in performBackgroundSync()
+  return localSettings;
 }
 
 export async function saveSettingsToStorage(settings: Settings): Promise<void> {
@@ -117,13 +134,12 @@ function setRoutines(routines: RoutineItem[], pushToCloud = true): void {
 }
 
 export async function loadRoutinesFromStorage(): Promise<RoutineItem[]> {
-  if (isAuthenticated()) {
-    const cloud = await loadRoutinesCloud();
-    if (cloud) { setRoutines(cloud, false); return cloud; }
-  }
   const saved = localStorage.getItem(STORAGE_KEYS.ROUTINES);
-  if (saved) { try { return JSON.parse(saved); } catch { return []; } }
-  return [];
+  let localRoutines: RoutineItem[] = [];
+  if (saved) { try { localRoutines = JSON.parse(saved); } catch { localRoutines = []; } }
+
+  // Background fetch is now handled centrally in performBackgroundSync()
+  return localRoutines;
 }
 
 export async function saveRoutinesToStorage(routines: RoutineItem[]): Promise<void> {
@@ -142,13 +158,12 @@ function setRoutineHistory(history: RoutineHistory, pushToCloud = true): void {
 }
 
 export async function loadRoutineHistoryFromStorage(): Promise<RoutineHistory> {
-  if (isAuthenticated()) {
-    const cloud = await loadRoutineHistoryCloud();
-    if (cloud) { setRoutineHistory(cloud, false); return cloud; }
-  }
   const saved = localStorage.getItem(STORAGE_KEYS.ROUTINE_HISTORY);
-  if (saved) { try { return JSON.parse(saved); } catch { return {}; } }
-  return {};
+  let localHistory: RoutineHistory = {};
+  if (saved) { try { localHistory = JSON.parse(saved); } catch { localHistory = {}; } }
+
+  // Background fetch is now handled centrally in performBackgroundSync()
+  return localHistory;
 }
 
 export async function saveRoutineHistoryToStorage(history: RoutineHistory): Promise<void> {
@@ -165,13 +180,12 @@ function setBookmarks(bookmarks: Bookmark[], pushToCloud = true): void {
 }
 
 export async function loadBookmarksFromStorage(): Promise<Bookmark[]> {
-  if (isAuthenticated()) {
-    const cloud = await loadBookmarksCloud();
-    if (cloud) { setBookmarks(cloud, false); return cloud; }
-  }
   const saved = localStorage.getItem(STORAGE_KEYS.BOOKMARKS);
-  if (saved) { try { return JSON.parse(saved); } catch { return []; } }
-  return [];
+  let localBookmarks: Bookmark[] = [];
+  if (saved) { try { localBookmarks = JSON.parse(saved); } catch { localBookmarks = []; } }
+
+  // Background fetch is now handled centrally in performBackgroundSync()
+  return localBookmarks;
 }
 
 export async function saveBookmarksToStorage(bookmarks: Bookmark[]): Promise<void> {
@@ -231,13 +245,12 @@ function setTasks(tasks: StudyTask[], pushToCloud = true): void {
 }
 
 export async function loadTasksFromStorage(): Promise<StudyTask[]> {
-  if (isAuthenticated()) {
-    const cloud = await loadTasksCloud();
-    if (cloud) { setTasks(cloud, false); return cloud; }
-  }
   const saved = localStorage.getItem(STORAGE_KEYS.TASKS);
-  if (saved) { try { return JSON.parse(saved); } catch { return []; } }
-  return [];
+  let localTasks: StudyTask[] = [];
+  if (saved) { try { localTasks = JSON.parse(saved); } catch { localTasks = []; } }
+
+  // Background fetch is now handled centrally in performBackgroundSync()
+  return localTasks;
 }
 
 export async function saveTasksToStorage(tasks: StudyTask[]): Promise<void> {
@@ -303,6 +316,52 @@ export async function syncDataOnLogin(): Promise<void> {
   } catch (err) {
     console.error('Critical sync failure:', err);
     updateSyncStatus('error');
+  }
+}
+
+/** 
+ * Background Sync — Fetches all cloud data silently and updates 
+ * the app if there are any changes.
+ */
+export async function performBackgroundSync(): Promise<void> {
+  if (!isAuthenticated()) return;
+  
+  try {
+    const [cloudTracker, cloudSettings, cloudRoutines, cloudHistory, cloudBookmarks, cloudTasks, cloudTimer] = await Promise.all([
+      loadTrackerDataCloud(),
+      loadSettingsCloud(),
+      loadRoutinesCloud(),
+      loadRoutineHistoryCloud(),
+      loadBookmarksCloud(),
+      loadTasksCloud(),
+      loadTimerStateCloud(),
+    ]);
+
+    let changed = false;
+
+    // 🛡️ SYNC GUARD: Only update and refresh if cloud data differs from local state
+    const hasChanged = (localKey: string, cloudData: any) => {
+      if (!cloudData) return false;
+      const local = localStorage.getItem(localKey);
+      return JSON.stringify(cloudData) !== local;
+    };
+
+    if (hasChanged(STORAGE_KEYS.TRACKER_DATA, cloudTracker)) { setTrackerData(cloudTracker!, false); changed = true; }
+    if (hasChanged(STORAGE_KEYS.SETTINGS, cloudSettings)) { setSettings(cloudSettings!, false); changed = true; }
+    if (cloudRoutines && JSON.stringify(cloudRoutines) !== localStorage.getItem(STORAGE_KEYS.ROUTINES)) { setRoutines(cloudRoutines, false); changed = true; }
+    if (cloudHistory && JSON.stringify(cloudHistory) !== localStorage.getItem(STORAGE_KEYS.ROUTINE_HISTORY)) { setRoutineHistory(cloudHistory, false); changed = true; }
+    if (cloudBookmarks && JSON.stringify(cloudBookmarks) !== localStorage.getItem(STORAGE_KEYS.BOOKMARKS)) { setBookmarks(cloudBookmarks, false); changed = true; }
+    if (cloudTasks && JSON.stringify(cloudTasks) !== localStorage.getItem(STORAGE_KEYS.TASKS)) { setTasks(cloudTasks, false); changed = true; }
+    if (cloudTimer && JSON.stringify(cloudTimer) !== localStorage.getItem(STORAGE_KEYS.TIMER)) { setTimerState(cloudTimer, false); changed = true; }
+
+    if (changed) {
+      console.log('🔄 SYNC UPDATE: Cloud changes detected. Refreshing UI...');
+      await refreshAppAfterSync();
+    } else {
+      console.log('✅ SYNC COMPLETE: All systems identical.');
+    }
+  } catch (err) {
+    console.warn('Background sync failed:', err);
   }
 }
 

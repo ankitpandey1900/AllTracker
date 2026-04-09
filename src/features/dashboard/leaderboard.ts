@@ -4,9 +4,14 @@ import { broadcastGlobalStats, fetchLeaderboard, isUsernameTaken } from '@/servi
 import type { UserProfile } from '@/types/profile.types';
 import { getCurrentUserId, setupPasswordToggle } from '@/services/auth.service';
 import { initiateIdentityMigration } from '@/services/identity.service';
+import { escapeHtml } from '@/utils/security';
+
 
 // Tracks the last time the user did something in the app
 let lastInteractionAt = Date.now();
+
+// 🛡️ BROADCAST CACHE: Prevents redundant network calls if data is unchanged
+let lastBroadcastPayload: string | null = null;
 
 const NATION_FLAGS: Record<string, string> = {
   'Global': 'un',
@@ -158,7 +163,7 @@ export async function refreshLeaderboard(): Promise<void> {
   localStorage.setItem(CLIMB_KEY, JSON.stringify(climbData));
 
   if (users.length === 0) {
-    listEl.innerHTML = `<div class="leaderboard-placeholder">Arena is dark. Start a session to light it up.</div>`;
+    listEl.innerHTML = `<div class="leaderboard-placeholder">The World Stage is dark. Start a session to light it up.</div>`;
     return;
   }
 
@@ -290,8 +295,8 @@ export async function refreshLeaderboard(): Promise<void> {
 
         <div class="lb-info">
           <div class="lb-name">
-            <span class="lb-handle">@${u.display_name}</span>
-            <span class="status-tag ${statusClass}">${statusLabel}</span>
+            <span class="lb-handle">@${escapeHtml(u.display_name)}</span>
+            <span class="status-tag ${statusClass}">${escapeHtml(statusLabel)}</span>
           </div>
           
           <div class="lb-meta">
@@ -508,7 +513,7 @@ async function handleProfileSave(): Promise<void> {
   const modal = document.getElementById('profileSetupModal');
   if (modal) modal.classList.remove('active');
 
-  // Broadcast to global Arena
+  // Broadcast to World Stage
   await syncProfileBroadcast();
   await refreshLeaderboard();
 }
@@ -543,16 +548,26 @@ export async function syncProfileBroadcast(): Promise<void> {
     totalHours += elapsedHrs;
   }
 
-  await broadcastGlobalStats({
+  // 📡 WORLD STAGE BROADCAST: Sync local stats to the global leaderboard
+  const payload = {
     display_name: profile.displayName,
     age: profile.age,
     nation: profile.nation,
     avatar: profile.avatar,
-    total_hours: totalHours,
-    today_hours: todayHours,
+    total_hours: Number(totalHours.toFixed(4)),
+    today_hours: Number(todayHours.toFixed(4)),
     current_rank: rank,
     is_focusing_now: isFocusing
-  });
+  };
+
+  // 🛡️ BROADCAST DEDUPLICATION: Only sync if status or hours changed significantly
+  const currentPayloadStr = JSON.stringify(payload);
+  if (lastBroadcastPayload === currentPayloadStr) {
+    return;
+  }
+
+  lastBroadcastPayload = currentPayloadStr;
+  await broadcastGlobalStats(payload);
 
   // Automatically refresh the UI leaderboard to show the new stat
   await refreshLeaderboard();
@@ -580,7 +595,7 @@ async function handleIdentityMigration(): Promise<void> {
   if (confirm("🚨 WARNING: This will MOVE all your study data to the new Secret Key. Your old key will no longer work. Proceed?")) {
     const success = await initiateIdentityMigration(newKey);
     if (success) {
-      alert("Mission Successful: Identity Migrated. The Arena will now reload.");
+      alert("Mission Successful: Identity Migrated. All Tracker will now reload.");
     }
   }
 }

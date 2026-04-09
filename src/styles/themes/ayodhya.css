@@ -1,0 +1,140 @@
+/* =========================================================
+   THEME: AYODHYA (The Royal Palace of Order)
+   Visual System: Deep Saffron, Temple Stone, Sacred Gold
+   Aesthetic: Beyond Design Limits, Majestic, Royal, Traditional
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
+
+html[data-theme="ayodhya"] :root {
+  --bg-primary: #fff5e1; /* Rich Creamy Stone */
+  --bg-secondary: #ffead0;
+  --bg-tertiary: #fce1c1;
+  --surface: #ffffff;
+  --surface-2: #fcf8f0;
+  --text-primary: #3d1c02; /* Deep Wood/Earth */
+  --text-secondary: #8c4a00; /* Deep Saffron Text */
+  --text-muted: #b58d6b;
+  --border: #ffd700; /* Gold */
+  --border-strong: #ff9933; /* Saffron */
+  --accent-blue: #ff9933; /* Saffron Primary */
+  --accent-purple: #ffd700; /* Gold Secondary */
+  --accent-cyan: #ff4500; /* Orange Red */
+
+  /* Intelligence / Maamu Overrides */
+  --maamu-bg: #fff5e1;
+  --maamu-card: #ffffff;
+  --maamu-border: #ff9933;
+  --maamu-text: #3d1c02;
+  --maamu-text-muted: #8c4a00;
+  --maamu-accent: #ff9933;
+  --maamu-accent-soft: rgba(255, 153, 51, 0.1);
+
+  /* Global Audit Points */
+  --header-bg: #ff9933; /* Saffron Header */
+  --nav-bg: #ffffff;
+  --empty-state-bg: #fcf8f0;
+}
+
+/* 🏛️ THE ROYAL ABODE: Background */
+html[data-theme="ayodhya"] body {
+  background: var(--bg-primary);
+  background-image: 
+    radial-gradient(circle at 100% 0%, rgba(255, 215, 0, 0.1) 0%, transparent 40%),
+    radial-gradient(circle at 0% 100%, rgba(255, 69, 0, 0.1) 0%, transparent 40%);
+  color: var(--text-primary);
+  font-family: 'Outfit', sans-serif !important;
+  line-height: 1.6;
+}
+
+/* 🌅 SURYA HUD: Header */
+html[data-theme="ayodhya"] .app-header {
+  background: var(--header-bg) !important;
+  border-bottom: 4px solid #cc7a00 !important;
+  box-shadow: 0 4px 20px rgba(255, 153, 51, 0.3) !important;
+}
+
+html[data-theme="ayodhya"] .app-header .brand,
+html[data-theme="ayodhya"] .app-header h1,
+html[data-theme="ayodhya"] .app-header h2 {
+  color: #ffffff !important;
+  font-weight: 800;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* 🏅 PALACE ARCHITECTURE: Cards */
+html[data-theme="ayodhya"] .card,
+html[data-theme="ayodhya"] .hero,
+html[data-theme="ayodhya"] .metric-card,
+html[data-theme="ayodhya"] .feature-card,
+html[data-theme="ayodhya"] .profile-passport-card,
+html[data-theme="ayodhya"] .leaderboard-item {
+  background: var(--surface) !important;
+  border: 2px solid #ffead0 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 10px 25px rgba(140, 74, 0, 0.05) !important;
+  transition: all 0.3s ease;
+}
+
+html[data-theme="ayodhya"] .card:hover {
+  border-color: #ff9933 !important;
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(140, 74, 0, 0.1) !important;
+}
+
+/* 🕉️ SACRED METRICS */
+html[data-theme="ayodhya"] .stat-value {
+  color: #ff9933 !important;
+  font-weight: 800 !important;
+  text-shadow: 1px 1px 0 rgba(255, 215, 0, 0.5);
+}
+
+html[data-theme="ayodhya"] .focus-core {
+  background: #ffffff !important;
+  border: 4px solid #ffd700 !important;
+  box-shadow: 0 0 50px rgba(255, 215, 0, 0.2), inset 0 0 20px rgba(255, 153, 51, 0.1) !important;
+}
+
+/* 🚩 DHARMIC COMMANDS: Buttons */
+html[data-theme="ayodhya"] .btn-primary {
+  background: #ff9933 !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-weight: 700;
+  box-shadow: 0 4px 0 #cc7a00 !important;
+  transition: all 0.1s;
+}
+
+html[data-theme="ayodhya"] .btn-primary:hover {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #cc7a00 !important;
+  background: #ff7700 !important;
+}
+
+html[data-theme="ayodhya"] .settings-input {
+  background: #ffffff !important;
+  border: 2px solid #ffead0 !important;
+  color: #3d1c02 !important;
+}
+
+html[data-theme="ayodhya"] .settings-input:focus {
+  border-color: #ff9933 !important;
+  outline: none;
+}
+
+html[data-theme="ayodhya"] .mobile-nav {
+  background: #ffffff !important;
+  border-top: 3px solid #ff9933 !important;
+}
+
+html[data-theme="ayodhya"] .nav-item.active {
+  color: #ff9933 !important;
+  background: #fff5e1 !important;
+}
+
+html[data-theme="ayodhya"] .modern-table th {
+  background: #ffead0 !important;
+  color: #8c4a00 !important;
+  font-weight: 800;
+}

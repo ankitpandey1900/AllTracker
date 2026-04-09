@@ -26,6 +26,14 @@ All Tracker uses the **"Absolute Accuracy" (Midnight Split)** approach for sessi
 - **Note Sync**: The session note (message) is duplicated to both days so your project context remains intact across the date boundary.
 - **Why?**: This ensures that your "Daily Hours" bars and "Heatmap" remain biologically accurate.
 
+## ⚡ Performance & Hydration SOP
+
+To maintain an "Elite" user experience on mobile and slow networks, all modules must adhere to the **Optimized SPA** pattern:
+
+- **Local-First Hydration**: Functions in `data-bridge.ts` must return local data immediately. Cloud synchronization must happen asynchronously via `performBackgroundSync()`.
+- **Dynamic Imports**: Heavy libraries (e.g., `Chart.js`, `html2canvas`) must never be imported at the top-level. Use `await import()` inside the relevant execution block to keep the initial bundle small.
+- **🛡️ Resource Shielding**: When rendering async-dependent UI elements (like Canvas charts), always use safety guards like `Chart.getChart(canvas)` to prevent instance collision and memory leaks.
+
 ## 📂 Core File Map
 
 | Path | Purpose |

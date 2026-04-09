@@ -11,12 +11,12 @@ import "./styles/components/leaderboard.css";
 import "./styles/components/intelligence.css";
 import "./styles/components/manual.css";
 import "./styles/features/maamu.css";
-import "./styles/themes/arctic.css";
-import "./styles/themes/cyberpunk.css";
-import "./styles/themes/coder-terminal.css";
-import "./styles/themes/apex-corporate.css";
-import "./styles/themes/sakura-overdrive.css";
-import "./styles/themes/arena-sport.css";
+import "./styles/themes/himavat.css";
+import "./styles/themes/kali-tandava.css";
+import "./styles/themes/chanakya-strategy.css";
+import "./styles/themes/ayodhya.css";
+import "./styles/themes/kamala-grace.css";
+import "./styles/themes/vajra-shakti.css";
 
 // --- Core Setup ---
 import { appState, calculateDates, initializeData } from "@/state/app-state";
@@ -33,6 +33,7 @@ import {
   loadTasksFromStorage,
   loadTimerStateFromStorage,
   saveTrackerDataToStorage,
+  performBackgroundSync,
 } from "@/services/data-bridge";
 import { initSyncAuth, setupHeaderScroll } from "@/services/auth.service";
 import { initUI } from "@/components/ui-registry";
@@ -97,89 +98,92 @@ import { initWorldStage, checkProfileIdentity, syncProfileBroadcast } from "@/fe
 // --- App Start ---
 
 document.addEventListener("DOMContentLoaded", async () => {
-  // 0. Setup the UI system
+  // 0. Setup the UI system (Critical)
   await initUI();
-  const { initManualLogic } = await import('@/features/manual/manual');
-  initManualLogic();
 
-  // 1. Load settings first (date range controls everything)
-  const savedSettings = await loadSettingsFromStorage();
-  if (savedSettings) {
-    appState.settings = { ...appState.settings, ...savedSettings };
-  }
-
-  // 2. Load tracker data
-  const savedData = await loadTrackerDataFromStorage();
-  if (savedData && savedData.length > 0) {
-    appState.trackerData = savedData;
-  } else {
-    appState.trackerData = initializeData();
-    saveTrackerDataToStorage(appState.trackerData);
-  }
-
-  // 3. Load other data
-  const [routines, history, bookmarks, savedTimer] = await Promise.all([
+  // 1. Parallel Data Loading (Local-First)
+  // We load everything from storage in parallel. data-bridge will return local data immediately.
+  const [settings, trackerData, routines, history, bookmarks, savedTimer] = await Promise.all([
+    loadSettingsFromStorage(),
+    loadTrackerDataFromStorage(),
     loadRoutinesFromStorage(),
     loadRoutineHistoryFromStorage(),
     loadBookmarksFromStorage(),
     loadTimerStateFromStorage(),
   ]);
+
+  // 2. Assign to App State
+  if (settings) appState.settings = { ...appState.settings, ...settings };
+  if (trackerData && trackerData.length > 0) {
+    appState.trackerData = trackerData;
+  } else {
+    appState.trackerData = initializeData();
+    saveTrackerDataToStorage(appState.trackerData);
+  }
   appState.routines = routines;
   appState.routineHistory = history;
   appState.bookmarks = bookmarks;
+  if (savedTimer) Object.assign(appState.activeTimer, savedTimer);
 
-  // 4. Load timer state
-  if (savedTimer) {
-    Object.assign(appState.activeTimer, savedTimer);
-  }
-
-  // 5. Bootstrap UI
+  // 3. High-Priority UI Bootstrap (Visible above the fold)
   generateTable();
   updateDashboard();
-  renderPerformanceCurve();
-  renderRadarStats();
   renderRoutine();
   renderBookmarks();
-  renderBadges();
-  checkBadges();
-
-  // 6. Set up event listeners
+  
+  // 4. Secondary UI & Event Listeners
   setupEventListeners();
   setupTableSearch();
   setupKeyboardShortcuts();
   setupRoutineListeners();
   setupBookmarkListeners();
   setupFocusListeners();
-  setupChartFilters();
-
-  // 7. Auth & header
-  initSyncAuth();
-  setupHeaderScroll();
-  initTasks();
-
-  // 8. Mutations & Integrations
-  await checkDailyRoutineReset();
-  const { initNotifications } = await import('@/features/notifications/notifications');
-  initNotifications();
   
-  const { initIntegrityService } = await import('@/services/integrity');
-  initIntegrityService();
+  // 5. Background / Deferred Initializations
+  // These don't need to block the first paint
+  setTimeout(async () => {
+    // Analytics & Charts (Deferred)
+    renderPerformanceCurve();
+    renderRadarStats();
+    setupChartFilters();
+    renderBadges();
+    checkBadges();
 
-  // 9. Restore timer if it was running
-  resumeTimerIfNeeded();
+    // Features & Services
+    initSyncAuth();
+    setupHeaderScroll();
+    initTasks();
+    await checkDailyRoutineReset();
 
-  // 10. Session goal ring init
+    const [
+      { initManualLogic },
+      { initNotifications },
+      { initIntegrityService },
+      { initWorldStage }
+    ] = await Promise.all([
+      import('@/features/manual/manual'),
+      import('@/features/notifications/notifications'),
+      import('@/services/integrity'),
+      import('@/features/dashboard/leaderboard')
+    ]);
+
+    initManualLogic();
+    initNotifications();
+    initIntegrityService();
+    await initWorldStage();
+    checkProfileIdentity();
+    resumeTimerIfNeeded();
+    
+    // 🔄 BACKGROUND SYNC: Silently update and refresh if cloud differs
+    performBackgroundSync();
+  }, 100);
+
+  // 6. Session goal ring init
   const savedGoal = localStorage.getItem(STORAGE_KEYS.SESSION_GOAL);
-  const goalInput = document.getElementById(
-    "sessionGoalInput",
-  ) as HTMLInputElement;
+  const goalInput = document.getElementById("sessionGoalInput") as HTMLInputElement;
   if (savedGoal && goalInput) goalInput.value = savedGoal;
 
-  // 11. World Stage Leaderboard
-  await initWorldStage();
-  checkProfileIdentity();
-
-  // 12. Elite Interactive Mouse Tracking
+  // 7. Elite Interactive Mouse Tracking
   document.addEventListener("mousemove", (e) => {
     document.documentElement.style.setProperty("--mouse-x", `${e.clientX}px`);
     document.documentElement.style.setProperty("--mouse-y", `${e.clientY}px`);
@@ -245,6 +249,11 @@ function setupEventListeners(): void {
     const isHidden = drawSection.style.display === "none" || drawSection.style.display === "";
     
     if (isHidden) {
+      // Lazy Inject Iframe if not present
+      if (!drawSection.querySelector('iframe')) {
+        drawSection.innerHTML = `<iframe src="https://excalidraw.com" width="100%" height="80%" style="border: 1px solid #ccc" frameborder="0"></iframe>`;
+      }
+      
       drawSection.style.display = "block";
       excalidrawBtn.classList.add("active");
       excalidrawBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg> Hide Canvas`;

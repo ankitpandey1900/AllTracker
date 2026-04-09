@@ -47,7 +47,7 @@ export const routineView = `
 
         <article class="card">
           <div class="row-between">
-            <h2>Arena Skill Radar</h2>
+            <h2>Pilot Skill Radar</h2>
             <div class="label">Today's Stats</div>
           </div>
           <div class="chart-wrap radar-wrap">

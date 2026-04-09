@@ -7,7 +7,7 @@ export const authModal = `
       <div class="modal-header"
         style="justify-content: center; padding: 20px; border-bottom: 2px solid rgba(16, 185, 129, 0.2);">
         <div class="intel-label" style="color: #10b981; font-size: 0.85rem; font-weight: 800; letter-spacing: 2px;">
-          [ SECURE ARENA ACCESS ]
+          [ SECURE TRACKER ACCESS ]
         </div>
         <button id="closeAuthModal" class="modal-close" style="top: 15px; right: 15px;">&times;</button>
       </div>
@@ -93,7 +93,7 @@ export const authModal = `
             <div class="settings-group">
               <label>CHOOSE USER ID</label>
               <input id="regUsernameInput" class="input" placeholder="Permanent unique handle" required />
-              <p id="regUsernameStatus" style="font-size: 0.6rem; color: #94a3b8; margin-top: 4px;">Locked after creation. Visible in Arena.</p>
+              <p id="regUsernameStatus" style="font-size: 0.6rem; color: #94a3b8; margin-top: 4px;">Locked after creation. Visible on World Stage.</p>
             </div>
             <div class="settings-group" style="margin-top: 15px;">
               <label>VAULT KEY</label>

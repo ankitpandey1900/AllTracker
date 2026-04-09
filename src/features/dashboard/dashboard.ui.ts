@@ -121,7 +121,7 @@ export const dashboardView = `
               <span class="badge-live-pulse">LIVE</span>
             </div>
             <div id="leaderboardList" class="leaderboard-list">
-              <div class="leaderboard-placeholder">Connecting to Arena...</div>
+              <div class="leaderboard-placeholder">Connecting to World Stage...</div>
             </div>
             <div class="arena-footer" style="margin-top: auto; padding-top: 20px; text-align: center;">
               <p style="font-size: 0.72rem; color: var(--text-secondary); opacity: 0.5;">

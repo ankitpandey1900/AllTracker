@@ -15,16 +15,16 @@ export const settingsModal = `
               <h4>Appearance / Theme</h4>
             </div>
             <div class="settings-group" style="margin-top: 10px;">
-              <label>Select Arena Visual Theme</label>
+              <label>Select Visual Theme</label>
               <div class="row" style="gap: 10px; align-items: stretch;">
                 <select id="themeSelectInput" class="settings-input" style="background:#0f172a; flex: 1;">
                   <option value="midnight">All Tracker Original</option>
-                  <option value="arctic">Arctic Ghost (Light)</option>
-                  <option value="cyberpunk">Cyberpunk Red</option>
-                  <option value="coder-terminal">Coder Terminal</option>
-                  <option value="apex-corporate">Apex Corporate</option>
-                  <option value="sakura-overdrive">Sakura Overdrive</option>
-                  <option value="arena-sport">Arena Sport</option>
+                  <option value="himavat">Himavat (Himalayan Ice)</option>
+                  <option value="kali-tandava">Kali's Tandava (Destruction)</option>
+                  <option value="chanakya-strategy">Chanakya Strategy (Technical)</option>
+                  <option value="ayodhya">Ayodhya (Divine Order)</option>
+                  <option value="kamala-grace">Kamala's Grace (Prosperity)</option>
+                  <option value="vajra-shakti">Vajra Shakti (Strength)</option>
                 </select>
                 <button id="applyThemeBtn" class="btn btn-primary" style="white-space: nowrap; padding: 0 20px;">
                   Apply

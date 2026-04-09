@@ -210,7 +210,7 @@ export async function broadcastGlobalStats(profile: Partial<GlobalProfile>): Pro
     console.error('🚨 SUPABASE BROADCAST ERROR:', error);
     try {
       const { showToast } = await import('@/utils/dom.utils');
-      showToast(`Arena Broadcast Rejected: ${error.message || 'Unknown DB Error'}`, 'error');
+      showToast(`Profile Broadcast Rejected: ${error.message || 'Unknown DB Error'}`, 'error');
     } catch { /* noop */ }
   } else {
     console.log(`✅ BROADCAST SUCCESS: Pushed ${payload.total_hours}h total, ${payload.today_hours}h today for @${payload.display_name}`);

@@ -1,0 +1,141 @@
+/* =========================================================
+   THEME: KAMALA'S GRACE (The Divine Lotus Prosperity)
+   Visual System: Night Orchid, Sacred Gold, Kamal Pink
+   Aesthetic: Celestial Glass, Shimmer, Polished Devotion
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;800&display=swap');
+
+html[data-theme="kamala-grace"] :root {
+  --bg-primary: #0d001a;
+  --bg-secondary: #1a0031;
+  --bg-tertiary: #2a004d;
+  --surface: rgba(26, 0, 51, 0.5);
+  --surface-2: rgba(42, 0, 77, 0.7);
+  --text-primary: #ffffff;
+  --text-secondary: #ffd700; /* Sacred Gold */
+  --text-muted: #ff3385; /* Kamal Pink */
+  --border: rgba(255, 215, 0, 0.2);
+  --border-strong: #ffd700;
+  --accent-blue: #ffcc00;
+  --accent-purple: #ff3385;
+  --accent-cyan: #ffd700;
+
+  /* Intelligence / Maamu Overrides */
+  --maamu-bg: #0d001a;
+  --maamu-card: rgba(26, 0, 51, 0.95);
+  --maamu-border: #ffd700;
+  --maamu-text: #ffffff;
+  --maamu-text-muted: #ff3385;
+  --maamu-accent: #ffd700;
+  --maamu-accent-soft: rgba(255, 215, 0, 0.1);
+
+  /* Global Audit Points */
+  --header-bg: rgba(13, 0, 26, 0.9);
+  --nav-bg: #0d001a;
+}
+
+/* 🧘 THE ETERNAL COSMOS: Background */
+html[data-theme="kamala-grace"] body {
+  background-color: #0d001a;
+  background-image: 
+    radial-gradient(1200px circle at var(--mouse-x) var(--mouse-y), rgba(255, 215, 0, 0.08), transparent 45%),
+    radial-gradient(circle at 50% 50%, rgba(255, 51, 133, 0.05), transparent 75%);
+  color: #ffffff;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+}
+
+/* 🌸 THE SACRED BLOOM: Mandala Animation */
+html[data-theme="kamala-grace"] body::before {
+  content: "";
+  position: fixed;
+  top: 50%; left: 50%; width: 180vw; height: 180vh;
+  transform: translate(-50%, -50%);
+  background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M50 5 L55 45 L95 50 L55 55 L50 95 L45 55 L5 50 L45 45 Z" fill="rgba(255,215,0,0.03)"/></svg>');
+  background-size: 500px 500px;
+  animation: divine-rotation 240s linear infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes divine-rotation {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* 👑 POLISHED HUD: Header */
+html[data-theme="kamala-grace"] .app-header {
+  background: var(--header-bg) !important;
+  backdrop-filter: blur(30px);
+  border-bottom: 2px solid #ffd700 !important;
+  box-shadow: 0 4px 40px rgba(0, 0, 0, 0.8) !important;
+}
+
+html[data-theme="kamala-grace"] .app-header .brand {
+  color: #ffffff !important;
+  font-weight: 800;
+  letter-spacing: 4px;
+  background: linear-gradient(90deg, #ffd700, #ff5eb1);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* 💎 CRYSTALLINE DEVOTION: Containers */
+html[data-theme="kamala-grace"] .card,
+html[data-theme="kamala-grace"] .hero,
+html[data-theme="kamala-grace"] .metric-card,
+html[data-theme="kamala-grace"] .feature-card,
+html[data-theme="kamala-grace"] .profile-passport-card,
+html[data-theme="kamala-grace"] .leaderboard-item,
+html[data-theme="kamala-grace"] .history-item {
+  background: var(--surface) !important;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 215, 0, 0.15) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+  transition: 0.4s ease;
+}
+
+html[data-theme="kamala-grace"] .card:hover {
+  transform: translateY(-6px);
+  background: var(--surface-2) !important;
+  border-color: #ffd700 !important;
+  box-shadow: 0 20px 50px rgba(255, 215, 0, 0.15) !important;
+}
+
+/* 💮 POLISHED METRICS */
+html[data-theme="kamala-grace"] .stat-value {
+  color: #ffd700 !important;
+  font-weight: 800 !important;
+  text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+}
+
+html[data-theme="kamala-grace"] .focus-core {
+  background: radial-gradient(circle, #2a004d, #0d001a) !important;
+  border: 1px solid #ffd700 !important;
+  box-shadow: 0 0 60px rgba(255, 51, 133, 0.2) !important;
+}
+
+/* 💠 PROSPERITY BUTTONS */
+html[data-theme="kamala-grace"] .btn-primary {
+  background: linear-gradient(45deg, #ffd700, #ff5eb1) !important;
+  color: #0d001a !important;
+  border: none !important;
+  border-radius: 12px !important;
+  font-weight: 800;
+  box-shadow: 0 10px 20px rgba(255, 215, 0, 0.2) !important;
+}
+
+html[data-theme="kamala-grace"] .btn-primary:hover {
+  transform: scale(1.05);
+  box-shadow: 0 15px 30px rgba(255, 215, 0, 0.4) !important;
+}
+
+html[data-theme="kamala-grace"] .mobile-nav {
+  background: rgba(13, 0, 26, 0.98) !important;
+  border-top: 2px solid #ffd700 !important;
+}
+
+html[data-theme="kamala-grace"] ::selection { background: #ff5eb1; color: white; }
+html[data-theme="kamala-grace"] ::-webkit-scrollbar-thumb { background: #ffd700; border-radius: 10px; }

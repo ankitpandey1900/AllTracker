@@ -7,7 +7,7 @@ export const manualModal = `
       <div class="docs-header">
         <div class="docs-brand">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6a86ff" stroke-width="2.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-          <span>ALL Tracker <span class="docs-version">v2.0 Docs</span></span>
+          <span>All Tracker <span class="docs-version">v2.0 Docs</span></span>
         </div>
         <button id="closeUserManualModal" class="docs-close">&times;</button>
       </div>
@@ -44,6 +44,10 @@ export const manualModal = `
             <a class="docs-nav-link" onclick="docScrollTo('doc-integrity')">Integrity Engine</a>
             <a class="docs-nav-link" onclick="docScrollTo('doc-maamu')">Maamu AI Mentor</a>
           </div>
+          <div class="docs-sidebar-section">
+            <div class="docs-sidebar-label">Visuals</div>
+            <a class="docs-nav-link" onclick="docScrollTo('doc-horizon')">Environment Protocols</a>
+          </div>
         </nav>
 
         <!-- Main Content -->
@@ -53,10 +57,10 @@ export const manualModal = `
           <section class="docs-section" id="doc-intro">
             <div class="docs-breadcrumb">Getting Started › Introduction</div>
             <h1 class="docs-h1">All Tracker</h1>
-            <p class="docs-lead">An elite, clinical study command center built for high-stakes focus. Track every hour, visualize your growth, compete globally on the World Stage, and secure your legacy in the All Tracker Vault.</p>
+            <div class="docs-lead">An elite, clinical study command center built for high-stakes focus. Track every hour, visualize your growth, compete globally on the World Stage, and secure your legacy in the All Tracker Vault.</div>
             <div class="docs-callout docs-callout-info">
               <div class="docs-callout-title">🛰️ What is All Tracker?</div>
-              <p>All Tracker is a premium productivity platform designed to track deep-focus study hours across a defined mission range. It features a tactical Focus Timer, Pilot Identity system, Global World Stage, and a secure cloud-first sync system backed by Supabase.</p>
+              <p>All Tracker is a premium productivity platform designed to track deep-focus study hours across a defined mission range. It features a tactical Focus Timer, Pilot Identity system, Global World Stage, and a secure cloud-first sync system.</p>
             </div>
           </section>
 
@@ -106,7 +110,7 @@ export const manualModal = `
           <section class="docs-section" id="doc-auth">
             <div class="docs-breadcrumb">Getting Started › Authentication</div>
             <h2 class="docs-h2">Authentication</h2>
-            <p>ALL Tracker uses a two-layer identity system: a public <strong>User ID</strong> (your display name in the Arena) and a private <strong>Vault Key</strong> (your password).</p>
+            <p>All Tracker uses a two-layer identity system: a public <strong>User ID</strong> (your display name on the World Stage) and a private <strong>Vault Key</strong> (your password).</p>
 
             <h3 class="docs-h3">Secure Your Identity</h3>
             <ol class="docs-ol">
@@ -336,7 +340,7 @@ export const manualModal = `
             </ul>
 
             <h3 class="docs-h3">Dynamic Title Engine</h3>
-            <p>Your title on the World Stage reflects your clinical expertise in the Arena:</p>
+            <p>Your title on the World Stage reflects your clinical expertise:</p>
             <div class="docs-table-wrap">
               <table class="docs-table">
                 <thead><tr><th>Hours</th><th>All Tracker Title</th></tr></thead>
@@ -391,8 +395,8 @@ export const manualModal = `
             <h3 class="docs-h3">Achievement Badges</h3>
             <p>Badges are unlocked by hitting specific milestones (streaks, total hours, problem counts). View your badge collection from the Badges button on the dashboard.</p>
 
-            <h3 class="docs-h3">Arena Share Card 🚀</h3>
-            <p>Flex your progress with the <strong>Arena Share Card</strong>. Click the "Share Stats" button in the dashboard hero to generate a high-fidelity PNG of your current Level, Rank, total hours, and streak. Perfect for sharing your growth in the Arena with others.</p>
+            <h3 class="docs-h3">All Tracker Share Card 🚀</h3>
+            <p>Flex your progress with the <strong>All Tracker Share Card</strong>. Click the "Share Stats" button in the dashboard hero to generate a high-fidelity PNG of your current Level, Rank, total hours, and streak. Perfect for sharing your growth with others.</p>
           </section>
 
           <div class="docs-divider"></div>
@@ -546,6 +550,34 @@ Phase 2 → Days 101–200: System Design (150h), Projects (100h)</pre>
               <div class="docs-callout-title">💡 Pro Tip</div>
               <p>Use Rest Days sparingly. They are designed for genuine emergencies, not habitual skipping. The leaderboard tracks your actual completed days regardless.</p>
             </div>
+          </section>
+
+          <div class="docs-divider"></div>
+
+          <!-- ENVIRONMENT PROTOCOLS (HORIZON CHASSIS) -->
+          <section class="docs-section" id="doc-horizon">
+            <div class="docs-breadcrumb">Visuals › Environment Protocols</div>
+            <h2 class="docs-h2">Visual Environment Protocols (The Horizon Chassis)</h2>
+            <p class="docs-lead">The <strong>Mythic Horizon Engine</strong> implements high-fidelity atmospheric protocols to lock your focus into mission-critical deep work. Optimized for low-latency GPU output.</p>
+
+            <h3 class="docs-h3">🏔️ Operational Environment: Himavat (The Frozen Summit)</h3>
+            <p>A sub-zero high-altitude mission chassis designed for maximum atmospheric clarity and "Clear-Sky" transparency.</p>
+            <ul class="docs-ul">
+              <li><strong>Sub-Zero Transparency</strong>: Implements a 5% transparency index across all HUD components, exposing the dual-parallax Himalayan range behind the primary mission-glass.</li>
+              <li><strong>Summit-Drift Protocol</strong>: A triple-depth cascade featuring low-velocity particles and foreground Bokeh diffraction to simulate high-altitude immersion.</li>
+              <li><strong>Arctic Pulse</strong>: A slow-pulsing background aurora synced to your mission momentum to provide subtle visual feedback during extended sorties.</li>
+            </ul>
+
+            <h3 class="docs-h3">⚡ Operational Environment: Vajra Shakti (The Power Arena)</h3>
+            <p>A localized combat arena tuned for rapid information retrieval and maximum scoreboard performance.</p>
+            <ul class="docs-ul">
+              <li><strong>Arena Drift</strong>: A high-readability version of the Atmos-Drift protocol optimized for the athletic scoresheet aesthetic.</li>
+              <li><strong>Power-Atmosphere</strong>: Features interaction-based environment glows and sharp-edged scoreboard indicators for instantaneous status updates.</li>
+              <li><strong>Direct HUD Architecture</strong>: Replaces traditional card styling with clinical, sharp-cornered HUDs to reduce eye-strain during intense grinds.</li>
+            </ul>
+
+            <h3 class="docs-h3">Environmental Scaling & Performance</h3>
+            <p>All atmospheric effects use <code>will-change</code> transform isolation. This allows the system to maintain a locked **60FPS** even during active blizzards, ensuring your input latency remains at clinical levels on both desktop and mobile hardware.</p>
           </section>
 
         </main>

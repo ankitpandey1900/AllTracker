@@ -44,3 +44,4 @@ Tracker/
 1.  **Component Hub**: All UI fragments are dynamically injected into `#modal-root` or specific `#pane` containers via `ui-registry.ts`.
 2.  **Logic First**: We never import HTML into logic files (except strings in `.ui.ts`). Logic files (`.ts`) should remain pure and testable.
 3.  **Naming Convention**: Feature folders use **plural** names (`tasks/`, `routines/`), and their primary files follow the folder name (`tasks.ts`, `tasks.ui.ts`).
+4.  **Dynamic Hybrid Loading**: Persistence is handled via a **Local-First** approach. The app renders from `localStorage` immediately, while `data-bridge.ts` orchestrates an asynchronous, differential background sync with Supabase.

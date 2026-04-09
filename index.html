@@ -4,38 +4,67 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>All Tracker Arena | Peak Productivity & Study Tracking</title>
-  <meta name="description" content="Master your focus with All Tracker Arena. The ultimate study tracker to log hours, track routines, and climb global leaderboards. Perfect for students and devs." />
-  <meta name="keywords" content="All Tracker, All Tracker Arena, study tracker, productivity app, focus timer, coding routine, DSA tracker, leaderboard, PWA, Supabase" />
-  <meta name="author" content="Ankit Pandey" />
+  <title>All Tracker | Study Tracker, Focus Timer & Global Leaderboard</title>
+  <meta name="description"
+    content="All Tracker is the ultimate study tracker and productivity dashboard. Log study hours, track DSA & coding routines, beat global leaderboards, and get AI-powered mentoring. Built for students, developers, and competitive exam aspirants." />
+  <meta name="keywords"
+    content="All Tracker, All Tracker Arena, study tracker, coding tracker, DSA tracker, focus timer, productivity app, global leaderboard, Maamu AI, study routine, LeetCode tracker, competitive exam tracker, GATE preparation, UPSC tracker, developer productivity, PWA study app" />
   <meta name="robots" content="index, follow" />
+  <meta name="rating" content="general" />
+  <meta name="revisit-after" content="3 days" />
   <link rel="canonical" href="https://alltracker.online" />
 
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://alltracker.online/" />
-  <meta property="og:title" content="All Tracker Arena | Master Your Focus & Productivity" />
-  <meta property="og:description" content="Log your progress, master your routines, and climb the global leaderboard. The high-performance engine for your daily growth." />
-  <meta property="og:image" content="https://alltracker.online/icons/Logo.svg" />
-  <meta property="og:site_name" content="All Tracker Arena" />
+  <meta property="og:title" content="All Tracker | Study Tracker & Global Leaderboard" />
+  <meta property="og:description"
+    content="Track your study hours, beat DSA goals, climb the global leaderboard, and get AI mentoring — All Tracker is the ultimate productivity app for students and developers." />
+  <meta property="og:image" content="https://alltracker.online/logo.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:site_name" content="All Tracker" />
+  <meta property="og:locale" content="en_IN" />
 
   <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@alltracker" />
   <meta name="twitter:url" content="https://alltracker.online/" />
-  <meta name="twitter:title" content="All Tracker Arena | Master Your Focus & Productivity" />
-  <meta name="twitter:description" content="Log your progress, master your routines, and climb the global leaderboard. The high-performance engine for your daily growth." />
-  <meta name="twitter:image" content="https://alltracker.online/icons/Logo.svg" />
+  <meta name="twitter:title" content="All Tracker | Study Tracker & Global Leaderboard" />
+  <meta name="twitter:description"
+    content="Track your study hours, beat DSA goals, climb the global leaderboard, and get AI mentoring — All Tracker is the ultimate productivity app for students and developers." />
+  <meta name="twitter:image" content="https://alltracker.online/logo.png" />
 
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "All Tracker Arena",
+    "@type": "SoftwareApplication",
+    "name": "All Tracker",
+    "alternateName": "All Tracker Arena (Legacy)",
     "url": "https://alltracker.online",
-    "description": "The ultimate high-fidelity study and productivity tracker. Log hours, manage routines, and climb the World Stage arena leaderboard with global sync.",
+    "description": "All Tracker is a high-fidelity study and productivity tracker for students and developers. Log study hours, track DSA and coding routines, compete on a global leaderboard, and get AI-powered mentoring with Maamu AI. Free to use with cloud sync.",
     "applicationCategory": "ProductivityApplication",
-    "operatingSystem": "All",
-    "author": {
-      "@type": "Person",
-      "name": "Ankit Pandey"
+    "applicationSubCategory": "StudyTracker",
+    "operatingSystem": "Web, Android, iOS",
+    "browserRequirements": "Requires JavaScript",
+    "inLanguage": "en-IN",
+    "isAccessibleForFree": true,
+    "featureList": [
+      "Daily Study Hour Tracker",
+      "DSA and Coding Routine Tracker",
+      "Global Leaderboard & World Rankings",
+      "Maamu AI Mentor (Groq-powered)",
+      "Focus Timer with Session Goals",
+      "Performance Analytics & Heatmap",
+      "Cloud Sync via Supabase",
+      "PWA — Installable on Mobile",
+      "Competitive Exam Preparation Tracker",
+      "Task Mission Board"
+    ],
+    "screenshot": "https://alltracker.online/logo.png",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "INR"
     }
   }
   </script>
@@ -44,8 +73,19 @@
   <link rel="icon" type="image/svg+xml" href="/icons/Logo.svg" />
   <link rel="shortcut icon" href="/logo.png" type="image/png" />
   <link rel="apple-touch-icon" href="/logo.png" />
+
+  <!-- ⚡ Core Web Vitals: Preload critical assets for LCP -->
+  <link rel="preload" href="/logo.png" as="image" type="image/png" />
+  <link rel="preload" href="/icons/Logo.svg" as="image" type="image/svg+xml" />
+
+  <!-- 🔗 DNS Prefetch: Speed up third-party connections -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+  <link rel="dns-prefetch" href="https://supabase.co" />
+  <link rel="dns-prefetch" href="https://api.groq.com" />
+  <link rel="dns-prefetch" href="https://flagcdn.com" />
+
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Tektur:wght@400..900&display=swap"
     rel="stylesheet" />
   <meta name="theme-color" content="#0b0e1a" />
@@ -56,8 +96,9 @@
 <body class="antialiased selection:bg-indigo-500/30 selection:text-white">
   <header id="appHeader" class="app-header backdrop-blur-md">
     <div class="brand-group">
-      <img src="/icons/Logo.svg" alt="All Tracker Arena: The High-Performance Study Dashboard" class="app-logo" title="All Tracker Arena">
-      <h1 class="brand">ALL TRACKER <span>ARENA</span></h1>
+      <img src="/icons/Logo.svg" alt="All Tracker: The High-Performance Study Dashboard" class="app-logo"
+        title="All Tracker">
+      <h1 class="brand">ALL TRACKER</h1>
     </div>
     <div class="header-actions">
       <button id="startTimerBtn" class="btn btn-primary">Start Timer</button>
@@ -108,29 +149,56 @@
     </nav>
 
     <div id="drawSection" style="display: none; height: 600px">
-      <iframe src="https://excalidraw.com" width="100%" height="80%" style="border: 1px solid #ccc"
-        frameborder="0"></iframe>
+      <!-- Iframe injected lazily by main.ts -->
     </div>
 
-    <section id="dashboardPane" class="view-pane active">
-      <!-- Injected by dashboard.ui.ts -->
+    <section id="dashboardPane" class="view-pane active" aria-label="Study Dashboard">
+      <!-- Static SEO fallback: visible to crawlers, replaced dynamically by dashboard.ui.ts -->
+      <noscript>
+        <h2>Study Dashboard — All Tracker</h2>
+        <p>Track your daily study hours, monitor DSA progress, view performance analytics, and compete on the global
+          World Stage leaderboard. All Tracker is the ultimate study tracker for students, developers, and
+          competitive exam aspirants.</p>
+        <ul>
+          <li>Log study hours across multiple subjects (DSA, Coding, Maths, etc.)</li>
+          <li>View a streak heatmap of your consistency</li>
+          <li>Compete on the global All Tracker leaderboard</li>
+          <li>Monitor KPIs: total hours, daily average, and rank</li>
+        </ul>
+      </noscript>
     </section>
 
-    <!-- Intelligence Strategist Pane -->
-    <section id="intelligencePane" class="view-pane">
-      <!-- Injected by intelligence.ui.ts -->
+    <!-- Maamu AI Mentor Pane -->
+    <section id="intelligencePane" class="view-pane" aria-label="Maamu AI Mentor">
+      <noscript>
+        <h2>Maamu AI — Your Elite Study Mentor</h2>
+        <p>Maamu AI is an AI-powered study mentor built into All Tracker. Get personalized study strategies, DSA
+          guidance, career advice, and motivation in Hinglish or English. Powered by Llama 3.3 via Groq.</p>
+      </noscript>
     </section>
 
-    <section id="routinePane" class="view-pane">
-      <!-- Injected by routine.ui.ts -->
+    <section id="routinePane" class="view-pane" aria-label="Routine Tracker">
+      <noscript>
+        <h2>Routine Tracker — Build Consistent Study Habits</h2>
+        <p>Set daily coding and study routines. Track your completion rate, view performance curves, and build the
+          discipline needed to crack DSA, GATE, or any competitive exam.</p>
+      </noscript>
     </section>
 
-    <section id="tasksPane" class="view-pane">
-      <!-- Injected by tasks.ui.ts -->
+    <section id="tasksPane" class="view-pane" aria-label="Mission Task Board">
+      <noscript>
+        <h2>Mission Board — Task & Goal Management</h2>
+        <p>Manage today's study missions, backlog tasks, and completed history. Stay organized and mission-focused with
+          the All Tracker task engine.</p>
+      </noscript>
     </section>
 
-    <section id="bookmarksPane" class="view-pane">
-      <!-- Injected by bookmarks.ui.ts -->
+    <section id="bookmarksPane" class="view-pane" aria-label="Bookmark Vault">
+      <noscript>
+        <h2>Bookmark Vault — Save Study Resources</h2>
+        <p>Organize your most important DSA resources, articles, and study links in categorized bookmark groups for
+          quick access during study sessions.</p>
+      </noscript>
     </section>
   </main>
 

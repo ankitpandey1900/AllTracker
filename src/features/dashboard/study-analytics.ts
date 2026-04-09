@@ -1,23 +1,18 @@
-/**
- * Handles the 'Arena Statistics' charts (Analytics).
- * 
- * It builds the line chart showing your 21-day study trend 
- * and the radar chart showing your subject-wise hours.
- */
-import { Chart, registerables } from 'chart.js';
 import { appState, getAllHourColumnLabels } from '@/state/app-state';
 
-Chart.register(...registerables);
+let chartLibrary: any = null;
 
-let studyTrendChartInstance: Chart | null = null;
-let subjectRadarChartInstance: Chart | null = null;
+let studyTrendChartInstance: any = null;
+let subjectRadarChartInstance: any = null;
 
-export function renderStudyAnalytics(): void {
-  renderStudyTrendChart();
-  renderSubjectRadarChart();
+export async function renderStudyAnalytics(): Promise<void> {
+  await Promise.all([
+    renderStudyTrendChart(),
+    renderSubjectRadarChart(),
+  ]);
 }
 
-function renderStudyTrendChart(): void {
+async function renderStudyTrendChart(): Promise<void> {
   const canvas = document.getElementById('studyTrendChart') as HTMLCanvasElement;
   if (!canvas) return;
 
@@ -58,7 +53,14 @@ function renderStudyTrendChart(): void {
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
-  if (studyTrendChartInstance) studyTrendChartInstance.destroy();
+  if (!chartLibrary) {
+    chartLibrary = await import('chart.js');
+    chartLibrary.Chart.register(...chartLibrary.registerables);
+  }
+
+  // 🛡️ RESOURCE GUARD: Safely destroy existing chart to prevent canvas reuse errors
+  const existingTrend = chartLibrary.Chart.getChart(canvas);
+  if (existingTrend) existingTrend.destroy();
 
   const hoursGradient = ctx.createLinearGradient(0, 0, 0, 400);
   hoursGradient.addColorStop(0, 'rgba(108, 135, 255, 0.3)');
@@ -68,7 +70,7 @@ function renderStudyTrendChart(): void {
   problemsGradient.addColorStop(0, 'rgba(231, 76, 60, 0.2)');
   problemsGradient.addColorStop(1, 'rgba(231, 76, 60, 0.01)');
 
-  studyTrendChartInstance = new Chart(ctx, {
+  studyTrendChartInstance = new chartLibrary.Chart(ctx, {
     type: 'line',
     data: {
       labels,
@@ -158,7 +160,7 @@ function renderStudyTrendChart(): void {
   });
 }
 
-function renderSubjectRadarChart(): void {
+async function renderSubjectRadarChart(): Promise<void> {
   const canvas = document.getElementById('subjectRadarChart') as HTMLCanvasElement;
   if (!canvas) return;
 
@@ -190,9 +192,16 @@ function renderSubjectRadarChart(): void {
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
-  if (subjectRadarChartInstance) subjectRadarChartInstance.destroy();
+  if (!chartLibrary) {
+    chartLibrary = await import('chart.js');
+    chartLibrary.Chart.register(...chartLibrary.registerables);
+  }
 
-  subjectRadarChartInstance = new Chart(ctx, {
+  // 🛡️ RESOURCE GUARD: Safely destroy existing chart to prevent canvas reuse errors
+  const existingRadar = chartLibrary.Chart.getChart(canvas);
+  if (existingRadar) existingRadar.destroy();
+
+  subjectRadarChartInstance = new chartLibrary.Chart(ctx, {
     type: 'radar',
     data: {
       labels: columnLabels,
@@ -221,7 +230,7 @@ function renderSubjectRadarChart(): void {
           borderColor: 'rgba(37, 189, 132, 0.2)',
           borderWidth: 1,
           callbacks: {
-            label: (context) => ` ${context.parsed.r.toFixed(1)} hrs`
+            label: (context: any) => ` ${context.parsed.r.toFixed(1)} hrs`
           }
         }
       },

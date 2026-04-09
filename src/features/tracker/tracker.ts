@@ -13,6 +13,8 @@ import { saveTrackerDataToStorage } from '@/services/data-bridge';
 import type { TrackerDay } from '@/types/tracker.types';
 import { isRowEditable } from '@/services/integrity';
 import { syncProfileBroadcast } from '@/features/dashboard/leaderboard';
+import { escapeHtml } from '@/utils/security';
+
 
 function getHourAt(day: TrackerDay, idx: number): number {
   return (day.studyHours?.[idx] ?? 0) as number;
@@ -84,12 +86,12 @@ export function generateTable(): void {
         <td><input type="number" class="cell-input topics-solved" value="${day.problemsSolved}" min="0" step="1" ${!editable ? 'disabled' : ''}></td>
         <td>
           <div class="topics-cell">
-            <textarea class="cell-input topics-input" rows="1" ${!editable ? 'readonly' : ''}>${day.topics || ''}</textarea>
+            <textarea class="cell-input topics-input" rows="1" ${!editable ? 'readonly' : ''}>${escapeHtml(day.topics || '')}</textarea>
           </div>
         </td>
         <td>
           <div class="topics-cell">
-            <textarea class="cell-input project-input" rows="1" ${!editable ? 'readonly' : ''}>${day.project || ''}</textarea>
+            <textarea class="cell-input project-input" rows="1" ${!editable ? 'readonly' : ''}>${escapeHtml(day.project || '')}</textarea>
           </div>
         </td>
         <td class="action-cell">

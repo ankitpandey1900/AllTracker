@@ -66,7 +66,7 @@ export const profileModal = `
                 <div class="avatar-item" data-avatar="👩‍🚀" title="The Commander">👩‍🚀</div>
                 <div class="avatar-item" data-avatar="🌍" title="The Terra">🌍</div>
                 <div class="avatar-item" data-avatar="☄️" title="The Meteor">☄️</div>
-                <div class="avatar-item" data-avatar="👽" title="The Zenith">👽</div>
+                <div class="avatar-item" data-avatar="👽" title="The Void Pilot">👽</div>
                 <div class="avatar-item" data-avatar="🌓" title="The Lunar">🌓</div>
 
                 <!-- 💻 CODE SECTOR -->
@@ -87,7 +87,7 @@ export const profileModal = `
                 <div class="avatar-item" data-avatar="🍀" title="The Vector">🍀</div>
                 <div class="avatar-item" data-avatar="🕯️" title="The Scholar">🕯️</div>
                 <div class="avatar-item" data-avatar="🛹" title="The Flow">🛹</div>
-                <div class="avatar-item" data-avatar="🏔️" title="The Zenith Peak">🏔️</div>
+                <div class="avatar-item" data-avatar="🏔️" title="The Frozen Summit">🏔️</div>
                 <div class="avatar-item" data-avatar="🎯" title="The Bullseye">🎯</div>
 
                 <!-- 🍿 POP SECTOR (Anime / GenZ) -->
@@ -100,7 +100,7 @@ export const profileModal = `
             </div>
           </div>
           <div class="settings-group">
-            <label>ARENA DISPLAY NAME</label>
+            <label>TRACKER USER ID</label>
             <input id="profileNameInput" class="input" placeholder="Enter your display name..." />
           </div>
           <div class="grid-2" style="margin-top: 15px;">

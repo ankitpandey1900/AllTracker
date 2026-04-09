@@ -5,14 +5,14 @@ If you're reading this, you've been recruited into **All Tracker**. This isn't j
 ---
 
 ## 👺 Identity System
-Your identity is your legacy in the Arena. 
+Your identity is your legacy on the World Stage. 
 
 1.  **Pilot Handle**: Secure a unique `@handle` that represents your presence on the World Stage.
 2.  **Archetype Hangar**: Choose from 30+ out-of-the-box archetypes (Oni 👺, Astronaut 👨‍🚀, UFO 🛸, and more) to find your visual signature.
 3.  **Pilot Passport**: Access your compact HUD via the header to track your live rank, total focus hours, and secure your identity key.
 
 ## 🎖️ World Stage & Global Ranking
-The World Stage is where your progress meets the global Arena. 
+The World Stage is where your progress meets the global community. 
 
 -   **Leveling Engine**: Earn **1 Level for every 10 Study Hours**. You start as a **Level 1 Recruit**. 
 -   **Dynamic Titles**: Your title evolves as you conquer more hours:
@@ -33,9 +33,9 @@ The World Stage is where your progress meets the global Arena.
 ## 🛡️ Cloud Hydration (The Vault)
 Your identity is cloud-first. 
 
--   **Secret Key**: Your ID is anchored to a unique Secret Key (`v1_esc_...`).
+-   **Secret Sync ID**: Your identity is anchored to a private Secret Key (starting with `v2_enc_` or `v3_id_`).
 -   **Cross-Device Sync**: Use your Secret Key to reclaim your handle, archetype, and study history on any device instantly.
--   **Vault Security**: All sensitive mission data is masked and stored in the **Secure Vault** for maximum operational privacy.
+-   **V3 Identity Vault**: All sensitive mission data is mathematically locked to your identity for maximum operational privacy. API keys are strictly inaccessible without your personal Secret ID.
 
 ## 🌒 Midnight Mission Protocol
 Never lose a minute to the clock. If you start a session at 11:45 PM and finish at 12:15 AM:
@@ -45,6 +45,13 @@ Never lose a minute to the clock. If you start a session at 11:45 PM and finish 
 
 ## 🤝 Maamu AI Strategy
 If you're stuck or losing focus, consult the **Maamu AI**. Maamu is your personal strategy coach, built to provide tactical analysis on your routines and provide "Beast Mode" motivation when you need it most.
+
+## 🌌 Environmental Protocols (The Horizon Chassis)
+All Tracker is built on the **Mythic Horizon** atmospheric engine, designed for mission-critical focus immersion.
+
+- **The Frozen Summit (Himavat)**: A sub-zero high-altitude mission chassis featuring dual-parallax terrain silhouettes and a triple-layer snowfall protocol (including Bokeh diffraction).
+- **The Power Arena (Vajra Shakti)**: A localized combat arena tuned for rapid scoreboard performance with synchronized snowfall and interaction-based environment glows.
+- **Clear-Sky HUD Architecture**: All interfaces use industrial-grade transparency indices as low as 5%, ensured by heavy `backdrop-filter` blurs to maintain primary data legibility through the atmosphere.
 
 ---
 

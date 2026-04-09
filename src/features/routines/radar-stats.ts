@@ -1,18 +1,11 @@
-/**
- * Handles the 'Skill Radar' chart on the routines page.
- * 
- * This shows your current levels for Discipline, Endurance, 
- * Focus, Output, and Versatility.
- */
-import { Chart, registerables } from 'chart.js';
 import { appState } from '@/state/app-state';
 import { setTxt } from '@/utils/dom.utils';
 
-Chart.register(...registerables);
+let chartLibrary: any = null;
 
-let radarChartInstance: Chart | null = null;
+let radarChartInstance: any = null;
 
-export function renderRadarStats(): void {
+export async function renderRadarStats(): Promise<void> {
   const canvas = document.getElementById('skillRadarChart') as HTMLCanvasElement;
   if (!canvas) return;
 
@@ -50,9 +43,16 @@ export function renderRadarStats(): void {
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
-  if (radarChartInstance) radarChartInstance.destroy();
+  if (!chartLibrary) {
+    chartLibrary = await import('chart.js');
+    chartLibrary.Chart.register(...chartLibrary.registerables);
+  }
 
-  radarChartInstance = new Chart(ctx, {
+  // 🛡️ RESOURCE GUARD: Safely destroy existing chart to prevent canvas reuse errors
+  const existingChart = chartLibrary.Chart.getChart(canvas);
+  if (existingChart) existingChart.destroy();
+
+  radarChartInstance = new chartLibrary.Chart(ctx, {
     type: 'radar',
     data: {
       labels: ['Discipline', 'Endurance', 'Focus', 'Output', 'Versatility'],

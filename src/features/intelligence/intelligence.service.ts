@@ -468,7 +468,7 @@ export function getStrategicContext(data: TrackerDay[], logs: SessionLog[], task
   
   // Add Rank context if possible
   const totalHours = data.reduce((sum, day) => sum + (day.studyHours || []).reduce((a: number, b: number) => a + (b || 0), 0), 0);
-  context.push(`Arena Standing: Rank analysis active at ${totalHours.toFixed(1)} capacity.`);
+  context.push(`All Tracker Standing: Rank analysis active at ${totalHours.toFixed(1)} capacity.`);
 
   if (data.length > 3) {
     const last3 = data.slice(-3);

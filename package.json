@@ -1,7 +1,7 @@
 {
   "name": "all-tracker",
   "version": "1.0.0",
-  "description": "The official All Tracker Arena — A high-performance, gamified study and focus dashboard for the modern developer.",
+  "description": "The official All Tracker — A high-performance, gamified study and focus dashboard for the modern developer.",
   "type": "module",
   "repository": {
     "type": "git",
@@ -15,13 +15,12 @@
   },
   "keywords": [
     "all-tracker",
-    "productivity-arena",
+    "productivity-tracker",
     "study-tracker",
     "pwa",
     "supabase",
     "typescript"
   ],
-  "author": "Ankit Pandey",
   "license": "MIT",
   "devDependencies": {
     "@tailwindcss/vite": "^4.2.2",

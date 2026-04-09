@@ -29,7 +29,7 @@ export function requestNotificationPermission(): void {
     if (!("Notification" in window)) return;
     Notification.requestPermission().then(permission => {
         if (permission === "granted") {
-            showToast("Notifications Enabled! The Arena will remind you to stay consistent.", "success");
+            showToast("Notifications Enabled! All Tracker will remind you to stay consistent.", "success");
             syncNotificationUI();
         }
     });
@@ -119,7 +119,7 @@ function checkAndNotify(): void {
     const totalHours = (todayData.studyHours || []).reduce((a, b) => a + (b || 0), 0);
     if (totalHours === 0 && !todayData.completed && !todayData.restDay) {
       sendNotification(
-        "The Arena Awaits! 🌌",
+        "All Tracker Awaits! 🌌",
         "You haven't logged any progress today. Don't let your streak freeze!"
       );
     }

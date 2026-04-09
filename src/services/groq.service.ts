@@ -32,7 +32,7 @@ function buildMessages(userQuery: string, tacticalBrief: string) {
   try { userHandle = JSON.parse(tacticalBrief).identity?.handle || userHandle; } catch { /* noop */ }
 
   const beastModeDirective = isBeastMode
-    ? `BEAST MODE ACTIVE: THE ARENA IS RED. NO MERCY.
+    ? `BEAST MODE ACTIVE: MISSION CRITICAL. NO MERCY.
        1. Use aggressive, harsh 'tough-love' Hinglish.
        2. ZERO filler sentences. Zero empathy for excuses.
        3. Focus on failures, laziness, and missed targets.

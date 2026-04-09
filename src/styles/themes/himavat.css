@@ -1,0 +1,217 @@
+/* =========================================================
+   THEME: HIMAVAT (The Himalayan Frozen Peak)
+   Visual System: Pure Ice, Aurora Cyan, Himalayan Mist
+   Aesthetic: Ultra-Minimalist, Frozen Glass, Pure
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@200;400;700&display=swap');
+
+html[data-theme="himavat"] :root {
+  --bg-primary: #0a1118; 
+  --bg-secondary: #0f172a;
+  --bg-tertiary: #1e293b;
+  --surface: rgba(10, 17, 24, 0.05); /* ULTRA TRANSPARENT GLASS */
+  --surface-2: rgba(15, 23, 42, 0.15);
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #475569;
+  --border: rgba(14, 165, 233, 0.1);
+  --border-strong: #0ea5e9;
+  --accent-blue: #0ea5e9;
+  --accent-purple: #38bdf8;
+  --accent-cyan: #7dd3fc;
+
+  /* Intelligence / Maamu Overrides */
+  --maamu-bg: transparent; /* Full transparency for sidebar */
+  --maamu-card: rgba(15, 23, 42, 0.15);
+  --maamu-border: rgba(14, 165, 233, 0.2);
+  --maamu-text: #f1f5f9;
+  --maamu-text-muted: #94a3b8;
+  --maamu-accent: #0ea5e9;
+  --maamu-accent-soft: rgba(14, 165, 233, 0.1);
+  --header-bg: rgba(10, 17, 24, 0.05); /* Transparent Header */
+  --nav-bg: transparent;
+  --empty-state-bg: rgba(15, 23, 42, 0.1);
+}
+
+/* 🌌 ATMOSPHERIC PROTOCOL: Arctic Aurora (STABLE PULSE) */
+html[data-theme="himavat"]::before {
+  content: "";
+  position: fixed;
+  top: -50vh; left: -50vw; width: 200vw; height: 100vh;
+  background: radial-gradient(circle at center, rgba(14, 165, 233, 0.15), transparent 70%);
+  filter: blur(100px);
+  animation: aurora-pulse 30s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: -3;
+}
+
+@keyframes aurora-pulse {
+  0% { transform: translateY(0) scale(1); opacity: 0.3; }
+  100% { transform: translateY(50px) scale(1.1); opacity: 0.6; }
+}
+
+/* 🏔️ THE FROZEN SUMMIT: Background with Parallax Depth */
+html[data-theme="himavat"] body {
+  background-color: #0a1118;
+  background-image: 
+    radial-gradient(100% 100% at 50% 0%, rgba(14, 165, 233, 0.1) 0%, transparent 50%),
+    linear-gradient(to top, rgba(15, 23, 42, 1) 0%, transparent 30%), 
+    radial-gradient(circle at 100% 100%, rgba(56, 189, 248, 0.1) 0%, transparent 50%);
+  color: #f1f5f9;
+  font-family: 'Outfit', sans-serif !important;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* 🏔️ DISTANT RANGE: Secondary Mountain (PARALLAX DEPTH) */
+html[data-theme="himavat"] body::before {
+  content: "";
+  position: fixed;
+  bottom: 0; left: 0; width: 100vw; height: 50vh;
+  background: #0f172a;
+  clip-path: polygon(0% 100%, 15% 70%, 30% 85%, 50% 60%, 75% 90%, 90% 75%, 100% 100%);
+  opacity: 0.2;
+  pointer-events: none;
+  z-index: -2;
+}
+
+/* 🏔️ HIMALAYAN PEAK: Primary Mountain (SHARP) */
+html[data-theme="himavat"] body::after {
+  content: "";
+  position: fixed;
+  bottom: 0; left: 0; 
+  width: 100vw; height: 35vh;
+  background: #0d1117;
+  clip-path: polygon(0% 100%, 20% 40%, 35% 70%, 50% 10%, 65% 65%, 85% 30%, 100% 100%);
+  opacity: 0.8;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* 🌨️ SUMMIT-DRIFT PROTOCOL: Multi-Depth Immersive Physics (FIXED SELECTOR) */
+html[data-theme="himavat"] main::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background-image: 
+    radial-gradient(circle, #ffffff 1.2px, transparent 1.2px),
+    radial-gradient(circle, #ffffff 1.8px, transparent 1.8px),
+    radial-gradient(circle, rgba(255,255,255,0.4) 5px, transparent 5px); /* Enhanced Bokeh */
+  background-size: 50px 50px, 120px 120px, 400px 400px;
+  background-position: 0 0, 20px 40px, 60px 10px;
+  animation: summit-drift 180s linear infinite;
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0.35;
+  will-change: transform, background-position;
+}
+
+@keyframes summit-drift {
+  from { background-position: 0 0, 20px 40px, 60px 10px; }
+  to { background-position: 1000px 2000px, 1020px 2040px, 1060px 2010px; }
+}
+
+/* 🧊 FROSTED HUD: Header (CLEAR-SKY GLASS) */
+html[data-theme="himavat"] .app-header {
+  background: var(--header-bg) !important;
+  backdrop-filter: blur(20px) !important;
+  border-bottom: 2px solid rgba(255,255,255,0.05) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+}
+
+html[data-theme="himavat"] .app-header .brand {
+  color: #ffffff !important;
+  font-weight: 700;
+  letter-spacing: -1px;
+  background: linear-gradient(135deg, #7dd3fc, #0ea5e9);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* 🌫️ CRYSTAL CONTAINERS: Ice-Sculpted Cards (ULTRA GLASS) */
+html[data-theme="himavat"] .card,
+html[data-theme="himavat"] .hero,
+html[data-theme="himavat"] .metric-card,
+html[data-theme="himavat"] .feature-card,
+html[data-theme="himavat"] .profile-passport-card,
+html[data-theme="himavat"] .leaderboard-item,
+html[data-theme="himavat"] .msg-body,
+html[data-theme="himavat"] .mentor-v2-container {
+  background: var(--surface) !important;
+  backdrop-filter: blur(25px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 20px !important;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 0 20px rgba(14, 165, 233, 0.05) !important;
+}
+
+/* ❄️ FIX: Turning White on Hover (CLEAR-SKY HUD) */
+html[data-theme="himavat"] .card:hover,
+html[data-theme="himavat"] .metric-card:hover {
+  background: rgba(15, 23, 42, 0.25) !important;
+  transform: translateY(-4px);
+  border-color: var(--accent-cyan) !important;
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.5),
+    inset 0 0 30px rgba(14, 165, 233, 0.1) !important;
+}
+
+/* ❄️ AURORA PULSE: Metrics */
+html[data-theme="himavat"] .stat-value {
+  color: #7dd3fc !important;
+  font-weight: 700 !important;
+  text-shadow: 0 0 20px rgba(125, 211, 252, 0.4);
+}
+
+html[data-theme="himavat"] .focus-core {
+  background: rgba(10, 17, 24, 0.3) !important;
+  backdrop-filter: blur(30px);
+  border: 2px solid var(--accent-blue) !important;
+  box-shadow: 0 10px 40px rgba(14, 165, 233, 0.3), inset 0 0 20px rgba(14, 165, 233, 0.1) !important;
+}
+
+/* ❄️ FROZEN BUTTONS */
+html[data-theme="himavat"] .btn-primary {
+  background: #0ea5e9 !important;
+  color: #ffffff !important;
+  border-radius: 12px !important;
+  border: none !important;
+}
+
+html[data-theme="himavat"] .btn-primary:hover {
+  background: #38bdf8 !important;
+  transform: scale(1.02);
+}
+
+html[data-theme="himavat"] .settings-input {
+  background: rgba(15, 23, 42, 0.2) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="himavat"] .mobile-nav {
+  background: rgba(10, 17, 24, 0.4) !important;
+  backdrop-filter: blur(30px);
+  border-top: 1px solid var(--border) !important;
+}
+
+/* 📱 MOBILE OPTIMIZATION */
+@media (max-width: 768px) {
+  html[data-theme="himavat"] body::after {
+    height: 25vh;
+    opacity: 0.6;
+  }
+  
+  html[data-theme="himavat"] body::before {
+    opacity: 0.1;
+  }
+
+  html[data-theme="himavat"] .app-header {
+    background: rgba(10, 17, 24, 0.3) !important;
+    backdrop-filter: blur(15px) !important;
+  }
+}

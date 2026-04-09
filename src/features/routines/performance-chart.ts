@@ -1,16 +1,9 @@
-/**
- * Handles the 'Performance' chart on the routines page.
- * 
- * We use Chart.js to show how many routines you finish compared 
- * to how many hours you study each day.
- */
-import { Chart, registerables } from 'chart.js';
 import { appState } from '@/state/app-state';
 import { setTxt } from '@/utils/dom.utils';
 
-Chart.register(...registerables);
+let chartLibrary: any = null;
 
-let performanceChartInstance: Chart | null = null;
+let performanceChartInstance: any = null;
 
 export function setupChartFilters(): void {
   const filterSelect = document.getElementById('chartDateFilter') as HTMLSelectElement;
@@ -35,7 +28,7 @@ export function setupChartFilters(): void {
   }
 }
 
-export function renderPerformanceCurve(): void {
+export async function renderPerformanceCurve(): Promise<void> {
   const canvas = document.getElementById('performanceChart') as HTMLCanvasElement;
   if (!canvas) return;
 
@@ -120,7 +113,14 @@ export function renderPerformanceCurve(): void {
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
-  if (performanceChartInstance) performanceChartInstance.destroy();
+  if (!chartLibrary) {
+    chartLibrary = await import('chart.js');
+    chartLibrary.Chart.register(...chartLibrary.registerables);
+  }
+
+  // 🛡️ RESOURCE GUARD: Safely destroy existing chart to prevent canvas reuse errors
+  const existingChart = chartLibrary.Chart.getChart(canvas);
+  if (existingChart) existingChart.destroy();
 
   // Create Gradients
   const routineGradient = ctx.createLinearGradient(0, 0, 0, 400);
@@ -131,7 +131,7 @@ export function renderPerformanceCurve(): void {
   hoursGradient.addColorStop(0, 'rgba(37, 189, 132, 0.2)');
   hoursGradient.addColorStop(1, 'rgba(37, 189, 132, 0.01)');
 
-  performanceChartInstance = new Chart(ctx, {
+  performanceChartInstance = new chartLibrary.Chart(ctx, {
     type: 'line',
     data: {
       labels,
@@ -189,7 +189,7 @@ export function renderPerformanceCurve(): void {
           borderWidth: 1,
           displayColors: true,
           callbacks: {
-            label: (context) => {
+            label: (context: any) => {
               const label = context.dataset.label || '';
               const val = context.parsed.y;
               return `${label}: ${val}${label.includes('Hours') ? 'h' : ' tasks'}`;

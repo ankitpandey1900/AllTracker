@@ -10,6 +10,7 @@ import { syncDataOnLogin } from '@/services/data-bridge';
 import { isUsernameTaken, loadUserProfileCloud, verifyUserCredentials, broadcastGlobalStats, checkIfSyncIdHasData } from '@/services/supabase.service';
 import { supabaseClient } from '@/config/supabase';
 import { obfuscate, deobfuscate, isObfuscated } from '@/utils/security';
+import { appState } from '@/state/app-state';
 
 // --- Internal State ---
 
@@ -252,7 +253,7 @@ async function handleSyncIdEstablished(syncId: string): Promise<void> {
       localStorage.setItem('tracker_username', localProfile.displayName);
       console.log(`✅ IDENTITY HYDRATED: Loaded @${localProfile.displayName} from cloud.`);
       
-      // 📡 ALL TRACKER EVENT: Notify the rest of the Arena that identity is ready
+      // 📡 ALL TRACKER EVENT: Notify the rest of the system that identity is ready
       window.dispatchEvent(new CustomEvent('all-tracker-identity-sync', { detail: localProfile }));
     }
   } catch (err) {
@@ -268,6 +269,16 @@ async function handleSyncIdEstablished(syncId: string): Promise<void> {
 
   // Trigger sync
   await syncDataOnLogin();
+
+  // 🔐 IDENTITY-LINKED VAULT (V3): Refresh settings with the new salt
+  const { loadSettingsFromStorage } = await import('./data-bridge');
+  const freshSettings = await loadSettingsFromStorage();
+  if (freshSettings) {
+    appState.settings = freshSettings;
+    // Re-render components that depend on these settings
+    const { renderIntelligenceBriefing } = await import('@/features/intelligence/intelligence');
+    renderIntelligenceBriefing();
+  }
 }
 
 /** Re-renders the header user pill with the latest avatar/handle from storage */
@@ -275,7 +286,7 @@ export function updateHeaderProfileUI(): void {
   const headerRight = document.getElementById('headerRight');
   if (!headerRight) return;
 
-  const userAlias = localStorage.getItem('tracker_username') || 'Arena User';
+  const userAlias = localStorage.getItem('tracker_username') || 'Tracker User';
   const profileSaved = localStorage.getItem(STORAGE_KEYS.USER_PROFILE);
   let avatarIcon = '👤';
   

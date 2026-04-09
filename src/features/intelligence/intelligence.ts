@@ -5,6 +5,7 @@
  * and managing the AI mentor's state.
  */
 
+import { getCurrentUserId } from '@/services/auth.service';
 import { 
   getTacticalBriefing, 
   getTacticalBriefingString, 
@@ -293,27 +294,47 @@ function renderSidebarMetrics(): void {
   const b = getTacticalBriefing();
   const col = (v: number) => v > 75 ? '#10b981' : v > 45 ? '#f59e0b' : '#ef4444';
 
-  footer.innerHTML = `
-    <div class="sidebar-metrics">
-      <div class="sm-label">ARENA STATS</div>
-      <div class="sm-row"><span>Sustain</span><div class="sm-bar"><div class="sm-fill" style="width:${b.sustainabilityScore}%;background:${col(b.sustainabilityScore)}"></div></div><span class="sm-val">${b.sustainabilityScore}%</span></div>
-      <div class="sm-row"><span>Discipline</span><div class="sm-bar"><div class="sm-fill" style="width:${b.disciplineTrend}%;background:${col(b.disciplineTrend)}"></div></div><span class="sm-val">${b.disciplineTrend}%</span></div>
-      <div class="sm-row"><span>Momentum</span><div class="sm-bar"><div class="sm-fill" style="width:${Math.max(0,Math.min(100,b.momentum+50))}%;background:${col(b.momentum+50)}"></div></div><span class="sm-val">${b.momentum > 0 ? '+' : ''}${b.momentum}%</span></div>
-    </div>
-    <div class="sidebar-api-section">
-      <div class="sm-label">GROQ API KEY</div>
-      <input type="password" id="maamuApiKeyInput" class="api-key-input" value="${appState.settings.groqApiKey || ''}" placeholder="gsk_...">
-      <button id="saveMaamuApiKey" class="save-api-btn">Save Key</button>
-      <a href="https://console.groq.com" target="_blank" class="api-link">Get your free key →</a>
-    </div>
-  `;
-  document.getElementById('saveMaamuApiKey')?.addEventListener('click', () => {
-    const val = (document.getElementById('maamuApiKeyInput') as HTMLInputElement)?.value.trim();
-    appState.settings.groqApiKey = val;
-    saveSettingsToStorage(appState.settings);
-    const btn = document.getElementById('saveMaamuApiKey');
-    if (btn) { btn.textContent = '✓ Saved!'; setTimeout(() => btn.textContent = 'Save Key', 2000); }
-  });
+  const syncId = getCurrentUserId();
+  
+  if (syncId) {
+    footer.innerHTML = `
+      <div class="sidebar-metrics">
+        <div class="sm-label">ARENA STATS</div>
+        <div class="sm-row"><span>Sustain</span><div class="sm-bar"><div class="sm-fill" style="width:${b.sustainabilityScore}%;background:${col(b.sustainabilityScore)}"></div></div><span class="sm-val">${b.sustainabilityScore}%</span></div>
+        <div class="sm-row"><span>Discipline</span><div class="sm-bar"><div class="sm-fill" style="width:${b.disciplineTrend}%;background:${col(b.disciplineTrend)}"></div></div><span class="sm-val">${b.disciplineTrend}%</span></div>
+        <div class="sm-row"><span>Momentum</span><div class="sm-bar"><div class="sm-fill" style="width:${Math.max(0,Math.min(100,b.momentum+50))}%;background:${col(b.momentum+50)}"></div></div><span class="sm-val">${b.momentum > 0 ? '+' : ''}${b.momentum}%</span></div>
+      </div>
+      <div class="sidebar-api-section">
+        <div class="sm-label">GROQ API KEY</div>
+        <input type="password" id="maamuApiKeyInput" class="api-key-input" value="${appState.settings.groqApiKey || ''}" placeholder="gsk_...">
+        <button id="saveMaamuApiKey" class="save-api-btn">Save Key</button>
+        <a href="https://console.groq.com" target="_blank" class="api-link">Get your free key →</a>
+      </div>
+    `;
+    document.getElementById('saveMaamuApiKey')?.addEventListener('click', () => {
+      const val = (document.getElementById('maamuApiKeyInput') as HTMLInputElement)?.value.trim();
+      appState.settings.groqApiKey = val;
+      saveSettingsToStorage(appState.settings);
+      const btn = document.getElementById('saveMaamuApiKey');
+      if (btn) { btn.textContent = '✓ Saved!'; setTimeout(() => btn.textContent = 'Save Key', 2000); }
+    });
+  } else {
+    footer.innerHTML = `
+      <div class="sidebar-metrics">
+        <div class="sm-label">ARENA STATS</div>
+        <div class="sm-row"><span>Sustain</span><div class="sm-bar"><div class="sm-fill" style="width:${b.sustainabilityScore}%;background:${col(b.sustainabilityScore)}"></div></div><span class="sm-val">${b.sustainabilityScore}%</span></div>
+        <div class="sm-row"><span>Discipline</span><div class="sm-bar"><div class="sm-fill" style="width:${b.disciplineTrend}%;background:${col(b.disciplineTrend)}"></div></div><span class="sm-val">${b.disciplineTrend}%</span></div>
+      </div>
+      <div class="sidebar-api-section auth-locked">
+        <div class="sm-label">AI MISSION CONTROL</div>
+        <div class="auth-required-note">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15V17M12 7V13M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke-linecap="round"/></svg>
+          <strong>Identity Required</strong>
+          <p>Login to your Mission Profile to activate your private AI Strategist.</p>
+        </div>
+      </div>
+    `;
+  }
 }
 
 // --- Event Listeners ---
