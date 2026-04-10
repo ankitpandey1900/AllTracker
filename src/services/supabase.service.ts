@@ -240,7 +240,7 @@ export async function fetchLeaderboard(): Promise<GlobalProfile[]> {
 
   const { data, error } = await supabaseClient!
     .from(SUPABASE_TABLES.GLOBAL_PROFILES)
-    .select('display_name, age, nation, avatar, total_hours, today_hours, current_rank, is_focusing_now, last_active')
+    .select('display_name, age, nation, avatar, total_hours, today_hours, current_rank, is_focusing_now, last_active, current_focus_subject')
     .order('total_hours', { ascending: false })
     .limit(10);
 

@@ -72,15 +72,15 @@ export function startTimer(categoryIdx: number, categoryName: string): void {
   appState.activeTimer.isRunning = true;
   appState.activeTimer.startTime = Date.now();
 
-  // Tell the leaderboard that we are studying right now
+  appState.activeTimer.category = String(categoryIdx);
+  appState.activeTimer.colName = categoryName;
+
+  // Tell the leaderboard that we are studying right now, after setting colName
   syncProfileBroadcast();
 
   if (appState.activeTimer.elapsedAcc === 0) {
     appState.activeTimer.sessionStartClock = appState.activeTimer.startTime;
   }
-
-  appState.activeTimer.category = String(categoryIdx);
-  appState.activeTimer.colName = categoryName;
 
   saveTimerState();
   startTimerInterval();
@@ -513,8 +513,28 @@ export function resumeTimerIfNeeded(): void {
   }
 
   if (isRunning || elapsedAcc > 0) {
+    // 🔧 SELF-HEAL: If colName is missing but category index exists, reconstruct it
+    if (isRunning && !appState.activeTimer.colName && appState.activeTimer.category !== null) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      let todayDay = 1;
+      for (let i = 0; i < appState.trackerData.length; i++) {
+        const d = new Date(appState.trackerData[i].date);
+        d.setHours(0, 0, 0, 0);
+        if (d.getTime() === today.getTime()) { todayDay = appState.trackerData[i].day; break; }
+      }
+      const cols = getColumnsForDay(todayDay);
+      const colIdx = parseInt(appState.activeTimer.category);
+      if (!isNaN(colIdx) && cols[colIdx]) {
+        appState.activeTimer.colName = cols[colIdx].name;
+        console.log(`[Timer] Self-healed colName: "${appState.activeTimer.colName}"`);
+      }
+    }
+
     if (isRunning) {
       startTimerInterval();
+      // Re-broadcast with the correct (possibly self-healed) colName
+      import('@/features/dashboard/leaderboard').then(m => m.syncProfileBroadcast());
     }
     updateTimerUI(true);
     updateTimerDisplay();

@@ -115,7 +115,7 @@ export const dashboardView = `
 
         <aside class="dashboard-sidebar">
           <!-- World Stage Card -->
-          <article class="card world-stage-card overflow-hidden">
+          <article class="card world-stage-card">
             <div class="row-between section-heading" style="margin-bottom: 20px;">
               <h3>World Stage</h3>
               <span class="badge-live-pulse">LIVE</span>

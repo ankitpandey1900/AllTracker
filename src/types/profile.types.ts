@@ -20,4 +20,5 @@ export interface GlobalProfile {
   is_focusing_now: boolean;
   last_active: string; // ISO String
   avatar?: string;
+  current_focus_subject?: string | null;
 }
