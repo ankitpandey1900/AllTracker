@@ -1,3 +1,4 @@
+import { getSecureLocalProfileString } from '@/utils/security';
 import { appState } from '@/state/app-state';
 import Registry from '@/utils/lifecycle';
 import { STORAGE_KEYS, RANK_TIERS, SUPABASE_TABLES, NATION_FLAGS } from '@/config/constants';

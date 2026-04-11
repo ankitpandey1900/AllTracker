@@ -371,8 +371,9 @@ function setupEventListeners(): void {
   if (goalInput) {
     goalInput.addEventListener("input", () => {
       appState.settings.sessionGoal = goalInput.value;
-      const { saveSettingsToStorage } = await import('@/services/data-bridge');
-      saveSettingsToStorage(appState.settings);
+      import('@/services/data-bridge').then(({ saveSettingsToStorage }) => {
+        saveSettingsToStorage(appState.settings);
+      });
     });
   }
 
