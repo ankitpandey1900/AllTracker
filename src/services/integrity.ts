@@ -1,4 +1,5 @@
 import { appState } from '@/state/app-state';
+import Registry from '@/utils/lifecycle';
 import { saveTrackerDataToStorage } from '@/services/data-bridge';
 
 
@@ -14,10 +15,8 @@ import { saveTrackerDataToStorage } from '@/services/data-bridge';
 let lastAutoSealDate = '';
 
 export function initIntegrityService(): void {
-  // Check every minute for integrity rules
-  setInterval(() => {
-    runIntegrityChecks();
-  }, 1000 * 60);
+  // Check every minute for integrity rules (Managed Registry)
+  Registry.setInterval('integrity_service', () => runIntegrityChecks(), 60000);
 
   // Initial check
   runIntegrityChecks();

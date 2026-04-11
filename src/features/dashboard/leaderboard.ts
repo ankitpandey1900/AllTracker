@@ -1,5 +1,5 @@
-import { getSecureLocalProfileString, setSecureLocalProfileString } from '@/utils/security';
 import { appState } from '@/state/app-state';
+import Registry from '@/utils/lifecycle';
 import { STORAGE_KEYS, RANK_TIERS, SUPABASE_TABLES, NATION_FLAGS } from '@/config/constants';
 import { fetchLeaderboard, fetchGlobalTelemetry } from '@/services/supabase.service';
 import type { GlobalProfile } from '@/types/profile.types';
@@ -28,8 +28,8 @@ export async function initWorldStage(): Promise<void> {
     });
   });
 
-  // 3. Fallback Periodic updates
-  setInterval(() => refreshLeaderboard(), 60000);
+  // 3. Fallback Periodic updates (Managed Registry)
+  Registry.setInterval('lb_polling', () => refreshLeaderboard(), 60000);
 
   // 4. Bind Global Modal Actions
   const closeProfileBtn = document.getElementById('closeProfileModal');
@@ -68,7 +68,7 @@ export function initActivityTracking(): void {
   window.addEventListener('scroll', updateActivity);
 
   // 🚀 PERFECT SYNC HEARTBEAT: Broadcaster
-  setInterval(() => {
+  Registry.setInterval('profile_heartbeat', () => {
     const isTimerRunning = appState.activeTimer.isRunning;
     const isRecentActive = (Date.now() - lastInteractionAt) < 30 * 1000;
     if (isTimerRunning || isRecentActive) {

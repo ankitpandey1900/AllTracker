@@ -77,8 +77,9 @@ export interface Settings {
   sessionLogs: SessionLog[];
   groqApiKey?: string;
   chatSessions?: ChatSession[];    // Multi-session history
-  activeSessionId?: string;       // Currently viewed session
+  activeSessionId?: string;       // Multi-session history
   theme?: 'midnight' | 'arctic' | 'cyberpunk' | 'coder-terminal' | 'apex-corporate' | 'sakura-overdrive' | 'arena-sport'; // App Theme
+  sessionGoal?: string;           // Target hours for current phase
 }
 
 // --- Badges ---

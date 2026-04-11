@@ -189,10 +189,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     performBackgroundSync();
   }, 100);
 
-  // 6. Session goal ring init
-  const savedGoal = localStorage.getItem(STORAGE_KEYS.SESSION_GOAL);
+  // 6. Session goal recovery
   const goalInput = document.getElementById("sessionGoalInput") as HTMLInputElement;
-  if (savedGoal && goalInput) goalInput.value = savedGoal;
+  if (goalInput && appState.settings.sessionGoal) {
+    goalInput.value = appState.settings.sessionGoal;
+  }
 
   // 7. Elite Interactive Mouse Tracking
   document.addEventListener("mousemove", (e) => {
@@ -369,7 +370,9 @@ function setupEventListeners(): void {
   ) as HTMLInputElement;
   if (goalInput) {
     goalInput.addEventListener("input", () => {
-      localStorage.setItem(STORAGE_KEYS.SESSION_GOAL, goalInput.value);
+      appState.settings.sessionGoal = goalInput.value;
+      const { saveSettingsToStorage } = await import('@/services/data-bridge');
+      saveSettingsToStorage(appState.settings);
     });
   }
 

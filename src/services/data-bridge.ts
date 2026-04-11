@@ -70,15 +70,23 @@ function setTrackerData(data: TrackerDay[], pushToCloud = true): void {
 }
 
 export async function loadTrackerDataFromStorage(): Promise<TrackerDay[]> {
-  if (isAuthenticated()) {
+  const online = navigator.onLine;
+  const syncId = getCurrentUserId();
+
+  if (syncId && online) {
+    console.log('🏛️ CLOUD MASTER: Fetching primary Tracker Data from cloud...');
     const cloud = await loadTrackerDataCloud();
-    if (cloud && cloud.data && cloud.data.length > 0) {
+    if (cloud && cloud.data) {
+      // 🛡️ WIPE PROTECTION: If cloud has data but we are about to return a "fresh" empty local state,
+      // we must FORCE the cloud data to take over.
       setTrackerData(cloud.data, false);
       updateLocalTimestamp(STORAGE_KEYS.TRACKER_DATA, cloud.updatedAt || undefined);
       return cloud.data;
     }
   }
 
+  // Fallback to local only if offline or cloud fetch returned nothing
+  console.warn('📶 OFFLINE/FALLBACK: Loading Tracker data from local mirror.');
   const saved = localStorage.getItem(STORAGE_KEYS.TRACKER_DATA);
   let localData: TrackerDay[] = [];
   if (saved) { 
@@ -123,7 +131,10 @@ function setSettings(settings: Settings, pushToCloud = true): void {
 }
 
 export async function loadSettingsFromStorage(): Promise<Settings | null> {
-  if (isAuthenticated()) {
+  const online = navigator.onLine;
+  const syncId = getCurrentUserId();
+
+  if (syncId && online) {
     const cloud = await loadSettingsCloud();
     if (cloud && cloud.data) {
       if (cloud.data.theme) {
@@ -176,7 +187,10 @@ function setRoutines(routines: RoutineItem[], pushToCloud = true): void {
 }
 
 export async function loadRoutinesFromStorage(): Promise<RoutineItem[]> {
-  if (isAuthenticated()) {
+  const online = navigator.onLine;
+  const syncId = getCurrentUserId();
+
+  if (syncId && online) {
     const cloud = await loadRoutinesCloud();
     if (cloud && cloud.data) {
       setRoutines(cloud.data, false);
@@ -212,7 +226,10 @@ function setRoutineHistory(history: RoutineHistory, pushToCloud = true): void {
 }
 
 export async function loadRoutineHistoryFromStorage(): Promise<RoutineHistory> {
-  if (isAuthenticated()) {
+  const online = navigator.onLine;
+  const syncId = getCurrentUserId();
+
+  if (syncId && online) {
     const cloud = await loadRoutineHistoryCloud();
     if (cloud && cloud.data) {
       setRoutineHistory(cloud.data, false);
@@ -246,7 +263,10 @@ function setBookmarks(bookmarks: Bookmark[], pushToCloud = true): void {
 }
 
 export async function loadBookmarksFromStorage(): Promise<Bookmark[]> {
-  if (isAuthenticated()) {
+  const online = navigator.onLine;
+  const syncId = getCurrentUserId();
+
+  if (syncId && online) {
     const cloud = await loadBookmarksCloud();
     if (cloud && cloud.data) {
       setBookmarks(cloud.data, false);
@@ -362,7 +382,10 @@ function setTasks(tasks: StudyTask[], pushToCloud = true): void {
 }
 
 export async function loadTasksFromStorage(): Promise<StudyTask[]> {
-  if (isAuthenticated()) {
+  const online = navigator.onLine;
+  const syncId = getCurrentUserId();
+
+  if (syncId && online) {
     const cloud = await loadTasksCloud();
     if (cloud && cloud.data) {
       setTasks(cloud.data, false);
@@ -596,6 +619,13 @@ export async function handleUserDataSync(payload: any): Promise<void> {
   if (!cloudData) return;
 
   console.log(`📡 REALTIME PATCH: ${table.toUpperCase()} update received.`);
+
+  // 🛡️ RECOVERY GUARD: If realtime patch contains empty data but our local appState is full,
+  // we treat it as a race condition/error and block the local wipe.
+  if (Array.isArray(cloudData) && cloudData.length === 0 && appState.trackerData.length > 5) {
+     console.warn('🛡️ CLOUD GUARD: Blocked a potentially destructive empty patch from cloud.');
+     return;
+  }
 
   switch (table) {
     case 'tracker_data':    setTrackerData(cloudData, false); break;
