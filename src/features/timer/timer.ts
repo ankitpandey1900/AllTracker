@@ -83,6 +83,9 @@ export function startTimer(categoryIdx: number, categoryName: string): void {
   saveTimerState();
   showToast(`Timer started for ${categoryName}`, 'success');
   
+  // ⚡ ELITE UX: Trigger War Mode / Sonic Effects
+  document.body.classList.add('is-focusing');
+
   // 📡 WORLD STAGE: Broadcast status instantly
   import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast());
 }
@@ -100,6 +103,9 @@ export function pauseTimer(): void {
   appState.activeTimer.startTime = null;
 
   saveTimerState();
+
+  // ⚡ ELITE UX: Cease Fire / Landing
+  document.body.classList.remove('is-focusing');
 
   // 📡 WORLD STAGE: Broadcast status instantly (Away/Paused)
   import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast());
@@ -157,7 +163,7 @@ export async function stopTimer(autoNote?: string): Promise<void> {
   }
 
   // Clear focus mode
-  document.body.classList.remove('focus-mode', 'focus-minimized');
+  document.body.classList.remove('focus-mode', 'focus-minimized', 'is-focusing');
 
   // Reset timer
   appState.activeTimer.isRunning = false;

@@ -570,20 +570,25 @@ export async function fetchGlobalTelemetry(): Promise<{
   total_pilots: number;
   active_now: number;
   global_hours_today: number;
+  total_platform_hours: number;
   nations_active: number;
 } | null> {
   if (!isSupabaseReady()) return null;
 
   try {
-    const [{ count: total_pilots }, { count: active_now }] = await Promise.all([
+    const [{ count: total_pilots }, { count: active_now }, { data: hoursData }] = await Promise.all([
       supabaseClient!.from(SUPABASE_TABLES.PROFILES).select('*', { count: 'exact', head: true }),
-      supabaseClient!.from(SUPABASE_TABLES.STATS).select('*', { count: 'exact', head: true }).eq('is_focusing', true)
+      supabaseClient!.from(SUPABASE_TABLES.STATS).select('*', { count: 'exact', head: true }).eq('is_focusing', true),
+      supabaseClient!.from(SUPABASE_TABLES.STATS).select('total_hours')
     ]);
+
+    const total_platform_hours = (hoursData || []).reduce((sum, row) => sum + (row.total_hours || 0), 0);
 
     return {
       total_pilots: total_pilots || 0,
       active_now: active_now || 0,
-      global_hours_today: 0, // Need complex query for sum, ignoring for performance
+      global_hours_today: 0, 
+      total_platform_hours: total_platform_hours || 0,
       nations_active: 0
     };
   } catch (err) {

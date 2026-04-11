@@ -1,4 +1,4 @@
-const CACHE_NAME = 'alltracker-cache-v1.4.0'; // V1.4.0: Tactical Speed & Sync Update
+const CACHE_NAME = 'alltracker-cache-v1.9.0'; // V1.9.0: Full Theme Purge (Kali Tandava Removed)
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

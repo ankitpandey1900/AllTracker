@@ -12,12 +12,9 @@ import "./styles/components/intelligence.css";
 import "./styles/components/manual.css";
 import "./styles/features/maamu.css";
 import "./styles/themes/himavat.css";
-import "./styles/themes/kali-tandava.css";
 import "./styles/themes/chanakya-strategy.css";
 import "./styles/themes/ayodhya.css";
 import "./styles/themes/kamala-grace.css";
-import "./styles/themes/vajra-shakti.css";
-
 // --- Core Setup ---
 import { appState, calculateDates, initializeData } from "@/state/app-state";
 import {

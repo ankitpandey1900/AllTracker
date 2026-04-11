@@ -20,11 +20,9 @@ export const settingsModal = `
                 <select id="themeSelectInput" class="settings-input" style="background:#0f172a; flex: 1;">
                   <option value="midnight">All Tracker Original</option>
                   <option value="himavat">Himavat (Himalayan Ice)</option>
-                  <option value="kali-tandava">Kali's Tandava (Destruction)</option>
                   <option value="chanakya-strategy">Chanakya Strategy (Technical)</option>
                   <option value="ayodhya">Ayodhya (Divine Order)</option>
                   <option value="kamala-grace">Kamala's Grace (Prosperity)</option>
-                  <option value="vajra-shakti">Vajra Shakti (Strength)</option>
                 </select>
                 <button id="applyThemeBtn" class="btn btn-primary" style="white-space: nowrap; padding: 0 20px;">
                   Apply
