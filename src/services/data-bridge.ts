@@ -28,32 +28,54 @@ import type { ActiveTimer } from '@/types/timer.types';
 import { applyThemeToDOM, appState } from '@/state/app-state';
 
 
-// --- Auth Check ---
+// --- Auth & Sync Helpers ---
 
 function isAuthenticated(): boolean {
   return getCurrentUserId() !== null;
 }
 
+/** 🛡️ TIMESTAMP REGISTRY: Tracks exactly when local data was last modified */
+function updateLocalTimestamp(key: string, timestamp?: string): void {
+  const meta = JSON.parse(localStorage.getItem(STORAGE_KEYS.SYNC_METADATA) || '{}');
+  meta[key] = timestamp || new Date().toISOString();
+  localStorage.setItem(STORAGE_KEYS.SYNC_METADATA, JSON.stringify(meta));
+}
+
+function getLocalTimestamp(key: string): number {
+  const meta = JSON.parse(localStorage.getItem(STORAGE_KEYS.SYNC_METADATA) || '{}');
+  const ts = meta[key] || '1970-01-01T00:00:00.000Z';
+  return new Date(ts).getTime();
+}
+
+/** ⚖️ CONFLICT RESOLVER: Determines if Cloud data is strictly newer than the local version */
+function isCloudNewer(key: string, cloudTimestamp: string | null): boolean {
+  if (!cloudTimestamp) return false;
+  const localTs = getLocalTimestamp(key);
+  const cloudTs = new Date(cloudTimestamp).getTime();
+  return cloudTs > localTs; // Offset by 1s to allow for network jitter if needed
+}
+
 // --- Tracker Data Functions ---
 
 function setTrackerData(data: TrackerDay[], pushToCloud = true): void {
-  const current = JSON.stringify(appState.trackerData);
-  const next = JSON.stringify(data);
-  if (current === next) return;
-
   appState.trackerData = data;
-  localStorage.setItem(STORAGE_KEYS.TRACKER_DATA, next);
-  if (pushToCloud && isAuthenticated()) {
-    saveTrackerDataCloud(data);
+  localStorage.setItem(STORAGE_KEYS.TRACKER_DATA, JSON.stringify(data));
+  
+  if (pushToCloud) {
+    updateLocalTimestamp(STORAGE_KEYS.TRACKER_DATA);
+    if (isAuthenticated()) {
+      saveTrackerDataCloud(data);
+    }
   }
 }
 
 export async function loadTrackerDataFromStorage(): Promise<TrackerDay[]> {
   if (isAuthenticated()) {
     const cloud = await loadTrackerDataCloud();
-    if (cloud && cloud.length > 0) {
-      setTrackerData(cloud, false);
-      return cloud;
+    if (cloud && cloud.data && cloud.data.length > 0) {
+      setTrackerData(cloud.data, false);
+      updateLocalTimestamp(STORAGE_KEYS.TRACKER_DATA, cloud.updatedAt || undefined);
+      return cloud.data;
     }
   }
 
@@ -84,10 +106,6 @@ function setSettings(settings: Settings, pushToCloud = true): void {
     settings.groqApiKey = ''; 
   }
 
-  const current = JSON.stringify(appState.settings);
-  const next = JSON.stringify(settings);
-  if (current === next) return;
-
   appState.settings = { ...appState.settings, ...settings };
   
   const securedSettings = { 
@@ -96,8 +114,11 @@ function setSettings(settings: Settings, pushToCloud = true): void {
   };
   localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(securedSettings));
   
-  if (pushToCloud && isAuthenticated()) {
-    saveSettingsCloud(settings);
+  if (pushToCloud) {
+    updateLocalTimestamp(STORAGE_KEYS.SETTINGS);
+    if (isAuthenticated()) {
+      saveSettingsCloud(settings);
+    }
   }
 }
 
@@ -142,20 +163,24 @@ export async function saveSettingsToStorage(settings: Settings): Promise<void> {
 // --- Routine Functions ---
 
 function setRoutines(routines: RoutineItem[], pushToCloud = true): void {
-  if (JSON.stringify(appState.routines) === JSON.stringify(routines)) return;
   appState.routines = routines;
   localStorage.setItem(STORAGE_KEYS.ROUTINES, JSON.stringify(routines));
-  if (pushToCloud && isAuthenticated()) {
-    saveRoutinesCloud(routines);
+  
+  if (pushToCloud) {
+    updateLocalTimestamp(STORAGE_KEYS.ROUTINES);
+    if (isAuthenticated()) {
+      saveRoutinesCloud(routines);
+    }
   }
 }
 
 export async function loadRoutinesFromStorage(): Promise<RoutineItem[]> {
   if (isAuthenticated()) {
     const cloud = await loadRoutinesCloud();
-    if (cloud) {
-      setRoutines(cloud, false);
-      return cloud;
+    if (cloud && cloud.data) {
+      setRoutines(cloud.data, false);
+      updateLocalTimestamp(STORAGE_KEYS.ROUTINES, cloud.updatedAt || undefined);
+      return cloud.data;
     }
   }
 
@@ -174,20 +199,24 @@ export async function saveRoutinesToStorage(routines: RoutineItem[]): Promise<vo
 // --- History Functions ---
 
 function setRoutineHistory(history: RoutineHistory, pushToCloud = true): void {
-  if (JSON.stringify(appState.routineHistory) === JSON.stringify(history)) return;
   appState.routineHistory = history;
   localStorage.setItem(STORAGE_KEYS.ROUTINE_HISTORY, JSON.stringify(history));
-  if (pushToCloud && isAuthenticated()) {
-    saveRoutineHistoryCloud(history);
+  
+  if (pushToCloud) {
+    updateLocalTimestamp(STORAGE_KEYS.ROUTINE_HISTORY);
+    if (isAuthenticated()) {
+      saveRoutineHistoryCloud(history);
+    }
   }
 }
 
 export async function loadRoutineHistoryFromStorage(): Promise<RoutineHistory> {
   if (isAuthenticated()) {
     const cloud = await loadRoutineHistoryCloud();
-    if (cloud) {
-      setRoutineHistory(cloud, false);
-      return cloud;
+    if (cloud && cloud.data) {
+      setRoutineHistory(cloud.data, false);
+      updateLocalTimestamp(STORAGE_KEYS.ROUTINE_HISTORY, cloud.updatedAt || undefined);
+      return cloud.data;
     }
   }
 
@@ -204,20 +233,24 @@ export async function saveRoutineHistoryToStorage(history: RoutineHistory): Prom
 // --- Bookmark Functions ---
 
 function setBookmarks(bookmarks: Bookmark[], pushToCloud = true): void {
-  if (JSON.stringify(appState.bookmarks) === JSON.stringify(bookmarks)) return;
   appState.bookmarks = bookmarks;
   localStorage.setItem(STORAGE_KEYS.BOOKMARKS, JSON.stringify(bookmarks));
-  if (pushToCloud && isAuthenticated()) {
-    saveBookmarksCloud(bookmarks);
+  
+  if (pushToCloud) {
+    updateLocalTimestamp(STORAGE_KEYS.BOOKMARKS);
+    if (isAuthenticated()) {
+      saveBookmarksCloud(bookmarks);
+    }
   }
 }
 
 export async function loadBookmarksFromStorage(): Promise<Bookmark[]> {
   if (isAuthenticated()) {
     const cloud = await loadBookmarksCloud();
-    if (cloud) {
-      setBookmarks(cloud, false);
-      return cloud;
+    if (cloud && cloud.data) {
+      setBookmarks(cloud.data, false);
+      updateLocalTimestamp(STORAGE_KEYS.BOOKMARKS, cloud.updatedAt || undefined);
+      return cloud.data;
     }
   }
 
@@ -239,16 +272,23 @@ export async function saveBookmarksToStorage(bookmarks: Bookmark[]): Promise<voi
  */
 export async function loadTimerStateFromStorage(): Promise<ActiveTimer | null> {
   const syncId = getCurrentUserId();
-  if (!syncId) return null; // Not authenticated — no timer state
-
-  try {
-    const cloud = await loadTimerStateCloud();
-    if (!cloud) return null;
-    return cloud;
-  } catch (err) {
-    console.warn('⚠️ DB timer fetch failed (offline?):', err);
-    return null;
+  
+  if (syncId) {
+    try {
+      const cloud = await loadTimerStateCloud();
+      if (cloud && cloud.data) {
+        // Only accept cloud if it's running or has actual elapsed time
+        if (cloud.data.isRunning || cloud.data.elapsedAcc > 0) {
+          localStorage.setItem(STORAGE_KEYS.TIMER, JSON.stringify(cloud.data));
+          updateLocalTimestamp(STORAGE_KEYS.TIMER, cloud.updatedAt || undefined);
+          return cloud.data;
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to fetch timer state from cloud:', err);
+    }
   }
+  return null;
 }
 
 /**
@@ -285,8 +325,11 @@ export async function clearTimerStateDB(): Promise<void> {
 
 function setRoutineReset(reset: string, pushToCloud = true): void {
   localStorage.setItem(STORAGE_KEYS.ROUTINE_RESET, reset);
-  if (pushToCloud && isAuthenticated()) {
-    saveRoutineResetCloud(reset);
+  if (pushToCloud) {
+    updateLocalTimestamp(STORAGE_KEYS.ROUTINE_RESET);
+    if (isAuthenticated()) {
+      saveRoutineResetCloud(reset);
+    }
   }
 }
 
@@ -306,20 +349,24 @@ export async function saveRoutineResetToStorage(reset: string): Promise<void> {
 // --- Task Functions ---
 
 function setTasks(tasks: StudyTask[], pushToCloud = true): void {
-  if (JSON.stringify(appState.tasks) === JSON.stringify(tasks)) return;
   appState.tasks = tasks;
   localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(tasks));
-  if (pushToCloud && isAuthenticated()) {
-    saveTasksCloud(tasks);
+  
+  if (pushToCloud) {
+    updateLocalTimestamp(STORAGE_KEYS.TASKS);
+    if (isAuthenticated()) {
+      saveTasksCloud(tasks);
+    }
   }
 }
 
 export async function loadTasksFromStorage(): Promise<StudyTask[]> {
   if (isAuthenticated()) {
     const cloud = await loadTasksCloud();
-    if (cloud) {
-      setTasks(cloud, false);
-      return cloud;
+    if (cloud && cloud.data) {
+      setTasks(cloud.data, false);
+      updateLocalTimestamp(STORAGE_KEYS.TASKS, cloud.updatedAt || undefined);
+      return cloud.data;
     }
   }
 
@@ -358,52 +405,67 @@ export async function syncDataOnLogin(): Promise<void> {
       loadTimerStateCloud(),
     ]);
 
-    // 🛡️ SYNC PROTECTION (e07f5d0 era robustness):
-    // Only allow cloud to overwrite local if cloud actually has data.
-    // If cloud is empty but local has progress, sync local TO cloud to heal the vault.
-    if (cloudTracker && cloudTracker.length > 0) {
-      setTrackerData(cloudTracker, false);
+    // 🛡️ BULLETPROOF SYNC (Timestamp-First Protocol)
+    // We compare Local modified time vs Cloud updated_at time.
+    // If Cloud is newer -> PULL. If Local is newer -> PUSH (Heal).
+
+    // --- Tracker Data ---
+    if (cloudTracker && isCloudNewer(STORAGE_KEYS.TRACKER_DATA, cloudTracker.updatedAt)) {
+      console.log('📥 SYNC: Cloud Tracker is newer. Pulling...');
+      setTrackerData(cloudTracker.data, false);
+      updateLocalTimestamp(STORAGE_KEYS.TRACKER_DATA, cloudTracker.updatedAt || undefined);
     } else if (appState.trackerData.length > 0) {
-      console.warn('🛡️ SYNC PROTECTION: Cloud empty, healing vault from local tracker state...');
+      console.log('📤 SYNC: Local Tracker is newer/unique. Pushing...');
       saveTrackerDataCloud(appState.trackerData);
     }
 
-    if (cloudSettings) {
-      setSettings(cloudSettings, false);
+    // --- Settings ---
+    if (cloudSettings && isCloudNewer(STORAGE_KEYS.SETTINGS, cloudSettings.updatedAt)) {
+      setSettings(cloudSettings.data, false);
+      updateLocalTimestamp(STORAGE_KEYS.SETTINGS, cloudSettings.updatedAt || undefined);
     } else if (Object.keys(appState.settings).length > 0) {
       saveSettingsCloud(appState.settings);
     }
 
-    if (cloudRoutines && cloudRoutines.length > 0) {
-      setRoutines(cloudRoutines, false);
+    // --- Routines ---
+    if (cloudRoutines && isCloudNewer(STORAGE_KEYS.ROUTINES, cloudRoutines.updatedAt)) {
+      setRoutines(cloudRoutines.data, false);
+      updateLocalTimestamp(STORAGE_KEYS.ROUTINES, cloudRoutines.updatedAt || undefined);
     } else if (appState.routines.length > 0) {
       saveRoutinesCloud(appState.routines);
     }
 
-    if (cloudHistory && Object.keys(cloudHistory).length > 0) {
-      setRoutineHistory(cloudHistory, false);
+    // --- History ---
+    if (cloudHistory && isCloudNewer(STORAGE_KEYS.ROUTINE_HISTORY, cloudHistory.updatedAt)) {
+      setRoutineHistory(cloudHistory.data, false);
+      updateLocalTimestamp(STORAGE_KEYS.ROUTINE_HISTORY, cloudHistory.updatedAt || undefined);
     } else if (Object.keys(appState.routineHistory).length > 0) {
       saveRoutineHistoryCloud(appState.routineHistory);
     }
 
-    if (cloudBookmarks && cloudBookmarks.length > 0) {
-      setBookmarks(cloudBookmarks, false);
+    // --- Bookmarks ---
+    if (cloudBookmarks && isCloudNewer(STORAGE_KEYS.BOOKMARKS, cloudBookmarks.updatedAt)) {
+      setBookmarks(cloudBookmarks.data, false);
+      updateLocalTimestamp(STORAGE_KEYS.BOOKMARKS, cloudBookmarks.updatedAt || undefined);
     } else if (appState.bookmarks.length > 0) {
       saveBookmarksCloud(appState.bookmarks);
     }
 
-    if (cloudTasks && cloudTasks.length > 0) {
-      setTasks(cloudTasks, false);
+    // --- Tasks ---
+    if (cloudTasks && isCloudNewer(STORAGE_KEYS.TASKS, cloudTasks.updatedAt)) {
+      setTasks(cloudTasks.data, false);
+      updateLocalTimestamp(STORAGE_KEYS.TASKS, cloudTasks.updatedAt || undefined);
     } else if (appState.tasks.length > 0) {
       saveTasksCloud(appState.tasks);
     }
 
-    if (cloudTimer) {
-      Object.assign(appState.activeTimer, cloudTimer);
+    if (cloudTimer && isCloudNewer(STORAGE_KEYS.TIMER, cloudTimer.updatedAt)) {
+      Object.assign(appState.activeTimer, cloudTimer.data);
+      updateLocalTimestamp(STORAGE_KEYS.TIMER, cloudTimer.updatedAt || undefined);
     }
 
-    const cloudReset = await loadRoutineResetCloud();
-    if (cloudReset) setRoutineReset(cloudReset, false);
+    const cloudResetRaw = await loadRoutineResetCloud();
+    if (cloudResetRaw) setRoutineReset(cloudResetRaw, false);
 
     // 5. Restore User Profile & Identity (Modular Registry V2)
     const cloudProfile = await loadUserProfileCloud();
@@ -455,22 +517,40 @@ export async function performBackgroundSync(): Promise<void> {
 
     let changed = false;
 
-    // 🛡️ SYNC GUARD: Only update and refresh if cloud data differs from local state
-    const hasChanged = (localKey: string, cloudData: any) => {
-      if (!cloudData) return false;
-      const local = localStorage.getItem(localKey);
-      return JSON.stringify(cloudData) !== local;
-    };
-
-    if (hasChanged(STORAGE_KEYS.TRACKER_DATA, cloudTracker)) { setTrackerData(cloudTracker!, false); changed = true; }
-    if (hasChanged(STORAGE_KEYS.SETTINGS, cloudSettings)) { setSettings(cloudSettings!, false); changed = true; }
-    if (cloudRoutines && JSON.stringify(cloudRoutines) !== localStorage.getItem(STORAGE_KEYS.ROUTINES)) { setRoutines(cloudRoutines, false); changed = true; }
-    if (cloudHistory && JSON.stringify(cloudHistory) !== localStorage.getItem(STORAGE_KEYS.ROUTINE_HISTORY)) { setRoutineHistory(cloudHistory, false); changed = true; }
-    if (cloudBookmarks && JSON.stringify(cloudBookmarks) !== localStorage.getItem(STORAGE_KEYS.BOOKMARKS)) { setBookmarks(cloudBookmarks, false); changed = true; }
-    if (cloudTasks && JSON.stringify(cloudTasks) !== localStorage.getItem(STORAGE_KEYS.TASKS)) { setTasks(cloudTasks, false); changed = true; }
-    if (cloudTimer && JSON.stringify(cloudTimer) !== JSON.stringify(appState.activeTimer)) {
-      Object.assign(appState.activeTimer, cloudTimer); // DB → memory, no localStorage
-      changed = true;
+    if (cloudTracker && isCloudNewer(STORAGE_KEYS.TRACKER_DATA, cloudTracker.updatedAt)) { 
+      setTrackerData(cloudTracker.data, false); 
+      updateLocalTimestamp(STORAGE_KEYS.TRACKER_DATA, cloudTracker.updatedAt || undefined);
+      changed = true; 
+    }
+    if (cloudSettings && isCloudNewer(STORAGE_KEYS.SETTINGS, cloudSettings.updatedAt)) { 
+      setSettings(cloudSettings.data, false); 
+      updateLocalTimestamp(STORAGE_KEYS.SETTINGS, cloudSettings.updatedAt || undefined);
+      changed = true; 
+    }
+    if (cloudRoutines && isCloudNewer(STORAGE_KEYS.ROUTINES, cloudRoutines.updatedAt)) { 
+      setRoutines(cloudRoutines.data, false); 
+      updateLocalTimestamp(STORAGE_KEYS.ROUTINES, cloudRoutines.updatedAt || undefined);
+      changed = true; 
+    }
+    if (cloudHistory && isCloudNewer(STORAGE_KEYS.ROUTINE_HISTORY, cloudHistory.updatedAt)) { 
+      setRoutineHistory(cloudHistory.data, false); 
+      updateLocalTimestamp(STORAGE_KEYS.ROUTINE_HISTORY, cloudHistory.updatedAt || undefined);
+      changed = true; 
+    }
+    if (cloudBookmarks && isCloudNewer(STORAGE_KEYS.BOOKMARKS, cloudBookmarks.updatedAt)) { 
+      setBookmarks(cloudBookmarks.data, false); 
+      updateLocalTimestamp(STORAGE_KEYS.BOOKMARKS, cloudBookmarks.updatedAt || undefined);
+      changed = true; 
+    }
+    if (cloudTasks && isCloudNewer(STORAGE_KEYS.TASKS, cloudTasks.updatedAt)) { 
+      setTasks(cloudTasks.data, false); 
+      updateLocalTimestamp(STORAGE_KEYS.TASKS, cloudTasks.updatedAt || undefined);
+      changed = true; 
+    }
+    if (cloudTimer && isCloudNewer(STORAGE_KEYS.TIMER, cloudTimer.updatedAt)) { 
+      Object.assign(appState.activeTimer, cloudTimer.data); 
+      updateLocalTimestamp(STORAGE_KEYS.TIMER, cloudTimer.updatedAt || undefined);
+      changed = true; 
     }
 
     if (changed) {

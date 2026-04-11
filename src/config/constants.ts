@@ -23,6 +23,7 @@ export const STORAGE_KEYS = {
   SESSION_GOAL: 'trackerSessionGoal',
   TASKS: 'studyTrackerTasks',
   USER_PROFILE: 'studyTrackerUserProfile',
+  SYNC_METADATA: 'all-tracker-sync-metadata',
 } as const;
 
 // --- Default Dates ---

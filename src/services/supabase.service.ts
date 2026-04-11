@@ -124,9 +124,9 @@ export async function saveTrackerDataCloud(data: TrackerDay[]): Promise<void> {
   await upsertToSupabase(SUPABASE_TABLES.TRACKER_DATA, { data, updated_at: new Date() });
 }
 
-export async function loadTrackerDataCloud(): Promise<TrackerDay[] | null> {
+export async function loadTrackerDataCloud(): Promise<{ data: TrackerDay[], updatedAt: string | null } | null> {
   const result = await fetchFromSupabase(SUPABASE_TABLES.TRACKER_DATA);
-  if (result?.data?.data) return result.data.data as TrackerDay[];
+  if (result?.data?.data) return { data: result.data.data as TrackerDay[], updatedAt: result.data.updated_at as string };
   return null;
 }
 
@@ -136,9 +136,9 @@ export async function saveSettingsCloud(settings: Settings): Promise<void> {
   await upsertToSupabase(SUPABASE_TABLES.SETTINGS, { data: settings, updated_at: new Date() });
 }
 
-export async function loadSettingsCloud(): Promise<Settings | null> {
+export async function loadSettingsCloud(): Promise<{ data: Settings, updatedAt: string | null } | null> {
   const result = await fetchFromSupabase(SUPABASE_TABLES.SETTINGS);
-  if (result?.data?.data) return result.data.data as Settings;
+  if (result?.data?.data) return { data: result.data.data as Settings, updatedAt: result.data.updated_at as string };
   return null;
 }
 
@@ -148,9 +148,9 @@ export async function saveRoutinesCloud(routines: RoutineItem[]): Promise<void> 
   await upsertToSupabase(SUPABASE_TABLES.ROUTINES, { data: routines, updated_at: new Date() });
 }
 
-export async function loadRoutinesCloud(): Promise<RoutineItem[] | null> {
+export async function loadRoutinesCloud(): Promise<{ data: RoutineItem[], updatedAt: string | null } | null> {
   const result = await fetchFromSupabase(SUPABASE_TABLES.ROUTINES);
-  if (result?.data?.data) return result.data.data as RoutineItem[];
+  if (result?.data?.data) return { data: result.data.data as RoutineItem[], updatedAt: result.data.updated_at as string };
   return null;
 }
 
@@ -162,9 +162,9 @@ export async function saveBookmarksCloud(bookmarks: Bookmark[]): Promise<void> {
   await upsertToSupabase(SUPABASE_TABLES.BOOKMARKS, { data: bookmarks, updated_at: new Date() });
 }
 
-export async function loadBookmarksCloud(): Promise<Bookmark[] | null> {
+export async function loadBookmarksCloud(): Promise<{ data: Bookmark[], updatedAt: string | null } | null> {
   const result = await fetchFromSupabase(SUPABASE_TABLES.BOOKMARKS);
-  if (result?.data?.data) return result.data.data as Bookmark[];
+  if (result?.data?.data) return { data: result.data.data as Bookmark[], updatedAt: result.data.updated_at as string };
   return null;
 }
 
@@ -174,9 +174,9 @@ export async function saveRoutineHistoryCloud(history: RoutineHistory): Promise<
   await upsertToSupabase(SUPABASE_TABLES.ROUTINE_HISTORY, { data: history, updated_at: new Date() });
 }
 
-export async function loadRoutineHistoryCloud(): Promise<RoutineHistory | null> {
+export async function loadRoutineHistoryCloud(): Promise<{ data: RoutineHistory, updatedAt: string | null } | null> {
   const result = await fetchFromSupabase(SUPABASE_TABLES.ROUTINE_HISTORY);
-  if (result?.data?.data) return result.data.data as RoutineHistory;
+  if (result?.data?.data) return { data: result.data.data as RoutineHistory, updatedAt: result.data.updated_at as string };
   return null;
 }
 
@@ -186,9 +186,9 @@ export async function saveTimerStateCloud(state: ActiveTimer): Promise<void> {
   await upsertToSupabase(SUPABASE_TABLES.TIMER_STATE, { data: state, updated_at: new Date() });
 }
 
-export async function loadTimerStateCloud(): Promise<ActiveTimer | null> {
+export async function loadTimerStateCloud(): Promise<{ data: ActiveTimer, updatedAt: string | null } | null> {
   const result = await fetchFromSupabase(SUPABASE_TABLES.TIMER_STATE);
-  if (result?.data?.data) return result.data.data as ActiveTimer;
+  if (result?.data?.data) return { data: result.data.data as ActiveTimer, updatedAt: result.data.updated_at as string };
   return null;
 }
 
@@ -210,9 +210,9 @@ export async function saveTasksCloud(tasks: StudyTask[]): Promise<void> {
   await upsertToSupabase(SUPABASE_TABLES.TASKS, { data: tasks, updated_at: new Date() });
 }
 
-export async function loadTasksCloud(): Promise<StudyTask[] | null> {
+export async function loadTasksCloud(): Promise<{ data: StudyTask[], updatedAt: string | null } | null> {
   const result = await fetchFromSupabase(SUPABASE_TABLES.TASKS);
-  if (result?.data?.data) return result.data.data as StudyTask[];
+  if (result?.data?.data) return { data: result.data.data as StudyTask[], updatedAt: result.data.updated_at as string };
   return null;
 }
 
