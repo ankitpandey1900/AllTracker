@@ -1,10 +1,13 @@
-const CACHE_NAME = 'alltracker-cache-v1.3.0'; // V1.3.0: Perfect Sync & Health Patch
+const CACHE_NAME = 'alltracker-cache-v1.4.0'; // V1.4.0: Tactical Speed & Sync Update
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
   '/manifest.json',
   '/logo.png',
-  '/icons/Logo.svg'
+  '/pwa-icon.png',
+  '/icons/Logo.svg',
+  '/css/loader.css',
+  '/favicon.ico'
 ];
 
 // Utility: Check if request is for the main site shell

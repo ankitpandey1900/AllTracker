@@ -4,38 +4,42 @@ If you're reading this, you've been recruited into **All Tracker**. This isn't j
 
 ---
 
-## 👺 Identity System
-Your identity is your legacy on the World Stage. 
+## 🏮 Identity System (The Mission Profile)
+Your identity is your legacy. Unlike legacy trackers, All Tracker uses a **clinical registration flow** to anchor your performance.
 
-1.  **Pilot Handle**: Secure a unique `@handle` that represents your presence on the World Stage.
-2.  **Archetype Hangar**: Choose from 30+ out-of-the-box archetypes (Oni 👺, Astronaut 👨‍🚀, UFO 🛸, and more) to find your visual signature.
-3.  **Pilot Passport**: Access your compact HUD via the header to track your live rank, total focus hours, and secure your identity key.
+1.  **Mission Profile**: During registration, you must provide your **Real Name**, a unique **Pilot Handle**, and secure contact info (Email/Phone). 
+2.  **Identity Lockdown**: To ensure leaderboard integrity, your Real Name, Handle, Email, and Nation are **permanently locked** post-registration.
+3.  **Tactical Avatars**: Choose from **36+ unique, trending avatars** (Sports, Space, Marvel/DC, and more). This is the only visual field you can change after initialization.
+4.  **Vault Key**: Your password (minimum 6 characters) is the master key to your encrypted data vault.
+5.  **Recovery Key**: A one-time security code (e.g., `N7X-XXXX-XXXX`) is generated at registration. **Save this immediately.** It is the only way to recover your vault if you lose your password.
 
 ## 🎖️ World Stage & Global Ranking
-The World Stage is where your progress meets the global community. 
+The World Stage is a **live, real-time leaderboard** powered by WebSockets. No refresh is required to see rank jumps.
 
 -   **Leveling Engine**: Earn **1 Level for every 10 Study Hours**. You start as a **Level 1 Recruit**. 
+-   **Clinical Telemetry HUD**: The leaderboard features a real-time status matrix:
+    -   **Total Members**: Global pilot count.
+    -   **Focusing Now**: LIVE count of pilots currently in a focus session.
+    -   **Study Hours Today**: Aggregate platform output for the current day.
+    -   **Platform Total Hours**: Cumulative career focus logged across all operatives.
 -   **Dynamic Titles**: Your title evolves as you conquer more hours:
-    -   **0 - 10h**: RECRUIT 🛡️
-    -   **10 - 30h**: CADET 🛰️
-    -   **30 - 70h**: PILOT 🛸
-    -   **70 - 150h**: OFFICER 🛡️
-    -   **150 - 300h**: COMMANDER 🎖️
-    -   **300 - 600h**: CAPTAIN 👨‍✈️
-    -   **600 - 1200h**: VETERAN 🥇
-    -   **1200 - 2500h**: ELITE 💠
-    -   **2500 - 5000h**: LEGEND 👑
-    -   **5000 - 10000h**: ETERNAL ✨
-    -   **10000 - 20000h**: DEITY 🌌
-    -   **20000h+**: SINGULARITY 🕳️
--   **Medal Podiums**: The top 3 pilots on the leaderboard are clinical earners of the **🥇 Gold, 🥈 Silver, and 🥉 Bronze** medals.
+    -   **0 - 10h**: 🛡️ RECRUIT
+    -   **10 - 30h**: 🚀 CADET
+    -   **30 - 70h**: 🛸 PILOT
+    -   **70 - 150h**: 🛰️ OFFICER
+    -   **150 - 300h**: 🎖️ COMMANDER
+    -   **300 - 600h**: 👨‍✈️ CAPTAIN
+    -   **600 - 1200h**: 🥇 VETERAN
+    -   **1200 - 2500h**: 💠 ELITE
+    -   **2500 - 5000h**: 👑 LEGEND
+    -   **5000h+**: ✨ ETERNAL / DEITY / SINGULARITY
 
-## 🛡️ Cloud Hydration (The Vault)
-Your identity is cloud-first. 
+## 🛡️ Cloud Dominance (The Vault)
+All Tracker is **Cloud-Dominant**. Supabase is the absolute source of truth.
 
--   **Secret Sync ID**: Your identity is anchored to a private Secret Key (starting with `v2_enc_` or `v3_id_`).
--   **Cross-Device Sync**: Use your Secret Key to reclaim your handle, archetype, and study history on any device instantly.
--   **V3 Identity Vault**: All sensitive mission data is mathematically locked to your identity for maximum operational privacy. API keys are strictly inaccessible without your personal Secret ID.
+-   **Granular Vaults**: Instead of one large file, your data is split into dedicated service vaults (`vault_tracker`, `vault_tasks`, `vault_settings`, etc.) for maximum reliability and speed.
+-   **Zero-Latency Restoration**: If you clear your browser cache or switch devices, simply log in with your Handle + Vault Key. Your entire state is recovered from the cloud in milliseconds.
+-   **Iron-Gate Integrity**: A background engine monitors data consistency. If local data conflicts with the vault, the cloud signature always wins.
 
 ## 🛰️ Tactical Telemetry & HUD
 The World Stage and your Pilot Passport use high-fidelity telemetry to track global and personal performance.

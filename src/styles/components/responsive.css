@@ -112,6 +112,8 @@
 
   .tabs {
     display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
   }
 
   /* Header right-side group: Pin everything together on one row */
@@ -227,7 +229,7 @@
     display: flex;
     justify-content: space-around;
     align-items: stretch;
-    z-index: 1000;
+    z-index: 9999; /* High, but MUST be below Leaderboard HUD (2,000,000) */
     padding-bottom: env(safe-area-inset-bottom);
     box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.4);
   }

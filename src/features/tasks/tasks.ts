@@ -184,11 +184,12 @@ export function toggleTask(id: number): void {
   const task = appState.tasks.find(t => t.id === id);
   if (!task) return;
 
+  // ⚡ OPTIMISTIC UI: Toggle instantly
   task.completed = !task.completed;
   task.completedAt = task.completed ? Date.now() : undefined;
-  
-  saveTasks();
   renderTasks();
+
+  saveTasks();
   
   if (task.completed) {
     showToast('Objective Secured!', 'success');

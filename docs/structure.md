@@ -10,38 +10,38 @@ Tracker/
 │   ├── development.md        # SOP & Design Patterns
 │   ├── structure.md          # This Map
 │   └── guide.md              # User Manual
+├── public/                    # Static Assets
+│   └── css/                  # Boot-critical styles (loader.css)
 ├── src/
-│   ├── components/            # UI Architecture
-│   │   ├── modals/           # Generic Modal Fragments
-│   │   ├── hud.ui.ts         # Tactical Focus Overlays
-│   │   └── ui-registry.ts    # The Injection Engine (UI Hub)
-│   ├── features/              # Modular Pillars
-│   │   ├── dashboard/        # Stats, XP & Rank Logic
-│   │   ├── tasks/            # Mission Control (Logic + UI)
-│   │   │   ├── tasks.ts      # [SOP] Core logic
-│   │   │   └── tasks.ui.ts   # [SOP] UI Template
-│   │   ├── routines/         # Daily Tracker & Reset Logic
-│   │   │   ├── routines.ts   # [SOP] 
-│   │   │   └── routines.ui.ts # [SOP]
-│   │   ├── intelligence/     # Maamu AI (Logic Separation)
-│   │   │   ├── intelligence.ts # API & Session Logic
-│   │   │   └── intelligence.ui.ts # UI Template
-│   │   ├── timer/            # Focus Mode & Midnight Split
-│   │   └── settings/         # Vault Access & UI Prefs
+│   ├── core/                  # Engine Foundation
+│   ├── components/            # UI Architecture (Shared Fragments)
+│   │   ├── modals/           # Dedicated Auth, Profile, & Stats Fragments
+│   │   └── ui-registry.ts    # The Injection Engine (Feature Loader)
+│   ├── features/              # Feature Dedicated Pillars
+│   │   ├── layout/           # Persistent Shell (Header, Tabs, View Panes)
+│   │   ├── dashboard/        # HUD, Stats, XP & World Stage
+│   │   ├── tasks/            # Mission Control (Granular Vault)
+│   │   ├── routines/         # Daily Habit Tracker (Granular Vault)
+│   │   ├── profile/          # Identity Registry (Avatar & Handle Logic)
+│   │   ├── timer/            # Focus Mode & Supabase Heartbeat
+│   │   └── settings/         # Operational Configuration
 │   ├── services/              # Core Logic Gatekeepers
-│   │   ├── auth.service.ts   # Login & Sync Management
-│   │   ├── data-bridge.ts    # The Persistence Vault
-│   │   └── groq.service.ts   # AI Brain Connection
+│   │   ├── supabase.service.ts # The Granular Cloud Uplink
+│   │   ├── auth.service.ts   # MFA & Sync ID Management
+│   │   ├── data-bridge.ts    # Sync Persistence & Mirroring
+│   │   └── identity.service.ts # Migration Logic (Legacy Sync ID)
 │   ├── state/                 # Single Source of Truth
-│   ├── styles/                # Global Design System
-│   └── main.ts                # Application Entry Point
-├── index.html                 # The Global Frame
+│   ├── utils/                 # Calculation & Security Helpers
+│   └── main.ts                # Application Bootstrapper
+├── index.html                 # The Thin Shell (Mounting Point)
 └── package.json               # Engine Configuration
 ```
 
 ## 🏗️ Structural Logic
 
-1.  **Component Hub**: All UI fragments are dynamically injected into `#modal-root` or specific `#pane` containers via `ui-registry.ts`.
-2.  **Logic First**: We never import HTML into logic files (except strings in `.ui.ts`). Logic files (`.ts`) should remain pure and testable.
-3.  **Naming Convention**: Feature folders use **plural** names (`tasks/`, `routines/`), and their primary files follow the folder name (`tasks.ts`, `tasks.ui.ts`).
-4.  **Dynamic Hybrid Loading**: Persistence is handled via a **Local-First** approach. The app renders from `localStorage` immediately, while `data-bridge.ts` orchestrates an asynchronous, differential background sync with Supabase.
+1.  **Thin Shell Architecture**: `index.html` is a minimal entry point containing only metadata, the bootloader, and the `#app-root` mounting point.
+2.  **Persistent Layout Shell**: The `features/layout` module (Shell.ts) is the first feature to initialize. It renders the Header, Navigation Tabs, and persistent View Containers dynamically.
+3.  **UI Registry (Hydration)**: All feature-specific HTML fragments are dynamically injected into the containers created by the Shell via `ui-registry.ts`.
+4.  **Logic First**: We never import HTML into logic files (except strings in `.ui.ts`). Logic files (`.ts`) should remain pure and testable.
+5.  **Naming Convention**: Feature folders use **plural** names (`tasks/`, `routines/`), and their primary files follow the folder name (`tasks.ts`, `tasks.ui.ts`).
+6.  **Dynamic Hybrid Loading**: Persistence is handled via a **Local-First** approach. The app renders from `localStorage` immediately, while `data-bridge.ts` orchestrates an asynchronous, differential background sync with Supabase.

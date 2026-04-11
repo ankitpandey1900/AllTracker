@@ -132,11 +132,14 @@ export async function syncProfileBroadcast(): Promise<void> {
   if (lastBroadcastPayload === currentPayloadStr) return;
 
   lastBroadcastPayload = currentPayloadStr;
-  await broadcastGlobalStats(payload);
+  
+  // 🔥 NON-BLOCKING BROADCAST: Fire and forget to free the UI thread
+  broadcastGlobalStats(payload).catch(err => console.error('Broadcast failed:', err));
 
   // Automatically refresh the UI leaderboard to show the new stat
-  const { refreshLeaderboard } = await import('@/features/dashboard/leaderboard');
-  await refreshLeaderboard();
+  import('@/features/dashboard/leaderboard').then(m => {
+    m.refreshLeaderboard();
+  });
 }
 
 /** Professional Profile Persistence Flow */

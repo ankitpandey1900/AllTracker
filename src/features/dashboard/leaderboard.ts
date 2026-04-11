@@ -174,34 +174,45 @@ export async function refreshLeaderboard(): Promise<void> {
   });
   localStorage.setItem(CLIMB_KEY, JSON.stringify(climbData));
 
-  if (users.length === 0) {
-    listEl.innerHTML = `<div class="leaderboard-placeholder">The World Stage is dark. Start a session to light it up.</div>`;
-    return;
-  }
+  requestAnimationFrame(() => {
+    if (users.length === 0) {
+      listEl.innerHTML = `<div class="leaderboard-placeholder">The World Stage is dark. Start a session to light it up.</div>`;
+      return;
+    }
 
-  renderLbPage(listEl, lbAllUsers, lbCurrentPage, climbData, myDisplayName);
-  renderLbPagination(listEl, lbAllUsers.length);
+    renderLbPage(listEl, lbAllUsers, lbCurrentPage, climbData, myDisplayName);
+    renderLbPagination(listEl, lbAllUsers.length);
+  });
 
   document.removeEventListener('click', handleGlobalHudDismiss);
   document.addEventListener('click', handleGlobalHudDismiss);
+
+  // ⚡ OPTIMISTIC OVERRIDE: If I am focusing, ensure my own row is updated INSTANTLY
+  updateLocalUserRowOptimistic(myDisplayName);
+}
+
+/** ⚡ ZERO-LAG OVERRIDE: Manually updates the local user's row metrics without a full DB fetch */
+function updateLocalUserRowOptimistic(myDisplayName: string | null): void {
+  if (!myDisplayName) return;
+  const myRow = document.querySelector(`.leaderboard-item.is-me`) as HTMLElement;
+  if (!myRow) return;
+
+  const isFocusing = appState.activeTimer.isRunning;
+  const statusTag = myRow.querySelector('.status-tag');
+  if (statusTag) {
+    statusTag.className = `status-tag ${isFocusing ? 'focusing' : 'online'}`;
+    statusTag.textContent = isFocusing ? 'FOCUSING' : 'ONLINE';
+  }
 }
 
 /** Updates the HUD elements independently for a lag-free experience */
 export async function updateGlobalHUD(providedUsers?: GlobalProfile[]): Promise<void> {
   // 1. Fetch Global Telemetry (Cached View)
   const telemetry = await fetchGlobalTelemetry();
-  if (telemetry) {
-    const totalEl = document.getElementById('telemetry-total-pilots');
-    const activeEl = document.getElementById('telemetry-active-now');
-    const platformTotalEl = document.getElementById('telemetry-global-total');
-
-    if (totalEl) totalEl.textContent = telemetry.total_pilots.toLocaleString();
-    if (activeEl) activeEl.textContent = telemetry.active_now.toLocaleString();
-    if (platformTotalEl) {
-      const platformHours = (telemetry as any).total_platform_hours || 0;
-      platformTotalEl.textContent = `${platformHours.toFixed(1)} HRS`;
-    }
-  }
+  const totalEl = document.getElementById('telemetry-total-pilots');
+  const activeEl = document.getElementById('telemetry-active-now');
+  const platformTotalEl = document.getElementById('telemetry-global-total');
+  const hoursEl = document.getElementById('telemetry-global-hours');
 
   // 2. Calculate real Today Sum (High-Fidelity)
   const users = providedUsers || lbAllUsers;
@@ -211,8 +222,18 @@ export async function updateGlobalHUD(providedUsers?: GlobalProfile[]): Promise<
     return acc + (isToday ? (u.today_hours || 0) : 0);
   }, 0);
 
-  const hoursEl = document.getElementById('telemetry-global-hours');
-  if (hoursEl) hoursEl.textContent = `${validTodaySum.toFixed(1)} HRS`;
+  // Batch DOM writes to the next animation frame to prevent layout thrashing
+  requestAnimationFrame(() => {
+    if (telemetry) {
+      if (totalEl) totalEl.textContent = telemetry.total_pilots.toLocaleString();
+      if (activeEl) activeEl.textContent = telemetry.active_now.toLocaleString();
+      if (platformTotalEl) {
+        const platformHours = (telemetry as any).total_platform_hours || 0;
+        platformTotalEl.textContent = `${platformHours.toFixed(1)} HRS`;
+      }
+    }
+    if (hoursEl) hoursEl.textContent = `${validTodaySum.toFixed(1)} HRS`;
+  });
 }
 
 
@@ -244,7 +265,9 @@ function renderLbPage(
     listEl.insertAdjacentHTML('beforeend', personalRowHtml);
   }
 
-  bindLbItemEvents(listEl);
+  requestAnimationFrame(() => {
+    bindLbItemEvents(listEl);
+  });
 }
 
 /** Renders a single operative row for the World Stage */

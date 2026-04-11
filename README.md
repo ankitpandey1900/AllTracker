@@ -26,15 +26,15 @@ A professional, social-media-style identity card that prioritizes personal brand
 Your personal AI mentor who analyzes your study data and provides mission briefings. Features a **Beast Mode** toggle for those who need a "No Mercy" coaching style.
 
 ### 🛡️ Privacy-First Architecture
-- **Sync ID Pattern**: No complex OAuth required. Use a private "Secret Key" for cross-device cloud sync.
-- **Vault Masking Engine**: Upgrades plain-text storage to a secure XOR + Hex encoded cipher (`v2_enc_`). This prevents AI pattern-matching and DevTools inspection from decoding your credentials.
-- **Zero-Knowledge Network Payload**: Supabase leaderboard queries proactively strip sensitive Identity Sync IDs to fully mitigate network interception vulnerabilities.
+- **Identity Lock & Vault Key**: A secure registration flow (Real Name, Email, Phone) anchors your identity. A private **Vault Key** (password) and **Recovery Key** manage access.
+- **Granular Cloud Vaults**: Feature-specific data is stored in dedicated Supabase tables (`vault_tracker`, `vault_tasks`, etc.) for maximum isolation and reliability.
+- **Zero-Knowledge Sync**: Sensitive credentials are never exposed in browser logs or network payloads, masked behind XOR + Base64 security layers.
 
 ### ⚡ Performance Architecture
+- **Real-time World Stage**: Rankings update live via WebSockets (Supabase Broadcast) with industrial-grade 1.2s debouncing to prevent UI stutter during heavy global activity.
 - **Local-First Speed**: The UI renders instantly from `localStorage` while a background **Differential Sync** silently updates cloud data without blocking the user.
-- **Adaptive Code Splitting**: Heavy dependencies like `Chart.js` and `html2canvas` are lazily loaded only when needed, reducing the initial bundle size by **~36%**.
-- **Concurrent Hydration**: Data modules (Settings, Tracker, Routines) load in parallel using `Promise.all` for a faster "Time to Interactive".
-- **🛡️ Resource Shield**: Implemented industrial-standard `getChart()` guards to prevent canvas reuse errors.
+- **Concurrent Hydration**: Granular service modules (Settings, Tracker, Routines) load in parallel using `Promise.all` for a faster "Time to Interactive".
+- **GPU-Isolated Atmos**: High-fidelity environments maintain a locked 60FPS using `will-change` transform isolation and layer-exclusive compositing.
 
 ### 🌌 Atmospheric Command Protocols (Horizon Engine)
 - **Cinematic Depth**: Themes like **Himavat** now feature dual-parallax terrain silhouettes and Arctic Aurora pulses for mission-critical focus immersion.

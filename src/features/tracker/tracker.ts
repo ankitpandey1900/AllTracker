@@ -109,13 +109,10 @@ export function generateTable(): void {
     `;
   }
 
-  tbody.innerHTML = html;
-
-  // Attach listeners
-  attachInputListeners();
-
-  // Attach listeners
-  attachInputListeners();
+  requestAnimationFrame(() => {
+    tbody.innerHTML = html;
+    attachInputListeners();
+  });
 }
 
 // --- Listening for Changes ---

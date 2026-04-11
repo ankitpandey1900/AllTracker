@@ -39,6 +39,7 @@ import {
 import { initSyncAuth, setupHeaderScroll } from "@/services/auth.service";
 import { subscribeToUserDataSync } from "@/services/supabase.service";
 import { initUI } from "@/components/ui-registry";
+import { shell } from "@/features/layout/Shell";
 
 // ─── Study Categories ────────────────────────────────────────────────
 import {
@@ -102,7 +103,8 @@ import { checkProfileIdentity, syncProfileBroadcast } from "@/features/profile/p
 // --- App Start ---
 
 document.addEventListener("DOMContentLoaded", async () => {
-  // 0. Setup the UI system (Critical)
+  // 0. Setup the UI Shell & Architecture (Critical)
+  shell.init('app-root');
   await initUI();
 
   // 1. Parallel Data Loading (Local-First)
@@ -169,18 +171,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     const [
       { initManualLogic },
       { initNotifications },
-      { initIntegrityService },
-      { initWorldStage }
+      { initIntegrityService }
     ] = await Promise.all([
       import('@/features/manual/manual'),
       import('@/features/notifications/notifications'),
-      import('@/services/integrity'),
-      import('@/features/dashboard/leaderboard')
+      import('@/services/integrity')
     ]);
 
     initManualLogic();
     initNotifications();
     initIntegrityService();
+    // initWorldStage already imported above if needed, but we call it here for deferred load
     await initWorldStage();
     checkProfileIdentity();
     resumeTimerIfNeeded();
@@ -201,20 +202,53 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.documentElement.style.setProperty("--mouse-y", `${e.clientY}px`);
   });
 
-  // 🏁 8. Finalize Boot: Remove the Bootstrap Loader (Safe)
-  const removeLoader = () => {
+  // 🏁 8. Finalize Boot: Tactical Reveal (System Telemetry)
+  const runBootSequence = async () => {
     const loader = document.getElementById('app-bootstrap-loader');
-    if (loader) {
-      loader.classList.add('hidden');
-      setTimeout(() => loader.remove(), 600); // matches CSS transition
+    const logContainer = document.getElementById('boot-telemetry-log');
+    if (!loader || !logContainer) return;
+
+    const messages = [
+      'AUTHENTICATING_OPERATIVE...',
+      'SYNCING_CLOUD_IDENTITY...',
+      'DECRYPTING_RITUALS...',
+      'WORLD_STAGE_CONNECTING...',
+      'SYSTEMS_ONLINE'
+    ];
+
+    for (let i = 0; i < messages.length; i++) {
+      const msg = messages[i];
+      const logLine = document.createElement('div');
+      logLine.className = 'log-line';
+      logLine.textContent = msg;
+      
+      logContainer.appendChild(logLine);
+      
+      // Brief pause for tactical effect
+      await new Promise(r => setTimeout(r, 60));
+
+      // Animation handling
+      requestAnimationFrame(() => {
+        const prev = logContainer.querySelector('.log-line.active');
+        if (prev) {
+          prev.classList.remove('active');
+          prev.classList.add('prev');
+        }
+        logLine.classList.add('active');
+      });
+      
+      await new Promise(r => setTimeout(r, 80));
     }
+
+    // Final Fade
+    setTimeout(() => {
+      loader.classList.add('hidden');
+      setTimeout(() => loader.remove(), 600);
+    }, 200);
   };
 
-  // Immediate removal after data loaded
-  removeLoader();
-  
-  // Safety fallback: if anything above fails/hangs, ensure loader is gone after 5s
-  setTimeout(removeLoader, 5000);
+  // Immediate initiation
+  runBootSequence();
 
   // 📡 REACTIVE HEADER SYNC: Update username in header instantly
   window.addEventListener('all-tracker-identity-sync', (e: any) => {
@@ -231,76 +265,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 // --- Logic for Buttons and Navigation ---
 
 function setupEventListeners(): void {
-  // Universal Navigation (Desktop Tabs + Mobile Bottom Nav)
-  const navItems = document.querySelectorAll(".nav-item[data-target], .mobile-nav-item[data-target]");
-  navItems.forEach((item) => {
-    item.addEventListener("click", () => {
-      const target = item.getAttribute("data-target");
-      if (!target) return;
-
-      // 1. Update All Nav States
-      document.querySelectorAll(".nav-item, .mobile-nav-item").forEach((n) => {
-        n.classList.remove("active");
-        if (n.getAttribute("data-target") === target) n.classList.add("active");
-      });
-
-      // 2. Switch View Panes
-      document.querySelectorAll(".view-pane").forEach((p) => p.classList.remove("active"));
-      const targetPane = document.getElementById(target);
-      if (targetPane) {
-        targetPane.classList.add("active");
-        if (target === "tasksPane") renderTasks();
-        if (target === "intelligencePane") renderIntelligenceBriefing();
-        if (target === "routinePane") renderRoutine();
-      }
-
-      // 3. Scroll to top on view change
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    });
-  });
-
-  // Mobile More Menu Toggle
-  const moreBtn = document.getElementById("headerMoreBtn");
-  const desktopActions = document.getElementById("headerDesktopActions");
-  if (moreBtn && desktopActions) {
-    moreBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      e.preventDefault();
-      desktopActions.classList.toggle("mobile-menu-overlay");
-    });
-
-    document.addEventListener("click", (e) => {
-      if (window.innerWidth <= 768) {
-        if (desktopActions && !desktopActions.contains(e.target as Node)) {
-          desktopActions.classList.remove("mobile-menu-overlay");
-        }
-      }
-    });
-  }
-
-  // Excalidraw Toggle
-  const excalidrawBtn = document.getElementById("excalidrawToggle");
-  const drawSection = document.getElementById("drawSection");
-
-  excalidrawBtn?.addEventListener("click", () => {
-    if (!drawSection) return;
-    const isHidden = drawSection.style.display === "none" || drawSection.style.display === "";
-    
-    if (isHidden) {
-      // Lazy Inject Iframe if not present
-      if (!drawSection.querySelector('iframe')) {
-        drawSection.innerHTML = `<iframe src="https://excalidraw.com" width="100%" height="80%" style="border: 1px solid #ccc" frameborder="0"></iframe>`;
-      }
-      
-      drawSection.style.display = "block";
-      excalidrawBtn.classList.add("active");
-      excalidrawBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg> Hide Canvas`;
-    } else {
-      drawSection.style.display = "none";
-      excalidrawBtn.classList.remove("active");
-      excalidrawBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Canvas`;
-    }
-  });
+  // Navigation is now handled by Shell.ts
+  
+  // Mobile More Menu Toggle (Header Actions)
+  // Logic now handled by Shell.ts
 
   // Dashboard buttons
   bindClick("toggleKpiBtn", () => {

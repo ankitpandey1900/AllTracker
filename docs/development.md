@@ -10,13 +10,15 @@ Every feature in the `src/features/` directory must follow the **Logic + UI** se
 2.  **`featureName.ui.ts`**: The "Skin." Contains only the static HTML `view` strings and simple template helpers.
 3.  **Refusal of Mixed Files**: Never put substantial DOM manipulation logic directly inside a `.ui.ts` file.
 
-## 🏺 Secure Vault (Security Protocol)
+## 🏺 Granular Vault (Security Protocol)
 
-To ensure privacy and professional-grade security, all sensitive keys (Groq API, Sync ID) are **never** stored in plain text.
+To ensure maximum reliability and professional-grade security, All Tracker transition from a single JSON blob to a **Granular Service Schema**.
 
-- **Masking**: Use `v1_esc_` prefixed masking before saving to `localStorage`.
+- **Dedicated Vaults**: Every major feature has its own dedicated table (e.g., `vault_tracker`, `vault_tasks`, `vault_routines`).
+- **Identity Registry**: User metadata is stored in `operative_profiles`, while performance metrics live in `operative_stats`.
+- **Encryption**: Sensitive field keys are masked using `v1_esc_` or `v2_enc_` logic before local persistence.
 - **Bridge**: Always pipe persistence through `src/services/data-bridge.ts`.
-- **Logic**: Use `src/utils/security.ts` for the Base64 hydration/dehydration routines.
+- **Cloud-Dominant**: Supabase is the absolute source of truth. Local storage is treated as a transient performance cache.
 
 ## 🌓 Midnight Crossover Logic (SOP)
 
@@ -41,7 +43,9 @@ To maintain an "Elite" user experience on mobile and slow networks, all modules 
 | `src/main.ts` | The Orchestrator. Bootstraps all modules and event listeners. |
 | `src/state/app-state.ts` | The Single Source of Truth. Global reactive state object. |
 | `src/components/ui-registry.ts` | The UI Hub. Handles all dynamic HTML injection. |
-| `src/services/data-bridge.ts` | The Gatekeeper. Manages persistence and security masking. |
+| `src/services/data-bridge.ts` | The Gatekeeper. Manages local persistence and sync orchestration. |
+| `src/services/supabase.service.ts` | The Cloud Uplink. Direct interface with Supabase Granular Vaults. |
+| `src/services/auth.service.ts` | The Identity Gate. Manages MFA patterns and session keys. |
 
 ## 🚀 Building & Releasing
 

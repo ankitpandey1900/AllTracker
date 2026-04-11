@@ -65,24 +65,22 @@ function saveTimerState(): void {
 export function startTimer(categoryIdx: number, categoryName: string): void {
   if (appState.activeTimer.isRunning) return;
 
+  // ⚡ OPTIMISTIC UI: Instant visual feedback
+  updateTimerUI(true);
+  startTimerInterval();
+  document.getElementById('timerModal')?.classList.remove('active');
+
   appState.activeTimer.isRunning = true;
   appState.activeTimer.startTime = Date.now();
 
   appState.activeTimer.category = String(categoryIdx);
   appState.activeTimer.colName = categoryName;
 
-  // Tell the leaderboard that we are studying right now, after setting colName
-  syncProfileBroadcast();
-
   if (appState.activeTimer.elapsedAcc === 0) {
     appState.activeTimer.sessionStartClock = appState.activeTimer.startTime;
   }
 
   saveTimerState();
-  startTimerInterval();
-  updateTimerUI(true);
-
-  document.getElementById('timerModal')?.classList.remove('active');
   showToast(`Timer started for ${categoryName}`, 'success');
   
   // 📡 WORLD STAGE: Broadcast status instantly
@@ -92,14 +90,16 @@ export function startTimer(categoryIdx: number, categoryName: string): void {
 export function pauseTimer(): void {
   if (!appState.activeTimer.isRunning) return;
 
+  // ⚡ OPTIMISTIC UI: Instant freeze
+  appState.activeTimer.isRunning = false;
+  updateTimerUI(true);
+  if (appState.timerInterval) clearInterval(appState.timerInterval);
+
   const currentSession = Date.now() - (appState.activeTimer.startTime || 0);
   appState.activeTimer.elapsedAcc += currentSession;
-  appState.activeTimer.isRunning = false;
   appState.activeTimer.startTime = null;
 
   saveTimerState();
-  if (appState.timerInterval) clearInterval(appState.timerInterval);
-  updateTimerUI(true);
 
   // 📡 WORLD STAGE: Broadcast status instantly (Away/Paused)
   import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast());

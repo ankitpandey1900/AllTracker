@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404: Mission Deviation | All Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&family=Tektur:wght@600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #030611;
+      --accent: #6a86ff;
+      --text: #ffffff;
+      --subtext: #8b9cc4;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+      text-align: center;
+    }
+    .glitch-container {
+      position: relative;
+    }
+    .glitch-text {
+      font-family: 'Tektur', sans-serif;
+      font-size: 8rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-shadow: 0 0 20px rgba(106, 134, 255, 0.4);
+      margin: 0;
+      line-height: 1;
+    }
+    .sub-heading {
+      font-size: 1.5rem;
+      color: var(--text);
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-top: -10px;
+    }
+    .description {
+      color: var(--subtext);
+      max-width: 400px;
+      margin: 24px auto;
+      line-height: 1.6;
+    }
+    .btn {
+      padding: 12px 32px;
+      background: var(--accent);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(106, 134, 255, 0.3);
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(106, 134, 255, 0.5);
+    }
+    .particles {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+      background: radial-gradient(circle at center, rgba(106, 134, 255, 0.05) 0%, transparent 70%);
+    }
+  </style>
+</head>
+<body>
+  <div class="particles"></div>
+  <div class="glitch-container">
+    <h1 class="glitch-text">404</h1>
+    <div class="sub-heading">Mission Deviation</div>
+  </div>
+  <p class="description">
+    The sector you are trying to access does not exist in the World Stage. 
+    Redirecting to Command Center in 5 seconds...
+  </p>
+  <a href="/" class="btn">Return to Vault</a>
+
+  <script>
+    setTimeout(() => {
+      window.location.href = '/';
+    }, 5000);
+  </script>
+</body>
+</html>
