@@ -1,4 +1,4 @@
-const CACHE_NAME = 'alltracker-cache-v1.9.0'; // V1.9.0: Full Theme Purge (Kali Tandava Removed)
+const CACHE_NAME = 'alltracker-cache-v1.9.1'; // V1.9.1: Profile Terminal Refinement (Zero-Cut & Executive Rank)
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
