@@ -7,7 +7,7 @@ export const manualModal = `
       <div class="docs-header">
         <div class="docs-brand">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6a86ff" stroke-width="2.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-          <span>All Tracker <span class="docs-version">v2.0 Docs</span></span>
+          <span>All Tracker <span class="docs-version">v2.1 Docs</span></span>
         </div>
         <button id="closeUserManualModal" class="docs-close">&times;</button>
       </div>
@@ -91,7 +91,7 @@ export const manualModal = `
                 <div class="docs-step-num">3</div>
                 <div class="docs-step-body">
                   <h4>Create Your Account</h4>
-                  <p>Click <strong>LOGIN</strong> in the top-right header. Register with a unique <strong>User ID</strong> (your public handle) and a <strong>Vault Key</strong> (your private password). Your data syncs to the cloud securely.</p>
+                  <p>Click <strong>LOGIN</strong> in the top-right header. Switch to <strong>Register</strong>. Fill in all required fields: choose a <strong>Tactical Avatar</strong>, your <strong>Real Name</strong>, a unique <strong>User Handle</strong>, email, mobile, date of birth, nation, and a <strong>Vault Key</strong> (minimum 6 characters). Your account is created securely in the cloud.</p>
                 </div>
               </div>
               <div class="docs-step">
@@ -110,27 +110,34 @@ export const manualModal = `
           <section class="docs-section" id="doc-auth">
             <div class="docs-breadcrumb">Getting Started › Authentication</div>
             <h2 class="docs-h2">Authentication</h2>
-            <p>All Tracker uses a two-layer identity system: a public <strong>User ID</strong> (your display name on the World Stage) and a private <strong>Vault Key</strong> (your password).</p>
+            <p>All Tracker uses a secure, email-free identity system. Your <strong>Handle</strong> is your public name on the World Stage, and your <strong>Vault Key</strong> is your private password. No email verification delays.</p>
 
-            <h3 class="docs-h3">Secure Your Identity</h3>
+            <h3 class="docs-h3">Creating Your Account</h3>
             <ol class="docs-ol">
               <li>Click <strong>LOGIN</strong> → Switch to the <strong>Register</strong> tab.</li>
-              <li>Claim a unique <strong>Pilot Handle</strong> — this becomes your permanent identity on the World Stage.</li>
-              <li>Create a <strong>Vault Key</strong> (Private Password) and select your <strong>Nation</strong>.</li>
-              <li>Choose your <strong>Pilot Archetype</strong> (Oni, Astronaut, UFO, etc.) from the Hangar.</li>
-              <li>Click <strong>INITIALIZE IDENTITY</strong>. A unique <strong>Secret Key</strong> (Identity Key) is generated. <em>Save it somewhere safe for cross-device sync.</em></li>
+              <li>Pick your <strong>Tactical Avatar</strong> from the 36-emoji grid (sports, space, Marvel/DC, and more).</li>
+              <li>Enter your <strong>Real Name</strong> and claim a unique <strong>Handle</strong> — this is your permanent public identity on the World Stage.</li>
+              <li>Fill in your <strong>Email</strong> and <strong>Mobile Number</strong> (must be real — fake values are rejected).</li>
+              <li>Set your <strong>Date of Birth</strong> and <strong>Nation</strong>.</li>
+              <li>Create a <strong>Vault Key</strong> (minimum 6 characters) — this is your permanent password.</li>
+              <li>Click <strong>CREATE MISSION PROFILE</strong>. A unique <strong>Recovery Key</strong> is generated — write it down immediately.</li>
             </ol>
 
             <div class="docs-callout docs-callout-warning">
+              <div class="docs-callout-title">⚠️ Identity Lockdown</div>
+              <p>Once your account is created, your <strong>Real Name, Handle, Email, Mobile, DOB, and Nation are permanently locked</strong> in the database. Only your <strong>Avatar</strong> can be changed later from the Profile portal. This ensures leaderboard integrity.</p>
+            </div>
+
+            <div class="docs-callout docs-callout-warning">
               <div class="docs-callout-title">⚠️ Recovery Key</div>
-              <p>Your Recovery Key is a one-time generated 12-character code. If you forget your Vault Key, you can use this key to verify your identity and reset access. <strong>Do not lose it.</strong></p>
+              <p>Your Recovery Key is a one-time generated code (format: <code>N7X-XXXX-XXXX</code>). If you forget your Vault Key, navigate to <strong>Forgot Key</strong> in the login modal and use your Handle + Recovery Key to retrieve your password. <strong>Do not lose it.</strong></p>
             </div>
 
             <h3 class="docs-h3">Login</h3>
             <ol class="docs-ol">
               <li>Click <strong>LOGIN</strong> in the header.</li>
-              <li>Enter your <strong>User ID</strong> and <strong>Vault Key</strong>.</li>
-              <li>Click <strong>ENTER VAULT</strong>. All your cloud data syncs automatically.</li>
+              <li>Enter your <strong>User Handle</strong> and <strong>Vault Key</strong>.</li>
+              <li>Click <strong>ENTER VAULT</strong>. All your cloud data restores automatically.</li>
             </ol>
 
             <h3 class="docs-h3">Legacy Migration</h3>
@@ -138,7 +145,7 @@ export const manualModal = `
             <ol class="docs-ol">
               <li>In the Login modal, click <strong>Legacy Login (Old Sync ID)</strong>.</li>
               <li>Enter your old Sync ID.</li>
-              <li>You'll then be prompted to create a new User ID and Vault Key.</li>
+              <li>You'll then be prompted to create a new User Handle and Vault Key.</li>
               <li>Your data is preserved and linked to the new credentials.</li>
             </ol>
           </section>
@@ -336,12 +343,25 @@ export const manualModal = `
           <section class="docs-section" id="doc-leaderboard">
             <div class="docs-breadcrumb">Analytics › World Stage</div>
             <h2 class="docs-h2">World Stage (Leaderboard)</h2>
-            <p>The World Stage is a live global leaderboard showing the top 10 users by total study hours. Your row is highlighted.</p>
+            <p>The World Stage is a <strong>live, real-time global leaderboard</strong> showing the top users by total study hours. Rankings update automatically via WebSocket — no page refresh needed.</p>
             <ul class="docs-ul">
-              <li>Identity syncs on every timer stop, session entry, or change to your Pilot Passport.</li>
+              <li>Your stats are pushed every 25 seconds while active or when a timer session ends.</li>
               <li>A <strong>green pulse dot</strong> next to a user's name means they are currently in a Live Focus session.</li>
-              <li>Each entry shows: Nation flag, Archetype, Display Handle, Level, Tactical Title, and Total Hours.</li>
+              <li>Each entry shows: Avatar, Display Handle, Rank Title, Nation, and Total Hours.</li>
             </ul>
+
+            <h3 class="docs-h3">Platform Telemetry HUD</h3>
+            <div class="docs-table-wrap">
+              <table class="docs-table">
+                <thead><tr><th>Metric</th><th>Description</th></tr></thead>
+                <tbody>
+                  <tr><td>Total Members</td><td>Total registered accounts on the platform</td></tr>
+                  <tr><td>Focusing Now</td><td>Number of users currently in an active focus session</td></tr>
+                  <tr><td>Study Hours Today</td><td>Aggregate study hours logged across all active users today</td></tr>
+                  <tr><td>Platform Total Hours</td><td>All-time cumulative hours across the entire platform</td></tr>
+                </tbody>
+              </table>
+            </div>
 
             <h3 class="docs-h3">Dynamic Title Engine</h3>
             <p>Your title on the World Stage reflects your clinical expertise:</p>
@@ -358,13 +378,13 @@ export const manualModal = `
                   <tr><td>600 – 1200h</td><td>🥇 VETERAN</td></tr>
                   <tr><td>1200 – 2500h</td><td>💠 ELITE</td></tr>
                   <tr><td>2500 – 5000h</td><td>👑 LEGEND</td></tr>
-                  |> 5000h</td><td>✨ ETERNAL / DEITY / SINGULARITY</td></tr>
+                  <tr><td>&gt; 5000h</td><td>✨ ETERNAL / DEITY / SINGULARITY</td></tr>
                 </tbody>
               </table>
             </div>
 
             <h3 class="docs-h3">Pilot Passport</h3>
-            <p>Click your Archetype in the header to open the Pilot Passport. You can view your mission stats (Total Hours, Today's Hours), change your Archetype, and update your Identity metadata. Your Handle and ID remain permanently anchored once secured.</p>
+            <p>Click your Avatar in the header to open the Pilot Passport. You can view your mission stats, change your <strong>Avatar</strong> (the only editable field post-registration), and toggle your public focus visibility. All other identity fields are permanently locked for leaderboard integrity.</p>
           </section>
 
           <div class="docs-divider"></div>

@@ -233,22 +233,21 @@ export function subscribeToRealtimeTelemetry(
 ): { unsubscribe: () => void } {
   if (!isSupabaseReady()) return { unsubscribe: () => {} };
 
-  console.log('📡 CONNECTING WEBSOCKETS TO TELEMETRY MATRIX...');
-  
+  // Listen to operative_stats (focus status, total_hours) and operative_profiles (avatar, handle changes)
+  // These are public tables — any row change fires a leaderboard refresh
   const channel = supabaseClient!
-    .channel('telemetry_pulse_channel')
+    .channel('world_stage_live_feed')
     .on(
       'postgres_changes',
-      { event: '*', schema: 'public', table: 'operative_telemetry' },
-      (payload) => {
-        callback(payload);
-      }
+      { event: '*', schema: 'public', table: 'operative_stats' },
+      (payload) => { callback(payload); }
     )
-    .subscribe((status) => {
-      if (status === 'SUBSCRIBED') {
-         console.log('🔗 REALTIME WEBSOCKETS LINK ESTABLISHED');
-      }
-    });
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'operative_profiles' },
+      (payload) => { callback(payload); }
+    )
+    .subscribe();
 
   return {
     unsubscribe: () => {

@@ -20,17 +20,23 @@ export async function initWorldStage(): Promise<void> {
   // 1. Initial Render
   await refreshLeaderboard();
 
-  // 2. ⚡ REAL-TIME HUD: Live database listeners
-  import('@/services/supabase.service').then(({ subscribeToRealtimeTelemetry }) => {
-    subscribeToRealtimeTelemetry((payload) => {
-      // Fast-track HUD update and rank refresh
+  // 2. ⚡ REAL-TIME HUD: Live database listeners with debounce
+  // Prevents hammering the DB if many rows change at once (e.g. user starts timer)
+  let lbDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+  const debouncedRefresh = () => {
+    if (lbDebounceTimer) clearTimeout(lbDebounceTimer);
+    lbDebounceTimer = setTimeout(() => {
       updateGlobalHUD();
       refreshLeaderboard();
-    });
+    }, 1200); // 1.2s debounce window
+  };
+
+  import('@/services/supabase.service').then(({ subscribeToRealtimeTelemetry }) => {
+    subscribeToRealtimeTelemetry(debouncedRefresh);
   });
 
-  // 3. Fallback Periodic updates (Managed Registry)
-  Registry.setInterval('lb_polling', () => refreshLeaderboard(), 60000);
+  // 3. Fallback Periodic updates every 30s (in case WebSocket drops)
+  Registry.setInterval('lb_polling', () => refreshLeaderboard(), 30000);
 
   // 4. Bind Global Modal Actions
   const closeProfileBtn = document.getElementById('closeProfileModal');
@@ -44,13 +50,10 @@ export async function initWorldStage(): Promise<void> {
     };
   }
 
-  // 5. Build Initial Global Telemetry
-  await refreshLeaderboard();
-  
   setupPasswordToggle('toggleCurrentKey', 'currentSecretKeyInput');
   setupPasswordToggle('toggleNewKey', 'newSecretKeyInput');
 
-  // 6. Start Global Heartbeat
+  // 5. Start Global Heartbeat
   initActivityTracking();
 
   // 📡 REACTIVE HYDRATION: Listen for identity sync to update UI instantly
@@ -58,6 +61,7 @@ export async function initWorldStage(): Promise<void> {
     refreshLeaderboard();
   });
 }
+
 
 
 /** Tracks mouse/keyboard activity and sends heartbeats to update online status */
