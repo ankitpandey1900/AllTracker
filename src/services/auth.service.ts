@@ -22,6 +22,9 @@ let currentSyncId: string | null = (rawId && isObfuscated(rawId)) ? deobfuscate(
 
 /** Returns the current Sync ID, or null if not connected */
 export function getCurrentUserId(): string | null {
+  if (currentSyncId) {
+    console.log('🔐 IDENTITY: Connected to Vault [ID Prefix: ' + currentSyncId.substring(0, 4) + '...]');
+  }
   return currentSyncId;
 }
 
@@ -252,8 +255,8 @@ async function handleSyncIdEstablished(syncId: string): Promise<void> {
   const modal = document.getElementById('authModal');
   if (modal) modal.style.display = 'none';
 
-  // Trigger sync
-  await syncDataOnLogin();
+  // Trigger sync (Force cloud pull to ensure any local wipe is healed)
+  await syncDataOnLogin(true);
 
   // 🔐 IDENTITY-LINKED VAULT (V3): Refresh settings with the new salt
   const { loadSettingsFromStorage } = await import('./data-bridge');

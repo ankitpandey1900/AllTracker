@@ -391,12 +391,12 @@ export function clearLocalData(): void {
 
 // --- Cloud Sync Logic ---
 
-export async function syncDataOnLogin(): Promise<void> {
+export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
   console.log('Initiating data sync...');
   updateSyncStatus('syncing');
 
   try {
-    const [cloudTracker, cloudSettings, cloudRoutines, cloudHistory, cloudBookmarks, cloudTasks, cloudTimer] = await Promise.all([
+    const results = await Promise.all([
       loadTrackerDataCloud(),
       loadSettingsCloud(),
       loadRoutinesCloud(),
@@ -406,59 +406,70 @@ export async function syncDataOnLogin(): Promise<void> {
       loadTimerStateCloud(),
     ]);
 
-    // 🛡️ BULLETPROOF SYNC (Timestamp-First Protocol)
-    // We compare Local modified time vs Cloud updated_at time.
-    // If Cloud is newer -> PULL. If Local is newer -> PUSH (Heal).
+    const [cloudTracker, cloudSettings, cloudRoutines, cloudHistory, cloudBookmarks, cloudTasks, cloudTimer] = results;
 
-    // --- Tracker Data ---
-    if (cloudTracker && isCloudNewer(STORAGE_KEYS.TRACKER_DATA, cloudTracker.updatedAt)) {
-      console.log('📥 SYNC: Cloud Tracker is newer. Pulling...');
-      setTrackerData(cloudTracker.data, false);
-      updateLocalTimestamp(STORAGE_KEYS.TRACKER_DATA, cloudTracker.updatedAt || undefined);
-    } else if (appState.trackerData.length > 0) {
-      console.log('📤 SYNC: Local Tracker is newer/unique. Pushing...');
-      saveTrackerDataCloud(appState.trackerData);
-    }
+  // 🛡️ CLOUD-DOMINANT PROTOCOL: The Cloud is the definitive source of truth.
+  // If Cloud data exists, it replaces local state unless local is significantly newer.
+  
+  const isLocalEmpty = (data: any) => {
+    if (Array.isArray(data)) return data.length === 0;
+    if (typeof data === 'object' && data !== null) return Object.keys(data).length === 0;
+    return !data;
+  };
 
-    // --- Settings ---
-    if (cloudSettings && isCloudNewer(STORAGE_KEYS.SETTINGS, cloudSettings.updatedAt)) {
-      setSettings(cloudSettings.data, false);
-      updateLocalTimestamp(STORAGE_KEYS.SETTINGS, cloudSettings.updatedAt || undefined);
-    } else if (Object.keys(appState.settings).length > 0) {
-      saveSettingsCloud(appState.settings);
-    }
+  const forceRecovery = forceCloudPull || isLocalEmpty(appState.trackerData);
 
-    // --- Routines ---
-    if (cloudRoutines && isCloudNewer(STORAGE_KEYS.ROUTINES, cloudRoutines.updatedAt)) {
-      setRoutines(cloudRoutines.data, false);
-      updateLocalTimestamp(STORAGE_KEYS.ROUTINES, cloudRoutines.updatedAt || undefined);
-    } else if (appState.routines.length > 0) {
-      saveRoutinesCloud(appState.routines);
-    }
+  if (forceRecovery) {
+    console.log('🛡️ CLOUD MASTER: Forcefully restoring from Cloud archives...');
+  }
 
-    // --- History ---
-    if (cloudHistory && isCloudNewer(STORAGE_KEYS.ROUTINE_HISTORY, cloudHistory.updatedAt)) {
-      setRoutineHistory(cloudHistory.data, false);
-      updateLocalTimestamp(STORAGE_KEYS.ROUTINE_HISTORY, cloudHistory.updatedAt || undefined);
-    } else if (Object.keys(appState.routineHistory).length > 0) {
-      saveRoutineHistoryCloud(appState.routineHistory);
-    }
+  // --- Tracker Data ---
+  if (cloudTracker && (forceRecovery || isCloudNewer(STORAGE_KEYS.TRACKER_DATA, cloudTracker.updatedAt))) {
+    setTrackerData(cloudTracker.data, false);
+    updateLocalTimestamp(STORAGE_KEYS.TRACKER_DATA, cloudTracker.updatedAt || undefined);
+  } else if (appState.trackerData.length > 0) {
+    saveTrackerDataCloud(appState.trackerData);
+  }
 
-    // --- Bookmarks ---
-    if (cloudBookmarks && isCloudNewer(STORAGE_KEYS.BOOKMARKS, cloudBookmarks.updatedAt)) {
-      setBookmarks(cloudBookmarks.data, false);
-      updateLocalTimestamp(STORAGE_KEYS.BOOKMARKS, cloudBookmarks.updatedAt || undefined);
-    } else if (appState.bookmarks.length > 0) {
-      saveBookmarksCloud(appState.bookmarks);
-    }
+  // --- Settings ---
+  if (cloudSettings && (forceRecovery || isCloudNewer(STORAGE_KEYS.SETTINGS, cloudSettings.updatedAt))) {
+    setSettings(cloudSettings.data, false);
+    updateLocalTimestamp(STORAGE_KEYS.SETTINGS, cloudSettings.updatedAt || undefined);
+  } else if (Object.keys(appState.settings).length > 0) {
+    saveSettingsCloud(appState.settings);
+  }
 
-    // --- Tasks ---
-    if (cloudTasks && isCloudNewer(STORAGE_KEYS.TASKS, cloudTasks.updatedAt)) {
-      setTasks(cloudTasks.data, false);
-      updateLocalTimestamp(STORAGE_KEYS.TASKS, cloudTasks.updatedAt || undefined);
-    } else if (appState.tasks.length > 0) {
-      saveTasksCloud(appState.tasks);
-    }
+  // --- Routines ---
+  if (cloudRoutines && (forceRecovery || isCloudNewer(STORAGE_KEYS.ROUTINES, cloudRoutines.updatedAt))) {
+    setRoutines(cloudRoutines.data, false);
+    updateLocalTimestamp(STORAGE_KEYS.ROUTINES, cloudRoutines.updatedAt || undefined);
+  } else if (appState.routines.length > 0) {
+    saveRoutinesCloud(appState.routines);
+  }
+
+  // --- History ---
+  if (cloudHistory && (forceRecovery || isCloudNewer(STORAGE_KEYS.ROUTINE_HISTORY, cloudHistory.updatedAt))) {
+    setRoutineHistory(cloudHistory.data, false);
+    updateLocalTimestamp(STORAGE_KEYS.ROUTINE_HISTORY, cloudHistory.updatedAt || undefined);
+  } else if (Object.keys(appState.routineHistory).length > 0) {
+    saveRoutineHistoryCloud(appState.routineHistory);
+  }
+
+  // --- Bookmarks ---
+  if (cloudBookmarks && (forceRecovery || isCloudNewer(STORAGE_KEYS.BOOKMARKS, cloudBookmarks.updatedAt))) {
+    setBookmarks(cloudBookmarks.data, false);
+    updateLocalTimestamp(STORAGE_KEYS.BOOKMARKS, cloudBookmarks.updatedAt || undefined);
+  } else if (appState.bookmarks.length > 0) {
+    saveBookmarksCloud(appState.bookmarks);
+  }
+
+  // --- Tasks ---
+  if (cloudTasks && (forceRecovery || isCloudNewer(STORAGE_KEYS.TASKS, cloudTasks.updatedAt))) {
+    setTasks(cloudTasks.data, false);
+    updateLocalTimestamp(STORAGE_KEYS.TASKS, cloudTasks.updatedAt || undefined);
+  } else if (appState.tasks.length > 0) {
+    saveTasksCloud(appState.tasks);
+  }
 
     if (cloudTimer && isCloudNewer(STORAGE_KEYS.TIMER, cloudTimer.updatedAt)) {
       Object.assign(appState.activeTimer, cloudTimer.data);
