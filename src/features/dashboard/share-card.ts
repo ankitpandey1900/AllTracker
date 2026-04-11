@@ -1,3 +1,4 @@
+import { getSecureLocalProfileString, setSecureLocalProfileString } from '@/utils/security';
 /**
  * Handles generating the 'Share Card' image.
  * 
@@ -34,7 +35,7 @@ export async function generateShareCard(): Promise<void> {
 
   // 3. User Identity
   const { STORAGE_KEYS } = await import('@/config/constants');
-  const profileRaw = localStorage.getItem(STORAGE_KEYS.USER_PROFILE);
+  const profileRaw = getSecureLocalProfileString();
   let displayName = 'ALL TRACKER';
   let avatar = '👨‍🚀'; 
 

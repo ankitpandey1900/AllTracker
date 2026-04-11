@@ -11,7 +11,16 @@
 
 .modal.active {
   display: flex;
-  animation: fade-in 0.2s ease;
+  animation: fade-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modal.active::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(16, 185, 129, 0.05) 0%, transparent 70%);
+  pointer-events: none;
+  animation: bg-pulse-soft 4s infinite alternate;
 }
 
 .modal-content {
@@ -30,13 +39,20 @@
 @keyframes all-tracker-pop-in {
   from {
     opacity: 0;
-    transform: scale(0.96) translateY(10px);
+    transform: scale(0.94) translateY(20px);
+    filter: blur(10px);
   }
 
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
+    filter: blur(0);
   }
+}
+
+@keyframes bg-pulse-soft {
+  from { opacity: 0.3; }
+  to { opacity: 1; }
 }
 
 .modal-content.wide {
@@ -264,6 +280,16 @@
   opacity: 0;
   transform: translateX(20px);
   transition: all 0.3s ease;
+}
+
+.toast.clickable {
+  transition: all 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28), box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.toast.clickable:hover {
+  transform: scale(1.02) translateY(-2px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55), 0 0 15px rgba(59, 130, 246, 0.4);
+  border-color: rgba(59, 130, 246, 0.8);
 }
 
 .session-log-note {
@@ -512,4 +538,60 @@
   /* Amber-500 */
   border-color: #f59e0b;
   box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+}
+
+/* --- Tactical Identity Portal V2 --- */
+.holographic-bar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 99px;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.holographic-fill {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, #10b981, #34d399, #10b981);
+  background-size: 200% 100%;
+  animation: holo-shimmer 2s linear infinite;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+}
+
+@keyframes holo-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.passport-status-active {
+  font-family: 'Tektur', sans-serif;
+  text-transform: uppercase;
+  color: #10b981;
+  letter-spacing: 2px;
+  font-weight: 800;
+  text-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+  animation: text-pulse-glow 2s infinite ease-in-out;
+}
+
+@keyframes text-pulse-glow {
+  0%, 100% { opacity: 0.8; text-shadow: 0 0 8px rgba(16, 185, 129, 0.3); }
+  50% { opacity: 1; text-shadow: 0 0 16px rgba(16, 185, 129, 0.6); }
+}
+
+.vault-swap-container {
+  display: grid;
+  grid-template-areas: "content";
+  overflow: hidden;
+}
+
+.vault-pane {
+  grid-area: content;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.vault-pane.hidden {
+  opacity: 0;
+  transform: translateY(10px) scale(0.98);
+  pointer-events: none;
 }

@@ -258,7 +258,7 @@
 
 .kpi-grid .card,
 .stats-strip .card,
-#categoryCards>div {
+#categoryCards > div {
   min-height: 118px;
   position: relative;
   overflow: hidden;
@@ -267,40 +267,29 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  --accent-rgb: 103, 128, 193; /* Default Neutral */
 }
 
+/* Accent lines derived from a single RGB variable */
 .kpi-grid .card::before,
 .stats-strip .card::before,
-#categoryCards>div::before {
+#categoryCards > div::before {
   content: "";
   position: absolute;
   left: 0;
   right: 0;
   top: 0;
   height: 2px;
-  background: linear-gradient(90deg, rgba(107, 128, 193, 0.7), rgba(107, 128, 193, 0.1));
+  background: linear-gradient(90deg, rgba(var(--accent-rgb), 0.8), rgba(var(--accent-rgb), 0.1));
 }
 
-.kpi-grid .card:nth-child(1)::before,
-.kpi-grid .card:nth-child(3)::before,
-.stats-strip .card:nth-child(1)::before,
-#categoryCards>div:nth-child(1)::before,
-#categoryCards>div:nth-child(3)::before {
-  background: linear-gradient(90deg, #2fd3ad, rgba(47, 211, 173, 0.18));
-}
-
-.kpi-grid .card:nth-child(2)::before,
-.kpi-grid .card:nth-child(4)::before,
-.stats-strip .card:nth-child(2)::before,
-#categoryCards>div:nth-child(2)::before,
-#categoryCards>div:nth-child(4)::before {
-  background: linear-gradient(90deg, #647fff, rgba(100, 127, 255, 0.18));
-}
-
-.stats-strip .card:nth-child(3)::before,
-#categoryCards>div:nth-child(5)::before {
-  background: linear-gradient(90deg, #9f67ec, rgba(159, 103, 236, 0.18));
-}
+/* Individual accent overrides using classes instead of nth-child hacks */
+.accent-teal   { --accent-rgb: 47, 211, 173; }
+.accent-blue   { --accent-rgb: 100, 127, 255; }
+.accent-purple { --accent-rgb: 159, 103, 236; }
+.accent-gold   { --accent-rgb: 240, 162, 61; }
+.accent-red    { --accent-rgb: 239, 68, 68; }
+.accent-cyan   { --accent-rgb: 34, 211, 238; }
 
 .rank-card {
   border-color: rgba(107, 126, 190, 0.55);

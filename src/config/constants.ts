@@ -163,4 +163,14 @@ export const NUMBER_FIELD_MAP: Record<string, keyof TrackerDay> = {
   'topics-solved': 'problemsSolved',
 };
 
-
+// --- Nation Flags ---
+export const NATION_FLAGS: Record<string, string> = {
+  'Global': 'un',
+  'India': 'in',
+  'USA': 'us',
+  'UK': 'gb',
+  'Canada': 'ca',
+  'Germany': 'de',
+  'Japan': 'jp',
+  'Other': 'un'
+};

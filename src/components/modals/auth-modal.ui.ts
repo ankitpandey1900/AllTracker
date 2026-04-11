@@ -3,7 +3,7 @@
  */
 export const authModal = `
   <div class="modal" id="authModal">
-    <div class="modal-content" style="position: relative;">
+    <div class="modal-content">
       <div class="modal-header"
         style="justify-content: center; padding: 20px; border-bottom: 2px solid rgba(16, 185, 129, 0.2);">
         <div class="intel-label" style="color: #10b981; font-size: 0.85rem; font-weight: 800; letter-spacing: 2px;">
@@ -28,10 +28,10 @@ export const authModal = `
         </button>
       </div>
 
-      <div class="modal-body auth-views-container" style="padding: 30px; position: relative; overflow: hidden; min-height: 380px;">
+      <div class="modal-body auth-views-container">
         
         <!-- Login Form -->
-        <div id="authLoginView" style="position: absolute; top: 30px; left: 30px; right: 30px; transition: transform 0.3s ease, opacity 0.3s ease;">
+        <div id="authLoginView" class="auth-view active">
           <form id="loginForm">
             <div class="settings-group">
               <label>USER ID / HANDLE</label>
@@ -62,7 +62,7 @@ export const authModal = `
         </div>
 
         <!-- Legacy Logic -->
-        <div id="authLegacyView" style="position: absolute; top: 30px; left: 30px; right: 30px; transform: translateX(120%); opacity: 0; pointer-events: none; transition: transform 0.3s ease, opacity 0.3s ease;">
+        <div id="authLegacyView" class="auth-view">
           <div class="docs-callout docs-callout-info" style="margin-bottom: 20px; font-size: 0.7rem; padding: 12px;">
             Migrate from the old Sync ID system to the new Participant Identity.
           </div>
@@ -88,14 +88,31 @@ export const authModal = `
         </div>
 
         <!-- Register Form -->
-        <div id="authRegisterView" style="position: absolute; top: 30px; left: 30px; right: 30px; transform: translateX(120%); opacity: 0; pointer-events: none; transition: transform 0.3s ease, opacity 0.3s ease;">
+        <div id="authRegisterView" class="auth-view">
           <form id="registerForm">
+            <!-- Sector 01: Identity -->
+            <div class="auth-sector-label" style="font-size: 0.6rem; color: #10b981; font-weight: 800; letter-spacing: 2px; margin-bottom: 12px; opacity: 0.7;">[ SECTOR 01: IDENTITY ]</div>
             <div class="settings-group">
-              <label>CHOOSE USER ID</label>
+              <label>USER ID / HANDLE</label>
               <input id="regUsernameInput" class="input" placeholder="Permanent unique handle" required />
               <p id="regUsernameStatus" style="font-size: 0.6rem; color: #94a3b8; margin-top: 4px;">Locked after creation. Visible on World Stage.</p>
             </div>
+
+            <!-- Sector 02: Contact Archive -->
+            <div class="auth-sector-label" style="font-size: 0.6rem; color: #10b981; font-weight: 800; letter-spacing: 2px; margin: 20px 0 12px; opacity: 0.7;">[ SECTOR 02: CONTACT ]</div>
+            <div class="settings-group">
+              <label>EMAIL ADDRESS</label>
+              <input id="regEmailInput" class="input" type="email" placeholder="pilot@gmail.com" required />
+            </div>
+
             <div class="settings-group" style="margin-top: 15px;">
+              <label>MOBILE NUMBER</label>
+              <input id="regPhoneInput" class="input" type="tel" placeholder="+91 00000 00000" required />
+            </div>
+
+            <!-- Sector 03: Security -->
+            <div class="auth-sector-label" style="font-size: 0.6rem; color: #10b981; font-weight: 800; letter-spacing: 2px; margin: 20px 0 12px; opacity: 0.7;">[ SECTOR 03: ENCRYPTION ]</div>
+            <div class="settings-group">
               <label>VAULT KEY</label>
               <div class="input-with-eye" style="position: relative;">
                 <input id="regPasswordInput" class="input" type="password" placeholder="At least 6 characters" required />
@@ -103,10 +120,13 @@ export const authModal = `
                   style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;">👁️</span>
               </div>
             </div>
-            <div class="grid-2" style="margin-top: 15px;">
+
+            <!-- Sector 04: Specs -->
+            <div class="auth-sector-label" style="font-size: 0.6rem; color: #10b981; font-weight: 800; letter-spacing: 2px; margin: 20px 0 12px; opacity: 0.7;">[ SECTOR 04: PILOT SPECS ]</div>
+            <div class="grid-2">
               <div class="settings-group">
-                <label>AGE</label>
-                <input id="regAgeInput" class="input" type="number" placeholder="Years" required />
+                <label>DATE OF BIRTH</label>
+                <input id="regDobInput" class="input" type="date" required />
               </div>
               <div class="settings-group">
                 <label>NATION</label>
@@ -122,6 +142,7 @@ export const authModal = `
                 </select>
               </div>
             </div>
+
             <div id="regErrorMsg" class="auth-error-msg"
               style="display: none; color: #ef4444; font-size: 0.75rem; margin-top: 15px; background: rgba(239, 68, 68, 0.1); padding: 10px; border-radius: 6px; border: 1px solid rgba(239, 68, 68, 0.3);">
             </div>
@@ -129,11 +150,12 @@ export const authModal = `
               style="margin-top: 25px; padding: 14px; background: #10b981; border: none; font-weight: 800; letter-spacing: 1px;">
               INITIALIZE IDENTITY
             </button>
+            <div style="height: 10px;"></div>
           </form>
         </div>
 
         <!-- Recovery Logic (Forgot Key) -->
-        <div id="authRecoveryView" style="position: absolute; top: 30px; left: 30px; right: 30px; transform: translateX(120%); opacity: 0; pointer-events: none; transition: transform 0.3s ease, opacity 0.3s ease;">
+        <div id="authRecoveryView" class="auth-view">
           <div class="docs-callout docs-callout-warning" style="margin-bottom: 20px; font-size: 0.7rem; padding: 12px;">
             Use your 12-character Recovery Key to decrypt vault data.
           </div>

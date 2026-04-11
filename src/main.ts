@@ -34,8 +34,10 @@ import {
   loadTimerStateFromStorage,
   saveTrackerDataToStorage,
   performBackgroundSync,
+  handleUserDataSync
 } from "@/services/data-bridge";
 import { initSyncAuth, setupHeaderScroll } from "@/services/auth.service";
+import { subscribeToUserDataSync } from "@/services/supabase.service";
 import { initUI } from "@/components/ui-registry";
 
 // ─── Study Categories ────────────────────────────────────────────────
@@ -93,7 +95,9 @@ import {
   renderBulkEntryFields,
   scrollToToday,
 } from "@/features/shortcuts/shortcuts";
-import { initWorldStage, checkProfileIdentity, syncProfileBroadcast } from "@/features/dashboard/leaderboard";
+import { initWorldStage } from "@/features/dashboard/leaderboard";
+import { checkProfileIdentity, syncProfileBroadcast } from "@/features/profile/profile.manager";
+
 
 // --- App Start ---
 
@@ -159,6 +163,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     initTasks();
     await checkDailyRoutineReset();
 
+    // ⚡ REAL-TIME SYNC BOOT: Listen for remote changes on other devices
+    subscribeToUserDataSync(handleUserDataSync);
+
     const [
       { initManualLogic },
       { initNotifications },
@@ -207,7 +214,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   
   // Safety fallback: if anything above fails/hangs, ensure loader is gone after 5s
   setTimeout(removeLoader, 5000);
+
+  // 📡 REACTIVE HEADER SYNC: Update username in header instantly
+  window.addEventListener('all-tracker-identity-sync', (e: any) => {
+    const profile = e.detail;
+    if (profile && profile.displayName) {
+      document.querySelectorAll('.headerUserAlias').forEach(el => {
+        el.textContent = profile.displayName;
+      });
+    }
+  });
 });
+
 
 // --- Logic for Buttons and Navigation ---
 

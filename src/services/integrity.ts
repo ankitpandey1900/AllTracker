@@ -105,7 +105,7 @@ function runIntegrityChecks(): void {
     saveTrackerDataToStorage(appState.trackerData);
     
     // Refresh Global Leaderboard
-    import('@/features/dashboard/leaderboard').then(m => m.syncProfileBroadcast());
+    import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast());
     
     // Refresh Local UI if visible
     import('@/features/tracker/tracker').then(m => m.generateTable());

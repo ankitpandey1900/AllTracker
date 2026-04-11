@@ -1,3 +1,4 @@
+import { getSecureLocalProfileString, setSecureLocalProfileString } from '@/utils/security';
 /**
  * Handles the login/logout logic.
  * 
@@ -34,14 +35,14 @@ export function initSyncAuth(): void {
   }
 
   // Security fix: Remove the plain-text syncId from the profile object if it's still there.
-  const profileRaw = localStorage.getItem(STORAGE_KEYS.USER_PROFILE);
+  const profileRaw = getSecureLocalProfileString();
   if (profileRaw) {
     try {
       const profile = JSON.parse(profileRaw);
       if (profile.syncId) {
         console.log('Security Patch: Purging sensitive Sync-ID from Profile cache...');
         delete profile.syncId;
-        localStorage.setItem(STORAGE_KEYS.USER_PROFILE, JSON.stringify(profile));
+        setSecureLocalProfileString(JSON.stringify(profile));
       }
     } catch (e) { /* skip malformed junk */ }
   }
@@ -137,6 +138,7 @@ export function initSyncAuth(): void {
 function switchAuthTab(tab: 'login' | 'register' | 'legacy' | 'recovery'): void {
   const loginBtn = document.getElementById('tabLoginBtn');
   const regBtn = document.getElementById('tabRegisterBtn');
+  
   const loginView = document.getElementById('authLoginView');
   const regView = document.getElementById('authRegisterView');
   const legacyView = document.getElementById('authLegacyView');
@@ -154,53 +156,33 @@ function switchAuthTab(tab: 'login' | 'register' | 'legacy' | 'recovery'): void 
 
   if (!loginBtn || !regBtn || !loginView || !regView || !legacyView || !recView) return;
 
-  const views = [loginView, regView, legacyView, recView];
-  views.forEach(v => {
-    v.style.transform = 'translateX(120%)';
-    v.style.opacity = '0';
-    v.style.pointerEvents = 'none';
+  // 1. Reset Tabs
+  const allTabs = document.querySelectorAll('.auth-tab');
+  allTabs.forEach(t => {
+     (t as HTMLElement).classList.remove('active');
+     (t as HTMLElement).style.borderBottomColor = 'transparent';
+     (t as HTMLElement).style.color = '#64748b';
   });
 
+  // 2. Hide all Views
+  const views = [loginView, regView, legacyView, recView];
+  views.forEach(v => v.classList.remove('active'));
+
+  // 3. Activate Target
   if (tab === 'login') {
     loginBtn.classList.add('active');
     loginBtn.style.borderBottomColor = '#10b981';
     loginBtn.style.color = '#fff';
-    regBtn.classList.remove('active');
-    regBtn.style.borderBottomColor = 'transparent';
-    regBtn.style.color = '#64748b';
-    loginView.style.transform = 'translateX(0)';
-    loginView.style.opacity = '1';
-    loginView.style.pointerEvents = 'auto';
+    loginView.classList.add('active');
   } else if (tab === 'register') {
     regBtn.classList.add('active');
     regBtn.style.borderBottomColor = '#10b981';
     regBtn.style.color = '#fff';
-    loginBtn.classList.remove('active');
-    loginBtn.style.borderBottomColor = 'transparent';
-    loginBtn.style.color = '#64748b';
-    regView.style.transform = 'translateX(0)';
-    regView.style.opacity = '1';
-    regView.style.pointerEvents = 'auto';
+    regView.classList.add('active');
   } else if (tab === 'legacy') {
-    regBtn.classList.remove('active');
-    regBtn.style.borderBottomColor = 'transparent';
-    regBtn.style.color = '#64748b';
-    loginBtn.classList.remove('active');
-    loginBtn.style.borderBottomColor = 'transparent';
-    loginBtn.style.color = '#64748b';
-    legacyView.style.transform = 'translateX(0)';
-    legacyView.style.opacity = '1';
-    legacyView.style.pointerEvents = 'auto';
+    legacyView.classList.add('active');
   } else if (tab === 'recovery') {
-    regBtn.classList.remove('active');
-    regBtn.style.borderBottomColor = 'transparent';
-    regBtn.style.color = '#64748b';
-    loginBtn.classList.remove('active');
-    loginBtn.style.borderBottomColor = 'transparent';
-    loginBtn.style.color = '#64748b';
-    recView.style.transform = 'translateX(0)';
-    recView.style.opacity = '1';
-    recView.style.pointerEvents = 'auto';
+    recView.classList.add('active');
   }
 }
 
@@ -243,13 +225,16 @@ async function handleSyncIdEstablished(syncId: string): Promise<void> {
     const cloudProfile = await loadUserProfileCloud();
     
     if (cloudProfile) {
-      const localProfile = {
+      const localProfile: any = {
         displayName: cloudProfile.display_name,
-        age: cloudProfile.age,
+        dob: cloudProfile.dob,
         nation: cloudProfile.nation,
-        avatar: cloudProfile.avatar
+        avatar: cloudProfile.avatar,
+        phoneNumber: cloudProfile.phone_number,
+        isFocusPublic: cloudProfile.is_focus_public,
+        email: cloudProfile.email
       };
-      localStorage.setItem(STORAGE_KEYS.USER_PROFILE, JSON.stringify(localProfile));
+      setSecureLocalProfileString(JSON.stringify(localProfile));
       localStorage.setItem('tracker_username', localProfile.displayName);
       console.log(`✅ IDENTITY HYDRATED: Loaded @${localProfile.displayName} from cloud.`);
       
@@ -287,7 +272,7 @@ export function updateHeaderProfileUI(): void {
   if (!headerRight) return;
 
   const userAlias = localStorage.getItem('tracker_username') || 'Tracker User';
-  const profileSaved = localStorage.getItem(STORAGE_KEYS.USER_PROFILE);
+  const profileSaved = getSecureLocalProfileString();
   let avatarIcon = '👤';
   
   if (profileSaved) {
@@ -328,7 +313,11 @@ export function updateHeaderProfileUI(): void {
 function handleUserSignedOut(): void {
   currentSyncId = null;
   localStorage.removeItem(STORAGE_KEYS.SYNC_ID);
+  localStorage.removeItem('tracker_username');
   console.log('Sync ID disconnected.');
+
+  // 📡 GLOBAL IDENTITY RESET: Notify components to clear stale views
+  window.dispatchEvent(new CustomEvent('all-tracker-identity-sync', { detail: null }));
 
   const headerRight = document.getElementById('headerRight');
   if (headerRight) {
@@ -444,7 +433,7 @@ async function handleLegacySubmission(e: Event): Promise<void> {
     // Force Open the Profile Setup Modal so they can formally "Migrate"
     setTimeout(async () => {
       alert("Legacy Vault Recovered. Please complete your Official Identity Profile to finalize migration.");
-      const { openProfileModal } = await import('@/features/dashboard/leaderboard');
+      const { openProfileModal } = await import('@/features/profile/profile.ui');
       openProfileModal();
     }, 1000);
 
@@ -513,27 +502,50 @@ async function handleRegistrationSubmission(e: Event): Promise<void> {
 
   const userInp = document.getElementById('regUsernameInput') as HTMLInputElement;
   const passInp = document.getElementById('regPasswordInput') as HTMLInputElement;
-  const ageInp = document.getElementById('regAgeInput') as HTMLInputElement;
+  const dobInp = document.getElementById('regDobInput') as HTMLInputElement;
   const nationSel = document.getElementById('regNationSelect') as HTMLSelectElement;
+  const emailInp = document.getElementById('regEmailInput') as HTMLInputElement;
+  const phoneInp = document.getElementById('regPhoneInput') as HTMLInputElement;
   const submitBtn = document.getElementById('regSubmitBtn') as HTMLButtonElement;
   const errorMsg = document.getElementById('regErrorMsg') as HTMLElement;
 
   const username = userInp.value.trim();
   const password = passInp.value.trim();
-  const age = parseInt(ageInp.value) || 0;
+  const dob = dobInp.value;
   const nation = nationSel.value;
+  const email = emailInp.value.trim();
+  const phone = phoneInp.value.trim();
 
-  if (!username || !password || !age || !nation) return;
+  if (!username || !password || !dob || !nation || !email || !phone) return;
 
   submitBtn.disabled = true;
   submitBtn.textContent = 'INITIALIZING PROFILE...';
   errorMsg.style.display = 'none';
 
   try {
-    // 1. Check if Username is taken
+    // 1. Check if Username, Email, or Phone is taken
+    const { isEmailTaken, isPhoneTaken } = await import('./supabase.service');
     const nameTaken = await isUsernameTaken(username);
     if (nameTaken) {
-      errorMsg.textContent = `The handle "@${username}" is already claimed. Choose another.`;
+      errorMsg.textContent = `IDENTITY CONFLICT: The handle "@${username}" is already claimed.`;
+      errorMsg.style.display = 'block';
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'CREATE MISSION PROFILE';
+      return;
+    }
+
+    const emailTaken = await isEmailTaken(email);
+    if (emailTaken) {
+      errorMsg.textContent = `IDENTITY CONFLICT: This Email is already linked to another Vault.`;
+      errorMsg.style.display = 'block';
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'CREATE MISSION PROFILE';
+      return;
+    }
+
+    const phoneTaken = await isPhoneTaken(phone);
+    if (phoneTaken) {
+      errorMsg.textContent = `IDENTITY CONFLICT: This Mobile Number is already registered.`;
       errorMsg.style.display = 'block';
       submitBtn.disabled = false;
       submitBtn.textContent = 'CREATE MISSION PROFILE';
@@ -558,10 +570,13 @@ async function handleRegistrationSubmission(e: Event): Promise<void> {
 
     await broadcastGlobalStats({
       display_name: username,
-      age: age,
+      dob: dob,
       nation: nation,
       current_rank: 'PILOT',
-      recovery_key: recoveryKey
+      recovery_key: recoveryKey,
+      phone_number: phone,
+      is_focus_public: true, // Default to public on first reg
+      email: email
     } as any);
 
     // 4. Initialization successful
@@ -592,7 +607,7 @@ function rebindAliasTrigger(): void {
   if (aliasBtn) {
     aliasBtn.onclick = async () => {
       console.log('Identity Portal Triggered');
-      const { openProfileModal } = await import('@/features/dashboard/leaderboard');
+      const { openProfileModal } = await import('@/features/profile/profile.ui');
       openProfileModal();
     };
   }

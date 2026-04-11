@@ -401,16 +401,19 @@ tr.locked-row .checkmark {
   }
 
   table {
-    min-width: 700px; /* Force tactical density */
+    min-width: 700px;
+    /* Force tactical density */
   }
 
-  th, td {
+  th,
+  td {
     padding: 12px 10px;
     font-size: 0.75rem;
   }
 
   /* Heroic Duration Column */
-  td:nth-child(4), th:nth-child(4) {
+  td:nth-child(4),
+  th:nth-child(4) {
     color: var(--accent-gold);
     font-weight: 700;
     background: rgba(240, 162, 61, 0.03);

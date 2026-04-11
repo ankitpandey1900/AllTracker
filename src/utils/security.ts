@@ -115,3 +115,41 @@ export function escapeHtml(text: string): string {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
 }
+
+/** 
+ * Safely fetches and decrypts the PII from the local storage profile.
+ * Returns a JSON string identical to localStorage.getItem behavior.
+ */
+export function getSecureLocalProfileString(): string | null {
+  const saved = localStorage.getItem('studyTrackerUserProfile');
+  if (!saved) return null;
+  try {
+    const p = JSON.parse(saved);
+    if (p.phoneNumber && isObfuscated(p.phoneNumber)) p.phoneNumber = deobfuscate(p.phoneNumber);
+    if (p.email && isObfuscated(p.email)) p.email = deobfuscate(p.email);
+    if (p.realName && isObfuscated(p.realName)) p.realName = deobfuscate(p.realName);
+    return JSON.stringify(p);
+  } catch (e) {
+    return saved;
+  }
+}
+
+/** 
+ * Scrambles the PII and saves the profile to local storage.
+ * Takes a JSON string identical to localStorage.setItem behavior.
+ */
+export function setSecureLocalProfileString(value: string | null): void {
+  if (!value) {
+    localStorage.removeItem('studyTrackerUserProfile');
+    return;
+  }
+  try {
+    const sec = JSON.parse(value);
+    if (sec.phoneNumber && !isObfuscated(sec.phoneNumber)) sec.phoneNumber = obfuscate(sec.phoneNumber);
+    if (sec.email && !isObfuscated(sec.email)) sec.email = obfuscate(sec.email);
+    if (sec.realName && !isObfuscated(sec.realName)) sec.realName = obfuscate(sec.realName);
+    localStorage.setItem('studyTrackerUserProfile', JSON.stringify(sec));
+  } catch(e) {
+     localStorage.setItem('studyTrackerUserProfile', value);
+  }
+}

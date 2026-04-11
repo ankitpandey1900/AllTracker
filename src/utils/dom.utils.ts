@@ -8,7 +8,12 @@
 // --- Pop-up messages (Toasts) ---
 
 /** Show a quick message on the screen */
-export function showToast(message: string, type: 'success' | 'error' | 'warning' | 'info' = 'info', duration = 3000): void {
+export function showToast(
+  message: string, 
+  type: 'success' | 'error' | 'warning' | 'info' = 'info', 
+  duration = 3000,
+  onClick?: () => void
+): void {
   let container = document.getElementById('toastContainer');
 
   // Auto-create toast container if missing
@@ -20,7 +25,14 @@ export function showToast(message: string, type: 'success' | 'error' | 'warning'
   }
 
   const toast = document.createElement('div');
-  toast.className = `toast ${type}`;
+  toast.className = `toast ${type} ${onClick ? 'clickable' : ''}`;
+  if (onClick) {
+    toast.onclick = (e) => {
+      if ((e.target as HTMLElement).classList.contains('toast-close')) return;
+      onClick();
+      toast.remove();
+    };
+  }
 
   const icons: Record<string, string> = {
     success: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>',

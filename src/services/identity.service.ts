@@ -1,3 +1,4 @@
+import { getSecureLocalProfileString, setSecureLocalProfileString } from '@/utils/security';
 /**
  * Identity service
  * 
@@ -46,12 +47,12 @@ export async function initiateIdentityMigration(newSecretKey: string): Promise<b
 
 /** Links a username to the current Secret Key in the local profile */
 export function bindIdentityToLocalProfile(username: string): void {
-  const saved = localStorage.getItem(STORAGE_KEYS.USER_PROFILE);
+  const saved = getSecureLocalProfileString();
   if (!saved) return;
 
   const profile = JSON.parse(saved);
   profile.displayName = username;
 
-  localStorage.setItem(STORAGE_KEYS.USER_PROFILE, JSON.stringify(profile));
+  setSecureLocalProfileString(JSON.stringify(profile));
   localStorage.setItem('tracker_username', username);
 }

@@ -12,7 +12,7 @@ import { showToast } from '@/utils/dom.utils';
 import { saveTrackerDataToStorage } from '@/services/data-bridge';
 import type { TrackerDay } from '@/types/tracker.types';
 import { isRowEditable } from '@/services/integrity';
-import { syncProfileBroadcast } from '@/features/dashboard/leaderboard';
+import { syncProfileBroadcast } from '@/features/profile/profile.manager';
 import { escapeHtml } from '@/utils/security';
 
 
@@ -76,13 +76,13 @@ export function generateTable(): void {
           ${!editable ? '<span class="lock-icon" title="Locked by Iron-Gate Integrity Engine">🔒</span>' : ''}
         </td>
         <td class="date-cell">${formatDate(new Date(day.date))}</td>
-        ${dayLabels.length > 0 
-          ? dayLabels.map((label: string, ci: number) => {
-              const v = getHourAt(day, ci);
-              return `<td><input type="number" class="cell-input hour-input" data-col="${ci}" value="${v}" min="0" step="0.5" title="${label}" ${!editable ? 'disabled' : ''}></td>`;
-            }).join('') 
-          : `<td colspan="1" class="no-cat-warning">No Categories Defined (Check Settings)</td>`
-        }
+        ${dayLabels.length > 0
+        ? dayLabels.map((label: string, ci: number) => {
+          const v = getHourAt(day, ci);
+          return `<td><input type="number" class="cell-input hour-input" data-col="${ci}" value="${v}" min="0" step="0.5" title="${label}" ${!editable ? 'disabled' : ''}></td>`;
+        }).join('')
+        : `<td colspan="1" class="no-cat-warning">No Categories Defined (Check Settings)</td>`
+      }
         <td><input type="number" class="cell-input topics-solved" value="${day.problemsSolved}" min="0" step="1" ${!editable ? 'disabled' : ''}></td>
         <td>
           <div class="topics-cell">
@@ -238,7 +238,7 @@ function handleRestDayToggle(e: Event): void {
   if (idx < 0) return;
 
   const day = appState.trackerData[idx];
-  
+
   // Validation: Only 4 rest days allowed in a rolling 30-day window
   if (!day.restDay) {
     const targetDate = new Date(day.date);
@@ -257,7 +257,7 @@ function handleRestDayToggle(e: Event): void {
   }
 
   day.restDay = !day.restDay;
-  
+
   if (day.restDay) {
     day.completed = false; // Cannot be both completed and rest
   }
@@ -265,7 +265,7 @@ function handleRestDayToggle(e: Event): void {
   saveTrackerDataToStorage(appState.trackerData);
   generateTable(); // Refresh to update visuals
   syncProfileBroadcast();
-  
+
   // Also update dashboard to refresh streak
   import('@/features/dashboard/dashboard').then(m => m.updateDashboard());
 }

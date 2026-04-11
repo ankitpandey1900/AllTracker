@@ -37,6 +37,21 @@ Your identity is cloud-first.
 -   **Cross-Device Sync**: Use your Secret Key to reclaim your handle, archetype, and study history on any device instantly.
 -   **V3 Identity Vault**: All sensitive mission data is mathematically locked to your identity for maximum operational privacy. API keys are strictly inaccessible without your personal Secret ID.
 
+## 🛰️ Tactical Telemetry & HUD
+The World Stage and your Pilot Passport use high-fidelity telemetry to track global and personal performance.
+
+### Global Command Center (Leaderboard HUD)
+- **GLOBAL_OPERATIVES**: Total number of registered pilots in the All Tracker ecosystem.
+- **LIVE_MISSIONS**: Number of pilots currently synchronized and active in a focus session.
+- **XP_VELOCITY_24H**: The total aggregate focus hours logged by all pilots in the last 24 hours.
+- **AGGREGATE_INTEL**: The total lifetime focus hours recorded across the entire platform.
+
+### Personal Pilot Passport
+- **LIFETIME_EXP**: Your total career focus hours across all missions.
+- **SESSION_LOG**: Your total focus hours for the current calendar day (resets at midnight).
+- **BEST_STREAK**: Your all-time record for consecutive mission days.
+- **MISSION_STATUS**: Your real-time uplink status (IDLE, FOCUSING, or REFUELING).
+
 ## 🌒 Midnight Mission Protocol
 Never lose a minute to the clock. If you start a session at 11:45 PM and finish at 12:15 AM:
 -   The system **mathematically splits** your time.

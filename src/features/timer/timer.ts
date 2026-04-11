@@ -8,9 +8,9 @@
 
 import { appState, getColumnsForDay } from '@/state/app-state';
 import { STORAGE_KEYS } from '@/config/constants';
-import { syncProfileBroadcast } from '@/features/dashboard/leaderboard';
-import { saveTimerStateCloud, updateSyncStatus } from '@/services/supabase.service';
-import { saveTrackerDataToStorage, saveSettingsToStorage, saveTimerStateToStorage } from '@/services/data-bridge';
+import { syncProfileBroadcast } from '@/features/profile/profile.manager';
+import { saveTimerStateCloud, updateSyncStatus, SyncIndicator } from '@/services/supabase.service';
+import { saveTrackerDataToStorage, saveSettingsToStorage, saveTimerStateToStorage, clearTimerStateDB } from '@/services/data-bridge';
 import { generateTable } from '@/features/tracker/tracker';
 import { updateDashboard, toggleFocusHUD } from '@/features/dashboard/dashboard';
 import { renderHeatmap } from '@/features/heatmap/heatmap';
@@ -23,45 +23,41 @@ import { showToast } from '@/utils/dom.utils';
  */
 export function initTimerModules(): void {
   // Connectivity Listeners
-  window.addEventListener('online',  () => updateSyncIndicator(true));
-  window.addEventListener('offline', () => updateSyncIndicator(false));
+  window.addEventListener('online',  () => SyncIndicator.update('synced'));
+  window.addEventListener('offline', () => SyncIndicator.update('offline'));
   
   // Initial Check
-  updateSyncIndicator(window.navigator.onLine);
+  SyncIndicator.update(window.navigator.onLine ? 'synced' : 'offline');
+
+  // Split-Brain Timer Sync (Listen for cross-device pauses)
+  import('@/services/supabase.service').then(({ subscribeToRealtimeTelemetry }) => {
+    subscribeToRealtimeTelemetry(async (payload) => {
+      const { getCurrentUserId } = await import('@/services/auth.service');
+      const me = getCurrentUserId();
+      // If the telemetry event is for this user
+      if (payload.new && payload.new.id === me) {
+         const newIsFocusing = payload.new.is_focusing;
+         if (appState.activeTimer.isRunning && !newIsFocusing) {
+            console.log('🚨 SILENT OVERRIDE: External pause detected. Freezing local timer...');
+            const { loadTimerStateFromStorage } = await import('@/services/data-bridge');
+            const cloudState = await loadTimerStateFromStorage();
+            if (cloudState) Object.assign(appState.activeTimer, cloudState);
+            updateTimerDisplay();
+         }
+      }
+    });
+  });
 }
 
-/** Updates the HUD cloud icon color based on network status */
-export function updateSyncIndicator(isOnline: boolean): void {
-  const el = document.getElementById('timerSyncStatus');
-  if (!el) return;
-
-  if (isOnline) {
-    el.classList.add('sync-live');
-    el.classList.remove('sync-offline');
-    el.title = "Cloud Sync Active";
-  } else {
-    el.classList.add('sync-offline');
-    el.classList.remove('sync-live');
-    el.title = "Offline: Saving Locally";
-  }
-}
+// HUD Sync logic centralized in supabase.service.ts
 
 // --- Timer State ---
 
 let isStopping = false; // Stops the 'stop' function from running twice at once
 
-export function loadTimerState(): void {
-  const saved = localStorage.getItem(STORAGE_KEYS.TIMER);
-  if (saved) {
-    try {
-      Object.assign(appState.activeTimer, JSON.parse(saved));
-    } catch { /* noop */ }
-  }
-}
-
+/** DB-First save — writes exclusively to Supabase via the Data Bridge. */
 function saveTimerState(): void {
-  saveTimerStateToStorage(appState.activeTimer);
-  saveTimerStateCloud(appState.activeTimer);
+  saveTimerStateToStorage(appState.activeTimer); // pure DB call (Data Bridge handles the Cloud sync)
 }
 
 // --- Timer Controls ---
@@ -90,7 +86,7 @@ export function startTimer(categoryIdx: number, categoryName: string): void {
   showToast(`Timer started for ${categoryName}`, 'success');
   
   // 📡 WORLD STAGE: Broadcast status instantly
-  import('@/features/dashboard/leaderboard').then(m => m.syncProfileBroadcast());
+  import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast());
 }
 
 export function pauseTimer(): void {
@@ -106,10 +102,10 @@ export function pauseTimer(): void {
   updateTimerUI(true);
 
   // 📡 WORLD STAGE: Broadcast status instantly (Away/Paused)
-  import('@/features/dashboard/leaderboard').then(m => m.syncProfileBroadcast());
+  import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast());
 }
 
-export async function stopTimer(): Promise<void> {
+export async function stopTimer(autoNote?: string): Promise<void> {
   if (isStopping) return;
   if (!appState.activeTimer.isRunning && appState.activeTimer.elapsedAcc === 0) return;
 
@@ -122,8 +118,8 @@ export async function stopTimer(): Promise<void> {
   }
   const totalHours = Math.floor(totalElapsed / 1000) / 3600;
 
-  // Show the popup to add a note for the session
-  const note = await showSessionNoteModal();
+  // Show the popup to add a note for the session UNLESS it's an auto-stop
+  const note = autoNote || await showSessionNoteModal();
 
   try {
     if (totalElapsed > 0 && appState.activeTimer.category !== null) {
@@ -131,12 +127,10 @@ export async function stopTimer(): Promise<void> {
       const sessionStart = appState.activeTimer.sessionStartClock ? new Date(appState.activeTimer.sessionStartClock) : new Date();
       const sessionEnd = new Date();
       
-      // Check if the study session started yesterday and ended today
       const startDayStr = sessionStart.toISOString().split('T')[0];
       const endDayStr = sessionEnd.toISOString().split('T')[0];
 
       if (startDayStr !== endDayStr) {
-        // MIDNIGHT SPLIT: If you study past 12:00 AM, we split the time between two days.
         const midnight = new Date(sessionEnd);
         midnight.setHours(0, 0, 0, 0);
 
@@ -146,16 +140,13 @@ export async function stopTimer(): Promise<void> {
         const hoursBefore = Math.max(0, msBefore / (1000 * 60 * 60));
         const hoursAfter = Math.max(0, msAfter / (1000 * 60 * 60));
 
-        // Save part 1 (Start Day)
         saveSessionToDate(colIdx, hoursBefore, note, sessionStart);
-        // Save part 2 (End Day)
         saveSessionToDate(colIdx, hoursAfter, note, sessionEnd);
 
         showToast(`Midnight Split: ${hoursBefore.toFixed(2)}h (Yesterday) + ${hoursAfter.toFixed(2)}h (Today)`, 'success');
       } else {
-        // NORMAL SAVE
         saveSessionToDate(colIdx, totalHours, note, sessionEnd);
-        showToast(`Session saved: ${formatMsToTime(totalElapsed)}`, 'success');
+        showToast(autoNote ? `Auto-Safe Triggered: ${formatMsToTime(totalElapsed)}` : `Session saved: ${formatMsToTime(totalElapsed)}`, 'success');
       }
     }
   } catch (error) {
@@ -190,6 +181,42 @@ export async function stopTimer(): Promise<void> {
   renderHeatmap();
   renderPerformanceCurve();
   generateTable();
+}
+
+/** Kills the session instantly — no note, no data saved.
+ * Uses clearTimerStateDB() to guarantee the DB record is zeroed
+ * before the user can refresh, eliminating the resurrection bug. */
+export async function terminateTimer(): Promise<void> {
+  if (!appState.activeTimer.isRunning && appState.activeTimer.elapsedAcc === 0) return;
+
+  const confirmed = confirm('TERMINATE SESSION?\n\nThis will discard all time. Nothing will be saved.');
+  if (!confirmed) return;
+
+  // Stop the local tick immediately
+  if (appState.timerInterval) clearInterval(appState.timerInterval);
+
+  // Zero out in-memory state
+  appState.activeTimer.isRunning = false;
+  appState.activeTimer.elapsedAcc = 0;
+  appState.activeTimer.startTime = null;
+  appState.activeTimer.category = null;
+  appState.activeTimer.colName = '';
+  appState.activeTimer.sessionStartClock = null;
+
+  // ✅ ATOMIC DB CLEAR: await guarantees cloud is zeroed before any refresh can happen
+  await clearTimerStateDB();
+
+  // Dismiss HUD
+  document.body.classList.remove('focus-mode', 'focus-minimized');
+  const section = document.getElementById('activeTimerSection');
+  if (section) section.style.display = 'none';
+  document.getElementById('timerModal')?.classList.remove('active');
+
+  updateTimerUI(false);
+  showToast('Session terminated. No data recorded.', 'error');
+
+  // Broadcast Idle telemetry so leaderboard/HUD reflects Idle state
+  syncProfileBroadcast();
 }
 
 async function showSessionNoteModal(): Promise<string> {
@@ -480,34 +507,23 @@ export function openTimerModal(): void {
 export function resumeTimerIfNeeded(): void {
   const { isRunning, startTime, elapsedAcc } = appState.activeTimer;
 
-  // 1. Handle Remote Stop: If timer was running locally but is now stopped on another device
   if (!isRunning) {
     if (appState.timerInterval) {
       clearInterval(appState.timerInterval);
       appState.timerInterval = null;
     }
     updateTimerUI(false);
-    
-    // If we have some elapsed time showing, we keep it visible in the UI pause state
-    // but if elapsedAcc is 0, it means it was fully stopped/saved.
-    if (elapsedAcc === 0) {
-       return; 
-    }
+    if (elapsedAcc === 0) return; 
   }
 
-  // 2. Check for abandoned sessions (over 18 hours) and reset them
+  // 🛡️ SELF-HEAL: Abandoned sessions (over 5 hours) - Aligned to Overrun Guard
   if (isRunning && startTime) {
     const elapsedNow = Date.now() - startTime;
-    const TOTAL_IMPOSSIBLE_MS = 18 * 60 * 60 * 1000; // 18 Hours
+    const FIVE_HOURS_MS = 5 * 60 * 60 * 1000; 
 
-    if (elapsedNow > TOTAL_IMPOSSIBLE_MS) {
-      console.warn('[Timer] Self-healing: Detected abandoned session (>18h). Resetting.');
-      appState.activeTimer.isRunning = false;
-      appState.activeTimer.startTime = null;
-      appState.activeTimer.elapsedAcc = 0;
-      saveTimerState();
-      showToast('Long inactivity detected. Timer has been reset.', 'info');
-      updateTimerUI(false);
+    if (elapsedNow > FIVE_HOURS_MS) {
+      console.warn('[Timer] Self-healing: Detected abandoned session (>5h). Auto-Save Triggered.');
+      stopTimer('[AUTO-SAFE] Post-Crash/Inactivity Recovered');
       return;
     }
   }
@@ -534,7 +550,7 @@ export function resumeTimerIfNeeded(): void {
     if (isRunning) {
       startTimerInterval();
       // Re-broadcast with the correct (possibly self-healed) colName
-      import('@/features/dashboard/leaderboard').then(m => m.syncProfileBroadcast());
+      import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast());
     }
     updateTimerUI(true);
     updateTimerDisplay();
@@ -575,6 +591,10 @@ export function setupFocusListeners(): void {
     });
   }
 
+  // Wire up Terminate Button
+  const terminateBtn = document.getElementById('timerTerminateBtn');
+  if (terminateBtn) terminateBtn.addEventListener('click', () => terminateTimer());
+
   // Draggable Logic
   let currX = 0, currY = 0;
   if (hudSection) {
@@ -582,7 +602,7 @@ export function setupFocusListeners(): void {
     let lastX = 0, lastY = 0;
 
     // Prevent drag when interacting with buttons
-    [pauseBtn, stopBtn].forEach(btn => {
+    [pauseBtn, stopBtn, terminateBtn].forEach(btn => {
       btn?.addEventListener('mousedown', (e) => e.stopPropagation());
       btn?.addEventListener('touchstart', (e) => e.stopPropagation());
     });

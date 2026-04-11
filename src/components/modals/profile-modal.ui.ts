@@ -1,167 +1,161 @@
 /**
- * The Pilot Profile / Identity editor modal.
+ * The Social Study Profile / Identity editor modal.
  */
 export const profileModal = `
   <div class="modal" id="profileSetupModal">
-    <div class="modal-content" style="max-width: 440px;">
-      <div class="modal-header" style="border: none; padding: 0;">
-        <div class="passport-header profile-passport-card" style="width: 100%; border-radius: 12px 12px 0 0; border-bottom: 1px solid rgba(16, 185, 129, 0.3);">
-          <div class="passport-avatar-box">
-            <div class="passport-avatar" id="passportAvatar">👤</div>
-          </div>
-          <div class="passport-identity">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <span class="passport-handle" id="displayHandle" style="font-weight: 900; font-size: 1.2rem; color: #fff; letter-spacing: -0.5px;">@User</span>
-              <span id="verifiedBadge" style="font-size: 0.6rem; background: rgba(16, 185, 129, 0.15); color: #10b981; padding: 3px 8px; border-radius: 4px; border: 1px solid rgba(16, 185, 129, 0.3); font-weight: 900; letter-spacing: 1px; text-transform: uppercase;">VERIFIED</span>
+    <div class="modal-content social-profile-card">
+      
+      <!-- 🔄 VAULT SWAP CONTAINER -->
+      <div class="vault-swap-container">
+        
+        <!-- 🪪 PANE 1: THE SOCIAL PROFILE (View Mode) -->
+        <div id="passportViewPane" class="vault-pane">
+          
+          <div class="social-header">
+            <div class="profile-avatar-container">
+              <div class="avatar-ring-pulse"></div>
+              <div class="profile-avatar-box">
+                <div class="profile-avatar" id="passportAvatar">👤</div>
+              </div>
+              <div id="statusBeacon" class="status-beacon idle" title="Current Status"></div>
             </div>
-            <div id="displayRank" style="font-size: 0.7rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; margin-top: 4px; letter-spacing: 1px;">
-              ALL TRACKER • SECTOR-7
-            </div>
-          </div>
-          <button id="closeProfileModal" class="modal-close" style="top: 20px; right: 20px; opacity: 0.7;">&times;</button>
-        </div>
-      </div>
 
-      <div class="modal-body" style="padding: 24px;">
-        <div class="passport-form">
-          <div class="settings-group" style="margin-bottom: 20px;">
-            <div id="toggleAvatarPickerBtn" class="btn btn-ghost" style="width: 100%; border: 1px dashed rgba(16, 185, 129, 0.4); justify-content: center; font-size: 0.65rem; color: #10b981; padding: 10px; margin-bottom: 5px;">
-              [ CHANGE PILOT ARCHETYPE ]
-            </div>
-            
-            <div id="avatarPickerContainer" style="display: none; height: 160px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 8px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05);">
-              <div id="avatarPickerGrid" class="avatar-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;">
-                <div class="avatar-item active" data-avatar="👨‍🚀" title="The Astronaut">👨‍🚀</div>
-                <div class="avatar-item" data-avatar="🥷" title="The Shinobi">🥷</div>
-                <div class="avatar-item" data-avatar="👺" title="The Oni">👺</div>
-                <div class="avatar-item" data-avatar="💻" title="The Terminal">💻</div>
-                <div class="avatar-item" data-avatar="🛸" title="The UFO">🛸</div>
-                <div class="avatar-item" data-avatar="👾" title="The Invader">👾</div>
-                <div class="avatar-item" data-avatar="🪐" title="The Saturn">🪐</div>
-                <div class="avatar-item" data-avatar="🛰️" title="The Satellite">🛰️</div>
-                <div class="avatar-item" data-avatar="🖥️" title="The Monitor">🖥️</div>
-                <div class="avatar-item" data-avatar="⌨️" title="The Keyboard">⌨️</div>
-                <div class="avatar-item" data-avatar="💾" title="The Disk">💾</div>
-                <div class="avatar-item" data-avatar="🕸️" title="The Web">🕸️</div>
-                <div class="avatar-item" data-avatar="🧪" title="The Alchemist">🧪</div>
-                <div class="avatar-item" data-avatar="🧬" title="The Architect">🧬</div>
-                <div class="avatar-item" data-avatar="🧿" title="The Guardian">🧿</div>
-                <div class="avatar-item" data-avatar="🔮" title="The Oracle">🔮</div>
-                <div class="avatar-item" data-avatar="🌋" title="The Volcano">🌋</div>
-                <div class="avatar-item" data-avatar="⚡" title="The Kinetic">⚡</div>
-                <div class="avatar-item" data-avatar="🦾" title="The Cyborg">🦾</div>
-                <div class="avatar-item" data-avatar="🤖" title="The Automaton">🤖</div>
-                <div class="avatar-item" data-avatar="🦇" title="The Bat">🦇</div>
-                <div class="avatar-item" data-avatar="🎭" title="The Actor">🎭</div>
-                <div class="avatar-item" data-avatar="🐉" title="The Dragon">🐉</div>
-                <div class="avatar-item" data-avatar="🌌" title="The Nebula">🌌</div>
-                <div class="avatar-item" data-avatar="🕶️" title="The Operative">🕶️</div>
-                <div class="avatar-item" data-avatar="🍥" title="The Hokage">🍥</div>
-                <div class="avatar-item" data-avatar="🦸‍♂️" title="The Avenger">🦸‍♂️</div>
-                <div class="avatar-item" data-avatar="🚀" title="The Rocket">🚀</div>
-                <div class="avatar-item" data-avatar="📡" title="The Uplink">📡</div>
-                <div class="avatar-item" data-avatar="🔭" title="The Observer">🔭</div>
-                
-                <!-- 🌌 SPACE SECTOR -->
-                <div class="avatar-item" data-avatar="👩‍🚀" title="The Commander">👩‍🚀</div>
-                <div class="avatar-item" data-avatar="🌍" title="The Terra">🌍</div>
-                <div class="avatar-item" data-avatar="☄️" title="The Meteor">☄️</div>
-                <div class="avatar-item" data-avatar="👽" title="The Void Pilot">👽</div>
-                <div class="avatar-item" data-avatar="🌓" title="The Lunar">🌓</div>
-
-                <!-- 💻 CODE SECTOR -->
-                <div class="avatar-item" data-avatar="🐍" title="The Pythonic">🐍</div>
-                <div class="avatar-item" data-avatar="☕" title="The JS Engine">☕</div>
-                <div class="avatar-item" data-avatar="⚛️" title="The Reactor">⚛️</div>
-                <div class="avatar-item" data-avatar="🦀" title="The Rusty">🦀</div>
-                <div class="avatar-item" data-avatar="🐧" title="The Kernel">🐧</div>
-
-                <!-- 🛠️ TECH SECTOR -->
-                <div class="avatar-item" data-avatar="⚙️" title="The Mechanic">⚙️</div>
-                <div class="avatar-item" data-avatar="🛠️" title="The Forge">🛠️</div>
-                <div class="avatar-item" data-avatar="🏗️" title="The Civil">🏗️</div>
-                <div class="avatar-item" data-avatar="🔩" title="The Industrial">🔩</div>
-                <div class="avatar-item" data-avatar="📐" title="The Precision">📐</div>
-
-                <!-- 🎲 RANDOM SECTOR -->
-                <div class="avatar-item" data-avatar="🍀" title="The Vector">🍀</div>
-                <div class="avatar-item" data-avatar="🕯️" title="The Scholar">🕯️</div>
-                <div class="avatar-item" data-avatar="🛹" title="The Flow">🛹</div>
-                <div class="avatar-item" data-avatar="🏔️" title="The Frozen Summit">🏔️</div>
-                <div class="avatar-item" data-avatar="🎯" title="The Bullseye">🎯</div>
-
-                <!-- 🍿 POP SECTOR (Anime / GenZ) -->
-                <div class="avatar-item" data-avatar="👒" title="The Straw Hat">👒</div>
-                <div class="avatar-item" data-avatar="🗿" title="The Sigma">🗿</div>
-                <div class="avatar-item" data-avatar="🤞" title="The Domain">🤞</div>
-                <div class="avatar-item" data-avatar="🎧" title="The Audiophile">🎧</div>
-                <div class="avatar-item" data-avatar="🧣" title="The Scout">🧣</div>
+            <div class="profile-identity-info">
+              <div class="name-row">
+                <h2 id="profileDisplayName" class="social-full-name">Operative Name</h2>
+                <div id="profileNationBadge" class="nation-badge">Global</div>
+              </div>
+              <div class="handle-row">
+                <span class="social-handle" id="displayHandle">@User</span>
+                <span class="rank-tag" id="displayRank">RECRUIT</span>
               </div>
             </div>
+            
+            <button id="closeProfileModal" class="social-close-btn">&times;</button>
           </div>
-          <div class="settings-group">
-            <label>TRACKER USER ID</label>
-            <input id="profileNameInput" class="input" placeholder="Enter your display name..." />
-          </div>
-          <div class="grid-2" style="margin-top: 15px;">
-            <div class="settings-group">
-              <label>AGE</label>
-              <input id="profileAgeInput" class="input" type="number" placeholder="Years" />
+
+          <div class="profile-content-body">
+            
+            <!-- SOCIAL CREDIBILITY BAR -->
+            <div class="social-stats-bar">
+              <div class="stat-item">
+                <div id="totalHoursPassport" class="stat-value">0.0h</div>
+                <div class="stat-label">TOTAL STUDY</div>
+              </div>
+              <div class="stat-divider"></div>
+              <div class="stat-item">
+                <div id="bestStreakPassport" class="stat-value">0d</div>
+                <div class="stat-label">BEST STREAK</div>
+              </div>
+              <div class="stat-divider"></div>
+              <div class="stat-item">
+                <div id="todayHoursPassport" class="stat-value">0.0h</div>
+                <div class="stat-label">TODAY</div>
+              </div>
             </div>
-            <div class="settings-group">
-              <label>NATION</label>
-              <select id="profileNationSelect" class="input">
-                <option value="Global">Global</option>
-                <option value="India">India</option>
-                <option value="USA">USA</option>
-                <option value="UK">UK</option>
-                <option value="Canada">Canada</option>
-                <option value="Germany">Germany</option>
-                <option value="Japan">Japan</option>
-                <option value="Other">Other</option>
-              </select>
+
+            <!-- PERSONAL DOSSIER SECTION -->
+            <div class="profile-dossier">
+              <h3 class="dossier-title">IDENTITY_DOSSIER</h3>
+              
+              <div class="dossier-row">
+                <div class="dossier-label">Real Name</div>
+                <div id="dossierRealName" class="dossier-value">-</div>
+              </div>
+              
+              <div class="dossier-row">
+                <div class="dossier-label">Email UPLINK</div>
+                <div id="dossierEmail" class="dossier-value">-</div>
+              </div>
+
+              <div class="dossier-row">
+                <div class="dossier-label">Contact MOBILE</div>
+                <div id="dossierPhone" class="dossier-value">-</div>
+              </div>
+
+            </div>
+
+            <div class="profile-social-actions">
+              <button id="switchToEditProfileBtn" class="social-btn btn-outline">EDIT_PROFILE</button>
+              <button id="closeProfileModalAlt" class="social-btn btn-solid">RETURN_TO_BASE</button>
             </div>
           </div>
-          <button id="saveProfileBtn" class="btn btn-primary w-full"
-            style="margin-top: 25px; padding: 14px; background: #10b981; border: none; font-weight: 800; letter-spacing: 1px;">
-            CREATE PROFILE & SECURE IDENTITY
-          </button>
         </div>
 
-        <!-- Security Migration Section -->
-        <div class="security-migration-section"
-          style="margin-top: 40px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.05);">
-          <div class="intel-label"
-            style="display: flex; align-items: center; gap: 8px; color: #ef4444; margin-bottom: 5px; font-weight: 800; letter-spacing: 1px; font-size: 0.75rem;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-            </svg>
-            [ VAULT SECURITY MIGRATION ]
-          </div>
-          <p class="reflection-sub" style="font-size: 0.7rem; color: #94a3b8; margin-bottom: 20px;">Move study history
-            to a new vault key.</p>
+        <!-- ⚒️ PANE 2: THE PROFILE EDITOR (Edit Mode) -->
+        <div id="profileEditPane" class="vault-pane hidden">
+           <div class="social-edit-header">
+             <h3 class="social-edit-title">VAULT // IDENTITY_CONFIG</h3>
+             <button id="switchToPassportBtn" class="social-cancel-btn">[ BACK ]</button>
+           </div>
+           
+           <div class="social-edit-body">
+              <div class="edit-group">
+                <div id="toggleAvatarPickerBtn" class="avatar-edit-trigger">
+                  <div class="avatar-edit-preview" id="editAvatarPreview">👨‍🚀</div>
+                  <div class="avatar-edit-label">CHANGE ARCHETYPE</div>
+                </div>
+                
+                <div id="avatarPickerContainer" class="avatar-vault-grid" style="display: none;">
+                  <div id="avatarPickerGrid" class="avatar-social-grid">
+                    <!-- Avatar items injected/setup in profile.ui.ts -->
+                  </div>
+                </div>
+              </div>
 
-          <div class="settings-group">
-            <label style="font-size: 0.65rem;">CURRENT VAULT KEY</label>
-            <div class="input-with-eye" style="position: relative;">
-              <input id="currentSecretKeyInput" class="input" type="password" placeholder="Verify current key" />
-              <span id="toggleCurrentKey" class="eye-toggle"
-                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 0.7rem;">👁️</span>
-            </div>
-          </div>
-          <div class="settings-group" style="margin-top: 12px;">
-            <label style="font-size: 0.65rem;">NEW VAULT KEY</label>
-            <div class="input-with-eye" style="position: relative;">
-              <input id="newSecretKeyInput" class="input" type="password" placeholder="Enter target key" />
-              <span id="toggleNewKey" class="eye-toggle"
-                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 0.7rem;">👁️</span>
-            </div>
-          </div>
-          <button id="migrateIdentityBtn" class="btn btn-ghost w-full"
-            style="margin-top: 20px; border: 1px solid rgba(239, 68, 68, 0.2); color: #ef4444; font-size: 0.65rem; font-weight: 800; text-transform: uppercase;">
-            INITIALIZE IDENTITY MIGRATION
-          </button>
+              <div class="input-stack">
+                <div class="edit-group">
+                  <label class="social-input-label">FULL NAME</label>
+                  <input id="profileRealNameInput" class="social-input" placeholder="Operative Name" />
+                </div>
+                
+                <div class="edit-group">
+                  <label class="social-input-label">HANDLE</label>
+                  <input id="profileNameInput" class="social-input" placeholder="@handle" />
+                </div>
+
+                <div class="input-row">
+                  <div class="edit-group">
+                    <label class="social-input-label">DOB</label>
+                    <input id="profileDobInput" class="social-input" type="date" />
+                  </div>
+                  <div class="edit-group">
+                    <label class="social-input-label">NATION</label>
+                    <select id="profileNationSelect" class="social-input">
+                      <option value="Global">Global</option>
+                      <option value="India">India</option>
+                      <option value="USA">USA</option>
+                      <option value="UK">UK</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="edit-group">
+                  <label class="social-input-label">SECURE EMAIL</label>
+                  <input id="profileEmailInput" class="social-input" type="email" placeholder="pilot@alltracker.online" />
+                </div>
+
+                <div class="edit-group">
+                  <label class="social-input-label">MOBILE UPLINK</label>
+                  <input id="profilePhoneInput" class="social-input" type="tel" placeholder="+91 XXXX XXXX" />
+                </div>
+
+                <div class="social-toggle-group">
+                  <div class="toggle-info">
+                    <div class="toggle-title">PUBLIC PRIVACY</div>
+                    <div class="toggle-sub">Share focus status on leaderboard?</div>
+                  </div>
+                  <label class="switch-v2">
+                    <input type="checkbox" id="profileFocusPrivacyToggle" checked>
+                    <span class="slider-v2"></span>
+                  </label>
+                </div>
+              </div>
+
+              <button id="saveProfileBtn" class="social-save-btn">
+                SAVE_IDENTITY_CHANGES
+              </button>
+           </div>
         </div>
       </div>
     </div>

@@ -58,6 +58,7 @@ export const hudView = `
 
       <div class="control-row">
         <button id="timerPauseBtn" class="btn btn-outline">Pause</button>
+        <button id="timerTerminateBtn" class="btn btn-ghost" title="Discard session — no data saved" style="border: 1px solid rgba(239,68,68,0.4); color: #ef4444; font-size: 0.65rem; letter-spacing: 1px; opacity: 0.8;">TERMINATE</button>
         <button id="timerStopBtn" class="btn btn-danger glow-danger">Stop</button>
       </div>
       <div class="session-goal-row">

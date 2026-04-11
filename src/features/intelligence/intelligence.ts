@@ -1,3 +1,4 @@
+import { getSecureLocalProfileString, setSecureLocalProfileString } from '@/utils/security';
 /**
  * Handles the Maamu AI chat logic.
  * 
@@ -30,7 +31,7 @@ import {
 
 function getUserAvatar(): string {
   try {
-    const raw = localStorage.getItem(STORAGE_KEYS.USER_PROFILE);
+    const raw = getSecureLocalProfileString();
     if (raw) return JSON.parse(raw).avatar || '👤';
   } catch { /* noop */ }
   return '👤';

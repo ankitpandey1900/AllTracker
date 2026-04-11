@@ -21,40 +21,51 @@ function isSupabaseReady(): boolean {
   return supabaseClient !== null;
 }
 
+/** 
+ * 📡 SYNC INDICATOR SERVICE
+ * Manages the connection status icons across the Dashboard and Focus HUD.
+ */
+export const SyncIndicator = {
+  update(status: 'syncing' | 'synced' | 'error' | 'offline'): void {
+    const el = document.getElementById('syncStatus');
+    const hudIcon = document.getElementById('timerSyncStatus');
+    
+    const config: Record<string, { text: string; color: string; isLive: boolean }> = {
+      syncing: { text: '🔄 Syncing...',   color: '#3498db', isLive: true },
+      synced:  { text: '✅ Synced',        color: '#2ecc71', isLive: true },
+      error:   { text: '❌ Sync Error',    color: '#e74c3c', isLive: false },
+      offline: { text: '📶 Offline',       color: '#f39c12', isLive: false },
+    };
+
+    const c = config[status];
+
+    // Update Main Dashboard Text
+    if (el) {
+      el.textContent = c.text;
+      el.style.color = c.color;
+      if (status === 'error') {
+        el.title = 'Check console for details or verify project credentials.';
+      }
+    }
+
+    // Update HUD Cloud Icon
+    if (hudIcon) {
+      if (c.isLive) {
+        hudIcon.classList.add('sync-live');
+        hudIcon.classList.remove('sync-offline');
+        hudIcon.title = status === 'syncing' ? 'Syncing with Cloud...' : 'Cloud Sync Active';
+      } else {
+        hudIcon.classList.add('sync-offline');
+        hudIcon.classList.remove('sync-live');
+        hudIcon.title = status === 'error' ? 'Connection Error' : 'Offline: Local Only';
+      }
+    }
+  }
+};
+
+/** Replaces legacy flat function with the new Service Object */
 export function updateSyncStatus(status: 'syncing' | 'synced' | 'error' | 'offline'): void {
-  const el = document.getElementById('syncStatus');
-  const hudIcon = document.getElementById('timerSyncStatus');
-  
-  const config: Record<string, { text: string; color: string; isLive: boolean }> = {
-    syncing: { text: '🔄 Syncing...',   color: '#3498db', isLive: true },
-    synced:  { text: '✅ Synced',        color: '#2ecc71', isLive: true },
-    error:   { text: '❌ Sync Error',    color: '#e74c3c', isLive: false },
-    offline: { text: '📶 Offline',       color: '#f39c12', isLive: false },
-  };
-
-  const c = config[status];
-
-  // Update Main Dashboard Text
-  if (el) {
-    el.textContent = c.text;
-    el.style.color = c.color;
-    if (status === 'error') {
-      el.title = 'Check console for details or verify project credentials.';
-    }
-  }
-
-  // Update HUD Cloud Icon
-  if (hudIcon) {
-    if (c.isLive) {
-      hudIcon.classList.add('sync-live');
-      hudIcon.classList.remove('sync-offline');
-      hudIcon.title = status === 'syncing' ? 'Syncing with Cloud...' : 'Cloud Sync Active';
-    } else {
-      hudIcon.classList.add('sync-offline');
-      hudIcon.classList.remove('sync-live');
-      hudIcon.title = status === 'error' ? 'Connection Error' : 'Offline: Local Only';
-    }
-  }
+  SyncIndicator.update(status);
 }
 
 /** Generic function to save data to any table (using the sync_id) */
@@ -205,6 +216,76 @@ export async function loadTasksCloud(): Promise<StudyTask[] | null> {
   return null;
 }
 
+// --- Realtime WebSocket Gateway ---
+
+export function subscribeToRealtimeTelemetry(
+  callback: (payload: any) => void
+): { unsubscribe: () => void } {
+  if (!isSupabaseReady()) return { unsubscribe: () => {} };
+
+  console.log('📡 CONNECTING WEBSOCKETS TO TELEMETRY MATRIX...');
+  
+  const channel = supabaseClient!
+    .channel('telemetry_pulse_channel')
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'operative_telemetry' },
+      (payload) => {
+        callback(payload);
+      }
+    )
+    .subscribe((status) => {
+      if (status === 'SUBSCRIBED') {
+         console.log('🔗 REALTIME WEBSOCKETS LINK ESTABLISHED');
+      }
+    });
+
+  return {
+    unsubscribe: () => {
+      supabaseClient!.removeChannel(channel);
+    }
+  };
+}
+
+/**
+ * ⚡ FULL-STACK DATA SYNC GATEWAY
+ * Subscribes to all private user data tables (Tracker, Tasks, Routines, etc.)
+ * Filtered specifically for the current user's sync_id.
+ */
+export function subscribeToUserDataSync(
+  callback: (payload: any) => void
+): { unsubscribe: () => void } {
+  if (!isSupabaseReady()) return { unsubscribe: () => {} };
+
+  const syncId = getCurrentUserId();
+  if (!syncId) return { unsubscribe: () => {} };
+
+  console.log(`📡 BROADCAST MATRIX: Monitoring private data for [${syncId}]`);
+
+  const channel = supabaseClient!
+    .channel(`user_data_sync_${syncId}`)
+    // Listen to changes in all relevant user tables
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'tracker_data', filter: `sync_id=eq.${syncId}` }, (p) => callback(p))
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'settings', filter: `sync_id=eq.${syncId}` }, (p) => callback(p))
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'routines', filter: `sync_id=eq.${syncId}` }, (p) => callback(p))
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'bookmarks', filter: `sync_id=eq.${syncId}` }, (p) => callback(p))
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'routine_history', filter: `sync_id=eq.${syncId}` }, (p) => callback(p))
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'timer_state', filter: `sync_id=eq.${syncId}` }, (p) => callback(p))
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'routine_reset', filter: `sync_id=eq.${syncId}` }, (p) => callback(p))
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks', filter: `sync_id=eq.${syncId}` }, (p) => callback(p))
+    .subscribe((status) => {
+      if (status === 'SUBSCRIBED') {
+         console.log('🔗 REALTIME DATA SYNC ESTABLISHED');
+      }
+    });
+
+  return {
+    unsubscribe: () => {
+      supabaseClient!.removeChannel(channel);
+    }
+  };
+}
+
 // --- World Stage Logic (Leaderboard) ---
 
 /** Sends your stats (total hours, etc.) to the global leaderboard */
@@ -213,25 +294,53 @@ export async function broadcastGlobalStats(profile: Partial<GlobalProfile>): Pro
   const syncId = getCurrentUserId();
   if (!syncId) return;
 
-  const payload = {
-    ...profile,
-    sync_id: syncId,
-    last_active: new Date().toISOString()
+  const pulsePayload = {
+    id: syncId,
+    total_hours: Number(profile.total_hours || 0),
+    today_hours: Number(profile.today_hours || 0),
+    last_active: new Date().toISOString(),
+    is_focusing: profile.is_focusing_now === true,
+    focus_subject: profile.current_focus_subject || 'IDLE',
+    is_focus_public: profile.is_focus_public !== false,
+    current_rank: profile.current_rank || 'RECRUIT'
   };
 
-  const { error } = await supabaseClient!
-    .from(SUPABASE_TABLES.GLOBAL_PROFILES)
-    .upsert(payload, { onConflict: 'sync_id' });
+  const { error: pulseErr } = await supabaseClient!
+    .from('operative_telemetry')
+    .upsert(pulsePayload, { onConflict: 'id' });
 
-  if (error) {
-    console.error('🚨 SUPABASE BROADCAST ERROR:', error);
-    try {
-      const { showToast } = await import('@/utils/dom.utils');
-      showToast(`Profile Broadcast Rejected: ${error.message || 'Unknown DB Error'}`, 'error');
-    } catch { /* noop */ }
-  } else {
-    console.log(`✅ BROADCAST SUCCESS: Pushed ${payload.total_hours}h total, ${payload.today_hours}h today for @${payload.display_name}`);
+  if (pulseErr) {
+    console.error('🚨 TELEMETRY PULSE ERROR:', pulseErr);
+    const { showToast } = await import('@/utils/dom.utils');
+    showToast(`Telemetry Sync Failed: ${pulseErr.message}`, 'error');
   }
+
+  // 2. MODULE B: REGISTRY (Identity - Low-Frequency)
+  if (profile.display_name || profile.avatar || profile.nation || profile.User_name) {
+    const registryPayload: any = { 
+      id: syncId,
+      handle: profile.display_name || `OP-${syncId.slice(0, 5)}`,
+      full_name: profile.User_name || 'Operative',
+      avatar: profile.avatar || '👨‍🚀',
+      nation: profile.nation || 'Global',
+      dob: profile.dob || '2000-01-01',
+      phone_number: profile.phone_number || null,
+      email: profile.email || null,
+      is_focus_public: profile.is_focus_public !== false
+    };
+
+    const { error: regErr } = await supabaseClient!
+      .from('profile_registry')
+      .upsert(registryPayload, { onConflict: 'id' });
+    
+    if (regErr) {
+      console.error('🚨 REGISTRY SYNC ERROR:', regErr);
+      const { showToast } = await import('@/utils/dom.utils');
+      showToast(`Identity Sync Failed: ${regErr.message}`, 'error');
+    }
+  }
+
+  console.log(`✅ SYNC SUCCESS: Updated telemetry and registry for ${syncId}`);
 }
 
 /** Gets the Top 10 people for the World Stage leaderboard */
@@ -240,7 +349,7 @@ export async function fetchLeaderboard(): Promise<GlobalProfile[]> {
 
   const { data, error } = await supabaseClient!
     .from(SUPABASE_TABLES.GLOBAL_PROFILES)
-    .select('display_name, age, nation, avatar, total_hours, today_hours, current_rank, is_focusing_now, last_active, current_focus_subject')
+    .select('display_name, User_name, dob, nation, avatar, total_hours, today_hours, current_rank, is_focusing_now, last_active, current_focus_subject, is_focus_public')
     .order('total_hours', { ascending: false })
     .limit(10);
 
@@ -252,23 +361,57 @@ export async function fetchLeaderboard(): Promise<GlobalProfile[]> {
   return (data || []) as GlobalProfile[];
 }
 
-/** Loads the profile for a specific user from the cloud */
+/** Loads the profile for a specific user from the cloud (Secure Table Lookup) */
 export async function loadUserProfileCloud(syncId?: string): Promise<GlobalProfile | null> {
   if (!isSupabaseReady()) return null;
   const targetId = syncId || getCurrentUserId();
   if (!targetId) return null;
 
+  // 🛡️ SECURITY: Query the base table directly to get private fields (phone, email)
   const { data, error } = await supabaseClient!
-    .from(SUPABASE_TABLES.GLOBAL_PROFILES)
-    .select('*')
-    .eq('sync_id', targetId)
+    .from('profile_registry')
+    .select(`
+      id,
+      handle,
+      full_name,
+      avatar,
+      nation,
+      dob,
+      phone_number,
+      email,
+      recovery_key,
+      is_focus_public
+    `)
+    .eq('id', targetId)
     .maybeSingle();
 
   if (error) {
     console.error('Error loading cloud profile:', error);
     return null;
   }
-  return data as GlobalProfile;
+
+  if (!data) return null;
+
+  // Map database fields to the GlobalProfile type
+  return {
+    id: data.id,
+    display_name: data.handle,
+    User_name: data.full_name,
+    avatar: data.avatar,
+    nation: data.nation,
+    dob: data.dob,
+    phone_number: data.phone_number,
+    email: data.email,
+    recovery_key: data.recovery_key,
+    // Add missing required fields for the interface
+    total_hours: 0,
+    today_hours: 0,
+    current_rank: 'RECRUIT',
+    is_focusing_now: false,
+    last_active: new Date().toISOString(),
+    sync_id: data.id,
+    is_focus_public: data.is_focus_public !== false
+  } as GlobalProfile;
 }
 
 /** Checks if any data exists in the tracker_data table for a specific sync_id */
@@ -348,17 +491,71 @@ export async function isUsernameTaken(username: string, excludeSyncId?: string |
 export async function verifyUserCredentials(username: string, syncId: string): Promise<boolean> {
   if (!isSupabaseReady()) return false;
 
-  const { data, error } = await supabaseClient!
+  const { data: profile } = await supabaseClient!
     .from(SUPABASE_TABLES.GLOBAL_PROFILES)
     .select('display_name')
     .ilike('display_name', username.trim())
-    .eq('sync_id', syncId.trim())
+    .eq('id', syncId.trim())
     .maybeSingle();
     
-  if (error || !data) {
-    if (error) console.error('Credential verification error:', error);
+  if (profile) return true;
+
+  // 🛡️ NO BYPASS: Strict validation enforced.
+  return false;
+}
+
+/** Checks if an Email is already in use by another Sync ID (Secure RPC) */
+export async function isEmailTaken(email: string, excludeSyncId?: string | null): Promise<boolean> {
+  if (!isSupabaseReady()) return false;
+  if (!email) return false;
+
+  const { data, error } = await supabaseClient!.rpc('check_email_uniqueness', {
+    target_email: email.trim(),
+    current_id: excludeSyncId || ''
+  });
+
+  if (error) {
+    console.error('Error checking email uniqueness:', error);
     return false;
   }
-  
-  return true;
+  return !!data;
+}
+
+/** Checks if a Phone Number is already in use by another Sync ID (Secure RPC) */
+export async function isPhoneTaken(phone: string, excludeSyncId?: string | null): Promise<boolean> {
+  if (!isSupabaseReady()) return false;
+  if (!phone) return false;
+
+  const { data, error } = await supabaseClient!.rpc('check_phone_uniqueness', {
+    target_phone: phone.trim(),
+    current_id: excludeSyncId || ''
+  });
+
+  if (error) {
+    console.error('Error checking phone uniqueness:', error);
+    return false;
+  }
+  return !!data;
+}
+
+/** Fetches real-time global platform telemetry (Total Users, Active Now, etc.) */
+export async function fetchGlobalTelemetry(): Promise<{
+  total_pilots: number;
+  active_now: number;
+  global_hours_today: number;
+  nations_active: number;
+} | null> {
+  if (!isSupabaseReady()) return null;
+
+  const { data, error } = await supabaseClient!
+    .from('platform_telemetry')
+    .select('*')
+    .maybeSingle();
+
+  if (error) {
+    console.error('Error fetching global telemetry:', error);
+    return null;
+  }
+
+  return data;
 }

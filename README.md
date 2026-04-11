@@ -19,8 +19,8 @@ All Tracker is a revolutionary, gamified productivity command center. Designed f
 
 ## 🔥 Core Features
 
-### 🏆 Global World Stage (Leaderboard)
-Compete with users worldwide on a high-fidelity leaderboard. Earn XP (100 XP per hour) and climb through 20+ rank tiers from **Recruit** to **Singularity**.
+### 🪪 Social Identity Profile (v3)
+A professional, social-media-style identity card that prioritizes personal branding and study credibility. Features a luminous **Activity Beacon** (Status Dot), career stats row, and a streamlined personal identity dossier.
 
 ### 🤖 Maamu AI Strategist
 Your personal AI mentor who analyzes your study data and provides mission briefings. Features a **Beast Mode** toggle for those who need a "No Mercy" coaching style.

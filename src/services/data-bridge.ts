@@ -1,3 +1,4 @@
+import { getSecureLocalProfileString, setSecureLocalProfileString } from '@/utils/security';
 /**
  * Data Bridge — Handles saving and loading data.
  * 
@@ -24,7 +25,7 @@ import type { RoutineItem, RoutineHistory } from '@/types/routine.types';
 import type { Bookmark } from '@/types/bookmark.types';
 import type { StudyTask } from '@/types/task.types';
 import type { ActiveTimer } from '@/types/timer.types';
-import { applyThemeToDOM } from '@/state/app-state';
+import { applyThemeToDOM, appState } from '@/state/app-state';
 
 
 // --- Auth Check ---
@@ -36,10 +37,11 @@ function isAuthenticated(): boolean {
 // --- Tracker Data Functions ---
 
 function setTrackerData(data: TrackerDay[], pushToCloud = true): void {
-  const current = localStorage.getItem(STORAGE_KEYS.TRACKER_DATA);
+  const current = JSON.stringify(appState.trackerData);
   const next = JSON.stringify(data);
-  if (current === next) return; // Prevent redundant local saves
+  if (current === next) return;
 
+  appState.trackerData = data;
   localStorage.setItem(STORAGE_KEYS.TRACKER_DATA, next);
   if (pushToCloud && isAuthenticated()) {
     saveTrackerDataCloud(data);
@@ -78,26 +80,24 @@ import { obfuscate, deobfuscate } from '@/utils/security';
 function setSettings(settings: Settings, pushToCloud = true): void {
   const syncId = getCurrentUserId() || '';
   
-  // 🛡️ AUTH WALL: Prevent saving sensitive API keys if not authenticated
   if (!syncId && settings.groqApiKey) {
-    console.warn('🔒 SECURITY BLOCKED: Cannot save API keys without an active Mission Profile.');
     settings.groqApiKey = ''; 
   }
 
-  // 🔐 IDENTITY-LINKED VAULT (V3): Mask the AI key using user ID as a salt
+  const current = JSON.stringify(appState.settings);
+  const next = JSON.stringify(settings);
+  if (current === next) return;
+
+  appState.settings = { ...appState.settings, ...settings };
+  
   const securedSettings = { 
     ...settings, 
     groqApiKey: settings.groqApiKey ? obfuscate(settings.groqApiKey, syncId) : '' 
   };
-  
-  const current = localStorage.getItem(STORAGE_KEYS.SETTINGS);
-  const next = JSON.stringify(securedSettings);
-  if (current === next) return;
-
-  localStorage.setItem(STORAGE_KEYS.SETTINGS, next);
+  localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(securedSettings));
   
   if (pushToCloud && isAuthenticated()) {
-    saveSettingsCloud(settings); // Cloud gets the raw key for processing
+    saveSettingsCloud(settings);
   }
 }
 
@@ -142,6 +142,8 @@ export async function saveSettingsToStorage(settings: Settings): Promise<void> {
 // --- Routine Functions ---
 
 function setRoutines(routines: RoutineItem[], pushToCloud = true): void {
+  if (JSON.stringify(appState.routines) === JSON.stringify(routines)) return;
+  appState.routines = routines;
   localStorage.setItem(STORAGE_KEYS.ROUTINES, JSON.stringify(routines));
   if (pushToCloud && isAuthenticated()) {
     saveRoutinesCloud(routines);
@@ -172,6 +174,8 @@ export async function saveRoutinesToStorage(routines: RoutineItem[]): Promise<vo
 // --- History Functions ---
 
 function setRoutineHistory(history: RoutineHistory, pushToCloud = true): void {
+  if (JSON.stringify(appState.routineHistory) === JSON.stringify(history)) return;
+  appState.routineHistory = history;
   localStorage.setItem(STORAGE_KEYS.ROUTINE_HISTORY, JSON.stringify(history));
   if (pushToCloud && isAuthenticated()) {
     saveRoutineHistoryCloud(history);
@@ -200,6 +204,8 @@ export async function saveRoutineHistoryToStorage(history: RoutineHistory): Prom
 // --- Bookmark Functions ---
 
 function setBookmarks(bookmarks: Bookmark[], pushToCloud = true): void {
+  if (JSON.stringify(appState.bookmarks) === JSON.stringify(bookmarks)) return;
+  appState.bookmarks = bookmarks;
   localStorage.setItem(STORAGE_KEYS.BOOKMARKS, JSON.stringify(bookmarks));
   if (pushToCloud && isAuthenticated()) {
     saveBookmarksCloud(bookmarks);
@@ -225,41 +231,54 @@ export async function saveBookmarksToStorage(bookmarks: Bookmark[]): Promise<voi
   setBookmarks(bookmarks);
 }
 
-// --- Timer Functions ---
+// --- Timer Functions (Pure DB — localStorage-free) ---
 
-function setTimerState(state: ActiveTimer, pushToCloud = true): void {
-  localStorage.setItem(STORAGE_KEYS.TIMER, JSON.stringify(state));
-  if (pushToCloud && isAuthenticated()) {
-    saveTimerStateCloud(state);
-  }
-}
-
+/**
+ * DB-FIRST LOAD: Single source of truth is Supabase.
+ * No localStorage fallback. If offline or not authenticated, returns null.
+ */
 export async function loadTimerStateFromStorage(): Promise<ActiveTimer | null> {
   const syncId = getCurrentUserId();
-  
-  if (syncId) {
-    try {
-      const cloud = await loadTimerStateCloud();
-      if (cloud) {
-        // Only accept cloud if it's running or has actual elapsed time
-        if (cloud.isRunning || cloud.elapsedAcc > 0) {
-          localStorage.setItem(STORAGE_KEYS.TIMER, JSON.stringify(cloud));
-          return cloud;
-        }
-      }
-    } catch (err) {
-      console.warn('Failed to fetch timer state from cloud:', err);
-    }
-  }
+  if (!syncId) return null; // Not authenticated — no timer state
 
-  const saved = localStorage.getItem(STORAGE_KEYS.TIMER);
-  let local: ActiveTimer | null = null;
-  if (saved) { try { local = JSON.parse(saved); } catch { /* noop */ } }
-  return local;
+  try {
+    const cloud = await loadTimerStateCloud();
+    if (!cloud) return null;
+    return cloud;
+  } catch (err) {
+    console.warn('⚠️ DB timer fetch failed (offline?):', err);
+    return null;
+  }
 }
 
+/**
+ * DB-FIRST SAVE: Writes exclusively to Supabase.
+ * The in-memory appState.activeTimer is the working buffer between saves.
+ */
 export async function saveTimerStateToStorage(state: ActiveTimer): Promise<void> {
-  setTimerState(state);
+  if (!isAuthenticated()) return; // Silent no-op when logged out
+  try {
+    await saveTimerStateCloud(state);
+  } catch (err) {
+    console.warn('⚠️ DB timer save failed (offline?):', err);
+  }
+}
+
+/**
+ * DB-FIRST CLEAR: Explicitly zeros the timer record in Supabase.
+ * Used by terminateTimer() to guarantee the DB is cleared before the page can refresh.
+ */
+export async function clearTimerStateDB(): Promise<void> {
+  if (!isAuthenticated()) return;
+  const blankState: ActiveTimer = {
+    isRunning: false, elapsedAcc: 0, startTime: null,
+    category: null, colName: '', sessionStartClock: null
+  };
+  try {
+    await saveTimerStateCloud(blankState);
+  } catch (err) {
+    console.warn('⚠️ DB timer clear failed (offline?):', err);
+  }
 }
 
 // --- Reset Functions ---
@@ -287,6 +306,8 @@ export async function saveRoutineResetToStorage(reset: string): Promise<void> {
 // --- Task Functions ---
 
 function setTasks(tasks: StudyTask[], pushToCloud = true): void {
+  if (JSON.stringify(appState.tasks) === JSON.stringify(tasks)) return;
+  appState.tasks = tasks;
   localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(tasks));
   if (pushToCloud && isAuthenticated()) {
     saveTasksCloud(tasks);
@@ -344,22 +365,27 @@ export async function syncDataOnLogin(): Promise<void> {
     if (cloudHistory) setRoutineHistory(cloudHistory, false);
     if (cloudBookmarks) setBookmarks(cloudBookmarks, false);
     if (cloudTasks) setTasks(cloudTasks, false);
-    if (cloudTimer) setTimerState(cloudTimer, false);
+    if (cloudTimer) Object.assign(appState.activeTimer, cloudTimer); // DB → memory, no localStorage
 
     const cloudReset = await loadRoutineResetCloud();
     if (cloudReset) setRoutineReset(cloudReset, false);
 
-    // 5. Restore User Profile & Identity
+    // 5. Restore User Profile & Identity (Modular Registry V2)
     const cloudProfile = await loadUserProfileCloud();
     if (cloudProfile) {
       const userProfile = {
         displayName: cloudProfile.display_name,
-        age: cloudProfile.age,
-        nation: cloudProfile.nation,
-        avatar: cloudProfile.avatar
+        realName: cloudProfile.User_name || '',
+        dob: cloudProfile.dob || '',
+        nation: cloudProfile.nation || 'Global',
+        avatar: cloudProfile.avatar || '👨‍🚀',
+        phoneNumber: cloudProfile.phone_number || '',
+        email: cloudProfile.email || '',
+        isFocusPublic: cloudProfile.is_focus_public !== false
       };
-      localStorage.setItem(STORAGE_KEYS.USER_PROFILE, JSON.stringify(userProfile));
+      setSecureLocalProfileString(JSON.stringify(userProfile));
       localStorage.setItem('tracker_username', userProfile.displayName);
+      console.log(`✅ IDENTITY SYNCED: Re-established @${userProfile.displayName} in local vault.`);
     }
 
     console.log('Sync complete.');
@@ -407,7 +433,10 @@ export async function performBackgroundSync(): Promise<void> {
     if (cloudHistory && JSON.stringify(cloudHistory) !== localStorage.getItem(STORAGE_KEYS.ROUTINE_HISTORY)) { setRoutineHistory(cloudHistory, false); changed = true; }
     if (cloudBookmarks && JSON.stringify(cloudBookmarks) !== localStorage.getItem(STORAGE_KEYS.BOOKMARKS)) { setBookmarks(cloudBookmarks, false); changed = true; }
     if (cloudTasks && JSON.stringify(cloudTasks) !== localStorage.getItem(STORAGE_KEYS.TASKS)) { setTasks(cloudTasks, false); changed = true; }
-    if (cloudTimer && JSON.stringify(cloudTimer) !== localStorage.getItem(STORAGE_KEYS.TIMER)) { setTimerState(cloudTimer, false); changed = true; }
+    if (cloudTimer && JSON.stringify(cloudTimer) !== JSON.stringify(appState.activeTimer)) {
+      Object.assign(appState.activeTimer, cloudTimer); // DB → memory, no localStorage
+      changed = true;
+    }
 
     if (changed) {
       console.log('🔄 SYNC UPDATE: Cloud changes detected. Refreshing UI...');
@@ -425,4 +454,39 @@ async function refreshAppAfterSync(): Promise<void> {
   // Reimport dynamically to avoid circular deps at startup
   const { refreshApplicationUI } = await import('@/main');
   await refreshApplicationUI();
+}
+
+/**
+ * ⚡ REAL-TIME DATA PROCESSOR
+ * Handles incoming WebSocket payloads from Supabase and patches 
+ * the local appState immediately.
+ */
+export async function handleUserDataSync(payload: any): Promise<void> {
+  const { table, new: newData, eventType } = payload;
+  if (!newData || eventType === 'DELETE') return;
+
+  const cloudData = newData.data;
+  if (!cloudData) return;
+
+  console.log(`📡 REALTIME PATCH: ${table.toUpperCase()} update received.`);
+
+  switch (table) {
+    case 'tracker_data':    setTrackerData(cloudData, false); break;
+    case 'settings':        setSettings(cloudData, false); break;
+    case 'routines':        setRoutines(cloudData, false); break;
+    case 'bookmarks':       setBookmarks(cloudData, false); break;
+    case 'routine_history': setRoutineHistory(cloudData, false); break;
+    case 'tasks':           setTasks(cloudData, false); break;
+    case 'timer_state':
+      if (JSON.stringify(appState.activeTimer) !== JSON.stringify(cloudData)) {
+        Object.assign(appState.activeTimer, cloudData);
+      }
+      break;
+    case 'routine_reset':
+      localStorage.setItem(STORAGE_KEYS.ROUTINE_RESET, cloudData);
+      break;
+  }
+
+  // Trigger UI update
+  await refreshAppAfterSync();
 }

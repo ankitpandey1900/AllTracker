@@ -14,27 +14,11 @@ import { renderIntelligenceBriefing } from '@/features/intelligence/intelligence
 import { formatDate, formatDateDMY, formatTime12h } from '@/utils/date.utils';
 import type { RankDetails } from '@/types/tracker.types';
 import { renderStudyAnalytics } from './study-analytics';
+import { calculateXP, calculateStreak, getRankDetails } from '@/utils/calc.utils';
 
 const formatNum = (num: number) => new Intl.NumberFormat().format(num);
 
-// --- Leveling System ---
-
-function calculateXP(totalHours: number): { xp: number; level: number; nextLevelXP: number; progress: number } {
-  // 🛰️ All Tracker Leveling Engine: 1 Level = 10 Study Hours
-  const level = Math.floor(totalHours / 10) + 1;
-  const hoursIntoLevel = totalHours % 10;
-  const progress = (hoursIntoLevel / 10) * 100;
-  
-  // XP is purely cosmetic (1000 XP = 1 Level)
-  const totalXP = Math.round(totalHours * 100);
-  
-  return { 
-    xp: totalXP, 
-    level, 
-    nextLevelXP: 1000 - (totalXP % 1000), 
-    progress 
-  };
-}
+// Leveling logic centralized in calc.utils.ts
 
 // --- Timer HUD Logic ---
 
@@ -59,86 +43,12 @@ export function toggleFocusHUD(show: boolean, subject: string = '', time: string
   }
 }
 
-// --- Rank Logic ---
-
+// Rank logic centralized in calc.utils.ts
 export function getRank(totalHours: number): RankDetails {
-  for (let i = 0; i < RANK_TIERS.length; i++) {
-    const tier = RANK_TIERS[i];
-    if (totalHours >= tier.min && totalHours < tier.max) {
-      const tierRange = tier.max - tier.min;
-      const tierProgress = totalHours - tier.min;
-      const divisionSize = tierRange / 5;
-      const divIndex = Math.min(4, Math.floor(tierProgress / divisionSize));
-      const divNames = ['V', 'IV', 'III', 'II', 'I'];
-      const division = divNames[divIndex];
-
-      const titles = TIER_TITLES[tier.name] || ['Unknown'];
-      const title = titles[divIndex] || titles[0];
-      const pct = Math.max(0.01, (100 * Math.exp(-totalHours / 250)));
-      const worldPos = `Top ${pct < 1 ? pct.toFixed(2) : Math.round(pct)}%`;
-      const tierXP = Math.round((tierProgress / tierRange) * 100);
-      const level = i * 5 + divIndex + 1;
-
-      return {
-        name: tier.name,
-        min: tier.min,
-        max: tier.max,
-        color: tier.color,
-        division,
-        title,
-        worldPos,
-        tierXP,
-        level,
-        absolutePos: Math.floor(40000000 / (1 + Math.pow(totalHours / 20, 1.6))),
-      };
-    }
-  }
-
-  // Fallback for max hours
-  const last = RANK_TIERS[RANK_TIERS.length - 1];
-  return {
-    name: last.name,
-    min: last.min,
-    max: last.max,
-    color: last.color,
-    division: 'I',
-    title: TIER_TITLES[last.name]?.[4] || 'LIMITLESS',
-    worldPos: 'Top 0.01%',
-    tierXP: 100,
-    level: 50,
-    absolutePos: 1,
-  };
+  return getRankDetails(totalHours);
 }
 
-// --- Streak Logic ---
-
-function calculateStreak(): number {
-  let streak = 0;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  // Scan backwards from today
-  for (let i = appState.trackerData.length - 1; i >= 0; i--) {
-    const day = appState.trackerData[i];
-    const dayDate = new Date(day.date);
-    dayDate.setHours(0, 0, 0, 0);
-
-    // Skip future days
-    if (dayDate > today) continue;
-
-    if (day.completed) {
-      streak++;
-    } else if (day.restDay) {
-      // Rest Day: Freeze streak (don't break, but don't increment)
-      continue;
-    } else {
-      // If we are looking at precisely "Today", don't break yet if it's not done
-      if (dayDate.getTime() === today.getTime()) continue;
-      break;
-    }
-  }
-  return streak;
-}
+// Streak logic centralized in calc.utils.ts
 
 // --- Day Detection ---
 
@@ -185,7 +95,7 @@ export function updateDashboard(): void {
     if (dayTotal > 0) studyDays++;
   }
   
-  const streak = calculateStreak();
+  const streak = calculateStreak(data);
   const completionRate = completedDays > 0 ? (completedDays / (appState.totalDays || 1)) * 100 : 0;
   const avgHoursPerStudyDay = studyDays > 0 ? totalHours / studyDays : 0;
 
