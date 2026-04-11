@@ -191,9 +191,12 @@ export async function updateGlobalHUD(providedUsers?: GlobalProfile[]): Promise<
     const activeEl = document.getElementById('telemetry-active-now');
     const platformTotalEl = document.getElementById('telemetry-global-total');
 
-    if (totalEl) totalEl.textContent = (telemetry as any).total_pilots.toLocaleString();
-    if (activeEl) activeEl.textContent = (telemetry as any).active_now.toLocaleString();
-    if (platformTotalEl) platformTotalEl.textContent = `${(telemetry as any).total_platform_hours.toFixed(1)} HRS`;
+    if (totalEl) totalEl.textContent = telemetry.total_pilots.toLocaleString();
+    if (activeEl) activeEl.textContent = telemetry.active_now.toLocaleString();
+    if (platformTotalEl) {
+      const platformHours = (telemetry as any).total_platform_hours || 0;
+      platformTotalEl.textContent = `${platformHours.toFixed(1)} HRS`;
+    }
   }
 
   // 2. Calculate real Today Sum (High-Fidelity)

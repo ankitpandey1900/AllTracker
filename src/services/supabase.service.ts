@@ -68,20 +68,40 @@ export function updateSyncStatus(status: 'syncing' | 'synced' | 'error' | 'offli
   SyncIndicator.update(status);
 }
 
-/** Generic function to save data to any table (using the sync_id) */
-async function upsertToSupabase(table: string, payload: Record<string, unknown>): Promise<{ data?: unknown; error?: unknown }> {
-  if (!isSupabaseReady()) return { error: 'Supabase client not initialized' };
+// --- Schema Cache ---
+let cachedProfileId: string | null = null;
+
+/** Retrieves the UUID for the current Sync ID */
+async function getProfileId(): Promise<string | null> {
+  if (cachedProfileId) return cachedProfileId;
+  if (!isSupabaseReady()) return null;
 
   const syncId = getCurrentUserId();
-  if (!syncId) return { error: 'No Sync ID established' };
-
-  payload.sync_id = syncId;
-  updateSyncStatus('syncing');
+  if (!syncId) return null;
 
   const { data, error } = await supabaseClient!
+    .from(SUPABASE_TABLES.PROFILES)
+    .select('id')
+    .eq('sync_id', syncId)
+    .maybeSingle();
+
+  if (error || !data) return null;
+  cachedProfileId = data.id;
+  return cachedProfileId;
+}
+
+/** Generic function to save data to any vault (using the profile_id) */
+async function upsertToVault(table: string, payload: any): Promise<{ error?: unknown }> {
+  if (!isSupabaseReady()) return { error: 'Supabase client not initialized' };
+
+  const pId = await getProfileId();
+  if (!pId) return { error: 'No Profile ID found' };
+
+  updateSyncStatus('syncing');
+
+  const { error } = await supabaseClient!
     .from(table)
-    .upsert(payload, { onConflict: 'sync_id' })
-    .select();
+    .upsert({ profile_id: pId, data: payload, updated_at: new Date() }, { onConflict: 'profile_id' });
 
   if (error) {
     console.error(`Error saving to ${table}:`, error);
@@ -90,22 +110,22 @@ async function upsertToSupabase(table: string, payload: Record<string, unknown>)
   }
 
   updateSyncStatus('synced');
-  return { data };
+  return {};
 }
 
-/** Generic function to get data from any table (filtered by sync_id) */
-async function fetchFromSupabase(table: string): Promise<{ data?: Record<string, unknown> | null; error?: unknown }> {
+/** Generic function to get data from any vault (filtered by profile_id) */
+async function fetchFromVault(table: string): Promise<{ data?: any | null; updatedAt?: string; error?: unknown }> {
   if (!isSupabaseReady()) return { error: 'Supabase client not initialized' };
 
-  const syncId = getCurrentUserId();
-  if (!syncId) return { error: 'No Sync ID established' };
+  const pId = await getProfileId();
+  if (!pId) return { error: 'No Profile ID found' };
 
   updateSyncStatus('syncing');
 
   const { data, error } = await supabaseClient!
     .from(table)
     .select('*')
-    .eq('sync_id', syncId)
+    .eq('profile_id', pId)
     .maybeSingle();
 
   if (error) {
@@ -115,104 +135,94 @@ async function fetchFromSupabase(table: string): Promise<{ data?: Record<string,
   }
 
   updateSyncStatus('synced');
-  return { data };
+  return { data: data?.data, updatedAt: data?.updated_at };
 }
 
 // --- Tracker Data ---
 
 export async function saveTrackerDataCloud(data: TrackerDay[]): Promise<void> {
-  await upsertToSupabase(SUPABASE_TABLES.TRACKER_DATA, { data, updated_at: new Date() });
+  await upsertToVault(SUPABASE_TABLES.TRACKER, data);
 }
 
 export async function loadTrackerDataCloud(): Promise<{ data: TrackerDay[], updatedAt: string | null } | null> {
-  const result = await fetchFromSupabase(SUPABASE_TABLES.TRACKER_DATA);
-  if (result?.data?.data) return { data: result.data.data as TrackerDay[], updatedAt: result.data.updated_at as string };
+  const result = await fetchFromVault(SUPABASE_TABLES.TRACKER);
+  if (result.data) return { data: result.data as TrackerDay[], updatedAt: result.updatedAt || null };
   return null;
 }
 
 // --- Settings Sync ---
 
 export async function saveSettingsCloud(settings: Settings): Promise<void> {
-  await upsertToSupabase(SUPABASE_TABLES.SETTINGS, { data: settings, updated_at: new Date() });
+  await upsertToVault(SUPABASE_TABLES.SETTINGS, settings);
 }
 
 export async function loadSettingsCloud(): Promise<{ data: Settings, updatedAt: string | null } | null> {
-  const result = await fetchFromSupabase(SUPABASE_TABLES.SETTINGS);
-  if (result?.data?.data) return { data: result.data.data as Settings, updatedAt: result.data.updated_at as string };
+  const result = await fetchFromVault(SUPABASE_TABLES.SETTINGS);
+  if (result.data) return { data: result.data as Settings, updatedAt: result.updatedAt || null };
   return null;
 }
 
 // --- Routine Sync ---
 
 export async function saveRoutinesCloud(routines: RoutineItem[]): Promise<void> {
-  await upsertToSupabase(SUPABASE_TABLES.ROUTINES, { data: routines, updated_at: new Date() });
+  await upsertToVault(SUPABASE_TABLES.ROUTINES, routines);
 }
 
 export async function loadRoutinesCloud(): Promise<{ data: RoutineItem[], updatedAt: string | null } | null> {
-  const result = await fetchFromSupabase(SUPABASE_TABLES.ROUTINES);
-  if (result?.data?.data) return { data: result.data.data as RoutineItem[], updatedAt: result.data.updated_at as string };
+  const result = await fetchFromVault(SUPABASE_TABLES.ROUTINES);
+  if (result.data) return { data: result.data as RoutineItem[], updatedAt: result.updatedAt || null };
   return null;
 }
-
-
 
 // --- Bookmark Sync ---
 
 export async function saveBookmarksCloud(bookmarks: Bookmark[]): Promise<void> {
-  await upsertToSupabase(SUPABASE_TABLES.BOOKMARKS, { data: bookmarks, updated_at: new Date() });
+  await upsertToVault(SUPABASE_TABLES.BOOKMARKS, bookmarks);
 }
 
 export async function loadBookmarksCloud(): Promise<{ data: Bookmark[], updatedAt: string | null } | null> {
-  const result = await fetchFromSupabase(SUPABASE_TABLES.BOOKMARKS);
-  if (result?.data?.data) return { data: result.data.data as Bookmark[], updatedAt: result.data.updated_at as string };
+  const result = await fetchFromVault(SUPABASE_TABLES.BOOKMARKS);
+  if (result.data) return { data: result.data as Bookmark[], updatedAt: result.updatedAt || null };
   return null;
 }
 
 // --- History Sync ---
 
 export async function saveRoutineHistoryCloud(history: RoutineHistory): Promise<void> {
-  await upsertToSupabase(SUPABASE_TABLES.ROUTINE_HISTORY, { data: history, updated_at: new Date() });
+  await upsertToVault(SUPABASE_TABLES.HISTORY, history);
 }
 
 export async function loadRoutineHistoryCloud(): Promise<{ data: RoutineHistory, updatedAt: string | null } | null> {
-  const result = await fetchFromSupabase(SUPABASE_TABLES.ROUTINE_HISTORY);
-  if (result?.data?.data) return { data: result.data.data as RoutineHistory, updatedAt: result.data.updated_at as string };
+  const result = await fetchFromVault(SUPABASE_TABLES.HISTORY);
+  if (result.data) return { data: result.data as RoutineHistory, updatedAt: result.updatedAt || null };
   return null;
 }
 
 // --- Timer State Sync ---
 
 export async function saveTimerStateCloud(state: ActiveTimer): Promise<void> {
-  await upsertToSupabase(SUPABASE_TABLES.TIMER_STATE, { data: state, updated_at: new Date() });
+  await upsertToVault(SUPABASE_TABLES.TIMER, state);
 }
 
 export async function loadTimerStateCloud(): Promise<{ data: ActiveTimer, updatedAt: string | null } | null> {
-  const result = await fetchFromSupabase(SUPABASE_TABLES.TIMER_STATE);
-  if (result?.data?.data) return { data: result.data.data as ActiveTimer, updatedAt: result.data.updated_at as string };
+  const result = await fetchFromVault(SUPABASE_TABLES.TIMER);
+  if (result.data) return { data: result.data as ActiveTimer, updatedAt: result.updatedAt || null };
   return null;
 }
 
-// --- Routine Resets ---
-
-export async function saveRoutineResetCloud(reset: string): Promise<void> {
-  await upsertToSupabase(SUPABASE_TABLES.ROUTINE_RESET, { data: reset, updated_at: new Date() });
-}
-
-export async function loadRoutineResetCloud(): Promise<string | null> {
-  const result = await fetchFromSupabase(SUPABASE_TABLES.ROUTINE_RESET);
-  if (result?.data?.data) return result.data.data as string;
-  return null;
-}
+// --- Routine Resets (Merged into settings or routines if needed, but keeping for now) ---
+export async function saveRoutineResetCloud(reset: string): Promise<void> {}
+export async function loadRoutineResetCloud(): Promise<string | null> { return null; }
 
 // --- Task List ---
 
 export async function saveTasksCloud(tasks: StudyTask[]): Promise<void> {
-  await upsertToSupabase(SUPABASE_TABLES.TASKS, { data: tasks, updated_at: new Date() });
+  await upsertToVault(SUPABASE_TABLES.TASKS, tasks);
 }
 
 export async function loadTasksCloud(): Promise<{ data: StudyTask[], updatedAt: string | null } | null> {
-  const result = await fetchFromSupabase(SUPABASE_TABLES.TASKS);
-  if (result?.data?.data) return { data: result.data.data as StudyTask[], updatedAt: result.data.updated_at as string };
+  const result = await fetchFromVault(SUPABASE_TABLES.TASKS);
+  if (result.data) return { data: result.data as StudyTask[], updatedAt: result.updatedAt || null };
   return null;
 }
 
@@ -250,29 +260,28 @@ export function subscribeToRealtimeTelemetry(
 /**
  * ⚡ FULL-STACK DATA SYNC GATEWAY
  * Subscribes to all private user data tables (Tracker, Tasks, Routines, etc.)
- * Filtered specifically for the current user's sync_id.
+ * Filtered specifically for the current user's profile_id.
  */
-export function subscribeToUserDataSync(
+export async function subscribeToUserDataSync(
   callback: (payload: any) => void
-): { unsubscribe: () => void } {
+): Promise<{ unsubscribe: () => void }> {
   if (!isSupabaseReady()) return { unsubscribe: () => {} };
 
-  const syncId = getCurrentUserId();
-  if (!syncId) return { unsubscribe: () => {} };
+  const pId = await getProfileId();
+  if (!pId) return { unsubscribe: () => {} };
 
-  console.log(`📡 BROADCAST MATRIX: Monitoring private data for [${syncId}]`);
+  console.log(`📡 BROADCAST MATRIX: Monitoring private data channel.`);
 
   const channel = supabaseClient!
-    .channel(`user_data_sync_${syncId}`)
-    // Listen to changes in all relevant user tables
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'tracker_data', filter: `sync_id=eq.${syncId}` }, (p) => callback(p))
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'settings', filter: `sync_id=eq.${syncId}` }, (p) => callback(p))
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'routines', filter: `sync_id=eq.${syncId}` }, (p) => callback(p))
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'bookmarks', filter: `sync_id=eq.${syncId}` }, (p) => callback(p))
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'routine_history', filter: `sync_id=eq.${syncId}` }, (p) => callback(p))
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'timer_state', filter: `sync_id=eq.${syncId}` }, (p) => callback(p))
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'routine_reset', filter: `sync_id=eq.${syncId}` }, (p) => callback(p))
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks', filter: `sync_id=eq.${syncId}` }, (p) => callback(p))
+    .channel(`user_data_sync_${pId}`)
+    // Listen to changes in all relevant user tables using the new Granular Vaults
+    .on('postgres_changes', { event: '*', schema: 'public', table: SUPABASE_TABLES.TRACKER, filter: `profile_id=eq.${pId}` }, (p) => callback(p))
+    .on('postgres_changes', { event: '*', schema: 'public', table: SUPABASE_TABLES.SETTINGS, filter: `profile_id=eq.${pId}` }, (p) => callback(p))
+    .on('postgres_changes', { event: '*', schema: 'public', table: SUPABASE_TABLES.ROUTINES, filter: `profile_id=eq.${pId}` }, (p) => callback(p))
+    .on('postgres_changes', { event: '*', schema: 'public', table: SUPABASE_TABLES.BOOKMARKS, filter: `profile_id=eq.${pId}` }, (p) => callback(p))
+    .on('postgres_changes', { event: '*', schema: 'public', table: SUPABASE_TABLES.TIMER, filter: `profile_id=eq.${pId}` }, (p) => callback(p))
+    .on('postgres_changes', { event: '*', schema: 'public', table: SUPABASE_TABLES.TASKS, filter: `profile_id=eq.${pId}` }, (p) => callback(p))
+    .on('postgres_changes', { event: '*', schema: 'public', table: SUPABASE_TABLES.HISTORY, filter: `profile_id=eq.${pId}` }, (p) => callback(p))
     .subscribe((status) => {
       if (status === 'SUBSCRIBED') {
          console.log('🔗 REALTIME DATA SYNC ESTABLISHED');
@@ -294,62 +303,78 @@ export async function broadcastGlobalStats(profile: Partial<GlobalProfile>): Pro
   const syncId = getCurrentUserId();
   if (!syncId) return;
 
+  const pId = await getProfileId();
+  if (!pId) return;
+
+  // 1. Update Telemetry (operative_stats)
   const pulsePayload = {
-    id: syncId,
+    profile_id: pId,
     total_hours: Number(profile.total_hours || 0),
     today_hours: Number(profile.today_hours || 0),
     last_active: new Date().toISOString(),
     is_focusing: profile.is_focusing_now === true,
     focus_subject: profile.current_focus_subject || 'IDLE',
-    is_focus_public: profile.is_focus_public !== false,
-    current_rank: profile.current_rank || 'RECRUIT'
+    current_rank: profile.current_rank || 'RECRUIT',
+    updated_at: new Date().toISOString()
   };
 
   const { error: pulseErr } = await supabaseClient!
-    .from('operative_telemetry')
-    .upsert(pulsePayload, { onConflict: 'id' });
+    .from(SUPABASE_TABLES.STATS)
+    .upsert(pulsePayload, { onConflict: 'profile_id' });
 
   if (pulseErr) {
-    console.error('🚨 TELEMETRY PULSE ERROR:', pulseErr);
-    const { showToast } = await import('@/utils/dom.utils');
-    showToast(`Telemetry Sync Failed: ${pulseErr.message}`, 'error');
+    console.error('🚨 STATS PULSE ERROR:', pulseErr);
   }
 
-  // 2. MODULE B: REGISTRY (Identity - Low-Frequency)
+  // 2. Update Registry (operative_profiles) - Only if identity data changed
   if (profile.display_name || profile.avatar || profile.nation || profile.User_name) {
     const registryPayload: any = { 
-      id: syncId,
-      handle: profile.display_name || `OP-${syncId.slice(0, 5)}`,
-      full_name: profile.User_name || 'Operative',
+      id: pId,
+      handle: profile.display_name,
+      real_name: profile.User_name,
       avatar: profile.avatar || '👨‍🚀',
       nation: profile.nation || 'Global',
-      dob: profile.dob || '2000-01-01',
-      phone_number: profile.phone_number || null,
-      email: profile.email || null,
-      is_focus_public: profile.is_focus_public !== false
+      dob: profile.dob,
+      phone: profile.phone_number,
+      email: profile.email,
+      is_public: profile.is_focus_public !== false
     };
 
     const { error: regErr } = await supabaseClient!
-      .from('profile_registry')
-      .upsert(registryPayload, { onConflict: 'id' });
+      .from(SUPABASE_TABLES.PROFILES)
+      .update(registryPayload)
+      .eq('id', pId);
     
     if (regErr) {
       console.error('🚨 REGISTRY SYNC ERROR:', regErr);
-      const { showToast } = await import('@/utils/dom.utils');
-      showToast(`Identity Sync Failed: ${regErr.message}`, 'error');
     }
   }
-
-  console.log(`✅ SYNC SUCCESS: Updated telemetry and registry for ${syncId}`);
+  console.log(`✅ SYNC SUCCESS: Cloud identity and metrics updated.`);
 }
 
 /** Gets the Top 10 people for the World Stage leaderboard */
 export async function fetchLeaderboard(): Promise<GlobalProfile[]> {
   if (!isSupabaseReady()) return [];
 
+  // Join profiles and stats
   const { data, error } = await supabaseClient!
-    .from(SUPABASE_TABLES.GLOBAL_PROFILES)
-    .select('display_name, User_name, dob, nation, avatar, total_hours, today_hours, current_rank, is_focusing_now, last_active, current_focus_subject, is_focus_public')
+    .from(SUPABASE_TABLES.STATS)
+    .select(`
+      total_hours,
+      today_hours,
+      current_rank,
+      last_active,
+      is_focusing,
+      focus_subject,
+      operative_profiles!inner (
+        handle,
+        real_name,
+        avatar,
+        nation,
+        is_public
+      )
+    `)
+    .eq('operative_profiles.is_public', true)
     .order('total_hours', { ascending: false })
     .limit(10);
 
@@ -358,77 +383,77 @@ export async function fetchLeaderboard(): Promise<GlobalProfile[]> {
     return [];
   }
 
-  return (data || []) as GlobalProfile[];
+  return (data || []).map((row: any) => {
+    const profile = row.operative_profiles || {};
+    return {
+      display_name: profile.handle || 'Unknown',
+      User_name: profile.real_name,
+      avatar: profile.avatar || '👨‍🚀',
+      nation: profile.nation || 'Global',
+      total_hours: row.total_hours || 0,
+      today_hours: row.today_hours || 0,
+      current_rank: row.current_rank || 'PILOT',
+      is_focusing_now: row.is_focusing || false,
+      last_active: row.last_active,
+      current_focus_subject: row.focus_subject,
+      is_focus_public: profile.is_public !== false
+    };
+  }) as any[];
 }
 
-/** Loads the profile for a specific user from the cloud (Secure Table Lookup) */
+/** Loads the profile for a specific user from the cloud */
 export async function loadUserProfileCloud(syncId?: string): Promise<GlobalProfile | null> {
   if (!isSupabaseReady()) return null;
-  const targetId = syncId || getCurrentUserId();
-  if (!targetId) return null;
+  const targetSyncId = syncId || getCurrentUserId();
+  if (!targetSyncId) return null;
 
-  // 🛡️ SECURITY: Query the base table directly to get private fields (phone, email)
   const { data, error } = await supabaseClient!
-    .from('profile_registry')
+    .from(SUPABASE_TABLES.PROFILES)
     .select(`
       id,
       handle,
-      full_name,
+      real_name,
       avatar,
       nation,
       dob,
-      phone_number,
+      phone,
       email,
-      recovery_key,
-      is_focus_public
+      is_public
     `)
-    .eq('id', targetId)
+    .eq('sync_id', targetSyncId)
     .maybeSingle();
 
-  if (error) {
-    console.error('Error loading cloud profile:', error);
-    return null;
-  }
+  if (error || !data) return null;
 
-  if (!data) return null;
-
-  // Map database fields to the GlobalProfile type
   return {
-    id: data.id,
+    sync_id: targetSyncId,
     display_name: data.handle,
-    User_name: data.full_name,
+    User_name: data.real_name,
     avatar: data.avatar,
     nation: data.nation,
     dob: data.dob,
-    phone_number: data.phone_number,
+    phone_number: data.phone,
     email: data.email,
-    recovery_key: data.recovery_key,
-    // Add missing required fields for the interface
+    is_focus_public: data.is_public,
+    // These will be hydrated by operative_stats later if needed
     total_hours: 0,
     today_hours: 0,
     current_rank: 'RECRUIT',
     is_focusing_now: false,
-    last_active: new Date().toISOString(),
-    sync_id: data.id,
-    is_focus_public: data.is_focus_public !== false
-  } as GlobalProfile;
+    last_active: new Date().toISOString()
+  } as any;
 }
 
-/** Checks if any data exists in the tracker_data table for a specific sync_id */
+/** Checks if any data exists for a specific sync_id */
 export async function checkIfSyncIdHasData(syncId: string): Promise<boolean> {
   if (!isSupabaseReady()) return false;
   
-  const { data, error } = await supabaseClient!
-    .from(SUPABASE_TABLES.TRACKER_DATA)
-    .select('sync_id')
+  const { data } = await supabaseClient!
+    .from(SUPABASE_TABLES.PROFILES)
+    .select('id')
     .eq('sync_id', syncId.trim())
     .limit(1)
     .maybeSingle();
-
-  if (error) {
-    console.error('Error checking sync_id existence:', error);
-    return false;
-  }
   
   return !!data;
 }
@@ -437,31 +462,22 @@ export async function checkIfSyncIdHasData(syncId: string): Promise<boolean> {
 export async function deleteOldSyncIdData(oldSyncId: string): Promise<void> {
   if (!isSupabaseReady()) return;
   
-  const tables = Object.values(SUPABASE_TABLES);
-  
-  for (const table of tables) {
-    await supabaseClient!
-      .from(table)
-      .delete()
-      .eq('sync_id', oldSyncId);
-  }
+  // With ON DELETE CASCADE, removing the profile removes everything
+  await supabaseClient!
+    .from(SUPABASE_TABLES.PROFILES)
+    .delete()
+    .eq('sync_id', oldSyncId);
 }
 
 /** Transfers record from one sync_id to another */
 export async function transferCloudRecord(table: string, oldSyncId: string, newSyncId: string): Promise<void> {
   if (!isSupabaseReady()) return;
+  if (table !== SUPABASE_TABLES.PROFILES) return; // Only process once
 
-  const { data } = await supabaseClient!
-    .from(table)
-    .select('*')
-    .eq('sync_id', oldSyncId)
-    .maybeSingle();
-
-  if (data) {
-    const payload = { ...data, sync_id: newSyncId };
-    delete payload.id; // Let Supabase gen new ID or handle it
-    await supabaseClient!.from(table).upsert(payload, { onConflict: 'sync_id' });
-  }
+  await supabaseClient!
+    .from(SUPABASE_TABLES.PROFILES)
+    .update({ sync_id: newSyncId })
+    .eq('sync_id', oldSyncId);
 }
 
 /** Checks if a Username is already in use by another Sync ID */
@@ -469,9 +485,9 @@ export async function isUsernameTaken(username: string, excludeSyncId?: string |
   if (!isSupabaseReady()) return false;
 
   let query = supabaseClient!
-    .from(SUPABASE_TABLES.GLOBAL_PROFILES)
-    .select('display_name')
-    .ilike('display_name', username.trim()); // Case-insensitive match
+    .from(SUPABASE_TABLES.PROFILES)
+    .select('handle')
+    .ilike('handle', username.trim()); // Case-insensitive match
 
   if (excludeSyncId) {
     query = query.neq('sync_id', excludeSyncId);
@@ -492,10 +508,10 @@ export async function verifyUserCredentials(username: string, syncId: string): P
   if (!isSupabaseReady()) return false;
 
   const { data: profile } = await supabaseClient!
-    .from(SUPABASE_TABLES.GLOBAL_PROFILES)
-    .select('display_name')
-    .ilike('display_name', username.trim())
-    .eq('id', syncId.trim())
+    .from(SUPABASE_TABLES.PROFILES)
+    .select('handle')
+    .ilike('handle', username.trim())
+    .eq('sync_id', syncId.trim())
     .maybeSingle();
     
   if (profile) return true;
@@ -504,15 +520,21 @@ export async function verifyUserCredentials(username: string, syncId: string): P
   return false;
 }
 
-/** Checks if an Email is already in use by another Sync ID (Secure RPC) */
+/** Checks if an Email is already in use by another Sync ID (Direct Query) */
 export async function isEmailTaken(email: string, excludeSyncId?: string | null): Promise<boolean> {
   if (!isSupabaseReady()) return false;
   if (!email) return false;
 
-  const { data, error } = await supabaseClient!.rpc('check_email_uniqueness', {
-    target_email: email.trim(),
-    current_id: excludeSyncId || ''
-  });
+  let query = supabaseClient!
+    .from(SUPABASE_TABLES.PROFILES)
+    .select('email')
+    .ilike('email', email.trim());
+
+  if (excludeSyncId) {
+    query = query.neq('sync_id', excludeSyncId);
+  }
+
+  const { data, error } = await query.maybeSingle();
 
   if (error) {
     console.error('Error checking email uniqueness:', error);
@@ -521,15 +543,21 @@ export async function isEmailTaken(email: string, excludeSyncId?: string | null)
   return !!data;
 }
 
-/** Checks if a Phone Number is already in use by another Sync ID (Secure RPC) */
+/** Checks if a Phone Number is already in use by another Sync ID (Direct Query) */
 export async function isPhoneTaken(phone: string, excludeSyncId?: string | null): Promise<boolean> {
   if (!isSupabaseReady()) return false;
   if (!phone) return false;
 
-  const { data, error } = await supabaseClient!.rpc('check_phone_uniqueness', {
-    target_phone: phone.trim(),
-    current_id: excludeSyncId || ''
-  });
+  let query = supabaseClient!
+    .from(SUPABASE_TABLES.PROFILES)
+    .select('phone')
+    .eq('phone', phone.trim());
+
+  if (excludeSyncId) {
+    query = query.neq('sync_id', excludeSyncId);
+  }
+
+  const { data, error } = await query.maybeSingle();
 
   if (error) {
     console.error('Error checking phone uniqueness:', error);
@@ -547,15 +575,20 @@ export async function fetchGlobalTelemetry(): Promise<{
 } | null> {
   if (!isSupabaseReady()) return null;
 
-  const { data, error } = await supabaseClient!
-    .from('platform_telemetry')
-    .select('*')
-    .maybeSingle();
+  try {
+    const [{ count: total_pilots }, { count: active_now }] = await Promise.all([
+      supabaseClient!.from(SUPABASE_TABLES.PROFILES).select('*', { count: 'exact', head: true }),
+      supabaseClient!.from(SUPABASE_TABLES.STATS).select('*', { count: 'exact', head: true }).eq('is_focusing', true)
+    ]);
 
-  if (error) {
-    console.error('Error fetching global telemetry:', error);
+    return {
+      total_pilots: total_pilots || 0,
+      active_now: active_now || 0,
+      global_hours_today: 0, // Need complex query for sum, ignoring for performance
+      nations_active: 0
+    };
+  } catch (err) {
+    console.error('Telemetry fetch failed', err);
     return null;
   }
-
-  return data;
 }

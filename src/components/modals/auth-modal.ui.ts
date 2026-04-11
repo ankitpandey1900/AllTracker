@@ -92,7 +92,21 @@ export const authModal = `
           <form id="registerForm">
             <!-- Sector 01: Identity -->
             <div class="auth-sector-label" style="font-size: 0.6rem; color: #10b981; font-weight: 800; letter-spacing: 2px; margin-bottom: 12px; opacity: 0.7;">[ SECTOR 01: IDENTITY ]</div>
+            
+            <div class="settings-group" style="margin-bottom: 15px;">
+              <label>SELECT TACTICAL AVATAR</label>
+              <div id="regAvatarPickerGrid" class="avatar-grid" style="grid-template-columns: repeat(6, 1fr); gap: 6px;">
+                <!-- Auto populated -->
+              </div>
+              <input type="hidden" id="regAvatarInput" value="👨‍🚀" />
+            </div>
+
             <div class="settings-group">
+              <label>REAL NAME</label>
+              <input id="regRealNameInput" class="input" placeholder="Your actual full name" required />
+            </div>
+
+            <div class="settings-group" style="margin-top: 15px;">
               <label>USER ID / HANDLE</label>
               <input id="regUsernameInput" class="input" placeholder="Permanent unique handle" required />
               <p id="regUsernameStatus" style="font-size: 0.6rem; color: #94a3b8; margin-top: 4px;">Locked after creation. Visible on World Stage.</p>

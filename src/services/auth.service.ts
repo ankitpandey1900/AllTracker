@@ -22,9 +22,6 @@ let currentSyncId: string | null = (rawId && isObfuscated(rawId)) ? deobfuscate(
 
 /** Returns the current Sync ID, or null if not connected */
 export function getCurrentUserId(): string | null {
-  if (currentSyncId) {
-    console.log('🔐 IDENTITY: Connected to Vault [ID Prefix: ' + currentSyncId.substring(0, 4) + '...]');
-  }
   return currentSyncId;
 }
 
@@ -135,7 +132,41 @@ export function initSyncAuth(): void {
 
   // Bind Identity Portal trigger (for already logged in users)
   rebindAliasTrigger();
+
+  // Populate Register Avatar Grid
+  setupRegistrationAvatarPicker();
 }
+
+function setupRegistrationAvatarPicker(): void {
+  const avatarGrid = document.getElementById('regAvatarPickerGrid');
+  const avatarInput = document.getElementById('regAvatarInput') as HTMLInputElement;
+
+  const AVATARS = [
+    '🦇', '🕷️', '⚡', '🦸‍♂️', '🦹‍♂️', '🚀', 
+    '🛸', '🪐', '☄️', '🌌', '🦾', '🥷', 
+    '🏀', '🏎️', '🥊', '🏂', '🛹', '⚽', 
+    '🏋️‍♂️', '🎯', '🐉', '🦖', '🦈', '🐺', 
+    '🦅', '🐍', '🦂', '🦍', '🗿', '👽', 
+    '💀', '🥶', '👺', '👑', '💎', '🎲'
+  ];
+
+  if (avatarGrid && avatarGrid.children.length === 0) {
+    AVATARS.forEach((emoji, idx) => {
+      const div = document.createElement('div');
+      div.className = 'avatar-item' + (idx === 0 ? ' active' : '');
+      div.setAttribute('data-avatar', emoji);
+      div.textContent = emoji;
+      avatarGrid.appendChild(div);
+
+      div.onclick = () => {
+        avatarGrid.querySelectorAll('.avatar-item').forEach(a => a.classList.remove('active'));
+        div.classList.add('active');
+        if (avatarInput) avatarInput.value = emoji;
+      };
+    });
+  }
+}
+
 
 /** Toggles between Login and Register tabs */
 function switchAuthTab(tab: 'login' | 'register' | 'legacy' | 'recovery'): void {
@@ -220,7 +251,6 @@ export function setupHeaderScroll(): void {
 async function handleSyncIdEstablished(syncId: string): Promise<void> {
   currentSyncId = syncId;
   localStorage.setItem(STORAGE_KEYS.SYNC_ID, obfuscate(syncId));
-  console.log('Sync ID active:', syncId);
 
   // Pull the profile from Supabase so it follows the user to this device.
   try {
@@ -239,7 +269,7 @@ async function handleSyncIdEstablished(syncId: string): Promise<void> {
       };
       setSecureLocalProfileString(JSON.stringify(localProfile));
       localStorage.setItem('tracker_username', localProfile.displayName);
-      console.log(`✅ IDENTITY HYDRATED: Loaded @${localProfile.displayName} from cloud.`);
+      console.log(`✅ BROADCAST MATRIX: Monitoring private data for profile.`);
       
       // 📡 ALL TRACKER EVENT: Notify the rest of the system that identity is ready
       window.dispatchEvent(new CustomEvent('all-tracker-identity-sync', { detail: localProfile }));
@@ -468,15 +498,16 @@ async function handleRecoverySubmission(e: Event): Promise<void> {
   successMsg.style.display = 'none';
 
   try {
+    const { SUPABASE_TABLES } = await import('@/config/constants');
     const { data, error } = await supabaseClient!
-      .from('global_profiles')
+      .from(SUPABASE_TABLES.PROFILES)
       .select('sync_id')
-      .ilike('display_name', username)
+      .ilike('handle', username)
       .eq('recovery_key', rKey)
       .maybeSingle();
 
     if (error || !data) {
-      errorMsg.textContent = 'Recovery Failed: Invalid or unmatched User ID and Recovery Key.';
+      errorMsg.textContent = 'Recovery Failed: Invalid or unmatched Handle and Recovery Key.';
       errorMsg.style.display = 'block';
       submitBtn.disabled = false;
       submitBtn.textContent = 'DECRYPT VAULT DATA';
@@ -511,15 +542,44 @@ async function handleRegistrationSubmission(e: Event): Promise<void> {
   const phoneInp = document.getElementById('regPhoneInput') as HTMLInputElement;
   const submitBtn = document.getElementById('regSubmitBtn') as HTMLButtonElement;
   const errorMsg = document.getElementById('regErrorMsg') as HTMLElement;
+  const realNameInp = document.getElementById('regRealNameInput') as HTMLInputElement;
 
   const username = userInp.value.trim();
+  const realName = realNameInp ? realNameInp.value.trim() : '';
   const password = passInp.value.trim();
   const dob = dobInp.value;
   const nation = nationSel.value;
   const email = emailInp.value.trim();
   const phone = phoneInp.value.trim();
 
-  if (!username || !password || !dob || !nation || !email || !phone) return;
+  if (!username || !realName || !password || !dob || !nation || !email || !phone) {
+    errorMsg.textContent = 'SECURITY ALERT: All profile fields are strictly required.';
+    errorMsg.style.display = 'block';
+    return;
+  }
+
+  // Strong Email Validation: Must have a proper domain suffix (e.g., .com)
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
+  if (!emailRegex.test(email)) {
+    errorMsg.textContent = 'INVALID CREDENTIALS: Enter a proper, real email address.';
+    errorMsg.style.display = 'block';
+    return;
+  }
+
+  // Strong Phone Validation: No overly simple repeating numbers like '00000'
+  const cleanPhone = phone.replace(/[\s-]/g, '');
+  const phoneRegex = /^\+?\d{10,15}$/;
+  if (!phoneRegex.test(cleanPhone) || /^(\d)\1{7,}$/.test(cleanPhone.replace('+', '')) || cleanPhone.includes('12345678')) {
+    errorMsg.textContent = 'SECURITY ALERT: Please provide a real mobile number.';
+    errorMsg.style.display = 'block';
+    return;
+  }
+
+  if (password.length < 6) {
+    errorMsg.textContent = 'SECURITY ALERT: Vault Key must be at least 6 characters.';
+    errorMsg.style.display = 'block';
+    return;
+  }
 
   submitBtn.disabled = true;
   submitBtn.textContent = 'INITIALIZING PROFILE...';
@@ -565,21 +625,41 @@ async function handleRegistrationSubmission(e: Event): Promise<void> {
       return;
     }
 
-    // 3. Fake the 'currentSyncId' temporarily so broadcastGlobalStats uses it to upsert
+    // 3. Fake the 'currentSyncId' temporarily
     currentSyncId = password; 
     
     // Generate Secure Recovery Key
     const recoveryKey = 'N7X-' + Math.random().toString(36).substring(2, 6).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
 
+    const avatarInp = document.getElementById('regAvatarInput') as HTMLInputElement;
+    const finalAvatar = avatarInp ? avatarInp.value : '👨‍🚀';
+
+    // Directly register the new profile in the database
+    const { SUPABASE_TABLES } = await import('@/config/constants');
+    const { error: profileErr } = await supabaseClient!
+      .from(SUPABASE_TABLES.PROFILES)
+      .insert({
+        sync_id: password,
+        handle: username,
+        real_name: realName,
+        dob: dob,
+        nation: nation,
+        recovery_key: recoveryKey,
+        phone: phone,
+        is_public: true,
+        email: email,
+        avatar: finalAvatar
+      });
+
+    if (profileErr) {
+       throw profileErr;
+    }
+
+    // Now trigger global stats broadcast (which will safely resolve the Profile ID)
     await broadcastGlobalStats({
-      display_name: username,
-      dob: dob,
-      nation: nation,
-      current_rank: 'PILOT',
-      recovery_key: recoveryKey,
-      phone_number: phone,
-      is_focus_public: true, // Default to public on first reg
-      email: email
+      total_hours: 0,
+      today_hours: 0,
+      current_rank: 'RECRUIT'
     } as any);
 
     // 4. Initialization successful

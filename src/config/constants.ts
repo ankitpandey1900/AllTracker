@@ -28,8 +28,8 @@ export const STORAGE_KEYS = {
 
 // --- Default Dates ---
 
-export const DEFAULT_START_DATE = new Date('2026-01-13');
-export const DEFAULT_END_DATE = new Date('2026-12-31');
+export const DEFAULT_START_DATE = new Date();
+export const DEFAULT_END_DATE = new Date(new Date().getFullYear(), 11, 31); // End of the current year
 
 // --- Default Study Groups ---
 
@@ -55,15 +55,15 @@ export const CATEGORY_COLORS = [
 // --- Supabase Tables ---
 
 export const SUPABASE_TABLES = {
-  TRACKER_DATA: 'tracker_data',
-  SETTINGS: 'settings',
-  ROUTINES: 'routines',
-  BOOKMARKS: 'bookmarks',
-  ROUTINE_HISTORY: 'routine_history',
-  TIMER_STATE: 'timer_state',
-  ROUTINE_RESET: 'routine_reset',
-  TASKS: 'tasks',
-  GLOBAL_PROFILES: 'global_profiles',
+  PROFILES: 'operative_profiles',
+  STATS: 'operative_stats',
+  TRACKER: 'vault_tracker',
+  SETTINGS: 'vault_settings',
+  ROUTINES: 'vault_routines',
+  TASKS: 'vault_tasks',
+  BOOKMARKS: 'vault_bookmarks',
+  TIMER: 'vault_timer',
+  HISTORY: 'vault_history',
 } as const;
 
 // --- Badge Condition Helpers ---

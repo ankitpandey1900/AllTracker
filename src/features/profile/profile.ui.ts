@@ -124,6 +124,18 @@ function hydrateIdentityFields(): void {
   (document.getElementById('profileNationSelect') as HTMLSelectElement).value = profile.nation || 'Global';
   (document.getElementById('profileFocusPrivacyToggle') as HTMLInputElement).checked = profile.isFocusPublic !== false;
   
+  // 🔒 SECURITY LOCKDOWN: Make all core identity fields strictly un-editable (except Avatar)
+  const lockedFields = ['profileNameInput', 'profileRealNameInput', 'profileDobInput', 'profileEmailInput', 'profilePhoneInput', 'profileNationSelect'];
+  lockedFields.forEach(id => {
+    const el = document.getElementById(id) as HTMLInputElement | HTMLSelectElement;
+    if (el) {
+      el.disabled = true;
+      el.style.opacity = '0.5';
+      el.style.cursor = 'not-allowed';
+      el.parentElement?.setAttribute('title', 'Locked by Vault Security. Identity components cannot be altered.');
+    }
+  });
+  
   // Sync Edit Preview
   const editPreview = document.getElementById('editAvatarPreview');
   if (editPreview) editPreview.textContent = profile.avatar || '👨‍🚀';
@@ -135,11 +147,23 @@ function setupAvatarPicker(): void {
   const avatarToggle = document.getElementById('toggleAvatarPickerBtn');
   const avatarContainer = document.getElementById('avatarPickerContainer');
 
-  if (avatarToggle && avatarContainer) {
-    avatarToggle.onclick = () => {
-      const isHidden = avatarContainer.style.display === 'none';
-      avatarContainer.style.display = isHidden ? 'block' : 'none';
-    };
+  const AVATARS = [
+    '🦇', '🕷️', '⚡', '🦸‍♂️', '🦹‍♂️', '🚀', 
+    '🛸', '🪐', '☄️', '🌌', '🦾', '🥷', 
+    '🏀', '🏎️', '🥊', '🏂', '🛹', '⚽', 
+    '🏋️‍♂️', '🎯', '🐉', '🦖', '🦈', '🐺', 
+    '🦅', '🐍', '🦂', '🦍', '🗿', '👽', 
+    '💀', '🥶', '👺', '👑', '💎', '🎲'
+  ];
+
+  if (avatarGrid && avatarGrid.children.length === 0) {
+    AVATARS.forEach(emoji => {
+      const div = document.createElement('div');
+      div.className = 'avatar-item';
+      div.setAttribute('data-avatar', emoji);
+      div.textContent = emoji;
+      avatarGrid.appendChild(div);
+    });
   }
 
   if (avatarGrid) {

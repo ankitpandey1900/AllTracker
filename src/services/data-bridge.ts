@@ -6,7 +6,7 @@ import { getSecureLocalProfileString, setSecureLocalProfileString } from '@/util
  * If you're logged in, everything saves to both places automatically.
  */
 
-import { STORAGE_KEYS } from '@/config/constants';
+import { STORAGE_KEYS, SUPABASE_TABLES } from '@/config/constants';
 import { getCurrentUserId } from '@/services/auth.service';
 import {
   saveTrackerDataCloud, loadTrackerDataCloud,
@@ -517,7 +517,7 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
       };
       setSecureLocalProfileString(JSON.stringify(userProfile));
       localStorage.setItem('tracker_username', userProfile.displayName);
-      console.log(`✅ IDENTITY SYNCED: Re-established @${userProfile.displayName} in local vault.`);
+      console.log(`✅ IDENTITY SYNCED: Profile re-established in local vault.`);
     }
 
     console.log('Sync complete.');
@@ -628,19 +628,19 @@ export async function handleUserDataSync(payload: any): Promise<void> {
   }
 
   switch (table) {
-    case 'tracker_data':    setTrackerData(cloudData, false); break;
-    case 'settings':        setSettings(cloudData, false); break;
-    case 'routines':        setRoutines(cloudData, false); break;
-    case 'bookmarks':       setBookmarks(cloudData, false); break;
-    case 'routine_history': setRoutineHistory(cloudData, false); break;
-    case 'tasks':           setTasks(cloudData, false); break;
-    case 'timer_state':
+    case SUPABASE_TABLES.TRACKER:    setTrackerData(cloudData, false); break;
+    case SUPABASE_TABLES.SETTINGS:        setSettings(cloudData, false); break;
+    case SUPABASE_TABLES.ROUTINES:        setRoutines(cloudData, false); break;
+    case SUPABASE_TABLES.BOOKMARKS:       setBookmarks(cloudData, false); break;
+    case SUPABASE_TABLES.TASKS:           setTasks(cloudData, false); break;
+    case SUPABASE_TABLES.HISTORY:         setRoutineHistory(cloudData, false); break;
+    case SUPABASE_TABLES.TIMER:
       if (JSON.stringify(appState.activeTimer) !== JSON.stringify(cloudData)) {
         Object.assign(appState.activeTimer, cloudData);
       }
       break;
-    case 'routine_reset':
-      localStorage.setItem(STORAGE_KEYS.ROUTINE_RESET, cloudData);
+    case SUPABASE_TABLES.ROUTINES: // if we mapped reset here
+      // Fallback or ignore if not explicitly mapped
       break;
   }
 

@@ -126,19 +126,19 @@ export const dashboardView = `
               <div class="hud-scan-line"></div>
               <div class="telem-grid-v2">
                 <div class="telem-node">
-                  <div class="telem-label">GLOBAL_OPERATIVES</div>
+                  <div class="telem-label">Total Members</div>
                   <div id="telemetry-total-pilots" class="telem-value">--</div>
                 </div>
                 <div class="telem-node">
-                  <div class="telem-label status-amber">LIVE_MISSIONS</div>
+                  <div class="telem-label status-amber">Focusing Now</div>
                   <div id="telemetry-active-now" class="telem-value status-amber">--</div>
                 </div>
                 <div class="telem-node divider-top">
-                  <div class="telem-label status-blue">XP_VELOCITY_24H</div>
+                  <div class="telem-label status-blue">Study Hours Today</div>
                   <div id="telemetry-global-hours" class="telem-value status-blue">--</div>
                 </div>
                 <div class="telem-node divider-top">
-                  <div class="telem-label status-gold">AGGREGATE_INTEL</div>
+                  <div class="telem-label status-gold">Platform Total Hours</div>
                   <div id="telemetry-global-total" class="telem-value status-gold">--</div>
                 </div>
               </div>
