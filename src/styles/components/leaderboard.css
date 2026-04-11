@@ -5,6 +5,9 @@
   display: flex;
   flex-direction: column;
   margin-bottom: 0;
+  position: relative;
+  z-index: 50 !important; /* CRITICAL: Prevent hover cards from hiding under the Study Log */
+  overflow: visible !important; /* CRITICAL FIX: Allows the hover card to break out of the container bounds for the last user */
 }
 
 .dashboard-arena-layout {
@@ -1101,6 +1104,8 @@
   text-shadow: 0 0 10px var(--hover-color, rgba(255,255,255,0.2));
   text-transform: uppercase;
 }
+
+
 
 .status-indicator {
   width: 10px;

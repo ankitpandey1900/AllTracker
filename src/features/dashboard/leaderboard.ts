@@ -11,7 +11,7 @@ import { getRankColor, getDetailedRankTitle } from '@/utils/rank.utils';
 // 📡 FEATURE BRIDGE: Profile and Identity logic moved to src/features/profile/
 import { syncProfileBroadcast, updateLastInteraction, lastInteractionAt } from '@/features/profile/profile.manager';
 import { openProfileModal } from '@/features/profile/profile.ui';
-import { getRankProgression, calculateTodayStudyHours, calculateTotalStudyHours, calculateStreak } from '@/utils/calc.utils';
+import { getRankProgression, calculateTodayStudyHours, calculateTotalStudyHours, calculateStreak, getRankDetails } from '@/utils/calc.utils';
 
 /**
  * Starts the leaderboard and platform telemetry systems.
@@ -331,6 +331,7 @@ function renderUserRow(
 
   const age = u.dob ? `${calculateAge(u.dob)}Y • ` : '';
   const rankProg = getRankProgression(u.total_hours);
+  const rankDetails = getRankDetails(u.total_hours);
 
   return `
     <div class="leaderboard-item ${isMe ? 'is-me' : ''}" style="--rank-color: ${rankColor};">
@@ -344,7 +345,7 @@ function renderUserRow(
           <span class="lb-handle">@${escapeHtml(u.display_name)}</span>
           <span class="status-tag ${statusClass}">${statusLabel}</span>
         </div>
-        <div class="lb-meta">${age}Lvl ${level} • <span style="color: ${rankColor}; font-weight: 800;">${u.current_rank || 'RECRUIT'}</span></div>
+        <div class="lb-meta">${age}Lvl ${level} • <span style="color: ${rankColor}; font-weight: 800;">${title.toUpperCase()}</span></div>
         <div class="lb-xp-container"><div class="lb-xp-bar" style="width: ${xpPercent}%; background: ${rankColor};"></div></div>
       </div>
       <div class="lb-hours-container">
@@ -365,6 +366,8 @@ function renderUserRow(
              <div class="hover-title">${age}${title.toUpperCase()} PROFILE</div>
            </div>
         </div>
+
+
 
         <!-- 💹 TACTICAL XP TELEMETRY -->
         <div class="hud-progression-box">
