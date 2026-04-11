@@ -16,7 +16,7 @@ import { appState } from '@/state/app-state';
 // --- Internal State ---
 
 const rawId = localStorage.getItem(STORAGE_KEYS.SYNC_ID) || null;
-let currentSyncId: string | null = rawId ? deobfuscate(rawId) : null;
+let currentSyncId: string | null = (rawId && isObfuscated(rawId)) ? deobfuscate(rawId) : rawId;
 
 // --- Public Functions ---
 

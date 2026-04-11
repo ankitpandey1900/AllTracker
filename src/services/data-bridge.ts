@@ -358,14 +358,49 @@ export async function syncDataOnLogin(): Promise<void> {
       loadTimerStateCloud(),
     ]);
 
-    // Cloud wins if it exists
-    if (cloudTracker) setTrackerData(cloudTracker, false);
-    if (cloudSettings) setSettings(cloudSettings, false);
-    if (cloudRoutines) setRoutines(cloudRoutines, false);
-    if (cloudHistory) setRoutineHistory(cloudHistory, false);
-    if (cloudBookmarks) setBookmarks(cloudBookmarks, false);
-    if (cloudTasks) setTasks(cloudTasks, false);
-    if (cloudTimer) Object.assign(appState.activeTimer, cloudTimer); // DB → memory, no localStorage
+    // 🛡️ SYNC PROTECTION (e07f5d0 era robustness):
+    // Only allow cloud to overwrite local if cloud actually has data.
+    // If cloud is empty but local has progress, sync local TO cloud to heal the vault.
+    if (cloudTracker && cloudTracker.length > 0) {
+      setTrackerData(cloudTracker, false);
+    } else if (appState.trackerData.length > 0) {
+      console.warn('🛡️ SYNC PROTECTION: Cloud empty, healing vault from local tracker state...');
+      saveTrackerDataCloud(appState.trackerData);
+    }
+
+    if (cloudSettings) {
+      setSettings(cloudSettings, false);
+    } else if (Object.keys(appState.settings).length > 0) {
+      saveSettingsCloud(appState.settings);
+    }
+
+    if (cloudRoutines && cloudRoutines.length > 0) {
+      setRoutines(cloudRoutines, false);
+    } else if (appState.routines.length > 0) {
+      saveRoutinesCloud(appState.routines);
+    }
+
+    if (cloudHistory && Object.keys(cloudHistory).length > 0) {
+      setRoutineHistory(cloudHistory, false);
+    } else if (Object.keys(appState.routineHistory).length > 0) {
+      saveRoutineHistoryCloud(appState.routineHistory);
+    }
+
+    if (cloudBookmarks && cloudBookmarks.length > 0) {
+      setBookmarks(cloudBookmarks, false);
+    } else if (appState.bookmarks.length > 0) {
+      saveBookmarksCloud(appState.bookmarks);
+    }
+
+    if (cloudTasks && cloudTasks.length > 0) {
+      setTasks(cloudTasks, false);
+    } else if (appState.tasks.length > 0) {
+      saveTasksCloud(appState.tasks);
+    }
+
+    if (cloudTimer) {
+      Object.assign(appState.activeTimer, cloudTimer);
+    }
 
     const cloudReset = await loadRoutineResetCloud();
     if (cloudReset) setRoutineReset(cloudReset, false);
