@@ -26,11 +26,23 @@ export async function initNotifications(): Promise<void> {
 }
 
 export function requestNotificationPermission(): void {
-    if (!("Notification" in window)) return;
+    if (!("Notification" in window)) {
+        showToast("Your browser does not support notifications.", "error");
+        return;
+    }
+
+    // Handled state: Inform user how to toggle browser-level OS APIs.
+    if (Notification.permission === "granted") {
+        showToast("Notifications are already rolling! To disable, click the lock icon 🔒 next to your URL bar.", "info");
+        return;
+    }
+    
     Notification.requestPermission().then(permission => {
         if (permission === "granted") {
             showToast("Notifications Enabled! All Tracker will remind you to stay consistent.", "success");
             syncNotificationUI();
+        } else if (permission === "denied") {
+            showToast("Notifications are blocked in your browser settings. Please allow them manually via the lock icon in your URL bar.", "error");
         }
     });
 }
@@ -41,12 +53,16 @@ function syncNotificationUI(): void {
 
   if (Notification.permission === "granted") {
     btn.classList.add('notif-active');
+    btn.style.display = 'flex';
+    btn.style.alignItems = 'center';
+    btn.style.justifyContent = 'center';
+    btn.style.gap = '8px';
     btn.innerHTML = `
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
         <polyline points="22 4 12 14.01 9 11.01"></polyline>
       </svg>
-      Notifications Active
+      <span>Notifications Active</span>
     `;
   }
 }
@@ -126,14 +142,30 @@ function checkAndNotify(): void {
   }
 }
 
-function sendNotification(title: string, body: string): void {
+async function sendNotification(title: string, body: string): Promise<void> {
   if (Notification.permission === "granted") {
-    new Notification(title, {
+    const options = {
       body,
-      icon: "/favicon.png",
-      badge: "/favicon.png",
+      icon: "/pwa-icon.png",
+      badge: "/pwa-icon.png",
       tag: title.includes("Mission") ? "routine-alert" : "study-reminder",
       renotify: true
-    } as any);
+    };
+
+    // 📱 Modern PWA Standard: Must use Service Worker to guarantee delivery on Android/iOS
+    if ('serviceWorker' in navigator) {
+      try {
+        const registration = await navigator.serviceWorker.ready;
+        if (registration && registration.showNotification) {
+          await registration.showNotification(title, options);
+          return;
+        }
+      } catch (e) {
+        console.warn('SW Notification failed, falling back...', e);
+      }
+    }
+
+    // 💻 Fallback for legacy desktop contexts where SW isn't managing pushes
+    new Notification(title, options as any);
   }
 }

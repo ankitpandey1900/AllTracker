@@ -54,10 +54,66 @@ export function initTimerModules(): void {
 // --- Timer State ---
 
 let isStopping = false; // Stops the 'stop' function from running twice at once
+let wakeLock: any = null; // WakeLockSentinel (any for browser compatibility checks)
 
 /** DB-First save — writes exclusively to Supabase via the Data Bridge. */
 function saveTimerState(): void {
   saveTimerStateToStorage(appState.activeTimer); // pure DB call (Data Bridge handles the Cloud sync)
+}
+
+/** 🛡️ ANTI-SLEEP: Request the browser to keep the screen active */
+async function requestWakeLock() {
+  if ('wakeLock' in navigator) {
+    try {
+      wakeLock = await (navigator as any).wakeLock.request('screen');
+      console.log('💡 Wake Lock Active: Screen will stay awake.');
+      wakeLock.addEventListener('release', () => {
+        console.log('🌙 Wake Lock Released.');
+      });
+    } catch (err: any) {
+      console.error(`${err.name}, ${err.message}`);
+    }
+  }
+}
+
+/** 🌙 SLEEP ALLOWED: Release the screen lock */
+function releaseWakeLock() {
+  if (wakeLock) {
+    wakeLock.release();
+    wakeLock = null;
+  }
+}
+
+// Re-acquire wake lock if tab becomes visible again (OS often kills it in background)
+document.addEventListener('visibilitychange', async () => {
+  if (wakeLock !== null && document.visibilityState === 'visible') {
+    await requestWakeLock();
+  }
+});
+
+/** 📺 OS PIP: Update the Lock Screen / Media Hub metadata */
+function updateMediaSession(isRunning: boolean) {
+  if (!('mediaSession' in navigator)) return;
+
+  if (isRunning && appState.activeTimer.colName) {
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: `Focus: ${appState.activeTimer.colName}`,
+      artist: 'All Tracker',
+      album: 'Internal Strategy',
+      artwork: [
+        { src: 'logo.png', sizes: '512x512', type: 'image/png' }
+      ]
+    });
+
+    // Set action handlers for lock screen buttons
+    navigator.mediaSession.setActionHandler('play', () => startTimerInterval());
+    navigator.mediaSession.setActionHandler('pause', () => pauseTimer());
+    navigator.mediaSession.setActionHandler('stop', () => {
+      stopTimer().catch(err => console.error('MediaSession Stop Error:', err));
+    });
+  } else {
+    navigator.mediaSession.metadata = null;
+  }
 }
 
 // --- Timer Controls ---
@@ -65,13 +121,13 @@ function saveTimerState(): void {
 export function startTimer(categoryIdx: number, categoryName: string): void {
   if (appState.activeTimer.isRunning) return;
 
+  appState.activeTimer.isRunning = true;
+  appState.activeTimer.startTime = Date.now();
+
   // ⚡ OPTIMISTIC UI: Instant visual feedback
   updateTimerUI(true);
   startTimerInterval();
   document.getElementById('timerModal')?.classList.remove('active');
-
-  appState.activeTimer.isRunning = true;
-  appState.activeTimer.startTime = Date.now();
 
   appState.activeTimer.category = String(categoryIdx);
   appState.activeTimer.colName = categoryName;
@@ -85,6 +141,10 @@ export function startTimer(categoryIdx: number, categoryName: string): void {
   
   // ⚡ ELITE UX: Trigger War Mode / Sonic Effects
   document.body.classList.add('is-focusing');
+
+  // 🛡️ ANTI-SLEEP & PIP
+  requestWakeLock();
+  updateMediaSession(true);
 
   // 📡 WORLD STAGE: Broadcast status instantly
   import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast());
@@ -106,6 +166,10 @@ export function pauseTimer(): void {
 
   // ⚡ ELITE UX: Cease Fire / Landing
   document.body.classList.remove('is-focusing');
+
+  // 🌙 RELEASE LOCKS
+  releaseWakeLock();
+  updateMediaSession(false);
 
   // 📡 WORLD STAGE: Broadcast status instantly (Away/Paused)
   import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast());
@@ -359,6 +423,17 @@ function startTimerInterval(): void {
       const totalElapsedMs = appState.activeTimer.elapsedAcc + (Date.now() - appState.activeTimer.startTime);
       const elapsedSeconds = Math.floor(totalElapsedMs / 1000);
       updateSessionProgress(elapsedSeconds);
+
+      // 📺 UPDATING OS PIP POSITION
+      if ('mediaSession' in navigator && (navigator as any).mediaSession.setPositionState) {
+        try {
+          (navigator as any).mediaSession.setPositionState({
+            duration: 3600 * 24, // Infinite-ish progress for stopwatch mode
+            playbackRate: 1,
+            position: elapsedSeconds
+          });
+        } catch (e) {}
+      }
 
       // 💓 HEARBEAT SYNC: Every 30 seconds, push the live state to Supabase for "Perfect Sync"
       if (elapsedSeconds > 0 && elapsedSeconds % 30 === 0) {

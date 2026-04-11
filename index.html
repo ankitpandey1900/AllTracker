@@ -3,7 +3,7 @@
 
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=overlays-content" />
 
   <!-- 🛡️ NUCLEAR CACHE BUSTER (v1.3): Ensure high-fidelity sync updates -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -24,7 +24,7 @@
   <meta property="og:title" content="All Tracker | Study Tracker & Global Leaderboard" />
   <meta property="og:description"
     content="Track your study hours, beat DSA goals, climb the global leaderboard, and get AI mentoring — All Tracker is the ultimate productivity app for students and developers." />
-  <meta property="og:image" content="https://alltracker.online/logo.png" />
+  <meta property="og:image" content="https://alltracker.online/pwa-icon.png" />
   <meta property="og:image:type" content="image/png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
@@ -37,7 +37,7 @@
   <meta name="twitter:title" content="All Tracker | Study Tracker & Global Leaderboard" />
   <meta name="twitter:description"
     content="Track your study hours, beat DSA goals, climb the global leaderboard, and get AI mentoring — All Tracker is the ultimate productivity app for students and developers." />
-  <meta name="twitter:image" content="https://alltracker.online/logo.png" />
+  <meta name="twitter:image" content="https://alltracker.online/pwa-icon.png" />
 
   <script type="application/ld+json">
   [
@@ -66,7 +66,7 @@
         "Competitive Exam Preparation Tracker",
         "Task Mission Board"
       ],
-      "screenshot": "https://alltracker.online/logo.png",
+      "screenshot": "https://alltracker.online/pwa-icon.png",
       "offers": {
         "@type": "Offer",
         "price": "0",
@@ -119,12 +119,12 @@
 
   <link rel="manifest" href="/manifest.json" />
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-  <link rel="icon" type="image/svg+xml" href="/icons/Logo.svg" />
+  <link rel="icon" type="image/png" href="/logo.png" />
   <link rel="shortcut icon" href="/pwa-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="/pwa-icon.png" />
 
   <!-- ⚡ Core Web Vitals: Preload critical assets for LCP -->
-  <link rel="preload" href="/icons/Logo.svg" as="image" type="image/svg+xml" fetchpriority="high" />
+  <link rel="preload" href="/logo.png" as="image" type="image/png" fetchpriority="high" />
 
   <!-- 🔗 DNS Prefetch: Speed up third-party connections -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -143,7 +143,80 @@
   <meta name="application-name" content="All Tracker" />
 
   <!-- 🎨 Bootstrap Loader Styles (Safe & Instant) -->
-  <link rel="stylesheet" href="/css/loader.css" />
+  <style>
+    #app-bootstrap-loader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #030611;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+      transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.6s;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    #app-bootstrap-loader.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .loader-content {
+      text-align: center;
+      animation: loader-pulse 2s ease-in-out infinite;
+    }
+
+    .loader-logo {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 24px;
+      filter: drop-shadow(0 0 15px rgba(106, 134, 255, 0.4));
+    }
+
+    .loader-text {
+      color: #8b9cc4;
+      font-size: 0.85rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-family: 'Tektur', sans-serif;
+      margin-top: 10px;
+    }
+
+    .loader-progress {
+      width: 120px;
+      height: 2px;
+      background: rgba(106, 134, 255, 0.1);
+      margin: 20px auto 0;
+      border-radius: 4px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .loader-progress-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 40%;
+      height: 100%;
+      background: #6a86ff;
+      border-radius: 4px;
+      animation: progress-slide 1.5s ease-in-out infinite;
+    }
+
+    @keyframes loader-pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.02); opacity: 0.8; }
+    }
+
+    @keyframes progress-slide {
+      0% { left: -40%; }
+      100% { left: 100%; }
+    }
+  </style>
   <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Black+Ops+One&display=swap" rel="stylesheet">
 </head>
 
@@ -151,10 +224,8 @@
   <!-- 🚀 Initial Sync Loader -->
   <div id="app-bootstrap-loader">
     <div class="loader-content">
-      <img src="/icons/Logo.svg" class="loader-logo" alt="All Tracker">
-      <div id="boot-telemetry-log">
-        <div class="log-line active">INITIALIZING_CORE...</div>
-      </div>
+      <img src="/logo.png" class="loader-logo" alt="All Tracker">
+      <div class="loader-text">Processing… thoda time lagega</div>
       <div class="loader-progress">
         <div class="loader-progress-bar"></div>
       </div>

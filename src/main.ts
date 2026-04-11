@@ -95,7 +95,7 @@ import {
 } from "@/features/shortcuts/shortcuts";
 import { initWorldStage } from "@/features/dashboard/leaderboard";
 import { checkProfileIdentity, syncProfileBroadcast } from "@/features/profile/profile.manager";
-
+import { requestNotificationPermission } from "@/features/notifications/notifications";
 
 // --- App Start ---
 
@@ -103,6 +103,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   // 0. Setup the UI Shell & Architecture (Critical)
   shell.init('app-root');
   await initUI();
+  
+  // Rebind navigation now that mobile-nav has been async injected by initUI
+  shell.setupTabNavigation();
 
   // 1. Parallel Data Loading (Local-First)
   // We load everything from storage in parallel. data-bridge will return local data immediately.
@@ -163,7 +166,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     await checkDailyRoutineReset();
 
     // ⚡ REAL-TIME SYNC BOOT: Listen for remote changes on other devices
-    subscribeToUserDataSync(handleUserDataSync);
+    await (await import('@/services/data-bridge')).startLiveSync();
 
     const [
       { initManualLogic },
@@ -199,49 +202,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.documentElement.style.setProperty("--mouse-y", `${e.clientY}px`);
   });
 
-  // 🏁 8. Finalize Boot: Tactical Reveal (System Telemetry)
+  // 🏁 8. Finalize Boot: Graceful Reveal
   const runBootSequence = async () => {
     const loader = document.getElementById('app-bootstrap-loader');
-    const logContainer = document.getElementById('boot-telemetry-log');
-    if (!loader || !logContainer) return;
-
-    const messages = [
-      'AUTHENTICATING_OPERATIVE...',
-      'SYNCING_CLOUD_IDENTITY...',
-      'DECRYPTING_RITUALS...',
-      'WORLD_STAGE_CONNECTING...',
-      'SYSTEMS_ONLINE'
-    ];
-
-    for (let i = 0; i < messages.length; i++) {
-      const msg = messages[i];
-      const logLine = document.createElement('div');
-      logLine.className = 'log-line';
-      logLine.textContent = msg;
-      
-      logContainer.appendChild(logLine);
-      
-      // Brief pause for tactical effect
-      await new Promise(r => setTimeout(r, 60));
-
-      // Animation handling
-      requestAnimationFrame(() => {
-        const prev = logContainer.querySelector('.log-line.active');
-        if (prev) {
-          prev.classList.remove('active');
-          prev.classList.add('prev');
-        }
-        logLine.classList.add('active');
-      });
-      
-      await new Promise(r => setTimeout(r, 80));
-    }
+    const loaderText = document.querySelector('.loader-text');
+    if (!loader) return;
+    
+    // Quick aesthetic text change 
+    setTimeout(() => {
+      if (loaderText) loaderText.textContent = "Welcome back.";
+    }, 300);
 
     // Final Fade
     setTimeout(() => {
       loader.classList.add('hidden');
       setTimeout(() => loader.remove(), 600);
-    }, 200);
+    }, 800);
   };
 
   // Immediate initiation
@@ -287,6 +263,7 @@ function setupEventListeners(): void {
   });
 
   bindClick("startTimerBtn", openTimerModal);
+  bindClick("mobileStartTimerBtn", openTimerModal);
   bindClick("openQuickEntryBtn", openQuickEntryModal);
   bindClick("quickEntryBtn", openTodayEntry);
   bindClick("jumpToTodayBtn", scrollToToday);
@@ -355,9 +332,7 @@ function setupEventListeners(): void {
   bindClick("applyThemeBtn", () => {
     import('@/features/settings/settings').then(m => m.applyThemeSettings());
   });
-  bindClick("enableNotificationsBtn", () => {
-    import('@/features/notifications/notifications').then(m => m.requestNotificationPermission());
-  });
+  bindClick("enableNotificationsBtn", requestNotificationPermission);
 
   bindClick("addCustomRangeBtn", addCustomRange);
   bindClick("closeSettingsModal", () =>

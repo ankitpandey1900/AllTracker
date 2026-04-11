@@ -4,7 +4,7 @@
    Aesthetic: Ultra-Minimalist, Frozen Glass, Pure
    ========================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@200;400;700&display=swap');
+
 
 html[data-theme="himavat"] :root {
   --bg-primary: #0a1118; 

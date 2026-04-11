@@ -110,7 +110,7 @@ export function applyColumnSettings(): void {
 export function applyThemeSettings(): void {
   const themeInput = document.getElementById('themeSelectInput') as HTMLSelectElement;
   if (themeInput) {
-    appState.settings.theme = themeInput.value as 'midnight' | 'arctic' | 'cyberpunk' | 'coder-terminal' | 'apex-corporate' | 'sakura-overdrive' | 'arena-sport';
+    appState.settings.theme = themeInput.value as 'midnight' | 'himavat' | 'chanakya-strategy' | 'ayodhya' | 'kamala-grace' | 'vajra-shakti';
     import('@/state/app-state').then(m => m.applyThemeToDOM(appState.settings.theme));
     saveSettingsToStorage(appState.settings);
     showToast('Theme applied successfully.', 'success');

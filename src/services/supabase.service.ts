@@ -256,6 +256,7 @@ export function subscribeToRealtimeTelemetry(
   };
 }
 
+
 /**
  * ⚡ FULL-STACK DATA SYNC GATEWAY
  * Subscribes to all private user data tables (Tracker, Tasks, Routines, etc.)
@@ -267,9 +268,12 @@ export async function subscribeToUserDataSync(
   if (!isSupabaseReady()) return { unsubscribe: () => {} };
 
   const pId = await getProfileId();
-  if (!pId) return { unsubscribe: () => {} };
+  if (!pId) {
+    console.warn('📡 SYNC DELAY: Profile ID not yet established. Realtime sync pending...');
+    return { unsubscribe: () => {} };
+  }
 
-  console.log(`📡 BROADCAST MATRIX: Monitoring private data channel.`);
+  console.log(`📡 BROADCAST MATRIX: Monitoring private data channel for pilot ${pId.slice(0, 8)}.`);
 
   const channel = supabaseClient!
     .channel(`user_data_sync_${pId}`)
@@ -283,7 +287,11 @@ export async function subscribeToUserDataSync(
     .on('postgres_changes', { event: '*', schema: 'public', table: SUPABASE_TABLES.HISTORY, filter: `profile_id=eq.${pId}` }, (p) => callback(p))
     .subscribe((status) => {
       if (status === 'SUBSCRIBED') {
-         console.log('🔗 REALTIME DATA SYNC ESTABLISHED');
+         console.log('🔗 REALTIME DATA SYNC ESTABLISHED: Zero-refresh mode active.');
+      } else if (status === 'CLOSED') {
+         console.warn('🔗 REALTIME DATA SYNC CLOSED.');
+      } else if (status === 'CHANNEL_ERROR') {
+         console.error('🔗 REALTIME DATA SYNC ERROR: Retrying...');
       }
     });
 

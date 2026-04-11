@@ -19,6 +19,7 @@ import {
   saveTasksCloud, loadTasksCloud,
   loadUserProfileCloud,
   updateSyncStatus,
+  subscribeToUserDataSync,
 } from '@/services/supabase.service';
 import type { TrackerDay, Settings } from '@/types/tracker.types';
 import type { RoutineItem, RoutineHistory } from '@/types/routine.types';
@@ -604,6 +605,16 @@ async function refreshAppAfterSync(): Promise<void> {
   // Reimport dynamically to avoid circular deps at startup
   const { refreshApplicationUI } = await import('@/main');
   await refreshApplicationUI();
+}
+
+/** 
+ * 🚀 INITIALIZE TACTICAL LIVE SYNC
+ * Subscribes to the personal vault after the first successful login.
+ */
+export async function startLiveSync(): Promise<void> {
+  if (!isAuthenticated()) return;
+  console.log('🚀 LIVE SYNC: Activating identity-locked cloud listeners...');
+  await subscribeToUserDataSync(handleUserDataSync);
 }
 
 /**

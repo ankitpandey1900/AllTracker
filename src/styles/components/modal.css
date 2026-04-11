@@ -481,7 +481,6 @@
   color: #2ac7a0 !important;
   border: 1px solid rgba(42, 199, 160, 0.4) !important;
   box-shadow: 0 0 20px rgba(42, 199, 160, 0.25) !important;
-  pointer-events: none;
 }
 
 /* --- Routine Day Selector --- */

@@ -4,7 +4,7 @@
    Aesthetic: Beyond Design Limits, Majestic, Royal, Traditional
    ========================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
+
 
 html[data-theme="ayodhya"] :root {
   --bg-primary: #fff5e1; /* Rich Creamy Stone */

@@ -39,11 +39,18 @@ export class Shell {
     this.setupExcalidraw();
   }
 
-  private setupTabNavigation(): void {
+  public setupTabNavigation(): void {
     const navItems = document.querySelectorAll(".nav-item[data-target], .mobile-nav-item[data-target]");
+    
+    // Clear old listeners by cloning (to prevent double-bindings if called twice)
     navItems.forEach((item) => {
-      item.addEventListener("click", () => {
-        const target = item.getAttribute("data-target");
+      const newItem = item.cloneNode(true) as HTMLElement;
+      if (item.parentNode) {
+        item.parentNode.replaceChild(newItem, item);
+      }
+      
+      newItem.addEventListener("click", () => {
+        const target = newItem.getAttribute("data-target");
         if (!target) return;
 
         // 1. Update All Nav States

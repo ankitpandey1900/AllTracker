@@ -297,9 +297,14 @@ function renderUserRow(
     statusClass = 'online';
     statusLabel = 'ONLINE';
   } else {
-    const isToday = new Date().toDateString() === lastActive.toDateString();
-    const timeStr = lastActive.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
-    statusLabel = isToday ? `Today, ${timeStr}` : lastActive.toLocaleDateString([], { day: 'numeric', month: 'short' });
+    if (diffMins < 60) {
+      statusLabel = `Seen ${Math.floor(diffMins)}m ago`;
+    } else if (diffMins < 24 * 60) {
+      statusLabel = `Seen ${Math.floor(diffMins / 60)}h ago`;
+    } else {
+      const days = Math.floor(diffMins / (24 * 60));
+      statusLabel = `Seen ${days}d ago`;
+    }
   }
 
   const level = Math.floor(u.total_hours / 10) + 1;
@@ -321,8 +326,8 @@ function renderUserRow(
   const jumpDelta = worstSeen - currentRank;
   const dropDelta = currentRank - bestSeen;
   let trendHtml = '';
-  if (jumpDelta > 0) trendHtml = `<div class="rank-delta trend-up"><span>${jumpDelta}</span></div>`;
-  else if (dropDelta > 0) trendHtml = `<div class="rank-delta trend-down"><span>${dropDelta}</span></div>`;
+  if (jumpDelta > 0) trendHtml = `<div class="rank-delta trend-up"><span>▲ ${jumpDelta}</span></div>`;
+  else if (dropDelta > 0) trendHtml = `<div class="rank-delta trend-down"><span>▼ ${dropDelta}</span></div>`;
 
   const medalClasses = ['lb-medal-gold', 'lb-medal-silver', 'lb-medal-bronze'];
   const customMedal = globalIndex < 3
@@ -502,6 +507,8 @@ function bindLbItemEvents(listEl: HTMLElement): void {
         else {
           listEl.querySelectorAll('.leaderboard-item.force-hud').forEach(el => el.classList.remove('force-hud'));
           item.classList.add('force-hud');
+          const card = item.querySelector('.lb-hover-card') as HTMLElement;
+          if (card) animateNumbers(card);
         }
       };
     }
@@ -513,4 +520,39 @@ function handleGlobalHudDismiss(e: MouseEvent): void {
   if (!(e.target as HTMLElement).closest('.lb-hover-card')) {
     document.querySelectorAll('.leaderboard-item.force-hud').forEach(el => el.classList.remove('force-hud'));
   }
+}
+
+/** Cinematic Number Counting for Hover Cards */
+function animateNumbers(card: HTMLElement): void {
+  card.querySelectorAll('.stat-val').forEach((el) => {
+    const textElement = el as HTMLElement;
+    const text = textElement.textContent || '';
+    const numMatch = text.match(/[\d.]+/);
+    if (!numMatch) return;
+    
+    const target = parseFloat(numMatch[0]);
+    if (isNaN(target) || target === 0) return;
+    
+    const suffix = text.replace(numMatch[0], '');
+    const isFloat = text.includes('.');
+    const duration = 800; // 0.8s fast tactical scan
+    let startTimestamp: number | null = null;
+    
+    const step = (timestamp: number) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      // Ease out explosive
+      const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      const current = target * ease;
+      
+      textElement.textContent = (isFloat ? current.toFixed(1) : Math.floor(current).toString()) + suffix;
+      
+      if (progress < 1) {
+        window.requestAnimationFrame(step);
+      } else {
+        textElement.textContent = text; // Lock exact target instantly
+      }
+    };
+    window.requestAnimationFrame(step);
+  });
 }

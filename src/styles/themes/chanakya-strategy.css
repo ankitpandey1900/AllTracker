@@ -4,7 +4,7 @@
    Creative Additions: Scanlines, Blinking Cursors, Strategic Glows
    ========================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&display=swap');
+
 
 html[data-theme="chanakya-strategy"] :root {
   --bg-primary: #0d1117;

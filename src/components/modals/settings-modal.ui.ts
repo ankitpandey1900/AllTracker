@@ -23,6 +23,7 @@ export const settingsModal = `
                   <option value="chanakya-strategy">Chanakya Strategy (Technical)</option>
                   <option value="ayodhya">Ayodhya (Divine Order)</option>
                   <option value="kamala-grace">Kamala's Grace (Prosperity)</option>
+                  <option value="vajra-shakti">Vajra Shakti (Divine Stadium)</option>
                 </select>
                 <button id="applyThemeBtn" class="btn btn-primary" style="white-space: nowrap; padding: 0 20px;">
                   Apply

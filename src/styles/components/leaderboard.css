@@ -16,6 +16,11 @@
   /* Refined balance: wider than original, smaller than 50% */
   gap: 20px;
   align-items: start;
+  
+  /* CRITICAL: Guarantee the top arena & sidebar renders ABOVE the Study Log 
+     so the World Stage hover cards can freely drop downwards without clipping. */
+  position: relative;
+  z-index: 100 !important;
 }
 
 @media (max-width: 1024px) {
@@ -43,6 +48,7 @@
 .dashboard-sidebar {
   position: sticky;
   top: 80px;
+  z-index: 105 !important; /* Always top priority over main content */
 }
 
 .badge-live-pulse {
@@ -174,6 +180,11 @@
 .leaderboard-item.force-hud {
   z-index: 2000000; /* CRITICAL: Lift above all shell layers */
   position: relative;
+  /* 🛡️ DEFEAT CUSTOM THEME STACKING TRAPS */
+  transform: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  filter: none !important;
 }
 
 .leaderboard-item.force-hud .lb-hover-card {
@@ -1618,62 +1629,113 @@
   }
 }
 
-/* 📡 GLOBAL TELEMETRY HUD V2: Premium Tactical UI */
+/* 📡 GLOBAL TELEMETRY HUD V2: Premium Tactical UI (Theme-Ready) */
 .tactical-hud-card {
   position: relative;
-  background: rgba(10, 15, 25, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(16, 185, 129, 0.2);
-  border-radius: 16px;
+  background: var(--surface);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid var(--border);
+  border-radius: 20px;
   overflow: hidden;
-  padding: 20px;
+  padding: 24px;
   margin-bottom: 25px;
-  box-shadow: inset 0 0 30px rgba(16, 185, 129, 0.03), 0 10px 30px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.02);
+  transition: border-color 0.3s ease;
+}
+
+.tactical-hud-card:hover {
+  border-color: var(--border-strong);
 }
 
 .telem-grid-v2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: 20px;
   position: relative;
   z-index: 2;
 }
 
 .telem-node {
   display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: transform 0.2s ease;
+}
+
+.telem-node:hover {
+  transform: translateX(4px);
+}
+
+.telem-icon {
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.telem-content {
+  display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .telem-node.divider-top {
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
   margin-top: 4px;
 }
 
 .telem-label {
   font-family: 'Tektur', sans-serif;
-  font-size: 0.55rem;
-  font-weight: 800;
-  color: #10b981;
-  letter-spacing: 0.15em;
-  opacity: 0.8;
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.12em;
   text-transform: uppercase;
+  line-height: 1.2;
 }
 
 .telem-value {
   font-family: 'Outfit', sans-serif;
-  font-size: 1.3rem;
-  font-weight: 900;
-  color: #fff;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text-primary);
   line-height: 1;
+  letter-spacing: -0.02em;
 }
 
-/* Color States */
-.status-amber { color: #f59e0b !important; }
-.status-blue { color: #3b82f6 !important; }
-.status-gold { color: #fbbf24 !important; }
+/* 🎨 Adaptive Theme Color Overrides */
+.status-amber { 
+  color: var(--accent-cyan) !important; 
+  border-color: rgba(34, 211, 238, 0.2) !important;
+}
+.status-blue { 
+  color: var(--accent-blue) !important; 
+  border-color: rgba(106, 134, 255, 0.2) !important;
+}
+.status-gold { 
+  color: var(--accent-purple) !important; 
+  border-color: rgba(139, 92, 246, 0.2) !important;
+}
+
+/* ⚡ Live Focus Pulse */
+.telem-pulse {
+  animation: telemPulse 2s infinite ease-in-out;
+  text-shadow: 0 0 15px currentColor;
+}
+
+@keyframes telemPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(0.98); }
+}
 
 /* Micro-Animations */
 .hud-scan-line {
@@ -1682,15 +1744,16 @@
   left: 0;
   width: 100%;
   height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.2), transparent);
-  animation: hudScan 4s linear infinite;
+  background: linear-gradient(90deg, transparent, var(--border-strong), transparent);
+  animation: hudScan 6s linear infinite;
   z-index: 1;
   pointer-events: none;
+  opacity: 0.3;
 }
 
 @keyframes hudScan {
-  0% { transform: translateY(-100%); opacity: 0; }
-  100% { transform: translateY(100%); opacity: 1; }
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
 }
 
 /* ─── SOCIAL STUDY IDENTITY: Premium Social Card System ─── */

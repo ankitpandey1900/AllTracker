@@ -7,7 +7,7 @@
 export const shellView = `
   <header id="appHeader" class="app-header backdrop-blur-md">
     <div class="brand-group">
-      <img src="/icons/Logo.svg" alt="All Tracker Logo: High-Performance Study Management" class="app-logo" title="All Tracker — Home">
+      <img src="/logo.png" alt="All Tracker Logo: High-Performance Study Management" class="app-logo" title="All Tracker — Home">
       <h1 class="brand">ALL TRACKER</h1>
     </div>
     <div class="header-actions">
