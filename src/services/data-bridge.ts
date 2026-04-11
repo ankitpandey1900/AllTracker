@@ -125,12 +125,13 @@ function setSettings(settings: Settings, pushToCloud = true): void {
 export async function loadSettingsFromStorage(): Promise<Settings | null> {
   if (isAuthenticated()) {
     const cloud = await loadSettingsCloud();
-    if (cloud) {
-      if (cloud.theme) {
-        applyThemeToDOM(cloud.theme);
+    if (cloud && cloud.data) {
+      if (cloud.data.theme) {
+        applyThemeToDOM(cloud.data.theme);
       }
-      setSettings(cloud, false);
-      return cloud;
+      setSettings(cloud.data, false);
+      updateLocalTimestamp(STORAGE_KEYS.SETTINGS, cloud.updatedAt || undefined);
+      return cloud.data;
     }
   }
 
