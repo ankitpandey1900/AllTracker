@@ -270,7 +270,7 @@ async function handleSyncIdEstablished(syncId: string): Promise<void> {
       };
       setSecureLocalProfileString(JSON.stringify(localProfile));
       localStorage.setItem('tracker_username', localProfile.displayName);
-      log.success(`BROADCAST MATRIX: Monitoring private data for profile.`);
+      log.success('BROADCAST MATRIX: Monitoring private data for profile.');
       
       // 📡 ALL TRACKER EVENT: Notify the rest of the system that identity is ready
       window.dispatchEvent(new CustomEvent('all-tracker-identity-sync', { detail: localProfile }));
@@ -455,7 +455,7 @@ async function handleLegacySubmission(e: Event): Promise<void> {
       }
 
       // If data exists but no profile, they are a "Legacy Pilot" who needs to migrate
-      log.warn('Legacy data found but no profile exists. Proceeding to migration.', '🛡️');
+      log.warn('Legacy data found but no profile exists. Proceeding to migration.');
     }
 
     // Success - Emulate setting them up.

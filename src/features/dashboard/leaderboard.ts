@@ -6,7 +6,6 @@ import { STORAGE_KEYS, RANK_TIERS, SUPABASE_TABLES, NATION_FLAGS } from '@/confi
 import { fetchLeaderboard, fetchGlobalTelemetry } from '@/services/supabase.service';
 import type { GlobalProfile } from '@/types/profile.types';
 import { setupPasswordToggle } from '@/services/auth.service';
-import { escapeHtml } from '@/utils/security';
 import { getRankColor, getDetailedRankTitle } from '@/utils/rank.utils';
 
 // 📡 FEATURE BRIDGE: Profile and Identity logic moved to src/features/profile/

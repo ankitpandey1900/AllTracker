@@ -659,6 +659,7 @@
 /* --- Ultra-Specific Hardware Scaling (5" to 7" devices) --- */
 
 /* Large Phones / Phablets (iPhone Pro Max, S24 Ultra - 6.7"+ class) */
+@media (max-width: 480px) {
   /* Routine HUD Elasticity */
   .hero-routine-next {
     flex-direction: column !important;

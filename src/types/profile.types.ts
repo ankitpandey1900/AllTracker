@@ -29,6 +29,7 @@ export interface GlobalProfile {
   current_focus_subject?: string | null;
   phone_number?: string;
   is_public: boolean;
+  is_focus_public: boolean;
   email?: string;
 }
 

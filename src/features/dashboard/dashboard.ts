@@ -14,6 +14,7 @@ import { setTxt, showToast, showLoading, hideLoading } from '@/utils/dom.utils';
 import { renderIntelligenceBriefing } from '@/features/intelligence/intelligence';
 import type { RankDetails } from '@/types/tracker.types';
 import { renderStudyAnalytics } from './study-analytics';
+import type { StudySession } from '@/types/profile.types';
 import { calculateXP, calculateStreak, getRankDetails } from '@/utils/calc.utils';
 import { saveSettingsToStorage } from '@/services/data-bridge';
 import { fetchLeaderboard, loadUserProfileCloud, fetchMySessionsCloud, migrateLocalHistoryToCloud } from '@/services/supabase.service';
@@ -436,6 +437,10 @@ export async function renderSessionHistory(): Promise<void> {
   const cloudLogs = await fetchMySessionsCloud();
   hideLoading();
 
+  // Legacy local fallback for offline synchronization (StudySession format)
+  const localSaved = localStorage.getItem('all_tracker_history');
+  const localLogs: StudySession[] = localSaved ? JSON.parse(localSaved) : [];
+
   const filterVal = filterInput?.value; // YYYY-MM-DD
   let displayLogs = filterVal 
     ? cloudLogs.filter(log => {
@@ -447,7 +452,7 @@ export async function renderSessionHistory(): Promise<void> {
   // 🛡️ CLOUD-FIRST PROTECTION: If we are logged in, we ignore the 'Ghost' legacy warning
   const isOnline = !!localStorage.getItem('operative_sync_id');
   if (displayLogs.length === 0) {
-    const hasRealLocal = !isOnline && localLogs.length > 0 && localLogs.some(l => l.duration > 0 || l.notes);
+    const hasRealLocal = !isOnline && localLogs.length > 0 && localLogs.some(l => l.duration > 0 || l.note);
     
     tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:40px; color:var(--text-secondary);">
       ${filterVal ? `No sessions found for ${filterVal}.` : (hasRealLocal ? 'Sync your legacy data to see history here.' : 'No sessions recorded in cloud archives.')}

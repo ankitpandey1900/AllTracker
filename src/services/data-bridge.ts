@@ -308,7 +308,7 @@ export async function loadTimerStateFromStorage(): Promise<ActiveTimer | null> {
         }
       }
     } catch (err) {
-      log.warn('Failed to fetch timer state from cloud:', '⚠️');
+      log.warn('Failed to fetch timer state from cloud');
     }
   }
   return null;
@@ -323,7 +323,7 @@ export async function saveTimerStateToStorage(state: ActiveTimer): Promise<void>
   try {
     await saveTimerStateCloud(state);
   } catch (err) {
-    log.warn('DB timer save failed (offline?)', '⚠️');
+    log.warn('DB timer save failed (offline?)');
   }
 }
 
@@ -340,7 +340,7 @@ export async function clearTimerStateDB(): Promise<void> {
   try {
     await saveTimerStateCloud(blankState);
   } catch (err) {
-    log.warn('DB timer clear failed (offline?)', '⚠️');
+    log.warn('DB timer clear failed (offline?)');
   }
 }
 
