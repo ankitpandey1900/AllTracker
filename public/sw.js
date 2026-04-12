@@ -1,12 +1,10 @@
-const CACHE_NAME = 'alltracker-cache-v1.9.1'; // V1.9.1: Profile Terminal Refinement (Zero-Cut & Executive Rank)
+const CACHE_NAME = 'alltracker-cache-v1.9.3'; // V1.9.3: Square Logo Fix (PWA Install Compliance)
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
   '/manifest.json',
   '/logo.png',
-  '/logo.png',
-  '/css/loader.css',
-  '/favicon.ico'
+  '/css/loader.css'
 ];
 
 // Utility: Check if request is for the main site shell

@@ -146,8 +146,8 @@ async function sendNotification(title: string, body: string): Promise<void> {
   if (Notification.permission === "granted") {
     const options = {
       body,
-      icon: "/pwa-icon.png",
-      badge: "/pwa-icon.png",
+      icon: "/logo.png",
+      badge: "/logo.png",
       tag: title.includes("Mission") ? "routine-alert" : "study-reminder",
       renotify: true
     };
