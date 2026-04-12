@@ -11,6 +11,7 @@ export interface UserProfile {
   avatar?: string;
   phoneNumber?: string;
   isFocusPublic?: boolean;
+  isPublic?: boolean;
 }
 
 export interface GlobalProfile {
@@ -27,6 +28,18 @@ export interface GlobalProfile {
   avatar?: string;
   current_focus_subject?: string | null;
   phone_number?: string;
-  is_focus_public: boolean;
+  is_public: boolean;
   email?: string;
+}
+
+export interface StudySession {
+  id: string;
+  user_id: string;
+  duration: number;
+  subject: string;
+  note?: string;
+  start_at?: string;
+  end_at: string; // ISO String
+  log_date?: string; // YYYY-MM-DD
+  session_number?: number;
 }

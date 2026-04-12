@@ -11,6 +11,7 @@ import {
 import { getCurrentUserId } from '@/services/auth.service';
 import { initiateIdentityMigration } from '@/services/identity.service';
 import { showToast } from '@/utils/dom.utils';
+import { log } from '@/utils/logger.utils';
 import type { UserProfile } from '@/types/profile.types';
 import { calculateTodayStudyHours, calculateTotalStudyHours, calculateStreak, calculateBestStreak } from '@/utils/calc.utils';
 
@@ -49,35 +50,35 @@ export async function checkProfileIdentity(): Promise<void> {
         avatar: cloudProfile.avatar || '👨‍🚀',
         phoneNumber: cloudProfile.phone_number || '',
         isFocusPublic: cloudProfile.is_focus_public !== false,
+        isPublic: cloudProfile.is_public !== false,
         email: cloudProfile.email || ''
       };
       setSecureLocalProfileString(JSON.stringify(updatedProfile));
       localStorage.setItem('tracker_username', updatedProfile.displayName);
-      console.log(`✅ IDENTITY HYDRATED: @${updatedProfile.displayName} aligned with cloud.`);
+      log.success(`IDENTITY HYDRATED: @${updatedProfile.displayName} aligned with cloud.`);
 
       // 🛡️ IDENTITY GUARD: Final check for completeness
       checkAndNotifyIncompleteProfile(updatedProfile);
+      
+      // 🔥 BROADCAST AFTER HYDRATION: Sync metrics with the now-correct identity
       await syncProfileBroadcast();
     } else if (profileSaved) {
       // 🚨 RECOVERY MODE: Local profile exists but Cloud is empty (Data loss recovery)
       console.warn("🛡️ RECOVERY: Cloud profile missing. Re-broadcasting local identity...");
-      // 🛡️ IDENTITY GUARD: Final check for completeness
-      if (profile) checkAndNotifyIncompleteProfile(profile);
-      await syncProfileBroadcast();
+      if (profile) {
+        checkAndNotifyIncompleteProfile(profile);
+        await syncProfileBroadcast();
+      }
     } else {
       // TRULY NEW USER -> Open Setup Modal
       const { openProfileModal } = await import('@/features/profile/profile.ui');
       openProfileModal();
     }
-  }, 1500);
+  }, 1000);
 
-  // Ensure username anchor is set for legacy components
+  // Ensure username anchor is set for legacy components (Static only, no broadcast)
   if (profile && !usernameSaved) {
     localStorage.setItem('tracker_username', profile.displayName);
-    await syncProfileBroadcast();
-  }
-  else {
-    await syncProfileBroadcast();
   }
 }
 
@@ -118,11 +119,12 @@ export async function syncProfileBroadcast(): Promise<void> {
     avatar: profile.avatar,
     total_hours: Number(totalHours.toFixed(4)),
     today_hours: Number(todayHours.toFixed(4)),
-    current_rank: `${rank} [B:${bestStreak}]`,
+    current_rank: `${rank} [B:${bestStreak}]${profile.isFocusPublic === false ? ' [PRIV]' : ''}`,
     is_focusing_now: isFocusing,
     current_focus_subject: isFocusing ? (appState.activeTimer.colName || 'ACTIVE MISSION') : null,
     phone_number: profile.phoneNumber,
     is_focus_public: profile.isFocusPublic !== false,
+    is_public: profile.isPublic !== false,
     email: (profile as any).email,
     User_name: profile.realName
   };

@@ -1,58 +1,36 @@
-import { getSecureLocalProfileString, setSecureLocalProfileString } from '@/utils/security';
-/**
- * Identity service
- * 
- * This handles moving your data between different "Secret Keys." 
- * It's useful if someone wants to change their password/key but keep their progress.
- */
-
+import { supabaseClient } from '@/config/supabase';
 import { SUPABASE_TABLES, STORAGE_KEYS } from '@/config/constants';
-import { transferCloudRecord, updateSyncStatus } from '@/services/supabase.service';
 import { getCurrentUserId } from '@/services/auth.service';
 
-/** Moves everything in the cloud to the new Secret Key ID */
-export async function initiateIdentityMigration(newSecretKey: string): Promise<boolean> {
-  const currentId = getCurrentUserId();
-  if (!currentId || !newSecretKey || currentId === newSecretKey) return false;
-
-  console.log('Initiating Identity Migration (Key Transfer)...');
-  updateSyncStatus('syncing');
+/**
+ * Identity Migration Service (Legacy Support)
+ * 
+ * Manages the process of re-linking cloud archives to a new Secret Key.
+ * This ensures directives from the Profile HUD (initiateIdentityMigration) 
+ * remain fully operational.
+ */
+export async function initiateIdentityMigration(newKey: string): Promise<boolean> {
+  const currentSyncId = getCurrentUserId();
+  if (!currentSyncId) return false;
 
   try {
-    const tables = Object.values(SUPABASE_TABLES);
+    const { error } = await supabaseClient!
+      .from(SUPABASE_TABLES.PROFILES)
+      .update({ sync_id: newKey })
+      .eq('sync_id', currentSyncId);
 
-    // 1. Transfer rows one by one for all mission tables
-    for (const table of tables) {
-      console.log(`Migrating ${table}...`);
-      await transferCloudRecord(table, currentId, newSecretKey);
+    if (error) {
+      console.error('Identity Migration Error:', error);
+      return false;
     }
 
-    // 2. Clear old data from cloud (Optional but recommended for privacy)
-    // await deleteOldSyncIdData(currentId);
-
-    // 3. Update local session to new identity
-    localStorage.setItem(STORAGE_KEYS.SYNC_ID, newSecretKey);
-    
-    // 4. Force reload session with new ID
+    // Success: Profile updated in cloud. Now local update and refresh.
+    // Note: auth.service handles the actual masking, but we update the raw key here for sync.
+    localStorage.setItem(STORAGE_KEYS.SYNC_ID, newKey);
     window.location.reload();
-    
     return true;
   } catch (err) {
-    console.error('Critical Failure during Identity Migration:', err);
-    updateSyncStatus('error');
-    alert('Mission Failed. Data remains secure under the old key. Error: ' + err);
+    console.error('Fatal Identity Migration Failure:', err);
     return false;
   }
-}
-
-/** Links a username to the current Secret Key in the local profile */
-export function bindIdentityToLocalProfile(username: string): void {
-  const saved = getSecureLocalProfileString();
-  if (!saved) return;
-
-  const profile = JSON.parse(saved);
-  profile.displayName = username;
-
-  setSecureLocalProfileString(JSON.stringify(profile));
-  localStorage.setItem('tracker_username', username);
 }

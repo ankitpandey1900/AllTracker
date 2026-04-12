@@ -181,14 +181,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     initManualLogic();
     initNotifications();
     initIntegrityService();
-    // initWorldStage already imported above if needed, but we call it here for deferred load
+    
+    // 🏁 WORLD STAGE BOOT: Only once data is established
     await initWorldStage();
-    checkProfileIdentity();
+    await checkProfileIdentity();
     resumeTimerIfNeeded();
     
     // 🔄 BACKGROUND SYNC: Silently update and refresh if cloud differs
     performBackgroundSync();
-  }, 100);
+  }, 300);
 
   // 6. Session goal recovery
   const goalInput = document.getElementById("sessionGoalInput") as HTMLInputElement;

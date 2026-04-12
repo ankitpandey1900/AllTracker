@@ -1,3 +1,5 @@
+import { log } from '@/utils/logger.utils';
+
 /**
  * The UI Engine (Registry).
  * 
@@ -25,7 +27,7 @@ export function injectHTML(containerId: string, html: string, position: 'prepend
  * Registry of all UI Fragments
  */
 export async function initUI(): Promise<void> {
-    console.log("🛠️ Initializing UI Components...");
+    log.info('Initializing UI Components...', '🛠️');
 
     // 1. Feature Containers (Target the sections created by Shell.ts)
     const { dashboardView } = await import('@/features/dashboard/dashboard.ui.ts');
@@ -69,5 +71,5 @@ export async function initUI(): Promise<void> {
     const templates = await Promise.all(modalModules);
     templates.forEach(html => injectHTML('modal-root', html, 'append'));
 
-    console.log("✅ UI Architecture Layered Successfully.");
+    log.success('UI Architecture Layered Successfully.');
 }

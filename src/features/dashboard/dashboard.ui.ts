@@ -123,7 +123,6 @@ export const dashboardView = `
 
             <!-- 📡 GLOBAL TELEMETRY HUD: Premium Tactical Implementation -->
             <div class="tactical-hud-card">
-              <div class="hud-scan-line"></div>
               <div class="telem-grid-v2">
                 <div class="telem-node">
                   <div class="telem-icon">👥</div>
@@ -139,18 +138,58 @@ export const dashboardView = `
                     <div id="telemetry-active-now" class="telem-value status-amber telem-pulse">--</div>
                   </div>
                 </div>
-                <div class="telem-node divider-top">
+                <div class="telem-node">
                   <div class="telem-icon status-blue">⚡</div>
                   <div class="telem-content">
                     <div class="telem-label status-blue">Study Hours Today</div>
                     <div id="telemetry-global-hours" class="telem-value status-blue">--</div>
                   </div>
                 </div>
-                <div class="telem-node divider-top">
+                <div class="telem-node">
                   <div class="telem-icon status-gold">🏆</div>
                   <div class="telem-content">
                     <div class="telem-label status-gold">Platform Total Hours</div>
                     <div id="telemetry-global-total" class="telem-value status-gold">--</div>
+                  </div>
+                </div>
+                <!-- 5th Node: Platform Milestone -->
+                <div class="telem-node">
+                  <div class="telem-icon" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2);">🛰️</div>
+                  <div class="telem-content">
+                    <div class="telem-label" style="color: #34d399;">Platform Milestone</div>
+                    <div id="milestone-percentage-text" class="telem-value" style="color: #34d399; text-shadow: 0 0 10px rgba(16,185,129,0.3);">--%</div>
+                  </div>
+                </div>
+                <!-- 6th Node: Next Target -->
+                <div class="telem-node">
+                  <div class="telem-icon" style="background: rgba(255, 255, 255, 0.05);">🏁</div>
+                  <div class="telem-content">
+                    <div class="telem-label">Next Target</div>
+                    <div id="milestone-next-target-text" class="telem-value" style="font-size: 1.1rem; opacity: 0.9;">--</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 🌐 MILESTONE TIMELINE SECTION -->
+              <div class="hud-milestone-section" style="padding-top: 5px;">
+                <div class="milestone-timeline">
+                  <div id="milestone-tick-marks" class="milestone-ticks"></div>
+                  <div class="milestone-track">
+                    <div id="milestone-progress-bar" class="milestone-fill" style="width: 0%;"></div>
+                    <div id="milestone-timeline-nodes" class="milestone-nodes-layer"></div>
+                  </div>
+                  <div id="milestone-labels-row" class="milestone-labels"></div>
+                </div>
+                <div class="milestone-footer">
+                  <div class="milestone-chip">
+                    <span class="chip-label">GLOBAL AVG</span>
+                    <span class="chip-value" id="milestone-avg-hrs">--</span>
+                    <span class="chip-unit">hrs</span>
+                  </div>
+                  <div class="milestone-chip chip-mvp">
+                    <span class="chip-label">MVP</span>
+                    <span class="chip-value chip-gold" id="milestone-mvp-text">@--</span>
+                    <span class="chip-unit" id="milestone-mvp-share">(0%)</span>
                   </div>
                 </div>
               </div>

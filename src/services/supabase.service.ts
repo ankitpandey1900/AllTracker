@@ -12,8 +12,9 @@ import type { StudyTask } from '@/types/task.types';
 import type { RoutineItem, RoutineHistory } from '@/types/routine.types';
 import type { Bookmark } from '@/types/bookmark.types';
 import type { ActiveTimer } from '@/types/timer.types';
-import type { GlobalProfile } from '@/types/profile.types';
+import type { GlobalProfile, StudySession } from '@/types/profile.types';
 import { getCurrentUserId } from '@/services/auth.service';
+import { log } from '@/utils/logger.utils';
 
 // --- Setup Helpers ---
 
@@ -69,11 +70,12 @@ export function updateSyncStatus(status: 'syncing' | 'synced' | 'error' | 'offli
 }
 
 // --- Schema Cache ---
-let cachedProfileId: string | null = null;
+let cachedUserId: string | null = null;
+let cachedHandle: string | null = null;
 
-/** Retrieves the UUID for the current Sync ID */
-async function getProfileId(): Promise<string | null> {
-  if (cachedProfileId) return cachedProfileId;
+/** Retrieves the Dual-Key Identity (UUID + Handle) for the current operative */
+async function getUserContext(): Promise<{ id: string; handle: string } | null> {
+  if (cachedUserId && cachedHandle) return { id: cachedUserId, handle: cachedHandle };
   if (!isSupabaseReady()) return null;
 
   const syncId = getCurrentUserId();
@@ -81,27 +83,28 @@ async function getProfileId(): Promise<string | null> {
 
   const { data, error } = await supabaseClient!
     .from(SUPABASE_TABLES.PROFILES)
-    .select('id')
+    .select('id, handle')
     .eq('sync_id', syncId)
     .maybeSingle();
 
   if (error || !data) return null;
-  cachedProfileId = data.id;
-  return cachedProfileId;
+  cachedUserId = data.id;
+  cachedHandle = data.handle;
+  return { id: data.id, handle: data.handle };
 }
 
-/** Generic function to save data to any vault (using the profile_id) */
+/** Generic function to save data to any vault (using user_id + handle) */
 async function upsertToVault(table: string, payload: any): Promise<{ error?: unknown }> {
   if (!isSupabaseReady()) return { error: 'Supabase client not initialized' };
 
-  const pId = await getProfileId();
-  if (!pId) return { error: 'No Profile ID found' };
+  const ctx = await getUserContext();
+  if (!ctx) return { error: 'No User Context found' };
 
   updateSyncStatus('syncing');
 
   const { error } = await supabaseClient!
     .from(table)
-    .upsert({ profile_id: pId, data: payload, updated_at: new Date() }, { onConflict: 'profile_id' });
+    .upsert({ user_id: ctx.id, handle: ctx.handle, data: payload, updated_at: new Date() }, { onConflict: 'user_id' });
 
   if (error) {
     console.error(`Error saving to ${table}:`, error);
@@ -113,19 +116,19 @@ async function upsertToVault(table: string, payload: any): Promise<{ error?: unk
   return {};
 }
 
-/** Generic function to get data from any vault (filtered by profile_id) */
+/** Generic function to get data from any vault (filtered by user_id) */
 async function fetchFromVault(table: string): Promise<{ data?: any | null; updatedAt?: string; error?: unknown }> {
   if (!isSupabaseReady()) return { error: 'Supabase client not initialized' };
 
-  const pId = await getProfileId();
-  if (!pId) return { error: 'No Profile ID found' };
+  const ctx = await getUserContext();
+  if (!ctx) return { error: 'No User context found' };
 
   updateSyncStatus('syncing');
 
   const { data, error } = await supabaseClient!
     .from(table)
     .select('*')
-    .eq('profile_id', pId)
+    .eq('user_id', ctx.id)
     .maybeSingle();
 
   if (error) {
@@ -235,8 +238,9 @@ export function subscribeToRealtimeTelemetry(
 
   // Listen to operative_stats (focus status, total_hours) and operative_profiles (avatar, handle changes)
   // These are public tables — any row change fires a leaderboard refresh
+  const channelId = `world_stage_live_feed_${Math.random().toString(36).substring(7)}`;
   const channel = supabaseClient!
-    .channel('world_stage_live_feed')
+    .channel(channelId)
     .on(
       'postgres_changes',
       { event: '*', schema: 'public', table: 'operative_stats' },
@@ -247,7 +251,13 @@ export function subscribeToRealtimeTelemetry(
       { event: '*', schema: 'public', table: 'operative_profiles' },
       (payload) => { callback(payload); }
     )
-    .subscribe();
+    .subscribe((status, err) => {
+      if (status === 'SUBSCRIBED') {
+        console.log(`✅ REAL-TIME HUD ACTIVE [${channelId}]`);
+      } else if (status === 'CHANNEL_ERROR') {
+        console.error(`🚨 REAL-TIME HUD ERROR [${channelId}]:`, err);
+      }
+    });
 
   return {
     unsubscribe: () => {
@@ -267,27 +277,27 @@ export async function subscribeToUserDataSync(
 ): Promise<{ unsubscribe: () => void }> {
   if (!isSupabaseReady()) return { unsubscribe: () => {} };
 
-  const pId = await getProfileId();
-  if (!pId) {
-    console.warn('📡 SYNC DELAY: Profile ID not yet established. Realtime sync pending...');
+  const ctx = await getUserContext();
+  if (!ctx) {
+    console.warn('📡 SYNC DELAY: User context not yet established. Realtime sync pending...');
     return { unsubscribe: () => {} };
   }
 
-  console.log(`📡 BROADCAST MATRIX: Monitoring private data channel for pilot ${pId.slice(0, 8)}.`);
+    log.info(`BROADCAST MATRIX: Monitoring private data channel for pilot ${ctx.handle} (${ctx.id.slice(0, 8)}).`, '📡');
 
   const channel = supabaseClient!
-    .channel(`user_data_sync_${pId}`)
+    .channel(`user_data_sync_${ctx.id}`)
     // Listen to changes in all relevant user tables using the new Granular Vaults
-    .on('postgres_changes', { event: '*', schema: 'public', table: SUPABASE_TABLES.TRACKER, filter: `profile_id=eq.${pId}` }, (p) => callback(p))
-    .on('postgres_changes', { event: '*', schema: 'public', table: SUPABASE_TABLES.SETTINGS, filter: `profile_id=eq.${pId}` }, (p) => callback(p))
-    .on('postgres_changes', { event: '*', schema: 'public', table: SUPABASE_TABLES.ROUTINES, filter: `profile_id=eq.${pId}` }, (p) => callback(p))
-    .on('postgres_changes', { event: '*', schema: 'public', table: SUPABASE_TABLES.BOOKMARKS, filter: `profile_id=eq.${pId}` }, (p) => callback(p))
-    .on('postgres_changes', { event: '*', schema: 'public', table: SUPABASE_TABLES.TIMER, filter: `profile_id=eq.${pId}` }, (p) => callback(p))
-    .on('postgres_changes', { event: '*', schema: 'public', table: SUPABASE_TABLES.TASKS, filter: `profile_id=eq.${pId}` }, (p) => callback(p))
-    .on('postgres_changes', { event: '*', schema: 'public', table: SUPABASE_TABLES.HISTORY, filter: `profile_id=eq.${pId}` }, (p) => callback(p))
+    .on('postgres_changes', { event: '*', schema: 'public', table: SUPABASE_TABLES.TRACKER, filter: `user_id=eq.${ctx.id}` }, (p) => callback(p))
+    .on('postgres_changes', { event: '*', schema: 'public', table: SUPABASE_TABLES.SETTINGS, filter: `user_id=eq.${ctx.id}` }, (p) => callback(p))
+    .on('postgres_changes', { event: '*', schema: 'public', table: SUPABASE_TABLES.ROUTINES, filter: `user_id=eq.${ctx.id}` }, (p) => callback(p))
+    .on('postgres_changes', { event: '*', schema: 'public', table: SUPABASE_TABLES.BOOKMARKS, filter: `user_id=eq.${ctx.id}` }, (p) => callback(p))
+    .on('postgres_changes', { event: '*', schema: 'public', table: SUPABASE_TABLES.TIMER, filter: `user_id=eq.${ctx.id}` }, (p) => callback(p))
+    .on('postgres_changes', { event: '*', schema: 'public', table: SUPABASE_TABLES.TASKS, filter: `user_id=eq.${ctx.id}` }, (p) => callback(p))
+    .on('postgres_changes', { event: '*', schema: 'public', table: SUPABASE_TABLES.HISTORY, filter: `user_id=eq.${ctx.id}` }, (p) => callback(p))
     .subscribe((status) => {
       if (status === 'SUBSCRIBED') {
-         console.log('🔗 REALTIME DATA SYNC ESTABLISHED: Zero-refresh mode active.');
+         log.info('REALTIME DATA SYNC ESTABLISHED: Zero-refresh mode active.', '🔗');
       } else if (status === 'CLOSED') {
          console.warn('🔗 REALTIME DATA SYNC CLOSED.');
       } else if (status === 'CHANNEL_ERROR') {
@@ -310,12 +320,13 @@ export async function broadcastGlobalStats(profile: Partial<GlobalProfile>): Pro
   const syncId = getCurrentUserId();
   if (!syncId) return;
 
-  const pId = await getProfileId();
-  if (!pId) return;
+  const ctx = await getUserContext();
+  if (!ctx) return;
 
   // 1. Update Telemetry (operative_stats)
   const pulsePayload = {
-    profile_id: pId,
+    user_id: ctx.id,
+    handle: ctx.handle,
     total_hours: Number(profile.total_hours || 0),
     today_hours: Number(profile.today_hours || 0),
     last_active: new Date().toISOString(),
@@ -327,30 +338,30 @@ export async function broadcastGlobalStats(profile: Partial<GlobalProfile>): Pro
 
   const { error: pulseErr } = await supabaseClient!
     .from(SUPABASE_TABLES.STATS)
-    .upsert(pulsePayload, { onConflict: 'profile_id' });
+    .upsert(pulsePayload, { onConflict: 'user_id' });
 
   if (pulseErr) {
     console.error('🚨 STATS PULSE ERROR:', pulseErr);
   }
 
   // 2. Update Registry (operative_profiles) - Only if identity data changed
+  // 🛡️ DATA INTEGRITY GUARD: Only update fields that are actually provided and non-empty
   if (profile.display_name || profile.avatar || profile.nation || profile.User_name) {
-    const registryPayload: any = { 
-      id: pId,
-      handle: profile.display_name,
-      real_name: profile.User_name,
-      avatar: profile.avatar || '👨‍🚀',
-      nation: profile.nation || 'Global',
-      dob: profile.dob,
-      phone: profile.phone_number,
-      email: profile.email,
-      is_public: profile.is_focus_public !== false
-    };
+    const registryPayload: any = { id: ctx.id };
+    
+    if (profile.display_name) registryPayload.handle = profile.display_name;
+    if (profile.User_name) registryPayload.real_name = profile.User_name;
+    if (profile.avatar) registryPayload.avatar = profile.avatar;
+    if (profile.nation) registryPayload.nation = profile.nation;
+    if (profile.dob) registryPayload.dob = profile.dob;
+    if (profile.phone_number) registryPayload.phone = profile.phone_number;
+    if (profile.email) registryPayload.email = profile.email;
+    if (profile.is_public !== undefined) registryPayload.is_public = profile.is_public;
 
     const { error: regErr } = await supabaseClient!
       .from(SUPABASE_TABLES.PROFILES)
       .update(registryPayload)
-      .eq('id', pId);
+      .eq('id', ctx.id);
     
     if (regErr) {
       console.error('🚨 REGISTRY SYNC ERROR:', regErr);
@@ -359,53 +370,177 @@ export async function broadcastGlobalStats(profile: Partial<GlobalProfile>): Pro
   console.log(`✅ SYNC SUCCESS: Cloud identity and metrics updated.`);
 }
 
-/** Gets the Top 10 people for the World Stage leaderboard */
+/** Logs a specific study session into the persistent history table */
+export async function logStudySessionCloud(duration: number, subject: string, startTime?: Date, note?: string): Promise<void> {
+  if (!isSupabaseReady()) return;
+  const ctx = await getUserContext();
+  if (!ctx) return;
+
+  const logDate = new Date().toISOString().split('T')[0];
+
+  // ⚡ TACTICAL SEQUENCING: Count previous sessions for this subject today
+  const { count } = await supabaseClient!
+    .from(SUPABASE_TABLES.SESSIONS)
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', ctx.id)
+    .eq('subject', subject || 'GENERAL')
+    .eq('log_date', logDate);
+
+  const { error } = await supabaseClient!
+    .from(SUPABASE_TABLES.SESSIONS)
+    .insert({
+      user_id: ctx.id,
+      handle: ctx.handle,
+      duration: Number(duration),
+      subject: subject || 'GENERAL',
+      note: note || '',
+      start_at: startTime ? startTime.toISOString() : new Date(Date.now() - (duration * 3600000)).toISOString(),
+      end_at: new Date().toISOString(),
+      log_date: logDate,
+      session_number: (count || 0) + 1
+    });
+
+  if (error) {
+    console.error('🚨 SESSION LOG ERROR:', error);
+  } else {
+    log.success(`SESSION LOGGED: S#${(count || 0) + 1} [${subject}]`);
+  }
+}
+
+/** Professional Migration Engine: Moves old local history to the Cloud Table */
+export async function migrateLocalHistoryToCloud(logs: any[]): Promise<{ success: boolean; count: number }> {
+  if (!isSupabaseReady() || !logs || logs.length === 0) return { success: false, count: 0 };
+  
+  const ctx = await getUserContext();
+  if (!ctx) return { success: false, count: 0 };
+
+  // 🔍 DUPLICATE GUARD: Fetch existing sessions for this range to prevent "Double-Sync"
+  const { data: existing } = await supabaseClient!
+    .from(SUPABASE_TABLES.SESSIONS)
+    .select('start_at, subject')
+    .eq('user_id', ctx.id);
+
+  const existingMap = new Set((existing || []).map(e => `${e.subject}_${e.start_at}`));
+
+  // Map local SessionLog to Supabase StudySession
+  const rows = logs
+    .map(log => {
+      const endTime = new Date(log.date);
+      const durationHrs = Number(log.duration) || 0;
+      const startTime = new Date(endTime.getTime() - (durationHrs * 3600000));
+      const subject = log.categoryName || log.subject || 'LEGACY';
+      const startAtStr = startTime.toISOString();
+
+      // Skip if exactly the same session already exists in cloud
+      if (existingMap.has(`${subject}_${startAtStr}`)) return null;
+
+      return {
+        user_id: ctx.id,
+        handle: ctx.handle,
+        duration: durationHrs,
+        subject,
+        note: log.notes || log.note || '',
+        start_at: startAtStr,
+        end_at: endTime.toISOString(),
+        log_date: endTime.toISOString().split('T')[0],
+        session_number: 1 
+      };
+    })
+    .filter(row => row !== null); // Remove duplicates
+
+  if (rows.length === 0) {
+    console.log('✨ MIGRATION: All sessions already secured in cloud. No action needed.');
+    return { success: true, count: 0 };
+  }
+
+  // Perform bulk insert
+  const { error } = await supabaseClient!
+    .from(SUPABASE_TABLES.SESSIONS)
+    .insert(rows);
+
+  if (error) {
+    console.error('🚨 MIGRATION ERROR:', error);
+    return { success: false, count: 0 };
+  }
+
+  console.log(`✅ MIGRATION SUCCESS: ${rows.length} sessions moved to immutable storage.`);
+  return { success: true, count: rows.length };
+}
+
+/** Fetches personal history for the 'History' tab */
+export async function fetchMySessionsCloud(): Promise<StudySession[]> {
+  if (!isSupabaseReady()) return [];
+  const ctx = await getUserContext();
+  if (!ctx) return [];
+
+  const { data, error } = await supabaseClient!
+    .from(SUPABASE_TABLES.SESSIONS)
+    .select('*')
+    .eq('user_id', ctx.id)
+    .order('end_at', { ascending: false })
+    .limit(300); // 300 sessions limit for tab performance
+
+  if (error) {
+    console.error('Error fetching personal history:', error);
+    return [];
+  }
+
+  return (data || []) as StudySession[];
+}
+
+
+/** Gets all operatives for the World Stage leaderboard */
 export async function fetchLeaderboard(): Promise<GlobalProfile[]> {
   if (!isSupabaseReady()) return [];
 
-  // Join profiles and stats
+  // Start from PROFILES to ensure we see everyone (Left Join with Stats)
   const { data, error } = await supabaseClient!
-    .from(SUPABASE_TABLES.STATS)
+    .from(SUPABASE_TABLES.PROFILES)
     .select(`
-      total_hours,
-      today_hours,
-      current_rank,
-      last_active,
-      is_focusing,
-      focus_subject,
-      operative_profiles!inner (
-        handle,
-        real_name,
-        avatar,
-        nation,
-        is_public
+      handle,
+      real_name,
+      avatar,
+      nation,
+      is_public,
+      operative_stats (
+        total_hours,
+        today_hours,
+        current_rank,
+        last_active,
+        is_focusing,
+        focus_subject
       )
     `)
-    .eq('operative_profiles.is_public', true)
-    .order('total_hours', { ascending: false })
-    .limit(10);
+    .limit(1000);
 
   if (error) {
     console.error('Error fetching World Stage:', error);
     return [];
   }
 
-  return (data || []).map((row: any) => {
-    const profile = row.operative_profiles || {};
+  const results = (data || []).map((profile: any) => {
+    // PostgREST 1-to-1 joins sometimes return an object, or an array if 1-to-many. Handle both safely.
+    let stats = profile.operative_stats || {};
+    if (Array.isArray(stats)) {
+      stats = stats[0] || {};
+    }
     return {
       display_name: profile.handle || 'Unknown',
       User_name: profile.real_name,
       avatar: profile.avatar || '👨‍🚀',
       nation: profile.nation || 'Global',
-      total_hours: row.total_hours || 0,
-      today_hours: row.today_hours || 0,
-      current_rank: row.current_rank || 'PILOT',
-      is_focusing_now: row.is_focusing || false,
-      last_active: row.last_active,
-      current_focus_subject: row.focus_subject,
-      is_focus_public: profile.is_public !== false
+      total_hours: stats.total_hours || 0,
+      today_hours: stats.today_hours || 0,
+      current_rank: stats.current_rank || 'RECRUIT',
+      is_focusing_now: stats.is_focusing || false,
+      last_active: stats.last_active,
+      current_focus_subject: stats.focus_subject,
+      is_public: profile.is_public !== false
     };
-  }) as any[];
+  });
+
+  // Sort by total hours descending
+  return results.sort((a, b) => b.total_hours - a.total_hours) as any[];
 }
 
 /** Loads the profile for a specific user from the cloud */
@@ -425,12 +560,19 @@ export async function loadUserProfileCloud(syncId?: string): Promise<GlobalProfi
       dob,
       phone,
       email,
-      is_public
+      is_public,
+      operative_stats ( current_rank )
     `)
     .eq('sync_id', targetSyncId)
     .maybeSingle();
 
   if (error || !data) return null;
+
+  let stats = (data as any).operative_stats || {};
+  if (Array.isArray(stats)) {
+    stats = stats[0] || {};
+  }
+  const rank = stats.current_rank || '';
 
   return {
     sync_id: targetSyncId,
@@ -441,11 +583,11 @@ export async function loadUserProfileCloud(syncId?: string): Promise<GlobalProfi
     dob: data.dob,
     phone_number: data.phone,
     email: data.email,
-    is_focus_public: data.is_public,
+    is_public: data.is_public !== false,
     // These will be hydrated by operative_stats later if needed
     total_hours: 0,
     today_hours: 0,
-    current_rank: 'RECRUIT',
+    current_rank: rank.replace('[PRIV]', '').trim() || 'RECRUIT',
     is_focusing_now: false,
     last_active: new Date().toISOString()
   } as any;
@@ -486,6 +628,9 @@ export async function transferCloudRecord(table: string, oldSyncId: string, newS
     .update({ sync_id: newSyncId })
     .eq('sync_id', oldSyncId);
 }
+
+// Global telemetry state with persistent console-stability check
+let telemetryEndpointActive = !localStorage.getItem('all_tracker_telemetry_muted');
 
 /** Checks if a Username is already in use by another Sync ID */
 export async function isUsernameTaken(username: string, excludeSyncId?: string | null): Promise<boolean> {
@@ -584,23 +729,58 @@ export async function fetchGlobalTelemetry(): Promise<{
   if (!isSupabaseReady()) return null;
 
   try {
-    const [{ count: total_pilots }, { count: active_now }, { data: hoursData }] = await Promise.all([
+    // 1. Fetch Atomic Metrics (Total Pilots, Active Now)
+    const tenMinsAgo = new Date(Date.now() - 10 * 60000).toISOString();
+    const [{ count: total_pilots }, { count: active_now }] = await Promise.all([
       supabaseClient!.from(SUPABASE_TABLES.PROFILES).select('*', { count: 'exact', head: true }),
-      supabaseClient!.from(SUPABASE_TABLES.STATS).select('*', { count: 'exact', head: true }).eq('is_focusing', true),
-      supabaseClient!.from(SUPABASE_TABLES.STATS).select('total_hours')
+      supabaseClient!.from(SUPABASE_TABLES.STATS).select('*', { count: 'exact', head: true })
+        .eq('is_focusing', true)
+        .gt('last_active', tenMinsAgo) // 🛡️ HEARTBEAT GUARD: Only count truly active pilots
     ]);
 
-    const total_platform_hours = (hoursData || []).reduce((sum, row) => sum + (row.total_hours || 0), 0);
+    // 2. Fetch Performance Metrics (Total & Today Platform Hours)
+    const { data: statsData } = await supabaseClient!.from(SUPABASE_TABLES.STATS).select('total_hours, today_hours, last_active');
+    const total_platform_hours = (statsData || []).reduce((sum, row) => sum + (row.total_hours || 0), 0);
+    
+    // ⚡ PRECISION RESET: Only sum 'today_hours' if last_active is actually Today
+    const now = new Date();
+    const total_today_hours = (statsData || []).reduce((sum, row) => {
+      const lastActive = row.last_active ? new Date(row.last_active) : null;
+      const isToday = lastActive && 
+                      lastActive.getFullYear() === now.getFullYear() &&
+                      lastActive.getMonth() === now.getMonth() &&
+                      lastActive.getDate() === now.getDate();
+      
+      return sum + (isToday ? (row.today_hours || 0) : 0);
+    }, 0);
 
+    // Secure global study pulse with graceful degradation for optional telemetry
+    let session_hours_today: number | null = 0;
+    try {
+      if (supabaseClient && telemetryEndpointActive) {
+        const { data, error: rpcError } = await supabaseClient.rpc('get_global_study_sum_utc');
+        if (!rpcError) {
+            session_hours_today = data;
+        } else if (rpcError.code === '42883' || rpcError.code === 'P0001') {
+            // Function unavailable: disable session telemetry for console stability
+            telemetryEndpointActive = false;
+            try { localStorage.setItem('all_tracker_telemetry_muted', 'true'); } catch(e) {}
+        }
+      }
+    } catch (e) {
+      telemetryEndpointActive = false;
+      try { localStorage.setItem('all_tracker_telemetry_muted', 'true'); } catch(e) {}
+    }
+    
     return {
       total_pilots: total_pilots || 0,
       active_now: active_now || 0,
-      global_hours_today: 0, 
+      global_hours_today: Number(session_hours_today) || total_today_hours || 0,
       total_platform_hours: total_platform_hours || 0,
       nations_active: 0
     };
   } catch (err) {
-    console.error('Telemetry fetch failed', err);
+    // Muted Telemetry Warning to keep console clean
     return null;
   }
 }

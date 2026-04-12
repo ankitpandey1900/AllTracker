@@ -64,6 +64,7 @@ export const SUPABASE_TABLES = {
   BOOKMARKS: 'vault_bookmarks',
   TIMER: 'vault_timer',
   HISTORY: 'vault_history',
+  SESSIONS: 'operative_sessions',
 } as const;
 
 // --- Badge Condition Helpers ---

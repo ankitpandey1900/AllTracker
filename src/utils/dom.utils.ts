@@ -107,3 +107,45 @@ export function startConfetti(): void {
     setTimeout(() => conf.remove(), 3000);
   }
 }
+
+// --- Global Loading Indicator ---
+
+/** Show a high-fidelity loading overlay with a custom message */
+export function showLoading(message: string = 'Processing...'): void {
+  let loader = document.getElementById('global-app-loader');
+  if (!loader) {
+    loader = document.createElement('div');
+    loader.id = 'global-app-loader';
+    loader.className = 'global-loader-overlay';
+    document.body.appendChild(loader);
+  }
+  
+  loader.innerHTML = `
+    <div class="loader-backdrop"></div>
+    <div class="loader-content">
+      <div class="holographic-spinner">
+        <div class="spinner-ring"></div>
+        <div class="spinner-core"></div>
+      </div>
+      <div class="loader-message-v3">${message}</div>
+      <div class="loader-subtext">MAINTAINING HIGH-FREQUENCY SYNC</div>
+    </div>
+  `;
+  
+  loader.classList.remove('hidden');
+  loader.style.display = 'flex';
+}
+
+/** Hide the global loading overlay */
+export function hideLoading(): void {
+  const loader = document.getElementById('global-app-loader');
+  if (loader) {
+    loader.classList.add('hidden');
+    // Wait for fade animation
+    setTimeout(() => {
+      if (loader.classList.contains('hidden')) {
+        loader.style.display = 'none';
+      }
+    }, 400);
+  }
+}

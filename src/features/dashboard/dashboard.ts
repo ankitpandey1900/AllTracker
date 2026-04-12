@@ -9,12 +9,14 @@
 
 import { appState } from '@/state/app-state';
 import { RANK_TIERS, TIER_TITLES, CATEGORY_COLORS } from '@/config/constants';
-import { setTxt } from '@/utils/dom.utils';
-import { renderIntelligenceBriefing } from '@/features/intelligence/intelligence';
 import { formatDate, formatDateDMY, formatTime12h } from '@/utils/date.utils';
+import { setTxt, showToast, showLoading, hideLoading } from '@/utils/dom.utils';
+import { renderIntelligenceBriefing } from '@/features/intelligence/intelligence';
 import type { RankDetails } from '@/types/tracker.types';
 import { renderStudyAnalytics } from './study-analytics';
 import { calculateXP, calculateStreak, getRankDetails } from '@/utils/calc.utils';
+import { saveSettingsToStorage } from '@/services/data-bridge';
+import { fetchLeaderboard, loadUserProfileCloud, fetchMySessionsCloud, migrateLocalHistoryToCloud } from '@/services/supabase.service';
 
 const formatNum = (num: number) => new Intl.NumberFormat().format(num);
 
@@ -418,41 +420,151 @@ function renderAllocationBar(): void {
 
 // --- Session History Popup ---
 
-export function renderSessionHistory(): void {
+export async function renderSessionHistory(): Promise<void> {
   const tbody = document.getElementById('recentSessionsBody');
   const filterInput = document.getElementById('historyDateFilter') as HTMLInputElement;
+  const migrationBanner = document.getElementById('historyMigrationBanner');
+
   if (!tbody) return;
 
-  let logs = appState.settings.sessionLogs || [];
+  // 🛡️ CLOUD DOMINANCE: Legacy manual migration has been decommissioned.
+  // Mission archives are now handled via a direct-to-cloud automated pipeline.
+  if (migrationBanner) migrationBanner.style.display = 'none';
+
+  // 2. Fetch High-Fidelity History from Cloud
+  showLoading('Connecting to mission archives...');
+  const cloudLogs = await fetchMySessionsCloud();
+  hideLoading();
+
   const filterVal = filterInput?.value; // YYYY-MM-DD
+  let displayLogs = filterVal 
+    ? cloudLogs.filter(log => {
+        const dCandidate = log.log_date || (log.end_at || '').split('T')[0];
+        return dCandidate === filterVal;
+    })
+    : cloudLogs;
 
-  if (filterVal) {
-    logs = logs.filter(log => {
-      const logDate = log.date.split('T')[0];
-      return logDate === filterVal;
-    });
-  }
-
-  if (logs.length === 0) {
+  // 🛡️ CLOUD-FIRST PROTECTION: If we are logged in, we ignore the 'Ghost' legacy warning
+  const isOnline = !!localStorage.getItem('operative_sync_id');
+  if (displayLogs.length === 0) {
+    const hasRealLocal = !isOnline && localLogs.length > 0 && localLogs.some(l => l.duration > 0 || l.notes);
+    
     tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:40px; color:var(--text-secondary);">
-      ${filterVal ? `No sessions found for ${filterVal}.` : 'No sessions recorded yet.'}
+      ${filterVal ? `No sessions found for ${filterVal}.` : (hasRealLocal ? 'Sync your legacy data to see history here.' : 'No sessions recorded in cloud archives.')}
     </td></tr>`;
     return;
   }
 
-  tbody.innerHTML = logs
-    .slice(0, 100)
-    .map((log) => {
-      const d = new Date(log.date);
+  // 🧠 HIERARCHICAL GROUPING ENGINE
+  const dateMap = new Map<string, { total_hours: number, session_count: number, subjects: Map<string, any[]> }>();
+  
+  displayLogs.forEach(log => {
+      // 🛡️ DATE RESILIENCE: Use explicit log_date or extract from end_at
+      const d = log.log_date || (log.end_at || '').split('T')[0];
+      if (!d || d === 'null') return; // Skip invalid entries
+
+      if (!dateMap.has(d)) {
+          dateMap.set(d, { total_hours: 0, session_count: 0, subjects: new Map() });
+      }
+      const dayData = dateMap.get(d)!;
+      dayData.total_hours += (log.duration || 0);
+      dayData.session_count++;
+      
+      const sub = log.subject || 'GENERAL';
+      if (!dayData.subjects.has(sub)) dayData.subjects.set(sub, []);
+      dayData.subjects.get(sub)!.push(log);
+  });
+
+  const sortedDates = Array.from(dateMap.keys()).sort((a, b) => b.localeCompare(a));
+
+  tbody.innerHTML = sortedDates.map(date => {
+      const dayData = dateMap.get(date)!;
+      const subjects = dayData.subjects;
+      
+      // 📅 FORMAT DATE: DD/MM/YYYY
+      const dateParts = date.split('-');
+      const displayDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+      
+      const detailsHtml = Array.from(subjects.keys()).map(subName => {
+          const sessions = subjects.get(subName)!;
+          const subHours = sessions.reduce((s, l) => s + (l.duration || 0), 0);
+          
+          return `
+            <tr class="history-subject-row">
+                <td colspan="3" style="padding-left: 30px;">
+                    <span class="history-subject-badge">${subName}</span> 
+                    <span style="opacity:0.6; font-size: 0.75rem; margin-left: 8px;">(${sessions.length} Sessions)</span>
+                </td>
+                <td style="font-weight:700; color:var(--accent-blue); text-align:right; padding-right:20px;">${subHours.toFixed(2)}h</td>
+                <td></td>
+            </tr>
+            ${sessions.map(log => {
+              const duration = log.duration || 0;
+              return `
+                <tr class="history-session-detail" style="background: rgba(255,255,255,0.01);">
+                    <td style="border-left: 2px solid rgba(52, 152, 219, 0.3); padding: 12px 0 12px 25px; opacity: 0.5; font-size: 0.7rem; white-space: nowrap; vertical-align: top;">
+                      <div style="font-size: 0.6rem; letter-spacing: 1px; margin-bottom: 2px;">IDENTIFIER</div>
+                      SESSION ${log.session_number || 1}
+                    </td>
+                    <td style="padding: 12px 10px; vertical-align: top;">
+                        <div style="font-size: 0.6rem; opacity: 0.4; letter-spacing: 1px; margin-bottom: 2px;">MISSION TIME</div>
+                        <div style="color:var(--text-secondary); font-size:0.85rem; font-weight: 500; white-space:nowrap;">
+                            ${log.start_at ? formatTime12h(log.start_at) : '?'} - ${formatTime12h(log.end_at)}
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--accent-blue); font-weight: 700; margin-top: 4px;">
+                           ${duration.toFixed(2)} HOURS
+                        </div>
+                    </td>
+                    <td colspan="2" class="session-log-note" style="padding: 12px 10px; vertical-align: top;">
+                        <div style="font-size: 0.6rem; opacity: 0.4; letter-spacing: 1px; margin-bottom: 2px;">MISSION REFLECTION</div>
+                        <div style="font-size: 0.85rem; font-style: italic; opacity: 0.8; line-height: 1.4;">
+                          "${log.note && log.note !== 'null' ? log.note : 'No Operative Reflection Recorded'}"
+                        </div>
+                    </td>
+                    <td></td>
+                </tr>
+              `;
+            }).join('')}
+          `;
+      }).join('');
+
       return `
-      <tr>
-        <td style="white-space:nowrap;">${formatDateDMY(d)}</td>
-        <td>${log.timeRange || '--'}</td>
-        <td><span class="history-cat-badge">${log.categoryName}</span></td>
-        <td style="font-weight:700; color:var(--accent-blue);">${log.duration.toFixed(2)}h</td>
-        <td class="session-log-note" title="${log.note || ''}">${log.note || '--'}</td>
-      </tr>
-    `;
-    })
-    .join('');
+        <tr class="history-date-group">
+            <td style="white-space:nowrap; font-weight:800; color: #fff;">
+                <span class="history-chevron">▶</span>${displayDate}
+            </td>
+            <td style="color:var(--text-secondary); font-size: 0.75rem; font-weight: 800; letter-spacing: 0.5px;">${dayData.session_count} MISSIONS</td>
+            <td></td>
+            <td style="font-weight:800; color:var(--accent-blue); font-size: 1.1rem; text-align:right; padding-right:20px;">${dayData.total_hours.toFixed(2)}h</td>
+            <td></td>
+        </tr>
+        <tr class="history-details-container">
+            <td colspan="5" style="padding: 0;">
+                <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+                    <colgroup>
+                        <col style="width: 18%;">
+                        <col style="width: 27%;">
+                        <col style="width: 45%;">
+                        <col style="width: 5%;">
+                        <col style="width: 5%;">
+                    </colgroup>
+                    ${detailsHtml}
+                </table>
+            </td>
+        </tr>
+      `;
+  }).join('');
+
+  // ⚡ BIND DRILL-DOWN LISTENERS
+  document.querySelectorAll('.history-date-group').forEach(group => {
+      group.addEventListener('click', () => {
+          group.classList.toggle('active');
+          const chevron = group.querySelector('.history-chevron');
+          if (chevron) {
+              chevron.textContent = group.classList.contains('active') ? '▼' : '▶';
+          }
+      });
+  });
 }
+
+/** Decommissioned: Legacy Migration Engine (Successor: Direct-to-Cloud Pipeline) */

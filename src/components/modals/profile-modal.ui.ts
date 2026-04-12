@@ -138,8 +138,8 @@ export const profileModal = `
 
                 <div class="social-toggle-group">
                   <div class="toggle-info">
-                    <div class="toggle-title">PUBLIC PRIVACY</div>
-                    <div class="toggle-sub">Share focus status on leaderboard?</div>
+                    <div class="toggle-title">SHARE FOCUS STATUS</div>
+                    <div class="toggle-sub">Show current study mission to others?</div>
                   </div>
                   <label class="switch-v2">
                     <input type="checkbox" id="profileFocusPrivacyToggle" checked>

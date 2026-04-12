@@ -1651,9 +1651,10 @@
 .telem-grid-v2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 16px 20px;
   position: relative;
   z-index: 2;
+  margin-bottom: 24px;
 }
 
 .telem-node {
@@ -1688,9 +1689,8 @@
 }
 
 .telem-node.divider-top {
-  border-top: 1px solid var(--border);
-  padding-top: 16px;
-  margin-top: 4px;
+  padding-top: 0;
+  margin-top: 0;
 }
 
 .telem-label {
@@ -2261,3 +2261,240 @@
 .emergency-link:hover {
   opacity: 1;
 }
+
+/* 🌐 MILESTONE HUD STYLES (Merged into Hud Card) */
+.hud-milestone-section {
+  padding: 18px 20px 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hud-milestone-section.divider-top {
+  border-top: none;
+  box-shadow: none;
+}
+
+.milestone-header {
+  display: none; /* Old header removed in favor of grid integration */
+}
+
+.milestone-percentage {
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: var(--success);
+  font-family: 'Tektur', sans-serif;
+  text-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
+  line-height: 1;
+  margin-top: 2px;
+}
+
+/* Timeline wrapper: ticks → bar → labels stacked vertically */
+.milestone-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 14px;
+}
+
+/* Tick marks row (above the bar) */
+.milestone-ticks {
+  position: relative;
+  height: 10px;
+  width: 100%;
+}
+
+.milestone-tick {
+  position: absolute;
+  top: 0;
+  width: 2px;
+  height: 10px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 1px;
+  transform: translateX(-50%);
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+.milestone-tick.tick-active {
+  background: var(--success);
+  box-shadow: 0 0 6px var(--success);
+  height: 12px;
+}
+
+.milestone-tick.tick-done {
+  background: rgba(16, 185, 129, 0.5);
+}
+
+/* Progress Bar: Standard Tactical Track */
+.milestone-track {
+  height: 8px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 6px;
+  overflow: visible;
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.6), 0 0 15px rgba(16, 185, 129, 0.1);
+}
+
+.milestone-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #059669, #10b981, #34d399);
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+  border-radius: 6px;
+  transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.milestone-fill::after {
+  content: '';
+  position: absolute;
+  right: -5px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 7px solid #34d399;
+  filter: drop-shadow(0 0 5px var(--success));
+  pointer-events: none;
+  animation: pulse-arrow 2s infinite;
+}
+
+@keyframes pulse-arrow {
+  0%, 100% { opacity: 1; transform: translateY(-50%) translateX(0); }
+  50% { opacity: 0.7; transform: translateY(-50%) translateX(2px); }
+}
+
+/* Nodes layer (positioned dots sitting on the bar) */
+.milestone-nodes-layer {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+}
+
+.milestone-node {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #0f172a;
+  border: 2.5px solid rgba(255,255,255,0.25);
+  z-index: 5;
+  transition: all 0.4s ease;
+}
+
+.milestone-node.current {
+  border-color: var(--success);
+  box-shadow: 0 0 0 3px rgba(16,185,129,0.2), 0 0 10px rgba(16,185,129,0.4);
+  animation: pulse-node 2s infinite;
+}
+
+.milestone-node.completed {
+  background: var(--success);
+  border-color: #fff;
+  box-shadow: 0 0 12px var(--success);
+}
+
+@keyframes pulse-node {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(16,185,129,0.2), 0 0 10px rgba(16,185,129,0.4); }
+  50% { box-shadow: 0 0 0 5px rgba(16,185,129,0.1), 0 0 18px rgba(16,185,129,0.5); }
+}
+
+/* Labels row (below the bar) */
+.milestone-labels {
+  position: relative;
+  height: 22px;
+  width: 100%;
+}
+
+.milestone-label {
+  position: absolute;
+  top: 4px;
+  transform: translateX(-50%);
+  font-family: 'Tektur', sans-serif;
+  font-size: 0.60rem;
+  color: var(--text-secondary);
+  font-weight: 700;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+  transition: color 0.3s;
+}
+
+.milestone-label-start {
+  left: 0;
+  transform: none;
+  color: rgba(255,255,255,0.3);
+}
+
+.milestone-label.label-active {
+  color: var(--success);
+  font-weight: 900;
+}
+
+.milestone-label.label-done {
+  color: rgba(16, 185, 129, 0.5);
+}
+
+/* Stats chips footer */
+.milestone-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+  flex-wrap: nowrap;
+}
+
+.milestone-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  padding: 5px 10px;
+  font-family: 'Inter', sans-serif;
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.chip-mvp {
+  flex: 1.5;
+  border-color: rgba(251, 191, 36, 0.2);
+  background: rgba(251, 191, 36, 0.04);
+}
+
+.chip-label {
+  font-size: 0.55rem;
+  color: var(--text-secondary);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.chip-value {
+  font-size: 0.78rem;
+  color: var(--text-primary);
+  font-weight: 800;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.chip-gold {
+  color: #fbbf24;
+  text-shadow: 0 0 8px rgba(251, 191, 36, 0.4);
+}
+
+.chip-unit {
+  font-size: 0.58rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* end of milestone styles */

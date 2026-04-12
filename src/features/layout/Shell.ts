@@ -1,4 +1,5 @@
 import { shellView } from './shell.ui';
+import { log } from '@/utils/logger.utils';
 
 /**
  * Shell Manager
@@ -30,7 +31,7 @@ export class Shell {
 
     mountPoint.innerHTML = shellView;
     this.setupEventListeners();
-    console.log("🏙️ Shell Hub Initialized.");
+    log.info('Shell Hub Initialized.', '🐚');
   }
 
   private setupEventListeners(): void {

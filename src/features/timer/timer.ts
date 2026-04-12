@@ -9,8 +9,9 @@
 import { appState, getColumnsForDay } from '@/state/app-state';
 import { STORAGE_KEYS } from '@/config/constants';
 import { syncProfileBroadcast } from '@/features/profile/profile.manager';
-import { saveTimerStateCloud, updateSyncStatus, SyncIndicator } from '@/services/supabase.service';
+import { saveTimerStateCloud, updateSyncStatus, SyncIndicator, logStudySessionCloud } from '@/services/supabase.service';
 import { saveTrackerDataToStorage, saveSettingsToStorage, saveTimerStateToStorage, clearTimerStateDB } from '@/services/data-bridge';
+import { getCurrentUserId } from '@/services/auth.service';
 import { generateTable } from '@/features/tracker/tracker';
 import { updateDashboard, toggleFocusHUD } from '@/features/dashboard/dashboard';
 import { renderHeatmap } from '@/features/heatmap/heatmap';
@@ -214,9 +215,15 @@ export async function stopTimer(autoNote?: string): Promise<void> {
         saveSessionToDate(colIdx, hoursAfter, note, sessionEnd);
 
         showToast(`Midnight Split: ${hoursBefore.toFixed(2)}h (Yesterday) + ${hoursAfter.toFixed(2)}h (Today)`, 'success');
+        
+        // 🌐 CLOUD SESSION LOG (UTC)
+        logStudySessionCloud(totalHours, appState.activeTimer.colName || 'GENERAL', sessionStart, note);
       } else {
         saveSessionToDate(colIdx, totalHours, note, sessionEnd);
         showToast(autoNote ? `Auto-Safe Triggered: ${formatMsToTime(totalElapsed)}` : `Session saved: ${formatMsToTime(totalElapsed)}`, 'success');
+        
+        // 🌐 CLOUD SESSION LOG (UTC)
+        logStudySessionCloud(totalHours, appState.activeTimer.colName || 'GENERAL', sessionStart, note);
       }
     }
   } catch (error) {
@@ -378,24 +385,27 @@ function saveSessionToDate(colIdx: number, hoursToAdd: number, note: string = ''
     }
   }
 
-  const sessionLog = {
-    date: new Date().toISOString(),
-    category: `col${colIdx + 1}`,
-    categoryName,
-    duration: hoursToAdd,
-    timeRange: appState.activeTimer.sessionStartClock
-      ? `${formatClockTime(new Date(appState.activeTimer.sessionStartClock))} - ${formatClockTime(new Date())}`
-      : formatClockTime(new Date()),
-    note: note || undefined,
-  };
+  // Log session - ONLY save to local vault if NOT logged in (Cloud-Dominant Rule)
+  const syncId = getCurrentUserId();
+  if (!syncId) {
+    const sessionLog = {
+      date: new Date().toISOString(),
+      category: `col${colIdx + 1}`,
+      categoryName,
+      duration: hoursToAdd,
+      timeRange: appState.activeTimer.sessionStartClock
+        ? `${formatClockTime(new Date(appState.activeTimer.sessionStartClock))} - ${formatClockTime(new Date())}`
+        : formatClockTime(new Date()),
+      note: note || undefined,
+    };
 
-  if (!appState.settings.sessionLogs) appState.settings.sessionLogs = [];
-  appState.settings.sessionLogs.unshift(sessionLog);
-  if (appState.settings.sessionLogs.length > 100) {
-    appState.settings.sessionLogs = appState.settings.sessionLogs.slice(0, 100);
+    if (!appState.settings.sessionLogs) appState.settings.sessionLogs = [];
+    appState.settings.sessionLogs.unshift(sessionLog);
+    if (appState.settings.sessionLogs.length > 100) {
+      appState.settings.sessionLogs = appState.settings.sessionLogs.slice(0, 100);
+    }
+    saveSettingsToStorage(appState.settings);
   }
-
-  saveSettingsToStorage(appState.settings);
   saveTrackerDataToStorage(appState.trackerData);
   generateTable();
   updateDashboard();
@@ -439,6 +449,8 @@ function startTimerInterval(): void {
       if (elapsedSeconds > 0 && elapsedSeconds % 30 === 0) {
         console.log('[Timer] Heartbeat: Pulsing live state to Cloud.');
         saveTimerState();
+        // Live Leaderboard Push: Broadcast active hours so the World Stage updates in real-time
+        import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast());
       }
     }
   }, 1000);

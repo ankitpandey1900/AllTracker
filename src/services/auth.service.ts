@@ -1,4 +1,5 @@
 import { getSecureLocalProfileString, setSecureLocalProfileString } from '@/utils/security';
+import { log } from '@/utils/logger.utils';
 /**
  * Handles the login/logout logic.
  * 
@@ -30,7 +31,7 @@ export function initSyncAuth(): void {
   // Security fix: Make sure old plain-text keys are masked properly in storage.
   const raw = localStorage.getItem(STORAGE_KEYS.SYNC_ID);
   if (raw && !isObfuscated(raw)) {
-    console.log('Security Patch: Encrypting legacy Vault Key...');
+    log.info('Security Patch: Encrypting legacy Vault Key...', '🔐');
     localStorage.setItem(STORAGE_KEYS.SYNC_ID, obfuscate(raw));
   }
 
@@ -40,7 +41,7 @@ export function initSyncAuth(): void {
     try {
       const profile = JSON.parse(profileRaw);
       if (profile.syncId) {
-        console.log('Security Patch: Purging sensitive Sync-ID from Profile cache...');
+        log.info('Security Patch: Purging sensitive Sync-ID from Profile cache...', '🧹');
         delete profile.syncId;
         setSecureLocalProfileString(JSON.stringify(profile));
       }
@@ -269,13 +270,13 @@ async function handleSyncIdEstablished(syncId: string): Promise<void> {
       };
       setSecureLocalProfileString(JSON.stringify(localProfile));
       localStorage.setItem('tracker_username', localProfile.displayName);
-      console.log(`✅ BROADCAST MATRIX: Monitoring private data for profile.`);
+      log.success(`BROADCAST MATRIX: Monitoring private data for profile.`);
       
       // 📡 ALL TRACKER EVENT: Notify the rest of the system that identity is ready
       window.dispatchEvent(new CustomEvent('all-tracker-identity-sync', { detail: localProfile }));
     }
   } catch (err) {
-    console.error('Failed to hydrate profile from cloud:', err);
+    log.error('Failed to hydrate profile from cloud');
   }
 
   // Update header UI with latest profile info
@@ -347,7 +348,7 @@ function handleUserSignedOut(): void {
   currentSyncId = null;
   localStorage.removeItem(STORAGE_KEYS.SYNC_ID);
   localStorage.removeItem('tracker_username');
-  console.log('Sync ID disconnected.');
+  log.info('Sync ID disconnected.', '🔌');
 
   // 📡 GLOBAL IDENTITY RESET: Notify components to clear stale views
   window.dispatchEvent(new CustomEvent('all-tracker-identity-sync', { detail: null }));
@@ -415,7 +416,7 @@ async function handleLoginSubmission(e: Event): Promise<void> {
     await handleSyncIdEstablished(password);
 
   } catch (err) {
-    console.error('Login Error:', err);
+    log.error('Login Error: Internal authentication fault.');
     errorMsg.textContent = 'A network error occurred. Please try again.';
     errorMsg.style.display = 'block';
     submitBtn.disabled = false;
@@ -454,7 +455,7 @@ async function handleLegacySubmission(e: Event): Promise<void> {
       }
 
       // If data exists but no profile, they are a "Legacy Pilot" who needs to migrate
-      console.warn('Legacy data found but no profile exists. Proceeding to migration.');
+      log.warn('Legacy data found but no profile exists. Proceeding to migration.', '🛡️');
     }
 
     // Success - Emulate setting them up.
@@ -668,7 +669,7 @@ async function handleRegistrationSubmission(e: Event): Promise<void> {
     await handleSyncIdEstablished(password); // Sets it for real and syncs
 
   } catch (err) {
-    console.error('Registration Error:', err);
+    log.error('Registration Error: Identity creation fault.');
     errorMsg.textContent = 'Initialization failed. Please try again later.';
     errorMsg.style.display = 'block';
     submitBtn.disabled = false;
@@ -689,7 +690,7 @@ function rebindAliasTrigger(): void {
   const aliasBtn = document.getElementById('headerUserAlias');
   if (aliasBtn) {
     aliasBtn.onclick = async () => {
-      console.log('Identity Portal Triggered');
+      log.info('Identity Portal Triggered', '👤');
       const { openProfileModal } = await import('@/features/profile/profile.ui');
       openProfileModal();
     };

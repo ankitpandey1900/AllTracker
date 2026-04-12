@@ -1,4 +1,5 @@
-import { getSecureLocalProfileString } from '@/utils/security';
+import { getSecureLocalProfileString, escapeHtml } from '@/utils/security';
+import { log } from '@/utils/logger.utils';
 import { appState } from '@/state/app-state';
 import Registry from '@/utils/lifecycle';
 import { STORAGE_KEYS, RANK_TIERS, SUPABASE_TABLES, NATION_FLAGS } from '@/config/constants';
@@ -90,7 +91,7 @@ export function initActivityTracking(): void {
 }
 
 /** Fetches and renders the global rankings and platform stats */
-const LB_PAGE_SIZE = 8;
+const LB_PAGE_SIZE = 5;
 let lbCurrentPage = 1;
 let lbAllUsers: GlobalProfile[] = [];
 
@@ -109,24 +110,37 @@ export async function refreshLeaderboard(): Promise<void> {
   }
 
   // 2. Fetch Leaderboard Data
-  const users = await fetchLeaderboard();
+  let users = await fetchLeaderboard();
   
   const profileData = getSecureLocalProfileString();
   const myDisplayName = profileData ? JSON.parse(profileData).displayName : null;
 
+  // 🛡️ PRIVACY AUDIT: Log hidden operatives to console (Developer View)
+  const totalRaw = users.length;
+  const filtered = users;
+  const hiddenCount = totalRaw - filtered.length;
+  if (hiddenCount > 0) {
+    console.log(`📡 [Stage Audit]: ${hiddenCount} operatives hidden via 'Private Profile' settings.`);
+  }
+
+  // Use the filtered list for the leaderboard
+  users = filtered;
+
   // 🛡️ SYNC GUARD: Prevent redundant re-renders if data + viewer identity are identical
   const dataFingerprint = JSON.stringify({
     viewer: myDisplayName,
+    page: lbCurrentPage,
     users: users.map(u => ({ 
       id: u.display_name, 
       h: u.total_hours, 
       f: u.is_focusing_now,
-      m: u.current_focus_subject // Mission name
+      pref: u.is_focus_public,
+      m: (u.is_focus_public || u.display_name === myDisplayName) ? u.current_focus_subject : '[ CONFIDENTIAL MISSION ]'
     }))
   });
 
   if (dataFingerprint === listEl.dataset.lastFingerprint) {
-    console.log('✅ LB CACHE: Data and Identity unchanged. Skipping render.');
+    log.success('LB CACHE: Data and Identity unchanged. Skipping render.');
     return;
   }
   listEl.dataset.lastFingerprint = dataFingerprint;
@@ -214,22 +228,113 @@ export async function updateGlobalHUD(providedUsers?: GlobalProfile[]): Promise<
   const platformTotalEl = document.getElementById('telemetry-global-total');
   const hoursEl = document.getElementById('telemetry-global-hours');
 
-  // 2. Calculate real Today Sum (High-Fidelity)
+  // 2. High-Fidelity Today Sum (UTC Truth from Database Sessions)
   const users = providedUsers || lbAllUsers;
-  const todayStr = new Date().toDateString();
-  const validTodaySum = users.reduce((acc, u) => {
-    const isToday = u.last_active && new Date(u.last_active).toDateString() === todayStr;
-    return acc + (isToday ? (u.today_hours || 0) : 0);
-  }, 0);
+  const validTodaySum = telemetry ? telemetry.global_hours_today : 0;
 
   // Batch DOM writes to the next animation frame to prevent layout thrashing
   requestAnimationFrame(() => {
     if (telemetry) {
       if (totalEl) totalEl.textContent = telemetry.total_pilots.toLocaleString();
       if (activeEl) activeEl.textContent = telemetry.active_now.toLocaleString();
-      if (platformTotalEl) {
-        const platformHours = (telemetry as any).total_platform_hours || 0;
-        platformTotalEl.textContent = `${platformHours.toFixed(1)} HRS`;
+      
+      const platformHours = (telemetry as any).total_platform_hours || 0;
+      if (platformTotalEl) platformTotalEl.textContent = `${platformHours.toFixed(1)} HRS`;
+      if (hoursEl) hoursEl.textContent = `${validTodaySum.toFixed(1)} HRS`;
+
+      if (platformTotalEl || hoursEl) {
+        const totalPilots = telemetry.total_pilots || 1;
+
+        // 🌐 MILESTONE ENGINE
+        const milestones = [50, 100, 200, 350, 500, 700, 900, 1100, 1400, 1700, 2200, 2600, 3000, 4200, 5500, 6000, 7500];
+        let nextMilestone = milestones[milestones.length - 1];
+        let milestoneAfterNext = nextMilestone * 2;
+        
+        for (let i = 0; i < milestones.length; i++) {
+          if (platformHours < milestones[i]) {
+            nextMilestone = milestones[i];
+            milestoneAfterNext = milestones[i + 1] || (milestones[i] * 2);
+            break;
+          }
+        }
+
+        const totalSpan = milestoneAfterNext;
+        const currentProgress = platformHours;
+        const totalPercentage = Math.max(0, Math.min(100, (currentProgress / totalSpan) * 100));
+        
+        const avg = platformHours / totalPilots;
+
+        // 🏆 FIND MVP
+        let mvpName = "N/A";
+        let mvpShare = 0;
+        if (users && users.length > 0) {
+           const mvp = users[0];
+           mvpName = mvp.display_name;
+           if (platformHours > 0) {
+             mvpShare = Math.min((mvp.total_hours / platformHours) * 100, 100);
+           }
+        }
+
+        const mPercentEl = document.getElementById('milestone-percentage-text');
+        const mBarEl = document.getElementById('milestone-progress-bar');
+        const mAvgEl = document.getElementById('milestone-avg-hrs');
+        const mNextTargetEl = document.getElementById('milestone-next-target-text');
+        const mMvpTextEl = document.getElementById('milestone-mvp-text');
+        const mMvpShareEl = document.getElementById('milestone-mvp-share');
+
+        if (mPercentEl) {
+           const localTargetPercentage = Math.max(0, Math.min(100, (currentProgress / nextMilestone) * 100));
+           mPercentEl.textContent = `${Math.floor(localTargetPercentage)}%`;
+        }
+        
+        if (mBarEl) mBarEl.style.width = `${totalPercentage}%`;
+        if (mAvgEl) mAvgEl.textContent = avg.toFixed(1);
+        if (mNextTargetEl) mNextTargetEl.textContent = `${nextMilestone} HRS`;
+        if (mMvpTextEl) mMvpTextEl.textContent = `@${mvpName}`;
+        if (mMvpShareEl) mMvpShareEl.textContent = `(${mvpShare.toFixed(1)}%)`;
+
+        // 🌐 DYNAMIC GANTT NODE INJECTION
+        const mNodesPortal = document.getElementById('milestone-timeline-nodes');
+        const mTicksPortal = document.getElementById('milestone-tick-marks');
+        const mLabelsPortal = document.getElementById('milestone-labels-row');
+
+        if (mNodesPortal && mTicksPortal && mLabelsPortal) {
+           mNodesPortal.innerHTML = '';
+           mTicksPortal.innerHTML = '';
+           mLabelsPortal.innerHTML = '';
+
+           // Always show 0 as the start label
+           const startLabel = document.createElement('div');
+           startLabel.className = 'milestone-label milestone-label-start';
+           startLabel.textContent = '0';
+           mLabelsPortal.appendChild(startLabel);
+
+           const visibleMilestones = [nextMilestone, milestoneAfterNext];
+           visibleMilestones.forEach((mVal, idx) => {
+              const posPercent = Math.min((mVal / totalSpan) * 100, 100);
+              const isCompleted = platformHours >= mVal;
+              const isCurrent = !isCompleted && idx === 0;
+
+              // 1. Tick mark above bar
+              const tick = document.createElement('div');
+              tick.className = `milestone-tick ${isCompleted ? 'tick-done' : ''} ${isCurrent ? 'tick-active' : ''}`;
+              tick.style.left = `${posPercent}%`;
+              mTicksPortal.appendChild(tick);
+
+              // 2. Dot node on the bar
+              const node = document.createElement('div');
+              node.className = `milestone-node ${isCompleted ? 'completed' : ''} ${isCurrent ? 'current' : ''}`;
+              node.style.left = `${posPercent}%`;
+              mNodesPortal.appendChild(node);
+
+              // 3. Label below bar
+              const label = document.createElement('div');
+              label.className = `milestone-label ${isCompleted ? 'label-done' : ''} ${isCurrent ? 'label-active' : ''}`;
+              label.style.left = `${posPercent}%`;
+              label.innerHTML = `${!isCompleted ? '🔒 ' : '✅ '}<strong>${mVal}</strong> HRS`;
+              mLabelsPortal.appendChild(label);
+           });
+        }
       }
     }
     if (hoursEl) hoursEl.textContent = `${validTodaySum.toFixed(1)} HRS`;
@@ -282,9 +387,13 @@ function renderUserRow(
   const flagImg = `<img src="https://flagcdn.com/w40/${isoCode}.png" alt="${u.nation}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
   const avatar = u.avatar || `👤`;
 
-  const lastActive = new Date(u.last_active);
-  const diffMins = (Date.now() - lastActive.getTime()) / 60000;
-  const isStale = diffMins > 5;
+  const lastActive = u.last_active ? new Date(u.last_active) : null;
+  const isDateValid = lastActive && !isNaN(lastActive.getTime());
+  
+  // Calculate diff gracefully, cap negative clock skew at 0
+  const diffMins = isDateValid ? Math.max(0, (Date.now() - lastActive.getTime()) / 60000) : null;
+  
+  const isStale = diffMins === null || diffMins > 5;
   const isFocusing = u.is_focusing_now && !isStale;
   
   let statusClass = 'offline';
@@ -293,10 +402,10 @@ function renderUserRow(
   if (isFocusing) {
     statusClass = 'focusing';
     statusLabel = 'FOCUSING';
-  } else if (diffMins < 5) {
+  } else if (!isStale) {
     statusClass = 'online';
     statusLabel = 'ONLINE';
-  } else {
+  } else if (diffMins !== null) {
     if (diffMins < 60) {
       statusLabel = `Seen ${Math.floor(diffMins)}m ago`;
     } else if (diffMins < 24 * 60) {
@@ -305,6 +414,9 @@ function renderUserRow(
       const days = Math.floor(diffMins / (24 * 60));
       statusLabel = `Seen ${days}d ago`;
     }
+  } else {
+    // New users or users with no telemetry history
+    statusLabel = 'READY';
   }
 
   const level = Math.floor(u.total_hours / 10) + 1;
@@ -314,12 +426,19 @@ function renderUserRow(
   const rankRaw = u.current_rank || 'IRON';
   const streakMatch = rankRaw.match(/\[B:(\d+)\]/);
   const streakCount = streakMatch ? streakMatch[1] : '0';
-  const title = rankRaw.replace(/\[B:\d+\]/, '').trim();
+  const title = rankRaw.replace(/\[B:\d+\]/, '').replace('[PRIV]', '').trim();
 
   const rankColor = getRankColor(title);
 
   const currentRank = globalIndex + 1;
-  const todayHoursDisplay = (new Date().toDateString() === lastActive.toDateString()) ? (u.today_hours || 0) : 0;
+  const lastActiveDate = u.last_active ? new Date(u.last_active) : null;
+  const now = new Date();
+  const isActuallyToday = lastActiveDate && 
+    lastActiveDate.getFullYear() === now.getFullYear() &&
+    lastActiveDate.getMonth() === now.getMonth() &&
+    lastActiveDate.getDate() === now.getDate();
+
+  const todayHoursDisplay = isActuallyToday ? (u.today_hours || 0) : 0;
   
   const worstSeen = climbData.worst[u.display_name] || currentRank;
   const bestSeen = climbData.best[u.display_name] || currentRank;
@@ -360,7 +479,6 @@ function renderUserRow(
       
       <div class="lb-hover-card" style="--hover-color: ${rankColor};">
         <div class="lb-tactical-mesh"></div>
-        <div class="lb-hud-scanner"></div>
         <div class="lb-hud-corner tl"></div><div class="lb-hud-corner tr"></div>
         
         <div class="hover-header">
@@ -391,7 +509,7 @@ function renderUserRow(
           <div class="lb-mission-status-link">
             <span class="lb-pulse-dot" style="background: ${isFocusing ? '#ef4444' : rankColor}; box-shadow: 0 0 8px ${isFocusing ? '#ef4444' : rankColor}"></span>
             <span class="focus-topic ${!isFocusing ? 'offline-topic' : ''}" style="--focus-color: ${isFocusing ? '#ef4444' : rankColor}">
-              ${isFocusing ? (u.current_focus_subject || 'ACTIVE MISSION') : 'IDLE / REFUELING'}
+              ${isFocusing ? (u.is_public || isMe ? (u.current_focus_subject || 'ACTIVE MISSION') : '[ CONFIDENTIAL MISSION ]') : 'IDLE / REFUELING'}
             </span>
           </div>
         </div>

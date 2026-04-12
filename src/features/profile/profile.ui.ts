@@ -122,6 +122,7 @@ function hydrateIdentityFields(): void {
   (document.getElementById('profileEmailInput') as HTMLInputElement).value = (profile as any).email || '';
   (document.getElementById('profilePhoneInput') as HTMLInputElement).value = profile.phoneNumber || '';
   (document.getElementById('profileNationSelect') as HTMLSelectElement).value = profile.nation || 'Global';
+  (document.getElementById('profilePublicToggle') as HTMLInputElement).checked = profile.isPublic !== false;
   (document.getElementById('profileFocusPrivacyToggle') as HTMLInputElement).checked = profile.isFocusPublic !== false;
   
   // 🔒 SECURITY LOCKDOWN: Make all core identity fields strictly un-editable (except Avatar)
@@ -189,6 +190,7 @@ async function handleProfileSaveSubmission(): Promise<void> {
     nation: (document.getElementById('profileNationSelect') as HTMLSelectElement).value,
     phoneNumber: (document.getElementById('profilePhoneInput') as HTMLInputElement).value.trim(),
     email: (document.getElementById('profileEmailInput') as HTMLInputElement).value.trim(),
+    isPublic: (document.getElementById('profilePublicToggle') as HTMLInputElement).checked,
     isFocusPublic: (document.getElementById('profileFocusPrivacyToggle') as HTMLInputElement).checked,
     avatar: document.querySelector('#avatarPickerGrid .avatar-item.active')?.getAttribute('data-avatar') || '👨‍🚀'
   };

@@ -1,4 +1,5 @@
 import { getSecureLocalProfileString, setSecureLocalProfileString } from '@/utils/security';
+import { log } from '@/utils/logger.utils';
 /**
  * Data Bridge — Handles saving and loading data.
  * 
@@ -75,7 +76,7 @@ export async function loadTrackerDataFromStorage(): Promise<TrackerDay[]> {
   const syncId = getCurrentUserId();
 
   if (syncId && online) {
-    console.log('🏛️ CLOUD MASTER: Fetching primary Tracker Data from cloud...');
+    log.info('CLOUD MASTER: Fetching primary Tracker Data from cloud...', '🏛️');
     const cloud = await loadTrackerDataCloud();
     if (cloud && cloud.data) {
       // 🛡️ WIPE PROTECTION: If cloud has data but we are about to return a "fresh" empty local state,
@@ -87,7 +88,7 @@ export async function loadTrackerDataFromStorage(): Promise<TrackerDay[]> {
   }
 
   // Fallback to local only if offline or cloud fetch returned nothing
-  console.warn('📶 OFFLINE/FALLBACK: Loading Tracker data from local mirror.');
+  log.warn('OFFLINE/FALLBACK: Loading Tracker data from local mirror.');
   const saved = localStorage.getItem(STORAGE_KEYS.TRACKER_DATA);
   let localData: TrackerDay[] = [];
   if (saved) { 
@@ -307,7 +308,7 @@ export async function loadTimerStateFromStorage(): Promise<ActiveTimer | null> {
         }
       }
     } catch (err) {
-      console.warn('Failed to fetch timer state from cloud:', err);
+      log.warn('Failed to fetch timer state from cloud:', '⚠️');
     }
   }
   return null;
@@ -322,7 +323,7 @@ export async function saveTimerStateToStorage(state: ActiveTimer): Promise<void>
   try {
     await saveTimerStateCloud(state);
   } catch (err) {
-    console.warn('⚠️ DB timer save failed (offline?):', err);
+    log.warn('DB timer save failed (offline?)', '⚠️');
   }
 }
 
@@ -339,7 +340,7 @@ export async function clearTimerStateDB(): Promise<void> {
   try {
     await saveTimerStateCloud(blankState);
   } catch (err) {
-    console.warn('⚠️ DB timer clear failed (offline?):', err);
+    log.warn('DB timer clear failed (offline?)', '⚠️');
   }
 }
 
@@ -416,7 +417,7 @@ export function clearLocalData(): void {
 // --- Cloud Sync Logic ---
 
 export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
-  console.log('Initiating data sync...');
+  log.info('Initiating data sync...', '🔄');
   updateSyncStatus('syncing');
 
   try {
@@ -444,7 +445,7 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
   const forceRecovery = forceCloudPull || isLocalEmpty(appState.trackerData);
 
   if (forceRecovery) {
-    console.log('🛡️ CLOUD MASTER: Forcefully restoring from Cloud archives...');
+    log.info('CLOUD MASTER: Forcefully restoring from Cloud archives...', '🛡️');
   }
 
   // --- Tracker Data ---
@@ -518,7 +519,7 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
       };
       setSecureLocalProfileString(JSON.stringify(userProfile));
       localStorage.setItem('tracker_username', userProfile.displayName);
-      console.log(`✅ IDENTITY SYNCED: Profile re-established in local vault.`);
+      log.success('IDENTITY SYNCED: Profile re-established from secure vault.');
     }
 
     console.log('Sync complete.');
@@ -593,10 +594,10 @@ export async function performBackgroundSync(): Promise<void> {
       console.log('🔄 SYNC UPDATE: Cloud changes detected. Refreshing UI...');
       await refreshAppAfterSync();
     } else {
-      console.log('✅ SYNC COMPLETE: All systems identical.');
+      log.success('SYNC COMPLETE: All systems identical.');
     }
   } catch (err) {
-    console.warn('Background sync failed:', err);
+    log.warn('Background sync failed silent fallback.');
   }
 }
 
@@ -613,7 +614,7 @@ async function refreshAppAfterSync(): Promise<void> {
  */
 export async function startLiveSync(): Promise<void> {
   if (!isAuthenticated()) return;
-  console.log('🚀 LIVE SYNC: Activating identity-locked cloud listeners...');
+  log.info('LIVE SYNC: Activating identity-locked cloud listeners...', '🚀');
   await subscribeToUserDataSync(handleUserDataSync);
 }
 
