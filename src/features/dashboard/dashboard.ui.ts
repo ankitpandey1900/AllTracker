@@ -180,6 +180,7 @@ export const dashboardView = `
                   </div>
                   <div id="milestone-labels-row" class="milestone-labels"></div>
                 </div>
+
                 <div class="milestone-footer">
                   <div class="milestone-chip">
                     <span class="chip-label">GLOBAL AVG</span>
@@ -219,7 +220,6 @@ export const dashboardView = `
             </div>
           </div>
           <div class="study-log-actions">
-            <button id="quickEntryBtn" class="btn">Quick Entry</button>
             <button id="jumpToTodayBtn" class="btn">Go to Today</button>
             <button id="historyBtn" class="btn">History</button>
             <button id="heatmapViewBtn" class="btn">Heatmap</button>

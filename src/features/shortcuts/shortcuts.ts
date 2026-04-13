@@ -16,10 +16,8 @@ export function setupKeyboardShortcuts(): void {
 
     const mod = e.ctrlKey || e.metaKey;
 
-    // Ctrl+K: Quick Entry
-    if (mod && e.key === 'k') { e.preventDefault(); openQuickEntryModal(); }
     // Ctrl+T: Today
-    if (mod && e.key === 't') { e.preventDefault(); openTodayEntry(); }
+    if (mod && e.key === 't') { e.preventDefault(); scrollToToday(); }
     // Ctrl+H: Heatmap
     if (mod && e.key === 'h') { e.preventDefault(); document.getElementById('heatmapModal')?.classList.add('active'); renderHeatmapModal(); }
     // Ctrl+W: Weekly
@@ -44,171 +42,7 @@ import { renderHeatmap } from '@/features/heatmap/heatmap';
 import { renderPerformanceCurve } from '@/features/routines/performance-chart';
 import { syncProfileBroadcast } from '@/features/profile/profile.manager';
 
-// --- Quick Entry Popups ---
-
-export function openQuickEntryModal(): void {
-  renderQuickEntryFields();
-  renderBulkEntryFields();
-  document.getElementById('quickEntryModal')?.classList.add('active');
-}
-
-export function renderQuickEntryFields(): void {
-  const container = document.getElementById('quickEntryHoursGrid');
-  if (!container) return;
-
-  const day = parseInt((document.getElementById('quickEntryDay') as HTMLInputElement)?.value);
-  const cols = getColumnsForDay(day && day >= 1 ? day : 1);
-
-  container.innerHTML = cols.map((col, i) => `
-    <div class="row-between" style="border-bottom: 1px solid var(--border-color); padding: 5px 0;">
-      <label>${col.name}:</label>
-      <input type="number" class="input small quick-hour-input" data-idx="${i}" step="0.5" min="0" placeholder="0">
-    </div>
-  `).join('');
-}
-
-export function renderBulkEntryFields(): void {
-  const container = document.getElementById('bulkEntryHoursGrid');
-  if (!container) return;
-
-  const startDay = parseInt((document.getElementById('bulkStartDay') as HTMLInputElement)?.value);
-  const cols = getColumnsForDay(startDay && startDay >= 1 ? startDay : 1);
-
-  container.innerHTML = cols.map((col, i) => `
-    <div class="row-between" style="border-bottom: 1px solid var(--border-color); padding: 5px 0;">
-      <label>${col.name} (per day):</label>
-      <input type="number" class="input small bulk-hour-input" data-idx="${i}" step="0.5" min="0" placeholder="0">
-    </div>
-  `).join('');
-}
-
-export function saveQuickEntry(): void {
-  const day = parseInt((document.getElementById('quickEntryDay') as HTMLInputElement).value);
-  if (!day || day < 1 || day > appState.totalDays) {
-    showToast(`Please enter a valid day number (1-${appState.totalDays})`, 'error');
-    return;
-  }
-
-  const idx = day - 1;
-  const hourInputs = document.querySelectorAll<HTMLInputElement>('.quick-hour-input');
-  const studyHours: number[] = [];
-  hourInputs.forEach(input => {
-    const colIdx = parseInt(input.getAttribute('data-idx') || '0');
-    studyHours[colIdx] = parseFloat(input.value) || 0;
-  });
-
-  const topics = (document.getElementById('quickTopics') as HTMLTextAreaElement).value.trim();
-  const problems = parseInt((document.getElementById('quickProblems') as HTMLInputElement).value) || 0;
-  const project = (document.getElementById('quickProject') as HTMLInputElement).value.trim();
-  const completed = (document.getElementById('quickCompleted') as HTMLInputElement).checked;
-
-  const totalHrs = studyHours.reduce((s, h) => s + h, 0);
-  if (totalHrs > 24) {
-    showToast('Illegal timeline: Total hours for one day cannot exceed 24.', 'error');
-    return;
-  }
-
-  if (completed && totalHrs === 0) {
-    showToast('Please enter at least some study hours before marking as completed.', 'warning');
-    return;
-  }
-
-  Object.assign(appState.trackerData[idx], {
-    studyHours,
-    topics,
-    problemsSolved: problems,
-    project,
-    completed
-  });
-
-  saveTrackerDataToStorage(appState.trackerData);
-  generateTable(); updateDashboard(); renderHeatmap(); renderPerformanceCurve();
-  syncProfileBroadcast();
-  jumpToDayInTable(day);
-
-  // Reset fields
-  ['quickEntryDay', 'quickProblems', 'quickProject', 'quickTopics'].forEach(id => {
-    (document.getElementById(id) as HTMLInputElement).value = '';
-  });
-  (document.getElementById('quickCompleted') as HTMLInputElement).checked = false;
-  document.querySelectorAll('.quick-hour-input').forEach(inp => (inp as HTMLInputElement).value = '');
-  
-  showToast(`Day ${day} updated successfully!`, 'success');
-}
-
-export function saveBulkEntry(): void {
-  const startDay = parseInt((document.getElementById('bulkStartDay') as HTMLInputElement).value);
-  const endDay = parseInt((document.getElementById('bulkEndDay') as HTMLInputElement).value);
-  if (!startDay || !endDay || startDay < 1 || endDay > appState.totalDays || startDay > endDay) {
-    showToast(`Please enter a valid day range (1-${appState.totalDays})`, 'error');
-    return;
-  }
-
-  const hourInputs = document.querySelectorAll<HTMLInputElement>('.bulk-hour-input');
-  const studyHours: number[] = [];
-  hourInputs.forEach(input => {
-    const colIdx = parseInt(input.getAttribute('data-idx') || '0');
-    studyHours[colIdx] = parseFloat(input.value) || 0;
-  });
-
-  const completed = (document.getElementById('bulkCompleted') as HTMLInputElement).checked;
-  const totalHrs = studyHours.reduce((s, h) => s + h, 0);
-
-  if (totalHrs > 24) {
-    showToast('Illegal timeline: Total hours for one day cannot exceed 24.', 'error');
-    return;
-  }
-
-  if (completed && totalHrs === 0) {
-    showToast('Please enter at least some study hours.', 'warning');
-    return;
-  }
-
-  for (let d = startDay; d <= endDay; d++) {
-    const i = d - 1;
-    appState.trackerData[i].studyHours = [...studyHours];
-    if (completed) appState.trackerData[i].completed = true;
-  }
-
-  saveTrackerDataToStorage(appState.trackerData);
-  generateTable(); updateDashboard(); renderHeatmap(); renderPerformanceCurve();
-  syncProfileBroadcast();
-  jumpToDayInTable(startDay);
-  showToast(`Updated ${endDay - startDay + 1} days (${startDay}-${endDay}) successfully!`, 'success');
-}
-
-export function openTodayEntry(): void {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  let todayDay: number | null = null;
-  for (let i = 0; i < appState.trackerData.length; i++) {
-    const d = new Date(appState.trackerData[i].date);
-    d.setHours(0, 0, 0, 0);
-    if (d.getTime() === today.getTime()) { todayDay = appState.trackerData[i].day; break; }
-  }
-
-  if (todayDay === null) { showToast('Today is not within the tracking range.', 'warning'); return; }
-
-  const dayData = appState.trackerData[todayDay - 1];
-  (document.getElementById('quickEntryDay') as HTMLInputElement).value = String(todayDay);
-  (document.getElementById('quickTopics') as HTMLTextAreaElement).value = dayData.topics || '';
-  (document.getElementById('quickProblems') as HTMLInputElement).value = String(dayData.problemsSolved || '');
-  (document.getElementById('quickProject') as HTMLInputElement).value = dayData.project || '';
-  (document.getElementById('quickCompleted') as HTMLInputElement).checked = dayData.completed || false;
-
-  renderQuickEntryFields();
-  
-  // Fill hours
-  const inputs = document.querySelectorAll<HTMLInputElement>('.quick-hour-input');
-  inputs.forEach(inp => {
-    const idx = parseInt(inp.getAttribute('data-idx') || '0');
-    inp.value = String(dayData.studyHours[idx] || '');
-  });
-
-  document.getElementById('quickEntryModal')?.classList.add('active');
-  setTimeout(() => jumpToDayInTable(todayDay!), 100);
-}
+// --- Navigation Helpers ---
 
 export function scrollToToday(): void {
   const today = new Date();
@@ -280,12 +114,7 @@ export function showWeeklySummary(): void {
   modal.classList.add('active');
 }
 
-export function jumpToDay(): void {
-  const day = parseInt((document.getElementById('jumpToDay') as HTMLInputElement).value);
-  if (!day || day < 1 || day > appState.totalDays) { showToast(`Please enter a valid day number (1-${appState.totalDays})`, 'error'); return; }
-  jumpToDayInTable(day);
-  document.getElementById('quickEntryModal')?.classList.remove('active');
-}
+
 
 export function handleReset(): void {
   if (confirm('Are you sure you want to reset all data? This action cannot be undone.')) {

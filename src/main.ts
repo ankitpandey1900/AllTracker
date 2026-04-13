@@ -82,15 +82,8 @@ import { exportAllData, exportTrackerDataCSV } from "@/features/export/export";
 import { importFromJSON, importFromCSV } from "@/features/import/import";
 import {
   setupKeyboardShortcuts,
-  openQuickEntryModal,
-  openTodayEntry,
-  saveQuickEntry,
-  saveBulkEntry,
-  jumpToDay,
   showWeeklySummary,
   handleReset,
-  renderQuickEntryFields,
-  renderBulkEntryFields,
   scrollToToday,
 } from "@/features/shortcuts/shortcuts";
 import { initWorldStage } from "@/features/dashboard/leaderboard";
@@ -267,8 +260,6 @@ function setupEventListeners(): void {
 
   bindClick("startTimerBtn", openTimerModal);
   bindClick("mobileStartTimerBtn", openTimerModal);
-  bindClick("openQuickEntryBtn", openQuickEntryModal);
-  bindClick("quickEntryBtn", openTodayEntry);
   bindClick("jumpToTodayBtn", scrollToToday);
   bindClick("exportAllDataBtn", exportAllData);
   bindClick("shareStatsBtn", () => {
@@ -342,23 +333,6 @@ function setupEventListeners(): void {
     document.getElementById("settingsModal")?.classList.remove("active"),
   );
 
-  // Quick entry
-  bindClick("quickEntryDay", renderQuickEntryFields);
-  bindClick("bulkStartDay", renderBulkEntryFields);
-  bindClick("saveQuickEntryBtn", saveQuickEntry);
-  bindClick("saveBulkEntryBtn", saveBulkEntry);
-  bindClick("jumpToDayBtn", jumpToDay);
-  bindClick("closeQuickEntryModal", () =>
-    document.getElementById("quickEntryModal")?.classList.remove("active"),
-  );
-
-  // Quick entry label updates
-  document
-    .getElementById("quickEntryDay")
-    ?.addEventListener("input", renderQuickEntryFields);
-  document
-    .getElementById("bulkStartDay")
-    ?.addEventListener("input", renderBulkEntryFields);
 
   // Modals
   bindClick("closeTimerModal", () =>
