@@ -11,12 +11,12 @@ import "./styles/components/leaderboard.css";
 import "./styles/components/intelligence.css";
 import "./styles/components/manual.css";
 import "./styles/features/maamu.css";
-import "./styles/themes/himavat.css";
+import "./styles/themes/default.css";
 import "./styles/themes/chanakya-strategy.css";
 import "./styles/themes/ayodhya.css";
 import "./styles/themes/kamala-grace.css";
 // --- Core Setup ---
-import { appState, calculateDates, initializeData } from "@/state/app-state";
+import { appState, calculateDates, initializeData, applyThemeToDOM } from "@/state/app-state";
 import {
   DEFAULT_COLUMNS,
   STORAGE_KEYS,
@@ -118,10 +118,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     loadTimerStateFromStorage(),
   ]);
 
-  // 2. Assign to App State
   if (settings) {
     appState.settings = { ...appState.settings, ...settings };
   }
+  
+  // ⚡ CRITICAL: Ensure theme is applied to DOM even for first-time users
+  applyThemeToDOM(appState.settings.theme);
   // ⚡ CRITICAL: Calculate dates immediately so dashboard isn't 0/0
   calculateDates();
   if (trackerData && trackerData.length > 0) {

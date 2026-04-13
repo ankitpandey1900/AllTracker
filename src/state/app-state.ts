@@ -25,12 +25,12 @@ function createDefaultSettings(): Settings {
     unlockedBadges: [],
     sessionLogs: [],
     groqApiKey: '',
-    theme: 'midnight',
+    theme: 'default',
   };
 }
 
 /** Applies the theme class to the HTML tag */
-export function applyThemeToDOM(themeName: string = 'midnight') {
+export function applyThemeToDOM(themeName: string = 'default') {
   document.documentElement.setAttribute('data-theme', themeName);
 }
 
@@ -159,8 +159,18 @@ export function migrateDataFormat(): void {
     // but clear them after confirm
   }
 
+  // 4. Migrate Theme IDs
+  if (s.theme === 'midnight') {
+    s.theme = 'kaala';
+    modified = true;
+  }
+  if (s.theme === 'himavat') {
+    s.theme = 'default';
+    modified = true;
+  }
+
   if (modified) {
-    console.log('Data migration to Range-Only Category Management completed.');
+    console.log('Data migration to new Theme System and Range Management completed.');
   }
 }
 

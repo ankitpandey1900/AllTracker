@@ -18,8 +18,8 @@ export const settingsModal = `
               <label>Select Visual Theme</label>
               <div class="row" style="gap: 10px; align-items: stretch;">
                 <select id="themeSelectInput" class="settings-input" style="background:#0f172a; flex: 1;">
-                  <option value="midnight">All Tracker Original</option>
-                  <option value="himavat">Himavat (Himalayan Ice)</option>
+                  <option value="default">Default / Himavat Ice</option>
+                  <option value="kaala">Kaala (Deep Midnight)</option>
                   <option value="chanakya-strategy">Chanakya Strategy (Technical)</option>
                   <option value="ayodhya">Ayodhya (Divine Order)</option>
                   <option value="kamala-grace">Kamala's Grace (Prosperity)</option>

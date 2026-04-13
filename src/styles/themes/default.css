@@ -1,12 +1,12 @@
 /* =========================================================
-   THEME: HIMAVAT (The Himalayan Frozen Peak)
+   THEME: DEFAULT (The Himalayan Frozen Peak)
    Visual System: Pure Ice, Aurora Cyan, Himalayan Mist
    Aesthetic: Ultra-Minimalist, Frozen Glass, Pure
    ========================================================= */
 
 
 
-html[data-theme="himavat"] :root {
+html[data-theme="default"] :root {
   --bg-primary: #0a1118; 
   --bg-secondary: #0f172a;
   --bg-tertiary: #1e293b;
@@ -35,7 +35,7 @@ html[data-theme="himavat"] :root {
 }
 
 /* 🌌 ATMOSPHERIC PROTOCOL: Arctic Aurora (STABLE PULSE) */
-html[data-theme="himavat"]::before {
+html[data-theme="default"]::before {
   content: "";
   position: fixed;
   top: -50vh; left: -50vw; width: 200vw; height: 100vh;
@@ -52,7 +52,7 @@ html[data-theme="himavat"]::before {
 }
 
 /* 🏔️ THE FROZEN SUMMIT: Background with Parallax Depth */
-html[data-theme="himavat"] body {
+html[data-theme="default"] body {
   background-color: #0a1118;
   background-image: 
     radial-gradient(100% 100% at 50% 0%, rgba(14, 165, 233, 0.1) 0%, transparent 50%),
@@ -65,7 +65,7 @@ html[data-theme="himavat"] body {
 }
 
 /* 🏔️ DISTANT RANGE: Secondary Mountain (PARALLAX DEPTH) */
-html[data-theme="himavat"] body::before {
+html[data-theme="default"] body::before {
   content: "";
   position: fixed;
   bottom: 0; left: 0; width: 100vw; height: 50vh;
@@ -77,7 +77,7 @@ html[data-theme="himavat"] body::before {
 }
 
 /* 🏔️ HIMALAYAN PEAK: Primary Mountain (SHARP) */
-html[data-theme="himavat"] body::after {
+html[data-theme="default"] body::after {
   content: "";
   position: fixed;
   bottom: 0; left: 0; 
@@ -90,7 +90,7 @@ html[data-theme="himavat"] body::after {
 }
 
 /* 🌨️ SUMMIT-DRIFT PROTOCOL: Multi-Depth Immersive Physics (FIXED SELECTOR) */
-html[data-theme="himavat"] main::before {
+html[data-theme="default"] main::before {
   content: "";
   position: fixed;
   top: 0; left: 0; width: 100vw; height: 100vh;
@@ -113,14 +113,14 @@ html[data-theme="himavat"] main::before {
 }
 
 /* 🧊 FROSTED HUD: Header (CLEAR-SKY GLASS) */
-html[data-theme="himavat"] .app-header {
+html[data-theme="default"] .app-header {
   background: var(--header-bg) !important;
   backdrop-filter: blur(20px) !important;
   border-bottom: 2px solid rgba(255,255,255,0.05) !important;
   box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
 }
 
-html[data-theme="himavat"] .app-header .brand {
+html[data-theme="default"] .app-header .brand {
   color: #ffffff !important;
   font-weight: 700;
   letter-spacing: -1px;
@@ -131,14 +131,14 @@ html[data-theme="himavat"] .app-header .brand {
 }
 
 /* 🌫️ CRYSTAL CONTAINERS: Ice-Sculpted Cards (ULTRA GLASS) */
-html[data-theme="himavat"] .card,
-html[data-theme="himavat"] .hero,
-html[data-theme="himavat"] .metric-card,
-html[data-theme="himavat"] .feature-card,
-html[data-theme="himavat"] .profile-passport-card,
-html[data-theme="himavat"] .leaderboard-item,
-html[data-theme="himavat"] .msg-body,
-html[data-theme="himavat"] .mentor-v2-container {
+html[data-theme="default"] .card,
+html[data-theme="default"] .hero,
+html[data-theme="default"] .metric-card,
+html[data-theme="default"] .feature-card,
+html[data-theme="default"] .profile-passport-card,
+html[data-theme="default"] .leaderboard-item,
+html[data-theme="default"] .msg-body,
+html[data-theme="default"] .mentor-v2-container {
   background: var(--surface) !important;
   backdrop-filter: blur(25px) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -149,8 +149,8 @@ html[data-theme="himavat"] .mentor-v2-container {
 }
 
 /* ❄️ FIX: Turning White on Hover (CLEAR-SKY HUD) */
-html[data-theme="himavat"] .card:hover,
-html[data-theme="himavat"] .metric-card:hover {
+html[data-theme="default"] .card:hover,
+html[data-theme="default"] .metric-card:hover {
   background: rgba(15, 23, 42, 0.25) !important;
   transform: translateY(-4px);
   border-color: var(--accent-cyan) !important;
@@ -160,13 +160,13 @@ html[data-theme="himavat"] .metric-card:hover {
 }
 
 /* ❄️ AURORA PULSE: Metrics */
-html[data-theme="himavat"] .stat-value {
+html[data-theme="default"] .stat-value {
   color: #7dd3fc !important;
   font-weight: 700 !important;
   text-shadow: 0 0 20px rgba(125, 211, 252, 0.4);
 }
 
-html[data-theme="himavat"] .focus-core {
+html[data-theme="default"] .focus-core {
   background: rgba(10, 17, 24, 0.3) !important;
   backdrop-filter: blur(30px);
   border: 2px solid var(--accent-blue) !important;
@@ -174,19 +174,19 @@ html[data-theme="himavat"] .focus-core {
 }
 
 /* ❄️ FROZEN BUTTONS */
-html[data-theme="himavat"] .btn-primary {
+html[data-theme="default"] .btn-primary {
   background: #0ea5e9 !important;
   color: #ffffff !important;
   border-radius: 12px !important;
   border: none !important;
 }
 
-html[data-theme="himavat"] .btn-primary:hover {
+html[data-theme="default"] .btn-primary:hover {
   background: #38bdf8 !important;
   transform: scale(1.02);
 }
 
-html[data-theme="himavat"] .settings-input {
+html[data-theme="default"] .settings-input {
   background: rgba(15, 23, 42, 0.2) !important;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255,255,255,0.1) !important;
@@ -194,13 +194,13 @@ html[data-theme="himavat"] .settings-input {
 }
 
 /* ❄️ FIX: Dropdown Menu Options (Overrides OS default white background) */
-html[data-theme="himavat"] select option,
-html[data-theme="himavat"] .settings-input option {
+html[data-theme="default"] select option,
+html[data-theme="default"] .settings-input option {
   background: #0f172a !important; 
   color: #ffffff !important;
 }
 
-html[data-theme="himavat"] .mobile-nav {
+html[data-theme="default"] .mobile-nav {
   background: rgba(10, 17, 24, 0.4) !important;
   backdrop-filter: blur(30px);
   border-top: 1px solid var(--border) !important;
@@ -208,16 +208,16 @@ html[data-theme="himavat"] .mobile-nav {
 
 /* 📱 MOBILE OPTIMIZATION */
 @media (max-width: 768px) {
-  html[data-theme="himavat"] body::after {
+  html[data-theme="default"] body::after {
     height: 25vh;
     opacity: 0.6;
   }
   
-  html[data-theme="himavat"] body::before {
+  html[data-theme="default"] body::before {
     opacity: 0.1;
   }
 
-  html[data-theme="himavat"] .app-header {
+  html[data-theme="default"] .app-header {
     background: rgba(10, 17, 24, 0.3) !important;
     backdrop-filter: blur(15px) !important;
   }

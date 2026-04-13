@@ -78,7 +78,7 @@ export interface Settings {
   groqApiKey?: string;
   chatSessions?: ChatSession[];    // Multi-session history
   activeSessionId?: string;       // Multi-session history
-  theme?: 'midnight' | 'himavat' | 'chanakya-strategy' | 'ayodhya' | 'kamala-grace' | 'vajra-shakti'; // App Theme
+  theme?: 'kaala' | 'default' | 'chanakya-strategy' | 'ayodhya' | 'kamala-grace' | 'vajra-shakti'; // App Theme
   sessionGoal?: string;           // Target hours for current phase
 }
 
