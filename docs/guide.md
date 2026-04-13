@@ -56,6 +56,13 @@ The World Stage and your Pilot Passport use high-fidelity telemetry to track glo
 - **BEST_STREAK**: Your all-time record for consecutive mission days.
 - **MISSION_STATUS**: Your real-time uplink status (IDLE, FOCUSING, or REFUELING).
 
+### Sustainability Engine (Burnout Prevention)
+The Solidarity Engine is your mission-critical wellness protocol. It analyzes your 14-day study frequency to determine if your pace is sustainable.
+- **OPTIMAL**: Healthy consistency with adequate rest.
+- **CAUTION**: Fatigue risk detected; consecutive high-output days without rest.
+- **CRITICAL**: Immediate 24h rest recommended to prevent cognitive burnout.
+- **Trend Indicators**: Look for the arrows (**↑ / ↓**) on your dashboard. They show your 7-day velocity/wellness trend at a glance.
+
 ## 🌒 Midnight Mission Protocol
 Never lose a minute to the clock. If you start a session at 11:45 PM and finish at 12:15 AM:
 -   The system **mathematically splits** your time.

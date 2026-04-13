@@ -1,3 +1,12 @@
+/**
+ * DASHBOARD COMPONENT (Unified V3)
+ * 
+ * Layout Hierarchy:
+ * - .kpi-metrics-grid: Core 3-column tactical grid (Responsive: 2 Col Tablet, 1 Col Mobile)
+ *   Row 1: Study Rank, Sustainability, Estimated Finish
+ *   Row 2: Avg / Day, Completion, Total Hours
+ *   Row 3: Consistency, Best Streak, Current Streak
+ */
 export const dashboardView = `
       <div class="dashboard-arena-layout">
         <div class="dashboard-main-content">

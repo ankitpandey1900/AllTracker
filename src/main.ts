@@ -21,6 +21,7 @@ import {
   DEFAULT_COLUMNS,
   STORAGE_KEYS,
 } from "@/config/constants";
+import { log } from "@/utils/logger.utils";
 import {
   loadTrackerDataFromStorage,
   loadSettingsFromStorage,
@@ -487,7 +488,7 @@ export async function refreshApplicationUI(): Promise<void> {
     // 5. Broadcast stats after sync to ensure leaderboard is fresh
     syncProfileBroadcast();
   } catch (error) {
-    console.error("Error during UI refresh:", error);
+    log.error("UI Refresh Failure", error);
   }
 }
 
@@ -498,14 +499,14 @@ if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('/sw.js')
         .then(reg => {
-          console.log('Service Worker registered', reg);
+          log.success('Security Protocol: Service Worker active');
           
           // Detect manual or automatic SW updates
           reg.addEventListener('updatefound', () => {
             const newWorker = reg.installing;
             newWorker?.addEventListener('statechange', () => {
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                console.log('New version available! Refreshing...');
+                log.info('System Update: New version available. Deployment triggered.');
               }
             });
           });
@@ -514,7 +515,7 @@ if ('serviceWorker' in navigator) {
 
       // Handle automatic reload when the new Service Worker takes over
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        console.log('Controller changed. Reloading page for latest version.');
+        log.info('System reload: Controller change detected.');
         window.location.reload();
       });
     });
@@ -523,7 +524,7 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistrations().then((registrations) => {
       for (const registration of registrations) {
         registration.unregister().then(() => {
-          console.log('Dev Mode: Unregistered rogue Service Worker to prevent caching.');
+          log.info('Dev Mode: Cache purged.');
         });
       }
     });

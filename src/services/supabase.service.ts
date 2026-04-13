@@ -107,7 +107,7 @@ async function upsertToVault(table: string, payload: any): Promise<{ error?: unk
     .upsert({ user_id: ctx.id, handle: ctx.handle, data: payload, updated_at: new Date() }, { onConflict: 'user_id' });
 
   if (error) {
-    console.error(`Error saving to ${table}:`, error);
+    log.error(`Vault Sync Failure [${table}]`, error);
     updateSyncStatus('error');
     return { error };
   }
@@ -132,7 +132,7 @@ async function fetchFromVault(table: string): Promise<{ data?: any | null; updat
     .maybeSingle();
 
   if (error) {
-    console.error(`Error loading from ${table}:`, error);
+    log.error(`Vault Retrieval Failure [${table}]`, error);
     updateSyncStatus('error');
     return { error };
   }
@@ -253,9 +253,9 @@ export function subscribeToRealtimeTelemetry(
     )
     .subscribe((status, err) => {
       if (status === 'SUBSCRIBED') {
-        console.log(`✅ REAL-TIME HUD ACTIVE [${channelId}]`);
+        log.success(`REAL-TIME HUD ACTIVE [${channelId.slice(0, 8)}]`);
       } else if (status === 'CHANNEL_ERROR') {
-        console.error(`🚨 REAL-TIME HUD ERROR [${channelId}]:`, err);
+        log.error(`REAL-TIME HUD ERROR [${channelId.slice(0, 8)}]`, err);
       }
     });
 
@@ -299,9 +299,9 @@ export async function subscribeToUserDataSync(
       if (status === 'SUBSCRIBED') {
          log.info('REALTIME DATA SYNC ESTABLISHED: Zero-refresh mode active.', '🔗');
       } else if (status === 'CLOSED') {
-         console.warn('🔗 REALTIME DATA SYNC CLOSED.');
+         log.info('REALTIME DATA SYNC CLOSED.', '🔗');
       } else if (status === 'CHANNEL_ERROR') {
-         console.error('🔗 REALTIME DATA SYNC ERROR: Retrying...');
+         log.error('REALTIME DATA SYNC ERROR: Automatic retry initiated.');
       }
     });
 
@@ -341,7 +341,7 @@ export async function broadcastGlobalStats(profile: Partial<GlobalProfile>): Pro
     .upsert(pulsePayload, { onConflict: 'user_id' });
 
   if (pulseErr) {
-    console.error('🚨 STATS PULSE ERROR:', pulseErr);
+    log.error('STATS PULSE ERROR', pulseErr);
   }
 
   // 2. Update Registry (operative_profiles) - Only if identity data changed
@@ -364,10 +364,10 @@ export async function broadcastGlobalStats(profile: Partial<GlobalProfile>): Pro
       .eq('id', ctx.id);
     
     if (regErr) {
-      console.error('🚨 REGISTRY SYNC ERROR:', regErr);
+      log.error('REGISTRY SYNC ERROR', regErr);
     }
   }
-  console.log(`✅ SYNC SUCCESS: Cloud identity and metrics updated.`);
+  log.info(`Broadcasting Sync: Pilot ${ctx.handle} metadata secured.`);
 }
 
 /** Logs a specific study session into the persistent history table */
@@ -401,7 +401,7 @@ export async function logStudySessionCloud(duration: number, subject: string, st
     });
 
   if (error) {
-    console.error('🚨 SESSION LOG ERROR:', error);
+    log.error('SESSION LOG ERROR', error);
   } else {
     log.success(`SESSION LOGGED: S#${(count || 0) + 1} [${subject}]`);
   }
@@ -449,7 +449,7 @@ export async function migrateLocalHistoryToCloud(logs: any[]): Promise<{ success
     .filter(row => row !== null); // Remove duplicates
 
   if (rows.length === 0) {
-    console.log('✨ MIGRATION: All sessions already secured in cloud. No action needed.');
+    log.info('MIGRATION: Cloud vaults already synchronized. No sequence required.');
     return { success: true, count: 0 };
   }
 
@@ -459,11 +459,11 @@ export async function migrateLocalHistoryToCloud(logs: any[]): Promise<{ success
     .insert(rows);
 
   if (error) {
-    console.error('🚨 MIGRATION ERROR:', error);
+    log.error('MIGRATION SEQUENCE ERROR', error);
     return { success: false, count: 0 };
   }
 
-  console.log(`✅ MIGRATION SUCCESS: ${rows.length} sessions moved to immutable storage.`);
+  log.success(`MIGRATION SUCCESS: ${rows.length} sessions moved to immutable storage.`);
   return { success: true, count: rows.length };
 }
 
@@ -481,7 +481,7 @@ export async function fetchMySessionsCloud(): Promise<StudySession[]> {
     .limit(300); // 300 sessions limit for tab performance
 
   if (error) {
-    console.error('Error fetching personal history:', error);
+    log.error('History Retrieval Failure', error);
     return [];
   }
 
@@ -514,7 +514,7 @@ export async function fetchLeaderboard(): Promise<GlobalProfile[]> {
     .limit(1000);
 
   if (error) {
-    console.error('Error fetching World Stage:', error);
+    log.error('World Stage Retrieval Failure', error);
     return [];
   }
 
@@ -648,7 +648,7 @@ export async function isUsernameTaken(username: string, excludeSyncId?: string |
   const { data, error } = await query.maybeSingle();
   
   if (error) {
-    console.error('Error checking username uniqueness:', error);
+    log.error('Auth Check Failure', error);
     return false;
   }
 
