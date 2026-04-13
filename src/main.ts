@@ -87,6 +87,7 @@ import {
   scrollToToday,
 } from "@/features/shortcuts/shortcuts";
 import { initWorldStage } from "@/features/dashboard/leaderboard";
+import { initAtmosphericProtocol } from "@/features/dashboard/particles";
 import { checkProfileIdentity, syncProfileBroadcast } from "@/features/profile/profile.manager";
 import { requestNotificationPermission } from "@/features/notifications/notifications";
 
@@ -176,6 +177,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     initManualLogic();
     initNotifications();
     initIntegrityService();
+    initAtmosphericProtocol();
     
     // 🏁 WORLD STAGE BOOT: Only once data is established
     await initWorldStage();

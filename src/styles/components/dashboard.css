@@ -100,8 +100,34 @@
   border-radius: 16px;
   padding: 14px;
   margin-bottom: 12px;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(171, 193, 246, 0.05);
+  box-shadow: 
+    0 10px 24px rgba(0, 0, 0, 0.45), 
+    inset 0 1px 0 rgba(171, 193, 246, 0.05),
+    0 0 0 rgba(var(--aura-rgb, 108, 135, 255), 0); /* Mission Aura Base */
+  transition: 
+    transform 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+    box-shadow 0.4s ease,
+    border-color 0.4s ease;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  position: relative;
 }
+
+.card:hover {
+  border-color: rgba(var(--aura-rgb, 108, 135, 255), 0.4);
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(171, 193, 246, 0.1),
+    0 0 20px rgba(var(--aura-rgb, 108, 135, 255), 0.15); /* Pulse Aura */
+  transform: translateY(-2px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+}
+
+/* Aura Color Protocols */
+.aura-optimal { --aura-rgb: 34, 197, 94; }   /* Green */
+.aura-caution { --aura-rgb: 245, 158, 11; }  /* Amber */
+.aura-critical { --aura-rgb: 239, 68, 68; } /* Red */
+.aura-elite    { --aura-rgb: 251, 191, 36; } /* Gold */
+.aura-focus    { --aura-rgb: 96, 165, 250; } /* Blue/Focus */
 
 .hero {
   padding: 16px 14px 12px;

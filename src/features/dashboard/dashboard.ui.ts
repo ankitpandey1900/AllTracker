@@ -37,6 +37,11 @@ export const dashboardView = `
           
           <div id="kpiContainer" class="mobile-collapsible">
             <div class="grid-top kpi-grid items-stretch">
+              <article class="card aura-focus">
+                <div class="label">Sustainability</div>
+                <div id="sustainabilityLabel" class="big">OPTIMAL</div>
+                <div class="meta" id="sustainabilityDesc">Mission at optimal pace.</div>
+              </article>
               <article class="card">
                 <div class="label">Completion</div>
                 <div id="completionPercent" class="big">0%</div>
@@ -47,7 +52,10 @@ export const dashboardView = `
               <article class="card">
                 <div class="label">Total Hours</div>
                 <div id="totalHours" class="big">0.0h</div>
-                <div class="meta">hours studied</div>
+                <div class="meta">
+                   <canvas id="velocitySparkline" width="100" height="20" style="width: 100px; height: 20px; opacity: 0.6; margin: 4px 0;"></canvas>
+                   <div id="startDateLabel">Start: -</div>
+                </div>
               </article>
               <article class="card">
                 <div class="label">Avg / Day</div>

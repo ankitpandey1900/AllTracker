@@ -15,7 +15,7 @@ import { renderIntelligenceBriefing } from '@/features/intelligence/intelligence
 import type { RankDetails } from '@/types/tracker.types';
 import { renderStudyAnalytics } from './study-analytics';
 import type { StudySession } from '@/types/profile.types';
-import { calculateXP, calculateStreak, getRankDetails } from '@/utils/calc.utils';
+import { calculateXP, calculateStreak, getRankDetails, calculateSustainability, getRecentVelocity } from '@/utils/calc.utils';
 import { saveSettingsToStorage } from '@/services/data-bridge';
 import { fetchLeaderboard, loadUserProfileCloud, fetchMySessionsCloud, migrateLocalHistoryToCloud } from '@/services/supabase.service';
 
@@ -125,6 +125,10 @@ export function updateDashboard(): void {
   setTxt('completedDaysCount', completedDays.toString());
   setTxt('completionPercentMirror', `${Math.round(completionRate)}%`);
   setTxt('avgHoursPerDay', avgHoursPerStudyDay.toFixed(1));
+  
+  const sustain = calculateSustainability(data);
+  setTxt('sustainabilityLabel', sustain.label);
+  setTxt('sustainabilityDesc', sustain.description);
 
   setTxt('studyRank', rankData.name.toUpperCase());
   setTxt('rankTierText', rankData.division);
@@ -155,6 +159,15 @@ export function updateDashboard(): void {
 
   // Up Next Routine
   updateHeroRoutine();
+
+  // Render Velocity Sparkline
+  renderVelocitySparkline(data);
+
+  // Apply Mission Auras to KPI Cards
+  applyKPIMissionAuras(completionRate, streak, today.day);
+
+  // Initialize Interactive Parallax
+  initInteractiveParallax();
 }
 
 /** Finds the next uncompleted routine for today and displays it in the Hero HUD */
@@ -255,6 +268,83 @@ function getDynamicStatusMessage(currentDay: number, completedDays: number): str
   return msg;
 }
 
+/** 
+ * Analyzes mission status and applies glowing auras to core KPI cards.
+ */
+function applyKPIMissionAuras(completionRate: number, streak: number, day: number): void {
+  const cards = {
+    sustainability: document.getElementById('sustainabilityLabel')?.closest('.card'),
+    totalHours: document.getElementById('totalHours')?.closest('.card'),
+    currentStreak: document.getElementById('currentStreak')?.closest('.card'),
+    completionPercent: document.getElementById('completionPercent')?.closest('.card'),
+    studyRank: document.getElementById('studyRank')?.closest('.card'),
+  };
+
+  // 1. Completion Aura
+  if (cards.completionPercent) {
+    cards.completionPercent.classList.remove('aura-optimal', 'aura-caution', 'aura-critical', 'aura-elite');
+    if (completionRate >= 90) cards.completionPercent.classList.add('aura-elite');
+    else if (completionRate >= 60) cards.completionPercent.classList.add('aura-optimal');
+    else if (completionRate < 30) cards.completionPercent.classList.add('aura-caution');
+  }
+
+  // 1b. Sustainability Aura
+  if (cards.sustainability) {
+    cards.sustainability.classList.remove('aura-optimal', 'aura-caution', 'aura-critical', 'aura-elite', 'aura-focus');
+    const label = document.getElementById('sustainabilityLabel')?.textContent || '';
+    if (label === 'OPTIMAL') cards.sustainability.classList.add('aura-optimal');
+    else if (label === 'CAUTION') cards.sustainability.classList.add('aura-caution');
+    else if (label === 'CRITICAL') cards.sustainability.classList.add('aura-critical');
+    else cards.sustainability.classList.add('aura-focus');
+  }
+
+  // 2. Streak Aura
+  if (cards.currentStreak) {
+    cards.currentStreak.classList.remove('aura-optimal', 'aura-caution', 'aura-critical', 'aura-elite');
+    if (streak >= 14) cards.currentStreak.classList.add('aura-elite');
+    else if (streak >= 7) cards.currentStreak.classList.add('aura-optimal');
+    else if (streak === 0) cards.currentStreak.classList.add('aura-critical');
+  }
+
+  // 3. Rank Aura (Based on Title)
+  if (cards.studyRank) {
+    cards.studyRank.classList.remove('aura-optimal', 'aura-caution', 'aura-critical', 'aura-elite');
+    const title = cards.studyRank.textContent || '';
+    if (['ELITE', 'LEGEND', 'SINGULARITY'].some(t => title.includes(t))) cards.studyRank.classList.add('aura-elite');
+    else if (['PILOT', 'COMMANDER'].some(t => title.includes(t))) cards.studyRank.classList.add('aura-optimal');
+  }
+}
+
+/**
+ * High-fidelity parallax tilt engine.
+ * Calculates mouse position relative to center of cards to apply 3D rotation.
+ */
+function initInteractiveParallax(): void {
+  const cards = document.querySelectorAll('.card');
+  cards.forEach(card => {
+    (card as HTMLElement).addEventListener('mousemove', (e: MouseEvent) => {
+      const rect = (card as HTMLElement).getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      
+      // Calculate rotation (max 10 degrees)
+      const rotateX = ((y - centerY) / centerY) * -6; 
+      const rotateY = ((x - centerX) / centerX) * 6;
+      
+      (card as HTMLElement).style.setProperty('--tilt-x', `${rotateX}deg`);
+      (card as HTMLElement).style.setProperty('--tilt-y', `${rotateY}deg`);
+    });
+    
+    (card as HTMLElement).addEventListener('mouseleave', () => {
+      (card as HTMLElement).style.setProperty('--tilt-x', `0deg`);
+      (card as HTMLElement).style.setProperty('--tilt-y', `0deg`);
+    });
+  });
+}
+
 function calculateEstimatedFinishDate(currentDayNumber: number, completedDays: number): string {
   if (currentDayNumber <= 0) return 'Analyzing...';
   if (completedDays <= 0) return 'Need 1 session';
@@ -346,6 +436,47 @@ function renderSectorTokens(today: any): void {
       <div class="category-progress-eta">${cat.finish !== '-' ? `Finish: ${cat.finish}` : ' '}</div>
     </div>
   `).join('');
+}
+
+/**
+ * Renders a tactical sparkline showing the last 14 days of study velocity.
+ */
+function renderVelocitySparkline(trackerData: any[]): void {
+  const canvas = document.getElementById('velocitySparkline') as HTMLCanvasElement;
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  const velocity = getRecentVelocity(trackerData, 14);
+  
+  const width = canvas.width;
+  const height = canvas.height;
+  const max = Math.max(...velocity, 1);
+
+  ctx.clearRect(0, 0, width, height);
+  ctx.beginPath();
+  ctx.strokeStyle = '#60a5fa';
+  ctx.lineWidth = 2;
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+
+  velocity.forEach((v: number, i: number) => {
+    const x = (i / (velocity.length - 1)) * width;
+    const y = height - (v / max) * height;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+
+  ctx.stroke();
+
+  // Gradient fill
+  const grad = ctx.createLinearGradient(0, 0, 0, height);
+  grad.addColorStop(0, 'rgba(96, 165, 250, 0.2)');
+  grad.addColorStop(1, 'rgba(96, 165, 250, 0)');
+  ctx.lineTo(width, height);
+  ctx.lineTo(0, height);
+  ctx.fillStyle = grad;
+  ctx.fill();
 }
 
 function renderAllocationBar(): void {

@@ -230,3 +230,84 @@ export function getTopCategories(trackerData: TrackerDay[], activeColumns: { nam
     .sort((a, b) => b.hours - a.hours)
     .slice(0, limit);
 }
+
+/**
+ * MISSION VELOCITY ENGINE
+ * Returns an array of total hours per day for the last N days.
+ * Used for tactical sparklines.
+ */
+export function getRecentVelocity(trackerData: TrackerDay[], days: number = 14): number[] {
+  const result: number[] = [];
+  const start = Math.max(0, trackerData.length - days);
+  for (let i = start; i < trackerData.length; i++) {
+    const day = trackerData[i];
+    const total = Array.isArray(day.studyHours) ? day.studyHours.reduce((s, h) => s + (h || 0), 0) : 0;
+    result.push(total);
+  }
+  return result;
+}
+
+/**
+ * SUSTAINABILITY & BURNOUT ENGINE
+ * Analyzes session entropy, rest frequency, and output spikes.
+ */
+export function calculateSustainability(trackerData: TrackerDay[]): { score: number; label: string; color: string; description: string } {
+  const recent = trackerData.slice(-14); // Analyze last 2 weeks
+  if (recent.length === 0) return { score: 100, label: 'Stable', color: '#22c55e', description: 'Mission initiated.' };
+
+  let totalHours = 0;
+  let restDays = 0;
+  let consecutiveHighDays = 0;
+  let maxConsecHigh = 0;
+
+  recent.forEach(day => {
+    const hours = Array.isArray(day.studyHours) ? day.studyHours.reduce((s, h) => s + (h || 0), 0) : 0;
+    totalHours += hours;
+    if (day.restDay || hours === 0) restDays++;
+    
+    if (hours > 8) {
+      consecutiveHighDays++;
+      if (consecutiveHighDays > maxConsecHigh) maxConsecHigh = consecutiveHighDays;
+    } else {
+      consecutiveHighDays = 0;
+    }
+  });
+
+  const avgRecent = totalHours / 14;
+  
+  // Scoring Logic
+  let score = 100;
+  
+  // Penalty for zero rest in 2 weeks
+  if (restDays === 0) score -= 30;
+  else if (restDays === 1) score -= 15;
+  
+  // Penalty for over-grinding (> 4 consecutive 8h+ days)
+  if (maxConsecHigh > 4) score -= (maxConsecHigh - 4) * 15;
+
+  // Penalty for extreme daily output (> 12h)
+  const extremeDays = recent.filter(d => (Array.isArray(d.studyHours) ? d.studyHours.reduce((s, h) => s + (h || 0), 0) : 0) > 12).length;
+  score -= extremeDays * 10;
+
+  score = Math.max(0, score);
+
+  let label = 'OPTIMAL';
+  let color = '#22c55e';
+  let description = 'Sustainable pace maintained.';
+
+  if (score < 40) {
+    label = 'CRITICAL';
+    color = '#ef4444';
+    description = 'High burnout risk. Deploy Rest Day immediately.';
+  } else if (score < 70) {
+    label = 'CAUTION';
+    color = '#f59e0b';
+    description = 'Output spike detected. Monitor energy levels.';
+  } else if (avgRecent < 1) {
+    label = 'COASTING';
+    color = '#94a3b8';
+    description = 'Mission activity below tactical threshold.';
+  }
+
+  return { score, label, color, description };
+}
