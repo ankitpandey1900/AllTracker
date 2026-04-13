@@ -191,20 +191,23 @@ export const manualModal = `
             <!-- SUSTAINABILITY -->
             <section class="docs-section" id="doc-sustainability">
               <div class="docs-breadcrumb">Core Systems › Sustainability Engine</div>
-              <h2 class="docs-h2">Sustainability Engine (Beta)</h2>
-              <p>The Sustainability Engine is a burnout prevention protocol that monitors your study frequency, intensity, and equilibrium.</p>
+              <h2 class="docs-h2">Sustainability Engine (SEP Protocol)</h2>
+              <p>The <strong>Strategic Equilibrium Protocol (SEP)</strong> is an advanced burnout prevention system that analyzes study consistency (Heartbeat), momentum decays, and recovery debt.</p>
               
               <div class="docs-callout docs-callout-info" style="margin-top: 20px;">
-                <div class="docs-callout-title">🧠 Burnout Prevention</div>
-                <p>The engine analyzes your last 14 days of data to determine if your current pace is maintainable or risky.</p>
+                <div class="docs-callout-title">🧠 Equilibrium Analysis</div>
+                <p>The engine monitors the standard deviation of your output. Elite pilots prioritize high consistency over volatile spikes.</p>
               </div>
 
-              <h3 class="docs-h3">Status Protocols</h3>
+              <h3 class="docs-h3">Tactical Statuses</h3>
               <ul class="docs-ul">
-                <li><strong>OPTIMAL:</strong> Balanced intensity with adequate rest days.</li>
-                <li><strong>CAUTION:</strong> Fatigue detected. Consecutive high-intensity sessions without a break.</li>
-                <li><strong>CRITICAL:</strong> High burnout risk. The Solidarity engine recommends an immediate 24h rest period.</li>
-                <li><strong>COASTING:</strong> Activity is low. You are safe from burnout but below tactical focus targets.</li>
+                <li><strong>EQUILIBRIUM:</strong> Elite strategic balance. High volume with perfect consistency.</li>
+                <li><strong>OPTIMAL:</strong> Healthy, sustainable pace maintained with adequate rest.</li>
+                <li><strong>VOLATILE:</strong> Pattern unstable. High risk of crash due to erratic study timing.</li>
+                <li><strong>DEBTED:</strong> "Recovery Debt" detected. You had a spike without a follow-up deload.</li>
+                <li><strong>DECAYING:</strong> Momentum loss. Your 3-day velocity is dropping vs your 14-day average.</li>
+                <li><strong>CRITICAL:</strong> High burnout risk. Solidarity engine recommends an immediate 24h rest.</li>
+                <li><strong>COASTING:</strong> Safe from burnout, but output is below tactical focus targets.</li>
               </ul>
 
               <h3 class="docs-h3">Trend Indicators</h3>

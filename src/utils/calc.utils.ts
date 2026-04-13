@@ -252,94 +252,157 @@ export function getRecentVelocity(trackerData: TrackerDay[], days: number = 14):
  * Analyzes session entropy, rest frequency, and output spikes.
  */
 /**
- * Internal helper to calculate score for a specific window of days.
+ * INTERNAL: STRATEGIC EQUILIBRIUM ENGINE (Sustainability 2.0)
+ * Calculates a multi-factor score based on consistency, momentum, and burnout risk.
  */
-function calculateSustainabilityScore(recent: any[]): number {
-  if (recent.length === 0) return 100;
+function evaluateStrategicEquilibrium(recent: any[]): { 
+  score: number; 
+  consistency: number; 
+  momentum: number; 
+  isVolatile: boolean;
+  hasRecoveryDebt: boolean;
+} {
+  if (recent.length < 3) return { score: 100, consistency: 100, momentum: 1, isVolatile: false, hasRecoveryDebt: false };
+
+  const hoursList = recent.map(day => 
+    Array.isArray(day.studyHours) ? day.studyHours.reduce((s: number, h: number) => s + (h || 0), 0) : 0
+  );
+
+  const avg = hoursList.reduce((a, b) => a + b, 0) / hoursList.length;
   
-  let totalHours = 0;
+  // 1. Consistency (Coefficient of Variation)
+  const variance = hoursList.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / hoursList.length;
+  const stdDev = Math.sqrt(variance);
+  const cv = avg > 0 ? stdDev / avg : 0; 
+  const consistencyScore = Math.max(0, 100 - (cv * 60)); // CV of 1.0 reduces score by 60
+  
+  // 2. Momentum (Last 3 days vs Last 14 days)
+  const last3 = hoursList.slice(-3);
+  const avg3 = last3.reduce((a, b) => a + b, 0) / 3;
+  const momentum = avg > 0 ? avg3 / avg : 1;
+
+  // 3. Recovery Debt (Checks if a spike > 10h was followed by proper deload)
+  let hasRecoveryDebt = false;
+  const spikeIndex = hoursList.findIndex((h, i) => h > 10 && i < hoursList.length - 1);
+  if (spikeIndex !== -1) {
+    const postSpike = hoursList.slice(spikeIndex + 1);
+    const minPost = Math.min(...postSpike);
+    if (minPost > 6) hasRecoveryDebt = true; // No "deload" (<6h) after a 10h spike
+  }
+
+  // 4. Burnout Penalties (Rest & Grinding)
+  let burnoutPenalty = 0;
   let restDays = 0;
-  let consecutiveHighDays = 0;
+  let consecutiveHigh = 0;
   let maxConsecHigh = 0;
 
-  recent.forEach(day => {
-    const hours = Array.isArray(day.studyHours) ? day.studyHours.reduce((s: number, h: number) => s + (h || 0), 0) : 0;
-    totalHours += hours;
-    if (day.restDay || hours === 0) restDays++;
-    
-    if (hours > 8) {
-      consecutiveHighDays++;
-      if (consecutiveHighDays > maxConsecHigh) maxConsecHigh = consecutiveHighDays;
+  recent.forEach((day, i) => {
+    const h = hoursList[i];
+    if (day.restDay || h === 0) restDays++;
+    if (h > 8) {
+      consecutiveHigh++;
+      if (consecutiveHigh > maxConsecHigh) maxConsecHigh = consecutiveHigh;
     } else {
-      consecutiveHighDays = 0;
+      consecutiveHigh = 0;
     }
   });
 
-  const windowSize = recent.length;
-  const avgRecent = totalHours / windowSize;
-  
-  let score = 100;
-  
-  // Scaled penalty for zero rest
-  const expectedRest = Math.floor(windowSize / 7); // ~1 rest day per week expected
-  if (restDays < expectedRest) {
-    score -= (expectedRest - restDays) * 20;
-  }
-  
-  // Penalty for over-grinding
-  if (maxConsecHigh > 4) score -= (maxConsecHigh - 4) * 15;
+  const expectedRest = Math.floor(recent.length / 7);
+  if (restDays < expectedRest) burnoutPenalty += (expectedRest - restDays) * 20;
+  if (maxConsecHigh > 4) burnoutPenalty += (maxConsecHigh - 4) * 15;
 
-  // Penalty for extreme daily output (> 12h)
-  const extremeDays = recent.filter(d => (Array.isArray(d.studyHours) ? d.studyHours.reduce((s: number, h: number) => s + (h || 0), 0) : 0) > 12).length;
-  score -= extremeDays * 15;
+  // Final Equilibrium Score Calculation
+  const isVolatile = cv > 0.8;
+  const rawScore = (consistencyScore * 0.4) + (Math.min(100, momentum * 100) * 0.2) + (100 - burnoutPenalty);
+  const finalScore = Math.max(0, Math.min(100, hasRecoveryDebt ? rawScore * 0.8 : rawScore));
 
-  return Math.max(0, score);
+  return { 
+    score: finalScore, 
+    consistency: consistencyScore, 
+    momentum, 
+    isVolatile, 
+    hasRecoveryDebt 
+  };
 }
 
 /**
- * SUSTAINABILITY & BURNOUT ENGINE
- * Analyzes session entropy, rest frequency, and output spikes.
+ * SUSTAINABILITY & BURNOUT ENGINE (v2.0)
+ * Strategic Equilibrium Protocol (SEP)
  */
-export function calculateSustainability(trackerData: TrackerDay[]): { score: number; label: string; color: string; description: string; trend: 'up' | 'down' | 'stable' } {
-  const recent = trackerData.slice(-14); // Analyze last 2 weeks
-  const score = calculateSustainabilityScore(recent);
+export function calculateSustainability(trackerData: TrackerDay[]): { 
+  score: number; 
+  label: string; 
+  color: string; 
+  description: string; 
+  trend: 'up' | 'down' | 'stable';
+  details: { consistency: number; momentum: number; isVolatile: boolean }
+} {
+  const recent = trackerData.slice(-14);
+  const sep = evaluateStrategicEquilibrium(recent);
 
-  // Trend Analysis: Compare last 7 days vs previous 7 days
+  // Trend Analysis
   const last7 = trackerData.slice(-7);
   const prev7 = trackerData.slice(-14, -7);
-  const scoreLast = calculateSustainabilityScore(last7);
-  const scorePrev = calculateSustainabilityScore(prev7);
+  const sepLast = evaluateStrategicEquilibrium(last7);
+  const sepPrev = evaluateStrategicEquilibrium(prev7);
 
   let trend: 'up' | 'down' | 'stable' = 'stable';
-  if (scoreLast > scorePrev + 5) trend = 'up';
-  else if (scoreLast < scorePrev - 5) trend = 'down';
+  if (sepLast.score > sepPrev.score + 5) trend = 'up';
+  else if (sepLast.score < sepPrev.score - 5) trend = 'down';
 
+  // Industry-Standard Status Logic
   let label = 'OPTIMAL';
   let color = '#22c55e';
   let description = 'Sustainable pace maintained.';
 
-  if (score < 40) {
+  if (sep.score < 40) {
     label = 'CRITICAL';
     color = '#ef4444';
     description = 'High burnout risk. Deploy Rest Day immediately.';
-  } else if (score < 70) {
+  } else if (sep.isVolatile) {
+    label = 'VOLATILE';
+    color = '#f59e0b';
+    description = 'Pattern unstable. Focus on consistent timing.';
+  } else if (sep.momentum < 0.7) {
+    label = 'DECAYING';
+    color = '#f59e0b';
+    description = 'Momentum loss detected. Deload recommended.';
+  } else if (sep.hasRecoveryDebt) {
+    label = 'DEBTED';
+    color = '#f59e0b';
+    description = 'Spike detected without deload. High fatigue risk.';
+  } else if (sep.score > 85 && sep.consistency > 80) {
+    label = 'EQUILIBRIUM';
+    color = '#bc13fe'; // Elite Purple
+    description = 'Elite strategic balance achieved.';
+  } else if (sep.score < 70) {
     label = 'CAUTION';
     color = '#f59e0b';
-    description = 'Output spike detected. Monitor energy levels.';
+    description = 'Output spike or low rest detected.';
   } else {
-    // Check if "Coasting" (Low activity)
-    const totalHoursRecent = recent.reduce((sum, day) => {
-      const hours = Array.isArray(day.studyHours) ? day.studyHours.reduce((s: number, h: number) => s + (h || 0), 0) : 0;
-      return sum + hours;
-    }, 0);
-    const avgRecent = totalHoursRecent / 14;
+    // Check for low activity (Coasting)
+    const avgRecent = recent.reduce((sum, day) => {
+      const h = Array.isArray(day.studyHours) ? day.studyHours.reduce((s: number, h: number) => s + (h || 0), 0) : 0;
+      return sum + h;
+    }, 0) / 14;
     
     if (avgRecent < 1) {
       label = 'COASTING';
       color = '#94a3b8';
-      description = 'Mission activity below tactical threshold.';
+      description = 'Activity below tactical thresholds.';
     }
   }
 
-  return { score, label, color, description, trend };
+  return { 
+    score: sep.score, 
+    label, 
+    color, 
+    description, 
+    trend,
+    details: { 
+      consistency: sep.consistency, 
+      momentum: sep.momentum, 
+      isVolatile: sep.isVolatile 
+    }
+  };
 }

@@ -304,10 +304,11 @@ function applyKPIMissionAuras(completionRate: number, streak: number, day: numbe
   // 1b. Sustainability Aura
   if (cards.sustainability) {
     cards.sustainability.classList.remove('aura-optimal', 'aura-caution', 'aura-critical', 'aura-elite', 'aura-focus');
-    const label = document.getElementById('sustainabilityLabel')?.textContent || '';
-    if (label === 'OPTIMAL') cards.sustainability.classList.add('aura-optimal');
-    else if (label === 'CAUTION') cards.sustainability.classList.add('aura-caution');
-    else if (label === 'CRITICAL') cards.sustainability.classList.add('aura-critical');
+    const label = document.getElementById('sustainabilityLabel')?.textContent?.toUpperCase() || '';
+    if (label.includes('OPTIMAL')) cards.sustainability.classList.add('aura-optimal');
+    else if (label.includes('EQUILIBRIUM')) cards.sustainability.classList.add('aura-elite');
+    else if (['CAUTION', 'VOLATILE', 'DECAYING', 'DEBTED'].some(l => label.includes(l))) cards.sustainability.classList.add('aura-caution');
+    else if (label.includes('CRITICAL')) cards.sustainability.classList.add('aura-critical');
     else cards.sustainability.classList.add('aura-focus');
   }
 
