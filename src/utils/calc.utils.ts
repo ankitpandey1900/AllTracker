@@ -251,17 +251,19 @@ export function getRecentVelocity(trackerData: TrackerDay[], days: number = 14):
  * SUSTAINABILITY & BURNOUT ENGINE
  * Analyzes session entropy, rest frequency, and output spikes.
  */
-export function calculateSustainability(trackerData: TrackerDay[]): { score: number; label: string; color: string; description: string } {
-  const recent = trackerData.slice(-14); // Analyze last 2 weeks
-  if (recent.length === 0) return { score: 100, label: 'Stable', color: '#22c55e', description: 'Mission initiated.' };
-
+/**
+ * Internal helper to calculate score for a specific window of days.
+ */
+function calculateSustainabilityScore(recent: any[]): number {
+  if (recent.length === 0) return 100;
+  
   let totalHours = 0;
   let restDays = 0;
   let consecutiveHighDays = 0;
   let maxConsecHigh = 0;
 
   recent.forEach(day => {
-    const hours = Array.isArray(day.studyHours) ? day.studyHours.reduce((s, h) => s + (h || 0), 0) : 0;
+    const hours = Array.isArray(day.studyHours) ? day.studyHours.reduce((s: number, h: number) => s + (h || 0), 0) : 0;
     totalHours += hours;
     if (day.restDay || hours === 0) restDays++;
     
@@ -273,23 +275,44 @@ export function calculateSustainability(trackerData: TrackerDay[]): { score: num
     }
   });
 
-  const avgRecent = totalHours / 14;
+  const windowSize = recent.length;
+  const avgRecent = totalHours / windowSize;
   
-  // Scoring Logic
   let score = 100;
   
-  // Penalty for zero rest in 2 weeks
-  if (restDays === 0) score -= 30;
-  else if (restDays === 1) score -= 15;
+  // Scaled penalty for zero rest
+  const expectedRest = Math.floor(windowSize / 7); // ~1 rest day per week expected
+  if (restDays < expectedRest) {
+    score -= (expectedRest - restDays) * 20;
+  }
   
-  // Penalty for over-grinding (> 4 consecutive 8h+ days)
+  // Penalty for over-grinding
   if (maxConsecHigh > 4) score -= (maxConsecHigh - 4) * 15;
 
   // Penalty for extreme daily output (> 12h)
-  const extremeDays = recent.filter(d => (Array.isArray(d.studyHours) ? d.studyHours.reduce((s, h) => s + (h || 0), 0) : 0) > 12).length;
-  score -= extremeDays * 10;
+  const extremeDays = recent.filter(d => (Array.isArray(d.studyHours) ? d.studyHours.reduce((s: number, h: number) => s + (h || 0), 0) : 0) > 12).length;
+  score -= extremeDays * 15;
 
-  score = Math.max(0, score);
+  return Math.max(0, score);
+}
+
+/**
+ * SUSTAINABILITY & BURNOUT ENGINE
+ * Analyzes session entropy, rest frequency, and output spikes.
+ */
+export function calculateSustainability(trackerData: TrackerDay[]): { score: number; label: string; color: string; description: string; trend: 'up' | 'down' | 'stable' } {
+  const recent = trackerData.slice(-14); // Analyze last 2 weeks
+  const score = calculateSustainabilityScore(recent);
+
+  // Trend Analysis: Compare last 7 days vs previous 7 days
+  const last7 = trackerData.slice(-7);
+  const prev7 = trackerData.slice(-14, -7);
+  const scoreLast = calculateSustainabilityScore(last7);
+  const scorePrev = calculateSustainabilityScore(prev7);
+
+  let trend: 'up' | 'down' | 'stable' = 'stable';
+  if (scoreLast > scorePrev + 5) trend = 'up';
+  else if (scoreLast < scorePrev - 5) trend = 'down';
 
   let label = 'OPTIMAL';
   let color = '#22c55e';
@@ -303,11 +326,20 @@ export function calculateSustainability(trackerData: TrackerDay[]): { score: num
     label = 'CAUTION';
     color = '#f59e0b';
     description = 'Output spike detected. Monitor energy levels.';
-  } else if (avgRecent < 1) {
-    label = 'COASTING';
-    color = '#94a3b8';
-    description = 'Mission activity below tactical threshold.';
+  } else {
+    // Check if "Coasting" (Low activity)
+    const totalHoursRecent = recent.reduce((sum, day) => {
+      const hours = Array.isArray(day.studyHours) ? day.studyHours.reduce((s: number, h: number) => s + (h || 0), 0) : 0;
+      return sum + hours;
+    }, 0);
+    const avgRecent = totalHoursRecent / 14;
+    
+    if (avgRecent < 1) {
+      label = 'COASTING';
+      color = '#94a3b8';
+      description = 'Mission activity below tactical threshold.';
+    }
   }
 
-  return { score, label, color, description };
+  return { score, label, color, description, trend };
 }

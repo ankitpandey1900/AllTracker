@@ -36,11 +36,35 @@ export const dashboardView = `
           </div>
           
           <div id="kpiContainer" class="mobile-collapsible">
-            <div class="grid-top kpi-grid items-stretch">
+            <div class="kpi-metrics-grid items-stretch">
+              <!-- Row 1 -->
+              <article class="card rank-card">
+                <div class="label">Study Rank</div>
+                <div id="studyRank" class="big">IRON</div>
+                <div class="rank-tier-row"><span id="rankTierText">IV</span></div>
+                <div class="meta">
+                  World rank: <span id="worldRankPos">#40,000,000</span>
+                </div>
+                <div class="xp-track">
+                  <div id="rankXPBar" class="rank-fill"></div>
+                </div>
+              </article>
               <article class="card aura-focus">
                 <div class="label">Sustainability</div>
                 <div id="sustainabilityLabel" class="big">OPTIMAL</div>
                 <div class="meta" id="sustainabilityDesc">Mission at optimal pace.</div>
+              </article>
+              <article class="card compact">
+                <div class="label">Estimated Finish</div>
+                <div class="big" id="estimatedFinishDate">-</div>
+                <div class="meta" id="estimatedStartDate">Start: -</div>
+              </article>
+
+              <!-- Row 2 -->
+              <article class="card">
+                <div class="label">Avg / Day</div>
+                <div class="big" id="avgHoursPerDay">0</div>
+                <div class="meta">hrs/day avg</div>
               </article>
               <article class="card">
                 <div class="label">Completion</div>
@@ -54,37 +78,15 @@ export const dashboardView = `
                 <div id="totalHours" class="big">0.0h</div>
                 <div class="meta">
                    <canvas id="velocitySparkline" width="100" height="20" style="width: 100px; height: 20px; opacity: 0.6; margin: 4px 0;"></canvas>
-                   <div id="startDateLabel">Start: -</div>
+                   <div id="totalHoursStartDate">Start: -</div>
                 </div>
               </article>
-              <article class="card">
-                <div class="label">Avg / Day</div>
-                <div class="big" id="avgHoursPerDay">0</div>
-                <div class="meta">hrs/day avg</div>
-              </article>
-              <article class="card rank-card">
-                <div class="label">Study Rank</div>
-                <div id="studyRank" class="big">IRON</div>
-                <div class="rank-tier-row"><span id="rankTierText">IV</span></div>
-                <div class="meta">
-                  World rank: <span id="worldRankPos">#40,000,000</span>
-                </div>
-                <div class="xp-track">
-                  <div id="rankXPBar" class="rank-fill"></div>
-                </div>
-              </article>
-            </div>
 
-            <div class="grid-top stats-strip" style="margin-top: 16px;">
+              <!-- Row 3 -->
               <article class="card compact">
                 <div class="label">Consistency</div>
                 <div class="big" id="consistencyStat">0%</div>
                 <div class="meta">last 7 days</div>
-              </article>
-              <article class="card compact">
-                <div class="label">Current Streak</div>
-                <div id="currentStreak" class="big">0 DAYS</div>
-                <div class="meta">days in a row</div>
               </article>
               <article class="card compact">
                 <div class="label">Best Streak</div>
@@ -92,9 +94,9 @@ export const dashboardView = `
                 <div class="meta">days (all time)</div>
               </article>
               <article class="card compact">
-                <div class="label">Estimated Finish</div>
-                <div class="big" id="estimatedFinishDate">-</div>
-                <div class="meta" id="startDateLabel">Start: -</div>
+                <div class="label">Current Streak</div>
+                <div id="currentStreak" class="big">0 DAYS</div>
+                <div class="meta">days in a row</div>
               </article>
             </div>
           </div>

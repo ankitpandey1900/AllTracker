@@ -127,18 +127,31 @@ export function updateDashboard(): void {
   setTxt('avgHoursPerDay', avgHoursPerStudyDay.toFixed(1));
   
   const sustain = calculateSustainability(data);
-  setTxt('sustainabilityLabel', sustain.label);
+  const sustainArrow = sustain.trend === 'up' 
+    ? '<span style="color: #22c55e; margin-left: 5px;">↑</span>' 
+    : sustain.trend === 'down' 
+      ? '<span style="color: #ef4444; margin-left: 5px;">↓</span>' 
+      : '';
+  const sustainLabelEl = document.getElementById('sustainabilityLabel');
+  if (sustainLabelEl) sustainLabelEl.innerHTML = `${sustain.label}${sustainArrow}`;
   setTxt('sustainabilityDesc', sustain.description);
 
   setTxt('studyRank', rankData.name.toUpperCase());
   setTxt('rankTierText', rankData.division);
   setTxt('consistencyStat', `${Math.round(completionRate)}%`);
   setTxt('bestStreakStat', maxStreak.toString());
-  setTxt('startDateLabel', `Start: ${formatDate(appState.startDate)}`);
+  setTxt('totalHoursStartDate', `Start: ${formatDate(appState.startDate)}`);
+  setTxt('estimatedStartDate', `Start: ${formatDate(appState.startDate)}`);
   setTxt('worldRankPos', `#${formatNum(rankData.absolutePos || 40000000)}`);
 
-  const estimatedFinish = calculateEstimatedFinishDate(today.day, completedDays);
-  setTxt('estimatedFinishDate', estimatedFinish);
+  const { date: estimatedFinish, trend: finishTrend } = calculateEstimatedFinishWithTrend(today.day, completedDays);
+  const finishArrow = finishTrend === 'up' 
+    ? '<span style="color: #22c55e; margin-left: 5px;">↑</span>' 
+    : finishTrend === 'down' 
+      ? '<span style="color: #ef4444; margin-left: 5px;">↓</span>' 
+      : '';
+  const finishEl = document.getElementById('estimatedFinishDate');
+  if (finishEl) finishEl.innerHTML = `${estimatedFinish}${finishArrow}`;
   const rankXPBar = document.getElementById('rankXPBar');
   if (rankXPBar) rankXPBar.style.width = `${rankData.tierXP}%`;
 
@@ -345,21 +358,33 @@ function initInteractiveParallax(): void {
   });
 }
 
-function calculateEstimatedFinishDate(currentDayNumber: number, completedDays: number): string {
-  if (currentDayNumber <= 0) return 'Analyzing...';
-  if (completedDays <= 0) return 'Need 1 session';
+function calculateEstimatedFinishWithTrend(currentDayNumber: number, completedDays: number): { date: string; trend: 'up' | 'down' | 'stable' } {
+  if (currentDayNumber <= 0) return { date: 'Analyzing...', trend: 'stable' };
+  if (completedDays <= 0) return { date: 'Need 1 session', trend: 'stable' };
   
   const pace = completedDays / currentDayNumber;
-  if (pace <= 0) return 'Studying...';
+  if (pace <= 0) return { date: 'Studying...', trend: 'stable' };
   
   const remainingCompletions = Math.max(0, appState.totalDays - completedDays);
-  if (remainingCompletions === 0) return 'Goal Completed! 🏆';
+  if (remainingCompletions === 0) return { date: 'Goal Completed! 🏆', trend: 'stable' };
 
   const daysNeeded = Math.ceil(remainingCompletions / pace);
   const eta = new Date();
   eta.setDate(eta.getDate() + daysNeeded);
   
-  return formatDate(eta);
+  // Trend calculation: compare current pace vs pace as of yesterday
+  const yesterdayDayNumber = currentDayNumber - 1;
+  const wasCompletedToday = appState.trackerData[appState.trackerData.length - 1]?.completed || false;
+  const yesterdayCompletedDays = wasCompletedToday ? completedDays - 1 : completedDays;
+
+  let trend: 'up' | 'down' | 'stable' = 'stable';
+  if (yesterdayDayNumber > 0 && yesterdayCompletedDays > 0) {
+    const yesterdayPace = yesterdayCompletedDays / yesterdayDayNumber;
+    if (pace > yesterdayPace + 0.01) trend = 'up'; // Pace getting faster (Green up)
+    else if (pace < yesterdayPace - 0.01) trend = 'down'; // Pace slowing down (Red down)
+  }
+
+  return { date: formatDate(eta), trend };
 }
 
 function renderSectorTokens(today: any): void {

@@ -50,6 +50,9 @@ export const manualModal = `
             <a class="docs-nav-link" onclick="docScrollTo('doc-routines')">
               <span class="nav-icon">🔄</span> Routines
             </a>
+            <a class="docs-nav-link" onclick="docScrollTo('doc-sustainability')">
+              <span class="nav-icon">🧘</span> Sustainability
+            </a>
             <a class="docs-nav-link" onclick="docScrollTo('doc-tasks')">
               <span class="nav-icon">🎯</span> Mission Control
             </a>
@@ -183,6 +186,33 @@ export const manualModal = `
                   <div class="feature-card-desc">Syncs your live timer state to the cloud every 60s for multiscreen tracking.</div>
                 </div>
               </div>
+            </section>
+
+            <!-- SUSTAINABILITY -->
+            <section class="docs-section" id="doc-sustainability">
+              <div class="docs-breadcrumb">Core Systems › Sustainability Engine</div>
+              <h2 class="docs-h2">Sustainability Engine (Beta)</h2>
+              <p>The Sustainability Engine is a burnout prevention protocol that monitors your study frequency, intensity, and equilibrium.</p>
+              
+              <div class="docs-callout docs-callout-info" style="margin-top: 20px;">
+                <div class="docs-callout-title">🧠 Burnout Prevention</div>
+                <p>The engine analyzes your last 14 days of data to determine if your current pace is maintainable or risky.</p>
+              </div>
+
+              <h3 class="docs-h3">Status Protocols</h3>
+              <ul class="docs-ul">
+                <li><strong>OPTIMAL:</strong> Balanced intensity with adequate rest days.</li>
+                <li><strong>CAUTION:</strong> Fatigue detected. Consecutive high-intensity sessions without a break.</li>
+                <li><strong>CRITICAL:</strong> High burnout risk. The Solidarity engine recommends an immediate 24h rest period.</li>
+                <li><strong>COASTING:</strong> Activity is low. You are safe from burnout but below tactical focus targets.</li>
+              </ul>
+
+              <h3 class="docs-h3">Trend Indicators</h3>
+              <p>The dashboard KPIs feature dynamic arrows (↑ / ↓) showing your 7-day velocity:</p>
+              <ul class="docs-ul">
+                <li><span style="color:#22c55e;">Green ↑</span>: Your pace is increasing or wellness is improving.</li>
+                <li><span style="color:#ef4444;">Red ↓</span>: Your study output is slowing or your burnout risk is rising.</li>
+              </ul>
             </section>
 
             <!-- WORLD STAGE -->
