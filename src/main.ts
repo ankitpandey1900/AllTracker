@@ -408,13 +408,14 @@ function setupEventListeners(): void {
     renderSessionHistory();
   });
 
-  const historyDateFilter = document.getElementById("historyDateFilter") as HTMLInputElement;
-  if (historyDateFilter) {
-    historyDateFilter.addEventListener("change", () => renderSessionHistory());
-  }
+  const shFromDate = document.getElementById("sh-from-date") as HTMLInputElement;
+  const shToDate = document.getElementById("sh-to-date") as HTMLInputElement;
+  if (shFromDate) shFromDate.addEventListener("change", () => renderSessionHistory());
+  if (shToDate) shToDate.addEventListener("change", () => renderSessionHistory());
 
   bindClick("clearHistoryFilter", () => {
-    if (historyDateFilter) historyDateFilter.value = "";
+    if (shFromDate) shFromDate.value = "";
+    if (shToDate) shToDate.value = "";
     renderSessionHistory();
   });
 

@@ -419,156 +419,215 @@ function renderAllocationBar(): void {
 
 
 
+// --- Session History Helpers ---
+
+function getSubjectColor(name: string): { bg: string; border: string; text: string } {
+  const palette = [
+    { bg: 'rgba(96,165,250,0.12)',  border: 'rgba(96,165,250,0.35)',  text: '#93c5fd' },
+    { bg: 'rgba(167,139,250,0.13)', border: 'rgba(167,139,250,0.35)', text: '#c4b5fd' },
+    { bg: 'rgba(52,211,153,0.11)',  border: 'rgba(52,211,153,0.35)',  text: '#6ee7b7' },
+    { bg: 'rgba(251,191,36,0.11)',  border: 'rgba(251,191,36,0.35)',  text: '#fcd34d' },
+    { bg: 'rgba(248,113,113,0.12)', border: 'rgba(248,113,113,0.35)', text: '#fca5a5' },
+    { bg: 'rgba(34,211,238,0.11)',  border: 'rgba(34,211,238,0.35)',  text: '#67e8f9' },
+    { bg: 'rgba(251,146,60,0.12)',  border: 'rgba(251,146,60,0.35)',  text: '#fdba74' },
+  ];
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  return palette[Math.abs(hash) % palette.length];
+}
+
+function getRelativeDate(dateStr: string): { primary: string; day: string } {
+  const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const date = new Date(y, m - 1, d);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const diff = Math.round((today.getTime() - date.getTime()) / 86400000);
+  const day = dayNames[date.getDay()];
+  const fmt = `${String(d).padStart(2,'0')}/${String(m).padStart(2,'0')}/${y}`;
+  if (diff === 0) return { primary: 'Today',       day: `${day} \u00b7 ${fmt}` };
+  if (diff === 1) return { primary: 'Yesterday',   day: `${day} \u00b7 ${fmt}` };
+  if (diff < 7)   return { primary: `${diff}d ago`, day: `${day} \u00b7 ${fmt}` };
+  return { primary: fmt, day };
+}
+
 // --- Session History Popup ---
 
 export async function renderSessionHistory(): Promise<void> {
-  const tbody = document.getElementById('recentSessionsBody');
-  const filterInput = document.getElementById('historyDateFilter') as HTMLInputElement;
+  const container    = document.getElementById('recentSessionsBody');
+  const fromInput    = document.getElementById('sh-from-date') as HTMLInputElement;
+  const toInput      = document.getElementById('sh-to-date')   as HTMLInputElement;
   const migrationBanner = document.getElementById('historyMigrationBanner');
 
-  if (!tbody) return;
-
-  // 🛡️ CLOUD DOMINANCE: Legacy manual migration has been decommissioned.
-  // Mission archives are now handled via a direct-to-cloud automated pipeline.
+  if (!container) return;
   if (migrationBanner) migrationBanner.style.display = 'none';
 
-  // 2. Fetch High-Fidelity History from Cloud
-  showLoading('Connecting to mission archives...');
+  showLoading('Loading session history...');
   const cloudLogs = await fetchMySessionsCloud();
   hideLoading();
 
-  // Legacy local fallback for offline synchronization (StudySession format)
   const localSaved = localStorage.getItem('all_tracker_history');
   const localLogs: StudySession[] = localSaved ? JSON.parse(localSaved) : [];
 
-  const filterVal = filterInput?.value; // YYYY-MM-DD
-  let displayLogs = filterVal 
-    ? cloudLogs.filter(log => {
-        const dCandidate = log.log_date || (log.end_at || '').split('T')[0];
-        return dCandidate === filterVal;
-    })
-    : cloudLogs;
+  // ── DATE RANGE FILTER ────────────────────────────────────────
+  const fromVal = fromInput?.value || '';   // YYYY-MM-DD
+  const toVal   = toInput?.value   || '';   // YYYY-MM-DD
 
-  // 🛡️ CLOUD-FIRST PROTECTION: If we are logged in, we ignore the 'Ghost' legacy warning
+  let displayLogs = cloudLogs.filter((log: any) => {
+    const d = log.log_date || (log.end_at || '').split('T')[0];
+    if (!d) return false;
+    if (fromVal && d < fromVal) return false;
+    if (toVal   && d > toVal)   return false;
+    return true;
+  });
+
+  const activeFilter = fromVal || toVal;
   const isOnline = !!localStorage.getItem('operative_sync_id');
+
   if (displayLogs.length === 0) {
-    const hasRealLocal = !isOnline && localLogs.length > 0 && localLogs.some(l => l.duration > 0 || l.note);
-    
-    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:40px; color:var(--text-secondary);">
-      ${filterVal ? `No sessions found for ${filterVal}.` : (hasRealLocal ? 'Sync your legacy data to see history here.' : 'No sessions recorded in cloud archives.')}
-    </td></tr>`;
+    const hasRealLocal = !isOnline && localLogs.length > 0 && localLogs.some((l: any) => l.duration > 0 || l.note);
+    const fmtDMYq = (iso: string) => { const [y,m,d] = iso.split('-'); return `${d}/${m}/${y}`; };
+    const msg = activeFilter
+      ? `No sessions found${fromVal ? ` from ${fmtDMYq(fromVal)}` : ''}${toVal ? ` to ${fmtDMYq(toVal)}` : ''}.`
+      : hasRealLocal
+        ? 'Sync your legacy data to see history here.'
+        : 'No sessions recorded yet. Start a study timer!';
+    container.innerHTML = `
+      <div class="sh-empty">
+        <div class="sh-empty-icon">📋</div>
+        <div class="sh-empty-text">${msg}</div>
+      </div>`;
     return;
   }
 
-  // 🧠 HIERARCHICAL GROUPING ENGINE
-  const dateMap = new Map<string, { total_hours: number, session_count: number, subjects: Map<string, any[]> }>();
-  
-  displayLogs.forEach(log => {
-      // 🛡️ DATE RESILIENCE: Use explicit log_date or extract from end_at
-      const d = log.log_date || (log.end_at || '').split('T')[0];
-      if (!d || d === 'null') return; // Skip invalid entries
+  // ── STATS BAR ────────────────────────────────────────────────
+  const totalHours = displayLogs.reduce((s: number, l: any) => s + (l.duration || 0), 0);
+  const maxDuration = Math.max(...displayLogs.map((l: any) => l.duration || 0), 0.001);
+  const statsBar = document.getElementById('sh-stats-bar');
 
-      if (!dateMap.has(d)) {
-          dateMap.set(d, { total_hours: 0, session_count: 0, subjects: new Map() });
-      }
-      const dayData = dateMap.get(d)!;
-      dayData.total_hours += (log.duration || 0);
-      dayData.session_count++;
-      
-      const sub = log.subject || 'GENERAL';
-      if (!dayData.subjects.has(sub)) dayData.subjects.set(sub, []);
-      dayData.subjects.get(sub)!.push(log);
+  /** Convert YYYY-MM-DD → DD/MM/YYYY */
+  const fmtDMY = (iso: string) => {
+    const [y, m, d] = iso.split('-');
+    return `${d}/${m}/${y}`;
+  };
+
+  if (statsBar) {
+    const allDates = displayLogs
+      .map((l: any) => l.log_date || (l.end_at || '').split('T')[0])
+      .filter(Boolean).sort();
+    const firstDate = allDates[0] ?? '';
+    const lastDate  = allDates[allDates.length - 1] ?? '';
+    const rangeText = firstDate === lastDate
+      ? fmtDMY(firstDate)
+      : `${fmtDMY(firstDate)} → ${fmtDMY(lastDate)}`;
+    statsBar.innerHTML = `
+      <span class="sh-stat"><span class="sh-stat-val">${displayLogs.length}</span><span class="sh-stat-lbl">Sessions</span></span>
+      <span class="sh-stat-div"></span>
+      <span class="sh-stat"><span class="sh-stat-val">${totalHours.toFixed(2)}h</span><span class="sh-stat-lbl">Total Time</span></span>
+      <span class="sh-stat-div"></span>
+      <span class="sh-stat"><span class="sh-stat-val sh-stat-range">${rangeText}</span><span class="sh-stat-lbl">Date Range</span></span>
+    `;
+    statsBar.style.display = 'flex';
+  }
+
+  // ── HIERARCHICAL GROUPING ─────────────────────────────────────
+  const dateMap = new Map<string, { total_hours: number, session_count: number, subjects: Map<string, any[]> }>();
+
+  displayLogs.forEach((log: any) => {
+    const d = log.log_date || (log.end_at || '').split('T')[0];
+    if (!d || d === 'null') return;
+    if (!dateMap.has(d)) dateMap.set(d, { total_hours: 0, session_count: 0, subjects: new Map() });
+    const dayData = dateMap.get(d)!;
+    dayData.total_hours += (log.duration || 0);
+    dayData.session_count++;
+    const sub = log.subject || 'General';
+    if (!dayData.subjects.has(sub)) dayData.subjects.set(sub, []);
+    dayData.subjects.get(sub)!.push(log);
   });
 
   const sortedDates = Array.from(dateMap.keys()).sort((a, b) => b.localeCompare(a));
 
-  tbody.innerHTML = sortedDates.map(date => {
-      const dayData = dateMap.get(date)!;
-      const subjects = dayData.subjects;
-      
-      // 📅 FORMAT DATE: DD/MM/YYYY
-      const dateParts = date.split('-');
-      const displayDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
-      
-      const detailsHtml = Array.from(subjects.keys()).map(subName => {
-          const sessions = subjects.get(subName)!;
-          const subHours = sessions.reduce((s, l) => s + (l.duration || 0), 0);
-          
-          return `
-            <tr class="history-subject-row">
-                <td colspan="3" style="padding-left: 30px;">
-                    <span class="history-subject-badge">${subName}</span> 
-                    <span style="opacity:0.6; font-size: 0.75rem; margin-left: 8px;">(${sessions.length} Sessions)</span>
-                </td>
-                <td style="font-weight:700; color:var(--accent-blue); text-align:right; padding-right:20px;">${subHours.toFixed(2)}h</td>
-                <td></td>
-            </tr>
-            ${sessions.map(log => {
-              const duration = log.duration || 0;
-              return `
-                <tr class="history-session-detail" style="background: rgba(255,255,255,0.01);">
-                    <td style="border-left: 2px solid rgba(52, 152, 219, 0.3); padding: 12px 0 12px 25px; opacity: 0.5; font-size: 0.7rem; white-space: nowrap; vertical-align: top;">
-                      <div style="font-size: 0.6rem; letter-spacing: 1px; margin-bottom: 2px;">IDENTIFIER</div>
-                      SESSION ${log.session_number || 1}
-                    </td>
-                    <td style="padding: 12px 10px; vertical-align: top;">
-                        <div style="font-size: 0.6rem; opacity: 0.4; letter-spacing: 1px; margin-bottom: 2px;">MISSION TIME</div>
-                        <div style="color:var(--text-secondary); font-size:0.85rem; font-weight: 500; white-space:nowrap;">
-                            ${log.start_at ? formatTime12h(log.start_at) : '?'} - ${formatTime12h(log.end_at)}
-                        </div>
-                        <div style="font-size: 0.75rem; color: var(--accent-blue); font-weight: 700; margin-top: 4px;">
-                           ${duration.toFixed(2)} HOURS
-                        </div>
-                    </td>
-                    <td colspan="2" class="session-log-note" style="padding: 12px 10px; vertical-align: top;">
-                        <div style="font-size: 0.6rem; opacity: 0.4; letter-spacing: 1px; margin-bottom: 2px;">MISSION REFLECTION</div>
-                        <div style="font-size: 0.85rem; font-style: italic; opacity: 0.8; line-height: 1.4;">
-                          "${log.note && log.note !== 'null' ? log.note : 'No Operative Reflection Recorded'}"
-                        </div>
-                    </td>
-                    <td></td>
-                </tr>
-              `;
-            }).join('')}
-          `;
-      }).join('');
+  // ── CSS GRID ROW RENDERING ────────────────────────────────────
+  const rows: string[] = [];
 
-      return `
-        <tr class="history-date-group">
-            <td style="white-space:nowrap; font-weight:800; color: #fff;">
-                <span class="history-chevron">▶</span>${displayDate}
-            </td>
-            <td style="color:var(--text-secondary); font-size: 0.75rem; font-weight: 800; letter-spacing: 0.5px;">${dayData.session_count} MISSIONS</td>
-            <td></td>
-            <td style="font-weight:800; color:var(--accent-blue); font-size: 1.1rem; text-align:right; padding-right:20px;">${dayData.total_hours.toFixed(2)}h</td>
-            <td></td>
-        </tr>
-        <tr class="history-details-container">
-            <td colspan="5" style="padding: 0;">
-                <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
-                    <colgroup>
-                        <col style="width: 18%;">
-                        <col style="width: 27%;">
-                        <col style="width: 45%;">
-                        <col style="width: 5%;">
-                        <col style="width: 5%;">
-                    </colgroup>
-                    ${detailsHtml}
-                </table>
-            </td>
-        </tr>
-      `;
-  }).join('');
+  sortedDates.forEach(date => {
+    const dayData = dateMap.get(date)!;
+    const rel = getRelativeDate(date);
 
-  // ⚡ BIND DRILL-DOWN LISTENERS
-  document.querySelectorAll('.history-date-group').forEach(group => {
-      group.addEventListener('click', () => {
-          group.classList.toggle('active');
-          const chevron = group.querySelector('.history-chevron');
-          if (chevron) {
-              chevron.textContent = group.classList.contains('active') ? '▼' : '▶';
-          }
+    // DATE GROUP ROW
+    rows.push(`
+      <div class="sh-date-row sh-row" data-date="${date}">
+        <div class="sh-date-label">
+          <span class="sh-chevron">▶</span>
+          <div class="sh-date-stack">
+            <span class="sh-date-primary">${rel.primary}</span>
+            <span class="sh-date-secondary">${rel.day}</span>
+          </div>
+        </div>
+        <div class="sh-date-sessions-label">${dayData.session_count} session${dayData.session_count !== 1 ? 's' : ''}</div>
+        <div class="sh-total-hours">${dayData.total_hours.toFixed(2)}h</div>
+        <div></div>
+        <div></div>
+      </div>
+    `);
+
+    Array.from(dayData.subjects.keys()).forEach(subName => {
+      const sessions = dayData.subjects.get(subName)!;
+      const subHours = sessions.reduce((s: number, l: any) => s + (l.duration || 0), 0);
+      const col = getSubjectColor(subName);
+
+      // SUBJECT ROW
+      rows.push(`
+        <div class="sh-subject-row sh-row sh-child sh-child-${date}" style="display:none;">
+          <div>
+            <span class="sh-subject-badge" style="background:${col.bg}; border-color:${col.border}; color:${col.text};">${subName}</span>
+            <span class="sh-subject-count">${sessions.length} session${sessions.length > 1 ? 's' : ''}</span>
+          </div>
+          <div></div>
+          <div class="sh-sub-hours" style="color:${col.text};">${subHours.toFixed(2)}h</div>
+          <div></div>
+          <div></div>
+        </div>
+      `);
+
+      // SESSION ROWS
+      sessions.forEach((log: any, idx: number) => {
+        const duration   = log.duration || 0;
+        const startTime  = log.start_at ? formatTime12h(log.start_at) : '—';
+        const endTime    = log.end_at   ? formatTime12h(log.end_at)   : '—';
+        const note       = (log.note && log.note !== 'null' && log.note.trim()) ? log.note : '';
+        const sessionNum = log.session_number ?? (idx + 1);
+        const barW       = maxDuration > 0 ? Math.max(6, Math.round((duration / maxDuration) * 100)) : 6;
+        const safeNote   = note.replace(/"/g, '&quot;');
+
+        rows.push(`
+          <div class="sh-session-row sh-row sh-child sh-child-${date}${idx % 2 === 1 ? ' alt' : ''}" style="display:none;">
+            <div class="sh-session-num">Session ${sessionNum}</div>
+            <div class="sh-time">
+              ${startTime}<span class="sh-time-sep">–</span>${endTime}
+            </div>
+            <div class="sh-duration">
+              <span class="sh-dur-val">${duration.toFixed(2)}h</span>
+              <div class="sh-dur-bar"><div class="sh-dur-fill" style="width:${barW}%; background:${col.text};"></div></div>
+            </div>
+            <div class="sh-category" style="color:${col.text};">${subName}</div>
+            <div class="sh-note${note ? '' : ' empty'}" title="${safeNote}">${note ? `"${note}"` : '<span style="opacity:0.28;">—</span>'}</div>
+          </div>
+        `);
       });
+    });
+  });
+
+  container.innerHTML = rows.join('');
+
+  // ── BIND CLICK LISTENERS ─────────────────────────────────────
+  document.querySelectorAll<HTMLElement>('.sh-date-row').forEach(row => {
+    row.addEventListener('click', () => {
+      const date = row.dataset.date!;
+      const isOpen = row.classList.toggle('open');
+      document.querySelectorAll<HTMLElement>(`.sh-child-${date}`).forEach(child => {
+        child.style.display = isOpen ? 'grid' : 'none';
+      });
+    });
   });
 }
 

@@ -1,6 +1,10 @@
 /* --- Professional Responsive Layout Engine --- */
 
-/* Session History: Space-Optimized Multi-Column Grid System */
+/* ═══════════════════════════════════════════
+   DESKTOP-FIRST: Horizontal Table Layout
+   Forces pure table rendering on all screens.
+   Mobile overrides below apply only ≤480px.
+═══════════════════════════════════════════ */
 #historyModal .modal-content.wide {
   width: min(1040px, 98%) !important;
   max-width: 98% !important;
@@ -9,79 +13,121 @@
 
 #historyModal .modal-body {
   padding: 16px !important;
-  overflow-x: hidden !important;
+  overflow-x: auto !important;
 }
 
 #historyModal .responsive-table-container {
-  overflow-x: hidden !important;
+  overflow-x: auto !important;
   padding: 0 !important;
   margin-top: 10px !important;
+  width: 100% !important;
 }
 
-#historyModal table {
+/* Force the outer table to always be a real table */
+#historyModal table,
+#historyModal #historySessionsTable {
+  display: table !important;
   width: 100% !important;
-  display: block !important; /* Allow tbody to gridify */
   border-collapse: collapse !important;
+  table-layout: fixed !important;
 }
 
+/* Force tbody to always be a real tbody */
+#historyModal tbody,
 #historyModal tbody#recentSessionsBody {
-  display: grid !important;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
-  gap: 16px !important;
+  display: table-row-group !important;
   width: 100% !important;
+  grid-template-columns: none !important;
+  gap: 0 !important;
 }
 
+/* All history rows are table-rows — no flex, no grid */
 #historyModal .history-date-group,
-#historyModal .history-subject-row {
-  grid-column: 1 / -1 !important; /* Force headers to span full grid */
-  display: flex !important;
-  flex-direction: column !important;
-  background: rgba(255, 255, 255, 0.05) !important;
-  border-radius: 12px !important;
-  padding: 14px !important;
-  margin-bottom: 4px !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  box-sizing: border-box !important;
-}
-
-#historyModal .history-session-detail {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr !important;
-  gap: 12px 10px !important;
-  background: rgba(13, 17, 23, 0.6) !important;
-  backdrop-filter: blur(10px) !important;
-  border: 1px solid rgba(100, 150, 255, 0.15) !important;
-  border-radius: 16px !important;
-  padding: 18px !important;
-  align-items: start !important;
-  transition: transform 0.2s ease, border-color 0.2s ease !important;
-  box-sizing: border-box !important;
-}
-
-#historyModal .history-session-detail:hover {
-  border-color: var(--accent-blue) !important;
-  background: rgba(13, 17, 23, 0.8) !important;
-}
-
-#historyModal .history-session-detail td {
-  display: block !important;
-  width: 100% !important;
+#historyModal .history-details-container,
+#historyModal .history-subject-row,
+#historyModal .history-session-detail,
+#historyModal .history-table-header {
+  display: table-row !important;
+  background: transparent !important;
+  border-radius: 0 !important;
   padding: 0 !important;
   border: none !important;
+  flex-direction: unset !important;
+  grid-template-columns: none !important;
 }
 
+/* All td/th are table cells */
+#historyModal .history-date-group td,
+#historyModal .history-subject-row td,
+#historyModal .history-session-detail td,
+#historyModal .history-table-header th {
+  display: table-cell !important;
+  vertical-align: middle !important;
+  width: auto !important;
+  padding: 10px 12px !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+  background: transparent !important;
+  white-space: nowrap !important;
+}
+
+/* Notes column may wrap */
 #historyModal td.session-log-note {
-  grid-column: span 2 !important;
-  margin-top: 8px !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
-  padding-top: 12px !important;
+  white-space: normal !important;
   font-style: italic !important;
-  opacity: 0.8 !important;
+  opacity: 0.7 !important;
+  border-left: 1px solid rgba(255,255,255,0.07) !important;
 }
 
-#historyModal .history-subject-badge {
-  width: fit-content !important;
-  margin-bottom: 4px !important;
+/* Date group row styling */
+#historyModal .history-date-group {
+  background: rgba(255,255,255,0.04) !important;
+  cursor: pointer !important;
+}
+
+#historyModal .history-date-group td {
+  border-bottom: 2px solid rgba(96,165,250,0.2) !important;
+}
+
+/* Subject row */
+#historyModal .history-subject-row td {
+  background: rgba(255,255,255,0.02) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.04) !important;
+}
+
+/* Mobile Override: only for very small screens */
+@media (max-width: 480px) {
+  #historyModal table,
+  #historyModal tbody#recentSessionsBody {
+    display: block !important;
+  }
+
+  #historyModal tbody#recentSessionsBody {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  #historyModal .history-date-group,
+  #historyModal .history-subject-row,
+  #historyModal .history-session-detail {
+    display: flex !important;
+    flex-direction: column !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    border-radius: 10px !important;
+    padding: 12px !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+
+  #historyModal .history-session-detail td,
+  #historyModal .history-subject-row td,
+  #historyModal .history-date-group td {
+    display: block !important;
+    width: 100% !important;
+    white-space: normal !important;
+    border: none !important;
+    padding: 4px 0 !important;
+  }
 }
 
 /* ───────────────────────────────────────────────────────── */
@@ -587,74 +633,10 @@
     width: 96% !important;
     max-width: 100% !important;
     margin: 10px auto !important;
-  }
-
-  #historyModal .modal-body {
-    padding: 10px 6px !important; 
-    overflow-x: hidden !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-  }
-
-  #historyModal .responsive-table-container {
-    padding: 0 !important;
-    margin: 0 !important;
-    overflow-x: hidden !important; 
-    width: 100% !important;
-  }
-
-  #historyModal table {
-    width: 100% !important;
-    table-layout: fixed !important; 
-    border-collapse: collapse !important;
-  }
-
-  #historyModal .history-date-group,
-  #historyModal .history-subject-row,
-  #historyModal .history-session-detail {
-    display: flex !important;
-    flex-direction: column !important;
-    width: 100% !important; 
-    background: rgba(255, 255, 255, 0.04) !important;
-    border-radius: 12px !important;
-    margin-bottom: 10px !important;
-    border: 1px solid rgba(255,255,255,0.1) !important;
-    padding: 14px !important;
-    white-space: normal !important;
-    box-sizing: border-box !important;
-    margin-right: 0 !important;
-    margin-left: 0 !important;
-  }
-
-  /* Compact 2-Column Metadata Grid */
-  #historyModal .history-session-detail {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 12px 10px !important;
-    align-items: start !important;
-  }
-
-  #historyModal .history-session-detail td {
-    display: block !important;
-    width: 100% !important;
-    padding: 0 !important;
-    border: none !important;
-    background: transparent !important;
-  }
-
-  /* Force the Reflection/Note to span both columns */
-  #historyModal td.session-log-note {
-    grid-column: span 2 !important;
-    margin-top: 4px !important;
-    border-top: 1px solid rgba(255,255,255,0.05) !important;
-    padding-top: 10px !important;
-  }
-
-  #historyModal .history-subject-badge {
-    margin-bottom: 4px !important;
-    width: fit-content !important;
-  }
 }
+}
+
+
 
 /* --- Ultra-Specific Hardware Scaling (5" to 7" devices) --- */
 

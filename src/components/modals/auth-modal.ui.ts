@@ -24,7 +24,7 @@ export const authModal = `
         </button>
         <button id="recoveryAuthTrigger" class="auth-tab"
           style="flex: 1; padding: 14px; background: transparent; color: #64748b; font-size: 0.75rem; font-weight: 800; letter-spacing: 1px; border: none; border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.2s;">
-          FORGOT KEY
+          FORGOT PASSWORD
         </button>
       </div>
 
@@ -38,7 +38,7 @@ export const authModal = `
               <input id="loginUsernameInput" class="input" placeholder="e.g. pilot_01" required />
             </div>
             <div class="settings-group" style="margin-top: 20px;">
-              <label>VAULT KEY</label>
+              <label>PASSWORD</label>
               <div class="input-with-eye" style="position: relative;">
                 <input id="loginPasswordInput" class="input" type="password" placeholder="••••••••" required />
                 <span id="toggleLoginPass" class="eye-toggle"
@@ -50,7 +50,7 @@ export const authModal = `
             </div>
             <button type="submit" id="loginSubmitBtn" class="btn btn-primary w-full"
               style="margin-top: 25px; padding: 14px; background: #10b981; border: none; font-weight: 800; letter-spacing: 1px;">
-              ENTER VAULT
+              LOGIN
             </button>
             <div style="text-align: center; margin-top: 20px;">
               <button type="button" id="legacyAuthTrigger"
@@ -127,9 +127,9 @@ export const authModal = `
             <!-- Sector 03: Security -->
             <div class="auth-sector-label" style="font-size: 0.6rem; color: #10b981; font-weight: 800; letter-spacing: 2px; margin: 20px 0 12px; opacity: 0.7;">[ SECTOR 03: ENCRYPTION ]</div>
             <div class="settings-group">
-              <label>VAULT KEY</label>
+              <label>PASSWORD</label>
               <div class="input-with-eye" style="position: relative;">
-                <input id="regPasswordInput" class="input" type="password" placeholder="At least 6 characters" required />
+                <input id="regPasswordInput" class="input" type="password" placeholder="Enter Password" required />
                 <span id="toggleRegPass" class="eye-toggle"
                   style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;">👁️</span>
               </div>
@@ -162,7 +162,7 @@ export const authModal = `
             </div>
             <button type="submit" id="regSubmitBtn" class="btn btn-primary w-full"
               style="margin-top: 25px; padding: 14px; background: #10b981; border: none; font-weight: 800; letter-spacing: 1px;">
-              INITIALIZE IDENTITY
+              CREATE ACCOUNT
             </button>
             <div style="height: 10px;"></div>
           </form>
@@ -194,7 +194,7 @@ export const authModal = `
             </div>
             <button type="submit" id="recoverySubmitBtn" class="btn btn-ghost w-full"
               style="margin-top: 25px; padding: 14px; font-weight: 800; letter-spacing: 1px; border: 1px solid rgba(239, 68, 68, 0.4); color: #ef4444;">
-              DECRYPT VAULT DATA
+              RESTORE ACCESS
             </button>
             <button type="button" id="backToLoginFromRecovery" class="btn btn-ghost w-full" style="margin-top: 10px;">
               Back to Login

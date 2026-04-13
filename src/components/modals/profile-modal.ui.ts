@@ -76,8 +76,8 @@ export const profileModal = `
             </div>
 
             <div class="profile-social-actions">
-              <button id="switchToEditProfileBtn" class="social-btn btn-outline">EDIT_PROFILE</button>
-              <button id="closeProfileModalAlt" class="social-btn btn-solid">RETURN_TO_BASE</button>
+              <button id="switchToEditProfileBtn" class="social-btn btn-outline">Edit Profile</button>
+              <button id="closeProfileModalAlt" class="social-btn btn-solid">Back to Home</button>
             </div>
           </div>
         </div>
@@ -149,7 +149,7 @@ export const profileModal = `
               </div>
 
               <button id="saveProfileBtn" class="social-save-btn">
-                SAVE_IDENTITY_CHANGES
+                Save Profile Changes
               </button>
            </div>
         </div>

@@ -122,8 +122,11 @@ function hydrateIdentityFields(): void {
   (document.getElementById('profileEmailInput') as HTMLInputElement).value = (profile as any).email || '';
   (document.getElementById('profilePhoneInput') as HTMLInputElement).value = profile.phoneNumber || '';
   (document.getElementById('profileNationSelect') as HTMLSelectElement).value = profile.nation || 'Global';
-  (document.getElementById('profilePublicToggle') as HTMLInputElement).checked = profile.isPublic !== false;
-  (document.getElementById('profileFocusPrivacyToggle') as HTMLInputElement).checked = profile.isFocusPublic !== false;
+  const publicToggle = document.getElementById('profilePublicToggle') as HTMLInputElement;
+  const focusToggle = document.getElementById('profileFocusPrivacyToggle') as HTMLInputElement;
+  
+  if (publicToggle) publicToggle.checked = profile.isPublic !== false;
+  if (focusToggle) focusToggle.checked = profile.isFocusPublic !== false;
   
   // 🔒 SECURITY LOCKDOWN: Make all core identity fields strictly un-editable (except Avatar)
   const lockedFields = ['profileNameInput', 'profileRealNameInput', 'profileDobInput', 'profileEmailInput', 'profilePhoneInput', 'profileNationSelect'];
@@ -190,8 +193,8 @@ async function handleProfileSaveSubmission(): Promise<void> {
     nation: (document.getElementById('profileNationSelect') as HTMLSelectElement).value,
     phoneNumber: (document.getElementById('profilePhoneInput') as HTMLInputElement).value.trim(),
     email: (document.getElementById('profileEmailInput') as HTMLInputElement).value.trim(),
-    isPublic: (document.getElementById('profilePublicToggle') as HTMLInputElement).checked,
-    isFocusPublic: (document.getElementById('profileFocusPrivacyToggle') as HTMLInputElement).checked,
+    isPublic: (document.getElementById('profilePublicToggle') as HTMLInputElement)?.checked ?? true,
+    isFocusPublic: (document.getElementById('profileFocusPrivacyToggle') as HTMLInputElement)?.checked ?? true,
     avatar: document.querySelector('#avatarPickerGrid .avatar-item.active')?.getAttribute('data-avatar') || '👨‍🚀'
   };
 
