@@ -12,7 +12,7 @@ export const dashboardView = `
         <div class="dashboard-main-content">
           <article class="hero card shadow-2xl">
             <div class="row-between hero-top">
-              <h1 id="heroStatusTitle">Initializing...</h1>
+              <h2 id="heroStatusTitle">Initializing...</h2>
               <div style="display:flex; gap:12px; align-items:center;">
                 <button id="shareStatsBtn" class="btn btn-primary" style="font-size: 0.65rem; font-weight:800; padding: 4px 10px; border-radius: 6px; background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.4); color: #60a5fa;">Share Stats 🚀</button>
                 <div class="hero-day-chip">

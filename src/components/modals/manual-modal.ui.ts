@@ -96,7 +96,7 @@ export const manualModal = `
             <!-- INTRODUCTION -->
             <section class="docs-section" id="doc-intro">
               <div class="docs-breadcrumb">Onboarding › Introduction</div>
-              <h1 class="docs-h1">All Tracker</h1>
+              <h2 class="docs-h1">All Tracker</h2>
               <div class="docs-lead">An elite study command center designed for precision focus. Execute missions, visualize tactical growth, and compete globally on the World Stage.</div>
               
               <div class="docs-feature-grid">
