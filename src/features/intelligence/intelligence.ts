@@ -55,8 +55,10 @@ export function renderIntelligenceBriefing(): void {
   const container = document.getElementById('intelligencePane');
   if (!container) return;
 
+  // ⚡ ONLY inject and setup listeners if not already present
   if (!document.getElementById('maamuGptContainer')) {
     container.innerHTML = intelligenceView;
+    setupListeners();
   }
 
   const toggle = document.getElementById('beastModeToggle') as HTMLInputElement;
@@ -75,7 +77,6 @@ export function renderIntelligenceBriefing(): void {
   renderSessionsList();
   renderActiveChat();
   renderSidebarMetrics();
-  setupListeners();
 }
 
 // --- Session Management ---

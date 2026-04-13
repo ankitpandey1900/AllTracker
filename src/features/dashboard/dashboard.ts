@@ -577,7 +577,7 @@ export async function renderSessionHistory(): Promise<void> {
 
       // SUBJECT ROW
       rows.push(`
-        <div class="sh-subject-row sh-row sh-child sh-child-${date}" style="display:none;">
+        <div class="sh-subject-row sh-row sh-child sh-child-${date}">
           <div>
             <span class="sh-subject-badge" style="background:${col.bg}; border-color:${col.border}; color:${col.text};">${subName}</span>
             <span class="sh-subject-count">${sessions.length} session${sessions.length > 1 ? 's' : ''}</span>
@@ -600,7 +600,7 @@ export async function renderSessionHistory(): Promise<void> {
         const safeNote   = note.replace(/"/g, '&quot;');
 
         rows.push(`
-          <div class="sh-session-row sh-row sh-child sh-child-${date}${idx % 2 === 1 ? ' alt' : ''}" style="display:none;">
+          <div class="sh-session-row sh-row sh-child sh-child-${date}${idx % 2 === 1 ? ' alt' : ''}">
             <div class="sh-session-num">Session ${sessionNum}</div>
             <div class="sh-time">
               ${startTime}<span class="sh-time-sep">–</span>${endTime}
@@ -625,7 +625,7 @@ export async function renderSessionHistory(): Promise<void> {
       const date = row.dataset.date!;
       const isOpen = row.classList.toggle('open');
       document.querySelectorAll<HTMLElement>(`.sh-child-${date}`).forEach(child => {
-        child.style.display = isOpen ? 'grid' : 'none';
+        child.classList.toggle('expanded', isOpen);
       });
     });
   });

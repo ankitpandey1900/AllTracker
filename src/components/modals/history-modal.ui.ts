@@ -190,6 +190,8 @@ export const historyModal = `
       align-items: center;
       width: 100%;
     }
+    .sh-child { display: none !important; }
+    .sh-child.expanded { display: grid !important; }
 
     /* Sticky column header */
     .sh-col-header {
@@ -340,7 +342,8 @@ export const historyModal = `
       .sh-stat-val { font-size: 1rem; }
 
       /* All rows switch to grid: none → block-based cards */
-      .sh-row { display: block !important; }
+      /* Specific selector to avoid forcing children to be visible */
+      .sh-date-row.sh-row { display: flex !important; }
 
       /* DATE GROUP ROW — full-width banner card */
       .sh-date-row {
@@ -361,7 +364,7 @@ export const historyModal = `
 
       /* SUBJECT ROW — sub-card */
       .sh-subject-row {
-        display: flex !important;
+        display: none;
         align-items: center !important;
         justify-content: space-between !important;
         padding: 10px 16px !important;
@@ -370,6 +373,7 @@ export const historyModal = `
         border: 1px solid rgba(255,255,255,0.07) !important;
         border-left: 3px solid rgba(96,165,250,0.2) !important;
       }
+      .sh-subject-row.expanded { display: flex !important; }
       .sh-subject-row > div { padding: 0 !important; }
       .sh-subject-row > div:nth-child(3) { text-align: right !important; padding: 0 !important; }
       .sh-subject-row > div:nth-child(4),
@@ -377,7 +381,7 @@ export const historyModal = `
 
       /* SESSION DETAIL ROW — full info card */
       .sh-session-row {
-        display: block !important;
+        display: none;
         margin: 4px 12px 0 20px !important;
         padding: 12px 14px !important;
         border-radius: 10px !important;
@@ -385,7 +389,7 @@ export const historyModal = `
         border-left: 3px solid transparent !important;
         background: rgba(255,255,255,0.02) !important;
       }
-      .sh-session-row.alt { background: rgba(255,255,255,0.04) !important; }
+      .sh-session-row.expanded { display: block !important; }
       .sh-session-row:hover {
         background: rgba(96,165,250,0.06) !important;
         border-left-color: rgba(96,165,250,0.3) !important;
