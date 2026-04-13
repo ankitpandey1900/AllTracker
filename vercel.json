@@ -1,4 +1,17 @@
 {
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "alltracker.online"
+        }
+      ],
+      "destination": "https://www.alltracker.online/$1",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/manifest.json",
