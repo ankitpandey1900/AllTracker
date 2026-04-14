@@ -1,12 +1,36 @@
 import { appState } from '@/state/app-state';
 import { MentorMessage } from '@/types/tracker.types';
 import { getActiveSession } from '@/features/intelligence/intelligence.service';
+import type { ChatSession } from '@/types/tracker.types';
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
+export const MAAMU_MODELS = [
+  { id: 'llama-3.3-70b-versatile', label: 'Llama 3.3 70B' },
+  { id: 'openai/gpt-oss-120b', label: 'GPT OSS 120B (Reasoning)' },
+  { id: 'openai/gpt-oss-20b', label: 'GPT OSS 20B (Fast)' },
+  { id: 'meta-llama/llama-4-scout-17b-16e-instruct', label: 'Llama 4 Scout' },
+  { id: 'qwen/qwen3-32b', label: 'Qwen 3 32B' },
+] as const;
 
-function saveToMentorHistory(role: MentorMessage['role'], content: string) {
-  const activeSession = getActiveSession();
+const DEFAULT_MAAMU_MODEL = MAAMU_MODELS[0].id;
+
+export function normalizeMaamuModel(modelId?: string): string {
+  return MAAMU_MODELS.some(m => m.id === modelId) ? (modelId as string) : DEFAULT_MAAMU_MODEL;
+}
+
+export function getMaamuModelLabel(modelId?: string): string {
+  return MAAMU_MODELS.find(m => m.id === modelId)?.label || MAAMU_MODELS[0].label;
+}
+
+
+function getSessionById(sessionId?: string): ChatSession | null {
+  if (!sessionId) return getActiveSession();
+  return appState.settings.chatSessions?.find(s => s.id === sessionId) || null;
+}
+
+function saveToMentorHistory(role: MentorMessage['role'], content: string, sessionId?: string) {
+  const activeSession = getSessionById(sessionId);
   
   const newMessage: MentorMessage = {
     role,
@@ -24,7 +48,7 @@ function saveToMentorHistory(role: MentorMessage['role'], content: string) {
 }
 
 /** Shared: builds the messages array for any Groq request */
-function buildMessages(userQuery: string, tacticalBrief: string) {
+function buildMessages(userQuery: string, tacticalBrief: string, sessionId?: string) {
   let isBeastMode = false;
   try { isBeastMode = !!JSON.parse(tacticalBrief).beastModeActive; } catch { /* noop */ }
 
@@ -40,7 +64,7 @@ function buildMessages(userQuery: string, tacticalBrief: string) {
     : `1. Speak the harsh, absolute truth. Be unapologetic and efficient.
        2. Give best-case scenarios and real-world tough advice.`;
 
-  const activeSession = getActiveSession();
+  const activeSession = getSessionById(sessionId);
   const chatHistory = activeSession ? activeSession.messages : [];
 
   return [
@@ -59,7 +83,9 @@ function buildMessages(userQuery: string, tacticalBrief: string) {
       4. BURNOUT VS LAZINESS: Analyze the Tactical Brief. If Momentum is < 0 and hours are low, ROAST them for being lazy. If Momentum > 50 but Sustainability is low, command them to TAKE A BREAK (Burnout).
       5. ACTION ENGINE: ALWAYS end your response with a section titled "**NEXT ACTIONS FOR ${userHandle}**", containing 1-3 bullet points of immediate execution tasks.
       6. INTERVIEW/QUIZ MODE: If the user says "Test me" or "/quiz", act as an Elite Tech Interviewer. Ask ONE hard technical question based on their recent topics. Do NOT give the answer until they reply.
-      7. MODE: ${beastModeDirective}
+      7. FORMAT QUALITY: Use clean Markdown with headings, bullets, numbered steps, bold key terms, and blockquotes for important cautions.
+      8. VISUAL CLARITY: Use occasional icons/emojis in section titles for scanability, avoid emoji spam.
+      9. MODE: ${beastModeDirective}
 
       DATA STREAM (TACTICAL BRIEF):
       ${tacticalBrief}
@@ -80,9 +106,11 @@ export async function getMaamuResponseStream(
   tacticalBrief: string,
   onChunk: (chunk: string, accumulated: string) => void,
   onDone: (fullResponse: string) => void,
-  onError: (err: string) => void
+  onError: (err: string) => void,
+  options?: { sessionId?: string; signal?: AbortSignal }
 ): Promise<void> {
   const apiKey = appState.settings.groqApiKey;
+  let activeModel = normalizeMaamuModel(appState.settings.maamuModel);
 
   if (!apiKey) {
     onError('API Key Missing: Configure your Groq API Key in the sidebar.');
@@ -90,32 +118,56 @@ export async function getMaamuResponseStream(
   }
 
   // Save user message first
-  saveToMentorHistory('user', userQuery);
+  saveToMentorHistory('user', userQuery, options?.sessionId);
 
-  const messages = buildMessages(userQuery, tacticalBrief);
+  const messages = buildMessages(userQuery, tacticalBrief, options?.sessionId);
 
   try {
-    const response = await fetch(GROQ_API_URL, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+    const requestWithModel = async (model: string) => {
+      const response = await fetch(GROQ_API_URL, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        signal: options?.signal,
+        body: JSON.stringify({
+          model,
+          messages,
+          temperature: 0.6,
+          max_tokens: 2048,
+          stream: true
+        })
+      });
 
-        messages,
-        temperature: 0.6,
-        max_tokens: 2048,
-        stream: true
-      })
-    });
+      if (!response.ok) {
+        let message = 'Failed to connect to Maamu AI Core.';
+        try {
+          const err = await response.json();
+          message = err.error?.message || message;
+        } catch {
+          // keep fallback message
+        }
+        return { ok: false as const, message };
+      }
+      return { ok: true as const, response };
+    };
 
-    if (!response.ok) {
-      const err = await response.json();
-      onError(`Error: ${err.error?.message || 'Failed to connect to Maamu AI Core.'}`);
+    let result = await requestWithModel(activeModel);
+    if (!result.ok) {
+      const looksLikeModelIssue = /model|not found|unsupported|decommissioned|not available/i.test(result.message);
+      if (looksLikeModelIssue && activeModel !== DEFAULT_MAAMU_MODEL) {
+        activeModel = DEFAULT_MAAMU_MODEL;
+        appState.settings.maamuModel = DEFAULT_MAAMU_MODEL;
+        import('@/services/data-bridge').then(m => m.saveSettingsToStorage(appState.settings));
+        result = await requestWithModel(activeModel);
+      }
+    }
+    if (!result.ok) {
+      onError(`Error: ${result.message}`);
       return;
     }
+    const response = result.response;
 
     const reader = response.body?.getReader();
     const decoder = new TextDecoder('utf-8');
@@ -145,10 +197,14 @@ export async function getMaamuResponseStream(
     }
 
     // Save full response to history
-    saveToMentorHistory('assistant', accumulated);
+    saveToMentorHistory('assistant', accumulated, options?.sessionId);
     onDone(accumulated);
 
   } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      onError('Generation stopped.');
+      return;
+    }
     console.error('Groq Stream Error:', error);
     onError('Connection interrupted. My AI Core is currently unreachable.');
   }

@@ -25,6 +25,7 @@ function createDefaultSettings(): Settings {
     unlockedBadges: [],
     sessionLogs: [],
     groqApiKey: '',
+    maamuModel: 'llama-3.3-70b-versatile',
     theme: 'default',
   };
 }

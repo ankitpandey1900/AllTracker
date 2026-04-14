@@ -1,4 +1,4 @@
-import { getSecureLocalProfileString, setSecureLocalProfileString } from '@/utils/security';
+import { getSecureLocalProfileString } from '@/utils/security';
 /**
  * Handles the Maamu AI chat logic.
  * 
@@ -16,16 +16,19 @@ import {
   deleteSession, 
   switchSession 
 } from './intelligence.service';
-import { getMaamuResponseStream, generateSessionTitle } from '@/services/groq.service';
+import { getMaamuResponseStream, generateSessionTitle, MAAMU_MODELS, normalizeMaamuModel } from '@/services/groq.service';
 import { appState } from '@/state/app-state';
 import { saveSettingsToStorage } from '@/services/data-bridge';
-import { STORAGE_KEYS } from '@/config/constants';
 import { 
   intelligenceView, 
   buildMessageHTML, 
   buildWelcomeScreen, 
   formatMaamuText 
 } from './intelligence.ui';
+
+let listenersBound = false;
+let sendMessageFn: ((query?: string) => void) | null = null;
+let activeStreamController: AbortController | null = null;
 
 // --- Helpers ---
 
@@ -49,16 +52,45 @@ function getRelativeTime(ts: number): string {
   return new Date(ts).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
 }
 
+function setStopButtonState(isStreaming: boolean): void {
+  const stopBtn = document.getElementById('stopMaamuQuery') as HTMLButtonElement | null;
+  if (!stopBtn) return;
+  stopBtn.style.display = isStreaming ? 'inline-flex' : 'none';
+}
+
+function markdownToPlainText(text: string): string {
+  return text
+    .replace(/```[\s\S]*?```/g, (m) => m.replace(/```/g, ''))
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/^>\s?/gm, '')
+    .replace(/^#{1,6}\s*/gm, '')
+    .replace(/\*\*(.*?)\*\*/g, '$1')
+    .replace(/\*(.*?)\*/g, '$1')
+    .replace(/==(.+?)==/g, '$1')
+    .replace(/^\s*[-*]\s+/gm, '- ')
+    .replace(/^\s*\d+\.\s+/gm, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 // --- Main Chat UI ---
 
 export function renderIntelligenceBriefing(): void {
   const container = document.getElementById('intelligencePane');
   if (!container) return;
 
-  // ⚡ ONLY inject and setup listeners if not already present
+  // Ensure send flow always has an active session.
+  if (!getActiveSession()) {
+    createNewSession();
+    saveSettingsToStorage(appState.settings);
+  }
+
+  // Inject shell if missing, then bind listeners once.
   if (!document.getElementById('maamuGptContainer')) {
     container.innerHTML = intelligenceView;
-    setupListeners();
+  }
+  if (!listenersBound) {
+    listenersBound = setupListeners();
   }
 
   const toggle = document.getElementById('beastModeToggle') as HTMLInputElement;
@@ -66,6 +98,8 @@ export function renderIntelligenceBriefing(): void {
 
   const avatarChip = document.getElementById('maamuUserAvatarChip');
   if (avatarChip) avatarChip.textContent = getUserAvatar();
+  const profileChip = document.getElementById('maamuProfileChip');
+  if (profileChip) profileChip.textContent = `${getUserAvatar()} ${getUserDisplayName()}`;
 
   const beastChip = document.getElementById('beastChipStatus');
   if (beastChip) beastChip.style.display = appState.settings.beastMode ? 'inline-flex' : 'none';
@@ -73,10 +107,38 @@ export function renderIntelligenceBriefing(): void {
   const session = getActiveSession();
   const titleEl = document.getElementById('activeMissionTitle');
   if (titleEl) titleEl.textContent = session ? session.title : 'MAAMU AI';
+  renderModelOptions();
 
   renderSessionsList();
   renderActiveChat();
   renderSidebarMetrics();
+}
+
+function renderModelOptions(): void {
+  const activeModel = normalizeMaamuModel(appState.settings.maamuModel);
+  const options = MAAMU_MODELS.map(model =>
+    `<option value="${model.id}" ${model.id === activeModel ? 'selected' : ''}>${model.label}</option>`
+  ).join('');
+
+  const inlineSelect = document.getElementById('maamuModelSelectInline') as HTMLSelectElement | null;
+  if (inlineSelect) inlineSelect.innerHTML = options;
+
+  const sidebarSelect = document.getElementById('maamuModelSelect') as HTMLSelectElement | null;
+  if (sidebarSelect) sidebarSelect.innerHTML = options;
+
+  const bottomSelect = document.getElementById('maamuModelSelectBottom') as HTMLSelectElement | null;
+  if (bottomSelect) bottomSelect.innerHTML = options;
+}
+
+function bindModelSelect(selectEl: HTMLSelectElement | null): void {
+  if (!selectEl || selectEl.dataset.bound === 'true') return;
+  selectEl.dataset.bound = 'true';
+  selectEl.addEventListener('change', (e) => {
+    const selected = normalizeMaamuModel((e.target as HTMLSelectElement).value);
+    appState.settings.maamuModel = selected;
+    saveSettingsToStorage(appState.settings);
+    renderModelOptions();
+  });
 }
 
 // --- Session Management ---
@@ -212,20 +274,49 @@ function bindMsgActions(chatOutput: HTMLElement): void {
   chatOutput.querySelectorAll('.copy-response-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const idx = parseInt(btn.getAttribute('data-idx') || '0');
+      const mode = btn.getAttribute('data-copy-mode') || 'markdown';
       const msgs = getActiveSession()?.messages.filter(m => m.role !== 'system') || [];
-      navigator.clipboard.writeText(msgs[idx]?.content || '');
+      const raw = msgs[idx]?.content || '';
+      const content = mode === 'text' ? markdownToPlainText(raw) : raw;
+      navigator.clipboard.writeText(content);
       (btn as HTMLElement).textContent = '✓ Copied!';
-      setTimeout(() => { (btn as HTMLElement).innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy`; }, 1500);
+      setTimeout(() => {
+        (btn as HTMLElement).innerHTML = mode === 'text'
+          ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg> Copy Text`
+          : `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy MD`;
+      }, 1500);
+    });
+  });
+
+  chatOutput.querySelectorAll('.regenerate-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.getAttribute('data-idx') || '0');
+      const sessionMsgs = getActiveSession()?.messages.filter(m => m.role !== 'system') || [];
+      let retryPrompt = '';
+      for (let i = idx - 1; i >= 0; i--) {
+        if (sessionMsgs[i]?.role === 'user') {
+          retryPrompt = sessionMsgs[i].content || '';
+          break;
+        }
+      }
+      if (retryPrompt && sendMessageFn) sendMessageFn(retryPrompt);
     });
   });
 }
 
 // --- Streaming AI Responses ---
 
-function streamResponse(query: string, chatOutput: HTMLElement): void {
+function streamResponse(
+  query: string,
+  chatOutput: HTMLElement,
+  options: { sessionId: string; onFinish: () => void }
+): void {
   const tacticalBrief = getTacticalBriefingString();
   const session = getActiveSession();
-  if (!session) return;
+  if (!session) {
+    options.onFinish();
+    return;
+  }
   const isFirstMsg = session.messages.filter(m => m.role === 'user').length <= 1;
 
   const assistantRow = document.createElement('div');
@@ -244,6 +335,8 @@ function streamResponse(query: string, chatOutput: HTMLElement): void {
 
   const contentEl = assistantRow.querySelector('.streaming-content') as HTMLElement;
 
+  activeStreamController = new AbortController();
+  setStopButtonState(true);
   getMaamuResponseStream(
     query, tacticalBrief,
     (_chunk, accumulated) => {
@@ -258,16 +351,25 @@ function streamResponse(query: string, chatOutput: HTMLElement): void {
         const actions = document.createElement('div');
         actions.className = 'msg-actions';
         actions.innerHTML = `
-          <button class="msg-action-btn copy-response-btn" title="Copy">
+          <button class="msg-action-btn copy-response-btn" data-copy-mode="markdown" title="Copy Markdown">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy
+          </button>
+          <button class="msg-action-btn copy-response-btn" data-copy-mode="text" title="Copy Plain Text">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg> Copy Text
           </button>
         `;
         msgBody.appendChild(actions);
-        actions.querySelector('.copy-response-btn')?.addEventListener('click', e => {
-          navigator.clipboard.writeText(fullResponse);
+        actions.querySelectorAll('.copy-response-btn').forEach(btn => btn.addEventListener('click', e => {
+          const mode = (e.currentTarget as HTMLElement).getAttribute('data-copy-mode') || 'markdown';
+          const content = mode === 'text' ? markdownToPlainText(fullResponse) : fullResponse;
+          navigator.clipboard.writeText(content);
           (e.currentTarget as HTMLElement).textContent = '✓ Copied!';
-          setTimeout(() => { (e.currentTarget as HTMLElement).innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy`; }, 1500);
-        });
+          setTimeout(() => {
+            (e.currentTarget as HTMLElement).innerHTML = mode === 'text'
+              ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg> Copy Text`
+              : `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy MD`;
+          }, 1500);
+        }));
       }
 
       // Auto-name session from first message
@@ -280,11 +382,22 @@ function streamResponse(query: string, chatOutput: HTMLElement): void {
         saveSettingsToStorage(appState.settings);
       }
       chatOutput.scrollTop = chatOutput.scrollHeight;
+      activeStreamController = null;
+      setStopButtonState(false);
+      options.onFinish();
     },
     err => {
       assistantRow.classList.remove('streaming');
-      if (contentEl) contentEl.innerHTML = `<span class="error-msg">⚡ ${err}</span>`;
-    }
+      if (contentEl) {
+        contentEl.innerHTML = err === 'Generation stopped.'
+          ? `<span class="error-msg">⏹️ Generation stopped.</span>`
+          : `<span class="error-msg">⚡ ${err}</span>`;
+      }
+      activeStreamController = null;
+      setStopButtonState(false);
+      options.onFinish();
+    },
+    { sessionId: options.sessionId, signal: activeStreamController.signal }
   );
 }
 
@@ -307,6 +420,8 @@ function renderSidebarMetrics(): void {
         <div class="sm-row"><span>Momentum</span><div class="sm-bar"><div class="sm-fill" style="width:${Math.max(0,Math.min(100,b.momentum+50))}%;background:${col(b.momentum+50)}"></div></div><span class="sm-val">${b.momentum > 0 ? '+' : ''}${b.momentum}%</span></div>
       </div>
       <div class="sidebar-api-section">
+        <div class="sm-label">AI MODEL</div>
+        <select id="maamuModelSelect" class="api-key-input"></select>
         <div class="sm-label">GROQ API KEY</div>
         <input type="password" id="maamuApiKeyInput" class="api-key-input" value="${appState.settings.groqApiKey || ''}" placeholder="gsk_...">
         <button id="saveMaamuApiKey" class="save-api-btn">Save Key</button>
@@ -320,6 +435,8 @@ function renderSidebarMetrics(): void {
       const btn = document.getElementById('saveMaamuApiKey');
       if (btn) { btn.textContent = '✓ Saved!'; setTimeout(() => btn.textContent = 'Save Key', 2000); }
     });
+    renderModelOptions();
+    bindModelSelect(document.getElementById('maamuModelSelect') as HTMLSelectElement | null);
   } else {
     footer.innerHTML = `
       <div class="sidebar-metrics">
@@ -352,13 +469,27 @@ function closeNewMissionDialog(): void {
   if (overlay) overlay.classList.remove('visible');
 }
 
-function setupListeners(): void {
+function setupListeners(): boolean {
   const input = document.getElementById('maamuQueryInput') as HTMLTextAreaElement;
   const sendBtn = document.getElementById('sendMaamuQuery');
   const chatOutput = document.getElementById('maamuChatOutput');
-  if (!input || !sendBtn || !chatOutput) return;
+  if (!input || !sendBtn || !chatOutput) return false;
+  let isSending = false;
+
+  const updateSendButtonState = () => {
+    const hasText = !!input.value.trim();
+    const busy = isSending;
+    sendBtn.toggleAttribute('disabled', busy || !hasText);
+    sendBtn.setAttribute('aria-disabled', String(busy || !hasText));
+    sendBtn.style.opacity = busy || !hasText ? '0.6' : '1';
+    sendBtn.style.cursor = busy || !hasText ? 'not-allowed' : 'pointer';
+  };
 
   // ── New Mission Dialog ──
+  renderModelOptions();
+  bindModelSelect(document.getElementById('maamuModelSelectInline') as HTMLSelectElement | null);
+  bindModelSelect(document.getElementById('maamuModelSelectBottom') as HTMLSelectElement | null);
+
   document.getElementById('newMissionBtn')?.addEventListener('click', openNewMissionDialog);
   document.getElementById('newMissionCancel')?.addEventListener('click', closeNewMissionDialog);
   document.getElementById('newMissionOverlay')?.addEventListener('click', e => {
@@ -392,13 +523,26 @@ function setupListeners(): void {
   input.addEventListener('input', () => {
     input.style.height = 'auto';
     input.style.height = Math.min(input.scrollHeight, 160) + 'px';
+    input.scrollTop = input.scrollHeight;
+    updateSendButtonState();
   });
 
-  const handleSend = () => {
-    const query = input.value.trim();
+  const handleSend = (overrideQuery?: string) => {
+    if (isSending) return;
+    const query = (overrideQuery ?? input.value).trim();
     if (!query) return;
-    const session = getActiveSession();
-    if (!session) return;
+    let session = getActiveSession();
+    if (!session) {
+      createNewSession();
+      saveSettingsToStorage(appState.settings);
+      session = getActiveSession();
+      if (!session) return;
+      renderSessionsList();
+    }
+    const lockedSessionId = session.id;
+
+    isSending = true;
+    updateSendButtonState();
 
     chatOutput.querySelector('.maamu-welcome')?.remove();
 
@@ -413,16 +557,33 @@ function setupListeners(): void {
       </div>
     `;
     chatOutput.appendChild(userRow.firstElementChild!);
-    input.value = '';
-    input.style.height = 'auto';
+    if (!overrideQuery) {
+      input.value = '';
+      input.style.height = 'auto';
+      input.scrollTop = 0;
+    }
     chatOutput.scrollTop = chatOutput.scrollHeight;
-    streamResponse(query, chatOutput);
+    streamResponse(query, chatOutput, {
+      sessionId: lockedSessionId,
+      onFinish: () => {
+        isSending = false;
+        updateSendButtonState();
+        input.focus();
+      }
+    });
   };
+  sendMessageFn = handleSend;
 
-  sendBtn.addEventListener('click', handleSend);
-  input.addEventListener('keydown', (e: KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
+  sendBtn.addEventListener('click', () => handleSend());
+  document.getElementById('stopMaamuQuery')?.addEventListener('click', () => {
+    if (activeStreamController) activeStreamController.abort();
   });
+  input.addEventListener('keydown', (e: KeyboardEvent) => {
+    const wantsSend = e.key === 'Enter' && ((e.ctrlKey || e.metaKey) || !e.shiftKey);
+    if (wantsSend) { e.preventDefault(); handleSend(); }
+  });
+  updateSendButtonState();
+  setStopButtonState(false);
 
   // ── Beast Mode ──
   const beastToggle = document.getElementById('beastModeToggle') as HTMLInputElement;
@@ -451,4 +612,5 @@ function setupListeners(): void {
       }
     }
   });
+  return true;
 }

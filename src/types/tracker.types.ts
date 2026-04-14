@@ -76,6 +76,7 @@ export interface Settings {
   unlockedBadges: string[];
   sessionLogs: SessionLog[];
   groqApiKey?: string;
+  maamuModel?: string;
   chatSessions?: ChatSession[];    // Multi-session history
   activeSessionId?: string;       // Multi-session history
   theme?: 'kaala' | 'default' | 'chanakya-strategy' | 'ayodhya' | 'kamala-grace' | 'vajra-shakti'; // App Theme

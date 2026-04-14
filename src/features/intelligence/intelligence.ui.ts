@@ -11,6 +11,47 @@ function escapeHtml(text: string): string {
   return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+function wrapListBlocks(html: string, tag: 'ul' | 'ol'): string {
+  const itemTag = tag === 'ul' ? 'li' : 'li';
+  const blockRegex = new RegExp(`(?:<${itemTag} data-list="${tag}">[\\s\\S]*?<\\/${itemTag}>)(?:\\s*<br\\/>\\s*<${itemTag} data-list="${tag}">[\\s\\S]*?<\\/${itemTag}>)*`, 'g');
+  return html.replace(blockRegex, block => {
+    const clean = block
+      .replace(/<br\/>\s*(?=<li data-list=)/g, '')
+      .replace(/<li data-list="(?:ul|ol)">/g, '<li>');
+    return `<${tag}>${clean}</${tag}>`;
+  });
+}
+
+function convertSimpleTables(html: string): string {
+  const rows = html.split('<br/>');
+  const converted: string[] = [];
+  let i = 0;
+  while (i < rows.length) {
+    const row = rows[i].trim();
+    const next = rows[i + 1]?.trim() || '';
+    const isHeader = /^\|.*\|$/.test(row);
+    const isDivider = /^\|\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)+\|?$/.test(next);
+    if (isHeader && isDivider) {
+      const tableRows: string[] = [row];
+      i += 2;
+      while (i < rows.length && /^\|.*\|$/.test(rows[i].trim())) {
+        tableRows.push(rows[i].trim());
+        i++;
+      }
+      const parseCells = (line: string) => line.replace(/^\||\|$/g, '').split('|').map(c => c.trim());
+      const headers = parseCells(tableRows[0]);
+      const body = tableRows.slice(1).map(parseCells);
+      const thead = `<thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>`;
+      const tbody = `<tbody>${body.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody>`;
+      converted.push(`<div class="maamu-table-wrap"><table>${thead}${tbody}</table></div>`);
+      continue;
+    }
+    converted.push(rows[i]);
+    i++;
+  }
+  return converted.join('<br/>');
+}
+
 export function formatMaamuText(text: string): string {
   if (!text) return '';
   const codeBlocks: string[] = [];
@@ -22,10 +63,21 @@ export function formatMaamuText(text: string): string {
   const inlines: string[] = [];
   html = html.replace(/`([^`]+)`/g, (_m, c) => { const id = `__IC_${inlines.length}__`; inlines.push(`<code class="inline-code">${escapeHtml(c)}</code>`); return id; });
   html = escapeHtml(html)
+    .replace(/^###\s+(.*)$/gm, '<h3>$1</h3>')
+    .replace(/^##\s+(.*)$/gm, '<h2>$1</h2>')
+    .replace(/^#\s+(.*)$/gm, '<h1>$1</h1>')
+    .replace(/^>\s+(.*)$/gm, '<blockquote>$1</blockquote>')
+    .replace(/^---$/gm, '<hr/>')
+    .replace(/^\s*[-*]\s+(.*)$/gm, '<li data-list="ul">$1</li>')
+    .replace(/^\s*\d+\.\s+(.*)$/gm, '<li data-list="ol">$1</li>')
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/==(.*?)==/g, '<mark>$1</mark>')
     .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    .replace(/^(\s*)[*-]\s+(.*)$/gm, '<li>$2</li>')
     .replace(/\n/g, '<br/>');
+
+  html = wrapListBlocks(html, 'ul');
+  html = wrapListBlocks(html, 'ol');
+  html = convertSimpleTables(html);
   codeBlocks.forEach((b, i) => { html = html.replace(`__CB_${i}__`, b); });
   inlines.forEach((ic, i) => { html = html.replace(`__IC_${i}__`, ic); });
   return html;
@@ -96,6 +148,11 @@ export const intelligenceView = `
         </div>
         <div class="chat-header-right">
           <div class="beast-toggle-group">
+            <span class="beast-label">Model</span>
+            <select id="maamuModelSelectInline" class="api-key-input" style="margin:0; min-width: 210px; padding: 6px 10px;">
+            </select>
+          </div>
+          <div class="beast-toggle-group">
             <span class="beast-label">Beast Mode</span>
             <label class="tactical-switch" title="Activates harsh, no-mercy coaching">
               <input type="checkbox" id="beastModeToggle">
@@ -112,14 +169,18 @@ export const intelligenceView = `
           <div class="user-avatar-chip" id="maamuUserAvatarChip">👤</div>
           <textarea id="maamuQueryInput" class="maamu-textarea"
             placeholder="Ask Maamu anything — Hinglish, code, strategy..." rows="1" spellcheck="false"></textarea>
-          <button id="sendMaamuQuery" class="maamu-send-btn" title="Send (Enter)">
+          <button id="stopMaamuQuery" class="maamu-stop-btn" title="Stop generation" style="display:none">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+          </button>
+          <button id="sendMaamuQuery" class="maamu-send-btn" title="Send (Enter / Ctrl+Enter)">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
           </button>
         </div>
         <div class="maamu-status-chips">
           <span class="status-chip data-chip">📊 30-day data</span>
           <span class="status-chip beast-chip" id="beastChipStatus" style="display:none">🔥 Beast Mode</span>
-          <span class="status-chip model-chip">⚡ Llama 3.3 70B</span>
+          <span class="status-chip profile-chip" id="maamuProfileChip">👤 You</span>
+          <select id="maamuModelSelectBottom" class="maamu-model-inline-select" title="Select model"></select>
         </div>
       </div>
     </div>
@@ -150,9 +211,13 @@ export function buildMessageHTML(role: string, content: string, idx: number, ava
   const roleName = isUser ? name : 'Maamu';
   const actions = !isUser ? `
     <div class="msg-actions">
-      <button class="msg-action-btn copy-response-btn" data-idx="${idx}" title="Copy">
+      <button class="msg-action-btn copy-response-btn" data-idx="${idx}" data-copy-mode="markdown" title="Copy Markdown">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-        Copy
+        Copy MD
+      </button>
+      <button class="msg-action-btn copy-response-btn" data-idx="${idx}" data-copy-mode="text" title="Copy Plain Text">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg>
+        Copy Text
       </button>
       <button class="msg-action-btn regenerate-btn" data-idx="${idx}" title="Retry">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>

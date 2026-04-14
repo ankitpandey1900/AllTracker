@@ -546,10 +546,53 @@
   word-break: break-word;
 }
 
+.msg-content h1,
+.msg-content h2,
+.msg-content h3 {
+  margin: 12px 0 8px;
+  line-height: 1.35;
+  font-weight: 800;
+  color: #e2e8f0;
+}
+
+.msg-content h1 { font-size: 1.02rem; }
+.msg-content h2 { font-size: 0.96rem; }
+.msg-content h3 { font-size: 0.9rem; }
+
+.msg-content ul,
+.msg-content ol {
+  margin: 8px 0 10px 1.1rem;
+  padding-left: 0.5rem;
+}
+
 .msg-content li {
   margin-bottom: 4px;
-  margin-left: 1.2rem;
-  list-style: disc;
+  margin-left: 0;
+}
+
+.msg-content ul li { list-style: disc; }
+.msg-content ol li { list-style: decimal; }
+
+.msg-content blockquote {
+  margin: 10px 0;
+  padding: 8px 12px;
+  border-left: 3px solid rgba(129, 140, 248, 0.7);
+  background: rgba(99, 102, 241, 0.08);
+  border-radius: 8px;
+  color: #cbd5e1;
+}
+
+.msg-content hr {
+  border: 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.25);
+  margin: 12px 0;
+}
+
+.msg-content mark {
+  background: rgba(250, 204, 21, 0.2);
+  color: #fde68a;
+  border-radius: 5px;
+  padding: 0 4px;
 }
 
 .msg-content strong {
@@ -617,6 +660,32 @@
   font-family: monospace;
   font-size: 0.85em;
   color: #a5b4fc;
+}
+
+.maamu-table-wrap {
+  overflow-x: auto;
+  margin: 12px 0;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 10px;
+}
+
+.maamu-table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.maamu-table-wrap th,
+.maamu-table-wrap td {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+  padding: 8px 10px;
+  text-align: left;
+}
+
+.maamu-table-wrap th {
+  background: rgba(99, 102, 241, 0.1);
+  color: #c7d2fe;
+  font-weight: 700;
 }
 
 /* System Messages */
@@ -734,6 +803,29 @@
   background: rgba(99, 102, 241, 0.08);
   color: #a5b4fc;
   border: 1px solid rgba(99, 102, 241, 0.15);
+}
+
+.profile-chip {
+  background: rgba(99, 102, 241, 0.08);
+  color: #c7d2fe;
+  border: 1px solid rgba(99, 102, 241, 0.15);
+}
+
+.maamu-model-inline-select {
+  max-width: 220px;
+  height: 26px;
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 16px;
+  color: #c7d2fe;
+  font-size: 0.66rem;
+  font-weight: 600;
+  padding: 0 10px;
+  outline: none;
+}
+
+.maamu-model-inline-select:focus {
+  border-color: rgba(129, 140, 248, 0.5);
 }
 
 /* ── Message Actions ─────────────────────── */
@@ -1156,6 +1248,8 @@
   min-height: 24px;
   max-height: 160px;
   padding: 6px 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
 .maamu-textarea::placeholder {
@@ -1185,6 +1279,26 @@
 
 .maamu-send-btn:active {
   transform: scale(0.96);
+}
+
+.maamu-stop-btn {
+  width: 34px;
+  height: 34px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: 10px;
+  color: #fda4af;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.maamu-stop-btn:hover {
+  background: rgba(239, 68, 68, 0.22);
+  color: #fecdd3;
 }
 
 .maamu-input-hint {
