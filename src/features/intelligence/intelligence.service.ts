@@ -518,7 +518,7 @@ export function getActiveSession(): ChatSession | null {
   return s.chatSessions.find(sess => sess.id === s.activeSessionId) || s.chatSessions[0];
 }
 
-export function createNewSession(title: string = 'New Mission Strategy'): string {
+export function createNewSession(title: string = 'New Chat'): string {
   if (!appState.settings.chatSessions) appState.settings.chatSessions = [];
   
   const newSession: ChatSession = {

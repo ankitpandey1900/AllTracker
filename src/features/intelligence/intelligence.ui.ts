@@ -92,7 +92,7 @@ export const intelligenceView = `
     <aside class="maamu-sidebar" id="maamuSidebar">
       <div class="maamu-sidebar-top">
         <div class="maamu-brand">
-          <div class="maamu-logo">M</div>
+          <div class="maamu-logo">🧠</div>
           <span>MAAMU AI</span>
         </div>
         <button id="newMissionBtn" class="new-chat-btn" title="Start a new conversation">
@@ -105,7 +105,7 @@ export const intelligenceView = `
         <span class="session-list-title">Conversations</span>
         <span class="session-count" id="maamuSessionCount">0</span>
       </div>
-      <div style="padding: 8px 12px 6px;">
+      <div class="maamu-session-search-wrap" style="padding: 8px 12px 6px;">
         <input id="maamuSessionSearch" class="api-key-input" style="margin:0; height:30px;" placeholder="Search chats..." />
       </div>
 
@@ -142,7 +142,7 @@ export const intelligenceView = `
       <div class="maamu-chat-header">
         <div class="chat-header-left">
           <button class="sidebar-toggle-btn" id="toggleMaamuSidebar" title="Toggle sidebar">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg>
+            <span class="maamu-mini-toggle-icon">🧠</span>
           </button>
           <div class="active-session-info">
             <div class="session-dot"></div>
@@ -150,6 +150,7 @@ export const intelligenceView = `
           </div>
         </div>
         <div class="chat-header-right">
+          <button id="toggleCompactView" class="maamu-compact-toggle-btn" title="Toggle compact view">Compact</button>
           <div class="beast-toggle-group">
             <span class="beast-label">Model</span>
             <select id="maamuModelSelectInline" class="api-key-input" style="margin:0; min-width: 210px; padding: 6px 10px;">
@@ -168,11 +169,30 @@ export const intelligenceView = `
       <div class="maamu-messages" id="maamuChatOutput"></div>
 
       <div class="maamu-input-zone">
+        <div class="maamu-template-header">
+          <span>Prompt Shortcuts</span>
+          <button id="toggleTemplatesBtn" class="maamu-template-toggle-btn" title="Show or hide templates">Hide</button>
+        </div>
+        <div class="maamu-template-cats" id="maamuTemplateCats">
+          <button class="maamu-template-cat-btn active" data-template-category="all">All</button>
+          <button class="maamu-template-cat-btn" data-template-category="favorites">Favorites</button>
+          <button class="maamu-template-cat-btn" data-template-category="general">General</button>
+          <button class="maamu-template-cat-btn" data-template-category="coding">Coding</button>
+          <button class="maamu-template-cat-btn" data-template-category="web">Web Analytics</button>
+        </div>
         <div class="maamu-template-row">
-          <button class="maamu-template-btn" data-template="Debug this code with root-cause and fix steps">Debug Code</button>
-          <button class="maamu-template-btn" data-template="Take my interview now with one hard question at a time">Interview Me</button>
-          <button class="maamu-template-btn" data-template="Build my weekly study plan from my current data">Weekly Plan</button>
-          <button class="maamu-template-btn" data-template="Explain this concept in simple steps with examples">Explain Simply</button>
+          <button class="maamu-template-btn" data-template-id="debug-code" data-template-category="coding" data-template="Debug this code with root-cause and fix steps"><span class="tpl-star-btn" title="Toggle favorite">☆</span><span>Debug Code</span></button>
+          <button class="maamu-template-btn" data-template-id="interview-me" data-template-category="general" data-template="Take my interview now with one hard question at a time"><span class="tpl-star-btn" title="Toggle favorite">☆</span><span>Interview Me</span></button>
+          <button class="maamu-template-btn" data-template-id="weekly-plan" data-template-category="general" data-template="Build my weekly study plan from my current data"><span class="tpl-star-btn" title="Toggle favorite">☆</span><span>Weekly Plan</span></button>
+          <button class="maamu-template-btn" data-template-id="explain-simply" data-template-category="general" data-template="Explain this concept in simple steps with examples"><span class="tpl-star-btn" title="Toggle favorite">☆</span><span>Explain Simply</span></button>
+          <button class="maamu-template-btn" data-template-id="funnel-analysis" data-template-category="web" data-template="Analyze my website funnel: traffic source -> landing -> signup -> activation. Give drop-offs and top 5 fixes."><span class="tpl-star-btn" title="Toggle favorite">☆</span><span>Funnel Analysis</span></button>
+          <button class="maamu-template-btn" data-template-id="behavior-pattern" data-template-category="web" data-template="Review user behavior pattern from session events and identify friction points causing exits."><span class="tpl-star-btn" title="Toggle favorite">☆</span><span>Behavior Pattern</span></button>
+          <button class="maamu-template-btn" data-template-id="user-personas" data-template-category="web" data-template="Create user personas from my web usage signals and suggest tailored engagement strategies."><span class="tpl-star-btn" title="Toggle favorite">☆</span><span>User Personas</span></button>
+          <button class="maamu-template-btn" data-template-id="churn-risk" data-template-category="web" data-template="Find churn risk indicators from user activity and create a retention action plan for next 7 days."><span class="tpl-star-btn" title="Toggle favorite">☆</span><span>Churn Risk</span></button>
+          <button class="maamu-template-btn" data-template-id="ab-test-plan" data-template-category="web" data-template="Build an A/B test plan for conversion uplift: hypothesis, metric, sample size logic, and success criteria."><span class="tpl-star-btn" title="Toggle favorite">☆</span><span>A/B Test Plan</span></button>
+          <button class="maamu-template-btn" data-template-id="onboarding-audit" data-template-category="web" data-template="Audit onboarding journey from first visit to first value. Suggest improvements for time-to-value and completion rate."><span class="tpl-star-btn" title="Toggle favorite">☆</span><span>Onboarding Audit</span></button>
+          <button class="maamu-template-btn" data-template-id="feature-adoption" data-template-category="web" data-template="Analyze feature adoption trends and classify features into core, underused, and confusing with recommendations."><span class="tpl-star-btn" title="Toggle favorite">☆</span><span>Feature Adoption</span></button>
+          <button class="maamu-template-btn" data-template-id="weekly-analytics" data-template-category="web" data-template="Prepare a weekly web analytics summary: KPI movement, anomalies, root causes, and next actions."><span class="tpl-star-btn" title="Toggle favorite">☆</span><span>Weekly Analytics</span></button>
         </div>
         <div class="maamu-input-box">
           <div class="user-avatar-chip" id="maamuUserAvatarChip">👤</div>
@@ -187,7 +207,7 @@ export const intelligenceView = `
         </div>
         <div class="maamu-status-chips">
           <span class="status-chip data-chip">📊 30-day data</span>
-          <span class="status-chip model-chip" id="maamuUsageChip">🧮 Today: 0 tok</span>
+          <span class="status-chip model-chip" id="maamuUsageChip">🧮 100% left</span>
           <span class="status-chip beast-chip" id="beastChipStatus" style="display:none">🔥 Beast Mode</span>
           <span class="status-chip profile-chip" id="maamuProfileChip">👤 You</span>
           <select id="maamuSessionSelectBottom" class="maamu-model-inline-select" title="Past chats"></select>
@@ -220,7 +240,7 @@ export function buildWelcomeScreen(): string {
 
 export function buildMessageHTML(role: string, content: string, idx: number, avatar: string, name: string): string {
   const isUser = role === 'user';
-  const roleAvatar = isUser ? avatar : '🧠';
+  const roleAvatar = isUser ? avatar : '<span class="maamu-ai-avatar">🧠</span>';
   const roleName = isUser ? name : 'Maamu';
   const actions = !isUser ? `
     <div class="msg-actions">

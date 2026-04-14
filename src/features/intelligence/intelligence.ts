@@ -29,6 +29,11 @@ import {
 let listenersBound = false;
 let sendMessageFn: ((query?: string) => void) | null = null;
 let activeStreamController: AbortController | null = null;
+const MAAMU_COMPACT_STORAGE_KEY = 'maamu_compact_view';
+const MAAMU_TEMPLATES_COLLAPSED_KEY = 'maamu_templates_collapsed';
+const MAAMU_TEMPLATE_FAVS_KEY = 'maamu_template_favs';
+const MAAMU_TEMPLATE_CATEGORY_KEY = 'maamu_template_category';
+const MOBILE_COMPACT_MEDIA = '(max-width: 768px)';
 
 // --- Helpers ---
 
@@ -58,6 +63,95 @@ function setStopButtonState(isStreaming: boolean): void {
   stopBtn.style.display = isStreaming ? 'inline-flex' : 'none';
 }
 
+function isCompactModeEnabled(): boolean {
+  return localStorage.getItem(MAAMU_COMPACT_STORAGE_KEY) === '1';
+}
+
+function setCompactMode(enabled: boolean): void {
+  localStorage.setItem(MAAMU_COMPACT_STORAGE_KEY, enabled ? '1' : '0');
+  const container = document.getElementById('maamuGptContainer');
+  if (container) container.classList.toggle('maamu-compact', enabled);
+  const btn = document.getElementById('toggleCompactView') as HTMLButtonElement | null;
+  if (btn) btn.textContent = enabled ? 'Comfort' : 'Compact';
+}
+
+function hasUserCompactPreference(): boolean {
+  return localStorage.getItem(MAAMU_COMPACT_STORAGE_KEY) !== null;
+}
+
+function getEffectiveCompactMode(): boolean {
+  if (hasUserCompactPreference()) return isCompactModeEnabled();
+  return window.matchMedia(MOBILE_COMPACT_MEDIA).matches;
+}
+
+function areTemplatesCollapsed(): boolean {
+  return localStorage.getItem(MAAMU_TEMPLATES_COLLAPSED_KEY) === '1';
+}
+
+function setTemplatesCollapsed(collapsed: boolean): void {
+  localStorage.setItem(MAAMU_TEMPLATES_COLLAPSED_KEY, collapsed ? '1' : '0');
+  const container = document.getElementById('maamuGptContainer');
+  if (container) container.classList.toggle('templates-collapsed', collapsed);
+  const btn = document.getElementById('toggleTemplatesBtn') as HTMLButtonElement | null;
+  if (btn) btn.textContent = collapsed ? 'Show' : 'Hide';
+}
+
+function getTemplateFavorites(): Set<string> {
+  try {
+    const raw = localStorage.getItem(MAAMU_TEMPLATE_FAVS_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return new Set(Array.isArray(parsed) ? parsed.map(String) : []);
+  } catch {
+    return new Set();
+  }
+}
+
+function saveTemplateFavorites(favs: Set<string>): void {
+  localStorage.setItem(MAAMU_TEMPLATE_FAVS_KEY, JSON.stringify(Array.from(favs)));
+}
+
+function getTemplateCategory(): string {
+  const value = localStorage.getItem(MAAMU_TEMPLATE_CATEGORY_KEY) || 'all';
+  return ['all', 'favorites', 'general', 'coding', 'web'].includes(value) ? value : 'all';
+}
+
+function setTemplateCategory(category: string): void {
+  localStorage.setItem(MAAMU_TEMPLATE_CATEGORY_KEY, category);
+}
+
+function refreshTemplateUI(): void {
+  const selectedCategory = getTemplateCategory();
+  const favorites = getTemplateFavorites();
+
+  document.querySelectorAll('.maamu-template-cat-btn').forEach((el) => {
+    const btn = el as HTMLButtonElement;
+    const isActive = btn.getAttribute('data-template-category') === selectedCategory;
+    btn.classList.toggle('active', isActive);
+  });
+
+  document.querySelectorAll('.maamu-template-btn').forEach((el) => {
+    const btn = el as HTMLButtonElement;
+    const templateId = btn.getAttribute('data-template-id') || '';
+    const templateCategory = btn.getAttribute('data-template-category') || 'general';
+    const isFavorite = favorites.has(templateId);
+    const shouldShow = selectedCategory === 'all'
+      || (selectedCategory === 'favorites' && isFavorite)
+      || selectedCategory === templateCategory;
+
+    btn.style.display = shouldShow ? 'inline-flex' : 'none';
+    btn.classList.toggle('is-favorite', isFavorite);
+    const star = btn.querySelector('.tpl-star-btn') as HTMLElement | null;
+    if (star) {
+      star.textContent = isFavorite ? '★' : '☆';
+      star.setAttribute('title', isFavorite ? 'Remove favorite' : 'Mark favorite');
+    }
+  });
+}
+
+function isDesktopTightSidebarMode(): boolean {
+  return window.matchMedia('(min-width: 1025px) and (max-width: 1366px) and (max-height: 900px)').matches;
+}
+
 function markdownToPlainText(text: string): string {
   return text
     .replace(/```[\s\S]*?```/g, (m) => m.replace(/```/g, ''))
@@ -77,6 +171,8 @@ function estimateTokens(text: string): number {
   return Math.max(1, Math.ceil((text || '').length / 4));
 }
 
+const DAILY_TOKEN_BUDGET = 10000;
+
 function getUsageStorageKey(): string {
   const day = new Date().toISOString().split('T')[0];
   return `maamu_usage_${day}`;
@@ -95,7 +191,10 @@ function getDailyUsage(): number {
 function renderUsageChip(): void {
   const chip = document.getElementById('maamuUsageChip');
   if (!chip) return;
-  chip.textContent = `🧮 Today: ${getDailyUsage()} tok`;
+  const used = getDailyUsage();
+  const remainingPct = Math.max(0, Math.round(((DAILY_TOKEN_BUDGET - used) / DAILY_TOKEN_BUDGET) * 100));
+  chip.textContent = `🧮 ${remainingPct}% left`;
+  chip.setAttribute('title', `${Math.max(0, DAILY_TOKEN_BUDGET - used)} / ${DAILY_TOKEN_BUDGET} est. tokens remaining today`);
 }
 
 function exportActiveConversationMarkdown(): void {
@@ -162,6 +261,12 @@ export function renderIntelligenceBriefing(): void {
   const session = getActiveSession();
   const titleEl = document.getElementById('activeMissionTitle');
   if (titleEl) titleEl.textContent = session ? session.title : 'MAAMU AI';
+  const gptContainer = document.getElementById('maamuGptContainer');
+  if (gptContainer) {
+    gptContainer.classList.toggle('sidebar-expanded', isDesktopTightSidebarMode());
+  }
+  setCompactMode(getEffectiveCompactMode());
+  setTemplatesCollapsed(areTemplatesCollapsed());
   renderModelOptions();
 
   renderSessionsList();
@@ -347,7 +452,11 @@ function renderSessionsList(): void {
       const s = getActiveSession();
       const t = document.getElementById('activeMissionTitle');
       if (t) t.textContent = s ? s.title : 'MAAMU AI';
-      if (window.innerWidth <= 1024) document.getElementById('maamuSidebar')?.classList.remove('active');
+      if (window.innerWidth <= 1024) {
+        document.getElementById('maamuSidebar')?.classList.remove('active');
+      } else if (isDesktopTightSidebarMode()) {
+        document.getElementById('maamuGptContainer')?.classList.remove('sidebar-expanded');
+      }
     });
   });
 }
@@ -361,6 +470,7 @@ function renderActiveChat(): void {
   if (!session) return;
 
   const msgs = session.messages.filter(m => m.role !== 'system');
+  if (msgs.length > 0 && !areTemplatesCollapsed()) setTemplatesCollapsed(true);
   if (msgs.length === 0) {
     chatOutput.innerHTML = buildWelcomeScreen();
     chatOutput.querySelectorAll('.quick-prompt').forEach(btn => {
@@ -456,7 +566,7 @@ function streamResponse(
   const assistantRow = document.createElement('div');
   assistantRow.className = 'msg-row assistant streaming';
   assistantRow.innerHTML = `
-    <div class="msg-avatar">🧠</div>
+    <div class="msg-avatar"><span class="maamu-ai-avatar">🧠</span></div>
     <div class="msg-body">
       <div class="msg-sender">Maamu</div>
       <div class="msg-content streaming-content">
@@ -507,7 +617,7 @@ function streamResponse(
       }
 
       // Auto-name session from first message
-      if (isFirstMsg && session.title === 'New Mission Strategy') {
+      if (isFirstMsg && session.title === 'New Chat') {
         const title = generateSessionTitle(query);
         session.title = title;
         const t = document.getElementById('activeMissionTitle');
@@ -694,7 +804,43 @@ function setupListeners(): boolean {
       input.focus();
     });
   });
+  document.querySelectorAll('.tpl-star-btn').forEach(star => {
+    star.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const templateBtn = (e.currentTarget as HTMLElement).closest('.maamu-template-btn') as HTMLElement | null;
+      const templateId = templateBtn?.getAttribute('data-template-id');
+      if (!templateId) return;
+      const favorites = getTemplateFavorites();
+      if (favorites.has(templateId)) favorites.delete(templateId);
+      else favorites.add(templateId);
+      saveTemplateFavorites(favorites);
+      refreshTemplateUI();
+    });
+  });
+  document.querySelectorAll('.maamu-template-cat-btn').forEach(cat => {
+    cat.addEventListener('click', () => {
+      const category = (cat as HTMLElement).getAttribute('data-template-category') || 'all';
+      setTemplateCategory(category);
+      refreshTemplateUI();
+    });
+  });
+  refreshTemplateUI();
   document.getElementById('maamuExportMdBtn')?.addEventListener('click', exportActiveConversationMarkdown);
+  document.getElementById('toggleCompactView')?.addEventListener('click', () => {
+    setCompactMode(!getEffectiveCompactMode());
+  });
+  const mobileCompactMedia = window.matchMedia(MOBILE_COMPACT_MEDIA);
+  mobileCompactMedia.addEventListener?.('change', () => {
+    if (!hasUserCompactPreference()) setCompactMode(getEffectiveCompactMode());
+  });
+  const tightSidebarMedia = window.matchMedia('(min-width: 1025px) and (max-width: 1366px) and (max-height: 900px)');
+  tightSidebarMedia.addEventListener?.('change', () => {
+    if (!tightSidebarMedia.matches) document.getElementById('maamuGptContainer')?.classList.remove('sidebar-expanded');
+  });
+  document.getElementById('toggleTemplatesBtn')?.addEventListener('click', () => {
+    setTemplatesCollapsed(!areTemplatesCollapsed());
+  });
 
   document.getElementById('newMissionBtn')?.addEventListener('click', openNewMissionDialog);
   document.getElementById('newMissionCancel')?.addEventListener('click', closeNewMissionDialog);
@@ -709,7 +855,7 @@ function setupListeners(): boolean {
   });
   document.getElementById('newMissionConfirm')?.addEventListener('click', () => {
     const titleInput = document.getElementById('newMissionTitleInput') as HTMLInputElement;
-    const title = titleInput?.value.trim() || 'New Mission Strategy';
+    const title = titleInput?.value.trim() || 'New Chat';
     createNewSession(title);
     saveSettingsToStorage(appState.settings);
     closeNewMissionDialog();
@@ -774,7 +920,7 @@ function setupListeners(): boolean {
       const botRow = document.createElement('div');
       botRow.innerHTML = `
         <div class="msg-row assistant">
-          <div class="msg-avatar">🧠</div>
+          <div class="msg-avatar"><span class="maamu-ai-avatar">🧠</span></div>
           <div class="msg-body">
             <div class="msg-sender">Maamu</div>
             <div class="msg-content">${formatMaamuText(localReply)}</div>
@@ -819,6 +965,8 @@ function setupListeners(): boolean {
   });
   updateSendButtonState();
   setStopButtonState(false);
+  setCompactMode(getEffectiveCompactMode());
+  setTemplatesCollapsed(areTemplatesCollapsed());
 
   // ── Beast Mode ──
   const beastToggle = document.getElementById('beastModeToggle') as HTMLInputElement;
@@ -836,16 +984,27 @@ function setupListeners(): boolean {
 
   // ── Sidebar Toggle ──
   document.getElementById('toggleMaamuSidebar')?.addEventListener('click', () => {
-    document.getElementById('maamuSidebar')?.classList.toggle('active');
+    const sidebar = document.getElementById('maamuSidebar');
+    const container = document.getElementById('maamuGptContainer');
+    if (!sidebar || !container) return;
+    if (isDesktopTightSidebarMode()) {
+      container.classList.add('sidebar-expanded');
+      return;
+    }
+    sidebar.classList.toggle('active');
   });
   document.addEventListener('click', (e: MouseEvent) => {
+    const sb = document.getElementById('maamuSidebar');
+    const tog = document.getElementById('toggleMaamuSidebar');
+    const container = document.getElementById('maamuGptContainer');
+    if (!sb || !tog || !container) return;
     if (window.innerWidth <= 1024) {
-      const sb = document.getElementById('maamuSidebar');
-      const tog = document.getElementById('toggleMaamuSidebar');
-      if (sb?.classList.contains('active') && !sb.contains(e.target as Node) && !tog?.contains(e.target as Node)) {
+      if (sb.classList.contains('active') && !sb.contains(e.target as Node) && !tog.contains(e.target as Node)) {
         sb.classList.remove('active');
       }
+      return;
     }
+    if (isDesktopTightSidebarMode()) return;
   });
   return true;
 }
