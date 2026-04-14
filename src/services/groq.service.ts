@@ -39,12 +39,14 @@ function stripThinkingContent(text: string): string {
 function isLightweightQuery(query: string): boolean {
   const q = query.trim().toLowerCase();
   if (!q) return true;
+  const hasAccessIntent = /(access|data|profile|privacy|personal|leaderboard|category|categories|study|tracker)/.test(q);
+  if (hasAccessIntent) return false;
   return /^(hi|hello|hey|yo|ok|okay|thanks|thank you|thx|bye|good morning|good evening|good night|kaise ho|kya haal)$/.test(q) || q.length <= 16;
 }
 
 function shouldUseTacticalContext(query: string): boolean {
   const q = query.toLowerCase();
-  return /(my|tracker|study|hours|routine|task|discipline|momentum|streak|progress|weak|analy|plan|schedule|today|week|month|focus|kpi)/.test(q);
+  return /(my|tracker|study|hours|routine|task|discipline|momentum|streak|progress|weak|analy|plan|schedule|today|week|month|focus|kpi|leaderboard|category|categories|access|data|privacy|profile)/.test(q);
 }
 
 function saveToMentorHistory(role: MentorMessage['role'], content: string, sessionId?: string) {
@@ -114,6 +116,9 @@ function buildMessages(
       8. FORMAT QUALITY: Use clean Markdown with headings, bullets, numbered steps, bold key terms, and blockquotes for important cautions only when the request actually needs structure.
       9. VISUAL CLARITY: Use occasional icons/emojis in section titles for scanability, avoid emoji spam.
       10. MODE: ${beastModeDirective}
+      11. ACCESS SCOPE (CRITICAL): You can use only the current signed-in user's in-app AllTracker context from Tactical Brief + current conversation. Do NOT use, infer, compare with, or reference any other individual user's data. Leaderboard/category references must stay user-centric (e.g., user's own rank/progress context only), never disclose others' details.
+      12. PRIVACY GUARDRAIL: Never expose or rely on personal profile-sensitive details (email, phone, private identity fields, secrets), even for current user unless explicitly needed and already shared in-session.
+      13. If user asks "what data/access do you have", answer directly in 2-4 lines with this scope (current-user-only context, no other users' private data, no external live web unless provided), then continue normally only if user asks follow-up.
 
       ${briefBlock}
 
