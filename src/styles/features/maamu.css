@@ -1741,110 +1741,45 @@
     padding: 5px 7px;
   }
 
-  /* Sidebar: collapsed by default, expands via click state */
+  /* Sidebar: always expanded (toggle removed for this breakpoint) */
   .maamu-sidebar {
-    width: 62px;
-    min-width: 62px;
-    transition: width 0.22s ease, min-width 0.22s ease;
-  }
-
-  .maamu-gpt-container.sidebar-expanded .maamu-sidebar {
     width: 198px;
     min-width: 198px;
   }
 
   .maamu-sidebar-top {
-    padding: 8px 6px 6px;
+    padding: 8px 8px 6px;
   }
 
   .maamu-brand {
-    justify-content: center;
-    margin-bottom: 8px;
+    justify-content: flex-start;
+    margin-bottom: 10px;
   }
 
   .maamu-brand span {
-    display: none;
+    display: inline;
   }
 
   .new-chat-btn {
-    justify-content: center;
-    font-size: 0;
-    padding: 8px 0;
-  }
-
-  .new-chat-btn svg {
-    margin: 0;
-  }
-
-  .session-list-header,
-  .maamu-session-search-wrap,
-  .maamu-sidebar-footer,
-  .session-item-content,
-  .session-delete-btn,
-  .session-pin-btn {
-    display: none;
-  }
-
-  .maamu-session-list {
-    padding: 0 4px;
-  }
-
-  .maamu-session-item {
-    justify-content: center;
-    align-items: center;
-    gap: 0;
-    padding: 7px 0;
-  }
-
-  .session-icon {
-    margin-top: 0;
-  }
-
-  .maamu-gpt-container.sidebar-expanded .new-chat-btn {
     justify-content: flex-start;
     font-size: 0.76rem;
     padding: 8px 10px;
     gap: 7px;
   }
 
-  .maamu-gpt-container.sidebar-expanded .maamu-brand {
-    justify-content: flex-start;
-    margin-bottom: 10px;
-  }
-
-  .maamu-gpt-container.sidebar-expanded .maamu-brand span,
-  .maamu-gpt-container.sidebar-expanded .session-list-header,
-  .maamu-gpt-container.sidebar-expanded .maamu-session-search-wrap,
-  .maamu-gpt-container.sidebar-expanded .maamu-sidebar-footer,
-  .maamu-gpt-container.sidebar-expanded .session-item-content,
-  .maamu-gpt-container.sidebar-expanded .session-delete-btn,
-  .maamu-gpt-container.sidebar-expanded .session-pin-btn {
-    display: flex;
-  }
-
-  .maamu-gpt-container.sidebar-expanded .maamu-session-search-wrap {
-    display: block;
-  }
-
-  .maamu-gpt-container.sidebar-expanded .session-item-content,
-  .maamu-gpt-container.sidebar-expanded .maamu-sidebar-footer {
-    display: block;
-  }
-
-  .maamu-gpt-container.sidebar-expanded .session-pin-btn {
-    display: inline-flex;
-    align-items: center;
-  }
-
-  .maamu-gpt-container.sidebar-expanded .maamu-session-list {
+  .maamu-session-list {
     padding: 0 6px;
   }
 
-  .maamu-gpt-container.sidebar-expanded .maamu-session-item {
+  .maamu-session-item {
     justify-content: flex-start;
     align-items: flex-start;
     gap: 6px;
     padding: 5px 6px;
+  }
+
+  .session-icon {
+    margin-top: 0;
   }
 
   /* Header controls */

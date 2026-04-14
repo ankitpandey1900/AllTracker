@@ -19,6 +19,7 @@ import {
 import { getMaamuResponseStream, generateSessionTitle, MAAMU_MODELS, normalizeMaamuModel } from '@/services/groq.service';
 import { appState } from '@/state/app-state';
 import { saveSettingsToStorage } from '@/services/data-bridge';
+import { getCurrentUserLeaderboardContext } from '@/features/dashboard/leaderboard';
 import { 
   intelligenceView, 
   buildMessageHTML, 
@@ -148,10 +149,6 @@ function refreshTemplateUI(): void {
   });
 }
 
-function isDesktopTightSidebarMode(): boolean {
-  return window.matchMedia('(min-width: 1025px) and (max-width: 1366px) and (max-height: 900px)').matches;
-}
-
 function markdownToPlainText(text: string): string {
   return text
     .replace(/```[\s\S]*?```/g, (m) => m.replace(/```/g, ''))
@@ -227,6 +224,54 @@ function getLocalSmallTalkReply(query: string): string | null {
   return null;
 }
 
+function getLocalDataContextReply(query: string): string | null {
+  const q = query.trim().toLowerCase();
+  if (!q) return null;
+
+  const leaderboardCtx = getCurrentUserLeaderboardContext();
+  const totalHours = (appState.trackerData || []).reduce(
+    (sum, day) => sum + (day.studyHours || []).reduce((s, h) => s + (h || 0), 0),
+    0
+  );
+  const brief = getTacticalBriefing();
+  const last30 = (appState.trackerData || []).slice(-30);
+  const bestDay = last30.reduce((best, d) => {
+    const hrs = (d.studyHours || []).reduce((s, h) => s + (h || 0), 0);
+    return hrs > best.hrs ? { day: d.day, hrs } : best;
+  }, { day: 0, hrs: -1 });
+  const worstDay = last30.reduce((worst, d) => {
+    const hrs = (d.studyHours || []).reduce((s, h) => s + (h || 0), 0);
+    return hrs < worst.hrs ? { day: d.day, hrs } : worst;
+  }, { day: 0, hrs: Number.MAX_SAFE_INTEGER });
+
+  const todayDay = appState.trackerData.length
+    ? appState.trackerData[appState.trackerData.length - 1].day
+    : 1;
+  const activeRange = (appState.settings.customRanges || []).find(
+    r => todayDay >= r.startDay && todayDay <= r.endDay
+  );
+  const activeCategories = (activeRange?.columns?.length ? activeRange.columns : appState.settings.columns || []);
+
+  if (/(leaderboard|rank|standing|position)/.test(q)) {
+    if (!leaderboardCtx) {
+      return `I cannot read live leaderboard snapshot right now, but your current data shows **${totalHours.toFixed(1)}h** total and **${brief.momentumLabel}** momentum.\n\nAsk again in a moment after leaderboard refresh.`;
+    }
+    return `Your current leaderboard rank is **${leaderboardCtx.position} out of ${leaderboardCtx.totalUsers}**.\n\n- **Your hours:** ${leaderboardCtx.myHours}h\n- **#1 hours:** ${leaderboardCtx.topHours}h (${leaderboardCtx.topUserHandle})\n- **Gap to #1:** ${leaderboardCtx.gapToTopHours}h\n- **Best day (last 30):** Day ${bestDay.day} (${Math.max(0, bestDay.hrs).toFixed(1)}h)\n- **Worst day (last 30):** Day ${worstDay.day} (${Math.max(0, worstDay.hrs === Number.MAX_SAFE_INTEGER ? 0 : worstDay.hrs).toFixed(1)}h)\n- **Peak study window:** ${brief.peakHourStr}\n\n**How to reach #1:**\n1. Add +1 focused hour in your peak window daily.\n2. Fix worst-day consistency first (no zero-day in next 7 days).\n3. Prioritize your top 2 categories until the ${leaderboardCtx.gapToTopHours}h gap is closed.`;
+  }
+
+  if (/(how many.*categor|what.*categor|my categor|category list|categories)/.test(q)) {
+    const list = activeCategories.map((c, i) => `${i + 1}. ${c.name} (${c.target} target)`).join('\n');
+    return `You currently have **${activeCategories.length} active categories**.\n\n${list || 'No categories configured.'}\n\nIf you want, I can suggest an optimized hour split for these categories based on your last 30 days.`;
+  }
+
+  if ((q.includes('detail') || q.includes('complete') || q.includes('full')) && (q.includes('analysis') || q.includes('analytic') || q.includes('my data') || q.includes('my stuff'))) {
+    const pendingTasks = (appState.tasks || []).filter(t => !t.completed).length;
+    return `## Your Data Analysis Snapshot\n\n- **Leaderboard:** ${leaderboardCtx ? `${leaderboardCtx.position}/${leaderboardCtx.totalUsers}` : 'Unavailable now'}\n- **Rank Tier:** ${brief.strategicContext.find(s => s.includes('Standing')) || 'Not enough data'}\n- **Total Study Hours:** ${totalHours.toFixed(1)}h\n- **Momentum:** ${brief.momentum}% (${brief.momentumLabel})\n- **Discipline Trend:** ${brief.disciplineTrend}%\n- **Sustainability:** ${brief.sustainabilityScore}%\n- **Peak Study Window:** ${brief.peakHourStr}\n- **Best Day (30d):** Day ${bestDay.day} (${Math.max(0, bestDay.hrs).toFixed(1)}h)\n- **Worst Day (30d):** Day ${worstDay.day} (${Math.max(0, worstDay.hrs === Number.MAX_SAFE_INTEGER ? 0 : worstDay.hrs).toFixed(1)}h)\n- **Active Categories:** ${activeCategories.length}\n- **Pending Tasks:** ${pendingTasks}\n\n### Reality Plan\n1. Protect your peak window daily.\n2. Convert worst day into a minimum 1-hour non-zero day.\n3. Close top-gap with a 7-day streak in your highest-impact categories.`;
+  }
+
+  return null;
+}
+
 // --- Main Chat UI ---
 
 export function renderIntelligenceBriefing(): void {
@@ -261,10 +306,6 @@ export function renderIntelligenceBriefing(): void {
   const session = getActiveSession();
   const titleEl = document.getElementById('activeMissionTitle');
   if (titleEl) titleEl.textContent = session ? session.title : 'MAAMU AI';
-  const gptContainer = document.getElementById('maamuGptContainer');
-  if (gptContainer) {
-    gptContainer.classList.toggle('sidebar-expanded', isDesktopTightSidebarMode());
-  }
   setCompactMode(getEffectiveCompactMode());
   setTemplatesCollapsed(areTemplatesCollapsed());
   renderModelOptions();
@@ -452,11 +493,7 @@ function renderSessionsList(): void {
       const s = getActiveSession();
       const t = document.getElementById('activeMissionTitle');
       if (t) t.textContent = s ? s.title : 'MAAMU AI';
-      if (window.innerWidth <= 1024) {
-        document.getElementById('maamuSidebar')?.classList.remove('active');
-      } else if (isDesktopTightSidebarMode()) {
-        document.getElementById('maamuGptContainer')?.classList.remove('sidebar-expanded');
-      }
+      if (window.innerWidth <= 1024) document.getElementById('maamuSidebar')?.classList.remove('active');
     });
   });
 }
@@ -834,10 +871,6 @@ function setupListeners(): boolean {
   mobileCompactMedia.addEventListener?.('change', () => {
     if (!hasUserCompactPreference()) setCompactMode(getEffectiveCompactMode());
   });
-  const tightSidebarMedia = window.matchMedia('(min-width: 1025px) and (max-width: 1366px) and (max-height: 900px)');
-  tightSidebarMedia.addEventListener?.('change', () => {
-    if (!tightSidebarMedia.matches) document.getElementById('maamuGptContainer')?.classList.remove('sidebar-expanded');
-  });
   document.getElementById('toggleTemplatesBtn')?.addEventListener('click', () => {
     setTemplatesCollapsed(!areTemplatesCollapsed());
   });
@@ -883,7 +916,7 @@ function setupListeners(): boolean {
     if (isSending) return;
     const query = (overrideQuery ?? input.value).trim();
     if (!query) return;
-    const localReply = getLocalSmallTalkReply(query);
+    const localReply = getLocalDataContextReply(query) || getLocalSmallTalkReply(query);
     let session = getActiveSession();
     if (!session) {
       createNewSession();
@@ -985,26 +1018,18 @@ function setupListeners(): boolean {
   // ── Sidebar Toggle ──
   document.getElementById('toggleMaamuSidebar')?.addEventListener('click', () => {
     const sidebar = document.getElementById('maamuSidebar');
-    const container = document.getElementById('maamuGptContainer');
-    if (!sidebar || !container) return;
-    if (isDesktopTightSidebarMode()) {
-      container.classList.add('sidebar-expanded');
-      return;
-    }
+    if (!sidebar) return;
     sidebar.classList.toggle('active');
   });
   document.addEventListener('click', (e: MouseEvent) => {
     const sb = document.getElementById('maamuSidebar');
     const tog = document.getElementById('toggleMaamuSidebar');
-    const container = document.getElementById('maamuGptContainer');
-    if (!sb || !tog || !container) return;
+    if (!sb || !tog) return;
     if (window.innerWidth <= 1024) {
       if (sb.classList.contains('active') && !sb.contains(e.target as Node) && !tog.contains(e.target as Node)) {
         sb.classList.remove('active');
       }
-      return;
-    }
-    if (isDesktopTightSidebarMode()) return;
+    }    
   });
   return true;
 }

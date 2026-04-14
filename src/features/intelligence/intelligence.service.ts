@@ -1,6 +1,8 @@
 import { appState } from '@/state/app-state';
 import type { SessionLog, TrackerDay, ChatSession, MentorMessage } from '@/types/tracker.types';
 import { formatDateDMY } from '@/utils/date.utils';
+import { getRankTitle } from '@/utils/rank.utils';
+import { getCurrentUserLeaderboardContext } from '@/features/dashboard/leaderboard';
 
 export interface TacticalBriefing {
   peakHour: number;
@@ -131,17 +133,42 @@ export function getTacticalBriefingString(): string {
   } : "IDLE";
 
   const username = localStorage.getItem('tracker_username') || "New Participant";
+  const defaultCategories = (appState.settings.columns || []).map(c => ({
+    name: c.name,
+    target: c.target
+  }));
+  const todayDay = todayIdx >= 0
+    ? (appState.trackerData[todayIdx]?.day || 1)
+    : (appState.trackerData[appState.trackerData.length - 1]?.day || 1);
+  const activeRange = (appState.settings.customRanges || []).find(
+    r => todayDay >= r.startDay && todayDay <= r.endDay
+  );
+  const activeCategories = (activeRange?.columns?.length ? activeRange.columns : appState.settings.columns || []).map(c => ({
+    name: c.name,
+    target: c.target
+  }));
+  const customRangeSummaries = (appState.settings.customRanges || []).map((r, idx) => ({
+    label: `Custom Range ${idx + 1}`,
+    startDay: r.startDay,
+    endDay: r.endDay,
+    categories: r.columns.map(c => ({ name: c.name, target: c.target }))
+  }));
   
   // Re-calculate some rank info for AI context
   const totalHours = (appState.trackerData || []).reduce((sum, day) => {
     return sum + (day.studyHours || []).reduce((s, h) => s + (h || 0), 0);
   }, 0);
 
+  const rankTier = getRankTitle(totalHours);
+  const leaderboardContext = getCurrentUserLeaderboardContext();
+  const bestDay = last30Days.reduce((best, d) => d.totalHours > best.totalHours ? d : best, last30Days[0] || { dateStr: 'N/A', totalHours: 0, dayNumber: 0, completed: false, problems: 0, topics: '' });
+  const worstDay = last30Days.reduce((worst, d) => d.totalHours < worst.totalHours ? d : worst, last30Days[0] || { dateStr: 'N/A', totalHours: 0, dayNumber: 0, completed: false, problems: 0, topics: '' });
+
   return JSON.stringify({
     identity: {
       handle: "@" + username,
       totalHours: totalHours.toFixed(1),
-      rank: b.strategicContext.find(s => s.includes('Rank')) || "IRON V (Pilot)"
+      rank: rankTier
     },
     beastModeActive: !!appState.settings.beastMode,
     stats: {
@@ -156,6 +183,32 @@ export function getTacticalBriefingString(): string {
       neglectedTopic: b.neglectedTopic
     },
     peakWindow: b.peakHourStr,
+    leaderboardContext: leaderboardContext || {
+      position: null,
+      totalUsers: null,
+      myHours: Number(totalHours.toFixed(1)),
+      topHours: null,
+      gapToTopHours: null,
+      topUserHandle: null,
+      note: 'Leaderboard snapshot unavailable right now.'
+    },
+    performancePattern: {
+      bestDayByHours: { day: bestDay.dayNumber, date: bestDay.dateStr, totalHours: bestDay.totalHours },
+      worstDayByHours: { day: worstDay.dayNumber, date: worstDay.dateStr, totalHours: worstDay.totalHours },
+      peakStudyHourWindow: b.peakHourStr,
+      momentumLabel: b.momentumLabel,
+      momentumValue: b.momentum
+    },
+    categoryContext: {
+      todayDay,
+      activeRange: activeRange
+        ? { startDay: activeRange.startDay, endDay: activeRange.endDay }
+        : null,
+      activeCategoriesCount: activeCategories.length,
+      activeCategories,
+      defaultCategories,
+      customRanges: customRangeSummaries
+    },
     activeTimer,
     recentHabits_Last30Days: last30Days, // Renamed and expanded
     unclearedTasks: pendingTasks,
@@ -466,9 +519,10 @@ export function getStrategicContext(data: TrackerDay[], logs: SessionLog[], task
   context.push(`Task Integrity: Backlog status is ${taskHealth.status} with debt index at ${taskHealth.debtScore}.`);
   context.push(`Daily Intensity: Current session cycle adherence at ${routine}%.`);
   
-  // Add Rank context if possible
+  // Add rank context from cumulative study hours
   const totalHours = data.reduce((sum, day) => sum + (day.studyHours || []).reduce((a: number, b: number) => a + (b || 0), 0), 0);
-  context.push(`All Tracker Standing: Rank analysis active at ${totalHours.toFixed(1)} capacity.`);
+  const rankTier = getRankTitle(totalHours);
+  context.push(`All Tracker Standing: ${rankTier} tier based on ${totalHours.toFixed(1)}h total study.`);
 
   if (data.length > 3) {
     const last3 = data.slice(-3);

@@ -94,6 +94,38 @@ const LB_PAGE_SIZE = 5;
 let lbCurrentPage = 1;
 let lbAllUsers: GlobalProfile[] = [];
 
+export function getCurrentUserLeaderboardContext(): {
+  position: number;
+  totalUsers: number;
+  myHours: number;
+  topHours: number;
+  gapToTopHours: number;
+  topUserHandle: string;
+} | null {
+  if (!lbAllUsers.length) return null;
+  const profileData = getSecureLocalProfileString();
+  const myDisplayName = profileData ? JSON.parse(profileData).displayName : null;
+  if (!myDisplayName) return null;
+
+  const sorted = [...lbAllUsers].sort((a, b) => (b.total_hours || 0) - (a.total_hours || 0));
+  const myIndex = sorted.findIndex(u => u.display_name === myDisplayName);
+  if (myIndex === -1) return null;
+
+  const me = sorted[myIndex];
+  const top = sorted[0];
+  const myHours = me.total_hours || 0;
+  const topHours = top.total_hours || 0;
+
+  return {
+    position: myIndex + 1,
+    totalUsers: sorted.length,
+    myHours: Number(myHours.toFixed(1)),
+    topHours: Number(topHours.toFixed(1)),
+    gapToTopHours: Number(Math.max(0, topHours - myHours).toFixed(1)),
+    topUserHandle: `@${top.display_name}`
+  };
+}
+
 export async function refreshLeaderboard(): Promise<void> {
   const listEl = document.getElementById('leaderboardList');
   if (!listEl) return;

@@ -45,8 +45,10 @@ function isLightweightQuery(query: string): boolean {
 }
 
 function shouldUseTacticalContext(query: string): boolean {
-  const q = query.toLowerCase();
-  return /(my|tracker|study|hours|routine|task|discipline|momentum|streak|progress|weak|analy|plan|schedule|today|week|month|focus|kpi|leaderboard|category|categories|access|data|privacy|profile)/.test(q);
+  const q = query.trim().toLowerCase();
+  if (!q) return false;
+  const pureSocial = /^(hi|hello|hey|yo|ok|okay|thanks|thank you|thx|bye|good morning|good evening|good night|kaise ho|kya haal)$/.test(q);
+  return !pureSocial;
 }
 
 function saveToMentorHistory(role: MentorMessage['role'], content: string, sessionId?: string) {
@@ -119,6 +121,11 @@ function buildMessages(
       11. ACCESS SCOPE (CRITICAL): You can use only the current signed-in user's in-app AllTracker context from Tactical Brief + current conversation. Do NOT use, infer, compare with, or reference any other individual user's data. Leaderboard/category references must stay user-centric (e.g., user's own rank/progress context only), never disclose others' details.
       12. PRIVACY GUARDRAIL: Never expose or rely on personal profile-sensitive details (email, phone, private identity fields, secrets), even for current user unless explicitly needed and already shared in-session.
       13. If user asks "what data/access do you have", answer directly in 2-4 lines with this scope (current-user-only context, no other users' private data, no external live web unless provided), then continue normally only if user asks follow-up.
+      14. CATEGORY QUESTIONS: If user asks category questions like "how many categories do I have?" or "what are my categories?", use categoryContext.activeCategories from Tactical Brief and answer with exact count + list first, then give only short relevant guidance.
+      15. RANK QUESTIONS: If user asks rank/leaderboard standing, answer from identity.rank and identity.totalHours in Tactical Brief first. Do not invent terms like "capacity" or unknown ranking metrics.
+      16. DATA-FIRST DEFAULT: For any user request beyond pure greeting/social smalltalk, ground your answer in the current user's Tactical Brief data first (study, routines, tasks, categories, leaderboard context, KPIs, trends), then provide guidance.
+      17. If Tactical Brief lacks a requested metric, say it's unavailable in current context and suggest the closest available metric instead of guessing.
+      18. LEADERBOARD DETAIL MODE: When user asks for leaderboard/rank details, include exact position format "X out of Y" from leaderboardContext when available, mention gapToTopHours, and provide a practical path to become #1 based on performancePattern (best day, worst day, peak study window, momentum).
 
       ${briefBlock}
 
@@ -144,7 +151,7 @@ export async function getMaamuResponseStream(
   const apiKey = appState.settings.groqApiKey;
   let activeModel = normalizeMaamuModel(appState.settings.maamuModel);
   const lightweight = isLightweightQuery(userQuery);
-  const includeTacticalBrief = shouldUseTacticalContext(userQuery) && !lightweight;
+  const includeTacticalBrief = shouldUseTacticalContext(userQuery);
   const historyLimit = lightweight ? 4 : 10;
 
   if (!apiKey) {
