@@ -105,7 +105,7 @@ The platform is built by elite pilots who contribute their skills to push the mi
 ## 👤 Author
 **Ankit Pandey**
 - GitHub: [@ankitpandey1900](https://github.com/ankitpandey1900)
-- Linkedln: https://www.linkedin.com/in/ankit-pandey-a082a2303/
+- Linkedln: [linkedin.com/ankitpandey1900](https://www.linkedin.com/in/ankitpandey1900)
 
 ---
 
