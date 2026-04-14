@@ -262,6 +262,14 @@ export const manualModal = `
                  <p>Maamu is a high-fidelity AI coach. He analyzes your real study data and gives honest (often harsh) feedback about your consistency and output.</p>
                </div>
                <p>To initialize Maamu, obtain an API key from <strong>console.groq.com</strong> and paste it into the Maamu tab configuration.</p>
+               <ul class="docs-ul">
+                 <li><strong>Token Saver Mode:</strong> Basic greetings (hi/hello/thanks/ok) are handled locally without API calls.</li>
+                 <li><strong>Smart Context Routing:</strong> Maamu only sends heavy tracker context for data-related prompts, reducing token waste.</li>
+                 <li><strong>Clean Outputs:</strong> Internal reasoning tags from some models (like Qwen think blocks) are auto-hidden from chat.</li>
+                 <li><strong>Daily Usage Meter:</strong> The footer shows estimated token usage for today and auto-resets each day.</li>
+                 <li><strong>Conversation History Controls:</strong> Use search, pin, switch, and delete controls to manage past chats quickly.</li>
+                 <li><strong>Export & Templates:</strong> Export active conversation as Markdown and use one-click prompt templates for fast workflows.</li>
+               </ul>
             </section>
           </div>
         </main>

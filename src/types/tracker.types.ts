@@ -61,6 +61,7 @@ export interface ChatSession {
   messages: MentorMessage[];
   createdAt: number;
   lastActive: number;
+  pinned?: boolean;
 }
 
 // --- App Settings ---

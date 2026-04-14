@@ -73,6 +73,61 @@ function markdownToPlainText(text: string): string {
     .trim();
 }
 
+function estimateTokens(text: string): number {
+  return Math.max(1, Math.ceil((text || '').length / 4));
+}
+
+function getUsageStorageKey(): string {
+  const day = new Date().toISOString().split('T')[0];
+  return `maamu_usage_${day}`;
+}
+
+function addDailyUsage(tokens: number): void {
+  const key = getUsageStorageKey();
+  const current = parseInt(localStorage.getItem(key) || '0', 10) || 0;
+  localStorage.setItem(key, String(current + Math.max(0, tokens)));
+}
+
+function getDailyUsage(): number {
+  return parseInt(localStorage.getItem(getUsageStorageKey()) || '0', 10) || 0;
+}
+
+function renderUsageChip(): void {
+  const chip = document.getElementById('maamuUsageChip');
+  if (!chip) return;
+  chip.textContent = `🧮 Today: ${getDailyUsage()} tok`;
+}
+
+function exportActiveConversationMarkdown(): void {
+  const session = getActiveSession();
+  if (!session) return;
+  const body = session.messages
+    .filter(m => m.role !== 'system')
+    .map(m => `## ${m.role === 'user' ? getUserDisplayName() : 'Maamu'}\n\n${m.content}\n`)
+    .join('\n');
+  const content = `# ${session.title}\n\n${body}`;
+  const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${session.title.replace(/[^a-z0-9\-_\s]/gi, '').trim().replace(/\s+/g, '_') || 'maamu_chat'}.md`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function getLocalSmallTalkReply(query: string): string | null {
+  const q = query.trim().toLowerCase();
+  if (!q) return null;
+  if (/^(hi|hello|hey|yo)$/.test(q)) return `Hey ${getUserDisplayName()}! Ready for your next mission?`;
+  if (/^(thanks|thank you|thx)$/.test(q)) return `Anytime. Keep moving forward, ${getUserDisplayName()} 🚀`;
+  if (/^(ok|okay)$/.test(q)) return `Perfect. Send your next task when ready.`;
+  if (/^(bye|good night)$/.test(q)) return `Roger that. Recover well and come back stronger.`;
+  if (/^(good morning|good evening|kaise ho|kya haal)$/.test(q)) return `All systems active. Tell me what you want to tackle right now.`;
+  return null;
+}
+
 // --- Main Chat UI ---
 
 export function renderIntelligenceBriefing(): void {
@@ -112,6 +167,8 @@ export function renderIntelligenceBriefing(): void {
   renderSessionsList();
   renderActiveChat();
   renderSidebarMetrics();
+  renderSessionQuickAccess();
+  renderUsageChip();
 }
 
 function renderModelOptions(): void {
@@ -141,17 +198,80 @@ function bindModelSelect(selectEl: HTMLSelectElement | null): void {
   });
 }
 
+function renderSessionQuickAccess(): void {
+  const select = document.getElementById('maamuSessionSelectBottom') as HTMLSelectElement | null;
+  if (!select) return;
+  const sessions = [...getChatSessions()].sort((a, b) => {
+    if (!!a.pinned !== !!b.pinned) return a.pinned ? -1 : 1;
+    return b.lastActive - a.lastActive;
+  });
+  const activeId = getActiveSession()?.id || '';
+  select.innerHTML = sessions.map(s => {
+    const shortTitle = s.title.length > 26 ? `${s.title.slice(0, 26)}…` : s.title;
+    return `<option value="${s.id}" ${s.id === activeId ? 'selected' : ''}>${s.pinned ? '📌' : '💬'} ${shortTitle}</option>`;
+  }).join('');
+}
+
+function bindSessionQuickAccess(): void {
+  const select = document.getElementById('maamuSessionSelectBottom') as HTMLSelectElement | null;
+  if (select && select.dataset.bound !== 'true') {
+    select.dataset.bound = 'true';
+    select.addEventListener('change', (e) => {
+      const id = (e.target as HTMLSelectElement).value;
+      if (!id) return;
+      switchSession(id);
+      saveSettingsToStorage(appState.settings);
+      renderSessionsList();
+      renderActiveChat();
+      renderSidebarMetrics();
+      const s = getActiveSession();
+      const t = document.getElementById('activeMissionTitle');
+      if (t) t.textContent = s ? s.title : 'MAAMU AI';
+    });
+  }
+
+  const deleteBtn = document.getElementById('maamuDeleteSessionBtn') as HTMLButtonElement | null;
+  if (deleteBtn && deleteBtn.dataset.bound !== 'true') {
+    deleteBtn.dataset.bound = 'true';
+    deleteBtn.addEventListener('click', () => {
+      const selectedId = (document.getElementById('maamuSessionSelectBottom') as HTMLSelectElement | null)?.value || getActiveSession()?.id || '';
+      if (!selectedId) return;
+      if (!confirm('Delete this conversation?')) return;
+      deleteSession(selectedId);
+      saveSettingsToStorage(appState.settings);
+      renderSessionsList();
+      renderActiveChat();
+      renderSessionQuickAccess();
+      renderSidebarMetrics();
+      const s = getActiveSession();
+      const t = document.getElementById('activeMissionTitle');
+      if (t) t.textContent = s ? s.title : 'MAAMU AI';
+    });
+  }
+}
+
 // --- Session Management ---
 
 function renderSessionsList(): void {
   const list = document.getElementById('maamuSessionList');
   if (!list) return;
 
-  const sessions = getChatSessions();
+  const allSessions = getChatSessions();
   const activeId = getActiveSession()?.id;
+  const searchTerm = ((document.getElementById('maamuSessionSearch') as HTMLInputElement | null)?.value || '').trim().toLowerCase();
+  const sessions = [...allSessions]
+    .sort((a, b) => {
+      if (!!a.pinned !== !!b.pinned) return a.pinned ? -1 : 1;
+      return b.lastActive - a.lastActive;
+    })
+    .filter(sess => {
+      if (!searchTerm) return true;
+      const hay = `${sess.title} ${(sess.messages || []).map(m => m.content).join(' ')}`.toLowerCase();
+      return hay.includes(searchTerm);
+    });
 
   const countEl = document.getElementById('maamuSessionCount');
-  if (countEl) countEl.textContent = String(sessions.length);
+  if (countEl) countEl.textContent = String(allSessions.length);
 
   if (sessions.length === 0) {
     list.innerHTML = `
@@ -183,6 +303,7 @@ function renderSessionsList(): void {
             ${msgCount > 0 ? `<span class="session-msg-count">${msgCount} msg${msgCount !== 1 ? 's' : ''}</span>` : ''}
           </div>
         </div>
+        <button class="session-pin-btn ${sess.pinned ? 'active' : ''}" data-id="${sess.id}" title="Pin conversation">📌</button>
         <button class="session-delete-btn" data-id="${sess.id}" title="Delete">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
         </button>
@@ -200,16 +321,29 @@ function renderSessionsList(): void {
           saveSettingsToStorage(appState.settings);
           renderSessionsList();
           renderActiveChat();
+          renderSessionQuickAccess();
           const s = getActiveSession();
           const t = document.getElementById('activeMissionTitle');
           if (t) t.textContent = s ? s.title : 'MAAMU AI';
         }
         return;
       }
+      const pinBtn = (e.target as HTMLElement).closest('.session-pin-btn');
+      if (pinBtn) {
+        e.stopPropagation();
+        const target = appState.settings.chatSessions?.find(s => s.id === pinBtn.getAttribute('data-id'));
+        if (!target) return;
+        target.pinned = !target.pinned;
+        saveSettingsToStorage(appState.settings);
+        renderSessionsList();
+        renderSessionQuickAccess();
+        return;
+      }
       switchSession(el.getAttribute('data-id') || '');
       saveSettingsToStorage(appState.settings);
       renderSessionsList();
       renderActiveChat();
+      renderSessionQuickAccess();
       const s = getActiveSession();
       const t = document.getElementById('activeMissionTitle');
       if (t) t.textContent = s ? s.title : 'MAAMU AI';
@@ -381,6 +515,8 @@ function streamResponse(
         renderSessionsList();
         saveSettingsToStorage(appState.settings);
       }
+      addDailyUsage(estimateTokens(query) + estimateTokens(fullResponse));
+      renderUsageChip();
       chatOutput.scrollTop = chatOutput.scrollHeight;
       activeStreamController = null;
       setStopButtonState(false);
@@ -406,18 +542,24 @@ function streamResponse(
 function renderSidebarMetrics(): void {
   const footer = document.getElementById('maamuSidebarFooter');
   if (!footer) return;
-  const b = getTacticalBriefing();
-  const col = (v: number) => v > 75 ? '#10b981' : v > 45 ? '#f59e0b' : '#ef4444';
+  const sessions = getChatSessions();
+  const activeId = getActiveSession()?.id || '';
+  const quickItems = sessions.slice(0, 6).map(s => `
+    <div class="maamu-footer-session ${s.id === activeId ? 'active' : ''}" data-id="${s.id}">
+      <span class="mfs-title">${s.title.length > 20 ? `${s.title.slice(0, 20)}…` : s.title}</span>
+      <button class="mfs-delete" data-id="${s.id}" title="Delete">×</button>
+    </div>
+  `).join('');
 
   const syncId = getCurrentUserId();
   
   if (syncId) {
     footer.innerHTML = `
       <div class="sidebar-metrics">
-        <div class="sm-label">ARENA STATS</div>
-        <div class="sm-row"><span>Sustain</span><div class="sm-bar"><div class="sm-fill" style="width:${b.sustainabilityScore}%;background:${col(b.sustainabilityScore)}"></div></div><span class="sm-val">${b.sustainabilityScore}%</span></div>
-        <div class="sm-row"><span>Discipline</span><div class="sm-bar"><div class="sm-fill" style="width:${b.disciplineTrend}%;background:${col(b.disciplineTrend)}"></div></div><span class="sm-val">${b.disciplineTrend}%</span></div>
-        <div class="sm-row"><span>Momentum</span><div class="sm-bar"><div class="sm-fill" style="width:${Math.max(0,Math.min(100,b.momentum+50))}%;background:${col(b.momentum+50)}"></div></div><span class="sm-val">${b.momentum > 0 ? '+' : ''}${b.momentum}%</span></div>
+        <div class="sm-label">RECENT CONVERSATIONS</div>
+        <div class="maamu-footer-history">
+          ${quickItems || '<div class="session-preview">No chat history yet</div>'}
+        </div>
       </div>
       <div class="sidebar-api-section">
         <div class="sm-label">AI MODEL</div>
@@ -435,14 +577,40 @@ function renderSidebarMetrics(): void {
       const btn = document.getElementById('saveMaamuApiKey');
       if (btn) { btn.textContent = '✓ Saved!'; setTimeout(() => btn.textContent = 'Save Key', 2000); }
     });
+    footer.querySelectorAll('.maamu-footer-session').forEach(el => {
+      el.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+        if (target.closest('.mfs-delete')) return;
+        const id = (el as HTMLElement).getAttribute('data-id') || '';
+        if (!id) return;
+        switchSession(id);
+        saveSettingsToStorage(appState.settings);
+        renderSessionsList();
+        renderActiveChat();
+        renderSidebarMetrics();
+      });
+    });
+    footer.querySelectorAll('.mfs-delete').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = (btn as HTMLElement).getAttribute('data-id') || '';
+        if (!id || !confirm('Delete this conversation?')) return;
+        deleteSession(id);
+        saveSettingsToStorage(appState.settings);
+        renderSessionsList();
+        renderActiveChat();
+        renderSidebarMetrics();
+      });
+    });
     renderModelOptions();
     bindModelSelect(document.getElementById('maamuModelSelect') as HTMLSelectElement | null);
   } else {
     footer.innerHTML = `
       <div class="sidebar-metrics">
-        <div class="sm-label">ARENA STATS</div>
-        <div class="sm-row"><span>Sustain</span><div class="sm-bar"><div class="sm-fill" style="width:${b.sustainabilityScore}%;background:${col(b.sustainabilityScore)}"></div></div><span class="sm-val">${b.sustainabilityScore}%</span></div>
-        <div class="sm-row"><span>Discipline</span><div class="sm-bar"><div class="sm-fill" style="width:${b.disciplineTrend}%;background:${col(b.disciplineTrend)}"></div></div><span class="sm-val">${b.disciplineTrend}%</span></div>
+        <div class="sm-label">RECENT CONVERSATIONS</div>
+        <div class="maamu-footer-history">
+          ${quickItems || '<div class="session-preview">No chat history yet</div>'}
+        </div>
       </div>
       <div class="sidebar-api-section auth-locked">
         <div class="sm-label">AI MISSION CONTROL</div>
@@ -453,6 +621,31 @@ function renderSidebarMetrics(): void {
         </div>
       </div>
     `;
+    footer.querySelectorAll('.maamu-footer-session').forEach(el => {
+      el.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+        if (target.closest('.mfs-delete')) return;
+        const id = (el as HTMLElement).getAttribute('data-id') || '';
+        if (!id) return;
+        switchSession(id);
+        saveSettingsToStorage(appState.settings);
+        renderSessionsList();
+        renderActiveChat();
+        renderSidebarMetrics();
+      });
+    });
+    footer.querySelectorAll('.mfs-delete').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = (btn as HTMLElement).getAttribute('data-id') || '';
+        if (!id || !confirm('Delete this conversation?')) return;
+        deleteSession(id);
+        saveSettingsToStorage(appState.settings);
+        renderSessionsList();
+        renderActiveChat();
+        renderSidebarMetrics();
+      });
+    });
   }
 }
 
@@ -489,6 +682,19 @@ function setupListeners(): boolean {
   renderModelOptions();
   bindModelSelect(document.getElementById('maamuModelSelectInline') as HTMLSelectElement | null);
   bindModelSelect(document.getElementById('maamuModelSelectBottom') as HTMLSelectElement | null);
+  bindSessionQuickAccess();
+  renderUsageChip();
+  document.getElementById('maamuSessionSearch')?.addEventListener('input', () => renderSessionsList());
+  document.querySelectorAll('.maamu-template-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tpl = (btn as HTMLElement).getAttribute('data-template') || '';
+      if (!tpl) return;
+      input.value = tpl;
+      input.dispatchEvent(new Event('input'));
+      input.focus();
+    });
+  });
+  document.getElementById('maamuExportMdBtn')?.addEventListener('click', exportActiveConversationMarkdown);
 
   document.getElementById('newMissionBtn')?.addEventListener('click', openNewMissionDialog);
   document.getElementById('newMissionCancel')?.addEventListener('click', closeNewMissionDialog);
@@ -531,6 +737,7 @@ function setupListeners(): boolean {
     if (isSending) return;
     const query = (overrideQuery ?? input.value).trim();
     if (!query) return;
+    const localReply = getLocalSmallTalkReply(query);
     let session = getActiveSession();
     if (!session) {
       createNewSession();
@@ -563,6 +770,34 @@ function setupListeners(): boolean {
       input.scrollTop = 0;
     }
     chatOutput.scrollTop = chatOutput.scrollHeight;
+    if (localReply) {
+      const botRow = document.createElement('div');
+      botRow.innerHTML = `
+        <div class="msg-row assistant">
+          <div class="msg-avatar">🧠</div>
+          <div class="msg-body">
+            <div class="msg-sender">Maamu</div>
+            <div class="msg-content">${formatMaamuText(localReply)}</div>
+          </div>
+        </div>
+      `;
+      chatOutput.appendChild(botRow.firstElementChild!);
+      const targetSession = appState.settings.chatSessions?.find(s => s.id === lockedSessionId);
+      if (targetSession) {
+        targetSession.messages.push({ role: 'user', content: query, timestamp: Date.now() });
+        targetSession.messages.push({ role: 'assistant', content: localReply, timestamp: Date.now() });
+        targetSession.lastActive = Date.now();
+      }
+      saveSettingsToStorage(appState.settings);
+      addDailyUsage(estimateTokens(query) + estimateTokens(localReply));
+      renderSessionsList();
+      renderSidebarMetrics();
+      renderUsageChip();
+      isSending = false;
+      updateSendButtonState();
+      input.focus();
+      return;
+    }
     streamResponse(query, chatOutput, {
       sessionId: lockedSessionId,
       onFinish: () => {

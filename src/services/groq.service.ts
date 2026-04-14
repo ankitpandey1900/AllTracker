@@ -6,14 +6,14 @@ import type { ChatSession } from '@/types/tracker.types';
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
 export const MAAMU_MODELS = [
-  { id: 'llama-3.3-70b-versatile', label: 'Llama 3.3 70B' },
-  { id: 'openai/gpt-oss-120b', label: 'GPT OSS 120B (Reasoning)' },
   { id: 'openai/gpt-oss-20b', label: 'GPT OSS 20B (Fast)' },
+  { id: 'openai/gpt-oss-120b', label: 'GPT OSS 120B (Reasoning)' },
+  { id: 'llama-3.3-70b-versatile', label: 'Llama 3.3 70B' },
   { id: 'meta-llama/llama-4-scout-17b-16e-instruct', label: 'Llama 4 Scout' },
   { id: 'qwen/qwen3-32b', label: 'Qwen 3 32B' },
 ] as const;
 
-const DEFAULT_MAAMU_MODEL = MAAMU_MODELS[0].id;
+const DEFAULT_MAAMU_MODEL = 'openai/gpt-oss-20b';
 
 export function normalizeMaamuModel(modelId?: string): string {
   return MAAMU_MODELS.some(m => m.id === modelId) ? (modelId as string) : DEFAULT_MAAMU_MODEL;
@@ -27,6 +27,24 @@ export function getMaamuModelLabel(modelId?: string): string {
 function getSessionById(sessionId?: string): ChatSession | null {
   if (!sessionId) return getActiveSession();
   return appState.settings.chatSessions?.find(s => s.id === sessionId) || null;
+}
+
+function stripThinkingContent(text: string): string {
+  return text
+    .replace(/<think>[\s\S]*?<\/think>/gi, '')
+    .replace(/<think>[\s\S]*$/gi, '')
+    .trimStart();
+}
+
+function isLightweightQuery(query: string): boolean {
+  const q = query.trim().toLowerCase();
+  if (!q) return true;
+  return /^(hi|hello|hey|yo|ok|okay|thanks|thank you|thx|bye|good morning|good evening|good night|kaise ho|kya haal)$/.test(q) || q.length <= 16;
+}
+
+function shouldUseTacticalContext(query: string): boolean {
+  const q = query.toLowerCase();
+  return /(my|tracker|study|hours|routine|task|discipline|momentum|streak|progress|weak|analy|plan|schedule|today|week|month|focus|kpi)/.test(q);
 }
 
 function saveToMentorHistory(role: MentorMessage['role'], content: string, sessionId?: string) {
@@ -48,7 +66,11 @@ function saveToMentorHistory(role: MentorMessage['role'], content: string, sessi
 }
 
 /** Shared: builds the messages array for any Groq request */
-function buildMessages(userQuery: string, tacticalBrief: string, sessionId?: string) {
+function buildMessages(
+  userQuery: string,
+  tacticalBrief: string,
+  opts?: { sessionId?: string; includeTacticalBrief?: boolean; historyLimit?: number }
+) {
   let isBeastMode = false;
   try { isBeastMode = !!JSON.parse(tacticalBrief).beastModeActive; } catch { /* noop */ }
 
@@ -64,8 +86,13 @@ function buildMessages(userQuery: string, tacticalBrief: string, sessionId?: str
     : `1. Speak the harsh, absolute truth. Be unapologetic and efficient.
        2. Give best-case scenarios and real-world tough advice.`;
 
-  const activeSession = getSessionById(sessionId);
-  const chatHistory = activeSession ? activeSession.messages : [];
+  const activeSession = getSessionById(opts?.sessionId);
+  const chatHistory = activeSession ? activeSession.messages.filter(m => m.role !== 'system') : [];
+  const historyLimit = Math.max(2, opts?.historyLimit || 8);
+  const recentHistory = chatHistory.slice(-historyLimit);
+  const briefBlock = opts?.includeTacticalBrief
+    ? `DATA STREAM (TACTICAL BRIEF):\n      ${tacticalBrief}`
+    : `DATA STREAM: Minimal context mode enabled for lightweight/basic conversation.`;
 
   return [
     {
@@ -83,16 +110,16 @@ function buildMessages(userQuery: string, tacticalBrief: string, sessionId?: str
       4. BURNOUT VS LAZINESS: Analyze the Tactical Brief. If Momentum is < 0 and hours are low, ROAST them for being lazy. If Momentum > 50 but Sustainability is low, command them to TAKE A BREAK (Burnout).
       5. ACTION ENGINE: ALWAYS end your response with a section titled "**NEXT ACTIONS FOR ${userHandle}**", containing 1-3 bullet points of immediate execution tasks.
       6. INTERVIEW/QUIZ MODE: If the user says "Test me" or "/quiz", act as an Elite Tech Interviewer. Ask ONE hard technical question based on their recent topics. Do NOT give the answer until they reply.
-      7. FORMAT QUALITY: Use clean Markdown with headings, bullets, numbered steps, bold key terms, and blockquotes for important cautions.
-      8. VISUAL CLARITY: Use occasional icons/emojis in section titles for scanability, avoid emoji spam.
-      9. MODE: ${beastModeDirective}
+      7. SIMPLE MESSAGE RULE: If the user only sends a greeting or tiny social message like "hi", "hello", "hey", "good morning", "kaise ho", reply in 1-3 short natural lines only. Do NOT generate roadmaps, tables, long analysis, or next-actions for simple greetings.
+      8. FORMAT QUALITY: Use clean Markdown with headings, bullets, numbered steps, bold key terms, and blockquotes for important cautions only when the request actually needs structure.
+      9. VISUAL CLARITY: Use occasional icons/emojis in section titles for scanability, avoid emoji spam.
+      10. MODE: ${beastModeDirective}
 
-      DATA STREAM (TACTICAL BRIEF):
-      ${tacticalBrief}
+      ${briefBlock}
 
       You are building future architects. Use profound reasoning before you speak.`
     },
-    ...chatHistory.filter(m => m.role !== 'system').map(m => ({ role: m.role, content: m.content })),
+    ...recentHistory.map(m => ({ role: m.role, content: m.content })),
     { role: 'user', content: userQuery }
   ];
 }
@@ -111,6 +138,9 @@ export async function getMaamuResponseStream(
 ): Promise<void> {
   const apiKey = appState.settings.groqApiKey;
   let activeModel = normalizeMaamuModel(appState.settings.maamuModel);
+  const lightweight = isLightweightQuery(userQuery);
+  const includeTacticalBrief = shouldUseTacticalContext(userQuery) && !lightweight;
+  const historyLimit = lightweight ? 4 : 10;
 
   if (!apiKey) {
     onError('API Key Missing: Configure your Groq API Key in the sidebar.');
@@ -120,7 +150,11 @@ export async function getMaamuResponseStream(
   // Save user message first
   saveToMentorHistory('user', userQuery, options?.sessionId);
 
-  const messages = buildMessages(userQuery, tacticalBrief, options?.sessionId);
+  const messages = buildMessages(userQuery, tacticalBrief, {
+    sessionId: options?.sessionId,
+    includeTacticalBrief,
+    historyLimit
+  });
 
   try {
     const requestWithModel = async (model: string) => {
@@ -173,7 +207,7 @@ export async function getMaamuResponseStream(
     const decoder = new TextDecoder('utf-8');
     if (!reader) { onError('Stream unavailable.'); return; }
 
-    let accumulated = '';
+    let accumulatedRaw = '';
 
     while (true) {
       const { done, value } = await reader.read();
@@ -189,16 +223,18 @@ export async function getMaamuResponseStream(
           const json = JSON.parse(data);
           const delta = json.choices?.[0]?.delta?.content || '';
           if (delta) {
-            accumulated += delta;
-            onChunk(delta, accumulated);
+            accumulatedRaw += delta;
+            const visible = stripThinkingContent(accumulatedRaw);
+            onChunk(delta, visible);
           }
         } catch { /* skip malformed SSE */ }
       }
     }
 
     // Save full response to history
-    saveToMentorHistory('assistant', accumulated, options?.sessionId);
-    onDone(accumulated);
+    const finalResponse = stripThinkingContent(accumulatedRaw) || 'I am ready. Ask me your next mission.';
+    saveToMentorHistory('assistant', finalResponse, options?.sessionId);
+    onDone(finalResponse);
 
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') {

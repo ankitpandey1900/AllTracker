@@ -105,6 +105,9 @@ export const intelligenceView = `
         <span class="session-list-title">Conversations</span>
         <span class="session-count" id="maamuSessionCount">0</span>
       </div>
+      <div style="padding: 8px 12px 6px;">
+        <input id="maamuSessionSearch" class="api-key-input" style="margin:0; height:30px;" placeholder="Search chats..." />
+      </div>
 
       <div class="maamu-session-list" id="maamuSessionList"></div>
       <div class="maamu-sidebar-footer" id="maamuSidebarFooter"></div>
@@ -165,6 +168,12 @@ export const intelligenceView = `
       <div class="maamu-messages" id="maamuChatOutput"></div>
 
       <div class="maamu-input-zone">
+        <div class="maamu-template-row">
+          <button class="maamu-template-btn" data-template="Debug this code with root-cause and fix steps">Debug Code</button>
+          <button class="maamu-template-btn" data-template="Take my interview now with one hard question at a time">Interview Me</button>
+          <button class="maamu-template-btn" data-template="Build my weekly study plan from my current data">Weekly Plan</button>
+          <button class="maamu-template-btn" data-template="Explain this concept in simple steps with examples">Explain Simply</button>
+        </div>
         <div class="maamu-input-box">
           <div class="user-avatar-chip" id="maamuUserAvatarChip">👤</div>
           <textarea id="maamuQueryInput" class="maamu-textarea"
@@ -178,8 +187,12 @@ export const intelligenceView = `
         </div>
         <div class="maamu-status-chips">
           <span class="status-chip data-chip">📊 30-day data</span>
+          <span class="status-chip model-chip" id="maamuUsageChip">🧮 Today: 0 tok</span>
           <span class="status-chip beast-chip" id="beastChipStatus" style="display:none">🔥 Beast Mode</span>
           <span class="status-chip profile-chip" id="maamuProfileChip">👤 You</span>
+          <select id="maamuSessionSelectBottom" class="maamu-model-inline-select" title="Past chats"></select>
+          <button id="maamuDeleteSessionBtn" class="maamu-session-delete-inline-btn" title="Delete selected chat">Delete Chat</button>
+          <button id="maamuExportMdBtn" class="maamu-session-delete-inline-btn" title="Export active chat as markdown">Export .md</button>
           <select id="maamuModelSelectBottom" class="maamu-model-inline-select" title="Select model"></select>
         </div>
       </div>

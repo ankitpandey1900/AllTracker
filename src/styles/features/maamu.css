@@ -235,6 +235,21 @@
   color: #ef4444;
 }
 
+.session-pin-btn {
+  opacity: 0.8;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  padding: 2px 4px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.72rem;
+}
+
+.session-pin-btn.active {
+  color: #fbbf24;
+}
+
 .no-sessions {
   display: flex;
   flex-direction: column;
@@ -303,6 +318,50 @@
   width: 32px;
   text-align: right;
   flex-shrink: 0;
+}
+
+.maamu-footer-history {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 170px;
+  overflow-y: auto;
+}
+
+.maamu-footer-session {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  background: rgba(255, 255, 255, 0.02);
+  cursor: pointer;
+}
+
+.maamu-footer-session.active {
+  border-color: rgba(99, 102, 241, 0.35);
+  background: rgba(99, 102, 241, 0.12);
+}
+
+.mfs-title {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mfs-delete {
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.15);
+  color: #fda4af;
+  cursor: pointer;
+  line-height: 1;
 }
 
 .sidebar-api-section {
@@ -828,6 +887,23 @@
   border-color: rgba(129, 140, 248, 0.5);
 }
 
+.maamu-session-delete-inline-btn {
+  height: 26px;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 16px;
+  color: #fda4af;
+  font-size: 0.66rem;
+  font-weight: 700;
+  padding: 0 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.maamu-session-delete-inline-btn:hover {
+  background: rgba(239, 68, 68, 0.18);
+}
+
 /* ── Message Actions ─────────────────────── */
 .msg-actions {
   display: flex;
@@ -1203,6 +1279,28 @@
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   background: rgba(4, 7, 15, 0.6);
   flex-shrink: 0;
+}
+
+.maamu-template-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.maamu-template-btn {
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  background: rgba(99, 102, 241, 0.08);
+  color: #c7d2fe;
+  border-radius: 12px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.maamu-template-btn:hover {
+  background: rgba(99, 102, 241, 0.16);
 }
 
 .maamu-input-box {

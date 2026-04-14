@@ -25,7 +25,7 @@ function createDefaultSettings(): Settings {
     unlockedBadges: [],
     sessionLogs: [],
     groqApiKey: '',
-    maamuModel: 'llama-3.3-70b-versatile',
+    maamuModel: 'openai/gpt-oss-20b',
     theme: 'default',
   };
 }
