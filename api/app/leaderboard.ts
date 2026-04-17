@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { fetchLeaderboard } from "../../server/data/discovery-repo";
-import { handleRouteError, sendJson, sendMethodNotAllowed } from "../../server/http/response";
+import { fetchLeaderboard } from "../_lib/data/discovery-repo";
+import { handleRouteError, sendJson, sendMethodNotAllowed } from "../_lib/http/response";
 
 export default async function handler(
   req: IncomingMessage,

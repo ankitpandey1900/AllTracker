@@ -1,8 +1,8 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { getAuth } from "../../server/auth";
-import { ensureProfileForUser, isUsernameTaken } from "../../server/data/profile-repo";
-import { headersFromNode } from "../../server/http/request";
-import { handleRouteError, sendJson, sendMethodNotAllowed } from "../../server/http/response";
+import { getAuth } from "../_lib/auth";
+import { ensureProfileForUser, isUsernameTaken } from "../_lib/data/profile-repo";
+import { headersFromNode } from "../_lib/http/request";
+import { handleRouteError, sendJson, sendMethodNotAllowed } from "../_lib/http/response";
 
 export default async function handler(
   req: IncomingMessage & { query?: Record<string, string | string[]> },

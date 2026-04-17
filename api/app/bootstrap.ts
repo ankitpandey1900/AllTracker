@@ -1,9 +1,9 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { getAuth } from "../../server/auth";
-import { readVault } from "../../server/data/vault-repo";
-import { ensureProfileForUser } from "../../server/data/profile-repo";
-import { headersFromNode } from "../../server/http/request";
-import { handleRouteError, sendJson, sendMethodNotAllowed } from "../../server/http/response";
+import { getAuth } from "../_lib/auth";
+import { readVault } from "../_lib/data/vault-repo";
+import { ensureProfileForUser } from "../_lib/data/profile-repo";
+import { headersFromNode } from "../_lib/http/request";
+import { handleRouteError, sendJson, sendMethodNotAllowed } from "../_lib/http/response";
 
 export default async function handler(
   req: IncomingMessage,

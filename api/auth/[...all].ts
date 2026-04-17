@@ -1,6 +1,6 @@
 import { toNodeHandler } from "better-auth/node";
-import { getAuth } from "../../server/auth";
-import { handleRouteError } from "../../server/http/response";
+import { getAuth } from "../_lib/auth";
+import { handleRouteError } from "../_lib/http/response";
 
 export const config = {
   api: {

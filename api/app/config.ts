@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { getEnvironmentSnapshot } from "../../server/config/env";
-import { handleRouteError, sendJson, sendMethodNotAllowed } from "../../server/http/response";
+import { getEnvironmentSnapshot } from "../_lib/config/env";
+import { handleRouteError, sendJson, sendMethodNotAllowed } from "../_lib/http/response";
 
 export default async function handler(
   req: IncomingMessage,
