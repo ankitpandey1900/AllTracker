@@ -1,4 +1,10 @@
 {
+  "rewrites": [
+    {
+      "source": "/api/auth/(.*)",
+      "destination": "/api/auth/[...auth]"
+    }
+  ],
   "redirects": [
     {
       "source": "/(.*)",

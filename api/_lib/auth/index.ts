@@ -14,16 +14,11 @@ export function getAuth() {
     new Set([env.betterAuthUrl, ...env.trustedOrigins]),
   );
 
-  // Robust baseURL calculation
-  let authBaseURL = env.betterAuthUrl;
-  if (!authBaseURL.includes("/api/auth")) {
-    authBaseURL = `${authBaseURL.replace(/\/$/, "")}/api/auth`;
-  }
-
   const instance = betterAuth({
     appName: "All Tracker",
     secret: env.betterAuthSecret,
-    baseURL: authBaseURL,
+    baseURL: env.betterAuthUrl,
+    basePath: "/api/auth",
     trustedOrigins,
     database: getPool(),
     socialProviders: {
