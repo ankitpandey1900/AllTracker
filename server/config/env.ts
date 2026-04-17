@@ -30,16 +30,20 @@ export function getEnvironmentSnapshot() {
   const githubClientId = readEnv("GITHUB_CLIENT_ID");
   const githubClientSecret = readEnv("GITHUB_CLIENT_SECRET");
 
+  const requiredAuthKeys = [
+    "DATABASE_URL",
+    "BETTER_AUTH_SECRET",
+    "BETTER_AUTH_URL",
+    "GOOGLE_CLIENT_ID",
+    "GOOGLE_CLIENT_SECRET",
+    "GITHUB_CLIENT_ID",
+    "GITHUB_CLIENT_SECRET",
+  ];
+
+  const missing = requiredAuthKeys.filter((key) => !readEnv(key));
+
   const dbConfigured = hasEvery([databaseUrl]);
-  const authConfigured = hasEvery([
-    databaseUrl,
-    betterAuthSecret,
-    betterAuthUrl,
-    googleClientId,
-    googleClientSecret,
-    githubClientId,
-    githubClientSecret,
-  ]);
+  const authConfigured = missing.length === 0;
 
   return {
     databaseUrl,
@@ -52,6 +56,7 @@ export function getEnvironmentSnapshot() {
     trustedOrigins: getTrustedOrigins(),
     dbConfigured,
     authConfigured,
+    missing,
   };
 }
 
