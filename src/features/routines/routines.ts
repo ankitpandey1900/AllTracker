@@ -102,7 +102,7 @@ function renderHabitPulse(): void {
 function handleRoutineAction(e: Event): void {
   const target = e.currentTarget as HTMLElement;
   const action = target.getAttribute('data-action');
-  const id = parseInt(target.getAttribute('data-id') || '0');
+  const id = target.getAttribute('data-id') || '';
 
   switch (action) {
     case 'toggle': toggleRoutine(id); break;
@@ -111,7 +111,7 @@ function handleRoutineAction(e: Event): void {
   }
 }
 
-function toggleRoutine(id: number): void {
+function toggleRoutine(id: string): void {
   const item = appState.routines.find((r) => r.id === id);
   if (!item) return;
 
@@ -154,7 +154,7 @@ function toggleRoutine(id: number): void {
   showToast(item.completed ? 'Routine item completed!' : 'Item marked incomplete');
 }
 
-function editRoutine(id: number): void {
+function editRoutine(id: string): void {
   const item = appState.routines.find((r) => r.id === id);
   if (!item) return;
 
@@ -183,7 +183,7 @@ function editRoutine(id: number): void {
   modal?.classList.add('active');
 }
 
-function deleteRoutine(id: number): void {
+function deleteRoutine(id: string): void {
   if (confirm('Delete this routine item?')) {
     appState.routines = appState.routines.filter((r) => r.id !== id);
     saveRoutinesToStorage(appState.routines);
@@ -249,7 +249,7 @@ export function setupRoutineListeners(): void {
 
       const editId = modal?.dataset.editId;
       if (editId) {
-        const item = appState.routines.find((r) => r.id === parseInt(editId));
+        const item = appState.routines.find((r) => r.id === editId);
         if (item) {
           item.title = title;
           item.time = time;
@@ -258,7 +258,7 @@ export function setupRoutineListeners(): void {
         }
       } else {
         appState.routines.push({ 
-          id: Date.now(), 
+          id: crypto.randomUUID(), 
           title, 
           time, 
           note, 

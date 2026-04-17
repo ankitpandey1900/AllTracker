@@ -94,7 +94,7 @@ function exportBookmarksCSV(): void {
 function exportSettingsJSON(): void {
   const timestamp = generateExportTimestamp();
   const metadata = {
-    exportDate: new Date().toISOString(), appVersion: '2.0',
+    exportDate: new Date().toISOString(), appVersion: '3.0.0',
     settings: appState.settings, totalDays: appState.totalDays,
     dataStats: { trackerEntries: appState.trackerData.length, sessionLogs: (appState.settings.sessionLogs || []).length, routines: appState.routines.length, bookmarks: appState.bookmarks.length, unlockedBadges: appState.settings.unlockedBadges.length },
   };

@@ -1,17 +1,14 @@
 import { getSecureLocalProfileString, setSecureLocalProfileString } from '@/utils/security';
 import { appState } from '@/state/app-state';
-import { STORAGE_KEYS, SUPABASE_TABLES } from '@/config/constants';
 import { 
   broadcastGlobalStats, 
   isUsernameTaken, 
-  isEmailTaken, 
-  isPhoneTaken,
   loadUserProfileCloud 
-} from '@/services/supabase.service';
+} from '@/services/vault.service';
 import { getCurrentUserId } from '@/services/auth.service';
-import { initiateIdentityMigration } from '@/services/identity.service';
 import { showToast } from '@/utils/dom.utils';
 import { log } from '@/utils/logger.utils';
+import { apiRequest } from '@/services/api.service';
 import type { UserProfile } from '@/types/profile.types';
 import { calculateTodayStudyHours, calculateTotalStudyHours, calculateStreak, calculateBestStreak } from '@/utils/calc.utils';
 
@@ -150,41 +147,46 @@ export async function saveProfileData(data: UserProfile): Promise<boolean> {
   if (!syncId) return false;
 
   try {
-    // 1. Verify Uniqueness (Real-time Intel Check)
     const taken = await isUsernameTaken(data.displayName, syncId);
     if (taken) {
       alert(`IDENTITY CONFLICT: The handle "@${data.displayName}" is already claimed.`);
       return false;
     }
 
-    const emailTaken = await isEmailTaken(data.email, syncId);
-    if (emailTaken) {
-      alert("IDENTITY CONFLICT: This Email is already linked to another Vault.");
-      return false;
-    }
+    const updatedProfile = await apiRequest<any>('/api/app/profile', {
+      method: 'PATCH',
+      body: {
+        username: data.displayName,
+        fullName: data.realName || '',
+        nation: data.nation,
+        avatar: data.avatar || '👤',
+        metadata: {
+          dob: data.dob || '',
+          phoneNumber: data.phoneNumber || '',
+          isPublic: data.isPublic !== false,
+          isFocusPublic: data.isFocusPublic !== false,
+        }
+      }
+    });
 
-    const phoneTaken = await isPhoneTaken(data.phoneNumber || '', syncId);
-    if (phoneTaken) {
-      alert("IDENTITY CONFLICT: This Mobile Number is already registered.");
-      return false;
-    }
+    const localProfile: UserProfile = {
+      ...data,
+      displayName: updatedProfile.username || data.displayName,
+      realName: updatedProfile.fullName || data.realName,
+      nation: updatedProfile.nation || data.nation,
+      avatar: updatedProfile.avatar || data.avatar,
+      dob: updatedProfile.metadata?.dob || data.dob,
+      phoneNumber: updatedProfile.metadata?.phoneNumber || data.phoneNumber,
+      isPublic: updatedProfile.metadata?.isPublic !== false,
+      isFocusPublic: updatedProfile.metadata?.isFocusPublic !== false,
+      email: updatedProfile.email || data.email,
+    };
 
-    // 2. Save locally
-    setSecureLocalProfileString(JSON.stringify(data));
-    localStorage.setItem('tracker_username', data.displayName);
+    setSecureLocalProfileString(JSON.stringify(localProfile));
+    localStorage.setItem('tracker_username', localProfile.displayName);
 
-    // 3. Sync to Global Stage
-    console.log("📡 INITIATING GLOBAL BROADCAST...");
     await syncProfileBroadcast();
-    console.log("✅ GLOBAL BROADCAST COMPLETE: Identity re-established in cloud.");
-    
-    // 🛡️ IDENTITY GUARD: Verify completeness after save
-    if (!isProfileIncomplete(data)) {
-       console.log("🏅 MISSION PROFILE COMPLETE: Identity fully registered.");
-    }
-    
     return true;
-
   } catch (error: any) {
     console.error("Identity Persistence Error:", error);
     throw error;
@@ -209,7 +211,6 @@ export function isProfileIncomplete(profile: UserProfile): boolean {
  * Triggers the interactive mission alert if the operative identity is fragmented.
  */
 export function checkAndNotifyIncompleteProfile(profile: UserProfile): void {
-
   if (isProfileIncomplete(profile)) {
     showToast(
       '⚠️ IDENTITY INCOMPLETE: Please finalize your Mission Profile to join the World Stage.', 
@@ -223,7 +224,6 @@ export function checkAndNotifyIncompleteProfile(profile: UserProfile): void {
   }
 }
 
-
 /** Moves all your study data to a new Secret Key */
 export async function handleIdentityMigration(currentKey: string, newKey: string): Promise<void> {
   const actualId = getCurrentUserId();
@@ -232,12 +232,7 @@ export async function handleIdentityMigration(currentKey: string, newKey: string
     return;
   }
 
-  if (confirm("🚨 WARNING: This will MOVE all your study data to the new Secret Key. Your old key will no longer work. Proceed?")) {
-    const success = await initiateIdentityMigration(newKey);
-    if (success) {
-      alert("Mission Successful: Identity Migrated. All Tracker will now reload.");
-    }
-  }
+  alert("Identity key migration is no longer available. Better Auth now manages account identity through your OAuth provider.");
 }
 
 // Stats aggregation managed by calc.utils.ts

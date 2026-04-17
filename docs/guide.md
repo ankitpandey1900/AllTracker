@@ -5,23 +5,21 @@ If you're reading this, you've been recruited into **All Tracker**. This isn't j
 ---
 
 ## 🏮 Identity System (The Mission Profile)
-Your identity is your legacy. Unlike legacy trackers, All Tracker uses a **clinical registration flow** to anchor your performance.
+Your identity is your legacy. All Tracker uses a **high-security authentication flow** to anchor your performance.
 
-1.  **Mission Profile**: During registration, you must provide your **Real Name**, a unique **Pilot Handle**, and secure contact info (Email/Phone). 
-2.  **Identity Lockdown**: To ensure leaderboard integrity, your Real Name, Handle, Email, and Nation are **permanently locked** post-registration.
-3.  **Tactical Avatars**: Choose from **36+ unique, trending avatars** (Sports, Space, Marvel/DC, and more). This is the only visual field you can change after initialization.
-4.  **Vault Key**: Your password (minimum 6 characters) is the master key to your encrypted data vault.
-5.  **Recovery Key**: A one-time security code (e.g., `N7X-XXXX-XXXX`) is generated at registration. **Save this immediately.** It is the only way to recover your vault if you lose your password.
+1.  **OAuth Registration**: You can enter the Arena using your **Google** or **GitHub** account. This ensures your identity is verified and your data is linked securely to your professional profile.
+2.  **Mission Profile**: Upon first entry, you will establish your **Real Name**, a unique **Pilot Handle**, and your **Nation**.
+3.  **Identity Lockdown**: To ensure leaderboard integrity, your Real Name, Handle, and Nation are **permanently locked** once set. Choose your callsign carefully.
+4.  **Tactical Avatars**: Choose from **36+ unique avatars**. This is the only visual field you can change after registration to maintain your operational look.
 
 ## 🎖️ World Stage & Global Ranking
-The World Stage is a **live, real-time leaderboard** powered by WebSockets. No refresh is required to see rank jumps.
+The World Stage is a **live, real-time leaderboard**. No refresh is required to see rank jumps.
 
 -   **Leveling Engine**: Earn **1 Level for every 10 Study Hours**. You start as a **Level 1 Recruit**. 
 -   **Clinical Telemetry HUD**: The leaderboard features a real-time status matrix:
-    -   **Total Members**: Global pilot count.
-    -   **Focusing Now**: LIVE count of pilots currently in a focus session.
-    -   **Study Hours Today**: Aggregate platform output for the current day.
-    -   **Platform Total Hours**: Cumulative career focus logged across all operatives.
+    -   **GLOBAL_OPERATIVES**: Total registered pilots.
+    -   **LIVE_MISSIONS**: Pilots currently in a focus session.
+    -   **XP_VELOCITY_24H**: Aggregate platform output today.
 -   **Dynamic Titles**: Your title evolves as you conquer more hours:
     -   **0 - 10h**: 🛡️ RECRUIT
     -   **10 - 30h**: 🚀 CADET
@@ -32,52 +30,22 @@ The World Stage is a **live, real-time leaderboard** powered by WebSockets. No r
     -   **600 - 1200h**: 🥇 VETERAN
     -   **1200 - 2500h**: 💠 ELITE
     -   **2500 - 5000h**: 👑 LEGEND
-    -   **5000h+**: ✨ ETERNAL / DEITY / SINGULARITY
+    -   **5000h+**: ✨ ETERNAL / SINGULARITY
 
-## 🛡️ Cloud Dominance (The Vault)
-All Tracker is **Cloud-Dominant**. Supabase is the absolute source of truth.
+## 🛡️ The Vault (Data Integrity)
+All Tracker is **Local-First, Cloud-Synced**. 
 
--   **Granular Vaults**: Instead of one large file, your data is split into dedicated service vaults (`vault_tracker`, `vault_tasks`, `vault_settings`, etc.) for maximum reliability and speed.
--   **Zero-Latency Restoration**: If you clear your browser cache or switch devices, simply log in with your Handle + Vault Key. Your entire state is recovered from the cloud in milliseconds.
--   **Iron-Gate Integrity**: A background engine monitors data consistency. If local data conflicts with the vault, the cloud signature always wins.
-
-## 🛰️ Tactical Telemetry & HUD
-The World Stage and your Pilot Passport use high-fidelity telemetry to track global and personal performance.
-
-### Global Command Center (Leaderboard HUD)
-- **GLOBAL_OPERATIVES**: Total number of registered pilots in the All Tracker ecosystem.
-- **LIVE_MISSIONS**: Number of pilots currently synchronized and active in a focus session.
-- **XP_VELOCITY_24H**: The total aggregate focus hours logged by all pilots in the last 24 hours.
-- **AGGREGATE_INTEL**: The total lifetime focus hours recorded across the entire platform.
-
-### Personal Pilot Passport
-- **LIFETIME_EXP**: Your total career focus hours across all missions.
-- **SESSION_LOG**: Your total focus hours for the current calendar day (resets at midnight).
-- **BEST_STREAK**: Your all-time record for consecutive mission days.
-- **MISSION_STATUS**: Your real-time uplink status (IDLE, FOCUSING, or REFUELING).
-
-### Sustainability Engine (Burnout Prevention)
-The Solidarity Engine is your mission-critical wellness protocol. It analyzes your 14-day study frequency to determine if your pace is sustainable.
-- **OPTIMAL**: Healthy consistency with adequate rest.
-- **CAUTION**: Fatigue risk detected; consecutive high-output days without rest.
-- **CRITICAL**: Immediate 24h rest recommended to prevent cognitive burnout.
-- **Trend Indicators**: Look for the arrows (**↑ / ↓**) on your dashboard. They show your 7-day velocity/wellness trend at a glance.
+-   **Differential Sync**: Your app renders instantly from local storage while a background engine mirrors your data to the secure Vercel-hosted vault.
+-   **Multi-Device Protocol**: Log in from any device using your OAuth account, and your entire mission history will hydrate in seconds.
 
 ## 🌒 Midnight Mission Protocol
 Never lose a minute to the clock. If you start a session at 11:45 PM and finish at 12:15 AM:
 -   The system **mathematically splits** your time.
 -   15 minutes go to "Yesterday" and 15 minutes go to "Today."
--   Your **Notes** are copied to both days automatically, ensuring 100% data integrity.
+-   Your **Notes** are copied to both days automatically.
 
 ## 🤝 Maamu AI Strategy
-If you're stuck or losing focus, consult the **Maamu AI**. Maamu is your personal strategy coach, built to provide tactical analysis on your routines and provide "Beast Mode" motivation when you need it most.
-
-## 🌌 Environmental Protocols (The Horizon Chassis)
-All Tracker is built on the **Mythic Horizon** atmospheric engine, designed for mission-critical focus immersion.
-
-- **The Frozen Summit (Himavat)**: A sub-zero high-altitude mission chassis featuring dual-parallax terrain silhouettes and a triple-layer snowfall protocol (including Bokeh diffraction).
-- **The Power Arena (Vajra Shakti)**: A localized combat arena tuned for rapid scoreboard performance with synchronized snowfall and interaction-based environment glows.
-- **Clear-Sky HUD Architecture**: All interfaces use industrial-grade transparency indices as low as 5%, ensured by heavy `backdrop-filter` blurs to maintain primary data legibility through the atmosphere.
+If you're stuck or losing focus, consult the **Maamu AI Strategist**. Maamu analyzes your real-world progress and provides tactical briefings or "Beast Mode" motivation when you need it most.
 
 ---
 

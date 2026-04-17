@@ -13,42 +13,34 @@
 ---
 
 ## 🚀 The Vision
-All Tracker is a revolutionary, gamified productivity command center. Designed for those who "grind" in silent hours, it transforms boring habit tracking into a high-stakes **World Stage**. With a "Neon Space" aesthetic and deep-focus analytics, it’s built to keep you obsessed with your own progress.
+All Tracker is a revolutionary, gamified productivity command center. Designed for those who "grind" in silent hours, it transforms habit tracking into a high-stakes **World Stage**. With a high-fidelity "Neon Space" aesthetic and deep-focus analytics, it’s built to keep you obsessed with your own progress.
 
 ---
 
 ## 🔥 Core Features
 
-### 🪪 Social Identity Profile (v3)
-A professional, social-media-style identity card that prioritizes personal branding and study credibility. Features a luminous **Activity Beacon** (Status Dot), career stats row, and a streamlined personal identity dossier.
+### 🪪 Universal OAuth Identity
+Professional, secure registration via **Google** or **GitHub**. No more manual passwords or complex recovery keys—your mission history is anchored to your professional identity.
+
+### 🛡️ Secure Sync ID Logic
+Identity locking ensures your **Handle** and **Real Name** are permanent, maintaining the integrity of the World Stage Global Rankings.
 
 ### 🤖 Maamu AI Strategist
-Your personal AI mentor who analyzes your study data and provides mission briefings. Features a **Beast Mode** toggle for those who need a "No Mercy" coaching style.
-
-### 🛡️ Privacy-First Architecture
-- **Identity Lock & Vault Key**: A secure registration flow (Real Name, Email, Phone) anchors your identity. A private **Vault Key** (password) and **Recovery Key** manage access.
-- **Granular Cloud Vaults**: Feature-specific data is stored in dedicated Supabase tables (`vault_tracker`, `vault_tasks`, etc.) for maximum isolation and reliability.
-- **Zero-Knowledge Sync**: Sensitive credentials are never exposed in browser logs or network payloads, masked behind XOR + Base64 security layers.
+A data-aware AI mentor who analyzes your mission history to provide tactical coaching. Includes a **Beast Mode** toggle for high-intensity motivation.
 
 ### ⚡ Performance Architecture
-- **Real-time World Stage**: Rankings update live via WebSockets (Supabase Broadcast) with industrial-grade 1.2s debouncing to prevent UI stutter during heavy global activity.
-- **Local-First Speed**: The UI renders instantly from `localStorage` while a background **Differential Sync** silently updates cloud data without blocking the user.
-- **Concurrent Hydration**: Granular service modules (Settings, Tracker, Routines) load in parallel using `Promise.all` for a faster "Time to Interactive".
-- **GPU-Isolated Atmos**: High-fidelity environments maintain a locked 60FPS using `will-change` transform isolation and layer-exclusive compositing.
-
-### 🌌 Atmospheric Command Protocols (Horizon Engine)
-- **Cinematic Depth**: Themes like **Himavat** now feature dual-parallax terrain silhouettes and Arctic Aurora pulses for mission-critical focus immersion.
-- **Clear-Sky Geometry**: Implementation of sub-zero transparency indices (down to 5%), maintained via high-fidelity `backdrop-filter` blurs for maximum data legibility.
-- **Atmos-Drift engine**: A multi-layered, GPU-isolated snowfall protocol (including foreground Bokeh diffraction) that maintains a locked 60FPS on all mission hardware.
+- **API-Driven Vaulting**: All data is secured via a Vercel-hosted backend. No direct database exposure on the client.
+- **Local-First Speed**: Instant UI hydration from `localStorage`, with the **Data Bridge** orchestrating seamless background cloud synchronization.
+- **Monolithic Vanilla TS**: Built from scratch with pure TypeScript for zero-overhead, sub-millisecond interaction latency.
 
 ---
 
 ## 🛠️ Technical Stack
-Built with a "First Principles" approach to performance and design:
-- **Engine**: [Vite](https://vitejs.dev/) + [TypeScript](https://www.typescriptlang.org/) (Monolithic Vanilla TS for zero-overhead)
-- **Database/Backend**: [Supabase](https://supabase.com/) (Real-time broadcasting & persistent storage)
-- **Styling**: Vanilla CSS (High-fidelity Glassmorphism & Semantic Variable System)
-- **Deployment**: Vercel Edge Network
+- **Frontend**: [Vite](https://vitejs.dev/) + [TypeScript](https://www.typescriptlang.org/)
+- **Authentication**: [Better Auth](https://better-auth.com/) (OAuth2)
+- **Backend**: [Vercel API Routes](https://vercel.com/) (Node.js)
+- **Database**: [Supabase](https://supabase.com/) (PostgreSQL)
+- **Styling**: Vanilla CSS (Semantic Design Tokens)
 
 ---
 
@@ -56,10 +48,10 @@ Built with a "First Principles" approach to performance and design:
 
 ### Prerequisites
 - Node.js (v18+)
-- A Supabase Project (for cloud sync)
+- A Supabase Project (PostgreSQL)
 
 ### Installation
-1. **Clone the repository**
+1. **Clone & Enter**
    ```bash
    git clone https://github.com/ankitpandey1900/AllTracker.git
    cd ALLTracker
@@ -68,7 +60,7 @@ Built with a "First Principles" approach to performance and design:
 2. **Setup Environment**
    ```bash
    cp .env.example .env
-   # Open .env and add your VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
+   # Add your DATABASE_URL, BETTER_AUTH_SECRET, and OAuth Credentials
    ```
 
 3. **Install & Launch**
@@ -81,37 +73,18 @@ Built with a "First Principles" approach to performance and design:
 
 ## 📜 Repository Guidelines
 
-### Architecture
-Detailed documentation of the system internals can be found in the [**/docs**](./docs) folder:
-- **[A Beginner's Guide](./docs/guide.md)**: Setup and core concepts.
-- **[Development Deep Dive](./docs/development.md)**: Logic and engine architecture.
-- **[System Structure](./docs/structure.md)**: Folder hierarchy and data flow.
-
-### Contributing
-We welcome architects! Open an issue first to discuss major changes, then submit a PR following the existing functional programming patterns.
+Detailed internal blueprints can be found in the [**/docs**](./docs) folder:
+- **[Pilot Manual](./docs/guide.md)**: Identity setup and core mechanics.
+- **[Development Blueprint](./docs/development.md)**: Logic, Engine, and Security SOPs.
+- **[Structural Map](./docs/structure.md)**: Repo hierarchy and structural logic.
 
 ---
 
 ## 🏆 Hall of Fame
-
-The platform is built by elite pilots who contribute their skills to push the mission forward. Each pilot has a detailed record of their contributions and social dispatch logs.
-
+Each pilot has a detailed record in the Arena.
 - **[Lead Architect: Ankit Pandey](./arena-pilots/ankit-pandey.md)**
 - **[Full Stack Developer: Saumya Jha](./arena-pilots/saumya-jha.md)**
-- **[Contribution Template](./arena-pilots/TEMPLATE.md)**: Add your record to the Arena.
 
 ---
 
-## 👤 Author
-**Ankit Pandey**
-- GitHub: [@ankitpandey1900](https://github.com/ankitpandey1900)
-- Linkedln: [linkedin.com/ankitpandey1900](https://www.linkedin.com/in/ankitpandey1900)
-
----
-
-## ⚖️ License
-Distributed under the **MIT License**. See `LICENSE` for more information.
-
----
-
-<p align="center"><strong>Let's win.</strong> 🛸🔥</p>
+<p align="center"><strong>Victory is earned in the silence of deep work.</strong> 🛸🔥</p>

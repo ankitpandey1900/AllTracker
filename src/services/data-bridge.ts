@@ -3,11 +3,11 @@ import { log } from '@/utils/logger.utils';
 /**
  * Data Bridge — Handles saving and loading data.
  * 
- * This bridges the browser storage and the cloud (Supabase).
+ * This bridges the browser storage and the cloud.
  * If you're logged in, everything saves to both places automatically.
  */
 
-import { STORAGE_KEYS, SUPABASE_TABLES } from '@/config/constants';
+import { STORAGE_KEYS } from '@/config/constants';
 import { getCurrentUserId } from '@/services/auth.service';
 import {
   saveTrackerDataCloud, loadTrackerDataCloud,
@@ -21,7 +21,7 @@ import {
   loadUserProfileCloud,
   updateSyncStatus,
   subscribeToUserDataSync,
-} from '@/services/supabase.service';
+} from '@/services/vault.service';
 import type { TrackerDay, Settings } from '@/types/tracker.types';
 import type { RoutineItem, RoutineHistory } from '@/types/routine.types';
 import type { Bookmark } from '@/types/bookmark.types';
@@ -55,6 +55,10 @@ function isCloudNewer(key: string, cloudTimestamp: string | null): boolean {
   const localTs = getLocalTimestamp(key);
   const cloudTs = new Date(cloudTimestamp).getTime();
   return cloudTs > localTs; // Offset by 1s to allow for network jitter if needed
+}
+
+function isDifferent(a: unknown, b: unknown): boolean {
+  return JSON.stringify(a) !== JSON.stringify(b);
 }
 
 // --- Tracker Data Functions ---
@@ -290,7 +294,7 @@ export async function saveBookmarksToStorage(bookmarks: Bookmark[]): Promise<voi
 // --- Timer Functions (Pure DB — localStorage-free) ---
 
 /**
- * DB-FIRST LOAD: Single source of truth is Supabase.
+ * DB-FIRST LOAD: Single source of truth is the database.
  * No localStorage fallback. If offline or not authenticated, returns null.
  */
 export async function loadTimerStateFromStorage(): Promise<ActiveTimer | null> {
@@ -315,7 +319,7 @@ export async function loadTimerStateFromStorage(): Promise<ActiveTimer | null> {
 }
 
 /**
- * DB-FIRST SAVE: Writes exclusively to Supabase.
+ * DB-FIRST SAVE: Writes exclusively to the cloud.
  * The in-memory appState.activeTimer is the working buffer between saves.
  */
 export async function saveTimerStateToStorage(state: ActiveTimer): Promise<void> {
@@ -328,7 +332,7 @@ export async function saveTimerStateToStorage(state: ActiveTimer): Promise<void>
 }
 
 /**
- * DB-FIRST CLEAR: Explicitly zeros the timer record in Supabase.
+ * DB-FIRST CLEAR: Explicitly zeros the timer record in the cloud.
  * Used by terminateTimer() to guarantee the DB is cleared before the page can refresh.
  */
 export async function clearTimerStateDB(): Promise<void> {
@@ -433,70 +437,67 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
 
     const [cloudTracker, cloudSettings, cloudRoutines, cloudHistory, cloudBookmarks, cloudTasks, cloudTimer] = results;
 
-  // 🛡️ CLOUD-DOMINANT PROTOCOL: The Cloud is the definitive source of truth.
-  // If Cloud data exists, it replaces local state unless local is significantly newer.
-  
-  const isLocalEmpty = (data: any) => {
-    if (Array.isArray(data)) return data.length === 0;
-    if (typeof data === 'object' && data !== null) return Object.keys(data).length === 0;
-    return !data;
-  };
+    const isLocalEmpty = (data: any) => {
+      if (Array.isArray(data)) return data.length === 0;
+      if (typeof data === 'object' && data !== null) return Object.keys(data).length === 0;
+      return !data;
+    };
 
-  const forceRecovery = forceCloudPull || isLocalEmpty(appState.trackerData);
+    const forceRecovery = forceCloudPull || isLocalEmpty(appState.trackerData);
 
-  if (forceRecovery) {
-    log.info('CLOUD MASTER: Forcefully restoring from Cloud archives...', '🛡️');
-  }
+    if (forceRecovery) {
+      log.info('CLOUD MASTER: Forcefully restoring from Cloud archives...', '🛡️');
+    }
 
-  // --- Tracker Data ---
-  if (cloudTracker && (forceRecovery || isCloudNewer(STORAGE_KEYS.TRACKER_DATA, cloudTracker.updatedAt))) {
-    setTrackerData(cloudTracker.data, false);
-    updateLocalTimestamp(STORAGE_KEYS.TRACKER_DATA, cloudTracker.updatedAt || undefined);
-  } else if (appState.trackerData.length > 0) {
-    saveTrackerDataCloud(appState.trackerData);
-  }
+    // --- Tracker Data ---
+    if (cloudTracker && (forceRecovery || isDifferent(appState.trackerData, cloudTracker.data) || isCloudNewer(STORAGE_KEYS.TRACKER_DATA, cloudTracker.updatedAt))) {
+      setTrackerData(cloudTracker.data, false);
+      updateLocalTimestamp(STORAGE_KEYS.TRACKER_DATA, cloudTracker.updatedAt || undefined);
+    } else if (appState.trackerData.length > 0) {
+      saveTrackerDataCloud(appState.trackerData);
+    }
 
-  // --- Settings ---
-  if (cloudSettings && (forceRecovery || isCloudNewer(STORAGE_KEYS.SETTINGS, cloudSettings.updatedAt))) {
-    setSettings(cloudSettings.data, false);
-    updateLocalTimestamp(STORAGE_KEYS.SETTINGS, cloudSettings.updatedAt || undefined);
-  } else if (Object.keys(appState.settings).length > 0) {
-    saveSettingsCloud(appState.settings);
-  }
+    // --- Settings ---
+    if (cloudSettings && (forceRecovery || isDifferent(appState.settings, cloudSettings.data) || isCloudNewer(STORAGE_KEYS.SETTINGS, cloudSettings.updatedAt))) {
+      setSettings(cloudSettings.data, false);
+      updateLocalTimestamp(STORAGE_KEYS.SETTINGS, cloudSettings.updatedAt || undefined);
+    } else if (Object.keys(appState.settings).length > 0) {
+      saveSettingsCloud(appState.settings);
+    }
 
-  // --- Routines ---
-  if (cloudRoutines && (forceRecovery || isCloudNewer(STORAGE_KEYS.ROUTINES, cloudRoutines.updatedAt))) {
-    setRoutines(cloudRoutines.data, false);
-    updateLocalTimestamp(STORAGE_KEYS.ROUTINES, cloudRoutines.updatedAt || undefined);
-  } else if (appState.routines.length > 0) {
-    saveRoutinesCloud(appState.routines);
-  }
+    // --- Routines ---
+    if (cloudRoutines && (forceRecovery || isDifferent(appState.routines, cloudRoutines.data) || isCloudNewer(STORAGE_KEYS.ROUTINES, cloudRoutines.updatedAt))) {
+      setRoutines(cloudRoutines.data, false);
+      updateLocalTimestamp(STORAGE_KEYS.ROUTINES, cloudRoutines.updatedAt || undefined);
+    } else if (appState.routines.length > 0) {
+      saveRoutinesCloud(appState.routines);
+    }
 
-  // --- History ---
-  if (cloudHistory && (forceRecovery || isCloudNewer(STORAGE_KEYS.ROUTINE_HISTORY, cloudHistory.updatedAt))) {
-    setRoutineHistory(cloudHistory.data, false);
-    updateLocalTimestamp(STORAGE_KEYS.ROUTINE_HISTORY, cloudHistory.updatedAt || undefined);
-  } else if (Object.keys(appState.routineHistory).length > 0) {
-    saveRoutineHistoryCloud(appState.routineHistory);
-  }
+    // --- History ---
+    if (cloudHistory && (forceRecovery || isDifferent(appState.routineHistory, cloudHistory.data) || isCloudNewer(STORAGE_KEYS.ROUTINE_HISTORY, cloudHistory.updatedAt))) {
+      setRoutineHistory(cloudHistory.data, false);
+      updateLocalTimestamp(STORAGE_KEYS.ROUTINE_HISTORY, cloudHistory.updatedAt || undefined);
+    } else if (Object.keys(appState.routineHistory).length > 0) {
+      saveRoutineHistoryCloud(appState.routineHistory);
+    }
 
-  // --- Bookmarks ---
-  if (cloudBookmarks && (forceRecovery || isCloudNewer(STORAGE_KEYS.BOOKMARKS, cloudBookmarks.updatedAt))) {
-    setBookmarks(cloudBookmarks.data, false);
-    updateLocalTimestamp(STORAGE_KEYS.BOOKMARKS, cloudBookmarks.updatedAt || undefined);
-  } else if (appState.bookmarks.length > 0) {
-    saveBookmarksCloud(appState.bookmarks);
-  }
+    // --- Bookmarks ---
+    if (cloudBookmarks && (forceRecovery || isDifferent(appState.bookmarks, cloudBookmarks.data) || isCloudNewer(STORAGE_KEYS.BOOKMARKS, cloudBookmarks.updatedAt))) {
+      setBookmarks(cloudBookmarks.data, false);
+      updateLocalTimestamp(STORAGE_KEYS.BOOKMARKS, cloudBookmarks.updatedAt || undefined);
+    } else if (appState.bookmarks.length > 0) {
+      saveBookmarksCloud(appState.bookmarks);
+    }
 
-  // --- Tasks ---
-  if (cloudTasks && (forceRecovery || isCloudNewer(STORAGE_KEYS.TASKS, cloudTasks.updatedAt))) {
-    setTasks(cloudTasks.data, false);
-    updateLocalTimestamp(STORAGE_KEYS.TASKS, cloudTasks.updatedAt || undefined);
-  } else if (appState.tasks.length > 0) {
-    saveTasksCloud(appState.tasks);
-  }
+    // --- Tasks ---
+    if (cloudTasks && (forceRecovery || isDifferent(appState.tasks, cloudTasks.data) || isCloudNewer(STORAGE_KEYS.TASKS, cloudTasks.updatedAt))) {
+      setTasks(cloudTasks.data, false);
+      updateLocalTimestamp(STORAGE_KEYS.TASKS, cloudTasks.updatedAt || undefined);
+    } else if (appState.tasks.length > 0) {
+      saveTasksCloud(appState.tasks);
+    }
 
-    if (cloudTimer && isCloudNewer(STORAGE_KEYS.TIMER, cloudTimer.updatedAt)) {
+    if (cloudTimer && (isDifferent(appState.activeTimer, cloudTimer.data) || isCloudNewer(STORAGE_KEYS.TIMER, cloudTimer.updatedAt))) {
       Object.assign(appState.activeTimer, cloudTimer.data);
       updateLocalTimestamp(STORAGE_KEYS.TIMER, cloudTimer.updatedAt || undefined);
     }
@@ -512,7 +513,7 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
         realName: cloudProfile.User_name || '',
         dob: cloudProfile.dob || '',
         nation: cloudProfile.nation || 'Global',
-        avatar: cloudProfile.avatar || '👨‍🚀',
+        avatar: cloudProfile.avatar || '👨',
         phoneNumber: cloudProfile.phone_number || '',
         email: cloudProfile.email || '',
         isFocusPublic: cloudProfile.is_focus_public !== false
@@ -521,8 +522,6 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
       localStorage.setItem('tracker_username', userProfile.displayName);
       log.success('IDENTITY SYNCED: Profile re-established from secure vault.');
     }
-
-    console.log('Sync complete.');
 
     // Refresh the app state and UI
     await refreshAppAfterSync();
@@ -554,47 +553,44 @@ export async function performBackgroundSync(): Promise<void> {
 
     let changed = false;
 
-    if (cloudTracker && isCloudNewer(STORAGE_KEYS.TRACKER_DATA, cloudTracker.updatedAt)) { 
+    if (cloudTracker && (isDifferent(appState.trackerData, cloudTracker.data) || isCloudNewer(STORAGE_KEYS.TRACKER_DATA, cloudTracker.updatedAt))) { 
       setTrackerData(cloudTracker.data, false); 
       updateLocalTimestamp(STORAGE_KEYS.TRACKER_DATA, cloudTracker.updatedAt || undefined);
       changed = true; 
     }
-    if (cloudSettings && isCloudNewer(STORAGE_KEYS.SETTINGS, cloudSettings.updatedAt)) { 
+    if (cloudSettings && (isDifferent(appState.settings, cloudSettings.data) || isCloudNewer(STORAGE_KEYS.SETTINGS, cloudSettings.updatedAt))) { 
       setSettings(cloudSettings.data, false); 
       updateLocalTimestamp(STORAGE_KEYS.SETTINGS, cloudSettings.updatedAt || undefined);
       changed = true; 
     }
-    if (cloudRoutines && isCloudNewer(STORAGE_KEYS.ROUTINES, cloudRoutines.updatedAt)) { 
+    if (cloudRoutines && (isDifferent(appState.routines, cloudRoutines.data) || isCloudNewer(STORAGE_KEYS.ROUTINES, cloudRoutines.updatedAt))) { 
       setRoutines(cloudRoutines.data, false); 
       updateLocalTimestamp(STORAGE_KEYS.ROUTINES, cloudRoutines.updatedAt || undefined);
       changed = true; 
     }
-    if (cloudHistory && isCloudNewer(STORAGE_KEYS.ROUTINE_HISTORY, cloudHistory.updatedAt)) { 
+    if (cloudHistory && (isDifferent(appState.routineHistory, cloudHistory.data) || isCloudNewer(STORAGE_KEYS.ROUTINE_HISTORY, cloudHistory.updatedAt))) { 
       setRoutineHistory(cloudHistory.data, false); 
       updateLocalTimestamp(STORAGE_KEYS.ROUTINE_HISTORY, cloudHistory.updatedAt || undefined);
       changed = true; 
     }
-    if (cloudBookmarks && isCloudNewer(STORAGE_KEYS.BOOKMARKS, cloudBookmarks.updatedAt)) { 
+    if (cloudBookmarks && (isDifferent(appState.bookmarks, cloudBookmarks.data) || isCloudNewer(STORAGE_KEYS.BOOKMARKS, cloudBookmarks.updatedAt))) { 
       setBookmarks(cloudBookmarks.data, false); 
       updateLocalTimestamp(STORAGE_KEYS.BOOKMARKS, cloudBookmarks.updatedAt || undefined);
       changed = true; 
     }
-    if (cloudTasks && isCloudNewer(STORAGE_KEYS.TASKS, cloudTasks.updatedAt)) { 
+    if (cloudTasks && (isDifferent(appState.tasks, cloudTasks.data) || isCloudNewer(STORAGE_KEYS.TASKS, cloudTasks.updatedAt))) { 
       setTasks(cloudTasks.data, false); 
       updateLocalTimestamp(STORAGE_KEYS.TASKS, cloudTasks.updatedAt || undefined);
       changed = true; 
     }
-    if (cloudTimer && isCloudNewer(STORAGE_KEYS.TIMER, cloudTimer.updatedAt)) { 
+    if (cloudTimer && (isDifferent(appState.activeTimer, cloudTimer.data) || isCloudNewer(STORAGE_KEYS.TIMER, cloudTimer.updatedAt))) { 
       Object.assign(appState.activeTimer, cloudTimer.data); 
       updateLocalTimestamp(STORAGE_KEYS.TIMER, cloudTimer.updatedAt || undefined);
       changed = true; 
     }
 
     if (changed) {
-      console.log('🔄 SYNC UPDATE: Cloud changes detected. Refreshing UI...');
       await refreshAppAfterSync();
-    } else {
-      log.success('SYNC COMPLETE: All systems identical.');
     }
   } catch (err) {
     log.warn('Background sync failed silent fallback.');
@@ -615,47 +611,16 @@ async function refreshAppAfterSync(): Promise<void> {
 export async function startLiveSync(): Promise<void> {
   if (!isAuthenticated()) return;
   log.info('LIVE SYNC: Activating identity-locked cloud listeners...', '🚀');
-  await subscribeToUserDataSync(handleUserDataSync);
+  await subscribeToUserDataSync(() => {
+    void performBackgroundSync();
+  });
 }
 
 /**
  * ⚡ REAL-TIME DATA PROCESSOR
- * Handles incoming WebSocket payloads from Supabase and patches 
- * the local appState immediately.
+ * Handles incoming WebSocket payloads and patches the local appState immediately.
  */
 export async function handleUserDataSync(payload: any): Promise<void> {
-  const { table, new: newData, eventType } = payload;
-  if (!newData || eventType === 'DELETE') return;
-
-  const cloudData = newData.data;
-  if (!cloudData) return;
-
-  console.log(`📡 REALTIME PATCH: ${table.toUpperCase()} update received.`);
-
-  // 🛡️ RECOVERY GUARD: If realtime patch contains empty data but our local appState is full,
-  // we treat it as a race condition/error and block the local wipe.
-  if (Array.isArray(cloudData) && cloudData.length === 0 && appState.trackerData.length > 5) {
-     console.warn('🛡️ CLOUD GUARD: Blocked a potentially destructive empty patch from cloud.');
-     return;
-  }
-
-  switch (table) {
-    case SUPABASE_TABLES.TRACKER:    setTrackerData(cloudData, false); break;
-    case SUPABASE_TABLES.SETTINGS:        setSettings(cloudData, false); break;
-    case SUPABASE_TABLES.ROUTINES:        setRoutines(cloudData, false); break;
-    case SUPABASE_TABLES.BOOKMARKS:       setBookmarks(cloudData, false); break;
-    case SUPABASE_TABLES.TASKS:           setTasks(cloudData, false); break;
-    case SUPABASE_TABLES.HISTORY:         setRoutineHistory(cloudData, false); break;
-    case SUPABASE_TABLES.TIMER:
-      if (JSON.stringify(appState.activeTimer) !== JSON.stringify(cloudData)) {
-        Object.assign(appState.activeTimer, cloudData);
-      }
-      break;
-    case SUPABASE_TABLES.ROUTINES: // if we mapped reset here
-      // Fallback or ignore if not explicitly mapped
-      break;
-  }
-
-  // Trigger UI update
-  await refreshAppAfterSync();
+  if (!payload) return;
+  await performBackgroundSync();
 }

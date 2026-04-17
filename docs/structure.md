@@ -6,42 +6,39 @@ Welcome to the internal map of **All Tracker**. This document details our folder
 
 ```text
 Tracker/
-├── docs/                      # Blueprints & Guides
-│   ├── development.md        # SOP & Design Patterns
-│   ├── structure.md          # This Map
-│   └── guide.md              # User Manual
-├── public/                    # Static Assets
-│   └── css/                  # Boot-critical styles (loader.css)
+├── api/                       # Vercel Serverless Backend (Node.js)
+├── docs/                      # Blueprints & User Guides
+├── server/                    # Shared Server Utilities & DB Logic
+├── arena-pilots/              # Contributor Records & Templates
+├── public/                    # Static Assets (Logo, Fonts)
 ├── src/
-│   ├── core/                  # Engine Foundation
-│   ├── components/            # UI Architecture (Shared Fragments)
-│   │   ├── modals/           # Dedicated Auth, Profile, & Stats Fragments
-│   │   └── ui-registry.ts    # The Injection Engine (Feature Loader)
+│   ├── core/                  # Core Constants & Lifecycle Logic
+│   ├── components/            # UI Architecture (Shared Modals & Fragments)
 │   ├── features/              # Feature Dedicated Pillars
-│   │   ├── layout/           # Persistent Shell (Header, Tabs, View Panes)
-│   │   ├── dashboard/        # HUD, Stats, XP & World Stage
-│   │   ├── tasks/            # Mission Control (Granular Vault)
-│   │   ├── routines/         # Daily Habit Tracker (Granular Vault)
-│   │   ├── profile/          # Identity Registry (Avatar & Handle Logic)
-│   │   ├── timer/            # Focus Mode & Supabase Heartbeat
-│   │   └── settings/         # Operational Configuration
-│   ├── services/              # Core Logic Gatekeepers
-│   │   ├── supabase.service.ts # The Granular Cloud Uplink
-│   │   ├── auth.service.ts   # MFA & Sync ID Management
-│   │   ├── data-bridge.ts    # Sync Persistence & Mirroring
-│   │   └── identity.service.ts # Migration Logic (Legacy Sync ID)
-│   ├── state/                 # Single Source of Truth
-│   ├── utils/                 # Calculation & Security Helpers
-│   └── main.ts                # Application Bootstrapper
+│   │   ├── layout/            # Persistent Shell & Shell UI
+│   │   ├── dashboard/         # Leaderboard & Performance HUD
+│   │   ├── tasks/             # Priority-based Task Management
+│   │   ├── routines/          # Daily Habit Tracking
+│   │   ├── profile/           # Identity & World Stage Broadcasts
+│   │   ├── timer/             # Focus Mode & Heartbeat logic
+│   │   ├── settings/          # Local Configuration & AI Key Management
+│   │   ├── notifications/     # Browser-based Alert Engine
+│   │   ├── intelligence/      # Maamu AI (Groq Integration)
+│   │   └── bookmarks/         # Tactical Link Vault
+│   ├── services/              # Core Logic Gatekeepers (API, Auth, Data Bridge)
+│   ├── state/                 # Single Source of Truth (App State)
+│   ├── utils/                 # Calculation, Security, & Formatting Helpers
+│   ├── main.ts                # Application Bootstrapper
+│   └── index.css              # Global Design System
 ├── index.html                 # The Thin Shell (Mounting Point)
-└── package.json               # Engine Configuration
+├── vercel.json                # Vercel Deployment Configuration
+└── package.json               # Engine Configuration & Dependencies
 ```
 
 ## 🏗️ Structural Logic
 
-1.  **Thin Shell Architecture**: `index.html` is a minimal entry point containing only metadata, the bootloader, and the `#app-root` mounting point.
-2.  **Persistent Layout Shell**: The `features/layout` module (Shell.ts) is the first feature to initialize. It renders the Header, Navigation Tabs, and persistent View Containers dynamically.
-3.  **UI Registry (Hydration)**: All feature-specific HTML fragments are dynamically injected into the containers created by the Shell via `ui-registry.ts`.
-4.  **Logic First**: We never import HTML into logic files (except strings in `.ui.ts`). Logic files (`.ts`) should remain pure and testable.
-5.  **Naming Convention**: Feature folders use **plural** names (`tasks/`, `routines/`), and their primary files follow the folder name (`tasks.ts`, `tasks.ui.ts`).
-6.  **Dynamic Hybrid Loading**: Persistence is handled via a **Local-First** approach. The app renders from `localStorage` immediately, while `data-bridge.ts` orchestrates an asynchronous, differential background sync with Supabase.
+1.  **Monolithic Vanilla TS**: No heavy frameworks (React/Vue). We use high-performance Vanilla TypeScript for near-zero memory footprint and maximum control over the DOM.
+2.  **API-Driven Sync**: The frontend is detached from the database. All persistence happens via secure REST communication with the `api/` directory.
+3.  **Local-First Hydration**: The app renders from `localStorage` immediately on boot. `data-bridge.ts` then performs a non-blocking background sync with the Vercel backend.
+4.  **Feature Encapsulation**: Each folder in `src/features/` is a self-contained pillar with its own logic (`.ts`) and UI templates (`.ui.ts`).
+5.  **Design System**: Global styling is maintained in `index.css` using CSS Variables, ensuring the "Neon Space" aesthetic is consistent across all components.

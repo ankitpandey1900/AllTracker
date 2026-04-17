@@ -127,20 +127,20 @@ export function renderBookmarks(): void {
   list.querySelectorAll('[data-action="edit"]').forEach((el) => {
     el.addEventListener('click', (e) => {
       e.stopPropagation();
-      editBookmark(parseInt((e.currentTarget as HTMLElement).getAttribute('data-id') || '0'));
+      editBookmark((e.currentTarget as HTMLElement).getAttribute('data-id') || '');
     });
   });
   list.querySelectorAll('[data-action="delete"]').forEach((el) => {
     el.addEventListener('click', (e) => {
       e.stopPropagation();
-      deleteBookmark(parseInt((e.currentTarget as HTMLElement).getAttribute('data-id') || '0'));
+      deleteBookmark((e.currentTarget as HTMLElement).getAttribute('data-id') || '');
     });
   });
 }
 
 // --- Handling Actions ---
 
-function editBookmark(id: number): void {
+function editBookmark(id: string): void {
   const item = appState.bookmarks.find((b) => b.id === id);
   if (!item) return;
 
@@ -161,7 +161,7 @@ function editBookmark(id: number): void {
   modal?.classList.add('active');
 }
 
-function deleteBookmark(id: number): void {
+function deleteBookmark(id: string): void {
   if (confirm('Delete this bookmark?')) {
     appState.bookmarks = appState.bookmarks.filter((b) => b.id !== id);
     saveBookmarksToStorage(appState.bookmarks);
@@ -231,10 +231,10 @@ export function setupBookmarkListeners(): void {
 
       const editId = modal?.dataset.editId;
       if (editId) {
-        const item = appState.bookmarks.find((b) => b.id === parseInt(editId));
+        const item = appState.bookmarks.find((b) => b.id === editId);
         if (item) { item.title = title; item.url = url; item.category = category; }
       } else {
-        appState.bookmarks.push({ id: Date.now(), title, url, category });
+        appState.bookmarks.push({ id: crypto.randomUUID(), title, url, category });
       }
 
       saveBookmarksToStorage(appState.bookmarks);

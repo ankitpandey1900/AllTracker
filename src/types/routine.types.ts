@@ -6,7 +6,7 @@
 
 /** A single routine item in the daily schedule */
 export interface RoutineItem {
-  id: number;
+  id: string;
   title: string;
   time: string;
   note: string;

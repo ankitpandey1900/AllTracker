@@ -52,20 +52,9 @@ export const CATEGORY_COLORS = [
   '#f472b6', // Pink
 ];
 
-// --- Supabase Tables ---
-
-export const SUPABASE_TABLES = {
-  PROFILES: 'operative_profiles',
-  STATS: 'operative_stats',
-  TRACKER: 'vault_tracker',
-  SETTINGS: 'vault_settings',
-  ROUTINES: 'vault_routines',
-  TASKS: 'vault_tasks',
-  BOOKMARKS: 'vault_bookmarks',
-  TIMER: 'vault_timer',
-  HISTORY: 'vault_history',
-  SESSIONS: 'operative_sessions',
-} as const;
+// --- Database Registry (Internal Metadata) ---
+// Note: These are for server-side mapping and documentation only.
+// The frontend interacts via secure API routes.
 
 // --- Badge Condition Helpers ---
 

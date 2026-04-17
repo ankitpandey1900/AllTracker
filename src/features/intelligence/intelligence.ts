@@ -712,8 +712,11 @@ function renderSidebarMetrics(): void {
         <div class="sm-label">AI MODEL</div>
         <select id="maamuModelSelect" class="api-key-input"></select>
         <div class="sm-label">GROQ API KEY</div>
-        <input type="password" id="maamuApiKeyInput" class="api-key-input" value="${appState.settings.groqApiKey || ''}" placeholder="gsk_...">
-        <button id="saveMaamuApiKey" class="save-api-btn">Save Key</button>
+        <form onsubmit="return false;" style="margin:0; padding:0;">
+          <input type="text" name="username" style="display:none;" autocomplete="username" value="maamu-ai-key">
+          <input type="password" id="maamuApiKeyInput" class="api-key-input" value="${appState.settings.groqApiKey || ''}" placeholder="gsk_..." autocomplete="new-password">
+        </form>
+        <button type="button" id="saveMaamuApiKey" class="save-api-btn">Save Key</button>
         <a href="https://console.groq.com" target="_blank" class="api-link">Get your free key →</a>
       </div>
     `;

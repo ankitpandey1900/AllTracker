@@ -10,15 +10,14 @@ Every feature in the `src/features/` directory must follow the **Logic + UI** se
 2.  **`featureName.ui.ts`**: The "Skin." Contains only the static HTML `view` strings and simple template helpers.
 3.  **Refusal of Mixed Files**: Never put substantial DOM manipulation logic directly inside a `.ui.ts` file.
 
-## 🏺 Granular Vault (Security Protocol)
+## 🏺 Secure Sync Protocol (V3 Architecture)
 
-To ensure maximum reliability and professional-grade security, All Tracker transition from a single JSON blob to a **Granular Service Schema**.
+To ensure maximum reliability and professional-grade security, All Tracker uses a **Vercel-hosted Backend architecture**.
 
-- **Dedicated Vaults**: Every major feature has its own dedicated table (e.g., `vault_tracker`, `vault_tasks`, `vault_routines`).
-- **Identity Registry**: User metadata is stored in `operative_profiles`, while performance metrics live in `operative_stats`.
-- **Encryption**: Sensitive field keys are masked using `v1_esc_` or `v2_enc_` logic before local persistence.
-- **Bridge**: Always pipe persistence through `src/services/data-bridge.ts`.
-- **Cloud-Dominant**: Supabase is the absolute source of truth. Local storage is treated as a transient performance cache.
+- **API Uplink**: The frontend communicates exclusively through secure `/api/` routes. No sensitive database credentials or Supabase SDK objects are exposed to the client.
+- **Better Auth Integration**: Identity is managed via the **Better Auth** framework, supporting secure Google/GitHub OAuth sessions.
+- **Local-First Sync**: Functions in `data-bridge.ts` must return local data immediately from `localStorage`. Synchronization with the cloud happens asynchronously via `performBackgroundSync()`.
+- **Granular Payload Mapping**: The `vault.service.ts` maps individual feature objects to server endpoints to ensure partial updates and data isolation.
 
 ## 🌓 Midnight Crossover Logic (SOP)
 
@@ -26,15 +25,14 @@ All Tracker uses the **"Absolute Accuracy" (Midnight Split)** approach for sessi
 
 - **The Split**: If a session starts at 11:30 PM and ends at 12:30 AM, the system mathematically splits the 60 minutes: 30m are logged to Day 1, and 30m are logged to Day 2.
 - **Note Sync**: The session note (message) is duplicated to both days so your project context remains intact across the date boundary.
-- **Why?**: This ensures that your "Daily Hours" bars and "Heatmap" remain biologically accurate.
 
 ## ⚡ Performance & Hydration SOP
 
-To maintain an "Elite" user experience on mobile and slow networks, all modules must adhere to the **Optimized SPA** pattern:
+To maintain an "Elite" user experience, all modules adhere to the **Optimized SPA** pattern:
 
-- **Local-First Hydration**: Functions in `data-bridge.ts` must return local data immediately. Cloud synchronization must happen asynchronously via `performBackgroundSync()`.
-- **Dynamic Imports**: Heavy libraries (e.g., `Chart.js`, `html2canvas`) must never be imported at the top-level. Use `await import()` inside the relevant execution block to keep the initial bundle small.
-- **🛡️ Resource Shielding**: When rendering async-dependent UI elements (like Canvas charts), always use safety guards like `Chart.getChart(canvas)` to prevent instance collision and memory leaks.
+- **Differential Syncing**: Background sync checks timestamps to only pull or push data when a delta is detected, minimizing network overhead.
+- **Dynamic Imports**: Heavy libraries (e.g., `Chart.js`) are only imported via `await import()` inside the relevant execution block.
+- **Resource Shielding**: Safety guards like `Chart.getChart(canvas)` are used to prevent instance collision during rapid view swaps.
 
 ## 📂 Core File Map
 
@@ -42,12 +40,12 @@ To maintain an "Elite" user experience on mobile and slow networks, all modules 
 | :--- | :--- |
 | `src/main.ts` | The Orchestrator. Bootstraps all modules and event listeners. |
 | `src/state/app-state.ts` | The Single Source of Truth. Global reactive state object. |
-| `src/components/ui-registry.ts` | The UI Hub. Handles all dynamic HTML injection. |
 | `src/services/data-bridge.ts` | The Gatekeeper. Manages local persistence and sync orchestration. |
-| `src/services/supabase.service.ts` | The Cloud Uplink. Direct interface with Supabase Granular Vaults. |
-| `src/services/auth.service.ts` | The Identity Gate. Manages MFA patterns and session keys. |
+| `src/services/api.service.ts` | The Uplink. Secure fetch wrapper for backend communication. |
+| `src/services/vault.service.ts` | The Registry. Maps feature data to backend endpoints. |
+| `src/services/auth.service.ts` | The Identity Gate. Manages Better Auth session state. |
 
 ## 🚀 Building & Releasing
 
 - Always run `npm run build` to verify tree-shaking and asset minification.
-- Ensure `package.json` versioning is updated before a repository push.
+- Ensure `.env` contains valid `DATABASE_URL` and Auth credentials before production build.

@@ -9,7 +9,7 @@
 import { appState, getColumnsForDay } from '@/state/app-state';
 import { STORAGE_KEYS } from '@/config/constants';
 import { syncProfileBroadcast } from '@/features/profile/profile.manager';
-import { saveTimerStateCloud, updateSyncStatus, SyncIndicator, logStudySessionCloud } from '@/services/supabase.service';
+import { saveTimerStateCloud, updateSyncStatus, SyncIndicator, logStudySessionCloud } from '@/services/vault.service';
 import { saveTrackerDataToStorage, saveSettingsToStorage, saveTimerStateToStorage, clearTimerStateDB } from '@/services/data-bridge';
 import { getCurrentUserId } from '@/services/auth.service';
 import { generateTable } from '@/features/tracker/tracker';
@@ -31,7 +31,7 @@ export function initTimerModules(): void {
   SyncIndicator.update(window.navigator.onLine ? 'synced' : 'offline');
 
   // Split-Brain Timer Sync (Listen for cross-device pauses)
-  import('@/services/supabase.service').then(({ subscribeToRealtimeTelemetry }) => {
+  import('@/services/vault.service').then(({ subscribeToRealtimeTelemetry }) => {
     subscribeToRealtimeTelemetry(async (payload) => {
       const { getCurrentUserId } = await import('@/services/auth.service');
       const me = getCurrentUserId();
@@ -50,7 +50,7 @@ export function initTimerModules(): void {
   });
 }
 
-// HUD Sync logic centralized in supabase.service.ts
+// HUD Sync logic centralized in vault.service.ts
 
 // --- Timer State ---
 
@@ -284,7 +284,7 @@ export async function terminateTimer(): Promise<void> {
   await clearTimerStateDB();
 
   // Dismiss HUD
-  document.body.classList.remove('focus-mode', 'focus-minimized');
+  document.body.classList.remove('focus-mode', 'focus-minimized', 'is-focusing');
   const section = document.getElementById('activeTimerSection');
   if (section) section.style.display = 'none';
   document.getElementById('timerModal')?.classList.remove('active');
@@ -445,9 +445,18 @@ function startTimerInterval(): void {
         } catch (e) {}
       }
 
+      // 🛑 OVERRUN GUARD: HARD CAP LIVE SESSIONS AT 5 HOURS
+      const FIVE_HOURS_MS = 5 * 60 * 60 * 1000;
+      if (totalElapsedMs > FIVE_HOURS_MS) {
+        console.warn('[Timer] Hard cap reached. Session over 5hrs. Auto-stopping.');
+        // Trick stopTimer into thinking exactly 5 hours passed so it doesn't log excess
+        appState.activeTimer.startTime = Date.now() - (FIVE_HOURS_MS - appState.activeTimer.elapsedAcc);
+        stopTimer('[AUTO-SAFE] 5hr Max Limit Reached');
+        return;
+      }
+
       // 💓 HEARBEAT SYNC: Every 30 seconds, push the live state to Supabase for "Perfect Sync"
       if (elapsedSeconds > 0 && elapsedSeconds % 30 === 0) {
-        console.log('[Timer] Heartbeat: Pulsing live state to Cloud.');
         saveTimerState();
         // Live Leaderboard Push: Broadcast active hours so the World Stage updates in real-time
         import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast());
@@ -616,6 +625,8 @@ export function resumeTimerIfNeeded(): void {
 
     if (elapsedNow > FIVE_HOURS_MS) {
       console.warn('[Timer] Self-healing: Detected abandoned session (>5h). Auto-Save Triggered.');
+      // Prevent 90-hour bugs: hard-cap the startTime to exactly 5 hours ago so stopTimer safely logs exactly 5.0 hours.
+      appState.activeTimer.startTime = Date.now() - FIVE_HOURS_MS;
       stopTimer('[AUTO-SAFE] Post-Crash/Inactivity Recovered');
       return;
     }

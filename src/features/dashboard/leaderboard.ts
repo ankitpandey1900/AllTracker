@@ -2,8 +2,8 @@ import { getSecureLocalProfileString, escapeHtml } from '@/utils/security';
 import { log } from '@/utils/logger.utils';
 import { appState } from '@/state/app-state';
 import Registry from '@/utils/lifecycle';
-import { STORAGE_KEYS, RANK_TIERS, SUPABASE_TABLES, NATION_FLAGS } from '@/config/constants';
-import { fetchLeaderboard, fetchGlobalTelemetry } from '@/services/supabase.service';
+import { STORAGE_KEYS, RANK_TIERS, NATION_FLAGS } from '@/config/constants';
+import { fetchLeaderboard, fetchGlobalTelemetry } from '@/services/vault.service';
 import type { GlobalProfile } from '@/types/profile.types';
 import { setupPasswordToggle } from '@/services/auth.service';
 import { getRankColor, getDetailedRankTitle } from '@/utils/rank.utils';
@@ -31,7 +31,7 @@ export async function initWorldStage(): Promise<void> {
     }, 1200); // 1.2s debounce window
   };
 
-  import('@/services/supabase.service').then(({ subscribeToRealtimeTelemetry }) => {
+  import('@/services/vault.service').then(({ subscribeToRealtimeTelemetry }) => {
     subscribeToRealtimeTelemetry(debouncedRefresh);
   });
 
@@ -540,7 +540,7 @@ function renderUserRow(
           <div class="lb-mission-status-link">
             <span class="lb-pulse-dot" style="background: ${isFocusing ? '#ef4444' : rankColor}; box-shadow: 0 0 8px ${isFocusing ? '#ef4444' : rankColor}"></span>
             <span class="focus-topic ${!isFocusing ? 'offline-topic' : ''}" style="--focus-color: ${isFocusing ? '#ef4444' : rankColor}">
-              ${isFocusing ? (u.is_public || isMe ? (u.current_focus_subject || 'ACTIVE MISSION') : '[ CONFIDENTIAL MISSION ]') : 'IDLE / REFUELING'}
+              ${isFocusing ? (u.is_focus_public || isMe ? (u.current_focus_subject || 'ACTIVE MISSION') : '[ CONFIDENTIAL MISSION ]') : 'IDLE / REFUELING'}
             </span>
           </div>
         </div>

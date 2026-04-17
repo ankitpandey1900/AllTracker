@@ -1,234 +1,234 @@
-import { getSecureLocalProfileString, setSecureLocalProfileString } from '@/utils/security';
-import { appState } from '@/state/app-state';
-import { calculateTodayStudyHours, calculateTotalStudyHours, getRankProgression, getTopCategories } from '@/utils/calc.utils';
-import type { UserProfile } from '@/types/profile.types';
-import { saveProfileData, handleIdentityMigration } from './profile.manager';
+import { getSecureLocalProfileString, setSecureLocalProfileString } from "@/utils/security";
+import { appState } from "@/state/app-state";
+import { calculateTodayStudyHours, calculateTotalStudyHours, getRankProgression } from "@/utils/calc.utils";
+import type { UserProfile } from "@/types/profile.types";
+import { saveProfileData } from "./profile.manager";
 
-/** Opens the Mission Profile Identity Portal with Professional Entrance */
+const AVATARS = [
+  "🦇", "🕷️", "⚡", "🦸‍♂️", "🦹‍♂️", "🚀",
+  "🛰", "🪐", "☁️", "🌌", "🦾", "🥷",
+  "🏀", "🏎️", "🥊", "🏂", "🛹", "⚽",
+  "🏋️‍♂️", "🎯", "🐉", "🦖", "🦈", "🐺",
+  "🦅", "🐍", "🦂", "🦍", "🗿", "👽",
+  "💀", "🥶", "👺", "👑", "💎", "🎲",
+  "👰‍♀️", "🐼", "🦄", "🎧", "⚒️", "🖥️",
+  "✈️", "🛩️", "🛴", "🚨",
+  "🔥", "🌪️", "🌊", "❄️", "☠️", "🧨",
+  "🛡️", "⚔️", "🔱", "🪓", "🏹", "🔨",
+  "🤖", "👾", "👻", "🎭", "🎮", "🕹️",
+  "💻", "⌚", "📱", "📸", "🎥", "📡",
+  "🚁", "🚂", "🚢", "⛵", "🚤", "🏍️",
+  "🚗", "🚓", "🚑", "🚒", "🚜", "🛻",
+  "🐅", "🦁", "🐆", "🦓", "🦬", "🦣",
+  "🦏", "🐘", "🦌", "🦉", "🦜",
+  "🌋", "🏔️", "🏝️", "🌃", "🌠", "🌙",
+];
+
 export async function openProfileModal(): Promise<void> {
-  const modal = document.getElementById('profileSetupModal');
+  const modal = document.getElementById("profileSetupModal");
   if (!modal) return;
 
-  // 🛡️ PROFESSIONAL ENTRANCE: Smooth backdrop + Content Pop
-  modal.classList.add('active');
-  modal.style.display = 'flex';
+  modal.classList.add("active");
+  modal.style.display = "flex";
 
-  // State Management: Default to Passport view if profile exists
   const hasProfile = !!getSecureLocalProfileString();
-  const passportPane = document.getElementById('passportViewPane');
-  const editPane = document.getElementById('profileEditPane');
-  
+  const passportPane = document.getElementById("passportViewPane");
+  const editPane = document.getElementById("profileEditPane");
+
   if (hasProfile && passportPane && editPane) {
-    passportPane.classList.remove('hidden');
-    editPane.classList.add('hidden');
+    passportPane.classList.remove("hidden");
+    editPane.classList.add("hidden");
   } else if (passportPane && editPane) {
-    passportPane.classList.add('hidden');
-    editPane.classList.remove('hidden');
+    passportPane.classList.add("hidden");
+    editPane.classList.remove("hidden");
   }
 
   const totalHours = calculateTotalStudyHours(appState.trackerData);
   const todayHours = calculateTodayStudyHours(appState.trackerData);
+  const totalHoursEl = document.getElementById("totalHoursPassport");
+  const todayHoursEl = document.getElementById("todayHoursPassport");
 
-  // Populate Social Stats Bar
-  const totalHoursEl = document.getElementById('totalHoursPassport');
-  const todayHoursEl = document.getElementById('todayHoursPassport');
   if (totalHoursEl) totalHoursEl.textContent = `${totalHours.toFixed(1)}h`;
   if (todayHoursEl) todayHoursEl.textContent = `${todayHours.toFixed(1)}h`;
 
-  const bestStreak = document.getElementById('bestStreakPassport');
-  const { calculateBestStreak } = await import('@/utils/calc.utils');
+  const bestStreak = document.getElementById("bestStreakPassport");
+  const { calculateBestStreak } = await import("@/utils/calc.utils");
   if (bestStreak) bestStreak.textContent = `${calculateBestStreak(appState.trackerData)}d`;
 
-  // Social Status Beacon
-  const beacon = document.getElementById('statusBeacon');
+  const beacon = document.getElementById("statusBeacon");
   if (beacon) {
-    beacon.className = `status-beacon ${appState.activeTimer.isRunning ? 'focusing' : 'idle'}`;
+    beacon.className = `status-beacon ${appState.activeTimer.isRunning ? "focusing" : "idle"}`;
   }
 
-  // Identity Hydration
   hydrateIdentityFields();
   hydrateRankProgression(totalHours);
-
-  // --- UI Bindings ---
   setupAvatarPicker();
-  bindV2Actions();
+  bindActions();
 }
 
 function hydrateRankProgression(totalHours: number): void {
   const prog = getRankProgression(totalHours);
-  const rankDisplay = document.getElementById('displayRank');
-
+  const rankDisplay = document.getElementById("displayRank");
   if (rankDisplay) {
     rankDisplay.textContent = prog.current.toUpperCase();
   }
 }
 
-function bindV2Actions(): void {
-  const pPane = document.getElementById('passportViewPane');
-  const ePane = document.getElementById('profileEditPane');
+function bindActions(): void {
+  const passportPane = document.getElementById("passportViewPane");
+  const editPane = document.getElementById("profileEditPane");
   const closeModal = () => {
-    const modal = document.getElementById('profileSetupModal');
-    if (modal) {
-      modal.classList.remove('active');
-      modal.style.display = 'none';
-    }
+    const modal = document.getElementById("profileSetupModal");
+    if (!modal) return;
+    modal.classList.remove("active");
+    modal.style.display = "none";
   };
 
-  document.getElementById('closeProfileModal')?.addEventListener('click', closeModal);
-  document.getElementById('closeProfileModalAlt')?.addEventListener('click', closeModal);
-  document.getElementById('switchToEditProfileBtn')?.addEventListener('click', () => {
-    pPane?.classList.add('hidden');
-    ePane?.classList.remove('hidden');
+  document.getElementById("closeProfileModal")?.addEventListener("click", closeModal);
+  document.getElementById("closeProfileModalAlt")?.addEventListener("click", closeModal);
+  document.getElementById("switchToEditProfileBtn")?.addEventListener("click", () => {
+    passportPane?.classList.add("hidden");
+    editPane?.classList.remove("hidden");
   });
-  document.getElementById('switchToPassportBtn')?.addEventListener('click', () => {
-    ePane?.classList.add('hidden');
-    pPane?.classList.remove('hidden');
+  document.getElementById("switchToPassportBtn")?.addEventListener("click", () => {
+    editPane?.classList.add("hidden");
+    passportPane?.classList.remove("hidden");
   });
 
-  const saveBtn = document.getElementById('saveProfileBtn');
-  if (saveBtn) saveBtn.onclick = handleProfileSaveSubmission;
+  const saveBtn = document.getElementById("saveProfileBtn");
+  if (saveBtn) {
+    saveBtn.onclick = handleProfileSaveSubmission;
+  }
 }
 
 function hydrateIdentityFields(): void {
   const saved = getSecureLocalProfileString();
-  const syncId = localStorage.getItem('tracker_sync_id') || 'unlinked';
   if (!saved) return;
-  const profile = JSON.parse(saved) as UserProfile;
 
-  // Header
-  const passportAvatar = document.getElementById('passportAvatar');
-  const profileName = document.getElementById('profileDisplayName');
-  const handleEl = document.getElementById('displayHandle');
-  const nationBadge = document.getElementById('profileNationBadge');
+  const profile = JSON.parse(saved) as UserProfile;
+  const passportAvatar = document.getElementById("passportAvatar");
+  const profileName = document.getElementById("profileDisplayName");
+  const handleEl = document.getElementById("displayHandle");
+  const nationBadge = document.getElementById("profileNationBadge");
+  const dossierName = document.getElementById("dossierRealName");
+  const dossierEmail = document.getElementById("dossierEmail");
+  const dossierPhone = document.getElementById("dossierPhone");
 
   if (profileName) profileName.textContent = profile.realName || profile.displayName;
   if (handleEl) handleEl.textContent = `@${profile.displayName}`;
-  if (passportAvatar) passportAvatar.textContent = profile.avatar || '👨‍🚀';
-  if (nationBadge) nationBadge.textContent = profile.nation || 'Global';
+  if (passportAvatar) passportAvatar.textContent = profile.avatar || "👤";
+  if (nationBadge) nationBadge.textContent = profile.nation || "Global";
+  if (dossierName) dossierName.textContent = profile.realName || "-";
+  if (dossierEmail) dossierEmail.textContent = profile.email || "-";
+  if (dossierPhone) dossierPhone.textContent = profile.phoneNumber || "-";
 
-  // Dossier
-  const dossierName = document.getElementById('dossierRealName');
-  const dossierEmail = document.getElementById('dossierEmail');
-  const dossierPhone = document.getElementById('dossierPhone');
+  const hInput = document.getElementById("profileNameInput") as HTMLInputElement;
+  const rnInput = document.getElementById("profileRealNameInput") as HTMLInputElement;
+  const dInput = document.getElementById("profileDobInput") as HTMLInputElement;
+  const eInput = document.getElementById("profileEmailInput") as HTMLInputElement;
+  const pInput = document.getElementById("profilePhoneInput") as HTMLInputElement;
+  const nSelect = document.getElementById("profileNationSelect") as HTMLSelectElement;
 
-  if (dossierName) dossierName.textContent = profile.realName || '-';
-  if (dossierEmail) dossierEmail.textContent = (profile as any).email || '-';
-  if (dossierPhone) dossierPhone.textContent = profile.phoneNumber || '-';
+  if (hInput) { hInput.value = profile.displayName || ""; if (profile.displayName) hInput.setAttribute('disabled', 'true'); }
+  if (rnInput) { rnInput.value = profile.realName || ""; if (profile.realName) rnInput.setAttribute('disabled', 'true'); }
+  if (dInput) { dInput.value = profile.dob || ""; if (profile.dob) dInput.setAttribute('disabled', 'true'); }
+  if (eInput) { eInput.value = profile.email || ""; if (profile.email) eInput.setAttribute('disabled', 'true'); }
+  if (pInput) { pInput.value = profile.phoneNumber || ""; if (profile.phoneNumber) pInput.setAttribute('disabled', 'true'); }
+  if (nSelect) { nSelect.value = profile.nation || "Global"; if (profile.nation && profile.nation !== "Global") nSelect.setAttribute('disabled', 'true'); }
 
-  // Fill Inputs
-  (document.getElementById('profileNameInput') as HTMLInputElement).value = profile.displayName || '';
-  (document.getElementById('profileRealNameInput') as HTMLInputElement).value = profile.realName || '';
-  (document.getElementById('profileDobInput') as HTMLInputElement).value = profile.dob || '';
-  (document.getElementById('profileEmailInput') as HTMLInputElement).value = (profile as any).email || '';
-  (document.getElementById('profilePhoneInput') as HTMLInputElement).value = profile.phoneNumber || '';
-  (document.getElementById('profileNationSelect') as HTMLSelectElement).value = profile.nation || 'Global';
-  const publicToggle = document.getElementById('profilePublicToggle') as HTMLInputElement;
-  const focusToggle = document.getElementById('profileFocusPrivacyToggle') as HTMLInputElement;
-  
+  const publicToggle = document.getElementById("profilePublicToggle") as HTMLInputElement | null;
+  const focusToggle = document.getElementById("profileFocusPrivacyToggle") as HTMLInputElement | null;
   if (publicToggle) publicToggle.checked = profile.isPublic !== false;
   if (focusToggle) focusToggle.checked = profile.isFocusPublic !== false;
-  
-  // 🔒 SECURITY LOCKDOWN: Make all core identity fields strictly un-editable (except Avatar)
-  const lockedFields = ['profileNameInput', 'profileRealNameInput', 'profileDobInput', 'profileEmailInput', 'profilePhoneInput', 'profileNationSelect'];
-  lockedFields.forEach(id => {
-    const el = document.getElementById(id) as HTMLInputElement | HTMLSelectElement;
-    if (el) {
-      el.disabled = true;
-      el.style.opacity = '0.5';
-      el.style.cursor = 'not-allowed';
-      el.parentElement?.setAttribute('title', 'Locked by Vault Security. Identity components cannot be altered.');
-    }
-  });
-  
-  // Sync Edit Preview
-  const editPreview = document.getElementById('editAvatarPreview');
-  if (editPreview) editPreview.textContent = profile.avatar || '👨‍🚀';
+
+  const editPreview = document.getElementById("editAvatarPreview");
+  if (editPreview) editPreview.textContent = profile.avatar || "👤";
 }
 
-/** Handles the Avatar Grid interactions */
 function setupAvatarPicker(): void {
-  const avatarGrid = document.getElementById('avatarPickerGrid');
-  const avatarToggle = document.getElementById('toggleAvatarPickerBtn');
-  const avatarContainer = document.getElementById('avatarPickerContainer');
+  const avatarGrid = document.getElementById("avatarPickerGrid");
+  if (!avatarGrid) return;
 
-  const AVATARS = [
-  '🦇', '🕷️', '⚡', '🦸‍♂️', '🦹‍♂️', '🚀',
-  '🛸', '🪐', '☄️', '🌌', '🦾', '🥷',
-  '🏀', '🏎️', '🥊', '🏂', '🛹', '⚽',
-  '🏋️‍♂️', '🎯', '🐉', '🦖', '🦈', '🐺',
-  '🦅', '🐍', '🦂', '🦍', '🗿', '👽',
-  '💀', '🥶', '👺', '👑', '💎', '🎲',
-  '👰‍♀️', '🐼', '🦄', '🎧', '⚒️', '🖥️',
-  '✈️', '🛩️', '🛴', '🚨',
-
-  '🔥', '🌪️', '🌊', '❄️', '☠️', '🧨',
-  '🛡️', '⚔️', '🔱', '🪓', '🏹', '🔨',
-  '🤖', '👾', '👻', '🎭', '🎮', '🕹️',
-  '💻', '⌚', '📱', '📸', '🎥', '📡',
-  '🚁', '🚂', '🚢', '⛵', '🚤', '🏍️',
-  '🚗', '🚓', '🚑', '🚒', '🚜', '🛻',
-  '🐅', '🦁', '🐆', '🦓', '🦬', '🦣',
-  '🦏', '🐘', '🦌', '🦉', '🦜',
-  '🌋', '🏔️', '🏝️', '🌃', '🌠', '🌙'
-];
-
-  if (avatarGrid && avatarGrid.children.length === 0) {
-    AVATARS.forEach(emoji => {
-      const div = document.createElement('div');
-      div.className = 'avatar-item';
-      div.setAttribute('data-avatar', emoji);
+  if (avatarGrid.children.length === 0) {
+    AVATARS.forEach((emoji) => {
+      const div = document.createElement("div");
+      div.className = "avatar-item";
+      div.setAttribute("data-avatar", emoji);
       div.textContent = emoji;
       avatarGrid.appendChild(div);
     });
   }
 
-  if (avatarGrid) {
-    avatarGrid.querySelectorAll('.avatar-item').forEach(item => {
-      (item as HTMLElement).onclick = () => {
-        avatarGrid.querySelectorAll('.avatar-item').forEach(a => a.classList.remove('active'));
-        item.classList.add('active');
-        const livePassAv = document.getElementById('passportAvatar');
-        if (livePassAv) livePassAv.textContent = item.getAttribute('data-avatar') || '👤';
-      };
-    });
-  }
+  const currentAvatar =
+    (() => {
+      try {
+        const raw = getSecureLocalProfileString();
+        return raw ? (JSON.parse(raw) as UserProfile).avatar : "👤";
+      } catch {
+        return "👤";
+      }
+    })() || "👤";
+
+  avatarGrid.querySelectorAll(".avatar-item").forEach((item) => {
+    item.classList.toggle(
+      "active",
+      item.getAttribute("data-avatar") === currentAvatar,
+    );
+
+    (item as HTMLElement).onclick = () => {
+      avatarGrid.querySelectorAll(".avatar-item").forEach((node) => node.classList.remove("active"));
+      item.classList.add("active");
+      const livePassportAvatar = document.getElementById("passportAvatar");
+      const editPreview = document.getElementById("editAvatarPreview");
+      const avatar = item.getAttribute("data-avatar") || "👤";
+      if (livePassportAvatar) livePassportAvatar.textContent = avatar;
+      if (editPreview) editPreview.textContent = avatar;
+    };
+  });
 }
 
 async function handleProfileSaveSubmission(): Promise<void> {
-  const saveBtn = document.getElementById('saveProfileBtn') as HTMLButtonElement;
-  const originalText = saveBtn.textContent;
+  const saveBtn = document.getElementById("saveProfileBtn") as HTMLButtonElement | null;
+  const originalText = saveBtn?.textContent || "Save";
 
   const data: UserProfile = {
-    displayName: (document.getElementById('profileNameInput') as HTMLInputElement).value.trim(),
-    realName: (document.getElementById('profileRealNameInput') as HTMLInputElement).value.trim(),
-    dob: (document.getElementById('profileDobInput') as HTMLInputElement).value,
-    nation: (document.getElementById('profileNationSelect') as HTMLSelectElement).value,
-    phoneNumber: (document.getElementById('profilePhoneInput') as HTMLInputElement).value.trim(),
-    email: (document.getElementById('profileEmailInput') as HTMLInputElement).value.trim(),
-    isPublic: (document.getElementById('profilePublicToggle') as HTMLInputElement)?.checked ?? true,
-    isFocusPublic: (document.getElementById('profileFocusPrivacyToggle') as HTMLInputElement)?.checked ?? true,
-    avatar: document.querySelector('#avatarPickerGrid .avatar-item.active')?.getAttribute('data-avatar') || '👨‍🚀'
+    displayName: (document.getElementById("profileNameInput") as HTMLInputElement).value.trim(),
+    realName: (document.getElementById("profileRealNameInput") as HTMLInputElement).value.trim(),
+    dob: (document.getElementById("profileDobInput") as HTMLInputElement).value,
+    nation: (document.getElementById("profileNationSelect") as HTMLSelectElement).value,
+    phoneNumber: (document.getElementById("profilePhoneInput") as HTMLInputElement).value.trim(),
+    email: (document.getElementById("profileEmailInput") as HTMLInputElement).value.trim(),
+    isPublic: (document.getElementById("profilePublicToggle") as HTMLInputElement)?.checked ?? true,
+    isFocusPublic: (document.getElementById("profileFocusPrivacyToggle") as HTMLInputElement)?.checked ?? true,
+    avatar:
+      document
+        .querySelector("#avatarPickerGrid .avatar-item.active")
+        ?.getAttribute("data-avatar") || "👤",
   };
 
-  if (!data.displayName || !data.email || !data.phoneNumber) {
-    alert("Mission Critical: Handle, Email, and Mobile are required for identity sync.");
+  if (!data.displayName || !data.email) {
+    alert("Handle and email are required.");
     return;
   }
 
   try {
-    saveBtn.textContent = "SYNCHRONIZING...";
-    saveBtn.disabled = true;
+    if (saveBtn) {
+      saveBtn.textContent = "SYNCHRONIZING...";
+      saveBtn.disabled = true;
+    }
+
     const success = await saveProfileData(data);
     if (success) {
       setSecureLocalProfileString(JSON.stringify(data));
-      openProfileModal(); // Switch back to passport view
+      await openProfileModal();
     }
-  } catch (err) {
-    console.error(err);
-    alert("Identity Sync Interrupted.");
+  } catch (error) {
+    console.error(error);
+    alert("Identity sync interrupted.");
   } finally {
-    saveBtn.textContent = originalText;
-    saveBtn.disabled = false;
+    if (saveBtn) {
+      saveBtn.textContent = originalText;
+      saveBtn.disabled = false;
+    }
   }
 }
-

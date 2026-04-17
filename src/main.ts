@@ -35,7 +35,7 @@ import {
   handleUserDataSync
 } from "@/services/data-bridge";
 import { initSyncAuth, setupHeaderScroll } from "@/services/auth.service";
-import { subscribeToUserDataSync } from "@/services/supabase.service";
+import { subscribeToUserDataSync } from "@/services/vault.service";
 import { initUI } from "@/components/ui-registry";
 import { shell } from "@/features/layout/Shell";
 

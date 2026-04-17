@@ -16,7 +16,7 @@ export type BookmarkCategory =
 
 /** A single saved bookmark */
 export interface Bookmark {
-  id: number;
+  id: string;
   title: string;
   url: string;
   category: BookmarkCategory;

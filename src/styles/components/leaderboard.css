@@ -2486,6 +2486,9 @@
 .chip-gold {
   color: #fbbf24;
   text-shadow: 0 0 8px rgba(251, 191, 36, 0.4);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 1;
 }
 
 .chip-unit {

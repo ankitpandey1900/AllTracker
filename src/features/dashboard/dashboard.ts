@@ -17,7 +17,7 @@ import { renderStudyAnalytics } from './study-analytics';
 import type { StudySession } from '@/types/profile.types';
 import { calculateXP, calculateStreak, getRankDetails, calculateSustainability, getRecentVelocity } from '@/utils/calc.utils';
 import { saveSettingsToStorage } from '@/services/data-bridge';
-import { fetchLeaderboard, loadUserProfileCloud, fetchMySessionsCloud, migrateLocalHistoryToCloud } from '@/services/supabase.service';
+import { fetchLeaderboard, loadUserProfileCloud, fetchMySessionsCloud, migrateLocalHistoryToCloud } from '@/services/vault.service';
 
 const formatNum = (num: number) => new Intl.NumberFormat().format(num);
 
@@ -638,7 +638,7 @@ export async function renderSessionHistory(): Promise<void> {
   });
 
   const activeFilter = fromVal || toVal;
-  const isOnline = !!localStorage.getItem('operative_sync_id');
+  const isOnline = !!localStorage.getItem('tracker_username');
 
   if (displayLogs.length === 0) {
     const hasRealLocal = !isOnline && localLogs.length > 0 && localLogs.some((l: any) => l.duration > 0 || l.note);

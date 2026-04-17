@@ -185,7 +185,7 @@ function buildRangeCategoryRow(name: string, target: number): HTMLElement {
   row.style.alignItems = 'center';
   row.innerHTML = `
     <input type="text" class="settings-input range-cat-name" value="${name || ''}" placeholder="Category" style="flex:1;">
-    <input type="number" class="settings-input range-cat-target" value="${target || 0}" placeholder="Target" style="width:70px;">
+    <input type="number" step="0.1" class="settings-input range-cat-target" value="${target || ''}" placeholder="target hrs" style="width:80px;">
     <button class="btn-remove-item remove-range-cat" type="button">×</button>
   `;
   row.querySelector('.remove-range-cat')?.addEventListener('click', () => row.remove());

@@ -1,6 +1,6 @@
 /**
  * The User Manual / Documentation reader modal.
- * Version 2.5: The Mission Dossier overhaul.
+ * Version 3.0.0: The Better Auth & Vercel Backend Edition.
  */
 export const manualModal = `
   <div class="modal" id="userManualModal">
@@ -10,7 +10,7 @@ export const manualModal = `
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6c87ff" stroke-width="2.5">
             <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
           </svg>
-          <span>MISSION DOSSIER <span class="docs-version">v2.5</span></span>
+          <span>MISSION DOSSIER <span class="docs-version">v3.0.0</span></span>
         </div>
         
         <div class="docs-search-shell">
@@ -78,7 +78,7 @@ export const manualModal = `
               <span class="nav-icon">🛡️</span> Integrity Engine
             </a>
             <a class="docs-nav-link" onclick="docScrollTo('doc-shortcuts')">
-              <span class="nav-icon">⌨️</span> Hotkeys
+              <span class="nav-icon)⌨️</span> Hotkeys
             </a>
           </div>
         </nav>
@@ -128,22 +128,22 @@ export const manualModal = `
                 <div class="docs-step">
                   <div class="docs-step-num">01</div>
                   <div class="docs-step-body">
-                    <h4>Sync & Identification</h4>
-                    <p>Click <strong>LOGIN</strong>. Register your unique <strong>User Handle</strong> and choose a <strong>Tactical Avatar</strong>. This secures your data to the All Tracker Vault.</p>
+                    <h4>OAuth Identification</h4>
+                    <p>Click <strong>LOGIN</strong> and enter the Arena using your <strong>Google</strong> or <strong>GitHub</strong> account. This anchors your mission data to your professional identity.</p>
                   </div>
                 </div>
                 <div class="docs-step">
                   <div class="docs-step-num">02</div>
                   <div class="docs-step-body">
-                    <h4>Establish Timeline</h4>
-                    <p>Open <strong>Settings</strong> (<kbd>Ctrl + ,</kbd>). Set your Start/End dates and define your study categories (e.g. DSA, React, Core).</p>
+                    <h4>Identity Lockdown</h4>
+                    <p>Register your unique <strong>Pilot Handle</strong>. Choose carefully—once set, your Handle, Name, and Nation are permanently locked for leaderboard integrity.</p>
                   </div>
                 </div>
                 <div class="docs-step">
                   <div class="docs-step-num">03</div>
                   <div class="docs-step-body">
-                    <h4>Launch Session</h4>
-                    <p>Hit <strong>Start Timer</strong> on the dashboard. Select your mission category and enter the Focus state.</p>
+                    <h4>Launch Mission</h4>
+                    <p>Hit <strong>Start Timer</strong> on the dashboard. Select your focus category and enter the study zone.</p>
                   </div>
                 </div>
               </div>
@@ -154,18 +154,24 @@ export const manualModal = `
               <div class="docs-breadcrumb">Onboarding › Authentication</div>
               <h2 class="docs-h2">Authentication Protocols</h2>
               <div class="docs-callout docs-callout-info">
-                <div class="docs-callout-title">🛰️ Cloud-First Sync</div>
-                <p>All Tracker uses a secure, email-free identity system. Your <strong>Handle</strong> is your public key, and your <strong>Vault Key</strong> is your private password.</p>
+                <div class="docs-callout-title">🛰️ Modern Identity Architecture</div>
+                <p>All Tracker has transitioned to a secure, password-less OAuth system. Your data is protected by the **Better Auth** framework.</p>
               </div>
 
-              <h3 class="docs-h3">Account Lockdown</h3>
-              <p>To ensure leaderboard integrity, the following fields are <strong>PERMANENTLY LOCKED</strong> upon registration:</p>
+              <h3 class="docs-h3">Secure Session Flow</h3>
+              <p>Your session is managed via high-security encrypted tokens. Access is granted exclusively through verified OAuth providers:</p>
+              <ul class="docs-ul">
+                <li><strong>Google Auth:</strong> Instant mission entry via your main workspace.</li>
+                <li><strong>GitHub Integration:</strong> Link your study progress to your developer profile.</li>
+              </ul>
+
+              <h3 class="docs-h3">Integrity Enforcement</h3>
+              <p>To prevent rank manipulation on the World Stage, the following fields are <strong>PERMANENTLY LOCKED</strong> after your first profile setup:</p>
               <ul class="docs-ul">
                 <li>User Handle & Real Name</li>
-                <li>Nationality & Date of Birth</li>
-                <li>Email & Primary Mobile</li>
+                <li>Nationality & Primary Email</li>
               </ul>
-              <p>Only your <strong>Avatar</strong> and <strong>Vault Key</strong> can be updated later from the Profile Passport.</p>
+              <p>Your **Avatar** remains tactical and can be updated at any time from the Profile Passport.</p>
             </section>
 
             <!-- FOCUS TIMER -->
@@ -182,8 +188,8 @@ export const manualModal = `
                 </div>
                 <div class="docs-feature-card">
                   <div class="feature-card-icon">🛰️</div>
-                  <div class="feature-card-title">Heartbeat Sync</div>
-                  <div class="feature-card-desc">Syncs your live timer state to the cloud every 60s for multiscreen tracking.</div>
+                  <div class="feature-card-title">Vercel Backend Sync</div>
+                  <div class="feature-card-desc">Syncs your live state to the secure backend every 30s for cross-device telemetry.</div>
                 </div>
               </div>
             </section>
@@ -261,14 +267,11 @@ export const manualModal = `
                  <div class="docs-callout-title">⚠️ No Sugarcoating</div>
                  <p>Maamu is a high-fidelity AI coach. He analyzes your real study data and gives honest (often harsh) feedback about your consistency and output.</p>
                </div>
-               <p>To initialize Maamu, obtain an API key from <strong>console.groq.com</strong> and paste it into the Maamu tab configuration.</p>
+               <p>To initialize Maamu, obtain an API key from <strong>console.groq.com</strong> and paste it into the Intelligence configuration.</p>
                <ul class="docs-ul">
-                 <li><strong>Token Saver Mode:</strong> Basic greetings (hi/hello/thanks/ok) are handled locally without API calls.</li>
-                 <li><strong>Smart Context Routing:</strong> Maamu only sends heavy tracker context for data-related prompts, reducing token waste.</li>
-                 <li><strong>Clean Outputs:</strong> Internal reasoning tags from some models (like Qwen think blocks) are auto-hidden from chat.</li>
-                 <li><strong>Daily Usage Meter:</strong> The footer shows estimated token usage for today and auto-resets each day.</li>
-                 <li><strong>Conversation History Controls:</strong> Use search, pin, switch, and delete controls to manage past chats quickly.</li>
-                 <li><strong>Export & Templates:</strong> Export active conversation as Markdown and use one-click prompt templates for fast workflows.</li>
+                 <li><strong>Token Saver Mode:</strong> Basic greetings are handled locally without API calls.</li>
+                 <li><strong>Smart Context Routing:</strong> Maamu only sends tracker context for data-related prompts.</li>
+                 <li><strong>Conversation Control:</strong> Export as Markdown or clear sessions instantly to manage your cache.</li>
                </ul>
             </section>
           </div>

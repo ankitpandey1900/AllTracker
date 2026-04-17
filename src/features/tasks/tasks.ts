@@ -158,7 +158,7 @@ function setupTaskListeners(): void {
 function handleTaskAction(e: Event): void {
   const target = e.currentTarget as HTMLElement;
   const action = target.getAttribute('data-action');
-  const id = parseInt(target.getAttribute('data-id') || '0');
+  const id = target.getAttribute('data-id') || '';
 
   if (action === 'toggle') toggleTask(id);
   if (action === 'delete') deleteTask(id);
@@ -166,7 +166,7 @@ function handleTaskAction(e: Event): void {
 
 export function addTask(text: string, priority: 1 | 2 | 3 = 2): void {
   const newTask: StudyTask = {
-    id: Date.now(),
+    id: crypto.randomUUID(),
     text,
     completed: false,
     date: new Date().toISOString().split('T')[0],
@@ -180,7 +180,7 @@ export function addTask(text: string, priority: 1 | 2 | 3 = 2): void {
   showToast('Mission Accepted!', 'success');
 }
 
-export function toggleTask(id: number): void {
+export function toggleTask(id: string): void {
   const task = appState.tasks.find(t => t.id === id);
   if (!task) return;
 
@@ -213,7 +213,7 @@ function cleanupTasks(): void {
   }
 }
 
-export function deleteTask(id: number): void {
+export function deleteTask(id: string): void {
   appState.tasks = appState.tasks.filter(t => t.id !== id);
   saveTasks();
   renderTasks();

@@ -5,7 +5,7 @@
  */
 
 export interface StudyTask {
-  id: number;
+  id: string;
   text: string;
   completed: boolean;
   /** ISO string of the date (YYYY-MM-DD) */
