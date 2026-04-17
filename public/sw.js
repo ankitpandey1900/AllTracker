@@ -1,4 +1,4 @@
-const CACHE_NAME = 'alltracker-cache-v1.9.3'; // V1.9.3: Square Logo Fix (PWA Install Compliance)
+const CACHE_NAME = 'alltracker-cache-v1.9.4'; // V1.9.4: Hardened API Detection & Cache Fix
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -17,7 +17,8 @@ const isApiRequest = (url) => {
     'supabase.co',
     'api.groq.com',
     '/rest/v1/',
-    '/auth/v1/'
+    '/auth/v1/',
+    '/api/'
   ];
   return apiPatterns.some(pattern => url.includes(pattern));
 };
@@ -90,4 +91,3 @@ self.addEventListener('fetch', (event) => {
     );
   }
 });
-

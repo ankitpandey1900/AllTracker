@@ -19,7 +19,7 @@ const apiMiddleware = () => ({
         const url = new URL(req.url, `http://${req.headers.host}`);
         let path = url.pathname;
         
-        // Handle dynamic routes like /api/app/vault/[name]
+        // Handle dynamic routes
         let filePath = '';
         let query: Record<string, string | string[]> = {};
 
@@ -34,6 +34,10 @@ const apiMiddleware = () => ({
           filePath = resolve(__dirname, `${path.slice(1)}.ts`);
         }
 
+        // Force Vite to handle the module execution
+        // Note: For SSR, we need to pass the module path.
+        // If the module has .js imports for .ts files, the Vite SSR runner
+        // usually handles them if they are part of the dependency graph.
         const mod = await server.ssrLoadModule(filePath);
         const handler = mod.default;
 
@@ -51,6 +55,7 @@ const apiMiddleware = () => ({
       } catch (err) {
         console.error('API Middleware Error:', err);
         res.statusCode = 500;
+        res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify({ error: 'Internal Server Error', details: String(err) }));
       }
     });
@@ -63,6 +68,9 @@ export default defineConfig({
     alias: {
       '@': resolve(__dirname, 'src'),
     },
+    // This allows .js imports in our code to resolve to .ts files locally
+    // It's essential for keeping code Vercel-ready while developing locally.
+    extensions: ['.ts', '.js', '.json'],
   },
   publicDir: 'public',
 });
