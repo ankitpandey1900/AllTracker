@@ -24,7 +24,7 @@ const apiMiddleware = () => ({
         let query: Record<string, string | string[]> = {};
 
         if (path.startsWith('/api/auth/')) {
-          filePath = resolve(__dirname, 'api/auth/[...all].ts');
+          filePath = resolve(__dirname, 'api/auth/[...auth].ts');
         } else if (path.startsWith('/api/app/vault/')) {
           const parts = path.split('/');
           const name = parts[parts.length - 1];

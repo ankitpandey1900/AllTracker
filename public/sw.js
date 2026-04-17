@@ -1,4 +1,4 @@
-const CACHE_NAME = 'alltracker-cache-v1.9.4'; // V1.9.4: Hardened API Detection & Cache Fix
+const CACHE_NAME = 'alltracker-cache-v1.9.6'; // V1.9.6: Unified ASM & Diagnostic Hardening
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
