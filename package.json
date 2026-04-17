@@ -1,6 +1,9 @@
 {
   "name": "all-tracker",
   "version": "3.0.0",
+  "engines": {
+    "node": ">=20"
+  },
   "description": "The official All Tracker — A high-performance, gamified study and focus dashboard for the modern developer.",
   "type": "module",
   "repository": {
