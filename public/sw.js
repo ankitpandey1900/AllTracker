@@ -3,8 +3,7 @@ const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/logo.png',
-  '/css/loader.css'
+  '/logo.png'
 ];
 
 // Utility: Check if request is for the main site shell

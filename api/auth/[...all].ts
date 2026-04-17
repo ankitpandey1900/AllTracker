@@ -9,10 +9,6 @@ export const config = {
 };
 
 export default async function handler(req: any, res: any) {
-  try {
-    const auth = getAuth();
-    return toNodeHandler(auth.handler)(req, res);
-  } catch (error) {
-    handleRouteError(res, error);
-  }
+  const auth = getAuth();
+  return toNodeHandler(auth)(req, res);
 }

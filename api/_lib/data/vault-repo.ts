@@ -160,7 +160,7 @@ export async function readVault(
         `,
         [profile.profileId],
       );
-      const history = rows.reduce<Record<string, number>>((acc, row) => {
+      const history = rows.reduce<Record<string, number>>((acc: Record<string, number>, row: { history_date: string; completed_count: number }) => {
         acc[row.history_date] = Number(row.completed_count || 0);
         return acc;
       }, {});
