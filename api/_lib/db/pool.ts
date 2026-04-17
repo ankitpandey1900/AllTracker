@@ -1,5 +1,5 @@
 import { Pool } from "pg";
-import { assertDatabaseConfigured } from "../config/env";
+import { assertDatabaseConfigured } from "../config/env.js";
 
 declare global {
   // eslint-disable-next-line no-var

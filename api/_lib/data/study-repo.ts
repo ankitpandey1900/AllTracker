@@ -1,5 +1,5 @@
-import { getPool } from "../db/pool";
-import type { AuthenticatedProfile } from "./profile-repo";
+import { getPool } from "../db/pool.js";
+import type { AuthenticatedProfile } from "./profile-repo.js";
 
 export async function logStudySession(
   profile: AuthenticatedProfile,

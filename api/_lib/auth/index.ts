@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth";
-import { assertAuthConfigured } from "../config/env";
-import { getPool } from "../db/pool";
+import { assertAuthConfigured } from "../config/env.js";
+import { getPool } from "../db/pool.js";
 
 let authInstance: any;
 

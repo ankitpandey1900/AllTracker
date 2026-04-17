@@ -1,9 +1,9 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { getAuth } from "../_lib/auth";
-import { broadcastProfileStats } from "../_lib/data/profile-repo";
-import { ensureProfileForUser } from "../_lib/data/profile-repo";
-import { headersFromNode, readJsonBody } from "../_lib/http/request";
-import { handleRouteError, sendJson, sendMethodNotAllowed } from "../_lib/http/response";
+import { getAuth } from "../_lib/auth/index.js";
+import { broadcastProfileStats } from "../_lib/data/profile-repo.js";
+import { ensureProfileForUser } from "../_lib/data/profile-repo.js";
+import { headersFromNode, readJsonBody } from "../_lib/http/request.js";
+import { handleRouteError, sendJson, sendMethodNotAllowed } from "../_lib/http/response.js";
 
 export default async function handler(
   req: IncomingMessage,

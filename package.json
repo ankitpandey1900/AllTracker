@@ -5,6 +5,7 @@
     "node": ">=20"
   },
   "description": "The official All Tracker — A high-performance, gamified study and focus dashboard for the modern developer.",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "https://github.com/ankitpandey1900/Tracker.git"

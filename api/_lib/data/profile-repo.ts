@@ -1,5 +1,5 @@
 import type { PoolClient } from "pg";
-import { getPool } from "../db/pool";
+import { getPool } from "../db/pool.js";
 
 type SessionUser = {
   id: string;

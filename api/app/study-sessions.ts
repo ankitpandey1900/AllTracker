@@ -1,9 +1,9 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { getAuth } from "../_lib/auth";
-import { fetchStudySessions, logStudySession } from "../_lib/data/study-repo";
-import { ensureProfileForUser } from "../_lib/data/profile-repo";
-import { headersFromNode, readJsonBody } from "../_lib/http/request";
-import { handleRouteError, sendJson, sendMethodNotAllowed } from "../_lib/http/response";
+import { getAuth } from "../_lib/auth/index.js";
+import { fetchStudySessions, logStudySession } from "../_lib/data/study-repo.js";
+import { ensureProfileForUser } from "../_lib/data/profile-repo.js";
+import { headersFromNode, readJsonBody } from "../_lib/http/request.js";
+import { handleRouteError, sendJson, sendMethodNotAllowed } from "../_lib/http/response.js";
 
 export default async function handler(
   req: IncomingMessage,

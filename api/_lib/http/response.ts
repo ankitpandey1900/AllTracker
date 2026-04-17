@@ -1,5 +1,5 @@
 import type { ServerResponse } from "node:http";
-import { ConfigurationError } from "../config/env";
+import { ConfigurationError } from "../config/env.js";
 
 function applyDefaultHeaders(res: ServerResponse): void {
   res.setHeader("X-Content-Type-Options", "nosniff");

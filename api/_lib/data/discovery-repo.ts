@@ -1,4 +1,4 @@
-import { getPool } from "../db/pool";
+import { getPool } from "../db/pool.js";
 
 export async function fetchLeaderboard() {
   const pool = getPool();

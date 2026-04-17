@@ -1,9 +1,9 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { getAuth } from "../../_lib/auth";
-import { readVault, writeVault } from "../../_lib/data/vault-repo";
-import { ensureProfileForUser } from "../../_lib/data/profile-repo";
-import { headersFromNode, readJsonBody } from "../../_lib/http/request";
-import { handleRouteError, sendJson, sendMethodNotAllowed } from "../../_lib/http/response";
+import { getAuth } from "../../_lib/auth/index.js";
+import { readVault, writeVault } from "../../_lib/data/vault-repo.js";
+import { ensureProfileForUser } from "../../_lib/data/profile-repo.js";
+import { headersFromNode, readJsonBody } from "../../_lib/http/request.js";
+import { handleRouteError, sendJson, sendMethodNotAllowed } from "../../_lib/http/response.js";
 
 const allowedVaults = new Set([
   "tracker",

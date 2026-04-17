@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { fetchTelemetry } from "../_lib/data/discovery-repo";
-import { handleRouteError, sendJson, sendMethodNotAllowed } from "../_lib/http/response";
+import { fetchTelemetry } from "../_lib/data/discovery-repo.js";
+import { handleRouteError, sendJson, sendMethodNotAllowed } from "../_lib/http/response.js";
 
 export default async function handler(
   req: IncomingMessage,
