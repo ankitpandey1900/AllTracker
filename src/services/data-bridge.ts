@@ -27,7 +27,7 @@ import type { RoutineItem, RoutineHistory } from '@/types/routine.types';
 import type { Bookmark } from '@/types/bookmark.types';
 import type { StudyTask } from '@/types/task.types';
 import type { ActiveTimer } from '@/types/timer.types';
-import { applyThemeToDOM, appState } from '@/state/app-state';
+import { applyThemeToDOM, applyTimerStyleToDOM, appState } from '@/state/app-state';
 
 
 // --- Auth & Sync Helpers ---
@@ -145,6 +145,7 @@ export async function loadSettingsFromStorage(): Promise<Settings | null> {
     if (cloud && cloud.data) {
       if (cloud.data.theme) {
         applyThemeToDOM(cloud.data.theme);
+        applyTimerStyleToDOM(cloud.data.timerStyle);
       }
       setSettings(cloud.data, false);
       updateLocalTimestamp(STORAGE_KEYS.SETTINGS, cloud.updatedAt || undefined);
@@ -166,6 +167,7 @@ export async function loadSettingsFromStorage(): Promise<Settings | null> {
       }
       if (localSettings.theme) {
         applyThemeToDOM(localSettings.theme);
+        applyTimerStyleToDOM(localSettings.timerStyle);
       }
     } catch { 
       localSettings = null; 

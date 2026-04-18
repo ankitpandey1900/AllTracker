@@ -27,12 +27,19 @@ function createDefaultSettings(): Settings {
     groqApiKey: '',
     maamuModel: 'openai/gpt-oss-20b',
     theme: 'default',
+    timerStyle: 'ring',
   };
 }
 
 /** Applies the theme class to the HTML tag */
 export function applyThemeToDOM(themeName: string = 'default') {
   document.documentElement.setAttribute('data-theme', themeName);
+}
+
+/** Applies the timer style class to the body */
+export function applyTimerStyleToDOM(timerStyle: string = 'ring') {
+  document.body.classList.remove('timer-style-ring', 'timer-style-block');
+  document.body.classList.add(`timer-style-${timerStyle}`);
 }
 
 function createDefaultTimer(): ActiveTimer {

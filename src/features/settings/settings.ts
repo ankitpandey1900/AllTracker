@@ -24,6 +24,9 @@ export function openSettingsModal(): void {
   const themeInput = document.getElementById('themeSelectInput') as HTMLSelectElement;
   if (themeInput) { themeInput.value = s.theme || 'default'; }
 
+  const timerStyleInput = document.getElementById('timerStyleSelectInput') as HTMLSelectElement;
+  if (timerStyleInput) { timerStyleInput.value = s.timerStyle || 'ring'; }
+
   renderCustomRanges();
   modal?.classList.add('active');
 }
@@ -112,9 +115,17 @@ export function applyThemeSettings(): void {
   if (themeInput) {
     appState.settings.theme = themeInput.value as 'kaala' | 'default' | 'chanakya-strategy' | 'ayodhya' | 'kamala-grace' | 'vajra-shakti';
     import('@/state/app-state').then(m => m.applyThemeToDOM(appState.settings.theme));
-    saveSettingsToStorage(appState.settings);
-    showToast('Theme applied successfully.', 'success');
   }
+
+  const timerStyleInput = document.getElementById('timerStyleSelectInput') as HTMLSelectElement;
+  if (timerStyleInput) {
+    appState.settings.timerStyle = timerStyleInput.value as 'ring' | 'block';
+    document.body.classList.remove('timer-style-ring', 'timer-style-block');
+    document.body.classList.add(`timer-style-${appState.settings.timerStyle}`);
+  }
+
+  saveSettingsToStorage(appState.settings);
+  showToast('Appearance applied successfully.', 'success');
 }
 
 

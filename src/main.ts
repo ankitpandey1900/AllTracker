@@ -16,7 +16,7 @@ import "./styles/themes/chanakya-strategy.css";
 import "./styles/themes/ayodhya.css";
 import "./styles/themes/kamala-grace.css";
 // --- Core Setup ---
-import { appState, calculateDates, initializeData, applyThemeToDOM } from "@/state/app-state";
+import { appState, calculateDates, initializeData, applyThemeToDOM, applyTimerStyleToDOM } from "@/state/app-state";
 import {
   DEFAULT_COLUMNS,
   STORAGE_KEYS,
@@ -120,6 +120,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     // ⚡ CRITICAL: Ensure theme is applied to DOM even for first-time users
     applyThemeToDOM(appState.settings.theme);
+    applyTimerStyleToDOM(appState.settings.timerStyle);
     // ⚡ CRITICAL: Calculate dates immediately so dashboard isn't 0/0
     calculateDates();
     if (trackerData && trackerData.length > 0) {

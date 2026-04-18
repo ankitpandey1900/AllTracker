@@ -79,6 +79,7 @@ export interface Settings {
   groqApiKey?: string;
   maamuModel?: string;
   theme?: 'kaala' | 'default' | 'chanakya-strategy' | 'ayodhya' | 'kamala-grace' | 'vajra-shakti';
+  timerStyle?: 'ring' | 'block';
   sessionGoal?: string;           // Target hours for current phase
 }
 

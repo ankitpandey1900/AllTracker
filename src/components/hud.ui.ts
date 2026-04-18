@@ -48,10 +48,13 @@ export const hudView = `
           </svg>
         </div>
         <div class="timer-center-content">
-          <div class="label" id="timerSubject">DEEP FOCUS</div>
-          <div id="timerDisplay" class="timer-display">00:00:00</div>
-          <div id="focusActiveTaskContainer" style="display: none">
-            <span id="nowPlayingTask" class="timer-task-text">--</span>
+          <div class="neon-glow-bg"></div>
+          <div class="glass-block-content">
+            <div class="label" id="timerSubject">DEEP FOCUS</div>
+            <div id="timerDisplay" class="timer-display">00:00:00</div>
+            <div id="focusActiveTaskContainer" style="display: none">
+              <span id="nowPlayingTask" class="timer-task-text">--</span>
+            </div>
           </div>
         </div>
       </div>

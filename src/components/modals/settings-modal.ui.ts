@@ -16,7 +16,7 @@ export const settingsModal = `
             </div>
             <div class="settings-group" style="margin-top: 10px;">
               <label>Select Visual Theme</label>
-              <div class="row" style="gap: 10px; align-items: stretch;">
+              <div class="row" style="gap: 10px; align-items: stretch; margin-bottom: 12px;">
                 <select id="themeSelectInput" class="settings-input" style="background:#0f172a; flex: 1;">
                   <option value="default">Default / Himavat Ice</option>
                   <option value="kaala">Kaala (Deep Midnight)</option>
@@ -24,6 +24,13 @@ export const settingsModal = `
                   <option value="ayodhya">Ayodhya (Divine Order)</option>
                   <option value="kamala-grace">Kamala's Grace (Prosperity)</option>
                   <option value="vajra-shakti">Vajra Shakti (Divine Stadium)</option>
+                </select>
+              </div>
+              <label>Focus Timer Design</label>
+              <div class="row" style="gap: 10px; align-items: stretch;">
+                <select id="timerStyleSelectInput" class="settings-input" style="background:#0f172a; flex: 1;">
+                  <option value="ring">Zen Ring (Classic)</option>
+                  <option value="block">Neon Block (Digital)</option>
                 </select>
                 <button id="applyThemeBtn" class="btn btn-primary" style="white-space: nowrap; padding: 0 20px;">
                   Apply

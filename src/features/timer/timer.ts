@@ -24,9 +24,9 @@ import { showToast } from '@/utils/dom.utils';
  */
 export function initTimerModules(): void {
   // Connectivity Listeners
-  window.addEventListener('online',  () => SyncIndicator.update('synced'));
+  window.addEventListener('online', () => SyncIndicator.update('synced'));
   window.addEventListener('offline', () => SyncIndicator.update('offline'));
-  
+
   // Initial Check
   SyncIndicator.update(window.navigator.onLine ? 'synced' : 'offline');
 
@@ -37,14 +37,14 @@ export function initTimerModules(): void {
       const me = getCurrentUserId();
       // If the telemetry event is for this user
       if (payload.new && payload.new.id === me) {
-         const newIsFocusing = payload.new.is_focusing;
-         if (appState.activeTimer.isRunning && !newIsFocusing) {
-            console.log('🚨 SILENT OVERRIDE: External pause detected. Freezing local timer...');
-            const { loadTimerStateFromStorage } = await import('@/services/data-bridge');
-            const cloudState = await loadTimerStateFromStorage();
-            if (cloudState) Object.assign(appState.activeTimer, cloudState);
-            updateTimerDisplay();
-         }
+        const newIsFocusing = payload.new.is_focusing;
+        if (appState.activeTimer.isRunning && !newIsFocusing) {
+          console.log('🚨 SILENT OVERRIDE: External pause detected. Freezing local timer...');
+          const { loadTimerStateFromStorage } = await import('@/services/data-bridge');
+          const cloudState = await loadTimerStateFromStorage();
+          if (cloudState) Object.assign(appState.activeTimer, cloudState);
+          updateTimerDisplay();
+        }
       }
     });
   });
@@ -139,7 +139,7 @@ export function startTimer(categoryIdx: number, categoryName: string): void {
 
   saveTimerState();
   showToast(`Timer started for ${categoryName}`, 'success');
-  
+
   // ⚡ ELITE UX: Trigger War Mode / Sonic Effects
   document.body.classList.add('is-focusing');
 
@@ -197,7 +197,7 @@ export async function stopTimer(autoNote?: string): Promise<void> {
       const colIdx = parseInt(appState.activeTimer.category);
       const sessionStart = appState.activeTimer.sessionStartClock ? new Date(appState.activeTimer.sessionStartClock) : new Date();
       const sessionEnd = new Date();
-      
+
       const startDayStr = sessionStart.toISOString().split('T')[0];
       const endDayStr = sessionEnd.toISOString().split('T')[0];
 
@@ -215,13 +215,13 @@ export async function stopTimer(autoNote?: string): Promise<void> {
         saveSessionToDate(colIdx, hoursAfter, note, sessionEnd);
 
         showToast(`Midnight Split: ${hoursBefore.toFixed(2)}h (Yesterday) + ${hoursAfter.toFixed(2)}h (Today)`, 'success');
-        
+
         // 🌐 CLOUD SESSION LOG (UTC)
         logStudySessionCloud(totalHours, appState.activeTimer.colName || 'GENERAL', sessionStart, note);
       } else {
         saveSessionToDate(colIdx, totalHours, note, sessionEnd);
         showToast(autoNote ? `Auto-Safe Triggered: ${formatMsToTime(totalElapsed)}` : `Session saved: ${formatMsToTime(totalElapsed)}`, 'success');
-        
+
         // 🌐 CLOUD SESSION LOG (UTC)
         logStudySessionCloud(totalHours, appState.activeTimer.colName || 'GENERAL', sessionStart, note);
       }
@@ -254,6 +254,7 @@ export async function stopTimer(autoNote?: string): Promise<void> {
   document.getElementById('timerModal')?.classList.remove('active');
 
   updateTimerUI(false);
+  toggleFocusHUD(false);
   updateDashboard();
   renderHeatmap();
   renderPerformanceCurve();
@@ -266,7 +267,7 @@ export async function stopTimer(autoNote?: string): Promise<void> {
 export async function terminateTimer(): Promise<void> {
   if (!appState.activeTimer.isRunning && appState.activeTimer.elapsedAcc === 0) return;
 
-  const confirmed = confirm('TERMINATE SESSION?\n\nThis will discard all time. Nothing will be saved.');
+  const confirmed = await showTerminateConfirmModal();
   if (!confirmed) return;
 
   // Stop the local tick immediately
@@ -290,10 +291,42 @@ export async function terminateTimer(): Promise<void> {
   document.getElementById('timerModal')?.classList.remove('active');
 
   updateTimerUI(false);
+  toggleFocusHUD(false);
   showToast('Session terminated. No data recorded.', 'error');
 
   // Broadcast Idle telemetry so leaderboard/HUD reflects Idle state
   syncProfileBroadcast();
+}
+
+async function showTerminateConfirmModal(): Promise<boolean> {
+  return new Promise((resolve) => {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal active';
+    overlay.style.zIndex = '999999'; // higher than HUD
+
+    overlay.innerHTML = `
+      <div class="modal-content" style="max-width: 400px; text-align: center;">
+        <h3 style="color: #ef4444; margin-bottom: 12px; font-weight: bold; letter-spacing: 1px;">TERMINATE SESSION?</h3>
+        <p style="color: var(--text-secondary); margin-bottom: 24px; font-size: 0.95rem;">
+          This will discard all your study time. Nothing will be saved to your dashboard or the World Stage.
+        </p>
+        <div style="display: flex; gap: 12px; justify-content: center;">
+          <button id="cancelTermBtn" class="btn btn-outline" style="flex: 1;">Cancel</button>
+          <button id="confirmTermBtn" class="btn glow-danger" style="flex: 1; background: rgba(239, 68, 68, 0.1); border-color: #ef4444; color: #ef4444;">Terminate</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    const cleanup = (result: boolean) => {
+      document.body.removeChild(overlay);
+      resolve(result);
+    };
+
+    overlay.querySelector('#cancelTermBtn')?.addEventListener('click', () => cleanup(false));
+    overlay.querySelector('#confirmTermBtn')?.addEventListener('click', () => cleanup(true));
+  });
 }
 
 async function showSessionNoteModal(): Promise<string> {
@@ -442,7 +475,7 @@ function startTimerInterval(): void {
             playbackRate: 1,
             position: elapsedSeconds
           });
-        } catch (e) {}
+        } catch (e) { }
       }
 
       // 🛑 OVERRUN GUARD: HARD CAP LIVE SESSIONS AT 5 HOURS
@@ -615,13 +648,13 @@ export function resumeTimerIfNeeded(): void {
       appState.timerInterval = null;
     }
     updateTimerUI(false);
-    if (elapsedAcc === 0) return; 
+    if (elapsedAcc === 0) return;
   }
 
   // 🛡️ SELF-HEAL: Abandoned sessions (over 5 hours) - Aligned to Overrun Guard
   if (isRunning && startTime) {
     const elapsedNow = Date.now() - startTime;
-    const FIVE_HOURS_MS = 5 * 60 * 60 * 1000; 
+    const FIVE_HOURS_MS = 5 * 60 * 60 * 1000;
 
     if (elapsedNow > FIVE_HOURS_MS) {
       console.warn('[Timer] Self-healing: Detected abandoned session (>5h). Auto-Save Triggered.');
@@ -716,7 +749,7 @@ export function setupFocusListeners(): void {
       e.preventDefault();
       const cx = e.type.includes('mouse') ? (e as MouseEvent).clientX : (e as TouchEvent).touches[0].clientX;
       const cy = e.type.includes('mouse') ? (e as MouseEvent).clientY : (e as TouchEvent).touches[0].clientY;
-      
+
       const dx = cx - lastX;
       const dy = cy - lastY;
       lastX = cx;
@@ -725,16 +758,16 @@ export function setupFocusListeners(): void {
       // The translate() function precedes scale() in CSS, natively moving in 1:1 screen pixels.
       currX += dx;
       currY += dy;
-      
+
       hudSection.style.setProperty('--drag-x', `${currX}px`);
       hudSection.style.setProperty('--drag-y', `${currY}px`);
     };
 
-    const stopDrag = () => { 
+    const stopDrag = () => {
       if (!isDragging) return;
-      isDragging = false; 
+      isDragging = false;
       hudSection.style.transition = 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s';
-      
+
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('touchmove', onMove);
       window.removeEventListener('mouseup', stopDrag);
