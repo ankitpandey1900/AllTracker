@@ -31,6 +31,7 @@ export interface GlobalProfile {
   is_public: boolean;
   is_focus_public: boolean;
   email?: string;
+  is_online: boolean; // true if last_active within 60s (set by server)
 }
 
 export interface StudySession {

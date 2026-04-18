@@ -138,7 +138,7 @@ export function subscribeToRealtimeTelemetry(
     } catch (error) {
       log.error("Leaderboard polling failed", error);
     }
-  }, 15000);
+  }, 6000);
 
   return {
     unsubscribe: () => window.clearInterval(intervalId),
@@ -259,6 +259,7 @@ export async function loadUserProfileCloud(): Promise<GlobalProfile | null> {
     is_public: profile.metadata?.isPublic !== false,
     is_focus_public: profile.metadata?.isFocusPublic !== false,
     email: profile.email || "",
+    is_online: true,
   };
 }
 
@@ -314,4 +315,54 @@ export async function fetchGlobalTelemetry(): Promise<{
     log.error("Global telemetry fetch failed", error);
     return null;
   }
+}
+
+// ─── Maamu Chat API ──────────────────────────────────────────────────────────
+// Chat sessions are stored in maamu_conversations + maamu_messages tables,
+// NOT in user_settings.
+
+export async function loadMaamuSessions(): Promise<any[]> {
+  if (!getCurrentUserId()) return [];
+  try {
+    return await apiRequest<any[]>("/api/app/maamu");
+  } catch (error) {
+    log.error("Maamu sessions load failed", error);
+    return [];
+  }
+}
+
+export async function createMaamuSession(title: string = 'New Chat'): Promise<any | null> {
+  if (!getCurrentUserId()) return null;
+  return apiRequest<any>("/api/app/maamu", {
+    method: "POST",
+    body: { action: "create_session", title },
+  });
+}
+
+export async function addMaamuMessage(
+  conversationId: string,
+  role: 'user' | 'assistant' | 'system',
+  content: string,
+): Promise<any | null> {
+  if (!getCurrentUserId()) return null;
+  return apiRequest<any>("/api/app/maamu", {
+    method: "POST",
+    body: { action: "add_message", conversationId, role, content },
+  });
+}
+
+export async function deleteMaamuSession(conversationId: string): Promise<void> {
+  if (!getCurrentUserId()) return;
+  await apiRequest("/api/app/maamu", {
+    method: "POST",
+    body: { action: "delete_session", conversationId },
+  });
+}
+
+export async function renameMaamuSession(conversationId: string, title: string): Promise<void> {
+  if (!getCurrentUserId()) return;
+  await apiRequest("/api/app/maamu", {
+    method: "POST",
+    body: { action: "rename_session", conversationId, title },
+  });
 }

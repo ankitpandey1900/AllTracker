@@ -3,6 +3,13 @@ import type { SessionLog, TrackerDay, ChatSession, MentorMessage } from '@/types
 import { formatDateDMY } from '@/utils/date.utils';
 import { getRankTitle } from '@/utils/rank.utils';
 import { getCurrentUserLeaderboardContext } from '@/features/dashboard/leaderboard';
+import {
+  createMaamuSession,
+  addMaamuMessage,
+  deleteMaamuSession,
+  renameMaamuSession,
+  loadMaamuSessions,
+} from '@/services/vault.service';
 
 export interface TacticalBriefing {
   peakHour: number;
@@ -562,44 +569,85 @@ export function getHabitPulse(): string {
   return "Systemic Discipline Failure: Your routine integrity is compromised. Prioritize 'Easy Wins' to restore your momentum today.";
 }
 
+// ─── Maamu Chat Session Management (API-backed) ──────────────────────────────────
+// In-memory cache — loaded once on app boot via loadMaamuSessionsIntoState()
+let maamuSessions: ChatSession[] = [];
+let maamuActiveId: string = '';
+
+/** Load from DB and populate in-memory cache. Call once on app boot. */
+export async function loadMaamuSessionsIntoState(): Promise<void> {
+  const sessions = await loadMaamuSessions();
+  maamuSessions = sessions.map((s: any) => ({
+    id: s.id,
+    title: s.title,
+    messages: (s.messages || []).map((m: any) => ({
+      role: m.role,
+      content: m.content,
+      timestamp: m.timestamp,
+    } as MentorMessage)),
+    createdAt: s.createdAt,
+    lastActive: s.lastActive,
+  }));
+  if (!maamuActiveId && maamuSessions.length > 0) {
+    maamuActiveId = maamuSessions[0].id;
+  }
+}
+
 export function getChatSessions(): ChatSession[] {
-  return appState.settings.chatSessions || [];
+  return maamuSessions;
 }
 
 export function getActiveSession(): ChatSession | null {
-  const s = appState.settings;
-  if (!s.chatSessions || s.chatSessions.length === 0) return null;
-  return s.chatSessions.find(sess => sess.id === s.activeSessionId) || s.chatSessions[0];
+  if (maamuSessions.length === 0) return null;
+  return maamuSessions.find(s => s.id === maamuActiveId) || maamuSessions[0];
 }
 
-export function createNewSession(title: string = 'New Chat'): string {
-  if (!appState.settings.chatSessions) appState.settings.chatSessions = [];
-  
-  const newSession: ChatSession = {
-    id: 'session-' + Date.now(),
-    title,
+export async function createNewSession(title: string = 'New Chat'): Promise<string> {
+  const created = await createMaamuSession(title);
+  if (!created) return '';
+  const session: ChatSession = {
+    id: created.id,
+    title: created.title,
     messages: [],
-    createdAt: Date.now(),
-    lastActive: Date.now()
+    createdAt: created.createdAt,
+    lastActive: created.lastActive,
   };
-
-  appState.settings.chatSessions.unshift(newSession); // Newest first
-  appState.settings.activeSessionId = newSession.id;
-  return newSession.id;
+  maamuSessions.unshift(session);
+  maamuActiveId = session.id;
+  return session.id;
 }
 
-export function deleteSession(id: string): void {
-  const s = appState.settings;
-  if (!s.chatSessions) return;
-  s.chatSessions = s.chatSessions.filter(sess => sess.id !== id);
-  if (s.activeSessionId === id) {
-    s.activeSessionId = s.chatSessions[0]?.id || '';
+export async function deleteSession(id: string): Promise<void> {
+  await deleteMaamuSession(id);
+  maamuSessions = maamuSessions.filter(s => s.id !== id);
+  if (maamuActiveId === id) {
+    maamuActiveId = maamuSessions[0]?.id || '';
   }
-  if (s.chatSessions.length === 0) createNewSession();
+  if (maamuSessions.length === 0) {
+    await createNewSession();
+  }
 }
 
 export function switchSession(id: string): void {
-  appState.settings.activeSessionId = id;
+  maamuActiveId = id;
   const session = getActiveSession();
   if (session) session.lastActive = Date.now();
+}
+
+/** Persist a message to DB and add to in-memory cache */
+export async function persistMessage(
+  conversationId: string,
+  role: 'user' | 'assistant' | 'system',
+  content: string,
+): Promise<void> {
+  // Optimistic update to in-memory
+  const session = maamuSessions.find(s => s.id === conversationId);
+  if (session) {
+    session.messages.push({ role, content, timestamp: Date.now() });
+    session.lastActive = Date.now();
+  }
+  // Persist to DB (non-blocking)
+  addMaamuMessage(conversationId, role, content).catch(err =>
+    console.error('Maamu message persist failed:', err)
+  );
 }

@@ -278,18 +278,35 @@ export function renderIntelligenceBriefing(): void {
   const container = document.getElementById('intelligencePane');
   if (!container) return;
 
-  // Ensure send flow always has an active session.
-  if (!getActiveSession()) {
-    createNewSession();
-    saveSettingsToStorage(appState.settings);
-  }
-
   // Inject shell if missing, then bind listeners once.
   if (!document.getElementById('maamuGptContainer')) {
     container.innerHTML = intelligenceView;
   }
   if (!listenersBound) {
     listenersBound = setupListeners();
+  }
+
+  // Ensure send flow always has an active session.
+  if (!getActiveSession()) {
+    createNewSession().then((id) => {
+      if (id) {
+        renderIntelligenceBriefing();
+      } else {
+        const chatOutput = document.getElementById('maamuChatOutput');
+        if (chatOutput) {
+          chatOutput.innerHTML = `
+            <div class="h-full flex flex-col items-center justify-center p-8 text-center text-[var(--text-muted)]" style="opacity: 0.7; transform: translateY(4vh);">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 1rem;">
+                <path d="M12 15V17M12 7V13M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke-linecap="round"/>
+              </svg>
+              <p style="font-size: 1.25rem; font-weight: 600; font-family: 'Space Grotesk', sans-serif;">Identity Required</p>
+              <p style="font-size: 0.9rem; max-width: 250px; margin-top: 0.5rem; line-height: 1.4;">Login to your Mission Profile to activate your private AI Strategist.</p>
+            </div>
+          `;
+        }
+      }
+    });
+    return;
   }
 
   const toggle = document.getElementById('beastModeToggle') as HTMLInputElement;
@@ -366,7 +383,6 @@ function bindSessionQuickAccess(): void {
       const id = (e.target as HTMLSelectElement).value;
       if (!id) return;
       switchSession(id);
-      saveSettingsToStorage(appState.settings);
       renderSessionsList();
       renderActiveChat();
       renderSidebarMetrics();
@@ -379,12 +395,11 @@ function bindSessionQuickAccess(): void {
   const deleteBtn = document.getElementById('maamuDeleteSessionBtn') as HTMLButtonElement | null;
   if (deleteBtn && deleteBtn.dataset.bound !== 'true') {
     deleteBtn.dataset.bound = 'true';
-    deleteBtn.addEventListener('click', () => {
+    deleteBtn.addEventListener('click', async () => {
       const selectedId = (document.getElementById('maamuSessionSelectBottom') as HTMLSelectElement | null)?.value || getActiveSession()?.id || '';
       if (!selectedId) return;
       if (!confirm('Delete this conversation?')) return;
-      deleteSession(selectedId);
-      saveSettingsToStorage(appState.settings);
+      await deleteSession(selectedId);
       renderSessionsList();
       renderActiveChat();
       renderSessionQuickAccess();
@@ -458,13 +473,12 @@ function renderSessionsList(): void {
   }).join('');
 
   list.querySelectorAll('.maamu-session-item').forEach(el => {
-    el.addEventListener('click', e => {
+    el.addEventListener('click', async e => {
       const delBtn = (e.target as HTMLElement).closest('.session-delete-btn');
       if (delBtn) {
         e.stopPropagation();
         if (confirm('Delete this conversation?')) {
-          deleteSession(delBtn.getAttribute('data-id') || '');
-          saveSettingsToStorage(appState.settings);
+          await deleteSession(delBtn.getAttribute('data-id') || '');
           renderSessionsList();
           renderActiveChat();
           renderSessionQuickAccess();
@@ -477,16 +491,14 @@ function renderSessionsList(): void {
       const pinBtn = (e.target as HTMLElement).closest('.session-pin-btn');
       if (pinBtn) {
         e.stopPropagation();
-        const target = appState.settings.chatSessions?.find(s => s.id === pinBtn.getAttribute('data-id'));
+        const target = getChatSessions().find(s => s.id === pinBtn.getAttribute('data-id'));
         if (!target) return;
         target.pinned = !target.pinned;
-        saveSettingsToStorage(appState.settings);
         renderSessionsList();
         renderSessionQuickAccess();
         return;
       }
       switchSession(el.getAttribute('data-id') || '');
-      saveSettingsToStorage(appState.settings);
       renderSessionsList();
       renderActiveChat();
       renderSessionQuickAccess();
@@ -734,19 +746,17 @@ function renderSidebarMetrics(): void {
         const id = (el as HTMLElement).getAttribute('data-id') || '';
         if (!id) return;
         switchSession(id);
-        saveSettingsToStorage(appState.settings);
         renderSessionsList();
         renderActiveChat();
         renderSidebarMetrics();
       });
     });
     footer.querySelectorAll('.mfs-delete').forEach(btn => {
-      btn.addEventListener('click', (e) => {
+      btn.addEventListener('click', async (e) => {
         e.stopPropagation();
         const id = (btn as HTMLElement).getAttribute('data-id') || '';
         if (!id || !confirm('Delete this conversation?')) return;
-        deleteSession(id);
-        saveSettingsToStorage(appState.settings);
+        await deleteSession(id);
         renderSessionsList();
         renderActiveChat();
         renderSidebarMetrics();
@@ -778,19 +788,17 @@ function renderSidebarMetrics(): void {
         const id = (el as HTMLElement).getAttribute('data-id') || '';
         if (!id) return;
         switchSession(id);
-        saveSettingsToStorage(appState.settings);
         renderSessionsList();
         renderActiveChat();
         renderSidebarMetrics();
       });
     });
     footer.querySelectorAll('.mfs-delete').forEach(btn => {
-      btn.addEventListener('click', (e) => {
+      btn.addEventListener('click', async (e) => {
         e.stopPropagation();
         const id = (btn as HTMLElement).getAttribute('data-id') || '';
         if (!id || !confirm('Delete this conversation?')) return;
-        deleteSession(id);
-        saveSettingsToStorage(appState.settings);
+        await deleteSession(id);
         renderSessionsList();
         renderActiveChat();
         renderSidebarMetrics();
@@ -889,11 +897,10 @@ function setupListeners(): boolean {
       if (inp) inp.value = (chip as HTMLElement).textContent || '';
     });
   });
-  document.getElementById('newMissionConfirm')?.addEventListener('click', () => {
+  document.getElementById('newMissionConfirm')?.addEventListener('click', async () => {
     const titleInput = document.getElementById('newMissionTitleInput') as HTMLInputElement;
     const title = titleInput?.value.trim() || 'New Chat';
-    createNewSession(title);
-    saveSettingsToStorage(appState.settings);
+    await createNewSession(title);
     closeNewMissionDialog();
     if (titleInput) titleInput.value = '';
     renderSessionsList();
@@ -964,13 +971,11 @@ function setupListeners(): boolean {
         </div>
       `;
       chatOutput.appendChild(botRow.firstElementChild!);
-      const targetSession = appState.settings.chatSessions?.find(s => s.id === lockedSessionId);
-      if (targetSession) {
-        targetSession.messages.push({ role: 'user', content: query, timestamp: Date.now() });
-        targetSession.messages.push({ role: 'assistant', content: localReply, timestamp: Date.now() });
-        targetSession.lastActive = Date.now();
-      }
-      saveSettingsToStorage(appState.settings);
+      // Persist both messages to DB via in-memory cache + non-blocking API call
+      import('./intelligence.service').then(({ persistMessage }) => {
+        persistMessage(lockedSessionId, 'user', query);
+        persistMessage(lockedSessionId, 'assistant', localReply);
+      });
       addDailyUsage(estimateTokens(query) + estimateTokens(localReply));
       renderSessionsList();
       renderSidebarMetrics();

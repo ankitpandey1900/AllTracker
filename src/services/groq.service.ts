@@ -1,6 +1,6 @@
 import { appState } from '@/state/app-state';
 import { MentorMessage } from '@/types/tracker.types';
-import { getActiveSession } from '@/features/intelligence/intelligence.service';
+import { getActiveSession, getChatSessions, persistMessage } from '@/features/intelligence/intelligence.service';
 import type { ChatSession } from '@/types/tracker.types';
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
@@ -26,7 +26,7 @@ export function getMaamuModelLabel(modelId?: string): string {
 
 function getSessionById(sessionId?: string): ChatSession | null {
   if (!sessionId) return getActiveSession();
-  return appState.settings.chatSessions?.find(s => s.id === sessionId) || null;
+  return getChatSessions().find(s => s.id === sessionId) || null;
 }
 
 function stripThinkingContent(text: string): string {
@@ -53,20 +53,11 @@ function shouldUseTacticalContext(query: string): boolean {
 
 function saveToMentorHistory(role: MentorMessage['role'], content: string, sessionId?: string) {
   const activeSession = getSessionById(sessionId);
-  
-  const newMessage: MentorMessage = {
-    role,
-    content,
-    timestamp: Date.now()
-  };
-
   if (activeSession) {
-    activeSession.messages.push(newMessage);
-    activeSession.lastActive = Date.now();
-    if (activeSession.messages.length > 50) activeSession.messages.shift();
+    persistMessage(activeSession.id, role, content).catch(err => {
+      console.error('Failed to persist mentor history', err);
+    });
   }
-
-  import('@/services/data-bridge').then(m => m.saveSettingsToStorage(appState.settings));
 }
 
 /** Shared: builds the messages array for any Groq request */

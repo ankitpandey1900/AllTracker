@@ -16,45 +16,38 @@ export async function fetchLeaderboard() {
         p.is_focusing,
         p.focus_subject,
         p.last_active,
+        p.dob,
+        p.phone_number,
+        p.is_public,
+        p.is_focus_public,
         u.email,
-        us.data as settings_data
+        (p.last_active > now() - interval '60 seconds') as is_online
       from profiles p
       join "user" u on u.id = p.auth_user_id
-      left join user_settings us on us.id = p.id
       order by p.total_hours desc, p.updated_at desc nulls last
       limit 1000
     `,
   );
 
-  return rows.map((row: any) => {
-    const settings =
-      row.settings_data && typeof row.settings_data === "object"
-        ? row.settings_data
-        : {};
-    const meta =
-      settings.profile && typeof settings.profile === "object"
-        ? settings.profile
-        : {};
-
-    return {
-      sync_id: row.id,
-      display_name: row.username,
-      User_name: row.full_name || "",
-      dob: typeof meta.dob === "string" ? meta.dob : "",
-      nation: row.nation || "Global",
-      total_hours: Number(row.total_hours || 0),
-      today_hours: Number(row.today_hours || 0),
-      current_rank: row.rank || "IRON",
-      is_focusing_now: row.is_focusing === true,
-      last_active: row.last_active || new Date().toISOString(),
-      avatar: row.avatar || "👤",
-      current_focus_subject: row.focus_subject || null,
-      phone_number: typeof meta.phoneNumber === "string" ? meta.phoneNumber : "",
-      is_public: meta.isPublic !== false,
-      is_focus_public: meta.isFocusPublic !== false,
-      email: row.email,
-    };
-  });
+  return rows.map((row: any) => ({
+    sync_id: row.id,
+    display_name: row.username,
+    User_name: row.full_name || "",
+    dob: row.dob ? (typeof row.dob === 'string' ? row.dob.split('T')[0] : new Date(row.dob).toISOString().split('T')[0]) : "",
+    nation: row.nation || "Global",
+    total_hours: Number(row.total_hours || 0),
+    today_hours: Number(row.today_hours || 0),
+    current_rank: row.rank || "IRON",
+    is_focusing_now: row.is_focusing === true,
+    last_active: row.last_active || new Date().toISOString(),
+    avatar: row.avatar || "👤",
+    current_focus_subject: row.focus_subject || null,
+    phone_number: row.phone_number || "",
+    is_public: row.is_public !== false,
+    is_focus_public: row.is_focus_public !== false,
+    email: row.email,
+    is_online: row.is_online === true,
+  }));
 }
 
 export async function fetchTelemetry() {

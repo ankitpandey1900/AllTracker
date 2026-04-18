@@ -423,9 +423,10 @@ function renderUserRow(
   
   // Calculate diff gracefully, cap negative clock skew at 0
   const diffMins = isDateValid ? Math.max(0, (Date.now() - lastActive.getTime()) / 60000) : null;
-  
-  const isStale = diffMins === null || diffMins > 5;
-  const isFocusing = u.is_focusing_now && !isStale;
+
+  // is_online = server confirmed last_active within 60s
+  const isOnline = u.is_online === true;
+  const isFocusing = u.is_focusing_now && isOnline;
   
   let statusClass = 'offline';
   let statusLabel = '';
@@ -433,7 +434,7 @@ function renderUserRow(
   if (isFocusing) {
     statusClass = 'focusing';
     statusLabel = 'FOCUSING';
-  } else if (!isStale) {
+  } else if (isOnline) {
     statusClass = 'online';
     statusLabel = 'ONLINE';
   } else if (diffMins !== null) {
@@ -446,7 +447,6 @@ function renderUserRow(
       statusLabel = `Seen ${days}d ago`;
     }
   } else {
-    // New users or users with no telemetry history
     statusLabel = 'READY';
   }
 

@@ -15,10 +15,6 @@ type ProfileMetadata = {
   isFocusPublic?: boolean;
 };
 
-type StoredSettings = Record<string, unknown> & {
-  profile?: ProfileMetadata;
-};
-
 export type AuthenticatedProfile = {
   profileId: string;
   authUserId: string;
@@ -77,19 +73,6 @@ async function generateUniqueUsername(
   return `pilot-${user.id.slice(0, 8)}-${Date.now().toString(36)}`;
 }
 
-function parseProfileMetadata(data: unknown): ProfileMetadata {
-  const settings =
-    data && typeof data === "object" ? (data as StoredSettings) : undefined;
-  const profile = settings?.profile;
-  return {
-    dob: typeof profile?.dob === "string" ? profile.dob : "",
-    phoneNumber:
-      typeof profile?.phoneNumber === "string" ? profile.phoneNumber : "",
-    isPublic: profile?.isPublic !== false,
-    isFocusPublic: profile?.isFocusPublic !== false,
-  };
-}
-
 function mapProfileRow(row: any): AuthenticatedProfile {
   return {
     profileId: row.profile_id,
@@ -108,7 +91,22 @@ function mapProfileRow(row: any): AuthenticatedProfile {
     updatedAt: row.updated_at || null,
     email: row.email,
     image: row.image || null,
-    metadata: parseProfileMetadata(row.settings_data),
+    metadata: {
+      dob: (() => {
+        try {
+          if (!row.dob) return "";
+          const d = new Date(row.dob);
+          if (isNaN(d.getTime())) return "";
+          return d.toISOString().split('T')[0];
+        } catch {
+          return "";
+        }
+      })(),
+      phoneNumber: row.phone_number || "",
+      isPublic: row.is_public !== false,
+      isFocusPublic: row.is_focus_public !== false,
+    },
+
   };
 }
 
@@ -133,13 +131,15 @@ async function fetchProfile(
         p.last_active,
         p.created_at,
         p.updated_at,
+        p.dob,
+        p.phone_number,
+        p.is_public,
+        p.is_focus_public,
         u.name as user_name,
         u.email,
-        u.image,
-        us.data as settings_data
+        u.image
       from profiles p
       join "user" u on u.id = p.auth_user_id
-      left join user_settings us on us.id = p.id
       where p.auth_user_id = $1
       limit 1
     `,
@@ -191,10 +191,14 @@ export async function ensureProfileForUser(
           total_hours,
           today_hours,
           is_focusing,
+          dob,
+          phone_number,
+          is_public,
+          is_focus_public,
           last_active,
           updated_at
         )
-        values ($1, $2, $3, $4, 'Global', 'IRON', 0, 0, false, now(), now())
+        values ($1, $2, $3, $4, 'Global', 'IRON', 0, 0, false, null, '', true, true, now(), now())
         returning id
       `,
       [user.id, username, fullName, avatar],
@@ -202,6 +206,7 @@ export async function ensureProfileForUser(
 
     const profileId = rows[0].id as string;
 
+    // user_settings: only for app settings (theme, columns, etc.) — no profile data
     await client.query(
       `
         insert into user_settings (id, data, updated_at)
@@ -209,7 +214,7 @@ export async function ensureProfileForUser(
         on conflict (id)
         do nothing
       `,
-      [profileId, JSON.stringify({ profile: { isPublic: true, isFocusPublic: true } })],
+      [profileId, JSON.stringify({})],
     );
 
     await client.query(
@@ -297,6 +302,7 @@ export async function updateProfileIdentity(
     throw new Error("USERNAME_TAKEN");
   }
 
+  // All identity data stored directly on profiles — no user_settings needed
   await pool.query(
     `
       update profiles
@@ -305,6 +311,10 @@ export async function updateProfileIdentity(
         full_name = $3,
         nation = $4,
         avatar = $5,
+        dob = $6,
+        phone_number = $7,
+        is_public = $8,
+        is_focus_public = $9,
         updated_at = now()
       where id = $1
     `,
@@ -314,27 +324,10 @@ export async function updateProfileIdentity(
       updates.fullName,
       updates.nation,
       updates.avatar,
-    ],
-  );
-
-  await pool.query(
-    `
-      insert into user_settings (id, data, updated_at)
-      values ($1, $2::jsonb, now())
-      on conflict (id)
-      do update set
-        data = jsonb_set(
-          coalesce(user_settings.data, '{}'::jsonb),
-          '{profile}',
-          $3::jsonb,
-          true
-        ),
-        updated_at = now()
-    `,
-    [
-      profile.profileId,
-      JSON.stringify({ profile: updates.metadata }),
-      JSON.stringify(updates.metadata),
+      updates.metadata.dob ? updates.metadata.dob : null,  // date column — null if empty
+      updates.metadata.phoneNumber || "",
+      updates.metadata.isPublic !== false,
+      updates.metadata.isFocusPublic !== false,
     ],
   );
 
@@ -364,6 +357,10 @@ export async function broadcastProfileStats(
         today_hours = $8,
         is_focusing = $9,
         focus_subject = $10,
+        dob = $11,
+        phone_number = $12,
+        is_public = $13,
+        is_focus_public = $14,
         last_active = now(),
         updated_at = now()
       where id = $1
@@ -389,43 +386,16 @@ export async function broadcastProfileStats(
       typeof payload.current_focus_subject === "string"
         ? payload.current_focus_subject
         : null,
-    ],
-  );
-
-  const metadata = {
-    dob: typeof payload.dob === "string" ? payload.dob : profile.metadata.dob || "",
-    phoneNumber:
+      typeof payload.dob === "string" && payload.dob ? payload.dob : (profile.metadata.dob || null),
       typeof payload.phone_number === "string"
         ? payload.phone_number
         : profile.metadata.phoneNumber || "",
-    isPublic:
       typeof payload.is_public === "boolean"
         ? payload.is_public
         : profile.metadata.isPublic !== false,
-    isFocusPublic:
       typeof payload.is_focus_public === "boolean"
         ? payload.is_focus_public
         : profile.metadata.isFocusPublic !== false,
-  };
-
-  const existing = await pool.query(
-    "select data from user_settings where id = $1 limit 1",
-    [profile.profileId],
-  );
-  const current = existing.rows[0]?.data || {};
-  const merged = {
-    ...(current && typeof current === "object" ? current : {}),
-    profile: metadata,
-  };
-  await pool.query(
-    `
-      insert into user_settings (id, data, updated_at)
-      values ($1, $2::jsonb, now())
-      on conflict (id)
-      do update set
-        data = excluded.data,
-        updated_at = excluded.updated_at
-    `,
-    [profile.profileId, JSON.stringify(merged)],
+    ],
   );
 }

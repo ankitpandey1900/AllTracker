@@ -51,7 +51,9 @@ type TimerRow = {
 };
 
 function stripProfileFromSettings(data: Record<string, unknown>): Record<string, unknown> {
-  const { profile, ...rest } = data;
+  // profile metadata → profiles table columns
+  // chatSessions / activeSessionId → maamu_conversations + maamu_messages tables
+  const { profile, chatSessions, activeSessionId, ...rest } = data;
   return rest;
 }
 
@@ -250,11 +252,17 @@ export async function writeVault(
           [profile.profileId],
         );
         const current = existing.rows[0]?.data || {};
-        const next = {
-          ...(current && typeof current === "object" ? current : {}),
-          ...(data && typeof data === "object" ? data : {}),
-          profile: (current && typeof current === "object" && (current as any).profile) || {},
+        // Strip keys that belong in other tables (profile → profiles columns, chat → maamu tables)
+        const incoming = (data && typeof data === "object" ? data : {}) as Record<string, unknown>;
+        const { profile: _p, chatSessions: _c, activeSessionId: _a, ...incomingClean } = incoming;
+        const next: Record<string, unknown> = {
+          ...(current && typeof current === "object" ? current as Record<string, unknown> : {}),
+          ...incomingClean,
         };
+        // Always ensure profile/chat keys are absent
+        delete next.profile;
+        delete next.chatSessions;
+        delete next.activeSessionId;
         const updatedAt = new Date().toISOString();
         await client.query(
           `

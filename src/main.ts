@@ -95,113 +95,125 @@ import { requestNotificationPermission } from "@/features/notifications/notifica
 // --- App Start ---
 
 document.addEventListener("DOMContentLoaded", async () => {
-  // 0. Setup the UI Shell & Architecture (Critical)
-  shell.init('app-root');
-  await initUI();
-  
-  // Rebind navigation now that mobile-nav has been async injected by initUI
-  shell.setupTabNavigation();
+  try {
+    // 0. Setup the UI Shell & Architecture (Critical)
+    shell.init('app-root');
+    await initUI();
+    
+    // Rebind navigation now that mobile-nav has been async injected by initUI
+    shell.setupTabNavigation();
 
-  // 1. Parallel Data Loading (Local-First)
-  // We load everything from storage in parallel. data-bridge will return local data immediately.
-  const [settings, trackerData, routines, history, bookmarks, savedTimer] = await Promise.all([
-    loadSettingsFromStorage(),
-    loadTrackerDataFromStorage(),
-    loadRoutinesFromStorage(),
-    loadRoutineHistoryFromStorage(),
-    loadBookmarksFromStorage(),
-    loadTimerStateFromStorage(),
-  ]);
-
-  if (settings) {
-    appState.settings = { ...appState.settings, ...settings };
-  }
-  
-  // ⚡ CRITICAL: Ensure theme is applied to DOM even for first-time users
-  applyThemeToDOM(appState.settings.theme);
-  // ⚡ CRITICAL: Calculate dates immediately so dashboard isn't 0/0
-  calculateDates();
-  if (trackerData && trackerData.length > 0) {
-    appState.trackerData = trackerData;
-  } else {
-    appState.trackerData = initializeData();
-    saveTrackerDataToStorage(appState.trackerData);
-  }
-  appState.routines = routines;
-  appState.routineHistory = history;
-  appState.bookmarks = bookmarks;
-  if (savedTimer) Object.assign(appState.activeTimer, savedTimer);
-
-  // 3. High-Priority UI Bootstrap (Visible above the fold)
-  generateTable();
-  updateDashboard();
-  renderRoutine();
-  renderBookmarks();
-  
-  // 4. Secondary UI & Event Listeners
-  setupEventListeners();
-  setupTableSearch();
-  setupKeyboardShortcuts();
-  setupRoutineListeners();
-  setupBookmarkListeners();
-  setupFocusListeners();
-  
-  // 5. Background / Deferred Initializations
-  // These don't need to block the first paint
-  setTimeout(async () => {
-    // Analytics & Charts (Deferred)
-    renderPerformanceCurve();
-    renderRadarStats();
-    setupChartFilters();
-    renderBadges();
-    checkBadges();
-
-    // Features & Services
-    initSyncAuth();
-    setupHeaderScroll();
-    initTasks();
-    await checkDailyRoutineReset();
-
-    // ⚡ REAL-TIME SYNC BOOT: Listen for remote changes on other devices
-    await (await import('@/services/data-bridge')).startLiveSync();
-
-    const [
-      { initManualLogic },
-      { initNotifications },
-      { initIntegrityService }
-    ] = await Promise.all([
-      import('@/features/manual/manual'),
-      import('@/features/notifications/notifications'),
-      import('@/services/integrity')
+    // 1. Parallel Data Loading (Local-First)
+    // We load everything from storage in parallel. data-bridge will return local data immediately.
+    const [settings, trackerData, routines, history, bookmarks, savedTimer] = await Promise.all([
+      loadSettingsFromStorage(),
+      loadTrackerDataFromStorage(),
+      loadRoutinesFromStorage(),
+      loadRoutineHistoryFromStorage(),
+      loadBookmarksFromStorage(),
+      loadTimerStateFromStorage(),
     ]);
 
-    initManualLogic();
-    initNotifications();
-    initIntegrityService();
-    initAtmosphericProtocol();
+    if (settings) {
+      appState.settings = { ...appState.settings, ...settings };
+    }
     
-    // 🏁 WORLD STAGE BOOT: Only once data is established
-    await initWorldStage();
-    await checkProfileIdentity();
-    resumeTimerIfNeeded();
-    
-    // 🔄 BACKGROUND SYNC: Silently update and refresh if cloud differs
-    performBackgroundSync();
-  }, 300);
+    // ⚡ CRITICAL: Ensure theme is applied to DOM even for first-time users
+    applyThemeToDOM(appState.settings.theme);
+    // ⚡ CRITICAL: Calculate dates immediately so dashboard isn't 0/0
+    calculateDates();
+    if (trackerData && trackerData.length > 0) {
+      appState.trackerData = trackerData;
+    } else {
+      appState.trackerData = initializeData();
+      saveTrackerDataToStorage(appState.trackerData);
+    }
+    appState.routines = routines;
+    appState.routineHistory = history;
+    appState.bookmarks = bookmarks;
+    if (savedTimer) Object.assign(appState.activeTimer, savedTimer);
 
-  // 6. Session goal recovery
-  const goalInput = document.getElementById("sessionGoalInput") as HTMLInputElement;
-  if (goalInput && appState.settings.sessionGoal) {
-    goalInput.value = appState.settings.sessionGoal;
+    // 3. High-Priority UI Bootstrap (Visible above the fold)
+    generateTable();
+    updateDashboard();
+    renderRoutine();
+    renderBookmarks();
+    
+    // 4. Secondary UI & Event Listeners
+    setupEventListeners();
+    setupTableSearch();
+    setupKeyboardShortcuts();
+    setupRoutineListeners();
+    setupBookmarkListeners();
+    setupFocusListeners();
+    
+    // 5. Background / Deferred Initializations
+    // These don't need to block the first paint
+    setTimeout(async () => {
+      // Analytics & Charts (Deferred)
+      renderPerformanceCurve();
+      renderRadarStats();
+      setupChartFilters();
+      renderBadges();
+      checkBadges();
+
+      // Features & Services
+      initSyncAuth();
+      setupHeaderScroll();
+      initTasks();
+      await checkDailyRoutineReset();
+
+      // ⚡ REAL-TIME SYNC BOOT: Listen for remote changes on other devices
+      await (await import('@/services/data-bridge')).startLiveSync();
+
+      const [
+        { initManualLogic },
+        { initNotifications },
+        { initIntegrityService }
+      ] = await Promise.all([
+        import('@/features/manual/manual'),
+        import('@/features/notifications/notifications'),
+        import('@/services/integrity')
+      ]);
+
+      initManualLogic();
+      initNotifications();
+      initIntegrityService();
+      initAtmosphericProtocol();
+      
+      // 🏁 WORLD STAGE BOOT: Only once data is established
+      await initWorldStage();
+      await checkProfileIdentity();
+      resumeTimerIfNeeded();
+      
+      // 🔄 BACKGROUND SYNC: Silently update and refresh if cloud differs
+      performBackgroundSync();
+    }, 300);
+
+    // 6. Session goal recovery
+    const goalInput = document.getElementById("sessionGoalInput") as HTMLInputElement;
+    if (goalInput && appState.settings.sessionGoal) {
+      goalInput.value = appState.settings.sessionGoal;
+    }
+
+    // 7. Elite Interactive Mouse Tracking
+    document.addEventListener("mousemove", (e) => {
+      document.documentElement.style.setProperty("--mouse-x", `${e.clientX}px`);
+      document.documentElement.style.setProperty("--mouse-y", `${e.clientY}px`);
+    });
+  } catch (error) {
+    log.error("BOOT CRITICAL: System failed to initialize cloud protocol. Falling back to localized mirror.", error);
+    // Even if sync fails, ensure core UI basics are visible if possible
+    try {
+      calculateDates();
+      generateTable();
+      updateDashboard();
+    } catch (fallbackError) {
+      console.error("Secondary failure during boot fallback", fallbackError);
+    }
   }
 
-  // 7. Elite Interactive Mouse Tracking
-  document.addEventListener("mousemove", (e) => {
-    document.documentElement.style.setProperty("--mouse-x", `${e.clientX}px`);
-    document.documentElement.style.setProperty("--mouse-y", `${e.clientY}px`);
-  });
-
-  // 🏁 8. Finalize Boot: Graceful Reveal
+  // 🏁 8. Finalize Boot: Graceful Reveal (ALWAYS executed)
   const runBootSequence = async () => {
     const loader = document.getElementById('app-bootstrap-loader');
     const loaderText = document.querySelector('.loader-text');
@@ -220,7 +232,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
 
   // Immediate initiation
-  runBootSequence();
+  await runBootSequence();
+
 
   // 📡 REACTIVE HEADER SYNC: Update username in header instantly
   window.addEventListener('all-tracker-identity-sync', (e: any) => {
