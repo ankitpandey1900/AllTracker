@@ -5,15 +5,22 @@
  * and cleaning up old history items.
  */
 
-import { appState } from '@/state/app-state';
+import { appState, subscribeToState } from '@/state/app-state';
 import { showToast } from '@/utils/dom.utils';
 import { saveTasksToStorage } from '@/services/data-bridge';
+import { log } from '@/utils/logger.utils';
 import type { StudyTask } from '@/types/task.types';
 
 // --- Starting Up ---
 
 /** Initializes the task feature and performs the backlog/cleanup check */
 export function initTasks(): void {
+  // Senior Developer Practice: Reactive Subscriptions
+  // This ensures the UI is always in sync with the state, regardless of where the change came from.
+  subscribeToState((path) => {
+    if (path === 'tasks') renderTasks();
+  });
+
   cleanupTasks();
   renderTasks();
   setupTaskListeners();
@@ -31,14 +38,6 @@ export function renderTasks(): void {
 
   if (!todayList || !backlogList || !historyList) return;
 
-  // Senior dev defensive hydration
-  if (appState.tasks.length === 0) {
-    try {
-      const saved = localStorage.getItem('studyTrackerTasks');
-      if (saved) appState.tasks = JSON.parse(saved);
-    } catch (e) {}
-  }
-
   const tasks = appState.tasks;
 
   // Senior Logic: Lenient filtering to handle timezone drift
@@ -53,8 +52,8 @@ export function renderTasks(): void {
   let backlogTasks = tasks.filter(t => !t.completed && t.date < today);
   const historyTasks = tasks.filter(t => t.completed).sort((a, b) => b.createdAt - a.createdAt);
 
-  // Diagnostic Log
-  console.log(`[Tasks Engine] Hydrated: ${tasks.length}, Active: ${todayMissions.length}, Backlog: ${backlogTasks.length}`);
+  // Diagnostic Log (Structured)
+  log.debug(`Rendering Tasks: Active=${todayMissions.length}, Backlog=${backlogTasks.length}`);
 
   // Sort by Priority: High (3) -> Med (2) -> Low (1)
   const prioritySort = (a: StudyTask, b: StudyTask) => {
@@ -192,24 +191,31 @@ export function addTask(text: string, priority: 1 | 2 | 3 = 2): void {
     priority
   };
 
-  appState.tasks.push(newTask);
+  // Senior Developer Practice: Trigger reactivity by re-assigning the array
+  appState.tasks = [...appState.tasks, newTask];
+  
   saveTasks();
-  renderTasks();
   showToast('Mission Accepted!', 'success');
 }
 
 export function toggleTask(id: string): void {
-  const task = appState.tasks.find(t => t.id === id);
-  if (!task) return;
-
-  // ⚡ OPTIMISTIC UI: Toggle instantly
-  task.completed = !task.completed;
-  task.completedAt = task.completed ? Date.now() : undefined;
-  renderTasks();
+  // Immutable update pattern to trigger Proxy
+  appState.tasks = appState.tasks.map(t => {
+    if (t.id === id) {
+      const completed = !t.completed;
+      return { 
+        ...t, 
+        completed, 
+        completedAt: completed ? Date.now() : undefined 
+      };
+    }
+    return t;
+  });
 
   saveTasks();
   
-  if (task.completed) {
+  const found = appState.tasks.find(t => t.id === id);
+  if (found?.completed) {
     showToast('Objective Secured!', 'success');
   }
 }
@@ -220,21 +226,21 @@ function cleanupTasks(): void {
   const now = Date.now();
 
   const originalCount = appState.tasks.length;
-  appState.tasks = appState.tasks.filter(t => {
+  const filtered = appState.tasks.filter(t => {
     if (!t.completed || !t.completedAt) return true;
     return (now - t.completedAt) < threeDaysInMs;
   });
 
-  if (appState.tasks.length < originalCount) {
+  if (filtered.length < originalCount) {
+    appState.tasks = filtered;
     saveTasks();
-    console.log(`Cleaned up ${originalCount - appState.tasks.length} old history tasks.`);
+    log.info(`Cleaned up ${originalCount - filtered.length} old history tasks.`);
   }
 }
 
 export function deleteTask(id: string): void {
   appState.tasks = appState.tasks.filter(t => t.id !== id);
   saveTasks();
-  renderTasks();
   showToast('Task Removed.');
 }
 

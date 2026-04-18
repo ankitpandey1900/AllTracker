@@ -53,9 +53,22 @@ function createDefaultTimer(): ActiveTimer {
   };
 }
 
-// --- The Main State Object ---
+// --- Reactive State Engine (Senior Developer Practice) ---
 
-export const appState = {
+type StateListener = (path: string, value: any) => void;
+const listeners = new Set<StateListener>();
+
+/** Subscribe to state changes at the property level */
+export function subscribeToState(callback: StateListener): () => void {
+  listeners.add(callback);
+  return () => listeners.delete(callback);
+}
+
+function notify(path: string, value: any) {
+  listeners.forEach(fn => fn(path, value));
+}
+
+const rawState = {
   /** Daily tracker entries */
   trackerData: [] as TrackerDay[],
 
@@ -64,7 +77,6 @@ export const appState = {
 
   /** Daily routine items */
   routines: JSON.parse(localStorage.getItem(STORAGE_KEYS.ROUTINES) || '[]') as RoutineItem[],
-
 
   /** Routine completion history by date */
   routineHistory: JSON.parse(localStorage.getItem(STORAGE_KEYS.ROUTINE_HISTORY) || '{}') as RoutineHistory,
@@ -85,7 +97,6 @@ export const appState = {
   deadlineInterval: null as ReturnType<typeof setInterval> | null,
 
   // --- Dates for internal use ---
-
   startDate: new Date(DEFAULT_START_DATE),
   endDate: new Date(DEFAULT_END_DATE),
   totalDays: 0,
@@ -93,6 +104,19 @@ export const appState = {
   phase2End: 0,
   phase3End: 0,
 };
+
+/** 
+ * 🚀 High-Fidelity Reactive State
+ * Uses a Proxy to intercept writes and notify subscribers.
+ */
+export const appState = new Proxy(rawState, {
+  set(target, prop, value) {
+    const key = prop as string;
+    (target as any)[key] = value;
+    notify(key, value);
+    return true;
+  }
+});
 
 // --- Calculating Dates and Phases ---
 

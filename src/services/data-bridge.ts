@@ -1,5 +1,6 @@
 import { getSecureLocalProfileString, setSecureLocalProfileString } from '@/utils/security';
 import { log } from '@/utils/logger.utils';
+import { showLoading, hideLoading } from '@/utils/dom.utils';
 /**
  * Data Bridge — Handles saving and loading data.
  * 

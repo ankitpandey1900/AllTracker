@@ -13,6 +13,39 @@
     rgba(4, 8, 16, 0.92);
 }
 
+.view-pane {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  display: none;
+}
+
+.view-pane.active {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.shimmer-pane {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-pane::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.03), transparent);
+  animation: shimmer 0.8s infinite;
+}
+
+@keyframes shimmer {
+  100% { left: 100%; }
+}
+
 #activeTimerSection {
   width: min(420px, calc(100vw - 30px));
   margin: 40px auto;

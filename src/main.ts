@@ -302,7 +302,6 @@ function setupEventListeners(): void {
   }
 
   // Nav direct start shortcut
-  bindClick("startTimerBtn", openTimerModal);
   bindClick("mobileNavStartTimerBtn", openTimerModal);
 
   bindClick("timerPauseBtn", () => {
