@@ -18,7 +18,27 @@ To ensure maximum reliability and professional-grade security, All Tracker uses 
 - **Better Auth Integration**: Identity is managed via the **Better Auth** framework, supporting secure Google/GitHub OAuth sessions.
 - **Local-First Sync**: Functions in `data-bridge.ts` must return local data immediately from `localStorage`. Synchronization with the cloud happens asynchronously via `performBackgroundSync()`.
 - **Granular Payload Mapping**: The `vault.service.ts` maps individual feature objects to server endpoints to ensure partial updates and data isolation.
+## ⚡ Reactivity Engine (V4 Standard)
 
+The application utilizes a **Proxy-based state engine** to manage data flow without the need for frameworks:
+
+- **State Subscriptions**: Features should subscribe to specific state paths using `subscribeToState`.
+- **Immutable Updates**: When modifying state arrays (like `tasks` or `trackerData`), always use immutable patterns (e.g., `appState.tasks = [...appState.tasks, newTask]`) to trigger the Proxy's `set` trap.
+
+## 🛡️ API Resiliency SOP
+
+Network reliability is managed via the `api.service.ts` layer:
+
+- **Exponential Backoff**: All cloud requests automatically retry 3 times with increasing delays (1s, 2s, 4s) on transient errors (503, 408).
+- **Silent Failover**: If the cloud is unreachable, the system must continue to operate using the local cache without blocking the user.
+
+## 📡 Tactical Logging SOP
+
+Avoid direct `console.log` for app logic. Use the `log` utility from `@/utils/logger.utils`:
+
+- **Levels**: Use `log.debug` for feature logic, `log.info` for lifecycle events, and `log.error` for sync failures.
+- **Toggle**: Advanced logging is enabled via `localStorage.setItem('ALL_TRACKER_LOG_LEVEL', 'DEBUG')`.
+  
 ## 🌓 Midnight Crossover Logic (SOP)
 
 All Tracker uses the **"Absolute Accuracy" (Midnight Split)** approach for sessions that cross calendar days.
