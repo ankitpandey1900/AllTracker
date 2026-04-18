@@ -378,6 +378,9 @@ export async function saveRoutineResetToStorage(reset: string): Promise<void> {
 // --- Task Functions ---
 
 function setTasks(tasks: StudyTask[], pushToCloud = true): void {
+  // Senior Developer Practice: Log state changes for critical data entities
+  console.log(`[DataBridge] Syncing Tasks: ${tasks.length} items (Push to Cloud: ${pushToCloud})`);
+  
   appState.tasks = tasks;
   localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(tasks));
   

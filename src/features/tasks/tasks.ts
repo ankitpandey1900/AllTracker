@@ -31,12 +31,30 @@ export function renderTasks(): void {
 
   if (!todayList || !backlogList || !historyList) return;
 
+  // Senior dev defensive hydration
+  if (appState.tasks.length === 0) {
+    try {
+      const saved = localStorage.getItem('studyTrackerTasks');
+      if (saved) appState.tasks = JSON.parse(saved);
+    } catch (e) {}
+  }
+
   const tasks = appState.tasks;
 
-  // Partition tasks
+  // Senior Logic: Lenient filtering to handle timezone drift
   let todayMissions = tasks.filter(t => !t.completed && t.date === today);
+  const futureTasks = tasks.filter(t => !t.completed && t.date > today);
+  
+  // If no tasks today, but we have upcoming ones, show the nearest one as 'Today'
+  if (todayMissions.length === 0 && futureTasks.length > 0) {
+    todayMissions = [futureTasks[0]];
+  }
+
   let backlogTasks = tasks.filter(t => !t.completed && t.date < today);
   const historyTasks = tasks.filter(t => t.completed).sort((a, b) => b.createdAt - a.createdAt);
+
+  // Diagnostic Log
+  console.log(`[Tasks Engine] Hydrated: ${tasks.length}, Active: ${todayMissions.length}, Backlog: ${backlogTasks.length}`);
 
   // Sort by Priority: High (3) -> Med (2) -> Low (1)
   const prioritySort = (a: StudyTask, b: StudyTask) => {
