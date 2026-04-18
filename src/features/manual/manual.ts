@@ -2,7 +2,7 @@
  * Handles the documentation logic for the Mission Dossier.
  * 
  * Features:
- * 1. Smooth scrolling to sections.
+ * 1. Smooth scrolling to sections with reveal animations.
  * 2. Active link highlighting.
  * 3. Real-time fuzzy search across all documentation sections.
  */
@@ -28,6 +28,14 @@ export function initManualLogic(): void {
     }
 
     el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // Subtle glitch/reveal effect for the target header
+    const header = el.querySelector('h1, h2');
+    if (header) {
+      header.classList.remove('reveal-active');
+      void (header as HTMLElement).offsetWidth; // Trigger reflow
+      header.classList.add('reveal-active');
+    }
 
     // Highlight active link in sidebar
     document.querySelectorAll('.docs-nav-link').forEach(l => l.classList.remove('active'));
@@ -66,7 +74,7 @@ export function initManualLogic(): void {
         if (text.includes(query)) {
           foundCount++;
           const title = section.querySelector('h1, h2, h3')?.textContent || 'Untitled Protocol';
-          const breadcrumb = section.querySelector('.docs-breadcrumb')?.textContent || 'General';
+          const breadcrumb = section.querySelector('.docs-breadcrumb')?.innerHTML || 'General';
           const id = section.id;
 
           const resultItem = document.createElement('div');
@@ -75,9 +83,9 @@ export function initManualLogic(): void {
           resultItem.innerHTML = `
             <div class="docs-step-num">${foundCount}</div>
             <div class="docs-step-body">
-              <div style="font-size: 0.7rem; color: var(--accent-blue); font-weight:700;">${breadcrumb}</div>
-              <h4 style="margin: 4px 0;">${title}</h4>
-              <p style="font-size: 0.85rem; opacity: 0.7;">Found match in this protocol section.</p>
+              <div class="docs-breadcrumb" style="margin-bottom: 5px; font-size: 0.7rem;">${breadcrumb}</div>
+              <h4 style="margin: 4px 0; font-family: 'Tektur', sans-serif; color: #fff;">${title}</h4>
+              <p style="font-size: 0.85rem; opacity: 0.7;">Protocol match detected in this section.</p>
             </div>
           `;
           resultItem.addEventListener('click', () => {
@@ -91,12 +99,13 @@ export function initManualLogic(): void {
       if (foundCount === 0) {
         resultsList.innerHTML = `
           <div class="search-empty-state">
-            <div style="font-size: 3rem; margin-bottom: 20px;">📡</div>
-            <h3>No matching protocols found</h3>
-            <p>Try searching for core systems like "Timer", "Sync", or "Shortcuts".</p>
+            <div style="font-size: 4rem; margin-bottom: 20px; opacity: 0.5;">📡</div>
+            <h3 style="font-family: 'Tektur', sans-serif; color: #fff;">No matching protocols found</h3>
+            <p>The system could not locate the requested transmission data.</p>
           </div>
         `;
       }
     });
   }
 }
+
