@@ -105,13 +105,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // 1. Parallel Data Loading (Local-First)
     // We load everything from storage in parallel. data-bridge will return local data immediately.
-    const [settings, trackerData, routines, history, bookmarks, savedTimer] = await Promise.all([
+    const [settings, trackerData, routines, history, bookmarks, savedTimer, tasks] = await Promise.all([
       loadSettingsFromStorage(),
       loadTrackerDataFromStorage(),
       loadRoutinesFromStorage(),
       loadRoutineHistoryFromStorage(),
       loadBookmarksFromStorage(),
       loadTimerStateFromStorage(),
+      loadTasksFromStorage(),
     ]);
 
     if (settings) {
@@ -132,6 +133,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     appState.routines = routines;
     appState.routineHistory = history;
     appState.bookmarks = bookmarks;
+    appState.tasks = tasks;
     if (savedTimer) Object.assign(appState.activeTimer, savedTimer);
 
     // 3. High-Priority UI Bootstrap (Visible above the fold)

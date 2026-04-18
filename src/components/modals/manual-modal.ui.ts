@@ -10,9 +10,15 @@ export const manualModal = `
           <span class="docs-version">v4.0.0</span>
         </div>
 
+        <!-- Live Telemetry Bar -->
+        <div class="docs-telemetry-bar">
+          <div class="tel-item"><span class="tel-label">SYSTEM:</span> <span class="tel-value">ON-LINE</span></div>
+          <div class="tel-item"><span class="tel-label">SESSION:</span> <span id="tel-session-time" class="tel-value">00:00:00</span></div>
+          <div class="tel-item"><span class="tel-label">SYNC:</span> <span class="tel-value pulse">SECURE</span></div>
+        </div>
 
-        
         <div class="docs-search-shell">
+
           <input type="text" id="docsSearchInput" class="docs-search-input" placeholder="Initiate protocol lookup..." autocomplete="off">
           <span class="docs-search-icon">⎙</span>
         </div>
@@ -79,9 +85,15 @@ export const manualModal = `
             <section class="docs-section" id="doc-intro">
               <div class="docs-breadcrumb">Welcome <b>›</b> Start Here</div>
               <h1 class="docs-h1" style="font-size: 3.5rem;">Welcome to AllTracker</h1>
+              
+              <div class="docs-hero-img-wrap">
+                <img src="/C:/Users/ankit/.gemini/antigravity/brain/f6b9b2cd-1c3f-4b52-9264-c13a0e42b08a/world_stage_concept_1776520593221.png" class="docs-hero-img" alt="World Stage Concept">
+              </div>
+
               <div class="docs-lead">Your ultimate companion for elite study mastery. We help you stay disciplined, track your progress with absolute precision, and compete on the Global World Stage.</div>
               
               <div class="docs-feature-grid">
+
                 <div class="docs-feature-card">
                   <div class="feature-card-icon">🚀</div>
                   <div class="feature-card-title">Stay Disciplined</div>
@@ -153,9 +165,15 @@ export const manualModal = `
             <section class="docs-section" id="doc-timer">
               <div class="docs-breadcrumb">Features <b>›</b> Focus Timer</div>
               <h2 class="docs-h2">The Focus Timer</h2>
+
+              <div class="docs-content-img-wrap">
+                <img src="/C:/Users/ankit/.gemini/antigravity/brain/f6b9b2cd-1c3f-4b52-9264-c13a0e42b08a/focus_timer_concept_1776520444925.png" class="docs-content-img" alt="Focus Timer Concept">
+              </div>
+
               <p>Our intelligent timer helps you maintain deep work sessions without the need for manual record-keeping.</p>
               
               <div class="docs-feature-grid">
+
                 <div class="docs-feature-card">
                   <div class="feature-card-icon">⏱️</div>
                   <div class="feature-card-title">Auto-Sync</div>
