@@ -13,6 +13,17 @@ interface NotificationMessage {
   body: string;
 }
 
+const DAILY_BRIEFING_MESSAGES: NotificationMessage[] = [
+  { title: "Naya Din, Nayi Jung 🌅", body: "Kal jo hua so hua. Aaj ka target set hai? The squad is waiting for you to lead." },
+  { title: "Aaj Ka Mission ⚡", body: "Platform pe activity shuru ho chuki hai. Don't be the last one to log in today." },
+  { title: "Wake Up, Soldier! 🪖", body: "Aaj ka din decide karega kal ka rank. Get your first session in before the others." },
+  { title: "Leaderboard Reset 🔄", body: "Aaj sab equal hain. It's time to build your lead and dominate the day." },
+  { title: "Aankh khuli? 👀", body: "Duniya padh ke aage nikal rahi hai. The board is waiting for your move." },
+  { title: "Daily Mission Active 🎯", body: "Routine check karo aur shuru ho jao. Aaj streak break nahi honi chahiye." },
+  { title: "Time to Grind ⚔️", body: "No excuses today. Your rivals are already planning their sessions." },
+  { title: "Good Morning, Operative ☕", body: "Coffee peeyo aur zone mein aao. The dashboard is waiting." }
+];
+
 const ROAST_MESSAGES: NotificationMessage[] = [
   { title: "Bhai tu rehn de... 🤡", body: "Pure din mein 0 hours? Reels dekhne ke liye All Tracker install kiya tha kya?" },
   { title: "Sapne bade, kaam zero? 📚", body: "IAS banne chale the, par session empty hai. Thoda sharam karo!" },
@@ -62,6 +73,10 @@ export function getPeerPressureMessage(topUser: string, focusingUser?: string): 
     { title: "Competition is LIVE! 🔥", body: `@${focusingUser || topUser} ne countdown shuru kar diya hai. Don't let them win!` },
   ];
   return getRandom(pools);
+}
+
+export function getDailyBriefingMessage(): NotificationMessage {
+  return getRandom(DAILY_BRIEFING_MESSAGES);
 }
 
 function getRandom<T>(arr: T[]): T {

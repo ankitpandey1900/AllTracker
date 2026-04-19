@@ -1,6 +1,6 @@
 import { appState } from '@/state/app-state';
 import { showToast } from '@/utils/dom.utils';
-import { getDeedMessage, getPeerPressureMessage } from './notification-content';
+import { getDeedMessage, getPeerPressureMessage, getDailyBriefingMessage } from './notification-content';
 import { fetchLeaderboard } from '@/services/vault.service';
 
 /**
@@ -25,6 +25,14 @@ export async function initNotifications(): Promise<void> {
   // Setup dynamic deed-checks & routine alerts
   setupStrategicAlerts();
   setupRoutineAlerts();
+
+  // Nag user to enable notifications if they haven't (once per session)
+  setTimeout(() => {
+    if (Notification.permission !== "granted" && !sessionStorage.getItem('notif_nagged')) {
+      showToast("🔔 Important: Enable notifications! Click the lock icon 🔒 next to the web address so we can send you Daily Alerts.", "info");
+      sessionStorage.setItem('notif_nagged', 'true');
+    }
+  }, 4000);
 }
 
 export function requestNotificationPermission(): void {
@@ -82,6 +90,7 @@ function setupStrategicAlerts(): void {
 
   // Initial check on load
   setTimeout(() => {
+    checkDailyBriefing();
     checkContextualNotifs();
     checkActiveChaser();
   }, 10000);
@@ -108,6 +117,21 @@ async function checkActiveChaser(): Promise<void> {
       lastChaserNotifAt = Date.now();
     }
   } catch (e) { /* ignore */ }
+}
+
+async function checkDailyBriefing(): Promise<void> {
+  const now = new Date();
+  const todayStr = now.toLocaleDateString('en-GB', { timeZone: 'Asia/Kolkata' });
+  const storageKey = 'last_daily_briefing_date';
+  
+  const lastBriefing = localStorage.getItem(storageKey);
+  
+  // If it's a new day and we haven't sent it yet today
+  if (lastBriefing !== todayStr) {
+    const msg = getDailyBriefingMessage();
+    await sendNotification(msg.title, msg.body);
+    localStorage.setItem(storageKey, todayStr);
+  }
 }
 
 async function checkContextualNotifs(): Promise<void> {
