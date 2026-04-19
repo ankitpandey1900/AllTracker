@@ -77,23 +77,7 @@ function setTrackerData(data: TrackerDay[], pushToCloud = true): void {
 }
 
 export async function loadTrackerDataFromStorage(): Promise<TrackerDay[]> {
-  const online = navigator.onLine;
-  const syncId = getCurrentUserId();
-
-  if (syncId && online) {
-    log.info('CLOUD MASTER: Fetching primary Tracker Data from cloud...', '🏛️');
-    const cloud = await loadTrackerDataCloud();
-    if (cloud && cloud.data) {
-      // 🛡️ WIPE PROTECTION: If cloud has data but we are about to return a "fresh" empty local state,
-      // we must FORCE the cloud data to take over.
-      setTrackerData(cloud.data, false);
-      updateLocalTimestamp(STORAGE_KEYS.TRACKER_DATA, cloud.updatedAt || undefined);
-      return cloud.data;
-    }
-  }
-
-  // Fallback to local only if offline or cloud fetch returned nothing
-  log.warn('OFFLINE/FALLBACK: Loading Tracker data from local mirror.');
+  // ⚡ LOCAL-FIRST: Immediately return local data to prevent UI blocking
   const saved = localStorage.getItem(STORAGE_KEYS.TRACKER_DATA);
   let localData: TrackerDay[] = [];
   if (saved) { 
@@ -138,22 +122,7 @@ function setSettings(settings: Settings, pushToCloud = true): void {
 }
 
 export async function loadSettingsFromStorage(): Promise<Settings | null> {
-  const online = navigator.onLine;
-  const syncId = getCurrentUserId();
-
-  if (syncId && online) {
-    const cloud = await loadSettingsCloud();
-    if (cloud && cloud.data) {
-      if (cloud.data.theme) {
-        applyThemeToDOM(cloud.data.theme);
-        applyTimerStyleToDOM(cloud.data.timerStyle);
-      }
-      setSettings(cloud.data, false);
-      updateLocalTimestamp(STORAGE_KEYS.SETTINGS, cloud.updatedAt || undefined);
-      return cloud.data;
-    }
-  }
-
+  // ⚡ LOCAL-FIRST: Immediately return local data to prevent UI blocking
   const saved = localStorage.getItem(STORAGE_KEYS.SETTINGS);
   let localSettings: Settings | null = null;
   
@@ -167,6 +136,7 @@ export async function loadSettingsFromStorage(): Promise<Settings | null> {
         localSettings.groqApiKey = deobfuscate(localSettings.groqApiKey, syncId);
       }
       if (localSettings.theme) {
+        // applyThemeToDOM already done in main.ts, but safely reapplying
         applyThemeToDOM(localSettings.theme);
         applyTimerStyleToDOM(localSettings.timerStyle);
       }
@@ -196,18 +166,7 @@ function setRoutines(routines: RoutineItem[], pushToCloud = true): void {
 }
 
 export async function loadRoutinesFromStorage(): Promise<RoutineItem[]> {
-  const online = navigator.onLine;
-  const syncId = getCurrentUserId();
-
-  if (syncId && online) {
-    const cloud = await loadRoutinesCloud();
-    if (cloud && cloud.data) {
-      setRoutines(cloud.data, false);
-      updateLocalTimestamp(STORAGE_KEYS.ROUTINES, cloud.updatedAt || undefined);
-      return cloud.data;
-    }
-  }
-
+  // ⚡ LOCAL-FIRST
   const saved = localStorage.getItem(STORAGE_KEYS.ROUTINES);
   let localRoutines: RoutineItem[] = [];
   if (saved) { try { localRoutines = JSON.parse(saved); } catch { localRoutines = []; } }
@@ -235,18 +194,7 @@ function setRoutineHistory(history: RoutineHistory, pushToCloud = true): void {
 }
 
 export async function loadRoutineHistoryFromStorage(): Promise<RoutineHistory> {
-  const online = navigator.onLine;
-  const syncId = getCurrentUserId();
-
-  if (syncId && online) {
-    const cloud = await loadRoutineHistoryCloud();
-    if (cloud && cloud.data) {
-      setRoutineHistory(cloud.data, false);
-      updateLocalTimestamp(STORAGE_KEYS.ROUTINE_HISTORY, cloud.updatedAt || undefined);
-      return cloud.data;
-    }
-  }
-
+  // ⚡ LOCAL-FIRST
   const saved = localStorage.getItem(STORAGE_KEYS.ROUTINE_HISTORY);
   let localHistory: RoutineHistory = {};
   if (saved) { try { localHistory = JSON.parse(saved); } catch { localHistory = {}; } }
@@ -272,18 +220,7 @@ function setBookmarks(bookmarks: Bookmark[], pushToCloud = true): void {
 }
 
 export async function loadBookmarksFromStorage(): Promise<Bookmark[]> {
-  const online = navigator.onLine;
-  const syncId = getCurrentUserId();
-
-  if (syncId && online) {
-    const cloud = await loadBookmarksCloud();
-    if (cloud && cloud.data) {
-      setBookmarks(cloud.data, false);
-      updateLocalTimestamp(STORAGE_KEYS.BOOKMARKS, cloud.updatedAt || undefined);
-      return cloud.data;
-    }
-  }
-
+  // ⚡ LOCAL-FIRST
   const saved = localStorage.getItem(STORAGE_KEYS.BOOKMARKS);
   let localBookmarks: Bookmark[] = [];
   if (saved) { try { localBookmarks = JSON.parse(saved); } catch { localBookmarks = []; } }
@@ -394,18 +331,7 @@ function setTasks(tasks: StudyTask[], pushToCloud = true): void {
 }
 
 export async function loadTasksFromStorage(): Promise<StudyTask[]> {
-  const online = navigator.onLine;
-  const syncId = getCurrentUserId();
-
-  if (syncId && online) {
-    const cloud = await loadTasksCloud();
-    if (cloud && cloud.data) {
-      setTasks(cloud.data, false);
-      updateLocalTimestamp(STORAGE_KEYS.TASKS, cloud.updatedAt || undefined);
-      return cloud.data;
-    }
-  }
-
+  // ⚡ LOCAL-FIRST
   const saved = localStorage.getItem(STORAGE_KEYS.TASKS);
   let localTasks: StudyTask[] = [];
   if (saved) { try { localTasks = JSON.parse(saved); } catch { localTasks = []; } }
