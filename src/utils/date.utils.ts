@@ -27,14 +27,35 @@ export function formatClockTime(date: Date): string {
   });
 }
 
-/** Converts 24h time string "14:30" to "2:30 PM" */
-export function formatTime12h(time24: string): string {
-  if (!time24) return '--:--';
-  const [hours, mins] = time24.split(':');
+/** Converts 24h time string "14:30" or ISO string to "2:30 PM" */
+export function formatTime12h(time: string): string {
+  if (!time) return '--:--';
+
+  // If it's an ISO string (study sessions use toISOString), parse properly
+  if (time.includes('T')) {
+    const date = new Date(time);
+    if (!isNaN(date.getTime())) {
+      return date.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+      });
+    }
+  }
+
+  // Handle standard HH:MM format (routines use this)
+  const parts = time.split(':');
+  if (parts.length < 2) return time;
+
+  const [hours, mins] = parts;
   let h = parseInt(hours);
+  if (isNaN(h)) return time;
+
   const ampm = h >= 12 ? 'PM' : 'AM';
   h = h % 12 || 12;
-  return `${h}:${mins} ${ampm}`;
+  // Ensure we only take first 2 digits of mins (handles HH:MM:SS)
+  const m = mins.substring(0, 2);
+  return `${h}:${m} ${ampm}`;
 }
 
 /** Formats milliseconds as "HH:MM:SS" */
