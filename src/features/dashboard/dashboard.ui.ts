@@ -93,19 +93,25 @@ export const dashboardView = `
 
               <!-- Row 3 -->
               <article class="card compact">
-                <div class="label">Consistency</div>
-                <div class="big" id="consistencyStat">0%</div>
-                <div class="meta">last 7 days</div>
+                <div class="label">Current Streak</div>
+                <div class="big" id="currentStreakStat">0</div>
+                <div class="meta">days</div>
               </article>
               <article class="card compact">
                 <div class="label">Best Streak</div>
                 <div class="big" id="bestStreakStat">0</div>
                 <div class="meta">days (all time)</div>
               </article>
-              <article class="card compact">
-                <div class="label">Current Streak</div>
-                <div id="currentStreak" class="big">0 DAYS</div>
-                <div class="meta">days in a row</div>
+              </article>
+
+              <!-- Row 4: Rivalry & Intelligence -->
+              <article id="rivalHUD" class="card rival-card" style="display: none; border: 1px solid rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.05); overflow: hidden; position: relative;">
+                <div class="label" style="color: #ef4444; font-weight: 800; letter-spacing: 1px;">TARGET IDENTIFIED 🎯</div>
+                <div id="rivalHandle" class="big" style="color: #ef4444; font-size: 1.8rem; margin: 4px 0;">@--</div>
+                <div class="meta" style="margin-top: 2px; font-size: 0.75rem;">
+                  RANK <span id="rivalRank">--</span> • <span id="rivalGap" style="color: #fca5a5; font-weight: 900;">-0.0h</span> TO OVERTAKE
+                </div>
+                <div class="rival-hud-mesh" style="position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(239, 68, 68, 0.03) 2px, rgba(239, 68, 68, 0.03) 4px); pointer-events: none;"></div>
               </article>
             </div>
           </div>
@@ -283,4 +289,6 @@ export const dashboardView = `
           </table>
         </div>
       </article>
+
+
 `;

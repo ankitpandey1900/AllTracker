@@ -374,6 +374,44 @@ body.timer-style-block #timerSubject {
   opacity: 1;
 }
 
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
+
+.hud-ticker:hover {
+  animation-play-state: paused;
+}
+
+
+
+/* ⚔️ RIVAL HUD PREMIUM */
+.rival-card {
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.rival-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  border-color: #ef4444 !important;
+  box-shadow: 0 10px 30px rgba(239, 68, 68, 0.15);
+}
+
+.rival-hud-mesh {
+  opacity: 0.3;
+  animation: mesh-fade 4s infinite ease-in-out;
+}
+
+@keyframes mesh-fade {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
 @keyframes cyber-border-flow {
   0% {
     background-position: 0% 50%;

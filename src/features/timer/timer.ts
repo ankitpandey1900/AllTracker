@@ -216,8 +216,13 @@ export async function stopTimer(autoNote?: string): Promise<void> {
 
         showToast(`🛡️ MIDNIGHT SECTOR SPLIT: ${hoursBefore.toFixed(2)}h (Yesterday) + ${hoursAfter.toFixed(2)}h (Today)`, 'success');
 
-        // 🌐 CLOUD SESSION LOG (UTC)
-        logStudySessionCloud(totalHours, appState.activeTimer.colName || 'GENERAL', sessionStart, note);
+        // 🌐 CLOUD SESSION LOG — two separate records, matching the local split exactly
+        if (hoursBefore > 0) {
+          logStudySessionCloud(hoursBefore, appState.activeTimer.colName || 'GENERAL', sessionStart, note);
+        }
+        if (hoursAfter > 0) {
+          logStudySessionCloud(hoursAfter, appState.activeTimer.colName || 'GENERAL', midnight, note);
+        }
       } else {
         saveSessionToDate(colIdx, totalHours, note, sessionEnd);
         showToast(autoNote ? `Auto-Safe Triggered: ${formatMsToTime(totalElapsed)}` : `Session saved: ${formatMsToTime(totalElapsed)}`, 'success');

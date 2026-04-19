@@ -98,7 +98,9 @@ async function checkActiveChaser(): Promise<void> {
 
   try {
     const leaderboard = await fetchLeaderboard();
-    const otherFocusing = leaderboard.find(u => u.is_focusing_now && u.display_name !== 'You');
+    const profileRaw = localStorage.getItem('secure_local_profile');
+    const myName = profileRaw ? JSON.parse(profileRaw).displayName : null;
+    const otherFocusing = leaderboard.find(u => u.is_focusing_now && u.display_name !== myName);
     
     if (otherFocusing) {
       const { title, body } = getPeerPressureMessage(leaderboard[0].display_name, otherFocusing.display_name);
@@ -118,9 +120,9 @@ async function checkContextualNotifs(): Promise<void> {
   
   // Tactical Windows
   let windowLabel: string | null = null;
-  if (currentHour === 10) windowLabel = 'morning';
-  else if (currentHour === 15) windowLabel = 'afternoon';
-  else if (currentHour === 21) windowLabel = 'evening';
+  if (currentHour >= 5 && currentHour < 12) windowLabel = 'morning';
+  else if (currentHour >= 12 && currentHour < 18) windowLabel = 'afternoon';
+  else windowLabel = 'evening';
 
   if (windowLabel && !sentNotifs.includes(windowLabel)) {
     await sendDynamicAlert(windowLabel, currentHour);

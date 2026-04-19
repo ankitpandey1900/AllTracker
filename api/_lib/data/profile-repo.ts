@@ -380,6 +380,7 @@ export async function broadcastProfileStats(
       typeof payload.current_rank === "string" && payload.current_rank.trim()
         ? payload.current_rank
         : profile.rank,
+      Number(payload.total_hours || profile.totalHours || 0),
       Number((() => {
         const providedHours = Number(payload.today_hours || 0);
         // If last active was a different day (IST), we should be careful

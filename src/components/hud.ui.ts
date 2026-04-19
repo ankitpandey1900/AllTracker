@@ -27,8 +27,13 @@ export const hudView = `
             <path d="M14 10l7-7" />
             <path d="M3 21l7-7" />
           </svg>
-          <span id="focusToggleText" style="display:none;">Minimize HUD</span>
-        </button>
+      </div>
+      
+      <!-- 🎙️ LIVE COMMS: News Ticker for focus telemetry -->
+      <div id="hudLiveComms" class="hud-live-comms" style="margin: -10px 0 15px; overflow: hidden; white-space: nowrap; border-radius: 4px; background: rgba(0,0,0,0.2); padding: 4px 0;">
+        <div id="hudTicker" class="hud-ticker" style="display: inline-block; padding-left: 100%; animation: ticker 25s linear infinite; font-size: 0.62rem; color: #60a5fa; font-weight: 800; letter-spacing: 0.5px; opacity: 0.8;">
+          📡 CONNECTING TO TELEMETRY... 
+        </div>
       </div>
 
       <div class="timer-circle-container">

@@ -12,7 +12,6 @@ export async function fetchLeaderboard() {
         p.nation,
         p.rank,
         p.total_hours,
-        p.total_hours,
         case 
           when (p.last_active at time zone 'Asia/Kolkata')::date = (now() at time zone 'Asia/Kolkata')::date 
           then p.today_hours 

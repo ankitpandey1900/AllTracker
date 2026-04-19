@@ -109,6 +109,11 @@ export function generateTable(): void {
     `;
   }
 
+  if (data.length === 0) {
+    const colCount = document.querySelectorAll('#trackerTable thead th').length || 10;
+    html = `<tr><td colspan="${colCount}" style="text-align: center; padding: 40px; color: var(--text-secondary); font-style: italic;">No tracker data found. Your daily combat log will appear here.</td></tr>`;
+  }
+
   requestAnimationFrame(() => {
     tbody.innerHTML = html;
     attachInputListeners();

@@ -1,4 +1,5 @@
-/**
+/** 
+
  * Handles the Dashboard logic.
  * 
  * It calculates and displays all your stats:
@@ -17,7 +18,8 @@ import { renderStudyAnalytics } from './study-analytics';
 import type { StudySession } from '@/types/profile.types';
 import { calculateXP, calculateStreak, getRankDetails, calculateSustainability, getRecentVelocity } from '@/utils/calc.utils';
 import { saveSettingsToStorage } from '@/services/data-bridge';
-import { fetchLeaderboard, loadUserProfileCloud, fetchMySessionsCloud, migrateLocalHistoryToCloud } from '@/services/vault.service';
+import { fetchLeaderboard, loadUserProfileCloud, fetchMySessionsCloud, migrateLocalHistoryToCloud, fetchGlobalTelemetry } from '@/services/vault.service';
+import { VanguardService } from '@/services/vanguard.service';
 
 const formatNum = (num: number) => new Intl.NumberFormat().format(num);
 
@@ -37,12 +39,59 @@ export function toggleFocusHUD(show: boolean, subject: string = '', time: string
     if (timeEl) timeEl.textContent = time;
     hud.classList.add('active');
     document.body.style.overflow = 'hidden';
+    startLiveTicker();
   } else {
     hud.classList.remove('active');
     document.body.classList.remove('focus-minimized');
     document.body.style.overflow = '';
     const toggleText = document.getElementById("focusToggleText");
     if (toggleText) toggleText.textContent = "Minimize HUD";
+    stopLiveTicker();
+  }
+}
+
+let tickerInterval: any = null;
+
+function startLiveTicker(): void {
+  stopLiveTicker();
+  refreshLiveComms();
+  tickerInterval = setInterval(refreshLiveComms, 15000);
+}
+
+function stopLiveTicker(): void {
+  if (tickerInterval) clearInterval(tickerInterval);
+  tickerInterval = null;
+}
+
+async function refreshLiveComms(): Promise<void> {
+  const tickerEl = document.getElementById('hudTicker');
+  if (!tickerEl) return;
+
+  try {
+    const telemetry = await fetchGlobalTelemetry();
+    const leaderboard = await fetchLeaderboard();
+    const activeOperatives = leaderboard.filter(u => u.is_focusing_now && u.display_name !== 'You');
+
+    const messages = [
+      `📡 TELEMETRY: ${telemetry?.active_now || 0} OPERATIVES ARE CURRENTLY IN THE ZONE`,
+      `🔥 GLOBAL POWER: ${telemetry?.global_hours_today?.toFixed(1) || 0} TOTAL HOURS LOGGED BY THE SQUAD TODAY`,
+    ];
+
+    if (activeOperatives.length > 0) {
+      const randomOp = activeOperatives[Math.floor(Math.random() * activeOperatives.length)];
+      messages.push(`⚡ @${randomOp.display_name.toUpperCase()} IS CRUSHING IT WITH ${randomOp.today_hours?.toFixed(1) || 0}H TODAY`);
+      messages.push(`⚠️ WATCH OUT: @${randomOp.display_name.toUpperCase()} IS ON A ROLL!`);
+    }
+
+    const rival = await VanguardService.getRivalContext();
+    if (rival) {
+      messages.push(`🎯 TARGET LOCKED: ${rival.handle.toUpperCase()} IS ONLY ${rival.gap}H AHEAD OF YOU`);
+      messages.push(`⚔️ RIVAL ALERT: OVERTAKE ${rival.handle.toUpperCase()} TO REACH RANK #${rival.rank}`);
+    }
+
+    tickerEl.textContent = messages.join(' | ') + ' | ';
+  } catch (e) {
+    tickerEl.textContent = '📡 TELEMETRY LINK UNSTABLE... RECONNECTING...';
   }
 }
 
@@ -138,7 +187,7 @@ export function updateDashboard(): void {
 
   setTxt('studyRank', rankData.name.toUpperCase());
   setTxt('rankTierText', rankData.division);
-  setTxt('consistencyStat', `${Math.round(completionRate)}%`);
+  setTxt('currentStreakStat', streak.toString());
   setTxt('bestStreakStat', maxStreak.toString());
   setTxt('totalHoursStartDate', `Start: ${formatDate(appState.startDate)}`);
   setTxt('estimatedStartDate', `Start: ${formatDate(appState.startDate)}`);
@@ -181,7 +230,32 @@ export function updateDashboard(): void {
 
   // Initialize Interactive Parallax
   initInteractiveParallax();
+
+  // 🛡️ VANGUARD: Gamification & Engagement
+  updateRivalryHUD();
 }
+
+/** ⚔️ RIVALRY HUD: Identifies the operative ranked exactly +1 above the user */
+async function updateRivalryHUD(): Promise<void> {
+  const rival = await VanguardService.getRivalContext();
+  const hud = document.getElementById('rivalHUD');
+  if (!rival || !hud) {
+    if (hud) hud.style.display = 'none';
+    return;
+  }
+
+  const handleEl = document.getElementById('rivalHandle');
+  const rankEl = document.getElementById('rivalRank');
+  const gapEl = document.getElementById('rivalGap');
+
+  if (handleEl) handleEl.textContent = rival.handle;
+  if (rankEl) rankEl.textContent = rival.rank.toString();
+  if (gapEl) gapEl.textContent = `-${rival.gap}h`;
+
+  hud.style.display = 'block';
+}
+
+
 
 /** Finds the next uncompleted routine for today and displays it in the Hero HUD */
 function updateHeroRoutine(): void {
@@ -767,7 +841,7 @@ export async function renderSessionHistory(): Promise<void> {
               <div class="sh-dur-bar"><div class="sh-dur-fill" style="width:${barW}%; background:${col.text};"></div></div>
             </div>
             <div class="sh-category" style="color:${col.text};">${subName}</div>
-            <div class="sh-note${note ? '' : ' empty'}" title="${safeNote}">${note ? `"${note}"` : '<span style="opacity:0.28;">—</span>'}</div>
+            <div class="sh-note${note ? '' : ' empty'}" title="${safeNote}">${note ? `\${note}` : '<span style="opacity:0.28;">—</span>'}</div>
           </div>
         `);
       });
@@ -789,3 +863,4 @@ export async function renderSessionHistory(): Promise<void> {
 }
 
 /** Decommissioned: Legacy Migration Engine (Successor: Direct-to-Cloud Pipeline) */
+
