@@ -18,7 +18,7 @@ import { renderStudyAnalytics } from './study-analytics';
 import type { StudySession } from '@/types/profile.types';
 import { calculateXP, calculateStreak, getRankDetails, calculateSustainability, getRecentVelocity } from '@/utils/calc.utils';
 import { saveSettingsToStorage } from '@/services/data-bridge';
-import { fetchLeaderboard, loadUserProfileCloud, fetchMySessionsCloud, migrateLocalHistoryToCloud, fetchGlobalTelemetry } from '@/services/vault.service';
+import { fetchLeaderboard, loadUserProfileCloud, fetchMySessionsCloud, migrateLocalHistoryToCloud } from '@/services/vault.service';
 import { VanguardService } from '@/services/vanguard.service';
 
 const formatNum = (num: number) => new Intl.NumberFormat().format(num);
@@ -39,61 +39,16 @@ export function toggleFocusHUD(show: boolean, subject: string = '', time: string
     if (timeEl) timeEl.textContent = time;
     hud.classList.add('active');
     document.body.style.overflow = 'hidden';
-    startLiveTicker();
   } else {
     hud.classList.remove('active');
     document.body.classList.remove('focus-minimized');
     document.body.style.overflow = '';
     const toggleText = document.getElementById("focusToggleText");
     if (toggleText) toggleText.textContent = "Minimize HUD";
-    stopLiveTicker();
   }
 }
 
-let tickerInterval: any = null;
 
-function startLiveTicker(): void {
-  stopLiveTicker();
-  refreshLiveComms();
-  tickerInterval = setInterval(refreshLiveComms, 15000);
-}
-
-function stopLiveTicker(): void {
-  if (tickerInterval) clearInterval(tickerInterval);
-  tickerInterval = null;
-}
-
-async function refreshLiveComms(): Promise<void> {
-  const tickerEl = document.getElementById('hudTicker');
-  if (!tickerEl) return;
-
-  try {
-    const telemetry = await fetchGlobalTelemetry();
-    const leaderboard = await fetchLeaderboard();
-    const activeOperatives = leaderboard.filter(u => u.is_focusing_now && u.display_name !== 'You');
-
-    const messages = [
-      `📡 TELEMETRY: ${telemetry?.active_now || 0} OPERATIVES ARE CURRENTLY IN THE ZONE`,
-      `🔥 GLOBAL POWER: ${telemetry?.global_hours_today?.toFixed(1) || 0} TOTAL HOURS LOGGED BY THE SQUAD TODAY`,
-    ];
-
-    if (activeOperatives.length > 0) {
-      const randomOp = activeOperatives[Math.floor(Math.random() * activeOperatives.length)];
-      messages.push(`⚡ @${randomOp.display_name.toUpperCase()} IS CRUSHING IT WITH ${randomOp.today_hours?.toFixed(1) || 0}H TODAY`);
-      messages.push(`⚠️ WATCH OUT: @${randomOp.display_name.toUpperCase()} IS ON A ROLL!`);
-    }
-
-    const rival = await VanguardService.getRivalContext();
-    if (rival) {
-      messages.push(`🎯 TARGET LOCKED: ${rival.handle.toUpperCase()} IS ONLY ${rival.gap}H AHEAD OF YOU`);
-      messages.push(`⚔️ RIVAL ALERT: OVERTAKE ${rival.handle.toUpperCase()} TO REACH RANK #${rival.rank}`);
-    }
-
-    tickerEl.textContent = messages.join(' | ') + ' | ';
-  } catch (e) {
-    tickerEl.textContent = '📡 TELEMETRY LINK UNSTABLE... RECONNECTING...';
-  }
-}
 
 // Rank logic centralized in calc.utils.ts
 export function getRank(totalHours: number): RankDetails {
@@ -239,21 +194,39 @@ export function updateDashboard(): void {
 async function updateRivalryHUD(): Promise<void> {
   const rival = await VanguardService.getRivalContext();
   const hud = document.getElementById('rivalHUD');
-  if (!rival || !hud) {
-    if (hud) hud.style.display = 'none';
-    return;
-  }
+  if (!hud) return;
 
+  const labelEl = hud.querySelector('.label') as HTMLElement | null;
   const handleEl = document.getElementById('rivalHandle');
-  const rankEl = document.getElementById('rivalRank');
-  const gapEl = document.getElementById('rivalGap');
+  const metaEl = hud.querySelector('.meta') as HTMLElement | null;
 
-  if (handleEl) handleEl.textContent = rival.handle;
-  if (rankEl) rankEl.textContent = rival.rank.toString();
-  if (gapEl) gapEl.textContent = `-${rival.gap}h`;
-
-  hud.style.display = 'block';
+  if (rival) {
+    // ⚔️ NORMAL MODE: Has a target above
+    hud.style.display = 'block';
+    hud.style.border = '1px solid rgba(239, 68, 68, 0.3)';
+    hud.style.background = 'rgba(239, 68, 68, 0.05)';
+    if (labelEl) { labelEl.style.color = '#ef4444'; labelEl.textContent = 'TARGET IDENTIFIED 🎯'; }
+    if (handleEl) { handleEl.style.color = '#ef4444'; handleEl.textContent = rival.handle; }
+    if (metaEl) metaEl.innerHTML = `RANK <span id="rivalRank">${rival.rank}</span> • <span id="rivalGap" style="color: #fca5a5; font-weight: 900;">-${rival.gap}h</span> TO OVERTAKE`;
+  } else {
+    // 👑 KING MODE: User is #1 — show throne state
+    hud.style.display = 'block';
+    hud.style.border = '1px solid rgba(250, 204, 21, 0.4)';
+    hud.style.background = 'rgba(250, 204, 21, 0.06)';
+    if (labelEl) { labelEl.style.color = '#facc15'; labelEl.textContent = 'TOP OF THE BOARD 👑'; }
+    if (handleEl) { handleEl.style.color = '#facc15'; handleEl.textContent = 'RANK #1'; }
+    if (metaEl) {
+      const defenseLines = [
+        'Others are studying right now to take your #1 — stay ahead!',
+        'Rank #1 is yours today. What about tomorrow?',
+        'The squad is chasing you. Don\'t give them a chance.',
+        'Everyone below you is gunning for your spot. Keep grinding!',
+      ];
+      metaEl.innerHTML = `<span style="color: #fde68a; font-style: italic;">${defenseLines[Math.floor(Math.random() * defenseLines.length)]}</span>`;
+    }
+  }
 }
+
 
 
 
