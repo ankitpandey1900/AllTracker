@@ -10,20 +10,12 @@ export const manualModal = `
           <span class="docs-version">v4.0.0</span>
         </div>
 
-        <!-- Live Telemetry Bar -->
-        <div class="docs-telemetry-bar">
-          <div class="tel-item"><span class="tel-label">SYSTEM:</span> <span class="tel-value">ON-LINE</span></div>
-          <div class="tel-item"><span class="tel-label">SESSION:</span> <span id="tel-session-time" class="tel-value">00:00:00</span></div>
-          <div class="tel-item"><span class="tel-label">SYNC:</span> <span class="tel-value pulse">SECURE</span></div>
-        </div>
-
         <div class="docs-search-shell">
-
-          <input type="text" id="docsSearchInput" class="docs-search-input" placeholder="Initiate protocol lookup..." autocomplete="off">
+          <input type="text" id="docsSearchInput" class="docs-search-input" placeholder="Search documentation..." autocomplete="off">
           <span class="docs-search-icon">⎙</span>
         </div>
 
-        <button id="closeUserManualModal" class="docs-close" title="Terminate Briefing">&times;</button>
+        <button id="closeUserManualModal" class="docs-close" title="Close">&times;</button>
       </div>
 
       <div class="docs-layout">
@@ -38,7 +30,7 @@ export const manualModal = `
               <span class="nav-icon">⚡</span> Quick Start
             </a>
             <a class="docs-nav-link" onclick="docScrollTo('doc-auth')">
-              <span class="nav-icon">🛡️</span> Security & Login
+              <span class="nav-icon">🛡️</span> Security &amp; Login
             </a>
           </div>
           <div class="docs-sidebar-section">
@@ -52,12 +44,18 @@ export const manualModal = `
             <a class="docs-nav-link" onclick="docScrollTo('doc-timer')">
               <span class="nav-icon">⏱️</span> Focus Timer
             </a>
+            <a class="docs-nav-link" onclick="docScrollTo('doc-missions')">
+              <span class="nav-icon">🎯</span> Mission Control
+            </a>
             <a class="docs-nav-link" onclick="docScrollTo('doc-routines')">
               <span class="nav-icon">🔄</span> Routines
             </a>
+            <a class="docs-nav-link" onclick="docScrollTo('doc-bookmarks')">
+              <span class="nav-icon">🔖</span> Bookmarks
+            </a>
           </div>
           <div class="docs-sidebar-section">
-            <div class="docs-sidebar-label">Community & AI</div>
+            <div class="docs-sidebar-label">Community &amp; AI</div>
             <a class="docs-nav-link" onclick="docScrollTo('doc-analytics')">
               <span class="nav-icon">📈</span> Growth Insights
             </a>
@@ -68,41 +66,48 @@ export const manualModal = `
               <span class="nav-icon">🤖</span> AI Mentor
             </a>
           </div>
+          <div class="docs-sidebar-section">
+            <div class="docs-sidebar-label">Advanced</div>
+            <a class="docs-nav-link" onclick="docScrollTo('doc-heatmap')">
+              <span class="nav-icon">🗺️</span> Heatmap
+            </a>
+            <a class="docs-nav-link" onclick="docScrollTo('doc-settings')">
+              <span class="nav-icon">⚙️</span> Settings
+            </a>
+            <a class="docs-nav-link" onclick="docScrollTo('doc-shortcuts')">
+              <span class="nav-icon">⌨️</span> Hotkeys
+            </a>
+          </div>
         </nav>
 
         <!-- Main Content -->
         <main class="docs-content" id="docsContent">
           
           <div id="docsSearchResults" style="display: none;">
-             <div class="docs-breadcrumb">Search <b>›</b> Protocol Lookup</div>
+             <div class="docs-breadcrumb">Search <b>›</b> Results</div>
              <h2 class="docs-h2">Search Results</h2>
              <div id="docsResultsList" class="docs-steps"></div>
              <div class="docs-divider"></div>
           </div>
 
           <div id="docsMainView">
+
             <!-- INTRODUCTION -->
             <section class="docs-section" id="doc-intro">
               <div class="docs-breadcrumb">Welcome <b>›</b> Start Here</div>
               <h1 class="docs-h1" style="font-size: 3.5rem;">Welcome to AllTracker</h1>
-              
-              <div class="docs-hero-img-wrap">
-                <img src="/C:/Users/ankit/.gemini/antigravity/brain/f6b9b2cd-1c3f-4b52-9264-c13a0e42b08a/world_stage_concept_1776520593221.png" class="docs-hero-img" alt="World Stage Concept">
-              </div>
-
-              <div class="docs-lead">Your ultimate companion for elite study mastery. We help you stay disciplined, track your progress with absolute precision, and compete on the Global World Stage.</div>
+              <div class="docs-lead">Your ultimate companion for elite study mastery. Stay disciplined, track your progress with absolute precision, and compete on the Global World Stage.</div>
               
               <div class="docs-feature-grid">
-
                 <div class="docs-feature-card">
                   <div class="feature-card-icon">🚀</div>
                   <div class="feature-card-title">Stay Disciplined</div>
-                  <div class="feature-card-desc">Our high-precision focus timer ensures you stay on track and build long-term study habits.</div>
+                  <div class="feature-card-desc">A high-precision focus timer ensures you build long-term study habits without manual record-keeping.</div>
                 </div>
                 <div class="docs-feature-card">
                   <div class="feature-card-icon">🌍</div>
                   <div class="feature-card-title">Compete Globally</div>
-                  <div class="feature-card-desc">Compare your progress with students worldwide and climb the ranks of dedicated pilots.</div>
+                  <div class="feature-card-desc">Compare your progress with students worldwide and climb the ranks of the World Stage leaderboard.</div>
                 </div>
                 <div class="docs-feature-card">
                   <div class="feature-card-icon">🤖</div>
@@ -112,140 +117,391 @@ export const manualModal = `
               </div>
             </section>
 
+            <div class="docs-divider"></div>
+
             <!-- QUICK START -->
             <section class="docs-section" id="doc-quickstart">
               <div class="docs-breadcrumb">Onboarding <b>›</b> Step-by-Step</div>
               <h2 class="docs-h2">Quick Start Guide</h2>
-              <p>Follow these 3 simple steps to get your first study session running.</p>
+              <p>Get your first study session running in 3 steps.</p>
 
               <div class="docs-steps">
                 <div class="docs-step">
                   <div class="docs-step-num">1</div>
                   <div class="docs-step-body">
                     <div class="docs-callout-title">Secure Login</div>
-                    <p>Click the <strong>Login</strong> button and use your <strong>Google</strong> or <strong>GitHub</strong> account. This keeps your data safe and synced across all your devices.</p>
+                    <p>Click <strong>Login</strong> and sign in with your <strong>Google</strong> or <strong>GitHub</strong> account. Your data will be synced across all your devices automatically.</p>
                   </div>
                 </div>
                 <div class="docs-step">
                   <div class="docs-step-num">2</div>
                   <div class="docs-step-body">
                     <div class="docs-callout-title">Choose your Pilot Handle</div>
-                    <p>Pick a unique name for yourself. This will be your identity on the <strong>Leaderboard</strong>. Choose wisely, as this is your permanent callsign!</p>
+                    <p>Pick a unique callsign. This is your permanent identity on the <strong>Global Leaderboard</strong>. Choose wisely.</p>
                   </div>
                 </div>
                 <div class="docs-step">
                   <div class="docs-step-num">3</div>
                   <div class="docs-step-body">
                     <div class="docs-callout-title">Start your first Session</div>
-                    <p>Go to your dashboard, click **"Start Session"** on the Focus Timer, and begin your study journey. Your progress will be tracked automatically.</p>
+                    <p>Go to the <strong>Command Center</strong> dashboard, select your subject on the Focus Timer, and hit <strong>Start</strong>. Your hours are logged automatically.</p>
                   </div>
                 </div>
               </div>
             </section>
 
+            <div class="docs-divider"></div>
+
             <!-- AUTHENTICATION -->
             <section class="docs-section" id="doc-auth">
               <div class="docs-breadcrumb">Security <b>›</b> Your Privacy</div>
-              <h2 class="docs-h2">Login & Privacy</h2>
+              <h2 class="docs-h2">Login &amp; Privacy</h2>
               <div class="docs-callout docs-callout-info">
                 <div class="docs-callout-title">🛡️ Your Data is Secure</div>
-                <p>We use industry-standard encryption. Your passwords are never stored on our servers; we only use secure login providers like Google and GitHub.</p>
+                <p>We use industry-standard encryption. Your passwords are never stored on our servers — OAuth 2.0 providers (Google, GitHub) handle all authentication.</p>
               </div>
-
               <h3 class="docs-h3">Why sign in?</h3>
-              <p>Signing in allows you to save your progress, compete on the leaderboard, and access your study history from any device.</p>
-              
               <ul class="docs-ul" style="padding-left: 20px;">
-                <li><strong>Cloud Sync:</strong> Your data is saved automatically.</li>
-                <li><strong>Privacy:</strong> We never share your personal information.</li>
+                <li><strong>Cloud Sync:</strong> Your study data is backed up and available from any device.</li>
+                <li><strong>Leaderboard Access:</strong> Your hours count toward the Global World Stage rankings.</li>
+                <li><strong>Privacy:</strong> Your personal information is never shared or sold.</li>
               </ul>
             </section>
 
-            <!-- FOCUS TIMER -->
-            <section class="docs-section" id="doc-timer">
-              <div class="docs-breadcrumb">Features <b>›</b> Focus Timer</div>
-              <h2 class="docs-h2">The Focus Timer</h2>
+            <div class="docs-divider"></div>
 
-              <div class="docs-content-img-wrap">
-                <img src="/C:/Users/ankit/.gemini/antigravity/brain/f6b9b2cd-1c3f-4b52-9264-c13a0e42b08a/focus_timer_concept_1776520444925.png" class="docs-content-img" alt="Focus Timer Concept">
-              </div>
-
-              <p>Our intelligent timer helps you maintain deep work sessions without the need for manual record-keeping.</p>
-              
+            <!-- COMMAND CENTER / DASHBOARD -->
+            <section class="docs-section" id="doc-dashboard">
+              <div class="docs-breadcrumb">Main Features <b>›</b> Command Center</div>
+              <h2 class="docs-h2">Command Center</h2>
+              <p>The Command Center is your mission HQ — a live dashboard showing your key performance indicators at a glance.</p>
               <div class="docs-feature-grid">
-
                 <div class="docs-feature-card">
-                  <div class="feature-card-icon">⏱️</div>
-                  <div class="feature-card-title">Auto-Sync</div>
-                  <div class="feature-card-desc">Your study progress is saved to the cloud every minute, so you never lose a single second of work.</div>
+                  <div class="feature-card-icon">📅</div>
+                  <div class="feature-card-title">Deadline Countdown</div>
+                  <div class="feature-card-desc">A live timer counting down to your exam or target date, creating urgency and focus.</div>
                 </div>
                 <div class="docs-feature-card">
-                  <div class="feature-card-icon">⚡</div>
-                  <div class="feature-card-title">Speed Insights</div>
-                  <div class="feature-card-desc">See how your current session contributes to your weekly goals in real-time.</div>
+                  <div class="feature-card-icon">🔥</div>
+                  <div class="feature-card-title">Active Streak</div>
+                  <div class="feature-card-desc">Your current daily study streak. Mark a rest day to freeze it without breaking it.</div>
+                </div>
+                <div class="docs-feature-card">
+                  <div class="feature-card-icon">⭐</div>
+                  <div class="feature-card-title">XP &amp; Rank</div>
+                  <div class="feature-card-desc">Every study hour earns you XP. Watch your rank climb from Iron to Singularity.</div>
+                </div>
+                <div class="docs-feature-card">
+                  <div class="feature-card-icon">📊</div>
+                  <div class="feature-card-title">Weekly Progress</div>
+                  <div class="feature-card-desc">A bar chart showing your study hours for each day of the current week.</div>
+                </div>
+              </div>
+              <div class="docs-callout docs-callout-info" style="margin-top: 16px;">
+                <div class="docs-callout-title">💡 Tip: Beast Mode</div>
+                <p>Enable <strong>Beast Mode</strong> in Settings to switch your AI Mentor to high-intensity coaching — no excuses, only data.</p>
+              </div>
+            </section>
+
+            <div class="docs-divider"></div>
+
+            <!-- STUDY LOG / TRACKER -->
+            <section class="docs-section" id="doc-tracker">
+              <div class="docs-breadcrumb">Main Features <b>›</b> Study Log</div>
+              <h2 class="docs-h2">Study Log</h2>
+              <p>The Study Log is your permanent record — a scrollable table of every day in your mission timeline. Each row represents one day.</p>
+              <h3 class="docs-h3">How to log a day</h3>
+              <div class="docs-steps">
+                <div class="docs-step">
+                  <div class="docs-step-num">1</div>
+                  <div class="docs-step-body">
+                    <div class="docs-callout-title">Find today's row</div>
+                    <p>Use <kbd>Ctrl + T</kbd> to instantly jump to today's entry in the table.</p>
+                  </div>
+                </div>
+                <div class="docs-step">
+                  <div class="docs-step-num">2</div>
+                  <div class="docs-step-body">
+                    <div class="docs-callout-title">Enter your hours</div>
+                    <p>Click any cell in your subject columns and type the number of hours you studied for that subject.</p>
+                  </div>
+                </div>
+                <div class="docs-step">
+                  <div class="docs-step-num">3</div>
+                  <div class="docs-step-body">
+                    <div class="docs-callout-title">Mark as Complete</div>
+                    <p>Check the <strong>✓</strong> checkbox at the end of the row to mark the day as a successful study day and build your streak.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="docs-callout docs-callout-info" style="margin-top: 16px;">
+                <div class="docs-callout-title">🔒 Iron-Gate Protection</div>
+                <p>Historical data is locked for editing after <strong>4:00 AM</strong> the following morning to ensure data integrity. You cannot alter yesterday's record after this window closes.</p>
+              </div>
+            </section>
+
+            <div class="docs-divider"></div>
+
+            <!-- FOCUS TIMER -->
+            <section class="docs-section" id="doc-timer">
+              <div class="docs-breadcrumb">Main Features <b>›</b> Focus Timer</div>
+              <h2 class="docs-h2">The Focus Timer</h2>
+              <p>The Focus Timer automatically logs your study hours as you work — no manual entry required. Simply start it when you begin and stop it when you finish.</p>
+              <div class="docs-feature-grid">
+                <div class="docs-feature-card">
+                  <div class="feature-card-icon">⏱️</div>
+                  <div class="feature-card-title">Auto-Logging</div>
+                  <div class="feature-card-desc">Hours are calculated and written directly into today's Study Log when you stop the timer.</div>
+                </div>
+                <div class="docs-feature-card">
+                  <div class="feature-card-icon">🌙</div>
+                  <div class="feature-card-title">Midnight Split</div>
+                  <div class="feature-card-desc">Study past midnight? The timer intelligently splits hours between yesterday and today automatically.</div>
+                </div>
+                <div class="docs-feature-card">
+                  <div class="feature-card-icon">📌</div>
+                  <div class="feature-card-title">Mini-Player</div>
+                  <div class="feature-card-desc">Pin the timer as a compact floating HUD so it's always visible no matter which tab you're on.</div>
+                </div>
+                <div class="docs-feature-card">
+                  <div class="feature-card-icon">🔔</div>
+                  <div class="feature-card-title">Session Goal</div>
+                  <div class="feature-card-desc">Set a target hours goal and get notified when your session reaches it.</div>
                 </div>
               </div>
             </section>
 
-            <!-- WORLD STAGE -->
-            <section class="docs-section" id="doc-leaderboard">
-              <div class="docs-breadcrumb">Community <b>›</b> Global Rankings</div>
-              <h2 class="docs-h2">The Global Leaderboard</h2>
-              <p>Compare your total study hours with other dedicated students around the world. Level up your rank as you put in the work.</p>
-              
+            <div class="docs-divider"></div>
+
+            <!-- MISSION CONTROL (TASKS) -->
+            <section class="docs-section" id="doc-missions">
+              <div class="docs-breadcrumb">Main Features <b>›</b> Mission Control</div>
+              <h2 class="docs-h2">Mission Control</h2>
+              <p>Mission Control is your daily task manager. Add objectives for the day, prioritize them, and track your clearance rate in real-time.</p>
+
+              <h3 class="docs-h3">Daily Clearance Bar</h3>
+              <p>The progress bar at the top of Mission Control shows your <strong>Daily Clearance %</strong> — the percentage of today's tasks you have completed. It turns <span style="color:#10b981;font-weight:700;">green</span> when you hit 100%.</p>
+
+              <div class="docs-callout docs-callout-info">
+                <div class="docs-callout-title">📌 Note on Future Tasks</div>
+                <p>If you have no tasks for today, the nearest upcoming task is shown as a preview. However, it does <strong>not</strong> count toward your Daily Clearance — only tasks scheduled for today affect the bar.</p>
+              </div>
+
+              <h3 class="docs-h3">Priority Levels</h3>
               <div class="docs-table-wrap">
                 <table class="docs-table">
                   <thead>
-                    <tr>
-                      <th>RANK TITLE</th>
-                      <th>HOURS NEEDED</th>
-                      <th>BADGE</th>
-                    </tr>
+                    <tr><th>BADGE</th><th>LEVEL</th><th>USE WHEN</th></tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>Recruit</td>
-                      <td>0 – 10 Hours</td>
-                      <td>🛡️</td>
-                    </tr>
-                    <tr>
-                      <td>Active Pilot</td>
-                      <td>30 – 150 Hours</td>
-                      <td>🛸</td>
-                    </tr>
-                    <tr>
-                      <td>Commander</td>
-                      <td>150 – 600 Hours</td>
-                      <td>🎖️</td>
-                    </tr>
-                    <tr>
-                      <td>Elite Student</td>
-                      <td>1200+ Hours</td>
-                      <td>💎</td>
-                    </tr>
-                    <tr>
-                      <td>Singularity</td>
-                      <td>20,000+ Hours</td>
-                      <td>🌌</td>
-                    </tr>
+                    <tr><td style="color:#34d399;font-weight:700;">L</td><td>Low</td><td>Nice-to-do, no deadline pressure.</td></tr>
+                    <tr><td style="color:#fbbf24;font-weight:700;">M</td><td>Medium</td><td>Standard tasks with moderate importance.</td></tr>
+                    <tr><td style="color:#f87171;font-weight:700;">H</td><td>High</td><td>Critical objectives — shown first in your queue.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <h3 class="docs-h3">The Backlog</h3>
+              <p>Any task that remains incomplete past its assigned date is automatically moved to <strong>The Backlog</strong>. A badge in the header shows you how many unresolved tasks are waiting. Clear your backlog regularly to stay on track.</p>
+
+              <h3 class="docs-h3">History</h3>
+              <p>Completed tasks are stored in the <strong>History</strong> section for up to <strong>3 days</strong>, then automatically cleaned up to keep your log lean.</p>
+            </section>
+
+            <div class="docs-divider"></div>
+
+            <!-- ROUTINES -->
+            <section class="docs-section" id="doc-routines">
+              <div class="docs-breadcrumb">Main Features <b>›</b> Routines</div>
+              <h2 class="docs-h2">Routines</h2>
+              <p>Routines are your recurring daily habits — things you want to do every single day, separate from your one-off study tasks.</p>
+              <div class="docs-feature-grid">
+                <div class="docs-feature-card">
+                  <div class="feature-card-icon">✅</div>
+                  <div class="feature-card-title">Daily Check-ins</div>
+                  <div class="feature-card-desc">Mark each routine item as done daily. Your completion rate is tracked in the Growth Insights panel.</div>
+                </div>
+                <div class="docs-feature-card">
+                  <div class="feature-card-icon">🔁</div>
+                  <div class="feature-card-title">Automatic Reset</div>
+                  <div class="feature-card-desc">Routines reset every day at midnight so you always start fresh with a clean checklist.</div>
+                </div>
+                <div class="docs-feature-card">
+                  <div class="feature-card-icon">➕</div>
+                  <div class="feature-card-title">Custom Items</div>
+                  <div class="feature-card-desc">Add, edit, or remove any routine item. Build the exact daily ritual that works for you.</div>
+                </div>
+              </div>
+            </section>
+
+            <div class="docs-divider"></div>
+
+            <!-- BOOKMARKS -->
+            <section class="docs-section" id="doc-bookmarks">
+              <div class="docs-breadcrumb">Main Features <b>›</b> Bookmarks</div>
+              <h2 class="docs-h2">Bookmarks</h2>
+              <p>Save, organize, and instantly access all your important study links in one place — no more digging through browser tabs.</p>
+              <div class="docs-feature-grid">
+                <div class="docs-feature-card">
+                  <div class="feature-card-icon">🗂️</div>
+                  <div class="feature-card-title">Folders</div>
+                  <div class="feature-card-desc">Organize bookmarks into categories like Development, Learning, Work, and more.</div>
+                </div>
+                <div class="docs-feature-card">
+                  <div class="feature-card-icon">🔍</div>
+                  <div class="feature-card-title">Quick Find</div>
+                  <div class="feature-card-desc">Filter your bookmarks by name or URL instantly to find exactly what you need.</div>
+                </div>
+              </div>
+            </section>
+
+            <div class="docs-divider"></div>
+
+            <!-- GROWTH INSIGHTS / ANALYTICS -->
+            <section class="docs-section" id="doc-analytics">
+              <div class="docs-breadcrumb">Community &amp; AI <b>›</b> Growth Insights</div>
+              <h2 class="docs-h2">Growth Insights</h2>
+              <p>Growth Insights gives you a data-driven view of your study habits — not just totals, but patterns, stability, and trends over time.</p>
+              <div class="docs-feature-grid">
+                <div class="docs-feature-card">
+                  <div class="feature-card-icon">📉</div>
+                  <div class="feature-card-title">SEP Score</div>
+                  <div class="feature-card-desc">The Strategic Equilibrium Protocol measures consistency. High variation in your study days reduces this score. A stable routine maximizes it.</div>
+                </div>
+                <div class="docs-feature-card">
+                  <div class="feature-card-icon">📊</div>
+                  <div class="feature-card-title">Weekly Charts</div>
+                  <div class="feature-card-desc">Visualize your study hours split by subject category across the last 7 days.</div>
+                </div>
+                <div class="docs-feature-card">
+                  <div class="feature-card-icon">🏅</div>
+                  <div class="feature-card-title">Badges</div>
+                  <div class="feature-card-desc">Earn achievements for streaks, total hours, and weekend study sessions. Badges are displayed on your leaderboard profile.</div>
+                </div>
+              </div>
+            </section>
+
+            <div class="docs-divider"></div>
+
+            <!-- LEADERBOARD -->
+            <section class="docs-section" id="doc-leaderboard">
+              <div class="docs-breadcrumb">Community &amp; AI <b>›</b> Global Rankings</div>
+              <h2 class="docs-h2">The Global Leaderboard</h2>
+              <p>Compete with dedicated students worldwide. Every hour you log earns XP and pushes you up the ranks.</p>
+              <div class="docs-table-wrap">
+                <table class="docs-table">
+                  <thead>
+                    <tr><th>RANK</th><th>HOURS NEEDED</th><th>BADGE</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>Iron</td><td>0 – 50 hrs</td><td>⚙️</td></tr>
+                    <tr><td>Bronze</td><td>50 – 200 hrs</td><td>🥉</td></tr>
+                    <tr><td>Silver</td><td>200 – 500 hrs</td><td>🥈</td></tr>
+                    <tr><td>Gold</td><td>500 – 1,000 hrs</td><td>🥇</td></tr>
+                    <tr><td>Platinum</td><td>1,000 – 1,750 hrs</td><td>💠</td></tr>
+                    <tr><td>Diamond</td><td>1,750 – 3,000 hrs</td><td>💎</td></tr>
+                    <tr><td>Master</td><td>3,000 – 5,000 hrs</td><td>🎖️</td></tr>
+                    <tr><td>Eternal</td><td>5,000 – 9,000 hrs</td><td>🌟</td></tr>
+                    <tr><td>Ascended</td><td>9,000 – 14,000 hrs</td><td>🔱</td></tr>
+                    <tr><td>Deity</td><td>14,000 – 20,000 hrs</td><td>🌌</td></tr>
+                    <tr><td>Singularity</td><td>20,000+ hrs</td><td>✨</td></tr>
                   </tbody>
                 </table>
               </div>
             </section>
 
+            <div class="docs-divider"></div>
+
+            <!-- AI MENTOR (MAAMU) -->
+            <section class="docs-section" id="doc-maamu">
+              <div class="docs-breadcrumb">Community &amp; AI <b>›</b> AI Mentor</div>
+              <h2 class="docs-h2">Maamu — AI Mentor</h2>
+              <p>Maamu is your personal AI strategist. It analyzes your study data and delivers context-aware coaching, not generic motivational quotes.</p>
+              <div class="docs-feature-grid">
+                <div class="docs-feature-card">
+                  <div class="feature-card-icon">🧠</div>
+                  <div class="feature-card-title">Context-Aware</div>
+                  <div class="feature-card-desc">Maamu reads your last 14 days of sessions, your active backlog, rank, and streak before responding.</div>
+                </div>
+                <div class="docs-feature-card">
+                  <div class="feature-card-icon">⚔️</div>
+                  <div class="feature-card-title">Beast Mode</div>
+                  <div class="feature-card-desc">Enable Beast Mode for aggressive, metric-focused tactical feedback. Disable for a calm, analytical coaching style.</div>
+                </div>
+                <div class="docs-feature-card">
+                  <div class="feature-card-icon">🔑</div>
+                  <div class="feature-card-title">Bring Your Own Key</div>
+                  <div class="feature-card-desc">Add your own Groq API key in Settings to use Maamu without limits.</div>
+                </div>
+              </div>
+              <div class="docs-callout docs-callout-info" style="margin-top: 16px;">
+                <div class="docs-callout-title">💡 How to get a Groq API key</div>
+                <p>Visit <strong>console.groq.com</strong>, create a free account, and generate an API key. Paste it into <strong>Settings → AI Mentor → API Key</strong>.</p>
+              </div>
+            </section>
+
+            <div class="docs-divider"></div>
+
+            <!-- HEATMAP -->
+            <section class="docs-section" id="doc-heatmap">
+              <div class="docs-breadcrumb">Advanced <b>›</b> Heatmap</div>
+              <h2 class="docs-h2">Activity Heatmap</h2>
+              <p>The Heatmap gives you a GitHub-style calendar view of your entire study history. Each cell represents one day — the brighter the cell, the more hours you studied.</p>
+              <div class="docs-feature-grid">
+                <div class="docs-feature-card">
+                  <div class="feature-card-icon">🗓️</div>
+                  <div class="feature-card-title">Full History View</div>
+                  <div class="feature-card-desc">See your entire mission timeline from start to your target exam date in one compact grid.</div>
+                </div>
+                <div class="docs-feature-card">
+                  <div class="feature-card-icon">🎨</div>
+                  <div class="feature-card-title">Color Intensity</div>
+                  <div class="feature-card-desc">Cells scale from dim (light study) to bright (heavy study) so you can spot gaps and strong weeks instantly.</div>
+                </div>
+              </div>
+              <p>Open the Heatmap anytime with <kbd>Ctrl + H</kbd>.</p>
+            </section>
+
+            <div class="docs-divider"></div>
+
+            <!-- SETTINGS -->
+            <section class="docs-section" id="doc-settings">
+              <div class="docs-breadcrumb">Advanced <b>›</b> Settings</div>
+              <h2 class="docs-h2">Settings</h2>
+              <p>Customize AllTracker to match your mission parameters exactly.</p>
+              <div class="docs-table-wrap">
+                <table class="docs-table">
+                  <thead>
+                    <tr><th>SETTING</th><th>WHAT IT DOES</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td><strong>Mission Dates</strong></td><td>Set your study start date and target exam/goal date. This drives the deadline countdown and streak calendar.</td></tr>
+                    <tr><td><strong>Subject Columns</strong></td><td>Define your study subjects (e.g., DSA, Python, Projects) and set target hours for each.</td></tr>
+                    <tr><td><strong>Theme</strong></td><td>Switch between visual themes: Default, Kaala (dark), and others.</td></tr>
+                    <tr><td><strong>Timer Style</strong></td><td>Choose between Ring (circular) or Block (digital) timer display.</td></tr>
+                    <tr><td><strong>Beast Mode</strong></td><td>Toggles Maamu AI between aggressive coaching and analytical strategy mode.</td></tr>
+                    <tr><td><strong>AI API Key</strong></td><td>Add your personal Groq API key for unlimited AI Mentor access.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <div class="docs-divider"></div>
+
             <!-- SHORTCUTS -->
             <section class="docs-section" id="doc-shortcuts">
-              <div class="docs-breadcrumb">Advanced <b>›</b> Transmission Keys</div>
-              <h2 class="docs-h2">Hotkeys & Macros</h2>
+              <div class="docs-breadcrumb">Advanced <b>›</b> Hotkeys</div>
+              <h2 class="docs-h2">Hotkeys &amp; Macros</h2>
               <div class="docs-shortcuts-grid">
                 <div class="docs-shortcut"><span>Go to Today</span> <kbd>Ctrl + T</kbd></div>
                 <div class="docs-shortcut"><span>Open Heatmap</span> <kbd>Ctrl + H</kbd></div>
                 <div class="docs-shortcut"><span>Mission Settings</span> <kbd>Ctrl + ,</kbd></div>
                 <div class="docs-shortcut"><span>Weekly Summary</span> <kbd>Ctrl + W</kbd></div>
                 <div class="docs-shortcut"><span>Global Search</span> <kbd>Ctrl + F</kbd></div>
-                <div class="docs-shortcut"><span>Abort Modal</span> <kbd>ESC</kbd></div>
+                <div class="docs-shortcut"><span>Close Modal</span> <kbd>ESC</kbd></div>
               </div>
             </section>
+
           </div>
         </main>
       </div>

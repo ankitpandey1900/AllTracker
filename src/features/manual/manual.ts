@@ -108,19 +108,6 @@ export function initManualLogic(): void {
     });
   }
 
-  // 3. LIVE TELEMETRY LOGIC
-  const telTime = document.getElementById('tel-session-time');
-  if (telTime) {
-    let startTime = Date.now();
-    const updateTel = () => {
-      const diff = Date.now() - startTime;
-      const h = Math.floor(diff / 3600000).toString().padStart(2, '0');
-      const m = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
-      const s = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
-      telTime.textContent = `${h}:${m}:${s}`;
-    };
-    setInterval(updateTel, 1000);
-  }
 }
 
 
