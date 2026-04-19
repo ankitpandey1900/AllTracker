@@ -9,6 +9,7 @@ import { appState, subscribeToState } from '@/state/app-state';
 import { showToast } from '@/utils/dom.utils';
 import { saveTasksToStorage } from '@/services/data-bridge';
 import { log } from '@/utils/logger.utils';
+import { getLocalIsoDate } from '@/utils/date.utils';
 import type { StudyTask } from '@/types/task.types';
 
 // --- Starting Up ---
@@ -29,7 +30,7 @@ export function initTasks(): void {
 // --- Showing the Tasks ---
 
 export function renderTasks(): void {
-  const today = new Date().toISOString().split('T')[0];
+  const today = getLocalIsoDate();
   
   const todayList = document.getElementById('todayTasksList');
   const backlogList = document.getElementById('backlogTasksList');
@@ -40,17 +41,22 @@ export function renderTasks(): void {
 
   const tasks = appState.tasks;
 
-  // Senior Logic: Lenient filtering to handle timezone drift
-  let todayMissions = tasks.filter(t => !t.completed && t.date === today);
+  let backlogTasks = tasks.filter(t => !t.completed && t.date < today);
+  const historyTasks = tasks.filter(t => t.completed).sort((a, b) => b.createdAt - a.createdAt);
+
+  // Senior Logic: Calculate 'Today' stats BEFORE any UI injection of future tasks
+  const todayCompleted = historyTasks.filter(t => t.date === today);
+  const todayIncomplete = tasks.filter(t => !t.completed && t.date === today);
+  const totalTodayTasks = todayIncomplete.length + todayCompleted.length;
+
+  let todayMissions = [...todayIncomplete];
   const futureTasks = tasks.filter(t => !t.completed && t.date > today);
   
-  // If no tasks today, but we have upcoming ones, show the nearest one as 'Today'
+  // UI Convenience: If no tasks today, but we have upcoming ones, show the nearest one as 'Today'
+  // Note: We don't include this in 'Clearance' calculation.
   if (todayMissions.length === 0 && futureTasks.length > 0) {
     todayMissions = [futureTasks[0]];
   }
-
-  let backlogTasks = tasks.filter(t => !t.completed && t.date < today);
-  const historyTasks = tasks.filter(t => t.completed).sort((a, b) => b.createdAt - a.createdAt);
 
   // Diagnostic Log (Structured)
   log.debug(`Rendering Tasks: Active=${todayMissions.length}, Backlog=${backlogTasks.length}`);
@@ -66,9 +72,6 @@ export function renderTasks(): void {
   todayMissions.sort(prioritySort);
   backlogTasks.sort(prioritySort);
 
-  // Update the 'Clearance' progress bar at the top
-  const todayCompleted = historyTasks.filter(t => t.date === today);
-  const totalTodayTasks = todayMissions.length + todayCompleted.length;
   const clearancePercent = totalTodayTasks > 0 ? Math.round((todayCompleted.length / totalTodayTasks) * 100) : 0;
   
   const clearanceText = document.getElementById('clearanceText');
@@ -186,7 +189,7 @@ export function addTask(text: string, priority: 1 | 2 | 3 = 2): void {
     id: crypto.randomUUID(),
     text,
     completed: false,
-    date: new Date().toISOString().split('T')[0],
+    date: getLocalIsoDate(),
     createdAt: Date.now(),
     priority
   };

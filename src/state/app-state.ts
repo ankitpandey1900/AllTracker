@@ -12,13 +12,14 @@ import type { RoutineItem, RoutineHistory } from '@/types/routine.types';
 import type { Bookmark } from '@/types/bookmark.types';
 import type { StudyTask } from '@/types/task.types';
 import { DEFAULT_START_DATE, DEFAULT_END_DATE, DEFAULT_COLUMNS, STORAGE_KEYS } from '@/config/constants';
+import { getLocalIsoDate } from '@/utils/date.utils';
 
 // --- Starting Defaults ---
 
 function createDefaultSettings(): Settings {
   return {
-    startDate: DEFAULT_START_DATE.toISOString().split('T')[0],
-    endDate: DEFAULT_END_DATE.toISOString().split('T')[0],
+    startDate: getLocalIsoDate(DEFAULT_START_DATE),
+    endDate: getLocalIsoDate(DEFAULT_END_DATE),
     columns: [...DEFAULT_COLUMNS],
     customRanges: [],
     beastMode: false,
