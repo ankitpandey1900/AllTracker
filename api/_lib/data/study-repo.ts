@@ -52,7 +52,7 @@ export async function fetchStudySessions(profile: AuthenticatedProfile) {
         note,
         start_time,
         end_time,
-        to_char((end_time at time zone 'utc')::date, 'YYYY-MM-DD') as log_date
+        to_char((end_time at time zone 'Asia/Kolkata')::date, 'YYYY-MM-DD') as log_date
       from study_sessions
       where user_id = $1::uuid
       order by end_time desc

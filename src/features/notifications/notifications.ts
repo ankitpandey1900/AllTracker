@@ -1,5 +1,7 @@
 import { appState } from '@/state/app-state';
 import { showToast } from '@/utils/dom.utils';
+import { getDeedMessage, getPeerPressureMessage } from './notification-content';
+import { fetchLeaderboard } from '@/services/vault.service';
 
 /**
  * Handles showing Desktop Notifications.
@@ -20,8 +22,8 @@ export async function initNotifications(): Promise<void> {
   // Sync UI state
   syncNotificationUI();
 
-  // Setup daily check & routine check
-  setupStudyReminder();
+  // Setup dynamic deed-checks & routine alerts
+  setupStrategicAlerts();
   setupRoutineAlerts();
 }
 
@@ -67,14 +69,98 @@ function syncNotificationUI(): void {
   }
 }
 
-function setupStudyReminder(): void {
-  // Check every hour
+function setupStrategicAlerts(): void {
+  // 1. Tactical Window checks (3 times a day)
   setInterval(() => {
-    checkAndNotify();
-  }, 1000 * 60 * 60);
+    checkContextualNotifs();
+  }, 1000 * 60 * 30); // 30 min pulse
 
-  // Also check immediately on load
-  setTimeout(checkAndNotify, 5000);
+  // 2. 'Active Chaser' check (Periodic competitive taunts)
+  setInterval(() => {
+    checkActiveChaser();
+  }, 1000 * 60 * 45); // 45 min pulse
+
+  // Initial check on load
+  setTimeout(() => {
+    checkContextualNotifs();
+    checkActiveChaser();
+  }, 10000);
+}
+
+let lastChaserNotifAt = 0;
+
+async function checkActiveChaser(): Promise<void> {
+  // Rate limit: Max one chaser notif every 3 hours
+  if (Date.now() - lastChaserNotifAt < 1000 * 60 * 60 * 3) return;
+
+  const isUserFocusing = appState.activeTimer.isRunning;
+  if (isUserFocusing) return; // Don't taunt if already working!
+
+  try {
+    const leaderboard = await fetchLeaderboard();
+    const otherFocusing = leaderboard.find(u => u.is_focusing_now && u.display_name !== 'You');
+    
+    if (otherFocusing) {
+      const { title, body } = getPeerPressureMessage(leaderboard[0].display_name, otherFocusing.display_name);
+      sendNotification(title, body);
+      lastChaserNotifAt = Date.now();
+    }
+  } catch (e) { /* ignore */ }
+}
+
+async function checkContextualNotifs(): Promise<void> {
+  const now = new Date();
+  const currentHour = now.getHours();
+  const todayStr = now.toLocaleDateString('en-GB', { timeZone: 'Asia/Kolkata' });
+  const storageKey = `sent_tactical_notif_${todayStr}`;
+  
+  const sentNotifs = JSON.parse(localStorage.getItem(storageKey) || '[]');
+  
+  // Tactical Windows
+  let windowLabel: string | null = null;
+  if (currentHour === 10) windowLabel = 'morning';
+  else if (currentHour === 15) windowLabel = 'afternoon';
+  else if (currentHour === 21) windowLabel = 'evening';
+
+  if (windowLabel && !sentNotifs.includes(windowLabel)) {
+    await sendDynamicAlert(windowLabel, currentHour);
+    sentNotifs.push(windowLabel);
+    localStorage.setItem(storageKey, JSON.stringify(sentNotifs));
+  }
+}
+
+async function sendDynamicAlert(window: string, hour: number): Promise<void> {
+  const today = new Date().toLocaleDateString('en-GB', { timeZone: 'Asia/Kolkata' });
+  const todayData = appState.trackerData.find(d => {
+    const dDate = new Date(d.date).toLocaleDateString('en-GB', { timeZone: 'Asia/Kolkata' });
+    return dDate === today;
+  });
+
+  const totalHours = todayData ? (todayData.studyHours || []).reduce((a, b) => a + (b || 0), 0) : 0;
+  
+  // 1. Deed-Based Messaging (Standard)
+  const { title, body } = getDeedMessage(totalHours, hour);
+
+  // 2. Peer Pressure Injection (Extra spice)
+  let finalTitle = title;
+  let finalBody = body;
+
+  try {
+    const leaderboard = await fetchLeaderboard();
+    if (leaderboard.length > 0) {
+      const topUser = leaderboard[0].display_name;
+      const focusingNow = leaderboard.find(u => u.is_focusing_now && u.display_name !== 'You')?.display_name;
+      
+      // 30% chance to swap to a Peer Pressure alert if hours are low
+      if (totalHours < 2 && Math.random() < 0.3) {
+        const peer = getPeerPressureMessage(topUser, focusingNow);
+        finalTitle = peer.title;
+        finalBody = peer.body;
+      }
+    }
+  } catch (e) { /* ignore lb fetch errors for notifications */ }
+
+  sendNotification(finalTitle, finalBody);
 }
 
 function setupRoutineAlerts(): void {
@@ -104,8 +190,8 @@ function checkRoutineTimers(): void {
       const key = `${todayStr}-${item.id}`;
       if (!notifiedRoutineIds.has(key)) {
         sendNotification(
-          "Mission Alert! ⚡",
-          `Your objective "${item.title}" starts in 15 minutes. Prepare for deployment.`
+          "Hogaya aaram? Chalo kaam pe! ⏰",
+          `15 mins mein "${item.title}" shuru hone wala hai. Books kholein ya hum aake kholein?`
         );
         notifiedRoutineIds.add(key);
       }
@@ -122,24 +208,7 @@ function checkRoutineTimers(): void {
 }
 
 function checkAndNotify(): void {
-  const now = new Date();
-  const currentHour = now.getHours();
-  
-  // Only notify in the evening (8 PM - 10 PM)
-  if (currentHour < 20 || currentHour > 22) return;
-
-  const today = new Date().toISOString().split('T')[0];
-  const todayData = appState.trackerData.find(d => d.date.startsWith(today));
-
-  if (todayData) {
-    const totalHours = (todayData.studyHours || []).reduce((a, b) => a + (b || 0), 0);
-    if (totalHours === 0 && !todayData.completed && !todayData.restDay) {
-      sendNotification(
-        "All Tracker Awaits! 🌌",
-        "You haven't logged any progress today. Don't let your streak freeze!"
-      );
-    }
-  }
+  // Legacy function replaced by checkContextualNotifs
 }
 
 async function sendNotification(title: string, body: string): Promise<void> {

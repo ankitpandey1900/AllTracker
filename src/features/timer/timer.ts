@@ -198,10 +198,10 @@ export async function stopTimer(autoNote?: string): Promise<void> {
       const sessionStart = appState.activeTimer.sessionStartClock ? new Date(appState.activeTimer.sessionStartClock) : new Date();
       const sessionEnd = new Date();
 
-      const startDayStr = sessionStart.toISOString().split('T')[0];
-      const endDayStr = sessionEnd.toISOString().split('T')[0];
+      const startDay = sessionStart.getDate();
+      const endDay = sessionEnd.getDate();
 
-      if (startDayStr !== endDayStr) {
+      if (startDay !== endDay) {
         const midnight = new Date(sessionEnd);
         midnight.setHours(0, 0, 0, 0);
 
@@ -214,7 +214,7 @@ export async function stopTimer(autoNote?: string): Promise<void> {
         saveSessionToDate(colIdx, hoursBefore, note, sessionStart);
         saveSessionToDate(colIdx, hoursAfter, note, sessionEnd);
 
-        showToast(`Midnight Split: ${hoursBefore.toFixed(2)}h (Yesterday) + ${hoursAfter.toFixed(2)}h (Today)`, 'success');
+        showToast(`🛡️ MIDNIGHT SECTOR SPLIT: ${hoursBefore.toFixed(2)}h (Yesterday) + ${hoursAfter.toFixed(2)}h (Today)`, 'success');
 
         // 🌐 CLOUD SESSION LOG (UTC)
         logStudySessionCloud(totalHours, appState.activeTimer.colName || 'GENERAL', sessionStart, note);

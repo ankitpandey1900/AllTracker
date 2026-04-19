@@ -105,6 +105,21 @@ export async function syncProfileBroadcast(): Promise<void> {
     totalHours += elapsedHrs;
   }
 
+  // 🛡️ CONTINUITY GUARD: Prevent time regression during focus sessions
+  // If we have a cached payload that had more time, stick with it until the next second
+  if (lastBroadcastPayload) {
+    const prev = JSON.parse(lastBroadcastPayload);
+    if (prev.display_name === profile.displayName) {
+      if (todayHours < prev.today_hours && isFocusing) {
+        log.warn("SYNC GUARD: Prevented today_hours regression.");
+        todayHours = prev.today_hours;
+      }
+      if (totalHours < prev.total_hours && isFocusing) {
+        totalHours = prev.total_hours;
+      }
+    }
+  }
+
   const streak = calculateStreak(appState.trackerData);
 
   const bestStreak = calculateBestStreak(appState.trackerData);

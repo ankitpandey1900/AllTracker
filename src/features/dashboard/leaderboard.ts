@@ -464,10 +464,8 @@ function renderUserRow(
   const currentRank = globalIndex + 1;
   const lastActiveDate = u.last_active ? new Date(u.last_active) : null;
   const now = new Date();
-  const isActuallyToday = lastActiveDate && 
-    lastActiveDate.getFullYear() === now.getFullYear() &&
-    lastActiveDate.getMonth() === now.getMonth() &&
-    lastActiveDate.getDate() === now.getDate();
+  const fmtIST = (d: Date) => d.toLocaleDateString('en-GB', { timeZone: 'Asia/Kolkata' });
+  const isActuallyToday = lastActiveDate && fmtIST(lastActiveDate) === fmtIST(now);
 
   const todayHoursDisplay = isActuallyToday ? (u.today_hours || 0) : 0;
   

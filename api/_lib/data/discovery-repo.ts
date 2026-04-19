@@ -12,7 +12,12 @@ export async function fetchLeaderboard() {
         p.nation,
         p.rank,
         p.total_hours,
-        p.today_hours,
+        p.total_hours,
+        case 
+          when (p.last_active at time zone 'Asia/Kolkata')::date = (now() at time zone 'Asia/Kolkata')::date 
+          then p.today_hours 
+          else 0 
+        end as today_hours,
         p.is_focusing,
         p.focus_subject,
         p.last_active,
@@ -71,7 +76,7 @@ export async function fetchTelemetry() {
     `
       select
         coalesce(sum(total_hours), 0) as total_platform_hours,
-        coalesce(sum(case when last_active::date = now()::date then today_hours else 0 end), 0) as global_hours_today
+        coalesce(sum(case when (last_active at time zone 'Asia/Kolkata')::date = (now() at time zone 'Asia/Kolkata')::date then today_hours else 0 end), 0) as global_hours_today
       from profiles
     `,
   );

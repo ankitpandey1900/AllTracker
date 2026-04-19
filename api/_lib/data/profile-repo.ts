@@ -380,8 +380,21 @@ export async function broadcastProfileStats(
       typeof payload.current_rank === "string" && payload.current_rank.trim()
         ? payload.current_rank
         : profile.rank,
-      Number(payload.total_hours || profile.totalHours || 0),
-      Number(payload.today_hours || profile.todayHours || 0),
+      Number((() => {
+        const providedHours = Number(payload.today_hours || 0);
+        // If last active was a different day (IST), we should be careful
+        if (profile.lastActive) {
+          const lDate = new Date(profile.lastActive).toLocaleDateString('en-GB', { timeZone: 'Asia/Kolkata' });
+          const nDate = new Date().toLocaleDateString('en-GB', { timeZone: 'Asia/Kolkata' });
+          if (lDate !== nDate && providedHours > 0) {
+            // This is a broadcast into a new day, but it still has hours.
+            // If the client hasn't started a new session today, this is likely stale.
+            // However, we'll allow it if 'is_focusing_now' is true (they started a session)
+            if (payload.is_focusing_now !== true) return 0;
+          }
+        }
+        return providedHours;
+      })()),
       payload.is_focusing_now === true,
       typeof payload.current_focus_subject === "string"
         ? payload.current_focus_subject
