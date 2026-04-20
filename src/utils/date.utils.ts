@@ -84,7 +84,7 @@ export function generateExportTimestamp(): string {
 
 /** 
  * Returns the current date as an ISO string in LOCAL time (YYYY-MM-DD).
- * Senior Practice: Avoids 'toISOString()' date shifts for daily features.
+ * Avoids 'toISOString()' date shifts for daily features.
  */
 export function getLocalIsoDate(date: Date = new Date()): string {
   const year = date.getFullYear();
