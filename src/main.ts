@@ -212,7 +212,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       generateTable();
       updateDashboard();
     } catch (fallbackError) {
-      console.error("Secondary failure during boot fallback", fallbackError);
+      log.error("Secondary failure during boot fallback", fallbackError);
     }
   }
 
@@ -526,7 +526,7 @@ if ('serviceWorker' in navigator) {
             });
           });
         })
-        .catch(err => console.error('Service Worker registration failed', err));
+        .catch(err => log.error('Service Worker registration failed', err));
 
       // Handle automatic reload when the new Service Worker takes over
       navigator.serviceWorker.addEventListener('controllerchange', () => {

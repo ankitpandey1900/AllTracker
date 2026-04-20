@@ -10,6 +10,8 @@
 
 import { RANK_TIERS, TIER_TITLES } from '@/config/constants';
 import type { TrackerDay, RankDetails } from '@/types/tracker.types';
+import type { RoutineItem } from '@/types/routine.types';
+import { formatTime12h } from '@/utils/date.utils';
 
 /** 
  * XP & Leveling Engine
@@ -168,6 +170,75 @@ export function calculateTotalStudyHours(trackerData: TrackerDay[]): number {
     const dayTotal = Array.isArray(d.studyHours) ? d.studyHours.reduce((s, h) => s + (h || 0), 0) : 0;
     return sum + dayTotal;
   }, 0);
+}
+
+/**
+ * COMPREHENSIVE STATS ENGINE
+ * Returns { totalHours, completedDays, studyDays, maxStreak } in a single pass.
+ */
+export function calculateSummaryStats(trackerData: TrackerDay[]): { 
+  totalHours: number; 
+  completedDays: number; 
+  studyDays: number; 
+  maxStreak: number;
+} {
+  let totalHours = 0;
+  let completedDays = 0;
+  let studyDays = 0;
+  let maxStreak = 0;
+  let running = 0;
+
+  for (const day of trackerData) {
+    const dayTotal = Array.isArray(day.studyHours) ? day.studyHours.reduce((s, n) => s + (n || 0), 0) : 0;
+    totalHours += dayTotal;
+    
+    if (day.completed) {
+      completedDays++;
+      running++;
+      if (running > maxStreak) maxStreak = running;
+    } else if (day.restDay) {
+      // Rest day preserves streak but doesn't increment
+      continue;
+    } else {
+      running = 0;
+    }
+    
+    if (dayTotal > 0) studyDays++;
+  }
+
+  return { totalHours, completedDays, studyDays, maxStreak };
+}
+
+/**
+ * UNIFIED ROUTINE SCHEDULER
+ * Finds the next uncompleted routine for the current day.
+ */
+export function getNextRoutine(routines: RoutineItem[]): { title: string; time: string } | null {
+  if (!routines || routines.length === 0) return null;
+
+  const now = new Date();
+  const currentDay = now.getDay();
+  const nowStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+
+  // Filter for today's uncompleted routines
+  const todayRoutines = routines.filter(r => {
+    const activeToday = !r.days || r.days.length === 0 || r.days.includes(currentDay);
+    return activeToday && !r.completed;
+  });
+
+  if (todayRoutines.length === 0) return null;
+
+  // Sort by time
+  const sorted = [...todayRoutines].sort((a, b) => a.time.localeCompare(b.time));
+
+  // Find first one upcoming, or first uncompleted if all are past
+  let next = sorted.find(r => r.time >= nowStr);
+  if (!next) next = sorted[0];
+
+  return {
+    title: next.title,
+    time: `@ ${formatTime12h(next.time)}`
+  };
 }
 
 /**

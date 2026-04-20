@@ -17,7 +17,10 @@ import { updateDashboard, toggleFocusHUD } from '@/features/dashboard/dashboard'
 import { renderHeatmap } from '@/features/heatmap/heatmap';
 import { renderPerformanceCurve } from '@/features/routines/performance-chart';
 import { formatMsToTime, formatClockTime } from '@/utils/date.utils';
-import { showToast } from '@/utils/dom.utils';
+import { showToast, startConfetti } from '@/utils/dom.utils';
+import { log } from '@/utils/logger.utils';
+import { getNextRoutine } from '@/utils/calc.utils';
+import { notificationService } from '@/services/notification.service';
 
 /**
  * Initializes listeners for the Sync Status HUD
@@ -39,7 +42,7 @@ export function initTimerModules(): void {
       if (payload.new && payload.new.id === me) {
         const newIsFocusing = payload.new.is_focusing;
         if (appState.activeTimer.isRunning && !newIsFocusing) {
-          console.log('🚨 SILENT OVERRIDE: External pause detected. Freezing local timer...');
+          log.info('🚨 SILENT OVERRIDE: External pause detected. Freezing local timer...');
           const { loadTimerStateFromStorage } = await import('@/services/data-bridge');
           const cloudState = await loadTimerStateFromStorage();
           if (cloudState) Object.assign(appState.activeTimer, cloudState);
@@ -67,12 +70,12 @@ async function requestWakeLock() {
   if ('wakeLock' in navigator) {
     try {
       wakeLock = await (navigator as any).wakeLock.request('screen');
-      console.log('💡 Wake Lock Active: Screen will stay awake.');
+      log.info('💡 Wake Lock Active: Screen will stay awake.');
       wakeLock.addEventListener('release', () => {
-        console.log('🌙 Wake Lock Released.');
+        log.info('🌙 Wake Lock Released.');
       });
     } catch (err: any) {
-      console.error(`${err.name}, ${err.message}`);
+      log.error('Wake Lock Request Failed:', err);
     }
   }
 }
@@ -110,7 +113,7 @@ function updateMediaSession(isRunning: boolean) {
     navigator.mediaSession.setActionHandler('play', () => startTimerInterval());
     navigator.mediaSession.setActionHandler('pause', () => pauseTimer());
     navigator.mediaSession.setActionHandler('stop', () => {
-      stopTimer().catch(err => console.error('MediaSession Stop Error:', err));
+      stopTimer().catch(err => log.error('MediaSession Stop Error:', err));
     });
   } else {
     navigator.mediaSession.metadata = null;
@@ -132,6 +135,10 @@ export function startTimer(categoryIdx: number, categoryName: string): void {
 
   appState.activeTimer.category = String(categoryIdx);
   appState.activeTimer.colName = categoryName;
+
+  // 🔔 NOTIFICATIONS: Request permission and reset goal flag
+  notificationService.requestPermission();
+  appState.activeTimer.hasNotifiedGoal = false;
 
   if (appState.activeTimer.elapsedAcc === 0) {
     appState.activeTimer.sessionStartClock = appState.activeTimer.startTime;
@@ -232,7 +239,7 @@ export async function stopTimer(autoNote?: string): Promise<void> {
       }
     }
   } catch (error) {
-    console.error('Error saving session:', error);
+    log.error('Error saving session:', error);
     showToast('Session data could not be saved', 'error');
   } finally {
     isStopping = false;
@@ -393,7 +400,7 @@ function saveSessionToDate(colIdx: number, hoursToAdd: number, note: string = ''
   }
 
   if (targetIndex === -1) {
-    console.warn(`[Timer] Could not find date ${targetDate.toDateString()} in tracker data.`);
+    log.warn(`[Timer] Could not find date ${targetDate.toDateString()} in tracker data.`);
     return;
   }
 
@@ -480,13 +487,13 @@ function startTimerInterval(): void {
             playbackRate: 1,
             position: elapsedSeconds
           });
-        } catch (e) { }
+        } catch (e) { /* silent fail */ }
       }
 
       // 🛑 OVERRUN GUARD: HARD CAP LIVE SESSIONS AT 5 HOURS
       const FIVE_HOURS_MS = 5 * 60 * 60 * 1000;
       if (totalElapsedMs > FIVE_HOURS_MS) {
-        console.warn('[Timer] Hard cap reached. Session over 5hrs. Auto-stopping.');
+        log.warn('[Timer] Hard cap reached. Session over 5hrs. Auto-stopping.');
         // Trick stopTimer into thinking exactly 5 hours passed so it doesn't log excess
         appState.activeTimer.startTime = Date.now() - (FIVE_HOURS_MS - appState.activeTimer.elapsedAcc);
         stopTimer('[AUTO-SAFE] 5hr Max Limit Reached');
@@ -512,9 +519,12 @@ function updateTimerDisplay(): void {
   const timeStr = formatMsToTime(totalMs);
   if (display) display.textContent = timeStr;
 
-  // Sync Focus HUD
+  // Sync Focus HUD & Browser Tab
   if (appState.activeTimer.isRunning) {
     toggleFocusHUD(true, appState.activeTimer.colName || 'STUDYING', timeStr);
+    document.title = `[${timeStr}] All Tracker | Elite Study Dashboard`;
+  } else {
+    document.title = `All Tracker | Elite Study Dashboard, DSA Rituals & World Stage`;
   }
 
   if (!appState.activeTimer.isRunning) {
@@ -565,6 +575,19 @@ function updateSessionProgress(elapsedSeconds: number): void {
   const offset = circumference - (percent / 100) * circumference;
   circle.style.strokeDashoffset = `${offset}`;
 
+  // 🔔 TACTICAL ALERT: Goal Reached
+  if (percent >= 100 && !appState.activeTimer.hasNotifiedGoal) {
+    appState.activeTimer.hasNotifiedGoal = true;
+    
+    // 🎭 ELITE CELEBRATION
+    startConfetti();
+    
+    notificationService.sendAlert(
+      'Goal Reached! 🚀',
+      `Mission accomplished for ${appState.activeTimer.colName || 'Study'}. Session complete.`
+    );
+  }
+
   if (percent >= 100) {
     circle.style.stroke = 'var(--success)';
     circle.style.filter = 'drop-shadow(0 0 15px var(--success))';
@@ -580,33 +603,17 @@ function updateSessionProgress(elapsedSeconds: number): void {
 // --- Focus Mode Logic ---
 
 function updateFocusTask(): void {
-  const now = new Date();
-  const currentTime = now.getHours() * 60 + now.getMinutes();
-
-  if (!appState.routines || appState.routines.length === 0) return;
-
-  const sorted = [...appState.routines].sort((a, b) => {
-    const [aH, aM] = a.time.split(':').map(Number);
-    const [bH, bM] = b.time.split(':').map(Number);
-    return (aH * 60 + aM) - (bH * 60 + bM);
-  });
-
-  let activeTask = sorted[0];
-  for (const routine of sorted) {
-    const [rH, rM] = routine.time.split(':').map(Number);
-    if (rH * 60 + rM <= currentTime) {
-      activeTask = routine;
-    } else {
-      if (!activeTask) activeTask = { ...routine, isNext: true };
-      break;
-    }
-  }
-
+  const next = getNextRoutine(appState.routines || []);
   const container = document.getElementById('focusActiveTaskContainer');
   const taskDisplay = document.getElementById('nowPlayingTask');
-  if (activeTask && container && taskDisplay) {
+  
+  if (next && container && taskDisplay) {
     container.style.display = 'block';
-    taskDisplay.textContent = activeTask.title + (activeTask.isNext ? ' (Coming Up)' : '');
+    taskDisplay.textContent = next.title + (next.title.includes('(Coming Up)') ? '' : ' (Active)');
+    // Note: getNextRoutine logic already handles finding the next uncompleted task.
+    // If it's already past the time, it's the current task.
+  } else if (container) {
+    container.style.display = 'none';
   }
 }
 
@@ -662,7 +669,7 @@ export function resumeTimerIfNeeded(): void {
     const FIVE_HOURS_MS = 5 * 60 * 60 * 1000;
 
     if (elapsedNow > FIVE_HOURS_MS) {
-      console.warn('[Timer] Self-healing: Detected abandoned session (>5h). Auto-Save Triggered.');
+      log.warn('[Timer] Self-healing: Detected abandoned session (>5h). Auto-Save Triggered.');
       // Prevent 90-hour bugs: hard-cap the startTime to exactly 5 hours ago so stopTimer safely logs exactly 5.0 hours.
       appState.activeTimer.startTime = Date.now() - FIVE_HOURS_MS;
       stopTimer('[AUTO-SAFE] Post-Crash/Inactivity Recovered');
@@ -685,7 +692,7 @@ export function resumeTimerIfNeeded(): void {
       const colIdx = parseInt(appState.activeTimer.category);
       if (!isNaN(colIdx) && cols[colIdx]) {
         appState.activeTimer.colName = cols[colIdx].name;
-        console.log(`[Timer] Self-healed colName: "${appState.activeTimer.colName}"`);
+        log.info(`[Timer] Self-healed colName: "${appState.activeTimer.colName}"`);
       }
     }
 

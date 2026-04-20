@@ -1,4 +1,4 @@
-const CACHE_NAME = 'alltracker-cache-v1.9.6'; // V1.9.6: Unified ASM & Diagnostic Hardening
+const CACHE_NAME = 'alltracker-cache-v2.0.0'; // V2.0.0: Tactical Alerts & Audio Unification Update
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -90,4 +90,23 @@ self.addEventListener('fetch', (event) => {
       })
     );
   }
+});
+
+// 🔔 TACTICAL NOTIFICATIONS: Handle clicks
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+
+  // Try to find an existing window and focus it
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      for (const client of clientList) {
+        if (client.url === event.notification.data.url && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      if (clients.openWindow) {
+        return clients.openWindow(event.notification.data.url);
+      }
+    })
+  );
 });

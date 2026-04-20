@@ -20,6 +20,7 @@ import { getMaamuResponseStream, generateSessionTitle, MAAMU_MODELS, normalizeMa
 import { appState } from '@/state/app-state';
 import { saveSettingsToStorage } from '@/services/data-bridge';
 import { getCurrentUserLeaderboardContext } from '@/features/dashboard/leaderboard';
+import { notificationService } from '@/services/notification.service';
 import { 
   intelligenceView, 
   buildMessageHTML, 
@@ -636,6 +637,9 @@ function streamResponse(
       if (contentEl) { contentEl.innerHTML = formatMaamuText(accumulated) + '<span class="stream-cursor">▋</span>'; chatOutput.scrollTop = chatOutput.scrollHeight; }
     },
     (fullResponse) => {
+      // 🔔 TACTICAL AUDIO: Chime on response completion
+      notificationService.playChime();
+
       assistantRow.classList.remove('streaming');
       if (contentEl) contentEl.innerHTML = formatMaamuText(fullResponse);
 

@@ -1,9 +1,4 @@
-/**
- * Helpers for the UI.
- * 
- * This handles pop-up messages, updating text on the page, 
- * and scrolling the table to specific days.
- */
+import { notificationService } from '@/services/notification.service';
 
 // --- Pop-up messages (Toasts) ---
 
@@ -14,6 +9,9 @@ export function showToast(
   duration = 3000,
   onClick?: () => void
 ): void {
+  // 🔔 TACTICAL AUDIO: All system notifications play the chime
+  notificationService.playChime();
+  
   let container = document.getElementById('toastContainer');
 
   // Auto-create toast container if missing

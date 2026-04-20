@@ -12,4 +12,5 @@ export interface ActiveTimer {
   elapsedAcc: number;
   category: string | null;
   colName: string;
+  hasNotifiedGoal?: boolean;
 }

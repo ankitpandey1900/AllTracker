@@ -1,6 +1,5 @@
 import { getSecureLocalProfileString, setSecureLocalProfileString } from '@/utils/security';
 import { log } from '@/utils/logger.utils';
-import { showLoading, hideLoading } from '@/utils/dom.utils';
 /**
  * Data Bridge — Handles saving and loading data.
  * 
@@ -451,7 +450,7 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
 
     updateSyncStatus('synced');
   } catch (err) {
-    console.error('Critical sync failure:', err);
+    log.error('Critical sync failure:', err);
     updateSyncStatus('error');
   }
 }

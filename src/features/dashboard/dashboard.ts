@@ -16,10 +16,11 @@ import { renderIntelligenceBriefing } from '@/features/intelligence/intelligence
 import type { RankDetails } from '@/types/tracker.types';
 import { renderStudyAnalytics } from './study-analytics';
 import type { StudySession } from '@/types/profile.types';
-import { calculateXP, calculateStreak, getRankDetails, calculateSustainability, getRecentVelocity } from '@/utils/calc.utils';
+import { calculateXP, calculateStreak, getRankDetails, calculateSustainability, getRecentVelocity, calculateSummaryStats, getNextRoutine } from '@/utils/calc.utils';
 import { saveSettingsToStorage } from '@/services/data-bridge';
 import { fetchLeaderboard, loadUserProfileCloud, fetchMySessionsCloud, migrateLocalHistoryToCloud } from '@/services/vault.service';
 import { VanguardService } from '@/services/vanguard.service';
+import { log } from '@/utils/logger.utils';
 
 const formatNum = (num: number) => new Intl.NumberFormat().format(num);
 
@@ -79,29 +80,8 @@ export function updateDashboard(): void {
 
   const todayIndex = findTodayIndex();
   const today = todayIndex >= 0 ? data[todayIndex] : data[data.length - 1];
-  // Assuming calculateStats and calculateLevel are defined elsewhere or will be added.
-  // For now, using placeholder values or existing functions if they match.
-  // Re-implementing based on original logic for now, as calculateStats/calculateLevel are not provided.
-  let totalHours = 0;
-  let completedDays = 0;
-  let studyDays = 0;
-  
-  let maxStreak = 0;
-  let runningBest = 0;
 
-  for (const day of data) {
-    const dayTotal = Array.isArray(day.studyHours) ? day.studyHours.reduce((s, n) => s + (n || 0), 0) : 0;
-    totalHours += dayTotal;
-    if (day.completed) {
-      completedDays++;
-      runningBest++;
-      if (runningBest > maxStreak) maxStreak = runningBest;
-    } else {
-      runningBest = 0;
-    }
-    if (dayTotal > 0) studyDays++;
-  }
-  
+  const { totalHours, completedDays, studyDays, maxStreak } = calculateSummaryStats(data);
   const streak = calculateStreak(data);
   const completionRate = completedDays > 0 ? (completedDays / (appState.totalDays || 1)) * 100 : 0;
   const avgHoursPerStudyDay = studyDays > 0 ? totalHours / studyDays : 0;
@@ -237,36 +217,15 @@ function updateHeroRoutine(): void {
   const timeEl = document.getElementById('heroNextRoutineTime');
   if (!container || !textEl || !timeEl) return;
 
-  const items = appState.routines || [];
-  if (items.length === 0) {
+  const next = getNextRoutine(appState.routines || []);
+
+  if (!next) {
     container.style.display = 'none';
     return;
   }
-
-  const now = new Date();
-  const currentDay = now.getDay();
-  const nowStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
-
-  // Filter for today's uncompleted routines
-  const todayRoutines = items.filter(r => {
-    const activeToday = !r.days || r.days.length === 0 || r.days.includes(currentDay);
-    return activeToday && !r.completed;
-  });
-
-  if (todayRoutines.length === 0) {
-    container.style.display = 'none';
-    return;
-  }
-
-  // Sort by time
-  const sorted = [...todayRoutines].sort((a, b) => a.time.localeCompare(b.time));
-
-  // Find first one upcoming, or first uncompleted if all are past
-  let next = sorted.find(r => r.time >= nowStr);
-  if (!next) next = sorted[0];
 
   textEl.textContent = next.title;
-  timeEl.textContent = `@ ${formatTime12h(next.time)}`;
+  timeEl.textContent = next.time;
   container.style.display = 'flex';
 }
 
