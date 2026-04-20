@@ -37,7 +37,7 @@ export class Shell {
   private setupEventListeners(): void {
     this.setupTabNavigation();
     this.setupMobileMenu();
-    this.setupExcalidraw();
+    this.setupCanvasHub();
   }
 
   public setupTabNavigation(): void {
@@ -160,27 +160,112 @@ export class Shell {
     }
   }
 
-  private setupExcalidraw(): void {
-    const excalidrawBtn = document.getElementById("excalidrawToggle");
+  private setupCanvasHub(): void {
+    const canvasToggle = document.getElementById("excalidrawToggle");
     const drawSection = document.getElementById("drawSection");
+    const tldrawBtn = document.getElementById("toolSwitchTldraw");
+    const excalidrawBtn = document.getElementById("toolSwitchExcalidraw");
+    const frameContainer = document.getElementById("canvasFrameContainer");
 
-    excalidrawBtn?.addEventListener("click", () => {
+    const getCanvasUrl = (tool: 'tldraw' | 'excalidraw') => {
+      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = isDark ? 'dark' : 'light';
+      
+      if (tool === 'excalidraw') {
+        return `https://excalidraw.com?theme=${theme}`;
+      }
+      // tldraw often respects system theme automatically if no param, 
+      // but we'll try to nudge it with a theme param if supported
+      return `https://www.tldraw.com?theme=${theme}`;
+    };
+
+    const setTool = (tool: 'tldraw' | 'excalidraw') => {
+      if (!frameContainer) return;
+      
+      // Update Buttons
+      tldrawBtn?.classList.toggle('active', tool === 'tldraw');
+      excalidrawBtn?.classList.toggle('active', tool === 'excalidraw');
+
+      // Inject Iframe
+      frameContainer.innerHTML = `<iframe src="${getCanvasUrl(tool)}" width="100%" height="100%" style="border: none;" frameborder="0"></iframe>`;
+    };
+
+    canvasToggle?.addEventListener("click", () => {
       if (!drawSection) return;
       const isHidden = drawSection.style.display === "none" || drawSection.style.display === "";
       
       if (isHidden) {
-        if (!drawSection.querySelector('iframe')) {
-          drawSection.innerHTML = `<iframe src="https://excalidraw.com" width="100%" height="80%" style="border: 1px solid #ccc" frameborder="0"></iframe>`;
+        if (frameContainer && !frameContainer.querySelector('iframe')) {
+          setTool('tldraw'); // Default as requested
         }
         drawSection.style.display = "block";
-        excalidrawBtn.classList.add("active");
-        excalidrawBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg> Hide Canvas`;
+        canvasToggle.classList.add("active");
+        canvasToggle.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg> Hide Canvas`;
       } else {
         drawSection.style.display = "none";
-        excalidrawBtn.classList.remove("active");
-        excalidrawBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Canvas`;
+        drawSection.classList.remove('canvas-hub-fullscreen');
+        canvasToggle.classList.remove("active");
+        canvasToggle.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Canvas`;
       }
     });
+
+    let currentTool: 'tldraw' | 'excalidraw' = 'tldraw';
+    
+    tldrawBtn?.addEventListener('click', () => {
+      currentTool = 'tldraw';
+      setTool('tldraw');
+    });
+    excalidrawBtn?.addEventListener('click', () => {
+      currentTool = 'excalidraw';
+      setTool('excalidraw');
+    });
+
+    const refreshBtn = document.getElementById("toolRefresh");
+    refreshBtn?.addEventListener('click', () => setTool(currentTool));
+
+    const fullscreenBtn = document.getElementById("toolFullscreen");
+    fullscreenBtn?.addEventListener('click', () => {
+      drawSection?.classList.toggle('canvas-hub-fullscreen');
+    });
+
+    // ⌨️ KEYBOARD SHORTCUTS: ESC to exit Fullscreen
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && drawSection?.classList.contains('canvas-hub-fullscreen')) {
+        drawSection.classList.remove('canvas-hub-fullscreen');
+      }
+    });
+
+    // ↕️ VERTICAL RESIZER LOGIC
+    const resizer = document.getElementById("canvasResizer");
+    if (resizer && drawSection) {
+      let isDragging = false;
+
+      resizer.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        document.body.classList.add('dragging-canvas');
+        resizer.classList.add('dragging');
+        e.preventDefault();
+      });
+
+      document.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        
+        // Calculate new height based on mouse position relative to drawSection top
+        const rect = drawSection.getBoundingClientRect();
+        const newHeight = e.clientY - rect.top;
+        
+        if (newHeight > 300 && newHeight < (window.innerHeight - 100)) {
+          drawSection.style.height = `${newHeight}px`;
+        }
+      });
+
+      document.addEventListener('mouseup', () => {
+        if (!isDragging) return;
+        isDragging = false;
+        document.body.classList.remove('dragging-canvas');
+        resizer.classList.remove('dragging');
+      });
+    }
   }
 }
 

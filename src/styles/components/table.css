@@ -12,7 +12,7 @@ table {
 th,
 td {
   border-bottom: 1px solid rgba(135, 155, 230, 0.08);
-  padding: 6px 8px;
+  padding: 4px 6px;
   /* Denser padding */
   text-align: left;
   vertical-align: middle;
@@ -32,19 +32,19 @@ th {
 
 /* Header polish */
 #trackerTable thead th {
-  padding-top: 14px;
-  padding-bottom: 14px;
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 
 /* Inputs centered vertically and visually consistent */
 .cell-input {
-  height: 42px;
+  height: 32px;
 }
 
 .topics-input,
 .project-input {
-  height: 42px;
-  min-height: 42px;
+  height: 36px;
+  min-height: 36px;
 }
 
 /* Checkbox look - Modern & Premium */
@@ -192,11 +192,11 @@ tr.hidden {
 .cell-input {
   width: 100%;
   border: 1px solid rgba(99, 121, 177, 0.3);
-  border-radius: 10px;
+  border-radius: 8px;
   background: #060c18;
   color: #edf3ff;
-  padding: 7px 8px;
-  font-size: 0.9rem;
+  padding: 4px 8px;
+  font-size: 0.85rem;
 }
 
 .cell-input:focus {

@@ -1,0 +1,116 @@
+/* 🎨 Canvas Hub Switcher Styles */
+.canvas-hub-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(15, 15, 17, 0.85);
+  backdrop-filter: blur(12px);
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px 12px 0 0;
+  margin-top: 8px;
+}
+
+.canvas-tool-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  color: var(--text-muted);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.3px;
+}
+
+.canvas-tool-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.canvas-tool-btn.active {
+  background: var(--accent-purple);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.canvas-tool-btn svg {
+  opacity: 0.7;
+}
+
+.canvas-tool-btn.active svg {
+  opacity: 1;
+}
+
+#drawSection iframe {
+  border-radius: 0;
+  background: #ffffff; /* Excalidraw / tldraw background safety */
+}
+
+/* ↕️ Vertical Resizer */
+.canvas-resizer {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  cursor: ns-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0 0 12px 12px;
+}
+
+.canvas-resizer:hover, .canvas-resizer.dragging {
+  background: var(--accent-purple);
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+}
+
+.canvas-resizer::after {
+  content: '';
+  width: 32px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 1px;
+}
+
+/* Prevent iframe from eating events during drag */
+.dragging-canvas iframe {
+  pointer-events: none;
+}
+
+/* 🖼️ Fullscreen Mode */
+.canvas-hub-fullscreen {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 9999 !important;
+  margin: 0 !important;
+  background: rgba(4, 8, 16, 1);
+  padding: 0 !important;
+  border-radius: 0 !important;
+  display: flex !important;
+  flex-direction: column;
+}
+
+.canvas-hub-fullscreen .canvas-hub-toolbar {
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+}
+
+.canvas-hub-fullscreen #canvasFrameContainer {
+  flex-grow: 1;
+}
+
+.canvas-hub-fullscreen .canvas-resizer {
+  display: none !important; /* Hide resizer in fullscreen */
+}
+

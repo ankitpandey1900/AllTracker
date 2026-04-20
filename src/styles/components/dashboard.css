@@ -130,7 +130,7 @@
 .aura-focus    { --aura-rgb: 96, 165, 250; } /* Blue/Focus */
 
 .hero {
-  padding: 16px 14px 12px;
+  padding: 10px 14px 6px;
 }
 
 .hero-top h1 {
@@ -139,16 +139,16 @@
 }
 
 .hero-day-chip {
-  min-width: 96px;
-  border-radius: 12px;
-  border: 1px solid rgba(105, 125, 193, 0.62);
-  background: linear-gradient(180deg, rgba(41, 59, 121, 0.52), rgba(17, 28, 66, 0.52));
+  min-width: 80px;
+  border-radius: 10px;
+  border: 1px solid rgba(105, 125, 193, 0.4);
+  background: linear-gradient(180deg, rgba(41, 59, 121, 0.4), rgba(17, 28, 66, 0.4));
   text-align: center;
-  padding: 10px 8px 8px;
+  padding: 6px 6px 4px;
 }
 
 .hero-day-chip #currentDay {
-  font-size: 2.1rem;
+  font-size: 1.6rem;
   font-weight: 800;
   line-height: 1;
   color: #819aff;
@@ -161,9 +161,9 @@
 }
 
 .hero-subtitle {
-  margin-top: 6px;
+  margin-top: 2px;
   color: #7f90b7;
-  font-size: 1rem;
+  font-size: 0.85rem;
 }
 
 .hero-level-row {
@@ -262,7 +262,7 @@
 
 .kpi-metrics-grid {
   display: grid;
-  gap: 12px;
+  gap: 8px;
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
@@ -280,7 +280,7 @@
 
 .kpi-metrics-grid .card,
 #categoryCards > div {
-  min-height: 118px;
+  min-height: 90px;
   position: relative;
   overflow: hidden;
   text-align: center;
@@ -344,7 +344,7 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 .section-heading h3 {
@@ -481,8 +481,11 @@ textarea:focus {
   border-radius: 999px;
   background: #0b1224;
   color: #e8efff;
-  padding: 9px 14px;
+  padding: 6px 12px;
+  font-size: 0.72rem;
+  font-weight: 600;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .btn-primary {
@@ -1168,7 +1171,7 @@ textarea:focus {
 
 /* Study log controls */
 .study-log-controls {
-  padding: 14px;
+  padding: 10px 14px;
 }
 
 .study-log-top {
@@ -1188,10 +1191,10 @@ textarea:focus {
 .pill {
   border: 1px solid rgba(101, 124, 182, 0.3);
   border-radius: 999px;
-  padding: 7px 11px;
+  padding: 4px 10px;
   background: #090f1f;
   color: #93a4cb;
-  font-size: 0.89rem;
+  font-size: 0.7rem;
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
@@ -1207,7 +1210,7 @@ textarea:focus {
 .study-log-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
 }
 
 .study-log-search-row {
