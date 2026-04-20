@@ -3,15 +3,25 @@ import { log } from '@/utils/logger.utils';
 /**
  * Tactical Notification Service
  * 
- * Manages browser notifications and tactical audio alerts.
+ * Manages browser notifications, tactical audio alerts, 
+ * and immersive ambient focus sounds.
  */
 class NotificationService {
   private chime: HTMLAudioElement | null = null;
-  private soundPath = '/All Tracker Notification Sound.mp3';
+  private ambientAudio: HTMLAudioElement | null = null;
+  
+  private chimePath = '/All Tracker Notification Sound.mp3';
+  private currentAmbientType: string = 'none';
+  private isMuted: boolean = false;
+  private preMuteVolume: number = 0.5;
+
+  private ambientManifest: Record<string, string> = {
+    'interstellar': '/interstellar.mp3'
+  };
 
   constructor() {
     if (typeof window !== 'undefined') {
-      this.chime = new Audio(this.soundPath);
+      this.chime = new Audio(this.chimePath);
       this.chime.preload = 'auto';
     }
   }
@@ -49,9 +59,9 @@ class NotificationService {
         const options = {
           body,
           icon: '/logo.png',
-          badge: '/favicon-48x48.png', // Small monochrome icon for mobile status bar
+          badge: '/favicon-48x48.png', 
           vibrate: [200, 100, 200],
-          tag: 'timer-alert', // Overwrite previous timer alerts
+          tag: 'timer-alert', 
           renotify: true,
           data: {
             url: window.location.origin
@@ -72,15 +82,77 @@ class NotificationService {
   /** Plays the loaded tactical chime */
   playChime(): void {
     if (!this.chime) return;
-    
     try {
       this.chime.currentTime = 0;
-      this.chime.play().catch(err => {
+      this.chime.play().catch(() => {
         log.warn('Audio playback blocked by browser. User interaction required.');
       });
     } catch (err) {
       log.error('Audio playback error:', err);
     }
+  }
+
+  // --- Ambient Focus Logic ---
+
+  setAmbientSound(type: 'none' | 'cyber-rain' | 'space-static' | 'interstellar'): void {
+    if (this.currentAmbientType === type) return;
+    
+    this.stopAmbient();
+    this.currentAmbientType = type;
+
+    if (type === 'none') {
+      this.ambientAudio = null;
+      return;
+    }
+
+    const path = this.ambientManifest[type];
+    if (!path) return;
+
+    this.ambientAudio = new Audio(path);
+    this.ambientAudio.loop = true;
+    this.ambientAudio.preload = 'auto';
+    // Let browser optimize by streaming large files
+  }
+
+  setAmbientVolume(volume: number): void {
+    if (this.ambientAudio) {
+      this.ambientAudio.volume = Math.max(0, Math.min(1, volume));
+    }
+  }
+
+  startAmbient(): void {
+    if (!this.ambientAudio || this.currentAmbientType === 'none') return;
+    
+    this.ambientAudio.play().catch(err => {
+      log.warn(`Ambient audio (${this.currentAmbientType}) playback blocked. User interaction needed.`);
+    });
+  }
+
+  stopAmbient(): void {
+    if (this.ambientAudio) {
+      this.ambientAudio.pause();
+    }
+  }
+
+  getAmbientType(): string {
+    return this.currentAmbientType;
+  }
+
+  toggleMute(): boolean {
+    this.isMuted = !this.isMuted;
+    if (this.ambientAudio) {
+      if (this.isMuted) {
+        this.preMuteVolume = this.ambientAudio.volume;
+        this.ambientAudio.volume = 0;
+      } else {
+        this.ambientAudio.volume = this.preMuteVolume;
+      }
+    }
+    return this.isMuted;
+  }
+
+  getMuteState(): boolean {
+    return this.isMuted;
   }
 }
 

@@ -131,6 +131,10 @@ export function startTimer(categoryIdx: number, categoryName: string): void {
   // ⚡ OPTIMISTIC UI: Instant visual feedback
   updateTimerUI(true);
   startTimerInterval();
+  
+  // 🎙️ AMBIENT AUDIO: Resume if sound is selected
+  notificationService.startAmbient();
+  
   document.getElementById('timerModal')?.classList.remove('active');
 
   appState.activeTimer.category = String(categoryIdx);
@@ -169,6 +173,9 @@ export function pauseTimer(): void {
   const currentSession = Date.now() - (appState.activeTimer.startTime || 0);
   appState.activeTimer.elapsedAcc += currentSession;
   appState.activeTimer.startTime = null;
+
+  // 🎙️ AMBIENT AUDIO: Stop on pause
+  notificationService.stopAmbient();
 
   saveTimerState();
 
@@ -256,6 +263,9 @@ export async function stopTimer(autoNote?: string): Promise<void> {
   appState.activeTimer.colName = '';
   appState.activeTimer.sessionStartClock = null;
 
+  // 🎙️ AMBIENT AUDIO: Safety stop
+  notificationService.stopAmbient();
+
   // Broadcast status update
   syncProfileBroadcast();
 
@@ -292,6 +302,9 @@ export async function terminateTimer(): Promise<void> {
   appState.activeTimer.category = null;
   appState.activeTimer.colName = '';
   appState.activeTimer.sessionStartClock = null;
+
+  // 🎙️ AMBIENT AUDIO: Safety stop
+  notificationService.stopAmbient();
 
   // ✅ ATOMIC DB CLEAR: await guarantees cloud is zeroed before any refresh can happen
   await clearTimerStateDB();
@@ -554,6 +567,45 @@ function updateTimerUI(isVisible: boolean): void {
   } else {
     section.style.display = 'none';
     document.body.classList.remove('focus-mode', 'focus-minimized');
+    
+    // 🎙️ AMBIENT AUDIO: Safety stop
+    notificationService.stopAmbient();
+  }
+
+  // 🎙️ SYNC AMBIENT UI
+  const soundLabel = document.getElementById('ambientSoundLabel');
+  const volumeSlider = document.getElementById('ambientVolumeSlider') as HTMLInputElement | null;
+  
+  if (soundLabel) {
+    const current = appState.settings.ambientSound || 'none';
+    soundLabel.textContent = current.replace('-', ' ').toUpperCase();
+    
+    const btn = document.getElementById('ambientSoundToggle');
+    if (btn) {
+      if (current !== 'none') btn.classList.add('active');
+      else btn.classList.remove('active');
+    }
+  }
+  
+  if (volumeSlider) {
+    const isMuted = notificationService.getMuteState();
+    volumeSlider.value = isMuted ? '0' : String(appState.settings.ambientVolume ?? 0.5);
+    notificationService.setAmbientVolume(parseFloat(volumeSlider.value));
+
+    // Sync Mute Icons
+    const iconOn = document.getElementById('volumeIconOn');
+    const iconOff = document.getElementById('volumeIconOff');
+    if (iconOn && iconOff) {
+      iconOn.style.display = isMuted ? 'none' : 'block';
+      iconOff.style.display = isMuted ? 'block' : 'none';
+    }
+  }
+
+  // Sync Visualizer
+  const viz = document.getElementById('audioVisualizer');
+  if (viz) {
+    const isPlaying = appState.activeTimer.isRunning && (appState.settings.ambientSound || 'none') !== 'none';
+    viz.style.display = isPlaying ? 'flex' : 'none';
   }
 }
 
@@ -737,6 +789,50 @@ export function setupFocusListeners(): void {
         hudSection.style.setProperty('--drag-y', '0px');
         currX = 0; currY = 0;
       }
+    });
+  }
+
+  // 🎙️ AMBIENT AUDIO LISTENERS
+  const soundToggle = document.getElementById('ambientSoundToggle');
+  const volumeSlider = document.getElementById('ambientVolumeSlider') as HTMLInputElement | null;
+
+  if (soundToggle) {
+    soundToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const current = appState.settings.ambientSound || 'none';
+      const next = current === 'none' ? 'interstellar' : 'none';
+      
+      appState.settings.ambientSound = next;
+      notificationService.setAmbientSound(next);
+      
+      if (appState.activeTimer.isRunning) {
+        notificationService.startAmbient();
+      }
+      
+      updateTimerUI(true);
+      saveSettingsToStorage(appState.settings);
+    });
+  }
+
+  if (volumeSlider) {
+    volumeSlider.addEventListener('input', (e) => {
+      const val = parseFloat((e.target as HTMLInputElement).value);
+      appState.settings.ambientVolume = val;
+      notificationService.setAmbientVolume(val);
+      saveSettingsToStorage(appState.settings);
+    });
+    // Prevent dragging HUD when adjusting volume
+    volumeSlider.addEventListener('mousedown', (e) => e.stopPropagation());
+    volumeSlider.addEventListener('touchstart', (e) => e.stopPropagation());
+  }
+
+  // 🎙️ MUTE TOGGLE
+  const muteBtn = document.getElementById('muteToggleBtn');
+  if (muteBtn) {
+    muteBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      notificationService.toggleMute();
+      updateTimerUI(true);
     });
   }
 

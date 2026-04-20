@@ -29,6 +29,8 @@ function createDefaultSettings(): Settings {
     maamuModel: 'openai/gpt-oss-20b',
     theme: 'default',
     timerStyle: 'ring',
+    ambientSound: 'none',
+    ambientVolume: 0.5,
   };
 }
 

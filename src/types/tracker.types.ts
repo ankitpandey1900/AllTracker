@@ -81,6 +81,8 @@ export interface Settings {
   theme?: 'kaala' | 'default' | 'chanakya-strategy' | 'ayodhya' | 'kamala-grace' | 'vajra-shakti';
   timerStyle?: 'ring' | 'block';
   sessionGoal?: string;           // Target hours for current phase
+  ambientSound?: 'none' | 'interstellar';
+  ambientVolume?: number;         // 0 to 1
 }
 
 // --- Badges ---

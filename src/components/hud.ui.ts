@@ -19,6 +19,31 @@ export const hudView = `
             </svg>
           </div>
         </div>
+
+        <div class="hud-audio-controls" style="display: flex; align-items: center; gap: 12px; margin-right: 8px;">
+          <div class="volume-slider-wrap">
+            <button id="muteToggleBtn" class="btn-icon mini-mute-btn" title="Toggle Mute">
+              <svg id="volumeIconOn" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
+              <svg id="volumeIconOff" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><line x1="1" y1="1" x2="23" y2="23"></line><path d="M9 9l-5 5H2v-6h3l5-5v6.5M11 5v14l-4-4"></path></svg>
+            </button>
+            <input id="ambientVolumeSlider" type="range" min="0" max="1" step="0.05" value="0.5" class="hud-volume-slider" title="Ambient Volume" />
+          </div>
+          <button id="ambientSoundToggle" class="btn-icon sound-selector-btn" title="Cycle Ambient Sound">
+            <div id="ambientSoundMeta" style="display: flex; align-items: center; gap: 4px; margin-bottom: 2px;">
+              <span id="ambientSoundLabel" style="font-size: 0.6rem; font-weight: 700; color: var(--text-muted);">NONE</span>
+              <div id="audioVisualizer" class="hud-equalizer" style="display: none;">
+                <span class="eq-bar"></span>
+                <span class="eq-bar"></span>
+                <span class="eq-bar"></span>
+              </div>
+            </div>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 18v-6a9 9 0 0 1 18 0v6"></path>
+              <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path>
+            </svg>
+          </button>
+        </div>
+
         <button id="manualFocusToggle" class="btn-icon minimize-btn" title="Toggle Mini-Player">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round">
@@ -27,6 +52,7 @@ export const hudView = `
             <path d="M14 10l7-7" />
             <path d="M3 21l7-7" />
           </svg>
+        </button>
       </div>
       
 
