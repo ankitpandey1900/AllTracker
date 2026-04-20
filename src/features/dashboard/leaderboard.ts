@@ -171,7 +171,6 @@ export async function refreshLeaderboard(): Promise<void> {
   });
 
   if (dataFingerprint === listEl.dataset.lastFingerprint) {
-    log.success('LB CACHE: Data and Identity unchanged. Skipping render.');
     return;
   }
   listEl.dataset.lastFingerprint = dataFingerprint;

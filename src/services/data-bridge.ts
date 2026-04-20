@@ -316,9 +316,6 @@ export async function saveRoutineResetToStorage(reset: string): Promise<void> {
 // --- Task Functions ---
 
 function setTasks(tasks: StudyTask[], pushToCloud = true): void {
-  // Senior Developer Practice: Log state changes for critical data entities
-  console.log(`[DataBridge] Syncing Tasks: ${tasks.length} items (Push to Cloud: ${pushToCloud})`);
-  
   appState.tasks = tasks;
   localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(tasks));
   
@@ -353,7 +350,6 @@ export function clearLocalData(): void {
 // --- Cloud Sync Logic ---
 
 export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
-  log.info('Initiating data sync...', '🔄');
   updateSyncStatus('syncing');
 
   try {
@@ -376,10 +372,6 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
     };
 
     const forceRecovery = forceCloudPull || isLocalEmpty(appState.trackerData);
-
-    if (forceRecovery) {
-      log.info('CLOUD MASTER: Forcefully restoring from Cloud archives...', '🛡️');
-    }
 
     // --- Tracker Data ---
     if (cloudTracker && (forceRecovery || isDifferent(appState.trackerData, cloudTracker.data) || isCloudNewer(STORAGE_KEYS.TRACKER_DATA, cloudTracker.updatedAt))) {
@@ -452,7 +444,6 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
       };
       setSecureLocalProfileString(JSON.stringify(userProfile));
       localStorage.setItem('tracker_username', userProfile.displayName);
-      log.success('IDENTITY SYNCED: Profile re-established from secure vault.');
     }
 
     // Refresh the app state and UI
@@ -542,7 +533,6 @@ async function refreshAppAfterSync(): Promise<void> {
  */
 export async function startLiveSync(): Promise<void> {
   if (!isAuthenticated()) return;
-  log.info('LIVE SYNC: Activating identity-locked cloud listeners...', '🚀');
   await subscribeToUserDataSync(() => {
     void performBackgroundSync();
   });
