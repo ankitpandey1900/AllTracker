@@ -67,7 +67,7 @@ function toRoutineItem(row: RoutineItemRow) {
     days: Array.isArray(row.days) ? row.days.map(Number) : [],
     streak: Number(row.streak || 0),
     lastCompletedIso: row.last_completed_at
-      ? row.last_completed_at.split("T")[0]
+      ? new Date(row.last_completed_at).toISOString().split("T")[0]
       : "",
   };
 }
@@ -162,8 +162,11 @@ export async function readVault(
         `,
         [profile.profileId],
       );
-      const history = rows.reduce<Record<string, number>>((acc: Record<string, number>, row: { history_date: string; completed_count: number }) => {
-        acc[row.history_date] = Number(row.completed_count || 0);
+      const history = rows.reduce<Record<string, number>>((acc: Record<string, number>, row: { history_date: string | Date; completed_count: number }) => {
+        const dateKey = row.history_date instanceof Date 
+          ? row.history_date.toISOString().split("T")[0] 
+          : row.history_date;
+        acc[dateKey] = Number(row.completed_count || 0);
         return acc;
       }, {});
       const updatedAt =
