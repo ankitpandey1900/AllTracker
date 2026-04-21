@@ -82,7 +82,7 @@ export function generateExportTimestamp(): string {
   return `${year}${month}${day}_${hours}${minutes}`;
 }
 
-/** 
+/**
  * Returns the current date as an ISO string in LOCAL time (YYYY-MM-DD).
  * Avoids 'toISOString()' date shifts for daily features.
  */
@@ -91,5 +91,17 @@ export function getLocalIsoDate(date: Date = new Date()): string {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
+}
+
+// Turns raw decimal hours like 0.37 into pretty strings like "22m" for the dashboard & leaderboard
+export function formatDuration(hours: number): string {
+  if (!hours || hours <= 0) return '';
+  
+  const h = Math.floor(hours);
+  const m = Math.round((hours - h) * 60);
+  
+  if (h === 0) return `${m}m`;
+  if (m === 0) return `${h}h`;
+  return `${h}h ${m}m`;
 }
 

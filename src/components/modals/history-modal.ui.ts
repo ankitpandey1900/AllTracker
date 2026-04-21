@@ -5,6 +5,15 @@ export const historyModal = `
   <style>
     #historyModal * { box-sizing: border-box; }
 
+    @keyframes shRowFade {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .sh-row { 
+      opacity: 0;
+      animation: shRowFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
+    }
+
     /* ════════════════════════════════════════════════
        MODAL SHELL
     ════════════════════════════════════════════════ */
@@ -186,7 +195,7 @@ export const historyModal = `
     ════════════════════════════════════════════════ */
     .sh-row {
       display: grid;
-      grid-template-columns: 16% 20% 12% 14% 26% 12%;
+      grid-template-columns: 18% 20% 12% 14% 24% 12%;
       align-items: center;
       width: 100%;
     }
@@ -249,6 +258,7 @@ export const historyModal = `
     .sh-date-sessions-label {
       font-size: 0.62rem; font-weight: 700;
       color: rgba(255,255,255,0.28); letter-spacing: 0.8px; text-transform: uppercase;
+      display: flex; align-items: center; gap: 8px; white-space: nowrap;
     }
     .sh-total-hours { font-size: 0.9rem; font-weight: 800; color: #60a5fa; }
 
@@ -268,7 +278,10 @@ export const historyModal = `
       font-size: 0.64rem; font-weight: 800; letter-spacing: 0.8px;
       text-transform: uppercase; border: 1px solid;
     }
-    .sh-subject-count { font-size: 0.62rem; color: rgba(255,255,255,0.28); font-weight: 600; margin-left: 8px; }
+    .sh-subject-count { 
+      font-size: 0.62rem; color: rgba(255,255,255,0.28); font-weight: 600; margin-left: 8px;
+      display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+    }
     .sh-sub-hours { font-size: 0.82rem; font-weight: 700; }
 
     /* Session row */
@@ -281,12 +294,26 @@ export const historyModal = `
       padding: 9px 14px;
       overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
-    .sh-session-row > div:first-child { padding-left: 48px; }
+    .sh-session-row > div:first-child { padding-left: 48px; overflow: visible !important; text-overflow: clip !important; }
     .sh-session-row > div:nth-child(3) { text-align: right; padding-right: 18px; overflow: visible; }
     .sh-session-row:hover { background: rgba(96,165,250,0.04); border-left-color: rgba(96,165,250,0.2); }
     .sh-session-row.alt { background: rgba(255,255,255,0.01); }
 
-    .sh-session-num { font-size: 0.68rem; font-weight: 700; color: rgba(255,255,255,0.32); }
+    .sh-session-num { font-size: 0.68rem; font-weight: 700; color: rgba(255,255,255,0.32); display: flex; align-items: center; }
+    .sh-break-badge {
+      margin-left: 8px;
+      font-size: 0.62rem;
+      font-weight: 800;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      padding: 1px 6px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
     .sh-time { font-size: 0.77rem; color: rgba(255,255,255,0.52); font-variant-numeric: tabular-nums; }
     .sh-time-sep { opacity: 0.3; margin: 0 6px; }
 

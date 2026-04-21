@@ -9,8 +9,8 @@
 
 /** Show a quick message on the screen */
 export function showToast(
-  message: string, 
-  type: 'success' | 'error' | 'warning' | 'info' = 'info', 
+  message: string,
+  type: 'success' | 'error' | 'warning' | 'info' = 'info',
   duration = 3000,
   onClick?: () => void
 ): void {
@@ -119,7 +119,7 @@ export function showLoading(message: string = 'Processing...'): void {
     loader.className = 'global-loader-overlay';
     document.body.appendChild(loader);
   }
-  
+
   loader.innerHTML = `
     <div class="loader-backdrop"></div>
     <div class="loader-content">
@@ -131,7 +131,7 @@ export function showLoading(message: string = 'Processing...'): void {
       <div class="loader-subtext">MAINTAINING HIGH-FREQUENCY SYNC</div>
     </div>
   `;
-  
+
   loader.classList.remove('hidden');
   loader.style.display = 'flex';
 }
@@ -148,4 +148,26 @@ export function hideLoading(): void {
       }
     }, 400);
   }
+}
+
+// --- Animations ---
+
+/**
+ * Animates a numeric value from 0 to target for a cinematic feel.
+ */
+export function animateValue(el: HTMLElement | null, target: number, duration: number = 800, suffix: string = '', decimals: number = 0): void {
+  if (!el) return;
+  let startTimestamp: number | null = null;
+  const step = (timestamp: number) => {
+    if (!startTimestamp) startTimestamp = timestamp;
+    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+    // Ease out expo
+    const easedProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+    const current = (easedProgress * target).toFixed(decimals);
+    el.textContent = `${current}${suffix}`;
+    if (progress < 1) {
+      window.requestAnimationFrame(step);
+    }
+  };
+  window.requestAnimationFrame(step);
 }

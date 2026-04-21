@@ -10,8 +10,8 @@
 
 import { appState } from '@/state/app-state';
 import { RANK_TIERS, TIER_TITLES, CATEGORY_COLORS } from '@/config/constants';
-import { formatDate, formatDateDMY, formatTime12h, getLocalIsoDate } from '@/utils/date.utils';
-import { setTxt, showToast, showLoading, hideLoading } from '@/utils/dom.utils';
+import { formatDate, formatDateDMY, formatTime12h, getLocalIsoDate, formatDuration } from '@/utils/date.utils';
+import { setTxt, showToast, showLoading, hideLoading, animateValue } from '@/utils/dom.utils';
 import { renderIntelligenceBriefing } from '@/features/intelligence/intelligence';
 import type { RankDetails } from '@/types/tracker.types';
 import { renderStudyAnalytics } from './study-analytics';
@@ -99,18 +99,18 @@ export function updateDashboard(): void {
   document.querySelectorAll('.hero-total-days').forEach(el => {
     el.textContent = appState.totalDays.toString();
   });
-  setTxt('totalHours', `${totalHours.toFixed(1)}h`);
+  setTxt('totalHours', formatDuration(totalHours) || '0h');
   setTxt('currentStreak', `${streak} DAYS`);
   setTxt('completionPercent', `${Math.round(completionRate)}%`);
   setTxt('completedDaysCount', completedDays.toString());
   setTxt('completionPercentMirror', `${Math.round(completionRate)}%`);
-  setTxt('avgHoursPerDay', avgHoursPerStudyDay.toFixed(1));
-  
+  setTxt('avgHoursPerDay', formatDuration(avgHoursPerStudyDay) || '0m');
+
   const sustain = calculateSustainability(data);
-  const sustainArrow = sustain.trend === 'up' 
-    ? '<span style="color: #22c55e; margin-left: 5px;">↑</span>' 
-    : sustain.trend === 'down' 
-      ? '<span style="color: #ef4444; margin-left: 5px;">↓</span>' 
+  const sustainArrow = sustain.trend === 'up'
+    ? '<span style="color: #22c55e; margin-left: 5px;">↑</span>'
+    : sustain.trend === 'down'
+      ? '<span style="color: #ef4444; margin-left: 5px;">↓</span>'
       : '';
   const sustainLabelEl = document.getElementById('sustainabilityLabel');
   if (sustainLabelEl) sustainLabelEl.innerHTML = `${sustain.label}${sustainArrow}`;
@@ -125,10 +125,10 @@ export function updateDashboard(): void {
   setTxt('worldRankPos', `#${formatNum(rankData.absolutePos || 40000000)}`);
 
   const { date: estimatedFinish, trend: finishTrend } = calculateEstimatedFinishWithTrend(today.day, completedDays);
-  const finishArrow = finishTrend === 'up' 
-    ? '<span style="color: #22c55e; margin-left: 5px;">↑</span>' 
-    : finishTrend === 'down' 
-      ? '<span style="color: #ef4444; margin-left: 5px;">↓</span>' 
+  const finishArrow = finishTrend === 'up'
+    ? '<span style="color: #22c55e; margin-left: 5px;">↑</span>'
+    : finishTrend === 'down'
+      ? '<span style="color: #ef4444; margin-left: 5px;">↓</span>'
       : '';
   const finishEl = document.getElementById('estimatedFinishDate');
   if (finishEl) finishEl.innerHTML = `${estimatedFinish}${finishArrow}`;
@@ -137,10 +137,10 @@ export function updateDashboard(): void {
 
   // Render Sector Tokens (Category Cards)
   renderSectorTokens(today);
-  
+
   renderAllocationBar();
   renderStudyAnalytics();
-  
+
   // Dynamic Hero Status
   const statusEl = document.getElementById('heroStatusTitle');
   if (statusEl) {
@@ -183,7 +183,7 @@ async function updateRivalryHUD(): Promise<void> {
     hud.style.background = 'rgba(239, 68, 68, 0.05)';
     if (labelEl) { labelEl.style.color = '#ef4444'; labelEl.textContent = 'TARGET IDENTIFIED 🎯'; }
     if (handleEl) { handleEl.style.color = '#ef4444'; handleEl.textContent = rival.handle; }
-    if (metaEl) metaEl.innerHTML = `RANK <span id="rivalRank">${rival.rank}</span> • <span id="rivalGap" style="color: #fca5a5; font-weight: 900;">-${rival.gap}h</span> TO OVERTAKE`;
+    if (metaEl) metaEl.innerHTML = `RANK <span id="rivalRank">${rival.rank}</span> • <span id="rivalGap" style="color: #fca5a5; font-weight: 900;">-${formatDuration(rival.gap) || '0h'}</span> TO OVERTAKE`;
   } else {
     // 👑 KING MODE: User is #1 — show throne state
     hud.style.display = 'block';
@@ -237,10 +237,10 @@ function getDynamicStatusMessage(currentDay: number, completedDays: number): str
 
   // Determine which bucket this sits in
   let category: string;
-  if (diff < -0.05)  category = 'behind';
+  if (diff < -0.05) category = 'behind';
   else if (diff > 0.10) category = 'ahead-high';
-  else if (diff > 0)    category = 'ahead-low';
-  else                  category = 'steady';
+  else if (diff > 0) category = 'ahead-low';
+  else category = 'steady';
 
   // Return the cached message if the pace category hasn't changed
   if (category === _cachedPaceCategory && _cachedStatusMsg) {
@@ -273,10 +273,10 @@ function getDynamicStatusMessage(currentDay: number, completedDays: number): str
   ];
 
   let msg: string;
-  if (category === 'behind')    msg = taunts[Math.floor(Math.random() * taunts.length)];
+  if (category === 'behind') msg = taunts[Math.floor(Math.random() * taunts.length)];
   else if (category === 'ahead-high') msg = appreciation[Math.floor(Math.random() * appreciation.length)];
-  else if (category === 'ahead-low')  msg = appreciation[Math.floor(Math.random() * 3)];
-  else                                msg = steady[Math.floor(Math.random() * steady.length)];
+  else if (category === 'ahead-low') msg = appreciation[Math.floor(Math.random() * 3)];
+  else msg = steady[Math.floor(Math.random() * steady.length)];
 
   _cachedPaceCategory = category;
   _cachedStatusMsg = msg;
@@ -342,18 +342,18 @@ function initInteractiveParallax(): void {
       const rect = (card as HTMLElement).getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-      
+
       const centerX = rect.width / 2;
       const centerY = rect.height / 2;
-      
+
       // Calculate rotation (max 10 degrees)
-      const rotateX = ((y - centerY) / centerY) * -6; 
+      const rotateX = ((y - centerY) / centerY) * -6;
       const rotateY = ((x - centerX) / centerX) * 6;
-      
+
       (card as HTMLElement).style.setProperty('--tilt-x', `${rotateX}deg`);
       (card as HTMLElement).style.setProperty('--tilt-y', `${rotateY}deg`);
     });
-    
+
     (card as HTMLElement).addEventListener('mouseleave', () => {
       (card as HTMLElement).style.setProperty('--tilt-x', `0deg`);
       (card as HTMLElement).style.setProperty('--tilt-y', `0deg`);
@@ -364,17 +364,17 @@ function initInteractiveParallax(): void {
 function calculateEstimatedFinishWithTrend(currentDayNumber: number, completedDays: number): { date: string; trend: 'up' | 'down' | 'stable' } {
   if (currentDayNumber <= 0) return { date: 'Analyzing...', trend: 'stable' };
   if (completedDays <= 0) return { date: 'Need 1 session', trend: 'stable' };
-  
+
   const pace = completedDays / currentDayNumber;
   if (pace <= 0) return { date: 'Studying...', trend: 'stable' };
-  
+
   const remainingCompletions = Math.max(0, appState.totalDays - completedDays);
   if (remainingCompletions === 0) return { date: 'Goal Completed! 🏆', trend: 'stable' };
 
   const daysNeeded = Math.ceil(remainingCompletions / pace);
   const eta = new Date();
   eta.setDate(eta.getDate() + daysNeeded);
-  
+
   // Trend calculation: compare current pace vs pace as of yesterday
   const yesterdayDayNumber = currentDayNumber - 1;
   const wasCompletedToday = appState.trackerData[appState.trackerData.length - 1]?.completed || false;
@@ -423,7 +423,7 @@ function renderSectorTokens(today: any): void {
   };
 
   const accentClasses = ['accent-teal', 'accent-blue', 'accent-purple', 'accent-gold', 'accent-red', 'accent-cyan', 'accent-purple', 'accent-red'];
-  
+
   const studyCats = currentCols.map((col, i) => {
     const total = totals.studyHours[i] || 0;
     const target = col.target || 0;
@@ -433,7 +433,7 @@ function renderSectorTokens(today: any): void {
       target: target,
       accent: accentClasses[i % accentClasses.length],
       hexColor: CATEGORY_COLORS[i % CATEGORY_COLORS.length],
-      detail: `${total.toFixed(1)} / ${target.toFixed(0)} hrs`,
+      detail: `${formatDuration(total) || '0h'} / ${formatDuration(target) || '0h'}`,
       finish: estimateTargetDate(total, target),
     };
   });
@@ -454,7 +454,7 @@ function renderSectorTokens(today: any): void {
   container.innerHTML = categories.map(cat => `
     <div class="zen-card metric-item category-progress-card ${cat.accent}" style="flex: 1; border-bottom: 2px solid ${cat.hexColor}">
       <span class="label-caps">${cat.label}</span>
-      <div class="metric-value">${typeof cat.value === 'number' ? cat.value.toFixed(cat.label === 'Problems Solved' ? 0 : 1) : cat.value}</div>
+      <div class="metric-value">${cat.label === 'Problems Solved' ? (typeof cat.value === 'number' ? cat.value.toFixed(0) : cat.value) : formatDuration(cat.value as number) || '0h'}</div>
       <div class="category-progress-track-wrap">
         <div class="category-progress-track">
           <div class="category-progress-fillline" style="width:${cat.target > 0 ? Math.min(100, Math.round((cat.value / cat.target) * 100)) : Math.min(100, cat.value > 0 ? 100 : 0)}%; background: ${cat.hexColor}"></div>
@@ -476,7 +476,7 @@ function renderVelocitySparkline(trackerData: any[]): void {
   if (!ctx) return;
 
   const velocity = getRecentVelocity(trackerData, 14);
-  
+
   const width = canvas.width;
   const height = canvas.height;
   const max = Math.max(...velocity, 1);
@@ -513,7 +513,7 @@ function renderAllocationBar(): void {
 
   const currentCols = appState.settings.columns || [];
   const labels = currentCols.map(c => c.name);
-  
+
   const values = appState.trackerData.reduce(
     (acc, d) => {
       if (Array.isArray(d.studyHours)) {
@@ -558,7 +558,7 @@ function renderAllocationBar(): void {
   bar.innerHTML = segments
     .map((s: { name: string; value: number; color: string }) => {
       const pct = ((s.value / allTimeTotal) * 100).toFixed(1);
-      return `<div class="allocation-segment" style="width:${pct}%;background:${s.color}" title="${s.name}: ${s.value.toFixed(1)}h (${pct}%)"></div>`;
+      return `<div class="allocation-segment" style="width:${pct}%;background:${s.color}" title="${s.name}: ${formatDuration(s.value)} (${pct}%)"></div>`;
     })
     .join('');
 
@@ -569,7 +569,7 @@ function renderAllocationBar(): void {
         <div class="legend-item">
           <span class="legend-dot" style="background:${s.color}"></span>
           <span class="legend-label">${s.name}</span>
-          <span class="legend-value">${s.value.toFixed(1)}h</span>
+          <span class="legend-value">${formatDuration(s.value)}</span>
         </div>
       `)
       .join('');
@@ -582,13 +582,13 @@ function renderAllocationBar(): void {
 
 function getSubjectColor(name: string): { bg: string; border: string; text: string } {
   const palette = [
-    { bg: 'rgba(96,165,250,0.12)',  border: 'rgba(96,165,250,0.35)',  text: '#93c5fd' },
+    { bg: 'rgba(96,165,250,0.12)', border: 'rgba(96,165,250,0.35)', text: '#93c5fd' },
     { bg: 'rgba(167,139,250,0.13)', border: 'rgba(167,139,250,0.35)', text: '#c4b5fd' },
-    { bg: 'rgba(52,211,153,0.11)',  border: 'rgba(52,211,153,0.35)',  text: '#6ee7b7' },
-    { bg: 'rgba(251,191,36,0.11)',  border: 'rgba(251,191,36,0.35)',  text: '#fcd34d' },
+    { bg: 'rgba(52,211,153,0.11)', border: 'rgba(52,211,153,0.35)', text: '#6ee7b7' },
+    { bg: 'rgba(251,191,36,0.11)', border: 'rgba(251,191,36,0.35)', text: '#fcd34d' },
     { bg: 'rgba(248,113,113,0.12)', border: 'rgba(248,113,113,0.35)', text: '#fca5a5' },
-    { bg: 'rgba(34,211,238,0.11)',  border: 'rgba(34,211,238,0.35)',  text: '#67e8f9' },
-    { bg: 'rgba(251,146,60,0.12)',  border: 'rgba(251,146,60,0.35)',  text: '#fdba74' },
+    { bg: 'rgba(34,211,238,0.11)', border: 'rgba(34,211,238,0.35)', text: '#67e8f9' },
+    { bg: 'rgba(251,146,60,0.12)', border: 'rgba(251,146,60,0.35)', text: '#fdba74' },
   ];
   let hash = 0;
   for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
@@ -596,25 +596,25 @@ function getSubjectColor(name: string): { bg: string; border: string; text: stri
 }
 
 function getRelativeDate(dateStr: string): { primary: string; day: string } {
-  const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const [y, m, d] = dateStr.split('-').map(Number);
   const date = new Date(y, m - 1, d);
-  const today = new Date(); today.setHours(0,0,0,0);
+  const today = new Date(); today.setHours(0, 0, 0, 0);
   const diff = Math.round((today.getTime() - date.getTime()) / 86400000);
   const day = dayNames[date.getDay()];
-  const fmt = `${String(d).padStart(2,'0')}/${String(m).padStart(2,'0')}/${y}`;
-  if (diff === 0) return { primary: 'Today',       day: `${day} \u00b7 ${fmt}` };
-  if (diff === 1) return { primary: 'Yesterday',   day: `${day} \u00b7 ${fmt}` };
-  if (diff < 7)   return { primary: `${diff}d ago`, day: `${day} \u00b7 ${fmt}` };
+  const fmt = `${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')}/${y}`;
+  if (diff === 0) return { primary: 'Today', day: `${day} \u00b7 ${fmt}` };
+  if (diff === 1) return { primary: 'Yesterday', day: `${day} \u00b7 ${fmt}` };
+  if (diff < 7) return { primary: `${diff}d ago`, day: `${day} \u00b7 ${fmt}` };
   return { primary: fmt, day };
 }
 
 // --- Session History Popup ---
 
 export async function renderSessionHistory(): Promise<void> {
-  const container    = document.getElementById('recentSessionsBody');
-  const fromInput    = document.getElementById('sh-from-date') as HTMLInputElement;
-  const toInput      = document.getElementById('sh-to-date')   as HTMLInputElement;
+  const container = document.getElementById('recentSessionsBody');
+  const fromInput = document.getElementById('sh-from-date') as HTMLInputElement;
+  const toInput = document.getElementById('sh-to-date') as HTMLInputElement;
   const migrationBanner = document.getElementById('historyMigrationBanner');
 
   if (!container) return;
@@ -629,13 +629,13 @@ export async function renderSessionHistory(): Promise<void> {
 
   // ── DATE RANGE FILTER ────────────────────────────────────────
   const fromVal = fromInput?.value || '';   // YYYY-MM-DD
-  const toVal   = toInput?.value   || '';   // YYYY-MM-DD
+  const toVal = toInput?.value || '';   // YYYY-MM-DD
 
   let displayLogs = cloudLogs.filter((log: any) => {
     const d = log.log_date || (log.end_at || '').split('T')[0];
     if (!d) return false;
     if (fromVal && d < fromVal) return false;
-    if (toVal   && d > toVal)   return false;
+    if (toVal && d > toVal) return false;
     return true;
   });
 
@@ -644,7 +644,7 @@ export async function renderSessionHistory(): Promise<void> {
 
   if (displayLogs.length === 0) {
     const hasRealLocal = !isOnline && localLogs.length > 0 && localLogs.some((l: any) => l.duration > 0 || l.note);
-    const fmtDMYq = (iso: string) => { const [y,m,d] = iso.split('-'); return `${d}/${m}/${y}`; };
+    const fmtDMYq = (iso: string) => { const [y, m, d] = iso.split('-'); return `${d}/${m}/${y}`; };
     const msg = activeFilter
       ? `No sessions found${fromVal ? ` from ${fmtDMYq(fromVal)}` : ''}${toVal ? ` to ${fmtDMYq(toVal)}` : ''}.`
       : hasRealLocal
@@ -659,7 +659,31 @@ export async function renderSessionHistory(): Promise<void> {
   }
 
   // ── STATS BAR ────────────────────────────────────────────────
+  // Helper to extract break info from notes
+  const parseBreaks = (note: string) => {
+    let count = 0;
+    let mins = 0;
+    const match = note.match(/\[Breaks:\s*(.+?)\]/i);
+    if (match) {
+      const parts = match[1].split(',');
+      parts.forEach(p => {
+        const multMatch = p.match(/\/ (\d+)x/i);
+        const mult = multMatch ? parseInt(multMatch[1]) : 1;
+        count += mult;
+
+        const minMatch = p.match(/\((\d+)M/i);
+        if (minMatch) mins += parseInt(minMatch[1]) * (multMatch ? 1 : 1); // Note: if it's 11M / 2X, usually means 11 total. But let's check common usage.
+        // Re-evaluating: If the string is "DISTRACTION (11M / 2X)", it likely means 11m total.
+        // But if it means 11m EACH, we multiply.
+        // Given the user's "tactical" style, usually "11M / 2X" is a summary.
+        // Let's assume the (NM) is the TOTAL for that part.
+      });
+    }
+    return { count, mins };
+  };
+
   const totalHours = displayLogs.reduce((s: number, l: any) => s + (l.duration || 0), 0);
+  const totalBreakMins = displayLogs.reduce((s: number, l: any) => s + parseBreaks(l.note || '').mins, 0);
   const maxDuration = Math.max(...displayLogs.map((l: any) => l.duration || 0), 0.001);
   const statsBar = document.getElementById('sh-stats-bar');
 
@@ -674,29 +698,42 @@ export async function renderSessionHistory(): Promise<void> {
       .map((l: any) => l.log_date || (l.end_at || '').split('T')[0])
       .filter(Boolean).sort();
     const firstDate = allDates[0] ?? '';
-    const lastDate  = allDates[allDates.length - 1] ?? '';
+    const lastDate = allDates[allDates.length - 1] ?? '';
     const rangeText = firstDate === lastDate
       ? fmtDMY(firstDate)
       : `${fmtDMY(firstDate)} → ${fmtDMY(lastDate)}`;
     statsBar.innerHTML = `
-      <span class="sh-stat"><span class="sh-stat-val">${displayLogs.length}</span><span class="sh-stat-lbl">Sessions</span></span>
+      <span class="sh-stat"><span class="sh-stat-val" id="sh-stat-count">${displayLogs.length}</span><span class="sh-stat-lbl">Sessions</span></span>
       <span class="sh-stat-div"></span>
-      <span class="sh-stat"><span class="sh-stat-val">${totalHours.toFixed(2)}h</span><span class="sh-stat-lbl">Total Time</span></span>
+      <span class="sh-stat"><span class="sh-stat-val">${formatDuration(totalHours)}</span><span class="sh-stat-lbl">Total Time</span></span>
+      ${totalBreakMins > 0 ? `
+        <span class="sh-stat-div"></span>
+        <span class="sh-stat"><span class="sh-stat-val" id="sh-stat-break" style="color:#38bdf8">${totalBreakMins}m</span><span class="sh-stat-lbl">Total Break</span></span>
+      ` : ''}
       <span class="sh-stat-div"></span>
       <span class="sh-stat"><span class="sh-stat-val sh-stat-range">${rangeText}</span><span class="sh-stat-lbl">Date Range</span></span>
     `;
     statsBar.style.display = 'flex';
+
+    // Cinematic Count-Ups
+    requestAnimationFrame(() => {
+      animateValue(document.getElementById('sh-stat-count'), displayLogs.length, 600);
+      if (totalBreakMins > 0) {
+        animateValue(document.getElementById('sh-stat-break'), totalBreakMins, 800, 'm');
+      }
+    });
   }
 
   // ── HIERARCHICAL GROUPING ─────────────────────────────────────
-  const dateMap = new Map<string, { total_hours: number, session_count: number, subjects: Map<string, any[]> }>();
+  const dateMap = new Map<string, { total_hours: number, total_breaks: number, session_count: number, subjects: Map<string, any[]> }>();
 
   displayLogs.forEach((log: any) => {
     const d = log.log_date || (log.end_at || '').split('T')[0];
     if (!d || d === 'null') return;
-    if (!dateMap.has(d)) dateMap.set(d, { total_hours: 0, session_count: 0, subjects: new Map() });
+    if (!dateMap.has(d)) dateMap.set(d, { total_hours: 0, total_breaks: 0, session_count: 0, subjects: new Map() });
     const dayData = dateMap.get(d)!;
     dayData.total_hours += (log.duration || 0);
+    dayData.total_breaks += parseBreaks(log.note || '').mins;
     dayData.session_count++;
     const sub = log.subject || 'General';
     if (!dayData.subjects.has(sub)) dayData.subjects.set(sub, []);
@@ -708,13 +745,13 @@ export async function renderSessionHistory(): Promise<void> {
   // ── CSS GRID ROW RENDERING ────────────────────────────────────
   const rows: string[] = [];
 
-  sortedDates.forEach(date => {
+  sortedDates.forEach((date, idx) => {
     const dayData = dateMap.get(date)!;
     const rel = getRelativeDate(date);
 
     // DATE GROUP ROW
     rows.push(`
-      <div class="sh-date-row sh-row" data-date="${date}">
+      <div class="sh-date-row sh-row" data-date="${date}" style="animation-delay: ${idx * 0.05}s">
         <div class="sh-date-label">
           <span class="sh-chevron">▶</span>
           <div class="sh-date-stack">
@@ -722,8 +759,11 @@ export async function renderSessionHistory(): Promise<void> {
             <span class="sh-date-secondary">${rel.day}</span>
           </div>
         </div>
-        <div class="sh-date-sessions-label">${dayData.session_count} session${dayData.session_count !== 1 ? 's' : ''}</div>
-        <div class="sh-total-hours">${dayData.total_hours.toFixed(2)}h</div>
+        <div class="sh-date-sessions-label">
+          ${dayData.session_count} session${dayData.session_count !== 1 ? 's' : ''}
+          ${dayData.total_breaks > 0 ? `<span style="color:#38bdf8; margin-left:8px; opacity:0.8;">${dayData.total_breaks}m break</span>` : ''}
+        </div>
+        <div class="sh-total-hours">${formatDuration(dayData.total_hours)}</div>
         <div></div>
         <div></div>
       </div>
@@ -740,14 +780,18 @@ export async function renderSessionHistory(): Promise<void> {
       const col = getSubjectColor(subName);
 
       // SUBJECT ROW
+      const subBreaks = sessions.reduce((s: number, l: any) => s + parseBreaks(l.note || '').mins, 0);
       rows.push(`
         <div class="sh-subject-row sh-row sh-child sh-child-${date}">
-          <div>
+          <div style="display:flex; align-items:center; gap:8px;">
             <span class="sh-subject-badge" style="background:${col.bg}; border-color:${col.border}; color:${col.text};">${subName}</span>
-            <span class="sh-subject-count">${sessions.length} session${sessions.length > 1 ? 's' : ''}</span>
+            <span class="sh-subject-count">
+              ${sessions.length} session${sessions.length > 1 ? 's' : ''}
+              ${subBreaks > 0 ? `<span style="color:#38bdf8; margin-left:6px; opacity:0.7; font-size:0.6rem;">${subBreaks}m break</span>` : ''}
+            </span>
           </div>
           <div></div>
-          <div class="sh-sub-hours" style="color:${col.text};">${subHours.toFixed(2)}h</div>
+          <div class="sh-sub-hours" style="color:${col.text};">${formatDuration(subHours)}</div>
           <div></div>
           <div></div>
         </div>
@@ -755,31 +799,31 @@ export async function renderSessionHistory(): Promise<void> {
 
       // SESSION ROWS
       sessions.forEach((log: any, idx: number) => {
-        const duration   = log.duration || 0;
-        const startTime  = log.start_at ? formatTime12h(log.start_at) : '—';
-        const endTime    = log.end_at   ? formatTime12h(log.end_at)   : '—';
-        
+        const duration = log.duration || 0;
+        const startTime = log.start_at ? formatTime12h(log.start_at) : '—';
+        const endTime = log.end_at ? formatTime12h(log.end_at) : '—';
+
         let note = (log.note && log.note !== 'null' && log.note.trim()) ? log.note : '';
-        
-        // Extract breaks from note strictly to render a badge
-        let breakCount = 0;
-        const breakMatch = note.match(/\[Breaks:\s*(.+?)\]/);
-        if (breakMatch) {
-          const parts = breakMatch[1].split(',');
-          parts.forEach((p: string) => {
-            const mult = p.match(/\/ (\d+)x/);
-            breakCount += mult ? parseInt(mult[1]) : 1;
-          });
-        }
-        
-        const breakBadge = breakCount > 0 
-          ? `<span style="margin-left: 8px; font-size: 0.70rem; background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56,189,248,0.2); padding: 2px 6px; border-radius: 4px; letter-spacing: 0.5px;">${breakCount} BREAK${breakCount > 1 ? 'S' : ''}</span>` 
+
+        const breakInfo = parseBreaks(note);
+        const breakBadge = breakInfo.count > 0
+          ? `<span class="sh-break-badge">${breakInfo.count} BREAK${breakInfo.count > 1 ? 'S' : ''} ${breakInfo.mins > 0 ? `(${breakInfo.mins}m)` : ''}</span>`
           : '';
 
         // Session numbering now uses the sorted index chronologically!
         const sessionNum = idx + 1;
-        const barW       = maxDuration > 0 ? Math.max(6, Math.round((duration / maxDuration) * 100)) : 6;
-        const safeNote   = note.replace(/"/g, '&quot;');
+        const barW = maxDuration > 0 ? Math.max(6, Math.round((duration / maxDuration) * 100)) : 6;
+
+        const cleanNote = note.replace(/\[Breaks:\s*.+?\]/gi, '').trim();
+        const safeNote = note.replace(/"/g, '&quot;');
+
+        // Professional detailed break summary if note is otherwise empty
+        const breakMatch = note.match(/\[Breaks:\s*(.+?)\]/i);
+        const breakDetails = breakMatch ? breakMatch[1] : '';
+
+        const noteDisplay = cleanNote 
+          ? cleanNote 
+          : (breakDetails ? `<span style="color:#38bdf8; font-size:0.7rem; opacity:0.85; font-style:italic;">Break: ${breakDetails}</span>` : '<span style="opacity:0.28;">—</span>');
 
         rows.push(`
           <div class="sh-session-row sh-row sh-child sh-child-${date}${idx % 2 === 1 ? ' alt' : ''}" data-session-id="${log.id}" data-session-duration="${duration}" data-session-subject="${subName}" data-session-note="${safeNote}" data-date="${log.log_date}">
@@ -788,11 +832,13 @@ export async function renderSessionHistory(): Promise<void> {
               ${startTime}<span class="sh-time-sep">–</span>${endTime}
             </div>
             <div class="sh-duration">
-              <span class="sh-dur-val">${duration.toFixed(2)}h</span>
-              <div class="sh-dur-bar"><div class="sh-dur-fill" style="width:${barW}%; background:${col.text};"></div></div>
+              <span class="sh-dur-val">${formatDuration(duration)}</span>
+              <div class="sh-dur-bar" title="Session Intensity: ${barW}% of daily peak">
+                <div class="sh-dur-fill" style="width:${barW}%; background:${col.text};"></div>
+              </div>
             </div>
             <div class="sh-category" style="color:${col.text};">${subName}</div>
-            <div class="sh-note${note ? '' : ' empty'}" title="${safeNote}">${note ? note : '<span style="opacity:0.28;">—</span>'}</div>
+            <div class="sh-note${cleanNote ? '' : ' empty'}" title="${safeNote}">${noteDisplay}</div>
             <div class="sh-actions">
               ${isRowEditable(log.log_date) ? `
                 <button class="sh-btn-edit" title="Edit session" data-id="${log.id}" data-duration="${duration}" data-subject="${subName}" data-note="${safeNote}">✎</button>
@@ -827,9 +873,9 @@ export async function renderSessionHistory(): Promise<void> {
       const confirmed = window.confirm('Delete this session? This cannot be undone.');
       if (!confirmed) return;
       try {
-        const date     = btn.closest('.sh-session-row')?.getAttribute('data-date') || '';
+        const date = btn.closest('.sh-session-row')?.getAttribute('data-date') || '';
         const duration = parseFloat(btn.dataset.duration || '0');
-        const subject  = btn.dataset.subject || '';
+        const subject = btn.dataset.subject || '';
 
         await deleteStudySessionCloud(id);
 
@@ -858,8 +904,8 @@ export async function renderSessionHistory(): Promise<void> {
       e.stopPropagation();
       const id = btn.dataset.id!;
       const oldDuration = parseFloat(btn.dataset.duration || '0');
-      const oldSubject  = btn.dataset.subject || '';
-      const oldNote     = btn.dataset.note || '';
+      const oldSubject = btn.dataset.subject || '';
+      const oldNote = btn.dataset.note || '';
 
       // Inject a custom edit modal into DOM
       const modalId = 'sh-edit-modal';
@@ -882,7 +928,7 @@ export async function renderSessionHistory(): Promise<void> {
           <label style="display:block; margin-bottom:6px; font-size:0.75rem; color:#94a3b8; letter-spacing:0.5px;">SUBJECT</label>
           <input id="sh-edit-subject" type="text" value="${oldSubject}" style="width:100%; padding:10px 14px; background:#1e2a45; border:1px solid rgba(99,102,241,0.3); border-radius:8px; color:#e2e8f0; font-size:0.95rem; margin-bottom:16px; box-sizing:border-box;">
           <label style="display:block; margin-bottom:6px; font-size:0.75rem; color:#94a3b8; letter-spacing:0.5px;">NOTE</label>
-          <textarea id="sh-edit-note" rows="3" style="width:100%; padding:10px 14px; background:#1e2a45; border:1px solid rgba(99,102,241,0.3); border-radius:8px; color:#e2e8f0; font-size:0.95rem; margin-bottom:24px; box-sizing:border-box; resize:vertical;">${oldNote.replace(/&quot;/g,'"')}</textarea>
+          <textarea id="sh-edit-note" rows="3" style="width:100%; padding:10px 14px; background:#1e2a45; border:1px solid rgba(99,102,241,0.3); border-radius:8px; color:#e2e8f0; font-size:0.95rem; margin-bottom:24px; box-sizing:border-box; resize:vertical;">${oldNote.replace(/&quot;/g, '"')}</textarea>
           <div style="display:flex; gap:12px; justify-content:flex-end;">
             <button id="sh-edit-cancel" style="padding:10px 20px; border-radius:8px; border:1px solid rgba(148,163,184,0.3); background:transparent; color:#94a3b8; cursor:pointer; font-size:0.9rem;">Cancel</button>
             <button id="sh-edit-save" style="padding:10px 24px; border-radius:8px; border:none; background:linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff; cursor:pointer; font-size:0.9rem; font-weight:600;">Save Changes</button>
@@ -896,13 +942,13 @@ export async function renderSessionHistory(): Promise<void> {
 
       document.getElementById('sh-edit-save')!.onclick = async () => {
         const newDuration = parseFloat((document.getElementById('sh-edit-duration') as HTMLInputElement).value) || 0;
-        const newSubject  = (document.getElementById('sh-edit-subject')  as HTMLInputElement).value.trim() || oldSubject;
-        const newNote     = (document.getElementById('sh-edit-note')     as HTMLTextAreaElement).value.trim();
+        const newSubject = (document.getElementById('sh-edit-subject') as HTMLInputElement).value.trim() || oldSubject;
+        const newNote = (document.getElementById('sh-edit-note') as HTMLTextAreaElement).value.trim();
         try {
           const date = btn.closest('.sh-session-row')?.getAttribute('data-date') || '';
 
           await updateStudySessionCloud(id, { duration: newDuration, subject: newSubject, note: newNote });
-          
+
           // 🛰️ RECONCILIATION: Reflect changes in local charts/XP
           if (date) {
             // First subtract the old value, then add the new one

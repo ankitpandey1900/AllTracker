@@ -74,15 +74,17 @@ export function showWeeklySummary(): void {
     weeks.push(appState.trackerData.slice(i, i + 7));
   }
 
-  content.innerHTML = weeks.map((week, wi) => {
+  const weekData = weeks.map((week, wi) => {
     const cols = getColumnsForDay(week[0].day);
     const completed = week.filter((d) => d.completed).length;
     const totalHours = week.reduce((s, d) => s + (Array.isArray(d.studyHours) ? d.studyHours.reduce((x, n) => x + (n || 0), 0) : 0), 0);
+    const categoryTotals = cols.map((_, ci) => week.reduce((s, d) => s + (d.studyHours?.[ci] || 0), 0));
     
-    // Calculate totals per category
-    const categoryTotals = cols.map((_, ci) => {
-      return week.reduce((s, d) => s + (d.studyHours?.[ci] || 0), 0);
-    });
+    return { week, wi, cols, completed, totalHours, categoryTotals };
+  });
+
+  content.innerHTML = weekData.map(({ week, wi, cols, completed, totalHours, categoryTotals }) => {
+    const weeklyAvg = totalHours / 7;
 
     return `
       <section class="weekly-card">
@@ -99,6 +101,10 @@ export function showWeeklySummary(): void {
           <div class="weekly-metric">
             <div class="weekly-label">Total Hours</div>
             <div class="weekly-value">${totalHours.toFixed(1)}<span class="weekly-sub">h</span></div>
+          </div>
+          <div class="weekly-metric" style="background: rgba(100, 150, 255, 0.05); border-color: rgba(100, 150, 255, 0.2);">
+            <div class="weekly-label" style="color: #60a5fa;">Weekly Avg</div>
+            <div class="weekly-value">${weeklyAvg.toFixed(1)}<span class="weekly-sub">h/d</span></div>
           </div>
           ${cols.map((col, ci) => `
             <div class="weekly-metric">

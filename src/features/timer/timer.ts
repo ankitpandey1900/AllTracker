@@ -16,7 +16,7 @@ import { generateTable } from '@/features/tracker/tracker';
 import { updateDashboard, toggleFocusHUD } from '@/features/dashboard/dashboard';
 import { renderHeatmap } from '@/features/heatmap/heatmap';
 import { renderPerformanceCurve } from '@/features/routines/performance-chart';
-import { formatMsToTime, formatClockTime } from '@/utils/date.utils';
+import { formatMsToTime, formatClockTime, formatDuration } from '@/utils/date.utils';
 import { showToast, startConfetti } from '@/utils/dom.utils';
 import { log } from '@/utils/logger.utils';
 import { getNextRoutine } from '@/utils/calc.utils';
@@ -344,7 +344,7 @@ export async function stopTimer(autoNote?: string): Promise<void> {
         saveSessionToDate(colIdx, hoursBefore, note, sessionStart);
         saveSessionToDate(colIdx, hoursAfter, note, sessionEnd);
 
-        showToast(`🛡️ MIDNIGHT SECTOR SPLIT: ${hoursBefore.toFixed(2)}h (Yesterday) + ${hoursAfter.toFixed(2)}h (Today)`, 'success');
+        showToast(`🛡️ MIDNIGHT SECTOR SPLIT: ${formatDuration(hoursBefore)} (Yesterday) + ${formatDuration(hoursAfter)} (Today)`, 'success');
 
         // 🌐 CLOUD SESSION LOG — two separate records, matching the local split exactly
         if (hoursBefore > 0) {

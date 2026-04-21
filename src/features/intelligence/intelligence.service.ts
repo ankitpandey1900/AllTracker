@@ -1,6 +1,6 @@
 import { appState } from '@/state/app-state';
 import type { SessionLog, TrackerDay, ChatSession, MentorMessage } from '@/types/tracker.types';
-import { formatDateDMY } from '@/utils/date.utils';
+import { formatDateDMY, formatDuration } from '@/utils/date.utils';
 import { getRankTitle } from '@/utils/rank.utils';
 import { getCurrentUserLeaderboardContext } from '@/features/dashboard/leaderboard';
 import {
@@ -529,12 +529,12 @@ export function getStrategicContext(data: TrackerDay[], logs: SessionLog[], task
   // Add rank context from cumulative study hours
   const totalHours = data.reduce((sum, day) => sum + (day.studyHours || []).reduce((a: number, b: number) => a + (b || 0), 0), 0);
   const rankTier = getRankTitle(totalHours);
-  context.push(`All Tracker Standing: ${rankTier} tier based on ${totalHours.toFixed(1)}h total study.`);
+  context.push(`All Tracker Standing: ${rankTier} tier based on ${formatDuration(totalHours) || '0h'} total study.`);
 
   if (data.length > 3) {
     const last3 = data.slice(-3);
     const avg3 = last3.reduce((sum, d) => sum + (d.studyHours || []).reduce((a: number, b: number) => a + (b || 0), 0), 0) / 3;
-    context.push(`Efficiency Snapshot: ${avg3.toFixed(1)}h average capacity (last 72h).`);
+    context.push(`Efficiency Snapshot: ${formatDuration(avg3) || '0h'} average capacity (last 72h).`);
   }
 
   return context;

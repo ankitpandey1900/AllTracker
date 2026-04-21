@@ -109,7 +109,7 @@ export const dashboardView = `
                 <div class="label" style="color: #ef4444; font-weight: 800; letter-spacing: 1px;">TARGET IDENTIFIED 🎯</div>
                 <div id="rivalHandle" class="big" style="color: #ef4444; font-size: 1.8rem; margin: 4px 0;">@--</div>
                 <div class="meta" style="margin-top: 2px; font-size: 0.75rem;">
-                  RANK <span id="rivalRank">--</span> • <span id="rivalGap" style="color: #fca5a5; font-weight: 900;">-0.0h</span> TO OVERTAKE
+                  RANK <span id="rivalRank">--</span> • <span id="rivalGap" style="color: #fca5a5; font-weight: 900;">-0h</span> TO OVERTAKE
                 </div>
                 <div class="rival-hud-mesh" style="position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(239, 68, 68, 0.03) 2px, rgba(239, 68, 68, 0.03) 4px); pointer-events: none;"></div>
               </article>

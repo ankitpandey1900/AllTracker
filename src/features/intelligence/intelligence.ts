@@ -21,6 +21,7 @@ import { appState } from '@/state/app-state';
 import { saveSettingsToStorage } from '@/services/data-bridge';
 import { getCurrentUserLeaderboardContext } from '@/features/dashboard/leaderboard';
 import { notificationService } from '@/services/notification.service';
+import { formatDuration } from '@/utils/date.utils';
 import { 
   intelligenceView, 
   buildMessageHTML, 
@@ -255,9 +256,9 @@ function getLocalDataContextReply(query: string): string | null {
 
   if (/(leaderboard|rank|standing|position)/.test(q)) {
     if (!leaderboardCtx) {
-      return `I cannot read live leaderboard snapshot right now, but your current data shows **${totalHours.toFixed(1)}h** total and **${brief.momentumLabel}** momentum.\n\nAsk again in a moment after leaderboard refresh.`;
+      return `I cannot read live leaderboard snapshot right now, but your current data shows **${formatDuration(totalHours) || '0h'}** total and **${brief.momentumLabel}** momentum.\n\nAsk again in a moment after leaderboard refresh.`;
     }
-    return `Your current leaderboard rank is **${leaderboardCtx.position} out of ${leaderboardCtx.totalUsers}**.\n\n- **Your hours:** ${leaderboardCtx.myHours}h\n- **#1 hours:** ${leaderboardCtx.topHours}h (${leaderboardCtx.topUserHandle})\n- **Gap to #1:** ${leaderboardCtx.gapToTopHours}h\n- **Best day (last 30):** Day ${bestDay.day} (${Math.max(0, bestDay.hrs).toFixed(1)}h)\n- **Worst day (last 30):** Day ${worstDay.day} (${Math.max(0, worstDay.hrs === Number.MAX_SAFE_INTEGER ? 0 : worstDay.hrs).toFixed(1)}h)\n- **Peak study window:** ${brief.peakHourStr}\n\n**How to reach #1:**\n1. Add +1 focused hour in your peak window daily.\n2. Fix worst-day consistency first (no zero-day in next 7 days).\n3. Prioritize your top 2 categories until the ${leaderboardCtx.gapToTopHours}h gap is closed.`;
+    return `Your current leaderboard rank is **${leaderboardCtx.position} out of ${leaderboardCtx.totalUsers}**.\n\n- **Your hours:** ${formatDuration(totalHours) || '0h'}\n- **#1 hours:** ${formatDuration(leaderboardCtx.topHours) || '0h'} (${leaderboardCtx.topUserHandle})\n- **Gap to #1:** ${formatDuration(leaderboardCtx.gapToTopHours) || '0h'}\n- **Best day (last 30):** Day ${bestDay.day} (${formatDuration(bestDay.hrs) || '0h'})\n- **Worst day (last 30):** Day ${worstDay.day} (${formatDuration(worstDay.hrs === Number.MAX_SAFE_INTEGER ? 0 : worstDay.hrs) || '0h'})\n- **Peak study window:** ${brief.peakHourStr}\n\n**How to reach #1:**\n1. Add +1 focused hour in your peak window daily.\n2. Fix worst-day consistency first (no zero-day in next 7 days).\n3. Prioritize your top 2 categories until the ${formatDuration(leaderboardCtx.gapToTopHours) || '0h'} gap is closed.`;
   }
 
   if (/(how many.*categor|what.*categor|my categor|category list|categories)/.test(q)) {
@@ -267,7 +268,7 @@ function getLocalDataContextReply(query: string): string | null {
 
   if ((q.includes('detail') || q.includes('complete') || q.includes('full')) && (q.includes('analysis') || q.includes('analytic') || q.includes('my data') || q.includes('my stuff'))) {
     const pendingTasks = (appState.tasks || []).filter(t => !t.completed).length;
-    return `## Your Data Analysis Snapshot\n\n- **Leaderboard:** ${leaderboardCtx ? `${leaderboardCtx.position}/${leaderboardCtx.totalUsers}` : 'Unavailable now'}\n- **Rank Tier:** ${brief.strategicContext.find(s => s.includes('Standing')) || 'Not enough data'}\n- **Total Study Hours:** ${totalHours.toFixed(1)}h\n- **Momentum:** ${brief.momentum}% (${brief.momentumLabel})\n- **Discipline Trend:** ${brief.disciplineTrend}%\n- **Sustainability:** ${brief.sustainabilityScore}%\n- **Peak Study Window:** ${brief.peakHourStr}\n- **Best Day (30d):** Day ${bestDay.day} (${Math.max(0, bestDay.hrs).toFixed(1)}h)\n- **Worst Day (30d):** Day ${worstDay.day} (${Math.max(0, worstDay.hrs === Number.MAX_SAFE_INTEGER ? 0 : worstDay.hrs).toFixed(1)}h)\n- **Active Categories:** ${activeCategories.length}\n- **Pending Tasks:** ${pendingTasks}\n\n### Reality Plan\n1. Protect your peak window daily.\n2. Convert worst day into a minimum 1-hour non-zero day.\n3. Close top-gap with a 7-day streak in your highest-impact categories.`;
+    return `## Your Data Analysis Snapshot\n\n- **Leaderboard:** ${leaderboardCtx ? `${leaderboardCtx.position}/${leaderboardCtx.totalUsers}` : 'Unavailable now'}\n- **Rank Tier:** ${brief.strategicContext.find(s => s.includes('Standing')) || 'Not enough data'}\n- **Total Study Hours:** ${formatDuration(totalHours) || '0h'}\n- **Momentum:** ${brief.momentum}% (${brief.momentumLabel})\n- **Discipline Trend:** ${brief.disciplineTrend}%\n- **Sustainability:** ${brief.sustainabilityScore}%\n- **Peak Study Window:** ${brief.peakHourStr}\n- **Best Day (30d):** Day ${bestDay.day} (${formatDuration(bestDay.hrs) || '0h'})\n- **Worst Day (30d):** Day ${worstDay.day} (${formatDuration(worstDay.hrs === Number.MAX_SAFE_INTEGER ? 0 : worstDay.hrs) || '0h'})\n- **Active Categories:** ${activeCategories.length}\n- **Pending Tasks:** ${pendingTasks}\n\n### Reality Plan\n1. Protect your peak window daily.\n2. Convert worst day into a minimum 1-hour non-zero day.\n3. Close top-gap with a 7-day streak in your highest-impact categories.`;
   }
 
   return null;

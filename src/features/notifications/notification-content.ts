@@ -64,13 +64,30 @@ export function getDeedMessage(hours: number, hourOfDay: number): NotificationMe
   return getRandom(MOTIVATE_MESSAGES);
 }
 
-export function getPeerPressureMessage(topUser: string, focusingUser?: string): NotificationMessage {
+export function getPeerPressureMessage(topUser: string, focusingUser: string | undefined, myName: string): NotificationMessage {
+  // Scenario 1: I am the King (#1)
+  if (topUser === myName) {
+    return { 
+      title: "King's Throne under threat! 👑", 
+      body: focusingUser 
+        ? `@${focusingUser} is studying right now! Maintain your lead or lose the crown.`
+        : "The squad is logging hours. Don't get too comfortable at the top!" 
+    };
+  }
+
+  // Scenario 2: A specific rival is active (and it's not me)
+  if (focusingUser && focusingUser !== myName) {
+    return {
+      title: "Peeche dekho... 🕵️",
+      body: `@${focusingUser} is chasing you! Woh padh raha hai, tum kab jaagoge?`
+    };
+  }
+
+  // Scenario 3: Generic Top User Pressure
   const pools = [
     { title: "Oye! Jaldi aao 🏃‍♂️", body: `@${topUser} is #1 right now. Tumhe peeche nahi chhodna kya?` },
-    { title: "Sharam karo thodi! 😰", body: `@${focusingUser || topUser} is studying right now. Aur aap abhi tak idle ho?` },
+    { title: "Sharam karo thodi! 😰", body: `@${topUser} is leading the board. Aur aap abhi tak idle ho?` },
     { title: "Fight for Rank 1! ⚔️", body: `@${topUser} aage nikal gaya. Jaldi books kholo and claim your spot!` },
-    { title: "Peeche dekho... 🕵️", body: `@${focusingUser || topUser} is chasing you! Woh padh raha hai, tum kab jaagoge?` },
-    { title: "Competition is LIVE! 🔥", body: `@${focusingUser || topUser} ne countdown shuru kar diya hai. Don't let them win!` },
   ];
   return getRandom(pools);
 }

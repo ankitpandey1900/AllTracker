@@ -12,6 +12,7 @@ import { getRankColor, getDetailedRankTitle } from '@/utils/rank.utils';
 import { syncProfileBroadcast, updateLastInteraction, lastInteractionAt } from '@/features/profile/profile.manager';
 import { openProfileModal } from '@/features/profile/profile.ui';
 import { getRankProgression, calculateTodayStudyHours, calculateTotalStudyHours, calculateStreak, getRankDetails } from '@/utils/calc.utils';
+import { formatDuration } from '@/utils/date.utils';
 
 /**
  * Starts the leaderboard and platform telemetry systems.
@@ -269,8 +270,8 @@ export async function updateGlobalHUD(providedUsers?: GlobalProfile[]): Promise<
       if (activeEl) activeEl.textContent = telemetry.active_now.toLocaleString();
       
       const platformHours = (telemetry as any).total_platform_hours || 0;
-      if (platformTotalEl) platformTotalEl.textContent = `${platformHours.toFixed(1)} HRS`;
-      if (hoursEl) hoursEl.textContent = `${validTodaySum.toFixed(1)} HRS`;
+      if (platformTotalEl) platformTotalEl.textContent = formatDuration(platformHours) || '0h';
+      if (hoursEl) hoursEl.textContent = formatDuration(validTodaySum) || '0h';
 
       if (platformTotalEl || hoursEl) {
         const totalPilots = telemetry.total_pilots || 1;
@@ -367,7 +368,7 @@ export async function updateGlobalHUD(providedUsers?: GlobalProfile[]): Promise<
         }
       }
     }
-    if (hoursEl) hoursEl.textContent = `${validTodaySum.toFixed(1)} HRS`;
+    if (hoursEl) hoursEl.textContent = formatDuration(validTodaySum) || '0h';
   });
 }
 
@@ -501,8 +502,8 @@ function renderUserRow(
         <div class="lb-xp-container"><div class="lb-xp-bar" style="width: ${xpPercent}%; background: ${rankColor};"></div></div>
       </div>
       <div class="lb-hours-container">
-        <div class="lb-total-hours">${u.total_hours.toFixed(1)}h</div>
-        <div class="lb-today-badge">${todayHoursDisplay.toFixed(1)}h today${trendHtml}</div>
+        <div class="lb-total-hours">${formatDuration(u.total_hours) || '0h'}</div>
+        <div class="lb-today-badge">${formatDuration(todayHoursDisplay) || '0h'} today${trendHtml}</div>
       </div>
       
       <div class="lb-hover-card" style="--hover-color: ${rankColor};">
@@ -545,11 +546,11 @@ function renderUserRow(
         <div class="hover-stats">
           <div class="hover-stat-box">
             <div class="stat-name">LIFETIME_EXP</div>
-            <div class="stat-val">${u.total_hours.toFixed(1)}h</div>
+            <div class="stat-val">${formatDuration(u.total_hours) || '0h'}</div>
           </div>
           <div class="hover-stat-box">
             <div class="stat-name">SESSION_LOG</div>
-            <div class="stat-val">${todayHoursDisplay.toFixed(1)}h</div>
+            <div class="stat-val">${formatDuration(todayHoursDisplay) || '0h'}</div>
           </div>
           <div class="hover-stat-box">
             <div class="stat-name">BEST_STREAK</div>
@@ -691,7 +692,7 @@ function animateNumbers(card: HTMLElement): void {
       const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
       const current = target * ease;
       
-      textElement.textContent = (isFloat ? current.toFixed(1) : Math.floor(current).toString()) + suffix;
+      textElement.textContent = suffix === 'h' ? formatDuration(current) : (isFloat ? current.toFixed(1) : Math.floor(current).toString()) + suffix;
       
       if (progress < 1) {
         window.requestAnimationFrame(step);

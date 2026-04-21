@@ -1,13 +1,8 @@
-/**
- * This file handles the main Tracker table.
- * 
- * It builds the table where you enter your study hours, 
- * topics, and solved problems.
- */
+// Logic for the main Tracker table - handling study hours, topics, and problem counts.
 
 import { appState, getAllHourColumnLabels, getPhase, getColumnsForDay } from '@/state/app-state';
 import { NUMBER_FIELD_MAP } from '@/config/constants';
-import { formatDate } from '@/utils/date.utils';
+import { formatDate, formatDuration } from '@/utils/date.utils';
 import { showToast } from '@/utils/dom.utils';
 import { saveTrackerDataToStorage } from '@/services/data-bridge';
 import type { TrackerDay, StudyCategory } from '@/types/tracker.types';
@@ -80,7 +75,15 @@ export function generateTable(): void {
         ${dayLabels.length > 0
         ? dayLabels.map((label: string, ci: number) => {
           const v = getHourAt(day, ci);
-          return `<td><input type="number" class="cell-input hour-input" data-col="${ci}" value="${v}" min="0" step="0.5" title="${label}" ${!editable ? 'disabled' : ''}></td>`;
+          const displayVal = formatDuration(v);
+          // Professional approach: keep numeric entry for speed, but show human hint for clarity
+          return `
+            <td>
+              <div class="hour-cell-wrapper">
+                <input type="number" class="cell-input hour-input" data-col="${ci}" value="${v}" min="0" max="24" step="any" placeholder="0.0" ${!editable ? 'disabled' : ''}>
+                <span class="duration-hint">${displayVal}</span>
+              </div>
+            </td>`;
         }).join('')
         : `<td colspan="1" class="no-cat-warning">No Categories Defined (Check Settings)</td>`
       }
@@ -127,9 +130,18 @@ function attachInputListeners(): void {
   const tbody = document.getElementById('tableBody');
   if (!tbody) return;
 
-  // Number inputs (hours + problems)
+  // Standard number/duration inputs - keeping it number-based for speed
   tbody.querySelectorAll<HTMLInputElement>('input[type="number"]').forEach((input) => {
     input.addEventListener('change', handleNumberInput);
+    // Live hint: show "1h 30m" as they type "1.5" so they know it's working
+    input.addEventListener('input', (e) => {
+      const el = e.target as HTMLInputElement;
+      const hint = el.nextElementSibling as HTMLElement;
+      if (hint && el.classList.contains('hour-input')) {
+        const val = parseFloat(el.value) || 0;
+        hint.textContent = formatDuration(val);
+      }
+    });
   });
 
   // Text inputs (topics)
@@ -160,28 +172,36 @@ function handleNumberInput(e: Event): void {
 
   const day = appState.trackerData[idx];
 
-  // Dynamic hour columns
+  // Study hour logic (handling the multiple columns)
   const colIdxStr = input.getAttribute('data-col');
   if (colIdxStr !== null) {
     const colIdx = parseInt(colIdxStr);
-    if (!isNaN(colIdx)) {
-      const newVal = parseFloat(input.value) || 0;
-      const otherHours = (day.studyHours || []).reduce((s, h, i) => s + (i === colIdx ? 0 : (h || 0)), 0);
+    const newVal = parseFloat(input.value) || 0;
+    
+    // Day only has 24h - block anything impossible
+    const otherHours = (day.studyHours || []).reduce((s, h, i) => s + (i === colIdx ? 0 : (h || 0)), 0);
 
-      if (otherHours + newVal > 24) {
-        showToast('Illegal timeline: Total hours for one day cannot exceed 24.', 'error');
-        input.value = String(day.studyHours?.[colIdx] || 0);
-        return;
-      }
-
-      setHourAt(day, colIdx, newVal);
-      saveTrackerDataToStorage(appState.trackerData);
-      syncProfileBroadcast();
+    if (otherHours + newVal > 24) {
+      showToast('Illegal timeline: Total hours for one day cannot exceed 24.', 'error');
+      input.value = String(day.studyHours?.[colIdx] || 0);
       return;
     }
+
+    setHourAt(day, colIdx, newVal);
+    
+    // Update the UI hint immediately
+    const hint = input.nextElementSibling as HTMLElement;
+    if (hint) hint.textContent = formatDuration(newVal);
+
+    saveTrackerDataToStorage(appState.trackerData);
+    syncProfileBroadcast();
+    
+    // Sync dashboard metrics
+    import('@/features/dashboard/dashboard').then(m => m.updateDashboard());
+    return;
   }
 
-  // Determine which field to update based on input class
+  // Handle generic fields (Problems Solved, etc)
   for (const [className, field] of Object.entries(NUMBER_FIELD_MAP)) {
     if (input.classList.contains(className)) {
       (appState.trackerData[idx] as any)[field] = parseFloat(input.value) || 0;

@@ -196,6 +196,7 @@ tr.hidden {
   background: #060c18;
   color: #edf3ff;
   padding: 4px 8px;
+  padding-right: 32px; /* Make room for the duration hint on the right */
   font-size: 0.85rem;
 }
 
@@ -203,6 +204,44 @@ tr.hidden {
   outline: none;
   border-color: rgba(110, 136, 235, 0.6);
   box-shadow: 0 0 0 3px rgba(108, 135, 255, 0.16);
+}
+
+/* 🕒 Professional Duration Overlay */
+.hour-cell-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.duration-hint {
+  position: absolute;
+  right: 8px;
+  font-size: 0.65rem;
+  color: #64748b;
+  pointer-events: none;
+  font-family: 'Tektur', sans-serif;
+  text-transform: uppercase;
+  background: #060c18;
+  padding: 0 4px;
+  border-radius: 4px;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.hour-cell-wrapper:focus-within .duration-hint {
+  opacity: 0; /* Hide when typing to avoid overlap */
+}
+
+/* 🚫 Hide numeric spinners for cleaner UI & to avoid overlap with hints */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield; /* Firefox */
+  appearance: textfield;
 }
 
 .topics-input,

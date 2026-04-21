@@ -109,10 +109,14 @@ async function checkActiveChaser(): Promise<void> {
     const leaderboard = await fetchLeaderboard();
     const profileRaw = localStorage.getItem('secure_local_profile');
     const myName = profileRaw ? JSON.parse(profileRaw).displayName : null;
+    
+    // RIVAL: Someone actively studying right now who is NOT YOU
     const otherFocusing = leaderboard.find(u => u.is_focusing_now && u.display_name !== myName);
+    const topUser = leaderboard[0];
     
     if (otherFocusing) {
-      const { title, body } = getPeerPressureMessage(leaderboard[0].display_name, otherFocusing.display_name);
+      // If someone is actively studying, THEY are the chaser
+      const { title, body } = getPeerPressureMessage(topUser.display_name, otherFocusing.display_name, myName || '');
       sendNotification(title, body);
       lastChaserNotifAt = Date.now();
     }
@@ -174,12 +178,13 @@ async function sendDynamicAlert(window: string, hour: number): Promise<void> {
   try {
     const leaderboard = await fetchLeaderboard();
     if (leaderboard.length > 0) {
+      const myName = JSON.parse(localStorage.getItem('secure_local_profile') || '{}').displayName || '';
       const topUser = leaderboard[0].display_name;
-      const focusingNow = leaderboard.find(u => u.is_focusing_now && u.display_name !== 'You')?.display_name;
+      const focusingNow = leaderboard.find(u => u.is_focusing_now && u.display_name !== myName)?.display_name;
       
       // 30% chance to swap to a Peer Pressure alert if hours are low
       if (totalHours < 2 && Math.random() < 0.3) {
-        const peer = getPeerPressureMessage(topUser, focusingNow);
+        const peer = getPeerPressureMessage(topUser, focusingNow, myName);
         finalTitle = peer.title;
         finalBody = peer.body;
       }
