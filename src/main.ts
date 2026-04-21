@@ -56,6 +56,8 @@ import {
   openTimerModal,
   resumeTimerIfNeeded,
   setupFocusListeners,
+  startBreak,
+  resumeFromBreak
 } from "@/features/timer/timer";
 import {
   renderRoutine,
@@ -307,12 +309,39 @@ function setupEventListeners(): void {
   bindClick("mobileNavStartTimerBtn", openTimerModal);
 
   bindClick("timerPauseBtn", () => {
-    if (appState.activeTimer.isRunning) pauseTimer();
-    else
+    if (appState.activeTimer.isRunning) {
+      document.getElementById('breakModal')?.classList.add('active');
+    } else if (appState.activeTimer.activeBreak) {
+      resumeFromBreak();
+    } else {
       startTimer(
         parseInt(appState.activeTimer.category || "0", 10),
         appState.activeTimer.colName || "",
       );
+    }
+  });
+
+  bindClick("closeBreakModal", () => {
+    document.getElementById('breakModal')?.classList.remove('active');
+  });
+
+  bindClick("startBreakBtn", () => {
+    const customReason = (document.getElementById('breakReasonInput') as HTMLInputElement)?.value.trim() || 'Custom Break';
+    document.getElementById('breakModal')?.classList.remove('active');
+    startBreak(customReason);
+  });
+
+  // Since break-tags belong to modal injected later, we bind them dynamically or rely on event delegation.
+  // Actually, UI is injected prior to this logic running.
+  const breakTags = document.querySelectorAll('.break-tag-btn');
+  breakTags.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const reason = (e.target as HTMLElement).dataset.reason;
+      if (reason) {
+        document.getElementById('breakModal')?.classList.remove('active');
+        startBreak(reason);
+      }
+    });
   });
 
   bindClick("timerStopBtn", () => {

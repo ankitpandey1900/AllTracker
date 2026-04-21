@@ -18,9 +18,12 @@ import { renderStudyAnalytics } from './study-analytics';
 import type { StudySession } from '@/types/profile.types';
 import { calculateXP, calculateStreak, getRankDetails, calculateSustainability, getRecentVelocity, calculateSummaryStats, getNextRoutine } from '@/utils/calc.utils';
 import { saveSettingsToStorage } from '@/services/data-bridge';
-import { fetchLeaderboard, loadUserProfileCloud, fetchMySessionsCloud, migrateLocalHistoryToCloud } from '@/services/vault.service';
+import { fetchLeaderboard, loadUserProfileCloud, fetchMySessionsCloud, migrateLocalHistoryToCloud, deleteStudySessionCloud, updateStudySessionCloud } from '@/services/vault.service';
 import { VanguardService } from '@/services/vanguard.service';
 import { log } from '@/utils/logger.utils';
+import { adjustTrackerDataForSessionDelta, generateTable } from '@/features/tracker/tracker';
+import { refreshLeaderboard } from './leaderboard';
+import { isRowEditable } from '@/services/integrity';
 
 const formatNum = (num: number) => new Intl.NumberFormat().format(num);
 
@@ -727,7 +730,12 @@ export async function renderSessionHistory(): Promise<void> {
     `);
 
     Array.from(dayData.subjects.keys()).forEach(subName => {
-      const sessions = dayData.subjects.get(subName)!;
+      // Sort sessions chronologically ascending for sensible numbering
+      const sessions = dayData.subjects.get(subName)!.sort((a: any, b: any) => {
+        const tA = new Date(a.start_at || a.end_at || 0).getTime();
+        const tB = new Date(b.start_at || b.end_at || 0).getTime();
+        return tA - tB;
+      });
       const subHours = sessions.reduce((s: number, l: any) => s + (l.duration || 0), 0);
       const col = getSubjectColor(subName);
 
@@ -750,14 +758,32 @@ export async function renderSessionHistory(): Promise<void> {
         const duration   = log.duration || 0;
         const startTime  = log.start_at ? formatTime12h(log.start_at) : '—';
         const endTime    = log.end_at   ? formatTime12h(log.end_at)   : '—';
-        const note       = (log.note && log.note !== 'null' && log.note.trim()) ? log.note : '';
-        const sessionNum = log.session_number ?? (idx + 1);
+        
+        let note = (log.note && log.note !== 'null' && log.note.trim()) ? log.note : '';
+        
+        // Extract breaks from note strictly to render a badge
+        let breakCount = 0;
+        const breakMatch = note.match(/\[Breaks:\s*(.+?)\]/);
+        if (breakMatch) {
+          const parts = breakMatch[1].split(',');
+          parts.forEach((p: string) => {
+            const mult = p.match(/\/ (\d+)x/);
+            breakCount += mult ? parseInt(mult[1]) : 1;
+          });
+        }
+        
+        const breakBadge = breakCount > 0 
+          ? `<span style="margin-left: 8px; font-size: 0.70rem; background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56,189,248,0.2); padding: 2px 6px; border-radius: 4px; letter-spacing: 0.5px;">${breakCount} BREAK${breakCount > 1 ? 'S' : ''}</span>` 
+          : '';
+
+        // Session numbering now uses the sorted index chronologically!
+        const sessionNum = idx + 1;
         const barW       = maxDuration > 0 ? Math.max(6, Math.round((duration / maxDuration) * 100)) : 6;
         const safeNote   = note.replace(/"/g, '&quot;');
 
         rows.push(`
-          <div class="sh-session-row sh-row sh-child sh-child-${date}${idx % 2 === 1 ? ' alt' : ''}">
-            <div class="sh-session-num">Session ${sessionNum}</div>
+          <div class="sh-session-row sh-row sh-child sh-child-${date}${idx % 2 === 1 ? ' alt' : ''}" data-session-id="${log.id}" data-session-duration="${duration}" data-session-subject="${subName}" data-session-note="${safeNote}" data-date="${log.log_date}">
+            <div class="sh-session-num">Session ${sessionNum} ${breakBadge}</div>
             <div class="sh-time">
               ${startTime}<span class="sh-time-sep">–</span>${endTime}
             </div>
@@ -766,7 +792,13 @@ export async function renderSessionHistory(): Promise<void> {
               <div class="sh-dur-bar"><div class="sh-dur-fill" style="width:${barW}%; background:${col.text};"></div></div>
             </div>
             <div class="sh-category" style="color:${col.text};">${subName}</div>
-            <div class="sh-note${note ? '' : ' empty'}" title="${safeNote}">${note ? `\${note}` : '<span style="opacity:0.28;">—</span>'}</div>
+            <div class="sh-note${note ? '' : ' empty'}" title="${safeNote}">${note ? note : '<span style="opacity:0.28;">—</span>'}</div>
+            <div class="sh-actions">
+              ${isRowEditable(log.log_date) ? `
+                <button class="sh-btn-edit" title="Edit session" data-id="${log.id}" data-duration="${duration}" data-subject="${subName}" data-note="${safeNote}">✎</button>
+                <button class="sh-btn-delete" title="Delete session" data-id="${log.id}">🗑</button>
+              ` : '<span style="opacity:0.2; font-size: 0.7rem; letter-spacing: 1px;">LOCKED</span>'}
+            </div>
           </div>
         `);
       });
@@ -783,6 +815,114 @@ export async function renderSessionHistory(): Promise<void> {
       document.querySelectorAll<HTMLElement>(`.sh-child-${date}`).forEach(child => {
         child.classList.toggle('expanded', isOpen);
       });
+    });
+  });
+
+  // ── DELETE HANDLER ────────────────────────────────────────────
+  document.querySelectorAll<HTMLButtonElement>('.sh-btn-delete').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const id = btn.dataset.id!;
+      if (!id) return;
+      const confirmed = window.confirm('Delete this session? This cannot be undone.');
+      if (!confirmed) return;
+      try {
+        const date     = btn.closest('.sh-session-row')?.getAttribute('data-date') || '';
+        const duration = parseFloat(btn.dataset.duration || '0');
+        const subject  = btn.dataset.subject || '';
+
+        await deleteStudySessionCloud(id);
+
+        // 🛰️ RECONCILIATION: Adjust local tracker data so charts/XP update
+        if (date && subject) {
+          await adjustTrackerDataForSessionDelta(date, subject, -duration);
+        }
+
+        showToast('Session deleted ✓');
+        await renderSessionHistory();
+
+        // 🔄 UI REFRESH: Sync all dashboard metrics and the main grid
+        updateDashboard();
+        generateTable();
+        refreshLeaderboard();
+      } catch (err) {
+        showToast('Failed to delete session.');
+        log.error('Delete session failed', err);
+      }
+    });
+  });
+
+  // ── EDIT HANDLER ──────────────────────────────────────────────
+  document.querySelectorAll<HTMLButtonElement>('.sh-btn-edit').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const id = btn.dataset.id!;
+      const oldDuration = parseFloat(btn.dataset.duration || '0');
+      const oldSubject  = btn.dataset.subject || '';
+      const oldNote     = btn.dataset.note || '';
+
+      // Inject a custom edit modal into DOM
+      const modalId = 'sh-edit-modal';
+      let modal = document.getElementById(modalId);
+      if (modal) modal.remove();
+
+      modal = document.createElement('div');
+      modal.id = modalId;
+      modal.style.cssText = [
+        'position:fixed', 'inset:0', 'z-index:9999',
+        'display:flex', 'align-items:center', 'justify-content:center',
+        'background:rgba(0,0,0,0.7)', 'backdrop-filter:blur(6px)',
+      ].join(';');
+
+      modal.innerHTML = `
+        <div style="background:#0f1729; border:1px solid rgba(99,102,241,0.3); border-radius:16px; padding:28px 32px; min-width:380px; max-width:520px; width:90%; box-shadow:0 24px 48px rgba(0,0,0,0.6);">
+          <h3 style="margin:0 0 20px; font-size:1.1rem; color:#e2e8f0; letter-spacing:1px;">✎ EDIT SESSION</h3>
+          <label style="display:block; margin-bottom:6px; font-size:0.75rem; color:#94a3b8; letter-spacing:0.5px;">DURATION (hours)</label>
+          <input id="sh-edit-duration" type="number" min="0" step="0.01" value="${oldDuration}" style="width:100%; padding:10px 14px; background:#1e2a45; border:1px solid rgba(99,102,241,0.3); border-radius:8px; color:#e2e8f0; font-size:0.95rem; margin-bottom:16px; box-sizing:border-box;">
+          <label style="display:block; margin-bottom:6px; font-size:0.75rem; color:#94a3b8; letter-spacing:0.5px;">SUBJECT</label>
+          <input id="sh-edit-subject" type="text" value="${oldSubject}" style="width:100%; padding:10px 14px; background:#1e2a45; border:1px solid rgba(99,102,241,0.3); border-radius:8px; color:#e2e8f0; font-size:0.95rem; margin-bottom:16px; box-sizing:border-box;">
+          <label style="display:block; margin-bottom:6px; font-size:0.75rem; color:#94a3b8; letter-spacing:0.5px;">NOTE</label>
+          <textarea id="sh-edit-note" rows="3" style="width:100%; padding:10px 14px; background:#1e2a45; border:1px solid rgba(99,102,241,0.3); border-radius:8px; color:#e2e8f0; font-size:0.95rem; margin-bottom:24px; box-sizing:border-box; resize:vertical;">${oldNote.replace(/&quot;/g,'"')}</textarea>
+          <div style="display:flex; gap:12px; justify-content:flex-end;">
+            <button id="sh-edit-cancel" style="padding:10px 20px; border-radius:8px; border:1px solid rgba(148,163,184,0.3); background:transparent; color:#94a3b8; cursor:pointer; font-size:0.9rem;">Cancel</button>
+            <button id="sh-edit-save" style="padding:10px 24px; border-radius:8px; border:none; background:linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff; cursor:pointer; font-size:0.9rem; font-weight:600;">Save Changes</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+
+      document.getElementById('sh-edit-cancel')!.onclick = () => modal!.remove();
+      modal.addEventListener('click', (ev) => { if (ev.target === modal) modal!.remove(); });
+
+      document.getElementById('sh-edit-save')!.onclick = async () => {
+        const newDuration = parseFloat((document.getElementById('sh-edit-duration') as HTMLInputElement).value) || 0;
+        const newSubject  = (document.getElementById('sh-edit-subject')  as HTMLInputElement).value.trim() || oldSubject;
+        const newNote     = (document.getElementById('sh-edit-note')     as HTMLTextAreaElement).value.trim();
+        try {
+          const date = btn.closest('.sh-session-row')?.getAttribute('data-date') || '';
+
+          await updateStudySessionCloud(id, { duration: newDuration, subject: newSubject, note: newNote });
+          
+          // 🛰️ RECONCILIATION: Reflect changes in local charts/XP
+          if (date) {
+            // First subtract the old value, then add the new one
+            await adjustTrackerDataForSessionDelta(date, oldSubject, -oldDuration);
+            await adjustTrackerDataForSessionDelta(date, newSubject, newDuration);
+          }
+
+          modal!.remove();
+          showToast('Session updated ✓');
+          await renderSessionHistory();
+
+          // 🔄 UI REFRESH: Sync across all views
+          updateDashboard();
+          generateTable();
+          refreshLeaderboard();
+        } catch (err) {
+          showToast('Failed to update session.');
+          log.error('Update session failed', err);
+        }
+      };
     });
   });
 }

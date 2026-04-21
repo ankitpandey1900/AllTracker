@@ -55,6 +55,17 @@ To maintain an "Elite" user experience, all modules adhere to the **Optimized SP
 - **Dynamic Imports**: Heavy libraries (e.g., `Chart.js`) are only imported via `await import()` inside the relevant execution block.
 - **Resource Shielding**: Safety guards like `Chart.getChart(canvas)` are used to prevent instance collision during rapid view swaps.
 
+## 🏗️ Logical Integrity Engine (Tier 1 Sync)
+
+To maintain absolute world-stage accuracy, the system uses a three-way reconciliation pattern:
+
+1.  **The Source (Cloud Sessions)**: Raw logs in the `study_sessions` table are the ultimate authority.
+2.  **The Display (Profiles)**: The `profiles` table stores pre-aggregated `total_hours` for leaderboard performance. After any mutation (Add/Edit/Delete), the backend re-aggregates these values from the session logs to prevent stat-drift.
+3.  **The HUD (Local State)**: The client-side `tracker.ts` patches `appState.trackerData` based on session deltas. It is history-aware and uses `getColumnsForDay` to correctly map categorical hours even across custom ranges or historical phases.
+
+> [!IMPORTANT]
+> Always use `adjustTrackerDataForSessionDelta` when mutating sessions from the UI to ensure the local XP and Tracker grid stay synchronized with the cloud.
+
 ## 📂 Core File Map
 
 | Path | Purpose |

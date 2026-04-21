@@ -38,6 +38,8 @@ export async function logStudySession(
       payload.note || "",
     ],
   );
+  // Re-aggregate totals so Leaderboard stays accurate
+  await reconcileProfileHours(profile.profileId);
 }
 
 export async function fetchStudySessions(profile: AuthenticatedProfile) {
@@ -72,4 +74,70 @@ export async function fetchStudySessions(profile: AuthenticatedProfile) {
     log_date: row.log_date,
     session_number: index + 1,
   }));
+}
+
+export async function deleteStudySession(profile: AuthenticatedProfile, sessionId: string): Promise<void> {
+  const pool = getPool();
+  await pool.query(
+    `
+      delete from study_sessions
+      where id = $1 and user_id = $2::uuid
+    `,
+    [sessionId, profile.profileId]
+  );
+  // Re-aggregate totals so Leaderboard stays accurate
+  await reconcileProfileHours(profile.profileId);
+}
+
+export async function updateStudySession(
+  profile: AuthenticatedProfile,
+  sessionId: string,
+  payload: { duration: number; subject: string; note: string }
+): Promise<void> {
+  const pool = getPool();
+  await pool.query(
+    `
+      update study_sessions
+      set duration = $1, subject = $2, note = $3
+      where id = $4 and user_id = $5::uuid
+    `,
+    [
+      Number(payload.duration || 0),
+      payload.subject,
+      payload.note || "",
+      sessionId,
+      profile.profileId
+    ]
+  );
+  // Re-aggregate totals so Leaderboard stays accurate
+  await reconcileProfileHours(profile.profileId);
+}
+
+/**
+ * Re-aggregates profile.total_hours and profile.today_hours
+ * from the ground truth study_sessions table.
+ * Called after every session mutation (delete / edit).
+ */
+async function reconcileProfileHours(profileId: string): Promise<void> {
+  const pool = getPool();
+  await pool.query(
+    `
+      update profiles
+      set
+        total_hours = (
+          select coalesce(sum(duration), 0)
+          from study_sessions
+          where user_id = $1::uuid
+        ),
+        today_hours = (
+          select coalesce(sum(duration), 0)
+          from study_sessions
+          where user_id = $1::uuid
+            and (end_time at time zone 'Asia/Kolkata')::date = (now() at time zone 'Asia/Kolkata')::date
+        ),
+        updated_at = now()
+      where id = $1::uuid
+    `,
+    [profileId]
+  );
 }

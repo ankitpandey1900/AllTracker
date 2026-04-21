@@ -233,48 +233,56 @@ export async function saveBookmarksToStorage(bookmarks: Bookmark[]): Promise<voi
 // --- Timer Functions (Pure DB — localStorage-free) ---
 
 /**
- * DB-FIRST LOAD: Single source of truth is the database.
- * No localStorage fallback. If offline or not authenticated, returns null.
+ * LOCAL-FIRST LOAD: Immediately load local state, while syncing with cloud asynchronously.
+ * This guarantees the timer doesn't unexpectedly stop during a network reload.
  */
 export async function loadTimerStateFromStorage(): Promise<ActiveTimer | null> {
+  let localState: ActiveTimer | null = null;
+  const saved = localStorage.getItem(STORAGE_KEYS.TIMER);
+  if (saved) {
+    try {
+      localState = JSON.parse(saved) as ActiveTimer;
+    } catch {
+      localState = null;
+    }
+  }
+
   const syncId = getCurrentUserId();
   
   if (syncId) {
-    try {
-      const cloud = await loadTimerStateCloud();
+    loadTimerStateCloud().then(cloud => {
       if (cloud && cloud.data) {
-        // Only accept cloud if it's running or has actual elapsed time
         if (cloud.data.isRunning || cloud.data.elapsedAcc > 0) {
           localStorage.setItem(STORAGE_KEYS.TIMER, JSON.stringify(cloud.data));
           updateLocalTimestamp(STORAGE_KEYS.TIMER, cloud.updatedAt || undefined);
-          return cloud.data;
         }
       }
-    } catch (err) {
-      log.warn('Failed to fetch timer state from cloud');
-    }
+    }).catch(err => log.warn('Failed to start silent timer cloud sync'));
   }
-  return null;
+  return localState;
 }
 
 /**
- * DB-FIRST SAVE: Writes exclusively to the cloud.
- * The in-memory appState.activeTimer is the working buffer between saves.
+ * DOUBLE SAVE: Writes to localStorage instantly, then triggers cloud sync asynchronously.
  */
 export async function saveTimerStateToStorage(state: ActiveTimer): Promise<void> {
-  if (!isAuthenticated()) return; // Silent no-op when logged out
+  localStorage.setItem(STORAGE_KEYS.TIMER, JSON.stringify(state));
+  updateLocalTimestamp(STORAGE_KEYS.TIMER);
+  
+  if (!isAuthenticated()) return;
   try {
-    await saveTimerStateCloud(state);
+    saveTimerStateCloud(state).catch(() => {}); // non-blocking
   } catch (err) {
     log.warn('DB timer save failed (offline?)');
   }
 }
 
 /**
- * DB-FIRST CLEAR: Explicitly zeros the timer record in the cloud.
- * Used by terminateTimer() to guarantee the DB is cleared before the page can refresh.
+ * DOUBLE CLEAR: Explicitly zeros the timer manually in storage and cloud.
  */
 export async function clearTimerStateDB(): Promise<void> {
+  localStorage.removeItem(STORAGE_KEYS.TIMER);
+  
   if (!isAuthenticated()) return;
   const blankState: ActiveTimer = {
     isRunning: false, elapsedAcc: 0, startTime: null,

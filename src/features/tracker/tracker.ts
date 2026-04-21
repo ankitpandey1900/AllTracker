@@ -5,15 +5,16 @@
  * topics, and solved problems.
  */
 
-import { appState, getAllHourColumnLabels, getPhase } from '@/state/app-state';
+import { appState, getAllHourColumnLabels, getPhase, getColumnsForDay } from '@/state/app-state';
 import { NUMBER_FIELD_MAP } from '@/config/constants';
 import { formatDate } from '@/utils/date.utils';
 import { showToast } from '@/utils/dom.utils';
 import { saveTrackerDataToStorage } from '@/services/data-bridge';
-import type { TrackerDay } from '@/types/tracker.types';
+import type { TrackerDay, StudyCategory } from '@/types/tracker.types';
 import { isRowEditable } from '@/services/integrity';
 import { syncProfileBroadcast } from '@/features/profile/profile.manager';
 import { escapeHtml } from '@/utils/security';
+import { log } from '@/utils/logger.utils';
 
 
 function getHourAt(day: TrackerDay, idx: number): number {
@@ -334,4 +335,57 @@ function filterTable(): void {
   } else if (noResultsMsg) {
     noResultsMsg.remove();
   }
+}
+
+/**
+ * 🛰️ DATA RECONCILIATION ENGINE
+ * 
+ * Adjusts the local appState.trackerData when a session is mutated (edit/delete).
+ * This ensures that the HUD metrics, XP, and grid always stay in absolute sync 
+ * with the cloud session logs.
+ */
+export async function adjustTrackerDataForSessionDelta(
+  dateStr: string,
+  subject: string,
+  deltaHours: number
+): Promise<void> {
+  const data = appState.trackerData;
+  if (!data || data.length === 0) return;
+
+  // 1. Find the day entry for this date
+  const isoDate = dateStr.split('T')[0];
+  const day = data.find(d => d.date.startsWith(isoDate));
+  if (!day) {
+    log.warn(`[Reconciler]: No tracker entry found for date ${isoDate}. Local state might be out of sync.`);
+    return;
+  }
+
+  // 2. Map subject name to column index for this specific day
+  // Senior Implementation: Support Custom Ranges by fetching schema for that specific day
+  const dayCols = getColumnsForDay(day.day);
+  const colIdx = dayCols.findIndex((c: StudyCategory) => c.name.trim().toLowerCase() === subject.trim().toLowerCase());
+
+  if (colIdx === -1) {
+    log.warn(`[Reconciler]: Subject '${subject}' not found in column schema for day ${day.day}. Local adjustment skipped.`);
+    return;
+  }
+
+  // 3. Apply the delta
+  const currentVal = getHourAt(day, colIdx);
+  const newVal = Math.max(0, currentVal + deltaHours);
+  setHourAt(day, colIdx, newVal);
+
+  // 4. Auto-calculate 'completed' status
+  const totalHours = getTotalHours(day);
+  const totalTarget = dayCols.reduce((acc: number, c: StudyCategory) => acc + (c.target || 0), 0);
+  
+  day.completed = totalHours >= totalTarget && totalHours > 0;
+
+  // 5. Persistence
+  await saveTrackerDataToStorage(data);
+  
+  // 6. Broadcast to trigger leaderboard/profile updates in cloud
+  syncProfileBroadcast();
+  
+  log.info(`[Reconciler]: Adjusted ${subject} by ${deltaHours}h for ${isoDate}. New total: ${totalHours}h.`);
 }

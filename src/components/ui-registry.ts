@@ -64,7 +64,8 @@ export async function initUI(): Promise<void> {
         import('@/components/modals/routine-modal.ui.ts').then(m => m.routineModalContents),
         import('@/components/modals/bookmark-modal.ui.ts').then(m => m.bookmarkModal),
         import('@/components/modals/session-note-modal.ui.ts').then(m => m.sessionNoteModal),
-        import('@/components/modals/auth-modal.ui.ts').then(m => m.authModal)
+        import('@/components/modals/auth-modal.ui.ts').then(m => m.authModal),
+        import('@/components/modals/break-modal.ui.ts').then(m => m.breakModalView)
     ];
 
     const templates = await Promise.all(modalModules);

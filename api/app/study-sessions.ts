@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { getAuth } from "../_lib/auth/index.js";
-import { fetchStudySessions, logStudySession } from "../_lib/data/study-repo.js";
+import { fetchStudySessions, logStudySession, deleteStudySession, updateStudySession } from "../_lib/data/study-repo.js";
 import { ensureProfileForUser } from "../_lib/data/profile-repo.js";
 import { headersFromNode, readJsonBody } from "../_lib/http/request.js";
 import { handleRouteError, sendJson, sendMethodNotAllowed } from "../_lib/http/response.js";
@@ -27,8 +27,30 @@ export default async function handler(
       return;
     }
 
+    if (req.method === "DELETE") {
+      const body = await readJsonBody<{ id: string }>(req);
+      if (!body?.id) {
+        sendJson(res, 400, { error: "id is required for deletion" });
+        return;
+      }
+      await deleteStudySession(profile, body.id);
+      sendJson(res, 200, { ok: true });
+      return;
+    }
+
+    if (req.method === "PATCH") {
+      const body = await readJsonBody<{ id: string; duration: number; subject: string; note: string }>(req);
+      if (!body?.id) {
+        sendJson(res, 400, { error: "id is required for update" });
+        return;
+      }
+      await updateStudySession(profile, body.id, body);
+      sendJson(res, 200, { ok: true });
+      return;
+    }
+
     if (req.method !== "POST") {
-      sendMethodNotAllowed(res, ["GET", "POST"]);
+      sendMethodNotAllowed(res, ["GET", "POST", "DELETE", "PATCH"]);
       return;
     }
 

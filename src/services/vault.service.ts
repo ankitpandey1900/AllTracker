@@ -208,6 +208,25 @@ export async function logStudySessionCloud(
   });
 }
 
+export async function deleteStudySessionCloud(sessionId: string): Promise<void> {
+  if (!getCurrentUserId()) return;
+  await apiRequest(`/api/app/study-sessions`, {
+    method: "DELETE",
+    body: { id: sessionId },
+  });
+}
+
+export async function updateStudySessionCloud(
+  sessionId: string,
+  payload: { duration: number; subject: string; note: string }
+): Promise<void> {
+  if (!getCurrentUserId()) return;
+  await apiRequest(`/api/app/study-sessions`, {
+    method: "PATCH",
+    body: { id: sessionId, ...payload },
+  });
+}
+
 export async function migrateLocalHistoryToCloud(
   logs: any[],
 ): Promise<{ success: boolean; count: number }> {

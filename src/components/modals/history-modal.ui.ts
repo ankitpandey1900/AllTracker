@@ -186,7 +186,7 @@ export const historyModal = `
     ════════════════════════════════════════════════ */
     .sh-row {
       display: grid;
-      grid-template-columns: 18% 24% 13% 16% 29%;
+      grid-template-columns: 16% 20% 12% 14% 26% 12%;
       align-items: center;
       width: 100%;
     }
@@ -302,6 +302,32 @@ export const historyModal = `
       overflow: hidden; text-overflow: ellipsis;
     }
     .sh-note.empty { color: rgba(255,255,255,0.18); font-style: normal; }
+
+    /* ── Action buttons ─────────────────────────────── */
+    .sh-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      justify-content: flex-end;
+      padding-right: 14px;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    .sh-session-row:hover .sh-actions { opacity: 1; }
+    .sh-btn-edit, .sh-btn-delete {
+      background: none;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      padding: 3px 7px;
+      transition: all 0.15s;
+      line-height: 1;
+    }
+    .sh-btn-edit { color: #a5b4fc; }
+    .sh-btn-edit:hover { background: rgba(99,102,241,0.2); border-color: rgba(99,102,241,0.4); color: #fff; }
+    .sh-btn-delete { color: #f87171; }
+    .sh-btn-delete:hover { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.4); color: #fff; }
 
     /* Empty state */
     .sh-empty {
@@ -438,6 +464,15 @@ export const historyModal = `
       .sh-session-row:last-child { margin-bottom: 12px !important; }
 
       .sh-note { border-left: none !important; padding-left: 0 !important; }
+
+      /* Hide actions column on mobile, show as full-width row */
+      .sh-actions {
+        opacity: 1 !important;
+        justify-content: flex-start !important;
+        padding: 4px 0 0 0 !important;
+      }
+
+      .sh-note { border-left: none !important; padding-left: 0 !important; }
     }
 
     /* ════════════════════════════════════════════════
@@ -480,6 +515,7 @@ export const historyModal = `
               <div>Duration</div>
               <div>Subject</div>
               <div>Notes</div>
+              <div></div>
             </div>
           </div>
           <div id="recentSessionsBody"></div>

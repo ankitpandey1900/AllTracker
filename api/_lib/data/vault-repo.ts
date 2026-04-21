@@ -47,6 +47,7 @@ type TimerRow = {
   category: string | null;
   col_name: string | null;
   session_start_clock: string | null;
+  break_data: any | null;
   updated_at: string;
 };
 
@@ -109,6 +110,7 @@ function toTimerState(row: TimerRow | undefined) {
     sessionStartClock: row.session_start_clock
       ? new Date(row.session_start_clock).getTime()
       : null,
+    activeBreak: row.break_data || null,
   };
 }
 
@@ -204,7 +206,7 @@ export async function readVault(
     case "timer": {
       const { rows } = await pool.query<TimerRow>(
         `
-          select is_running, elapsed_acc, start_time, category, col_name, session_start_clock, updated_at
+          select is_running, elapsed_acc, start_time, category, col_name, session_start_clock, break_data, updated_at
           from timer_state
           where user_id = $1
           limit 1
@@ -384,9 +386,10 @@ export async function writeVault(
               category,
               col_name,
               session_start_clock,
+              break_data,
               updated_at
             )
-            values ($1::uuid, $2, $3, $4, $5, $6, $7, $8)
+            values ($1::uuid, $2, $3, $4, $5, $6, $7, $8, $9)
             on conflict (user_id)
             do update set
               is_running = excluded.is_running,
@@ -395,6 +398,7 @@ export async function writeVault(
               category = excluded.category,
               col_name = excluded.col_name,
               session_start_clock = excluded.session_start_clock,
+              break_data = excluded.break_data,
               updated_at = excluded.updated_at
           `,
           [
@@ -407,6 +411,7 @@ export async function writeVault(
             data?.sessionStartClock
               ? new Date(data.sessionStartClock).toISOString()
               : null,
+            data?.activeBreak ? JSON.stringify(data.activeBreak) : null,
             updatedAt,
           ],
         );
@@ -436,6 +441,7 @@ export async function clearTimerState(profile: AuthenticatedProfile): Promise<vo
         category = null,
         col_name = '',
         session_start_clock = null,
+        break_data = null,
         updated_at = now()
       where user_id = $1
     `,

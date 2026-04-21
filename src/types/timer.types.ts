@@ -13,4 +13,14 @@ export interface ActiveTimer {
   category: string | null;
   colName: string;
   hasNotifiedGoal?: boolean;
+  activeBreak?: {
+    reason: string;
+    startTime: number;
+    durationAcc: number; // accumulated time if paused/resumed
+    lastNotifiedMinutes?: number;
+  } | null;
+  completedBreaks?: {
+    reason: string;
+    durationMs: number;
+  }[];
 }

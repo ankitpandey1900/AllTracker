@@ -162,32 +162,119 @@ export function startTimer(categoryIdx: number, categoryName: string): void {
   import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast());
 }
 
-export function pauseTimer(): void {
+export function startBreak(reason: string): void {
   if (!appState.activeTimer.isRunning) return;
 
   // ⚡ OPTIMISTIC UI: Instant freeze
   appState.activeTimer.isRunning = false;
-  updateTimerUI(true);
-  if (appState.timerInterval) clearInterval(appState.timerInterval);
-
+  
+  // Track Break
   const currentSession = Date.now() - (appState.activeTimer.startTime || 0);
   appState.activeTimer.elapsedAcc += currentSession;
   appState.activeTimer.startTime = null;
+  
+  appState.activeTimer.activeBreak = {
+    reason: reason,
+    startTime: Date.now(),
+    durationAcc: 0
+  };
 
-  // 🎙️ AMBIENT AUDIO: Stop on pause
+  updateTimerUI(true);
+  if (appState.timerInterval) clearInterval(appState.timerInterval);
+
+  // Still allow timerInterval to tick up the *break* timer
+  startBreakInterval();
+
+  // 🎙️ AMBIENT AUDIO: Stop on break
   notificationService.stopAmbient();
-
   saveTimerState();
 
-  // ⚡ ELITE UX: Cease Fire / Landing
+  // ⚡ ELITE UX: Rest Mode
   document.body.classList.remove('is-focusing');
 
   // 🌙 RELEASE LOCKS
   releaseWakeLock();
   updateMediaSession(false);
 
-  // 📡 WORLD STAGE: Broadcast status instantly (Away/Paused)
   import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast());
+}
+
+export function resumeFromBreak(): void {
+  if (appState.activeTimer.isRunning) return;
+
+  if (appState.activeTimer.activeBreak) {
+    const elapsedBreak = Date.now() - appState.activeTimer.activeBreak.startTime + appState.activeTimer.activeBreak.durationAcc;
+    if (!appState.activeTimer.completedBreaks) appState.activeTimer.completedBreaks = [];
+    appState.activeTimer.completedBreaks.push({
+      reason: appState.activeTimer.activeBreak.reason,
+      durationMs: elapsedBreak
+    });
+    appState.activeTimer.activeBreak = null;
+  }
+
+  appState.activeTimer.isRunning = true;
+  appState.activeTimer.startTime = Date.now();
+
+  updateTimerUI(true);
+  startTimerInterval();
+  notificationService.startAmbient();
+  saveTimerState();
+
+  document.body.classList.add('is-focusing');
+  requestWakeLock();
+  updateMediaSession(true);
+  
+  import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast());
+}
+
+export function pauseTimer(): void {
+  // Legacy handler — acts as a fallback or unlogged pause. Re-routes to basic break.
+  startBreak('Paused');
+}
+
+function startBreakInterval(): void {
+  if (appState.timerInterval) clearInterval(appState.timerInterval);
+  appState.timerInterval = setInterval(() => {
+    updateTimerDisplay(); // Displays Break Mode
+    
+    // 🛰️ INFINITE ESCALATING SLACKER ALARM (15, 25, 40, 55, and then every 15m)
+    const activeBreak = appState.activeTimer.activeBreak;
+    if (activeBreak) {
+      const elapsedMs = Date.now() - activeBreak.startTime + activeBreak.durationAcc;
+      const elapsedMins = Math.floor(elapsedMs / (60 * 1000));
+      const last = activeBreak.lastNotifiedMinutes || 0;
+
+      // Milestone Logic
+      const milestones = [15, 25, 40, 55];
+      let currentMilestone = 0;
+
+      for (const m of milestones) {
+        if (elapsedMins >= m) currentMilestone = m;
+      }
+      
+      // Beyond fixed milestones, repeat every 15 mins
+      if (elapsedMins > 55) {
+        const intervalStep = Math.floor((elapsedMins - 55) / 15) * 15;
+        currentMilestone = 55 + intervalStep;
+      }
+
+      // Fire notification if crossing a new milestone
+      if (currentMilestone > last) {
+        let msg = 'Thoda break ho gaya? Ab refocus karlo! ☕';
+        if (currentMilestone === 15) msg = "15 minutes ho gaye. Refocus mode on? ☕";
+        else if (currentMilestone === 25) msg = "25 minutes khatam! Chal wapas grind pe lag ja! 🚀";
+        else if (currentMilestone === 40) msg = "Bhai 40 minutes break?! Sab aage nikal jayenge, jaldi wapas aao! ⚠️";
+        else if (currentMilestone === 55) msg = "AB BAS! Boht slacking ho gayi. Immediately return to mission! 🛑";
+        else msg = `Continuous Slacking Alert: ${currentMilestone} mins ho gaye. Bas karo aur wapas aao! 🚨`;
+
+        notificationService.sendAlert(`${activeBreak.reason} Break: ${currentMilestone}m ⚠️`, msg);
+        activeBreak.lastNotifiedMinutes = currentMilestone;
+      }
+    }
+
+    // 💓 HEARBEAT SYNC
+    saveTimerState();
+  }, 1000);
 }
 
 export async function stopTimer(autoNote?: string): Promise<void> {
@@ -203,8 +290,37 @@ export async function stopTimer(autoNote?: string): Promise<void> {
   }
   const totalHours = Math.floor(totalElapsed / 1000) / 3600;
 
-  // Show the popup to add a note for the session UNLESS it's an auto-stop
-  const note = autoNote || await showSessionNoteModal();
+  let note = autoNote || await showSessionNoteModal();
+
+  // If stopped while on a break, finalize that break first
+  if (appState.activeTimer.activeBreak) {
+    const elapsedBreak = Date.now() - appState.activeTimer.activeBreak.startTime + appState.activeTimer.activeBreak.durationAcc;
+    if (!appState.activeTimer.completedBreaks) appState.activeTimer.completedBreaks = [];
+    appState.activeTimer.completedBreaks.push({
+      reason: appState.activeTimer.activeBreak.reason,
+      durationMs: elapsedBreak
+    });
+    appState.activeTimer.activeBreak = null;
+  }
+
+  // Combine breaks heavily into the note, consolidating same reasons
+  if (appState.activeTimer.completedBreaks && appState.activeTimer.completedBreaks.length > 0) {
+    const breakMap = new Map<string, { duration: number; count: number }>();
+    appState.activeTimer.completedBreaks.forEach(b => {
+      const existing = breakMap.get(b.reason) || { duration: 0, count: 0 };
+      existing.duration += b.durationMs;
+      existing.count += 1;
+      breakMap.set(b.reason, existing);
+    });
+
+    const breakStrings = Array.from(breakMap.entries()).map(([reason, stats]) => {
+      const mins = Math.max(1, Math.floor(stats.duration / 60000));
+      return stats.count > 1 ? `${reason} (${mins}m / ${stats.count}x)` : `${reason} (${mins}m)`;
+    });
+
+    if (note) note += ` | `;
+    note += `[Breaks: ${breakStrings.join(', ')}]`;
+  }
 
   try {
     if (totalElapsed > 0 && appState.activeTimer.category !== null) {
@@ -262,6 +378,8 @@ export async function stopTimer(autoNote?: string): Promise<void> {
   appState.activeTimer.category = null;
   appState.activeTimer.colName = '';
   appState.activeTimer.sessionStartClock = null;
+  appState.activeTimer.activeBreak = null;
+  appState.activeTimer.completedBreaks = [];
 
   // 🎙️ AMBIENT AUDIO: Safety stop
   notificationService.stopAmbient();
@@ -302,6 +420,8 @@ export async function terminateTimer(): Promise<void> {
   appState.activeTimer.category = null;
   appState.activeTimer.colName = '';
   appState.activeTimer.sessionStartClock = null;
+  appState.activeTimer.activeBreak = null;
+  appState.activeTimer.completedBreaks = [];
 
   // 🎙️ AMBIENT AUDIO: Safety stop
   notificationService.stopAmbient();
@@ -528,20 +648,33 @@ function updateTimerDisplay(): void {
   if (appState.activeTimer.isRunning && appState.activeTimer.startTime) {
     totalMs += Date.now() - appState.activeTimer.startTime;
   }
+  
   const display = document.getElementById('timerDisplay');
-  const timeStr = formatMsToTime(totalMs);
-  if (display) display.textContent = timeStr;
-
-  // Sync Focus HUD & Browser Tab
-  if (appState.activeTimer.isRunning) {
-    toggleFocusHUD(true, appState.activeTimer.colName || 'STUDYING', timeStr);
-    document.title = `[${timeStr}] All Tracker | Elite Study Dashboard`;
+  const subjectLabel = document.getElementById('timerSubject');
+  
+  if (appState.activeTimer.activeBreak) {
+    // If on a break, display the break clock count-up instead
+    const breakMs = Date.now() - appState.activeTimer.activeBreak.startTime + appState.activeTimer.activeBreak.durationAcc;
+    const timeStr = formatMsToTime(breakMs);
+    if (display) display.textContent = timeStr;
+    if (subjectLabel) subjectLabel.textContent = `ON BREAK: ${appState.activeTimer.activeBreak.reason.toUpperCase()}`;
+    document.title = `[BREAK: ${timeStr}] All Tracker`;
   } else {
-    document.title = `All Tracker | Elite Study Dashboard, DSA Rituals & World Stage`;
-  }
+    // Standard Timer flow
+    const timeStr = formatMsToTime(totalMs);
+    if (display) display.textContent = timeStr;
+    if (subjectLabel) subjectLabel.textContent = 'DEEP FOCUS';
 
-  if (!appState.activeTimer.isRunning) {
-    updateSessionProgress(Math.floor(totalMs / 1000));
+    if (appState.activeTimer.isRunning) {
+      toggleFocusHUD(true, appState.activeTimer.colName || 'STUDYING', timeStr);
+      document.title = `[${timeStr}] All Tracker | Elite Study Dashboard`;
+    } else {
+      document.title = `All Tracker | Elite Study Dashboard, DSA Rituals & World Stage`;
+    }
+
+    if (!appState.activeTimer.isRunning) {
+      updateSessionProgress(Math.floor(totalMs / 1000));
+    }
   }
 }
 
@@ -555,14 +688,19 @@ function updateTimerUI(isVisible: boolean): void {
     section.style.display = 'block';
     if (appState.activeTimer.isRunning) {
       section.classList.remove('paused');
-      pauseBtn.textContent = ' Pause';
+      pauseBtn.textContent = 'Break ☕';
       display.classList.remove('blink');
       document.body.classList.add('focus-mode');
       updateFocusTask();
     } else {
       section.classList.add('paused');
-      pauseBtn.textContent = ' Resume';
-      display.classList.add('blink');
+      pauseBtn.textContent = 'Resume ▶️';
+      // If activeBreak exists, we DO NOT blink, it operates as a live timer logic on screen
+      if (appState.activeTimer.activeBreak) {
+        display.classList.remove('blink');
+      } else {
+        display.classList.add('blink');
+      }
     }
   } else {
     section.style.display = 'none';
@@ -752,6 +890,18 @@ export function resumeTimerIfNeeded(): void {
       startTimerInterval();
       // Re-broadcast with the correct (possibly self-healed) colName
       import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast());
+
+      // 🎶 AUDIO AUTO-RESUME: Browser policy blocks autoplay on refresh.
+      if (appState.settings.ambientSound && appState.settings.ambientSound !== 'none') {
+        const resumeAudio = () => {
+          if (appState.activeTimer.isRunning) notificationService.startAmbient();
+          document.removeEventListener('click', resumeAudio, true);
+        };
+        document.addEventListener('click', resumeAudio, true);
+      }
+    } else if (appState.activeTimer.activeBreak) {
+      // It wasn't running, but a break was actively tracking
+      startBreakInterval();
     }
     updateTimerUI(true);
     updateTimerDisplay();
