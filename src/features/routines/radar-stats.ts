@@ -1,5 +1,6 @@
 import { appState } from '@/state/app-state';
 import { setTxt } from '@/utils/dom.utils';
+import { getLocalIsoDate } from '@/utils/date.utils';
 
 let chartLibrary: any = null;
 
@@ -9,7 +10,7 @@ export async function renderRadarStats(): Promise<void> {
   const canvas = document.getElementById('skillRadarChart') as HTMLCanvasElement;
   if (!canvas) return;
 
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = getLocalIsoDate();
   const todayData = appState.trackerData.find(d => d.date.startsWith(todayStr));
   
   // 1. Discipline (Routine %)

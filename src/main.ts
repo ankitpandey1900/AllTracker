@@ -138,6 +138,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (savedTimer) Object.assign(appState.activeTimer, savedTimer);
 
     // 3. High-Priority UI Bootstrap (Visible above the fold)
+    await checkDailyRoutineReset(); // ⚡ PRO-SYNC: Ensure freshness before first render
     generateTable();
     updateDashboard();
     renderRoutine();
@@ -165,7 +166,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       initSyncAuth();
       setupHeaderScroll();
       initTasks();
-      await checkDailyRoutineReset();
+      // checkDailyRoutineReset moved to sync boot block
 
       // ⚡ REAL-TIME SYNC BOOT: Listen for remote changes on other devices
       await (await import('@/services/data-bridge')).startLiveSync();

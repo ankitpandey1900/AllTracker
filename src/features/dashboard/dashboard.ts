@@ -10,7 +10,7 @@
 
 import { appState } from '@/state/app-state';
 import { RANK_TIERS, TIER_TITLES, CATEGORY_COLORS } from '@/config/constants';
-import { formatDate, formatDateDMY, formatTime12h } from '@/utils/date.utils';
+import { formatDate, formatDateDMY, formatTime12h, getLocalIsoDate } from '@/utils/date.utils';
 import { setTxt, showToast, showLoading, hideLoading } from '@/utils/dom.utils';
 import { renderIntelligenceBriefing } from '@/features/intelligence/intelligence';
 import type { RankDetails } from '@/types/tracker.types';
@@ -61,15 +61,8 @@ export function getRank(totalHours: number): RankDetails {
 // --- Day Detection ---
 
 function findTodayIndex(): number {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  for (let i = 0; i < appState.trackerData.length; i++) {
-    const d = new Date(appState.trackerData[i].date);
-    d.setHours(0, 0, 0, 0);
-    if (d.getTime() === today.getTime()) return i;
-  }
-  return -1;
+  const todayStr = getLocalIsoDate();
+  return appState.trackerData.findIndex(d => d.date.startsWith(todayStr));
 }
 
 // --- Main UI Refresh ---

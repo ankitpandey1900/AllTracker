@@ -6,7 +6,7 @@
  */
 
 import { appState } from '@/state/app-state';
-import { formatTime12h } from '@/utils/date.utils';
+import { formatTime12h, getLocalIsoDate } from '@/utils/date.utils';
 import { showToast } from '@/utils/dom.utils';
 import { saveRoutinesToStorage, saveRoutineHistoryToStorage, loadRoutineResetFromStorage, saveRoutineResetToStorage } from '@/services/data-bridge';
 import { renderPerformanceCurve } from './performance-chart';
@@ -118,10 +118,10 @@ function toggleRoutine(id: string): void {
   // Toggle completion status
   item.completed = !item.completed;
 
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = getLocalIsoDate();
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
-  const yesterdayStr = yesterday.toISOString().split('T')[0];
+  const yesterdayStr = getLocalIsoDate(yesterday);
 
   if (!appState.routineHistory[todayStr]) appState.routineHistory[todayStr] = 0;
 
@@ -279,7 +279,7 @@ export function setupRoutineListeners(): void {
 // --- Morning Reset Logic ---
 
 export async function checkDailyRoutineReset(): Promise<void> {
-  const today = new Date().toISOString().split('T')[0];
+  const today = getLocalIsoDate();
   const lastReset = await loadRoutineResetFromStorage();
 
   if (lastReset !== today) {
