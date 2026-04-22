@@ -17,7 +17,7 @@ import "./styles/themes/chanakya-strategy.css";
 import "./styles/themes/ayodhya.css";
 import "./styles/themes/kamala-grace.css";
 // --- Core Setup ---
-import { appState, calculateDates, initializeData, applyThemeToDOM, applyTimerStyleToDOM } from "@/state/app-state";
+import { appState, calculateDates, initializeData, applyThemeToDOM, applyTimerStyleToDOM, ensureTimelineIntegrity, migrateDataFormat } from "@/state/app-state";
 import {
   DEFAULT_COLUMNS,
   STORAGE_KEYS,
@@ -125,14 +125,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     // ⚡ CRITICAL: Ensure theme is applied to DOM even for first-time users
     applyThemeToDOM(appState.settings.theme);
     applyTimerStyleToDOM(appState.settings.timerStyle);
-    // ⚡ CRITICAL: Calculate dates immediately so dashboard isn't 0/0
-    calculateDates();
+
+    // 🛡️ Data Modernization Layer
+    migrateDataFormat();
+
     if (trackerData && trackerData.length > 0) {
       appState.trackerData = trackerData;
     } else {
       appState.trackerData = initializeData();
-      saveTrackerDataToStorage(appState.trackerData);
     }
+
+    // 🛡️ Timeline Expansion & Date Metrics
+    ensureTimelineIntegrity();
+    calculateDates();
+
     appState.routines = routines;
     appState.routineHistory = history;
     appState.bookmarks = bookmarks;
@@ -495,20 +501,15 @@ export async function refreshApplicationUI(): Promise<void> {
     if (settings) {
       appState.settings = { ...appState.settings, ...settings };
     }
+    
+    // 🛡️ Data Modernization Layer
+    migrateDataFormat();
 
     // Ensure essential arrays exist
     if (!Array.isArray(appState.settings.columns))
       appState.settings.columns = [...DEFAULT_COLUMNS];
     if (!Array.isArray(appState.settings.customRanges))
       appState.settings.customRanges = [];
-
-    if (data && data.length) {
-      appState.trackerData = data;
-    }
-
-    // 4. Migrate data format if necessary (Architectural Shift)
-    const { migrateDataFormat } = await import("@/state/app-state");
-    migrateDataFormat();
 
     appState.routines = routines;
     appState.routineHistory = history;

@@ -27,7 +27,7 @@ import type { RoutineItem, RoutineHistory } from '@/types/routine.types';
 import type { Bookmark } from '@/types/bookmark.types';
 import type { StudyTask } from '@/types/task.types';
 import type { ActiveTimer } from '@/types/timer.types';
-import { applyThemeToDOM, applyTimerStyleToDOM, appState } from '@/state/app-state';
+import { applyThemeToDOM, applyTimerStyleToDOM, appState, ensureTimelineIntegrity, migrateDataFormat } from '@/state/app-state';
 
 
 // --- Auth & Sync Helpers ---
@@ -65,7 +65,8 @@ function isDifferent(a: unknown, b: unknown): boolean {
 
 function setTrackerData(data: TrackerDay[], pushToCloud = true): void {
   appState.trackerData = data;
-  localStorage.setItem(STORAGE_KEYS.TRACKER_DATA, JSON.stringify(data));
+  ensureTimelineIntegrity();
+  localStorage.setItem(STORAGE_KEYS.TRACKER_DATA, JSON.stringify(appState.trackerData));
   
   if (pushToCloud) {
     updateLocalTimestamp(STORAGE_KEYS.TRACKER_DATA);
@@ -383,6 +384,7 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
     // --- Tracker Data ---
     if (cloudTracker && (forceRecovery || isDifferent(appState.trackerData, cloudTracker.data) || isCloudNewer(STORAGE_KEYS.TRACKER_DATA, cloudTracker.updatedAt))) {
       setTrackerData(cloudTracker.data, false);
+      ensureTimelineIntegrity();
       updateLocalTimestamp(STORAGE_KEYS.TRACKER_DATA, cloudTracker.updatedAt || undefined);
     } else if (appState.trackerData.length > 0) {
       saveTrackerDataCloud(appState.trackerData);
@@ -485,6 +487,7 @@ export async function performBackgroundSync(): Promise<void> {
 
     if (cloudTracker && (isDifferent(appState.trackerData, cloudTracker.data) || isCloudNewer(STORAGE_KEYS.TRACKER_DATA, cloudTracker.updatedAt))) { 
       setTrackerData(cloudTracker.data, false); 
+      ensureTimelineIntegrity();
       updateLocalTimestamp(STORAGE_KEYS.TRACKER_DATA, cloudTracker.updatedAt || undefined);
       changed = true; 
     }

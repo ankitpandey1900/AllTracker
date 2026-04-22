@@ -2,7 +2,7 @@
 
 import { appState, getAllHourColumnLabels, getPhase, getColumnsForDay } from '@/state/app-state';
 import { NUMBER_FIELD_MAP } from '@/config/constants';
-import { formatDate, formatDuration } from '@/utils/date.utils';
+import { formatDate, formatDuration, getLocalIsoDate } from '@/utils/date.utils';
 import { showToast } from '@/utils/dom.utils';
 import { saveTrackerDataToStorage } from '@/services/data-bridge';
 import type { TrackerDay, StudyCategory } from '@/types/tracker.types';
@@ -27,13 +27,59 @@ function getTotalHours(day: TrackerDay): number {
 
 // --- Building the Table ---
 
-export function generateTable(): void {
+let currentPage = 1;
+const PAGE_SIZE = 20;
+let currentSearchTerm = '';
+let currentFilterCompleted = false;
+let currentFilterWithHours = false;
+
+export function generateTable(resetPagination = false): void {
   const tbody = document.getElementById('tableBody');
   if (!tbody) return;
 
-  const data = appState.trackerData;
+  if (resetPagination) currentPage = 1;
+
+  const fullData = appState.trackerData;
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+
+  // 1. Prepare Tomorrow string for clipping
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+  const tomorrowStr = getLocalIsoDate(tomorrow);
+
+  // 2. Filter & Sort the full dataset
+  let filteredData = fullData
+    .map((d, originalIdx) => ({ ...d, originalIdx }))
+    .filter(d => d.date.split('T')[0] <= tomorrowStr)
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  // 3. Apply Search & Active Filters (Deep Search Protocol)
+  if (currentSearchTerm || currentFilterCompleted || currentFilterWithHours) {
+    filteredData = filteredData.filter(dayData => {
+      let matches = true;
+
+      if (currentSearchTerm) {
+        const dayMatch = dayData.day.toString().includes(currentSearchTerm);
+        const dateMatch = formatDate(new Date(dayData.date)).toLowerCase().includes(currentSearchTerm);
+        const topicsMatch = (dayData.topics || '').toLowerCase().includes(currentSearchTerm);
+        const projectMatch = (dayData.project || '').toLowerCase().includes(currentSearchTerm);
+        if (!dayMatch && !dateMatch && !topicsMatch && !projectMatch) matches = false;
+      }
+
+      if (currentFilterCompleted && !dayData.completed) matches = false;
+      if (currentFilterWithHours) {
+        const totalHours = getTotalHours(dayData);
+        if (totalHours === 0) matches = false;
+      }
+
+      return matches;
+    });
+  }
+
+  // 4. Paginate
+  const totalToShow = currentPage * PAGE_SIZE;
+  const paginatedData = filteredData.slice(0, totalToShow);
 
   // Build dynamic header
   const labels = getAllHourColumnLabels(1);
@@ -52,10 +98,9 @@ export function generateTable(): void {
 
   // Build rows
   let html = '';
-  for (let i = 0; i < data.length; i++) {
-    const day = data[i];
+  paginatedData.forEach((day) => {
     const phase = getPhase(day.day);
-    const isToday = new Date(day.date).setHours(0, 0, 0, 0) === today.getTime();
+    const isToday = day.date.split('T')[0] === getLocalIsoDate(today);
     const editable = isRowEditable(day.date);
     const dayLabels = getAllHourColumnLabels(day.day);
 
@@ -66,7 +111,7 @@ export function generateTable(): void {
     if (!editable) rowClass += ' locked-row';
 
     html += `
-      <tr class="${rowClass}" data-day="${i}">
+      <tr class="${rowClass}" data-day="${day.originalIdx}">
         <td class="day-cell">
           <span class="day-number">${day.day}</span>
           ${!editable ? '<span class="lock-icon" title="Locked by Iron-Gate Integrity Engine">🔒</span>' : ''}
@@ -76,7 +121,6 @@ export function generateTable(): void {
         ? dayLabels.map((label: string, ci: number) => {
           const v = getHourAt(day, ci);
           const displayVal = formatDuration(v);
-          // Professional approach: keep numeric entry for speed, but show human hint for clarity
           return `
             <td>
               <div class="hour-cell-wrapper">
@@ -104,23 +148,43 @@ export function generateTable(): void {
               <input type="checkbox" class="completed-check" ${day.completed ? 'checked' : ''} ${!editable ? 'disabled' : ''}>
               <span class="checkmark"></span>
             </label>
-            <button class="btn-rest-day ${day.restDay ? 'active' : ''} ${!editable ? 'disabled-btn' : ''}" data-day="${i}" title="${!editable ? 'Locked' : 'Streak Freeze / Rest Day'}" ${!editable ? 'disabled' : ''}>
+            <button class="btn-rest-day ${day.restDay ? 'active' : ''} ${!editable ? 'disabled-btn' : ''}" data-day="${day.originalIdx}" title="${!editable ? 'Locked' : 'Streak Freeze / Rest Day'}" ${!editable ? 'disabled' : ''}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 17.58A5 5 0 0 0 18 8.1V5a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v3.1a5 5 0 0 0-2 9.48V20a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-2.42z"/><circle cx="12" cy="13" r="2"/></svg>
             </button>
           </div>
         </td>
       </tr>
     `;
+  });
+
+  // Load More Button
+  if (totalToShow < filteredData.length) {
+    const colCount = labels.length + 6;
+    html += `
+      <tr class="load-more-row">
+        <td colspan="${colCount}" style="text-align: center; padding: 20px;">
+          <button id="loadMoreTrackerBtn" class="btn-secondary" style="width: 200px; margin: 0 auto; display: block;">Load Previous Results</button>
+        </td>
+      </tr>
+    `;
   }
 
-  if (data.length === 0) {
-    const colCount = document.querySelectorAll('#trackerTable thead th').length || 10;
-    html = `<tr><td colspan="${colCount}" style="text-align: center; padding: 40px; color: var(--text-secondary); font-style: italic;">No tracker data found. Your daily combat log will appear here.</td></tr>`;
+  if (filteredData.length === 0) {
+    const colCount = labels.length + 6;
+    const msg = (currentSearchTerm || currentFilterCompleted || currentFilterWithHours) 
+      ? 'No matching logs found for your search criteria.' 
+      : 'No tracker data found. Your daily combat log will appear here.';
+    html = `<tr><td colspan="${colCount}" style="text-align: center; padding: 40px; color: var(--text-secondary); font-style: italic;">${msg}</td></tr>`;
   }
 
   requestAnimationFrame(() => {
     tbody.innerHTML = html;
     attachInputListeners();
+    
+    document.getElementById('loadMoreTrackerBtn')?.addEventListener('click', () => {
+      currentPage++;
+      generateTable();
+    });
   });
 }
 
@@ -296,65 +360,35 @@ function handleRestDayToggle(e: Event): void {
 // --- Table Search and Filters ---
 
 export function setupTableSearch(): void {
-  const searchInput = document.getElementById('tableSearch');
-  const filterCompleted = document.getElementById('filterCompleted');
-  const filterWithHours = document.getElementById('filterWithHours');
+  const searchInput = document.getElementById('tableSearch') as HTMLInputElement;
+  const filterCompleted = document.getElementById('filterCompleted') as HTMLInputElement;
+  const filterWithHours = document.getElementById('filterWithHours') as HTMLInputElement;
 
-  if (searchInput) searchInput.addEventListener('input', filterTable);
-  if (filterCompleted) filterCompleted.addEventListener('change', filterTable);
-  if (filterWithHours) filterWithHours.addEventListener('change', filterTable);
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      currentSearchTerm = searchInput.value.toLowerCase();
+      generateTable(true);
+    });
+  }
+  
+  if (filterCompleted) {
+    filterCompleted.addEventListener('change', () => {
+      currentFilterCompleted = filterCompleted.checked;
+      generateTable(true);
+    });
+  }
+  
+  if (filterWithHours) {
+    filterWithHours.addEventListener('change', () => {
+      currentFilterWithHours = filterWithHours.checked;
+      generateTable(true);
+    });
+  }
 }
 
 function filterTable(): void {
-  const searchTerm = (document.getElementById('tableSearch') as HTMLInputElement)?.value.toLowerCase() || '';
-  const showCompleted = (document.getElementById('filterCompleted') as HTMLInputElement)?.checked || false;
-  const showWithHours = (document.getElementById('filterWithHours') as HTMLInputElement)?.checked || false;
-
-  const rows = document.querySelectorAll('#tableBody tr');
-  let visibleCount = 0;
-
-  rows.forEach((row, index) => {
-    const dayData = appState.trackerData[index];
-    if (!dayData) return;
-
-    let shouldShow = true;
-
-    if (searchTerm) {
-      const dayMatch = dayData.day.toString().includes(searchTerm);
-      const dateMatch = formatDate(new Date(dayData.date)).toLowerCase().includes(searchTerm);
-      const topicsMatch = (dayData.topics || '').toLowerCase().includes(searchTerm);
-      const projectMatch = (dayData.project || '').toLowerCase().includes(searchTerm);
-      if (!dayMatch && !dateMatch && !topicsMatch && !projectMatch) shouldShow = false;
-    }
-
-    if (showCompleted && !dayData.completed) shouldShow = false;
-    if (showWithHours) {
-      const totalHours = getTotalHours(dayData);
-      if (totalHours === 0) shouldShow = false;
-    }
-
-    if (shouldShow) {
-      (row as HTMLElement).classList.remove('hidden');
-      visibleCount++;
-    } else {
-      (row as HTMLElement).classList.add('hidden');
-    }
-  });
-
-  // No-results message
-  const tbody = document.getElementById('tableBody');
-  let noResultsMsg = document.getElementById('noResultsMessage');
-  if (visibleCount === 0 && (searchTerm || showCompleted || showWithHours)) {
-    if (!noResultsMsg && tbody) {
-      noResultsMsg = document.createElement('tr');
-      noResultsMsg.id = 'noResultsMessage';
-      const colCount = document.querySelectorAll('#trackerTable thead th').length || 10;
-      noResultsMsg.innerHTML = `<td colspan="${colCount}" style="text-align:center; padding:40px; color:var(--text-secondary);">No results found. Try adjusting your filters.</td>`;
-      tbody.appendChild(noResultsMsg);
-    }
-  } else if (noResultsMsg) {
-    noResultsMsg.remove();
-  }
+  // Legacy function replaced by generateTable search integration
+  generateTable(true);
 }
 
 /**

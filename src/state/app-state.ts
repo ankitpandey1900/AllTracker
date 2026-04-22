@@ -246,13 +246,66 @@ export function initializeData(): TrackerDay[] {
   const colCount = (appState.settings.columns || []).length;
   return dates.map((date, index) => ({
     day: index + 1,
-    date: date.toISOString(),
+    date: getLocalIsoDate(date),
     studyHours: Array.from({ length: colCount }, () => 0),
     topics: '',
     problemsSolved: 0,
     project: '',
     completed: false,
   }));
+}
+
+/** 
+ * 🛡️ Infinite Timeline Protocol
+ * Ensures 'Today' always exists in the tracker data.
+ * If the user hasn't opened the app in days, it auto-fills the gaps.
+ */
+export function ensureTimelineIntegrity(): void {
+  const data = appState.trackerData;
+  if (!data || data.length === 0) return;
+
+  const lastEntry = data[data.length - 1];
+  const lastDate = new Date(lastEntry.date);
+  lastDate.setHours(0, 0, 0, 0);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+
+  if (lastDate < tomorrow) {
+    console.log('[Integrity]: Timeline expansion triggered. Provisioning tomorrow...');
+    const missingDays: TrackerDay[] = [];
+    let current = new Date(lastDate);
+    current.setDate(current.getDate() + 1);
+
+    while (current <= tomorrow) {
+      const colCount = (appState.settings.columns || []).length;
+      missingDays.push({
+        day: data.length + missingDays.length + 1,
+        date: getLocalIsoDate(current),
+        studyHours: Array.from({ length: colCount }, () => 0),
+        topics: '',
+        problemsSolved: 0,
+        project: '',
+        completed: false,
+      });
+      current.setDate(current.getDate() + 1);
+    }
+
+    appState.trackerData = [...data, ...missingDays];
+    
+    // Auto-update the End Date in settings if we exceeded the plan
+    const currentEnd = new Date(appState.settings.endDate);
+    if (tomorrow > currentEnd) {
+      appState.settings.endDate = getLocalIsoDate(tomorrow);
+    }
+    
+    calculateDates();
+    import('@/services/data-bridge').then(m => m.saveTrackerDataToStorage(appState.trackerData));
+    import('@/services/data-bridge').then(m => m.saveSettingsToStorage(appState.settings));
+  }
 }
 
 /** Returns the phase CSS class for a given day number */
