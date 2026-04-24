@@ -281,25 +281,37 @@ export function setupRoutineListeners(): void {
 export async function checkDailyRoutineReset(): Promise<void> {
   const today = getLocalIsoDate();
   const lastReset = await loadRoutineResetFromStorage();
+  const isNewDay = lastReset !== today;
+  
+  let needsSave = isNewDay;
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayStr = getLocalIsoDate(yesterday);
+  const yesterdayDay = yesterday.getDay();
 
-  if (lastReset !== today) {
-    console.log('New day detected! Resetting daily routine...');
-    
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayDay = yesterday.getDay();
+  // 🛡️ Integrity Check: One loop to handle both midnight resets and cloud-sync scrubs
+  appState.routines.forEach((item) => {
+    // 1. Scrub stale cloud data (If it says 'Completed' but date is wrong)
+    if (item.completed && item.lastCompletedIso !== today) {
+      item.completed = false;
+      needsSave = true;
+    }
 
-    appState.routines.forEach((item) => { 
-      // Reset streak if missed on a scheduled day
+    // 2. Handle Streak Breaks (Only on the first run of a new day)
+    if (isNewDay) {
       const scheduledYesterday = !item.days || item.days.length === 0 || item.days.includes(yesterdayDay);
-      if (scheduledYesterday && !item.completed) {
+      if (scheduledYesterday && !item.completed && item.lastCompletedIso !== yesterdayStr) {
         item.streak = 0;
       }
-      item.completed = false; 
-    });
+      item.completed = false; // Fresh start for the new day
+    }
+  });
 
+  if (needsSave) {
+    if (isNewDay) console.log('Mission Log: New day detected. Routine state purged.');
     saveRoutinesToStorage(appState.routines);
     await saveRoutineResetToStorage(today);
-    updateDashboard(); // Ensure "Up Next" resets for the new day
+    updateDashboard(); 
+    renderRoutine();
   }
 }

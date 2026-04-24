@@ -533,7 +533,7 @@ export async function performBackgroundSync(): Promise<void> {
 /** Updates the UI after the cloud data is finished downloading */
 async function refreshAppAfterSync(): Promise<void> {
   // Reimport dynamically to avoid circular deps at startup
-  const { refreshApplicationUI } = await import('@/main');
+  const { refreshApplicationUI } = await import('@/core/mission-pulse');
   await refreshApplicationUI();
 }
 
