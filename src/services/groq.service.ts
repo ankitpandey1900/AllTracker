@@ -71,8 +71,8 @@ function buildMessages(
 
   try {
     const brief = JSON.parse(tacticalBrief);
-    isBeastMode = !!brief.beastModeActive;
-    userHandle = brief.identity?.handle || userHandle;
+    isBeastMode = !!brief.bm; // Minified 'beastModeActive'
+    userHandle = brief.id?.h || userHandle; // Minified 'id.handle'
   } catch { /* fallback to defaults */ }
 
   const beastModeDirective = isBeastMode

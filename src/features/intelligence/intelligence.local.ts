@@ -13,11 +13,11 @@ import { getTacticalBriefing } from './intelligence.service';
 export function getLocalSmallTalkReply(query: string, username: string): string | null {
   const q = query.trim().toLowerCase();
   if (!q) return null;
-  if (/^(hi|hello|hey|yo)$/.test(q)) return `Hey ${username}! Ready for your next mission? 🚀`;
-  if (/^(thanks|thank you|thx)$/.test(q)) return `Anytime. Keep moving forward, ${username}. 🛠️`;
-  if (/^(ok|okay)$/.test(q)) return `Perfect. Send your next task when ready. ✅`;
-  if (/^(bye|good night)$/.test(q)) return `Roger that. Recover well and come back stronger. 🔋`;
-  if (/^(good morning|good evening|kaise ho|kya haal)$/.test(q)) return `All systems active. Tell me what you want to tackle right now. 🧠`;
+  if (/^(hi|hello|hey|yo)$/.test(q)) return `Oh, look who decided to show up. 👋 ${username}, unless you're here to log 4+ hours, why are we talking? Go study. 💀`;
+  if (/^(thanks|thank you|thx)$/.test(q)) return `Don't thank me. Thank your past self for actually working. Now keep that momentum before you lose it. 🚀`;
+  if (/^(ok|okay)$/.test(q)) return `Less 'okay', more focus. The clock is ticking. ⏰`;
+  if (/^(bye|good night)$/.test(q)) return `Finally. Recover your brain cells and don't be a potato tomorrow. 🔋🤡`;
+  if (/^(good morning|good evening|kaise ho|kya haal)$/.test(q)) return `Systems are active. My status is 'Savage'. Your status is 'Currently Wasting Time'. What's the mission? 🧠🛠️`;
   return null;
 }
 

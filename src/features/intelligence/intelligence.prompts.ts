@@ -4,47 +4,60 @@
  * Handles the AI's 'Vocabulary' and the JSON context generation.
  */
 
-export function generateMentorAdvice(taskHealth: any, sustainability: number, trend: number, momentum: number): { message: string; persona: string } {
+export function generateMentorAdvice(taskHealth: any, sustainability: number, trend: number, momentum: number, vulnerableDay: string | null, neglectedTopic: string | null): { message: string; persona: string } {
   const p = 'MAAMU (PEAK ROAST MODE) 🤡🔥';
 
-  if (sustainability < 60) {
+  if (sustainability < 55) {
     return {
       persona: p,
-      message: `Bhai, your brain is currently a fried pakoda. 🍳🧠 Sustainability is at ${sustainability}%. Pushing past 11 PM isn't "hustle," it's just slow-motion suicide for your productivity. 💀 Go to sleep or your next study session will have the IQ of a toaster. 🍞🔌`
+      message: `Bhai, your brain is currently a fried pakoda. 🍳🧠 Sustainability sirf ${sustainability}% hai. Itna burnout mat kar ki kal uth hi na paye. 💀 Go to sleep or your next session will have the IQ of a brick. 🧱🔌`
     };
   }
   
-  if (taskHealth.status === 'CRITICAL') {
+  if (taskHealth.status === 'CRITICAL' || taskHealth.debtScore > 70) {
     return {
       persona: p,
-      message: `System Alert: Your Task Debt is ${taskHealth.debtScore}%. You have more backlog than a government office. 📂📉 Stop looking for "motivation" videos on YouTube and clear your damn tasks. 🤡 Motivation is for losers; discipline is for legends. Clean the mess now! 🧹🔥`
+      message: `System Alert: Your Task Debt is ${taskHealth.debtScore}%. Backlog dekh ke rona aa raha hai. 📂📉 Motivation videos band kar aur kaam shuru kar. 🤡 Motivation is for losers; discipline is for legends. Clean the mess now! 🧹🔥`
     };
   }
   
-  if (trend < 50) {
+  if (trend < 45) {
     return {
       persona: p,
-      message: `14-day trend: ${trend}%. Your consistency is more unstable than a crypto market crash. 📉📉 One day you're Einstein, the next day you're a potato. 🥔 Pick a lane. Mastery isn't a part-time hobby, it's a full-time obsession. 🎯💀`
+      message: `14-day consistency: ${trend}%. Bhai, padhai kar rahe ho ya lottery khel rahe ho? 📉📉 One day you're Einstein, the next day you're a pure potato. 🥔 Discipline laao life mein, warna sirf sapne hi reh jayenge. 🎯💀`
     };
   }
   
-  if (momentum < -20) {
+  if (momentum < -15) {
     return {
       persona: p,
-      message: `Momentum is at ${momentum}%. You're not just slowing down; you're basically moonwalking away from your goals. 🕺💩 If you continue like this, the only thing you'll be tracking next month is your regret. Wake up! ⏰🚨`
+      message: `Momentum is at ${momentum}%. You're basically moonwalking away from success. 🕺💩 Agle mahine regret track karne ka plan hai kya? Wake up! ⏰🚨 Time pass mat kar.`
     };
   }
   
-  if (sustainability > 85 && trend > 85 && momentum > 15) {
+  if (sustainability > 88 && trend > 88 && momentum > 20) {
     return {
       persona: p,
-      message: `Wait, is this a glitch? Your stats actually look... good. 🤨 Momentum is up, sustainability is high, and you're actually doing your routines. 🚀🔥 Don't get cocky though. One "chilling session" and you're back to being a civilian. Keep the pressure on! 😤🛠️`
+      message: `Wait, stats actually decent hain? 🤨 Momentum up, consistency high... Kaunsa nasha kar rahe ho? 🚀🔥 Zyada khush mat ho, ek "chilling session" aur tum wapas zero pe aa jaoge. Keep the pressure on! 😤🛠️`
+    };
+  }
+  if (neglectedTopic) {
+    return {
+      persona: p,
+      message: `System Alert: You are completely ignoring '${neglectedTopic}'. 🚨 Sirf wahi padhoge jo aasan lagta hai? If you don't face your weak points, you will fail. Start studying it today. 💀`
+    };
+  }
+
+  if (vulnerableDay) {
+    return {
+      persona: p,
+      message: `Pattern Detected: You always slack off on ${vulnerableDay}s. 📉 Calendar dekh ke aalas aata hai kya? Break the pattern this week, or stay mediocre forever. ⏰🤡`
     };
   }
   
   return {
     persona: p,
-    message: `Operational Stability... barely. 📉 You're doing the bare minimum to not feel guilty. ${momentum > 0 ? 'Momentum is slightly up, but don\'t celebrate with a 3-hour reel session. 📱🤡' : 'Stop overthinking your "Strategy" and just put in the hours. 🧠💩'} The world doesn't care about your potential, only your output. 🌍🔨`
+    message: `Operational Stability... barely. 📉 Bare minimum karke hero mat bano. ${momentum > 0 ? 'Momentum thoda up hai, par 3-hour reel session se celebration mat karna. 📱🤡' : 'Overthinking band kar aur output dikha. 🧠💩'} Potential ki koi value nahi hai, sirf result matter karta hai. 🌍🔨`
   };
 }
 
@@ -71,36 +84,44 @@ export function buildDeepContextJSON(data: {
   tasks: any[];
   routines: any[];
   activeTimer: any;
-  beastMode: boolean;
+  beastModeActive: boolean;
   leaderboard: any;
 }): string {
-  // Full history condensed to avoid token overflow
-  const fullHistory = data.trackerData.map(d => ({
+  // 1. Hybrid History: Last 30 days daily, older days summarized weekly to save tokens
+  const last30Days = data.trackerData.slice(-30).map(d => ({
     d: d.day,
     h: (d.studyHours || []).reduce((s: number, h: number) => s + (h || 0), 0),
     c: d.completed ? 1 : 0
   }));
 
-  const last14 = data.trackerData.slice(-14).map(d => ({
-    day: d.day,
-    total: (d.studyHours || []).reduce((s: number, h: number) => s + (h || 0), 0),
-    topics: d.topics || '',
-    tasks_done: d.tasksDone || 0
-  }));
+  // Older data -> Weekly summaries (7-day buckets)
+  const olderData = data.trackerData.slice(0, -30);
+  const weeklySummaries: any[] = [];
+  for (let i = 0; i < olderData.length; i += 7) {
+    const week = olderData.slice(i, i + 7);
+    const totalH = week.reduce((s, d) => s + (d.studyHours || []).reduce((sh: number, h: number) => sh + (h || 0), 0), 0);
+    const avgH = totalH / week.length;
+    weeklySummaries.push({ w: Math.floor(i / 7) + 1, h: avgH.toFixed(1) });
+  }
+
+  // 2. Capped Backlog (Top 10 only)
+  const pendingTasks = data.tasks.filter(t => !t.completed).slice(0, 10).map(t => t.text);
 
   return JSON.stringify({
-    identity: { handle: "@" + data.username, totalHours: data.totalHours.toFixed(1), rank: data.rank },
-    beastModeActive: data.beastMode,
-    stats: { 
-      sustainability: data.briefing.sustainabilityScore, 
-      discipline: data.briefing.disciplineTrend, 
-      momentum: data.briefing.momentumLabel 
+    id: { h: "@" + data.username, th: data.totalHours.toFixed(1), r: data.rank },
+    bm: data.beastModeActive,
+    st: { 
+      s: data.briefing.sustainabilityScore, 
+      d: data.briefing.disciplineTrend, 
+      m: data.briefing.momentumLabel 
     },
-    full_tracker_history: fullHistory,
-    detailed_history_14d: last14,
-    backlog: data.tasks.filter(t => !t.completed).map(t => t.text),
-    routines: data.routines.map(r => ({ title: r.title, done: r.completed })),
-    leaderboard: data.leaderboard,
-    activeTimer: data.activeTimer
-  }, null, 2);
+    hist: { 
+      daily_30d: last30Days, 
+      weekly_old: weeklySummaries 
+    },
+    back: pendingTasks,
+    rout: data.routines.slice(0, 8).map(r => ({ t: r.title, d: r.completed })),
+    lb: data.leaderboard,
+    tmr: data.activeTimer
+  });
 }

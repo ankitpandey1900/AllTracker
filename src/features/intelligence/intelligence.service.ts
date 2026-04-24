@@ -58,7 +58,7 @@ export function getTacticalBriefing(): TacticalBriefing {
   const sustainabilityScore = calculateSustainability(logs);
   
   const context = getStrategicContext(trackerData, logs, taskHealth, routineConsistency, sustainabilityScore);
-  const { message, persona } = generateMentorAdvice(taskHealth, sustainabilityScore, disciplineTrend, momentumData.value);
+  const { message, persona } = generateMentorAdvice(taskHealth, sustainabilityScore, disciplineTrend, momentumData.value, vulnerableDay, neglectedTopic);
 
   return {
     peakHour,
@@ -93,7 +93,7 @@ export function getTacticalBriefingString(): string {
     tasks: appState.tasks,
     routines: appState.routines,
     activeTimer: appState.activeTimer,
-    beastMode: !!appState.settings.beastMode,
+    beastModeActive: !!appState.settings.beastMode,
     leaderboard: getCurrentUserLeaderboardContext()
   });
 }
