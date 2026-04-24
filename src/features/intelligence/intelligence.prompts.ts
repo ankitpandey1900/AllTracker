@@ -88,15 +88,26 @@ export function buildDeepContextJSON(data: {
   beastModeActive: boolean;
   leaderboard: any;
 }): string {
+  const todayStr = new Date().toISOString().split('T')[0];
+  const pastData = data.trackerData.filter(d => {
+    try {
+      if (!d.date) return false;
+      const dDate = new Date(d.date).toISOString().split('T')[0];
+      return dDate <= todayStr;
+    } catch {
+      return false; // ignore invalid dates
+    }
+  });
+
   // 1. Hybrid History: Last 30 days daily (tracker grid hours)
-  const last30Days = data.trackerData.slice(-30).map(d => ({
+  const last30Days = pastData.slice(-30).map(d => ({
     d: d.day,
     h: (d.studyHours || []).reduce((s: number, h: number) => s + (h || 0), 0),
     c: d.completed ? 1 : 0
   }));
 
   // Older data -> Weekly summaries (7-day buckets)
-  const olderData = data.trackerData.slice(0, -30);
+  const olderData = pastData.slice(0, -30);
   const weeklySummaries: any[] = [];
   for (let i = 0; i < olderData.length; i += 7) {
     const week = olderData.slice(i, i + 7);
