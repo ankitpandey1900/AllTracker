@@ -201,6 +201,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       
       // 🔄 BACKGROUND SYNC: Silently update and refresh if cloud differs
       performBackgroundSync();
+
+      // 🛡️ MIDNIGHT SENTINEL: Check for day change every minute
+      setInterval(() => {
+        void checkDailyRoutineReset().then(() => renderRoutine());
+      }, 60000);
     }, 300);
 
     // 6. Session goal recovery
@@ -528,6 +533,9 @@ export async function refreshApplicationUI(): Promise<void> {
     renderBookmarks();
     renderTasks();
     
+    // 🛡️ Midnight Sentinel: Ensure checkboxes clear if sync brings old data
+    await checkDailyRoutineReset();
+
     // Resume timer UI if it was restored
     const { resumeTimerIfNeeded } = await import('@/features/timer/timer');
     resumeTimerIfNeeded();
