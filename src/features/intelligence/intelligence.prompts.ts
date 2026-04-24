@@ -88,12 +88,19 @@ export function buildDeepContextJSON(data: {
   beastModeActive: boolean;
   leaderboard: any;
 }): string {
-  const todayStr = new Date().toISOString().split('T')[0];
+  // Use local ISO date (YYYY-MM-DD) to prevent timezone bugs for night-owls
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const todayStr = `${year}-${month}-${day}`;
+
   const pastData = data.trackerData.filter(d => {
     try {
       if (!d.date) return false;
-      const dDate = new Date(d.date).toISOString().split('T')[0];
-      return dDate <= todayStr;
+      const dDate = new Date(d.date);
+      const dStr = `${dDate.getFullYear()}-${String(dDate.getMonth() + 1).padStart(2, '0')}-${String(dDate.getDate()).padStart(2, '0')}`;
+      return dStr <= todayStr;
     } catch {
       return false; // ignore invalid dates
     }
@@ -117,9 +124,10 @@ export function buildDeepContextJSON(data: {
   }
 
   // 2. Real session logs: group by date for the last 30 days
-  const cutoff = new Date();
+  const cutoff = new Date(now);
   cutoff.setDate(cutoff.getDate() - 30);
-  const cutoffStr = cutoff.toISOString().split('T')[0];
+  const cutoffStr = `${cutoff.getFullYear()}-${String(cutoff.getMonth() + 1).padStart(2, '0')}-${String(cutoff.getDate()).padStart(2, '0')}`;
+  
   const sessionByDate: Record<string, { mins: number; cats: string[] }> = {};
   (data.sessionLogs || []).forEach((log: any) => {
     if (!log.date || log.date < cutoffStr) return;
@@ -137,8 +145,20 @@ export function buildDeepContextJSON(data: {
   // 3. Total hours from real sessions (source of truth)
   const realTotalMins = (data.sessionLogs || []).reduce((s: number, l: any) => s + Math.round((l.duration || 0) * 60), 0);
 
-  // 4. Capped Backlog (Top 10 only)
-  const pendingTasks = data.tasks.filter(t => !t.completed).slice(0, 10).map(t => t.text);
+  // 4. Capped Backlog with Priorities (Top 10 only)
+  const priorityMap: Record<number, string> = { 1: 'L', 2: 'M', 3: 'H' };
+  const pendingTasks = data.tasks
+    .filter(t => !t.completed)
+    .sort((a, b) => (b.priority || 1) - (a.priority || 1))
+    .slice(0, 10)
+    .map(t => `[${priorityMap[t.priority as number] || 'M'}] ${t.text}`);
+
+  // 5. Routines with Streaks
+  const routinesContext = data.routines.slice(0, 8).map(r => ({
+    t: r.title,
+    d: r.completed,
+    s: r.streak || 0 // pass the streak!
+  }));
 
   return JSON.stringify({
     id: { h: "@" + data.username, th: data.totalHours.toFixed(1), r: data.rank, real_mins: realTotalMins },
@@ -154,7 +174,7 @@ export function buildDeepContextJSON(data: {
     },
     sessions_30d: sessions30d,
     back: pendingTasks,
-    rout: data.routines.slice(0, 8).map(r => ({ t: r.title, d: r.completed })),
+    rout: routinesContext,
     lb: data.leaderboard,
     tmr: data.activeTimer
   });
