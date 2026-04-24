@@ -972,5 +972,19 @@ function setupListeners(): boolean {
       }
     }    
   });
+
+  window.addEventListener('all-tracker-identity-sync', async () => {
+    import('./intelligence.service').then(async ({ loadMaamuSessionsIntoState }) => {
+      await loadMaamuSessionsIntoState();
+      renderSessionsList();
+      renderActiveChat();
+      renderSidebarMetrics();
+      renderSessionQuickAccess();
+      const s = getActiveSession();
+      const t = document.getElementById('activeMissionTitle');
+      if (t) t.textContent = s ? s.title : 'MAAMU AI';
+    });
+  });
+
   return true;
 }

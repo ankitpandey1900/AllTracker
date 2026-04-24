@@ -90,6 +90,7 @@ export function getTacticalBriefingString(): string {
     rank: getRankTitle(totalHours),
     briefing,
     trackerData: appState.trackerData,
+    sessionLogs: appState.settings.sessionLogs || [],
     tasks: appState.tasks,
     routines: appState.routines,
     activeTimer: appState.activeTimer,

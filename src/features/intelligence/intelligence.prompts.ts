@@ -81,13 +81,14 @@ export function buildDeepContextJSON(data: {
   rank: string;
   briefing: any;
   trackerData: any[];
+  sessionLogs: any[];
   tasks: any[];
   routines: any[];
   activeTimer: any;
   beastModeActive: boolean;
   leaderboard: any;
 }): string {
-  // 1. Hybrid History: Last 30 days daily, older days summarized weekly to save tokens
+  // 1. Hybrid History: Last 30 days daily (tracker grid hours)
   const last30Days = data.trackerData.slice(-30).map(d => ({
     d: d.day,
     h: (d.studyHours || []).reduce((s: number, h: number) => s + (h || 0), 0),
@@ -104,11 +105,32 @@ export function buildDeepContextJSON(data: {
     weeklySummaries.push({ w: Math.floor(i / 7) + 1, h: avgH.toFixed(1) });
   }
 
-  // 2. Capped Backlog (Top 10 only)
+  // 2. Real session logs: group by date for the last 30 days
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 30);
+  const cutoffStr = cutoff.toISOString().split('T')[0];
+  const sessionByDate: Record<string, { mins: number; cats: string[] }> = {};
+  (data.sessionLogs || []).forEach((log: any) => {
+    if (!log.date || log.date < cutoffStr) return;
+    if (!sessionByDate[log.date]) sessionByDate[log.date] = { mins: 0, cats: [] };
+    sessionByDate[log.date].mins += Math.round((log.duration || 0) * 60);
+    if (log.categoryName && !sessionByDate[log.date].cats.includes(log.categoryName)) {
+      sessionByDate[log.date].cats.push(log.categoryName);
+    }
+  });
+  const sessions30d = Object.entries(sessionByDate)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .slice(-30)
+    .map(([date, v]) => ({ date, mins: v.mins, cats: v.cats.join(',') }));
+
+  // 3. Total hours from real sessions (source of truth)
+  const realTotalMins = (data.sessionLogs || []).reduce((s: number, l: any) => s + Math.round((l.duration || 0) * 60), 0);
+
+  // 4. Capped Backlog (Top 10 only)
   const pendingTasks = data.tasks.filter(t => !t.completed).slice(0, 10).map(t => t.text);
 
   return JSON.stringify({
-    id: { h: "@" + data.username, th: data.totalHours.toFixed(1), r: data.rank },
+    id: { h: "@" + data.username, th: data.totalHours.toFixed(1), r: data.rank, real_mins: realTotalMins },
     bm: data.beastModeActive,
     st: { 
       s: data.briefing.sustainabilityScore, 
@@ -116,9 +138,10 @@ export function buildDeepContextJSON(data: {
       m: data.briefing.momentumLabel 
     },
     hist: { 
-      daily_30d: last30Days, 
+      daily_30d: last30Days,
       weekly_old: weeklySummaries 
     },
+    sessions_30d: sessions30d,
     back: pendingTasks,
     rout: data.routines.slice(0, 8).map(r => ({ t: r.title, d: r.completed })),
     lb: data.leaderboard,
