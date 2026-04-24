@@ -1,83 +1,59 @@
-# All Tracker: Development Blueprints
+# HACKER'S GUIDE: THE ENGINEERING OF ALLTRACKER 🛠️
 
-Welcome to the engineering hub of **All Tracker**. This document outlines our core design patterns, security protocols, and data integrity standards.
+Welcome to the internal blueprints. I built AllTracker with a very specific set of rules to keep it fast, secure, and easy to scale. If you're contributing, here’s how I think about the code.
 
-## 🏛️ Module SOP (Standard Operating Procedure)
+---
 
-Every feature in the `src/features/` directory must follow the **Logic + UI** separation:
+## 🏛️ HOW TO BUILD A FEATURE (LOGIC + UI)
 
-1.  **`featureName.ts`**: The "Brain." Contains business logic, state management, and side-effect initializers.
-2.  **`featureName.ui.ts`**: The "Skin." Contains only the static HTML `view` strings and simple template helpers.
-3.  **Refusal of Mixed Files**: Never put substantial DOM manipulation logic directly inside a `.ui.ts` file.
+Every feature in the `src/features/` folder is split into two parts. Don't mix them.
 
-## 🏺 Secure Sync Protocol (V3 Architecture)
+1.  **`featureName.ts` (The Brain)**: This is where the logic lives. State updates, API calls, and calculations go here.
+2.  **`featureName.ui.ts` (The Skin)**: This is just for HTML strings and simple template helpers. Keep it static.
+3.  **The Rule**: Don't put heavy DOM logic in the `.ui.ts` file. It makes debugging a nightmare.
 
-To ensure maximum reliability and professional-grade security, All Tracker uses a **Vercel-hosted Backend architecture**.
+## 🏺 THE DATA FLOW (LOCAL-FIRST)
 
-- **API Uplink**: The frontend communicates exclusively through secure `/api/` routes. No sensitive database credentials or Supabase SDK objects are exposed to the client.
-- **Better Auth Integration**: Identity is managed via the **Better Auth** framework, supporting secure Google/GitHub OAuth sessions.
-- **Local-First Sync**: Functions in `data-bridge.ts` must return local data immediately from `localStorage`. Synchronization with the cloud happens asynchronously via `performBackgroundSync()`.
-- **Granular Payload Mapping**: The `vault.service.ts` maps individual feature objects to server endpoints to ensure partial updates and data isolation.
+I wanted the app to feel instant. That’s why we use the **Local-First Sync Protocol.**
 
-## ⚡ Reactivity Engine (V4 Standard)
+- **Save Fast**: When a user saves something, it hits `localStorage` immediately.
+- **Sync in the Background**: The `data-bridge.ts` then handles the cloud sync asynchronously.
+- **The Backend**: We use Vercel Serverless functions for the API. No direct database calls from the frontend—it’s more secure that way.
 
-The application utilizes a **Proxy-based state engine** to manage data flow without the need for frameworks:
+## ⚡ STATE MANAGEMENT (NO FRAMEWORKS)
 
-- **State Subscriptions**: Features should subscribe to specific state paths using `subscribeToState`.
-- **Immutable Updates**: When modifying state arrays (like `tasks` or `trackerData`), always use immutable patterns (e.g., `appState.tasks = [...appState.tasks, newTask]`) to trigger the Proxy's `set` trap.
+I skipped React/Vue because I wanted zero bloat. I built a simple **Proxy-based state engine** instead.
 
-## 🛡️ API Resiliency SOP
+- **Subscriptions**: If a component needs to update when data changes, use `subscribeToState`.
+- **Immutability**: When you update an array (like tasks), don't just push to it. Re-assign the whole array (e.g., `appState.tasks = [...appState.tasks, newTask]`). This triggers the Proxy and keeps the UI in sync.
 
-Network reliability is managed via the `api.service.ts` layer:
+## 🛡️ RESILIENCY (WHEN THE NET IS DOWN)
 
-- **Exponential Backoff**: All cloud requests automatically retry 3 times with increasing delays (1s, 2s, 4s) on transient errors (503, 408).
-- **Silent Failover**: If the cloud is unreachable, the system must continue to operate using the local cache without blocking the user.
+I built the `api.service.ts` to be tough. 
+- **Retries**: If a cloud request fails, it automatically retries with an exponential backoff.
+- **Offline Mode**: If the user is offline, the app keeps working on local data. Sync will pick up whenever they're back online.
 
-## 📡 Tactical Logging SOP
+## 🏗️ THE DATA AUTHORITY (RECONCILIATION)
 
-Avoid direct `console.log` for app logic. Use the `log` utility from `@/utils/logger.utils`:
+To keep the global rankings accurate, I use a three-way check:
+1.  **The Cloud**: The `study_sessions` table is the ultimate truth.
+2.  **The Leaderboard**: The `profiles` table stores the total hours for fast ranking. I re-aggregate this on the backend whenever a session changes to prevent "stat-drift."
+3.  **The HUD**: The local state patches itself based on session changes so the user sees their XP increase instantly.
 
-- **Levels**: Use `log.debug` for feature logic, `log.info` for lifecycle events, and `log.error` for sync failures.
-- **Toggle**: Advanced logging is enabled via `localStorage.setItem('ALL_TRACKER_LOG_LEVEL', 'DEBUG')`.
-
-## 🌓 Midnight Crossover Logic (SOP)
-
-All Tracker uses the **"Absolute Accuracy" (Midnight Split)** approach for sessions that cross calendar days.
-
-- **The Split**: If a session starts at 11:30 PM and ends at 12:30 AM, the system mathematically splits the 60 minutes: 30m are logged to Day 1, and 30m are logged to Day 2.
-- **Note Sync**: The session note (message) is duplicated to both days so your project context remains intact across the date boundary.
-
-## ⚡ Performance & Hydration SOP
-
-To maintain an "Elite" user experience, all modules adhere to the **Optimized SPA** pattern:
-
-- **Differential Syncing**: Background sync checks timestamps to only pull or push data when a delta is detected, minimizing network overhead.
-- **Dynamic Imports**: Heavy libraries (e.g., `Chart.js`) are only imported via `await import()` inside the relevant execution block.
-- **Resource Shielding**: Safety guards like `Chart.getChart(canvas)` are used to prevent instance collision during rapid view swaps.
-
-## 🏗️ Logical Integrity Engine (Tier 1 Sync)
-
-To maintain absolute world-stage accuracy, the system uses a three-way reconciliation pattern:
-
-1.  **The Source (Cloud Sessions)**: Raw logs in the `study_sessions` table are the ultimate authority.
-2.  **The Display (Profiles)**: The `profiles` table stores pre-aggregated `total_hours` for leaderboard performance. After any mutation (Add/Edit/Delete), the backend re-aggregates these values from the session logs to prevent stat-drift.
-3.  **The HUD (Local State)**: The client-side `tracker.ts` patches `appState.trackerData` based on session deltas. It is history-aware and uses `getColumnsForDay` to correctly map categorical hours even across custom ranges or historical phases.
-
-> [!IMPORTANT]
-> Always use `adjustTrackerDataForSessionDelta` when mutating sessions from the UI to ensure the local XP and Tracker grid stay synchronized with the cloud.
-
-## 📂 Core File Map
+## 📂 WHERE IS EVERYTHING?
 
 | Path | Purpose |
 | :--- | :--- |
-| `src/main.ts` | The Orchestrator. Bootstraps all modules and event listeners. |
-| `src/state/app-state.ts` | The Single Source of Truth. Global reactive state object. |
-| `src/services/data-bridge.ts` | The Gatekeeper. Manages local persistence and sync orchestration. |
-| `src/services/api.service.ts` | The Uplink. Secure fetch wrapper for backend communication. |
-| `src/services/vault.service.ts` | The Registry. Maps feature data to backend endpoints. |
-| `src/services/auth.service.ts` | The Identity Gate. Manages Better Auth session state. |
+| `src/main.ts` | The Orchestrator. The first file that runs. |
+| `src/state/app-state.ts` | The single source of truth for the app. |
+| `src/services/data-bridge.ts` | The Gatekeeper for all saving/loading. |
+| `src/services/api.service.ts` | The secure fetch wrapper. |
 
-## 🚀 Building & Releasing
+---
 
-- Always run `npm run build` to verify tree-shaking and asset minification.
-- Ensure `.env` contains valid `DATABASE_URL` and Auth credentials before production build.
+## 🚀 PUSHING CODE
+
+- Always run `npm run build` before you push. It catches errors and minifies the code.
+- Make sure your `.env` is set up with valid credentials.
+
+**Keep it fast. Keep it clean.** 🚀

@@ -1,14 +1,7 @@
-import { getSecureLocalProfileString, setSecureLocalProfileString } from '@/utils/security';
-import { log } from '@/utils/logger.utils';
-/**
- * Data Bridge — Handles saving and loading data.
- * 
- * This bridges the browser storage and the cloud.
- * If you're logged in, everything saves to both places automatically.
- */
-
 import { STORAGE_KEYS } from '@/config/constants';
 import { getCurrentUserId } from '@/services/auth.service';
+import { log } from '@/utils/logger.utils';
+import { setSecureLocalProfileString } from '@/utils/security';
 import {
   saveTrackerDataCloud, loadTrackerDataCloud,
   saveSettingsCloud, loadSettingsCloud,
@@ -16,543 +9,197 @@ import {
   saveBookmarksCloud, loadBookmarksCloud,
   saveRoutineHistoryCloud, loadRoutineHistoryCloud,
   saveTimerStateCloud, loadTimerStateCloud,
-  saveRoutineResetCloud, loadRoutineResetCloud,
   saveTasksCloud, loadTasksCloud,
   loadUserProfileCloud,
   updateSyncStatus,
   subscribeToUserDataSync,
 } from '@/services/vault.service';
-import type { TrackerDay, Settings } from '@/types/tracker.types';
-import type { RoutineItem, RoutineHistory } from '@/types/routine.types';
-import type { Bookmark } from '@/types/bookmark.types';
-import type { StudyTask } from '@/types/task.types';
-import type { ActiveTimer } from '@/types/timer.types';
-import { applyThemeToDOM, applyTimerStyleToDOM, appState, ensureTimelineIntegrity, migrateDataFormat } from '@/state/app-state';
+import { appState, ensureTimelineIntegrity } from '@/state/app-state';
+import { 
+  saveLocal, loadLocal, removeLocal, 
+  saveSecuredSettings, loadSecuredSettings, 
+  updateLocalTimestamp 
+} from './data.storage';
+import { isCloudNewer, isDifferent, isLocalEmpty } from './data.sync';
 
+// --- Auth Helpers ---
+function isAuthenticated(): boolean { return getCurrentUserId() !== null; }
 
-// --- Auth & Sync Helpers ---
-
-function isAuthenticated(): boolean {
-  return getCurrentUserId() !== null;
-}
-
-/** 🛡️ TIMESTAMP REGISTRY: Tracks exactly when local data was last modified */
-function updateLocalTimestamp(key: string, timestamp?: string): void {
-  const meta = JSON.parse(localStorage.getItem(STORAGE_KEYS.SYNC_METADATA) || '{}');
-  meta[key] = timestamp || new Date().toISOString();
-  localStorage.setItem(STORAGE_KEYS.SYNC_METADATA, JSON.stringify(meta));
-}
-
-function getLocalTimestamp(key: string): number {
-  const meta = JSON.parse(localStorage.getItem(STORAGE_KEYS.SYNC_METADATA) || '{}');
-  const ts = meta[key] || '1970-01-01T00:00:00.000Z';
-  return new Date(ts).getTime();
-}
-
-/** ⚖️ CONFLICT RESOLVER: Determines if Cloud data is strictly newer than the local version */
-function isCloudNewer(key: string, cloudTimestamp: string | null): boolean {
-  if (!cloudTimestamp) return false;
-  const localTs = getLocalTimestamp(key);
-  const cloudTs = new Date(cloudTimestamp).getTime();
-  return cloudTs > localTs; // Offset by 1s to allow for network jitter if needed
-}
-
-function isDifferent(a: unknown, b: unknown): boolean {
-  return JSON.stringify(a) !== JSON.stringify(b);
-}
-
-// --- Tracker Data Functions ---
-
-function setTrackerData(data: TrackerDay[], pushToCloud = true): void {
+// --- Tracker ---
+export async function saveTrackerDataToStorage(data: any[]): Promise<void> {
   appState.trackerData = data;
   ensureTimelineIntegrity();
-  localStorage.setItem(STORAGE_KEYS.TRACKER_DATA, JSON.stringify(appState.trackerData));
-  
-  if (pushToCloud) {
-    updateLocalTimestamp(STORAGE_KEYS.TRACKER_DATA);
-    if (isAuthenticated()) {
-      saveTrackerDataCloud(data);
-    }
-  }
+  saveLocal(STORAGE_KEYS.TRACKER_DATA, appState.trackerData);
+  updateLocalTimestamp(STORAGE_KEYS.TRACKER_DATA);
+  if (isAuthenticated()) saveTrackerDataCloud(data);
 }
 
-export async function loadTrackerDataFromStorage(): Promise<TrackerDay[]> {
-  // ⚡ LOCAL-FIRST: Immediately return local data to prevent UI blocking
-  const saved = localStorage.getItem(STORAGE_KEYS.TRACKER_DATA);
-  let localData: TrackerDay[] = [];
-  if (saved) { 
-    try { 
-      localData = JSON.parse(saved); 
-    } catch { 
-      localData = []; 
-    } 
-  }
-  return localData;
+export async function loadTrackerDataFromStorage(): Promise<any[]> {
+  return loadLocal<any[]>(STORAGE_KEYS.TRACKER_DATA) || [];
 }
 
-export async function saveTrackerDataToStorage(data: TrackerDay[]): Promise<void> {
-  setTrackerData(data);
-}
-
-// --- Settings Functions ---
-
-import { obfuscate, deobfuscate } from '@/utils/security';
-
-function setSettings(settings: Settings, pushToCloud = true): void {
-  const syncId = getCurrentUserId() || '';
-  
-  if (!syncId && settings.groqApiKey) {
-    settings.groqApiKey = ''; 
-  }
-
-  appState.settings = { ...appState.settings, ...settings };
-  
-  const securedSettings = { 
-    ...settings, 
-    groqApiKey: settings.groqApiKey ? obfuscate(settings.groqApiKey, syncId) : '' 
-  };
-  localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(securedSettings));
-  
-  if (pushToCloud) {
-    updateLocalTimestamp(STORAGE_KEYS.SETTINGS);
-    if (isAuthenticated()) {
-      saveSettingsCloud(settings);
-    }
-  }
-}
-
-export async function loadSettingsFromStorage(): Promise<Settings | null> {
-  // ⚡ LOCAL-FIRST: Immediately return local data to prevent UI blocking
-  const saved = localStorage.getItem(STORAGE_KEYS.SETTINGS);
-  let localSettings: Settings | null = null;
-  
-  if (saved) { 
-    try { 
-      localSettings = JSON.parse(saved) as Settings;
-      
-      // 🔐 IDENTITY-LINKED VAULT (V3): Decrypt using current user ID
-      if (localSettings.groqApiKey) {
-        const syncId = getCurrentUserId() || '';
-        localSettings.groqApiKey = deobfuscate(localSettings.groqApiKey, syncId);
-      }
-      if (localSettings.theme) {
-        // applyThemeToDOM already done in main.ts, but safely reapplying
-        applyThemeToDOM(localSettings.theme);
-        applyTimerStyleToDOM(localSettings.timerStyle);
-      }
-    } catch { 
-      localSettings = null; 
-    } 
-  }
-  return localSettings;
-}
-
-export async function saveSettingsToStorage(settings: Settings): Promise<void> {
-  setSettings(settings);
-}
-
-// --- Routine Functions ---
-
-function setRoutines(routines: RoutineItem[], pushToCloud = true): void {
-  appState.routines = routines;
-  localStorage.setItem(STORAGE_KEYS.ROUTINES, JSON.stringify(routines));
-  
-  if (pushToCloud) {
-    updateLocalTimestamp(STORAGE_KEYS.ROUTINES);
-    if (isAuthenticated()) {
-      saveRoutinesCloud(routines);
-    }
-  }
-}
-
-export async function loadRoutinesFromStorage(): Promise<RoutineItem[]> {
-  // ⚡ LOCAL-FIRST
-  const saved = localStorage.getItem(STORAGE_KEYS.ROUTINES);
-  let localRoutines: RoutineItem[] = [];
-  if (saved) { try { localRoutines = JSON.parse(saved); } catch { localRoutines = []; } }
-  return localRoutines;
-}
-
-export async function saveRoutinesToStorage(routines: RoutineItem[]): Promise<void> {
-  setRoutines(routines);
-}
-
-
-
-// --- History Functions ---
-
-function setRoutineHistory(history: RoutineHistory, pushToCloud = true): void {
+// --- History ---
+export async function saveRoutineHistoryToStorage(history: any): Promise<void> {
   appState.routineHistory = history;
-  localStorage.setItem(STORAGE_KEYS.ROUTINE_HISTORY, JSON.stringify(history));
-  
-  if (pushToCloud) {
-    updateLocalTimestamp(STORAGE_KEYS.ROUTINE_HISTORY);
-    if (isAuthenticated()) {
-      saveRoutineHistoryCloud(history);
-    }
-  }
+  saveLocal(STORAGE_KEYS.ROUTINE_HISTORY, history);
+  updateLocalTimestamp(STORAGE_KEYS.ROUTINE_HISTORY);
+  if (isAuthenticated()) saveRoutineHistoryCloud(history);
 }
 
-export async function loadRoutineHistoryFromStorage(): Promise<RoutineHistory> {
-  // ⚡ LOCAL-FIRST
-  const saved = localStorage.getItem(STORAGE_KEYS.ROUTINE_HISTORY);
-  let localHistory: RoutineHistory = {};
-  if (saved) { try { localHistory = JSON.parse(saved); } catch { localHistory = {}; } }
-  return localHistory;
+export async function loadRoutineHistoryFromStorage(): Promise<any> {
+  return loadLocal<any>(STORAGE_KEYS.ROUTINE_HISTORY) || {};
 }
 
-export async function saveRoutineHistoryToStorage(history: RoutineHistory): Promise<void> {
-  setRoutineHistory(history);
-}
-
-// --- Bookmark Functions ---
-
-function setBookmarks(bookmarks: Bookmark[], pushToCloud = true): void {
+// --- Bookmarks ---
+export async function saveBookmarksToStorage(bookmarks: any[]): Promise<void> {
   appState.bookmarks = bookmarks;
-  localStorage.setItem(STORAGE_KEYS.BOOKMARKS, JSON.stringify(bookmarks));
-  
-  if (pushToCloud) {
-    updateLocalTimestamp(STORAGE_KEYS.BOOKMARKS);
-    if (isAuthenticated()) {
-      saveBookmarksCloud(bookmarks);
-    }
-  }
+  saveLocal(STORAGE_KEYS.BOOKMARKS, bookmarks);
+  updateLocalTimestamp(STORAGE_KEYS.BOOKMARKS);
+  if (isAuthenticated()) saveBookmarksCloud(bookmarks);
 }
 
-export async function loadBookmarksFromStorage(): Promise<Bookmark[]> {
-  // ⚡ LOCAL-FIRST
-  const saved = localStorage.getItem(STORAGE_KEYS.BOOKMARKS);
-  let localBookmarks: Bookmark[] = [];
-  if (saved) { try { localBookmarks = JSON.parse(saved); } catch { localBookmarks = []; } }
-  return localBookmarks;
+export async function loadBookmarksFromStorage(): Promise<any[]> {
+  return loadLocal<any[]>(STORAGE_KEYS.BOOKMARKS) || [];
 }
 
-export async function saveBookmarksToStorage(bookmarks: Bookmark[]): Promise<void> {
-  setBookmarks(bookmarks);
-}
-
-// --- Timer Functions (Pure DB — localStorage-free) ---
-
-/**
- * LOCAL-FIRST LOAD: Immediately load local state, while syncing with cloud asynchronously.
- * This guarantees the timer doesn't unexpectedly stop during a network reload.
- */
-export async function loadTimerStateFromStorage(): Promise<ActiveTimer | null> {
-  let localState: ActiveTimer | null = null;
-  const saved = localStorage.getItem(STORAGE_KEYS.TIMER);
-  if (saved) {
-    try {
-      localState = JSON.parse(saved) as ActiveTimer;
-    } catch {
-      localState = null;
-    }
-  }
-
-  const syncId = getCurrentUserId();
-  
-  if (syncId) {
-    loadTimerStateCloud().then(cloud => {
-      if (cloud && cloud.data) {
-        if (cloud.data.isRunning || cloud.data.elapsedAcc > 0) {
-          localStorage.setItem(STORAGE_KEYS.TIMER, JSON.stringify(cloud.data));
-          updateLocalTimestamp(STORAGE_KEYS.TIMER, cloud.updatedAt || undefined);
-        }
-      }
-    }).catch(err => log.warn('Failed to start silent timer cloud sync'));
-  }
-  return localState;
-}
-
-/**
- * DOUBLE SAVE: Writes to localStorage instantly, then triggers cloud sync asynchronously.
- */
-export async function saveTimerStateToStorage(state: ActiveTimer): Promise<void> {
-  localStorage.setItem(STORAGE_KEYS.TIMER, JSON.stringify(state));
-  updateLocalTimestamp(STORAGE_KEYS.TIMER);
-  
-  if (!isAuthenticated()) return;
-  try {
-    saveTimerStateCloud(state).catch(() => {}); // non-blocking
-  } catch (err) {
-    log.warn('DB timer save failed (offline?)');
-  }
-}
-
-/**
- * DOUBLE CLEAR: Explicitly zeros the timer manually in storage and cloud.
- */
-export async function clearTimerStateDB(): Promise<void> {
-  localStorage.removeItem(STORAGE_KEYS.TIMER);
-  
-  if (!isAuthenticated()) return;
-  const blankState: ActiveTimer = {
-    isRunning: false, elapsedAcc: 0, startTime: null,
-    category: null, colName: '', sessionStartClock: null
-  };
-  try {
-    await saveTimerStateCloud(blankState);
-  } catch (err) {
-    log.warn('DB timer clear failed (offline?)');
-  }
-}
-
-// --- Reset Functions ---
-
-function setRoutineReset(reset: string, pushToCloud = true): void {
-  localStorage.setItem(STORAGE_KEYS.ROUTINE_RESET, reset);
-  if (pushToCloud) {
-    updateLocalTimestamp(STORAGE_KEYS.ROUTINE_RESET);
-    if (isAuthenticated()) {
-      saveRoutineResetCloud(reset);
-    }
-  }
+// --- Routine Reset ---
+export async function saveRoutineResetToStorage(reset: string): Promise<void> {
+  saveLocal(STORAGE_KEYS.ROUTINE_RESET, reset);
+  updateLocalTimestamp(STORAGE_KEYS.ROUTINE_RESET);
 }
 
 export async function loadRoutineResetFromStorage(): Promise<string | null> {
-  const local = localStorage.getItem(STORAGE_KEYS.ROUTINE_RESET);
+  return localStorage.getItem(STORAGE_KEYS.ROUTINE_RESET);
+}
+
+// --- Settings ---
+export async function saveSettingsToStorage(settings: any): Promise<void> {
+  appState.settings = { ...appState.settings, ...settings };
+  saveSecuredSettings(settings);
+  updateLocalTimestamp(STORAGE_KEYS.SETTINGS);
+  if (isAuthenticated()) saveSettingsCloud(settings);
+}
+
+export async function loadSettingsFromStorage(): Promise<any | null> {
+  return loadSecuredSettings();
+}
+
+// --- Routines & Tasks (Generic Logic) ---
+export async function saveRoutinesToStorage(data: any[]): Promise<void> {
+  appState.routines = data;
+  saveLocal(STORAGE_KEYS.ROUTINES, data);
+  updateLocalTimestamp(STORAGE_KEYS.ROUTINES);
+  if (isAuthenticated()) saveRoutinesCloud(data);
+}
+
+export async function loadRoutinesFromStorage(): Promise<any[]> { return loadLocal<any[]>(STORAGE_KEYS.ROUTINES) || []; }
+
+export async function saveTasksToStorage(data: any[]): Promise<void> {
+  appState.tasks = data;
+  saveLocal(STORAGE_KEYS.TASKS, data);
+  updateLocalTimestamp(STORAGE_KEYS.TASKS);
+  if (isAuthenticated()) saveTasksCloud(data);
+}
+
+export async function loadTasksFromStorage(): Promise<any[]> { return loadLocal<any[]>(STORAGE_KEYS.TASKS) || []; }
+
+// --- Timer (Pure Sync) ---
+export async function loadTimerStateFromStorage(): Promise<any | null> {
+  const local = loadLocal<any>(STORAGE_KEYS.TIMER);
   if (isAuthenticated()) {
-    const cloud = await loadRoutineResetCloud();
-    if (cloud) { setRoutineReset(cloud, false); return cloud; }
+    loadTimerStateCloud().then(cloud => {
+      if (cloud?.data && (cloud.data.isRunning || cloud.data.elapsedAcc > 0)) {
+        saveLocal(STORAGE_KEYS.TIMER, cloud.data);
+        updateLocalTimestamp(STORAGE_KEYS.TIMER, cloud.updatedAt || undefined);
+      }
+    }).catch(() => {});
   }
   return local;
 }
 
-export async function saveRoutineResetToStorage(reset: string): Promise<void> {
-  setRoutineReset(reset);
+export async function saveTimerStateToStorage(state: any): Promise<void> {
+  saveLocal(STORAGE_KEYS.TIMER, state);
+  updateLocalTimestamp(STORAGE_KEYS.TIMER);
+  if (isAuthenticated()) saveTimerStateCloud(state).catch(() => {});
 }
 
-// --- Task Functions ---
-
-function setTasks(tasks: StudyTask[], pushToCloud = true): void {
-  appState.tasks = tasks;
-  localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(tasks));
-  
-  if (pushToCloud) {
-    updateLocalTimestamp(STORAGE_KEYS.TASKS);
-    if (isAuthenticated()) {
-      saveTasksCloud(tasks);
-    }
-  }
+export async function clearTimerStateDB(): Promise<void> {
+  removeLocal(STORAGE_KEYS.TIMER);
+  if (isAuthenticated()) saveTimerStateCloud({ isRunning: false, elapsedAcc: 0, startTime: null, category: null, colName: '', sessionStartClock: null }).catch(() => {});
 }
 
-export async function loadTasksFromStorage(): Promise<StudyTask[]> {
-  // ⚡ LOCAL-FIRST
-  const saved = localStorage.getItem(STORAGE_KEYS.TASKS);
-  let localTasks: StudyTask[] = [];
-  if (saved) { try { localTasks = JSON.parse(saved); } catch { localTasks = []; } }
-  return localTasks;
-}
-
-export async function saveTasksToStorage(tasks: StudyTask[]): Promise<void> {
-  setTasks(tasks);
-}
-
-// --- Logout/Clear Functions ---
-
-export function clearLocalData(): void {
-  Object.values(STORAGE_KEYS).forEach((key) => {
-    localStorage.removeItem(key);
-  });
-}
-
-// --- Cloud Sync Logic ---
-
+// --- Cloud Sync Orchestration ---
 export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
   updateSyncStatus('syncing');
-
   try {
     const results = await Promise.all([
-      loadTrackerDataCloud(),
-      loadSettingsCloud(),
-      loadRoutinesCloud(),
-      loadRoutineHistoryCloud(),
-      loadBookmarksCloud(),
-      loadTasksCloud(),
-      loadTimerStateCloud(),
+      loadTrackerDataCloud(), loadSettingsCloud(), loadRoutinesCloud(),
+      loadRoutineHistoryCloud(), loadBookmarksCloud(), loadTasksCloud(), loadTimerStateCloud()
     ]);
 
     const [cloudTracker, cloudSettings, cloudRoutines, cloudHistory, cloudBookmarks, cloudTasks, cloudTimer] = results;
+    const force = forceCloudPull || isLocalEmpty(appState.trackerData);
 
-    const isLocalEmpty = (data: any) => {
-      if (Array.isArray(data)) return data.length === 0;
-      if (typeof data === 'object' && data !== null) return Object.keys(data).length === 0;
-      return !data;
+    const sync = (key: string, cloud: any, local: any, setter: Function, cloudSaver: Function) => {
+      if (cloud && (force || isDifferent(local, cloud.data) || isCloudNewer(key, cloud.updatedAt))) {
+        setter(cloud.data, false);
+        updateLocalTimestamp(key, cloud.updatedAt || undefined);
+      } else if (!isLocalEmpty(local)) {
+        cloudSaver(local);
+      }
     };
 
-    const forceRecovery = forceCloudPull || isLocalEmpty(appState.trackerData);
+    sync(STORAGE_KEYS.TRACKER_DATA, cloudTracker, appState.trackerData, (d: any) => { appState.trackerData = d; ensureTimelineIntegrity(); saveLocal(STORAGE_KEYS.TRACKER_DATA, d); }, saveTrackerDataCloud);
+    sync(STORAGE_KEYS.SETTINGS, cloudSettings, appState.settings, (d: any) => saveSecuredSettings(d), saveSettingsCloud);
+    sync(STORAGE_KEYS.ROUTINES, cloudRoutines, appState.routines, (d: any) => { appState.routines = d; saveLocal(STORAGE_KEYS.ROUTINES, d); }, saveRoutinesCloud);
+    sync(STORAGE_KEYS.TASKS, cloudTasks, appState.tasks, (d: any) => { appState.tasks = d; saveLocal(STORAGE_KEYS.TASKS, d); }, saveTasksCloud);
 
-    // --- Tracker Data ---
-    if (cloudTracker && (forceRecovery || isDifferent(appState.trackerData, cloudTracker.data) || isCloudNewer(STORAGE_KEYS.TRACKER_DATA, cloudTracker.updatedAt))) {
-      setTrackerData(cloudTracker.data, false);
-      ensureTimelineIntegrity();
-      updateLocalTimestamp(STORAGE_KEYS.TRACKER_DATA, cloudTracker.updatedAt || undefined);
-    } else if (appState.trackerData.length > 0) {
-      saveTrackerDataCloud(appState.trackerData);
+    // Profile Restore
+    const profile = await loadUserProfileCloud();
+    if (profile) {
+      const user = { displayName: profile.display_name, avatar: profile.avatar || '👨', email: profile.email || '' };
+      setSecureLocalProfileString(JSON.stringify(user));
+      localStorage.setItem('tracker_username', user.displayName);
     }
 
-    // --- Settings ---
-    if (cloudSettings && (forceRecovery || isDifferent(appState.settings, cloudSettings.data) || isCloudNewer(STORAGE_KEYS.SETTINGS, cloudSettings.updatedAt))) {
-      setSettings(cloudSettings.data, false);
-      updateLocalTimestamp(STORAGE_KEYS.SETTINGS, cloudSettings.updatedAt || undefined);
-    } else if (Object.keys(appState.settings).length > 0) {
-      saveSettingsCloud(appState.settings);
-    }
-
-    // --- Routines ---
-    if (cloudRoutines && (forceRecovery || isDifferent(appState.routines, cloudRoutines.data) || isCloudNewer(STORAGE_KEYS.ROUTINES, cloudRoutines.updatedAt))) {
-      setRoutines(cloudRoutines.data, false);
-      updateLocalTimestamp(STORAGE_KEYS.ROUTINES, cloudRoutines.updatedAt || undefined);
-    } else if (appState.routines.length > 0) {
-      saveRoutinesCloud(appState.routines);
-    }
-
-    // --- History ---
-    if (cloudHistory && (forceRecovery || isDifferent(appState.routineHistory, cloudHistory.data) || isCloudNewer(STORAGE_KEYS.ROUTINE_HISTORY, cloudHistory.updatedAt))) {
-      setRoutineHistory(cloudHistory.data, false);
-      updateLocalTimestamp(STORAGE_KEYS.ROUTINE_HISTORY, cloudHistory.updatedAt || undefined);
-    } else if (Object.keys(appState.routineHistory).length > 0) {
-      saveRoutineHistoryCloud(appState.routineHistory);
-    }
-
-    // --- Bookmarks ---
-    if (cloudBookmarks && (forceRecovery || isDifferent(appState.bookmarks, cloudBookmarks.data) || isCloudNewer(STORAGE_KEYS.BOOKMARKS, cloudBookmarks.updatedAt))) {
-      setBookmarks(cloudBookmarks.data, false);
-      updateLocalTimestamp(STORAGE_KEYS.BOOKMARKS, cloudBookmarks.updatedAt || undefined);
-    } else if (appState.bookmarks.length > 0) {
-      saveBookmarksCloud(appState.bookmarks);
-    }
-
-    // --- Tasks ---
-    if (cloudTasks && (forceRecovery || isDifferent(appState.tasks, cloudTasks.data) || isCloudNewer(STORAGE_KEYS.TASKS, cloudTasks.updatedAt))) {
-      setTasks(cloudTasks.data, false);
-      updateLocalTimestamp(STORAGE_KEYS.TASKS, cloudTasks.updatedAt || undefined);
-    } else if (appState.tasks.length > 0) {
-      saveTasksCloud(appState.tasks);
-    }
-
-    if (cloudTimer && (isDifferent(appState.activeTimer, cloudTimer.data) || isCloudNewer(STORAGE_KEYS.TIMER, cloudTimer.updatedAt))) {
-      Object.assign(appState.activeTimer, cloudTimer.data);
-      updateLocalTimestamp(STORAGE_KEYS.TIMER, cloudTimer.updatedAt || undefined);
-    }
-
-    const cloudResetRaw = await loadRoutineResetCloud();
-    if (cloudResetRaw) setRoutineReset(cloudResetRaw, false);
-
-    // 5. Restore User Profile & Identity (Modular Registry V2)
-    const cloudProfile = await loadUserProfileCloud();
-    if (cloudProfile) {
-      const userProfile = {
-        displayName: cloudProfile.display_name,
-        realName: cloudProfile.User_name || '',
-        dob: cloudProfile.dob || '',
-        nation: cloudProfile.nation || 'Global',
-        avatar: cloudProfile.avatar || '👨',
-        phoneNumber: cloudProfile.phone_number || '',
-        email: cloudProfile.email || '',
-        isFocusPublic: cloudProfile.is_focus_public !== false
-      };
-      setSecureLocalProfileString(JSON.stringify(userProfile));
-      localStorage.setItem('tracker_username', userProfile.displayName);
-    }
-
-    // Refresh the app state and UI
     await refreshAppAfterSync();
-
     updateSyncStatus('synced');
   } catch (err) {
-    log.error('Critical sync failure:', err);
+    log.error('Sync failure:', err);
     updateSyncStatus('error');
   }
 }
 
-/** 
- * Background Sync — Fetches all cloud data silently and updates 
- * the app if there are any changes.
- */
 export async function performBackgroundSync(): Promise<void> {
   if (!isAuthenticated()) return;
-  
   try {
-    const [cloudTracker, cloudSettings, cloudRoutines, cloudHistory, cloudBookmarks, cloudTasks, cloudTimer] = await Promise.all([
-      loadTrackerDataCloud(),
-      loadSettingsCloud(),
-      loadRoutinesCloud(),
-      loadRoutineHistoryCloud(),
-      loadBookmarksCloud(),
-      loadTasksCloud(),
-      loadTimerStateCloud(),
-    ]);
-
+    const cloud = await Promise.all([loadTrackerDataCloud(), loadSettingsCloud(), loadRoutinesCloud(), loadTasksCloud()]);
     let changed = false;
 
-    if (cloudTracker && (isDifferent(appState.trackerData, cloudTracker.data) || isCloudNewer(STORAGE_KEYS.TRACKER_DATA, cloudTracker.updatedAt))) { 
-      setTrackerData(cloudTracker.data, false); 
-      ensureTimelineIntegrity();
-      updateLocalTimestamp(STORAGE_KEYS.TRACKER_DATA, cloudTracker.updatedAt || undefined);
-      changed = true; 
-    }
-    if (cloudSettings && (isDifferent(appState.settings, cloudSettings.data) || isCloudNewer(STORAGE_KEYS.SETTINGS, cloudSettings.updatedAt))) { 
-      setSettings(cloudSettings.data, false); 
-      updateLocalTimestamp(STORAGE_KEYS.SETTINGS, cloudSettings.updatedAt || undefined);
-      changed = true; 
-    }
-    if (cloudRoutines && (isDifferent(appState.routines, cloudRoutines.data) || isCloudNewer(STORAGE_KEYS.ROUTINES, cloudRoutines.updatedAt))) { 
-      setRoutines(cloudRoutines.data, false); 
-      updateLocalTimestamp(STORAGE_KEYS.ROUTINES, cloudRoutines.updatedAt || undefined);
-      changed = true; 
-    }
-    if (cloudHistory && (isDifferent(appState.routineHistory, cloudHistory.data) || isCloudNewer(STORAGE_KEYS.ROUTINE_HISTORY, cloudHistory.updatedAt))) { 
-      setRoutineHistory(cloudHistory.data, false); 
-      updateLocalTimestamp(STORAGE_KEYS.ROUTINE_HISTORY, cloudHistory.updatedAt || undefined);
-      changed = true; 
-    }
-    if (cloudBookmarks && (isDifferent(appState.bookmarks, cloudBookmarks.data) || isCloudNewer(STORAGE_KEYS.BOOKMARKS, cloudBookmarks.updatedAt))) { 
-      setBookmarks(cloudBookmarks.data, false); 
-      updateLocalTimestamp(STORAGE_KEYS.BOOKMARKS, cloudBookmarks.updatedAt || undefined);
-      changed = true; 
-    }
-    if (cloudTasks && (isDifferent(appState.tasks, cloudTasks.data) || isCloudNewer(STORAGE_KEYS.TASKS, cloudTasks.updatedAt))) { 
-      setTasks(cloudTasks.data, false); 
-      updateLocalTimestamp(STORAGE_KEYS.TASKS, cloudTasks.updatedAt || undefined);
-      changed = true; 
-    }
-    if (cloudTimer && (isDifferent(appState.activeTimer, cloudTimer.data) || isCloudNewer(STORAGE_KEYS.TIMER, cloudTimer.updatedAt))) { 
-      Object.assign(appState.activeTimer, cloudTimer.data); 
-      updateLocalTimestamp(STORAGE_KEYS.TIMER, cloudTimer.updatedAt || undefined);
-      changed = true; 
-    }
+    const check = (key: string, cloud: any, local: any, setter: Function) => {
+      if (cloud && (isDifferent(local, cloud.data) || isCloudNewer(key, cloud.updatedAt))) {
+        setter(cloud.data);
+        updateLocalTimestamp(key, cloud.updatedAt || undefined);
+        changed = true;
+      }
+    };
 
-    if (changed) {
-      await refreshAppAfterSync();
-    }
-  } catch (err) {
-    log.warn('Background sync failed silent fallback.');
-  }
+    check(STORAGE_KEYS.TRACKER_DATA, cloud[0], appState.trackerData, (d: any) => { appState.trackerData = d; ensureTimelineIntegrity(); saveLocal(STORAGE_KEYS.TRACKER_DATA, d); });
+    check(STORAGE_KEYS.SETTINGS, cloud[1], appState.settings, (d: any) => saveSecuredSettings(d));
+
+    if (changed) await refreshAppAfterSync();
+  } catch (err) { /* silent */ }
 }
 
-/** Updates the UI after the cloud data is finished downloading */
 async function refreshAppAfterSync(): Promise<void> {
-  // Reimport dynamically to avoid circular deps at startup
   const { refreshApplicationUI } = await import('@/core/mission-pulse');
   await refreshApplicationUI();
 }
 
-/** 
- * 🚀 INITIALIZE TACTICAL LIVE SYNC
- * Subscribes to the personal vault after the first successful login.
- */
 export async function startLiveSync(): Promise<void> {
-  if (!isAuthenticated()) return;
-  await subscribeToUserDataSync(() => {
-    void performBackgroundSync();
-  });
+  if (isAuthenticated()) await subscribeToUserDataSync(() => performBackgroundSync());
 }
 
-/**
- * ⚡ REAL-TIME DATA PROCESSOR
- * Handles incoming WebSocket payloads and patches the local appState immediately.
- */
 export async function handleUserDataSync(payload: any): Promise<void> {
-  if (!payload) return;
-  await performBackgroundSync();
+  if (payload) await performBackgroundSync();
 }

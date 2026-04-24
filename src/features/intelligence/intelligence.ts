@@ -26,7 +26,9 @@ import {
   intelligenceView, 
   buildMessageHTML, 
   buildWelcomeScreen, 
-  formatMaamuText 
+  formatMaamuText,
+  markdownToPlainText,
+  buildIdentityRequiredScreen
 } from './intelligence.ui';
 
 let listenersBound = false;
@@ -151,20 +153,7 @@ function refreshTemplateUI(): void {
   });
 }
 
-function markdownToPlainText(text: string): string {
-  return text
-    .replace(/```[\s\S]*?```/g, (m) => m.replace(/```/g, ''))
-    .replace(/`([^`]+)`/g, '$1')
-    .replace(/^>\s?/gm, '')
-    .replace(/^#{1,6}\s*/gm, '')
-    .replace(/\*\*(.*?)\*\*/g, '$1')
-    .replace(/\*(.*?)\*/g, '$1')
-    .replace(/==(.+?)==/g, '$1')
-    .replace(/^\s*[-*]\s+/gm, '- ')
-    .replace(/^\s*\d+\.\s+/gm, '')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim();
-}
+// --- Helpers ---
 
 function estimateTokens(text: string): number {
   return Math.max(1, Math.ceil((text || '').length / 4));
@@ -215,64 +204,7 @@ function exportActiveConversationMarkdown(): void {
   URL.revokeObjectURL(url);
 }
 
-function getLocalSmallTalkReply(query: string): string | null {
-  const q = query.trim().toLowerCase();
-  if (!q) return null;
-  if (/^(hi|hello|hey|yo)$/.test(q)) return `Hey ${getUserDisplayName()}! Ready for your next mission?`;
-  if (/^(thanks|thank you|thx)$/.test(q)) return `Anytime. Keep moving forward, ${getUserDisplayName()} 🚀`;
-  if (/^(ok|okay)$/.test(q)) return `Perfect. Send your next task when ready.`;
-  if (/^(bye|good night)$/.test(q)) return `Roger that. Recover well and come back stronger.`;
-  if (/^(good morning|good evening|kaise ho|kya haal)$/.test(q)) return `All systems active. Tell me what you want to tackle right now.`;
-  return null;
-}
-
-function getLocalDataContextReply(query: string): string | null {
-  const q = query.trim().toLowerCase();
-  if (!q) return null;
-
-  const leaderboardCtx = getCurrentUserLeaderboardContext();
-  const totalHours = (appState.trackerData || []).reduce(
-    (sum, day) => sum + (day.studyHours || []).reduce((s, h) => s + (h || 0), 0),
-    0
-  );
-  const brief = getTacticalBriefing();
-  const last30 = (appState.trackerData || []).slice(-30);
-  const bestDay = last30.reduce((best, d) => {
-    const hrs = (d.studyHours || []).reduce((s, h) => s + (h || 0), 0);
-    return hrs > best.hrs ? { day: d.day, hrs } : best;
-  }, { day: 0, hrs: -1 });
-  const worstDay = last30.reduce((worst, d) => {
-    const hrs = (d.studyHours || []).reduce((s, h) => s + (h || 0), 0);
-    return hrs < worst.hrs ? { day: d.day, hrs } : worst;
-  }, { day: 0, hrs: Number.MAX_SAFE_INTEGER });
-
-  const todayDay = appState.trackerData.length
-    ? appState.trackerData[appState.trackerData.length - 1].day
-    : 1;
-  const activeRange = (appState.settings.customRanges || []).find(
-    r => todayDay >= r.startDay && todayDay <= r.endDay
-  );
-  const activeCategories = (activeRange?.columns?.length ? activeRange.columns : appState.settings.columns || []);
-
-  if (/(leaderboard|rank|standing|position)/.test(q)) {
-    if (!leaderboardCtx) {
-      return `I cannot read live leaderboard snapshot right now, but your current data shows **${formatDuration(totalHours) || '0h'}** total and **${brief.momentumLabel}** momentum.\n\nAsk again in a moment after leaderboard refresh.`;
-    }
-    return `Your current leaderboard rank is **${leaderboardCtx.position} out of ${leaderboardCtx.totalUsers}**.\n\n- **Your hours:** ${formatDuration(totalHours) || '0h'}\n- **#1 hours:** ${formatDuration(leaderboardCtx.topHours) || '0h'} (${leaderboardCtx.topUserHandle})\n- **Gap to #1:** ${formatDuration(leaderboardCtx.gapToTopHours) || '0h'}\n- **Best day (last 30):** Day ${bestDay.day} (${formatDuration(bestDay.hrs) || '0h'})\n- **Worst day (last 30):** Day ${worstDay.day} (${formatDuration(worstDay.hrs === Number.MAX_SAFE_INTEGER ? 0 : worstDay.hrs) || '0h'})\n- **Peak study window:** ${brief.peakHourStr}\n\n**How to reach #1:**\n1. Add +1 focused hour in your peak window daily.\n2. Fix worst-day consistency first (no zero-day in next 7 days).\n3. Prioritize your top 2 categories until the ${formatDuration(leaderboardCtx.gapToTopHours) || '0h'} gap is closed.`;
-  }
-
-  if (/(how many.*categor|what.*categor|my categor|category list|categories)/.test(q)) {
-    const list = activeCategories.map((c, i) => `${i + 1}. ${c.name} (${c.target} target)`).join('\n');
-    return `You currently have **${activeCategories.length} active categories**.\n\n${list || 'No categories configured.'}\n\nIf you want, I can suggest an optimized hour split for these categories based on your last 30 days.`;
-  }
-
-  if ((q.includes('detail') || q.includes('complete') || q.includes('full')) && (q.includes('analysis') || q.includes('analytic') || q.includes('my data') || q.includes('my stuff'))) {
-    const pendingTasks = (appState.tasks || []).filter(t => !t.completed).length;
-    return `## Your Data Analysis Snapshot\n\n- **Leaderboard:** ${leaderboardCtx ? `${leaderboardCtx.position}/${leaderboardCtx.totalUsers}` : 'Unavailable now'}\n- **Rank Tier:** ${brief.strategicContext.find(s => s.includes('Standing')) || 'Not enough data'}\n- **Total Study Hours:** ${formatDuration(totalHours) || '0h'}\n- **Momentum:** ${brief.momentum}% (${brief.momentumLabel})\n- **Discipline Trend:** ${brief.disciplineTrend}%\n- **Sustainability:** ${brief.sustainabilityScore}%\n- **Peak Study Window:** ${brief.peakHourStr}\n- **Best Day (30d):** Day ${bestDay.day} (${formatDuration(bestDay.hrs) || '0h'})\n- **Worst Day (30d):** Day ${worstDay.day} (${formatDuration(worstDay.hrs === Number.MAX_SAFE_INTEGER ? 0 : worstDay.hrs) || '0h'})\n- **Active Categories:** ${activeCategories.length}\n- **Pending Tasks:** ${pendingTasks}\n\n### Reality Plan\n1. Protect your peak window daily.\n2. Convert worst day into a minimum 1-hour non-zero day.\n3. Close top-gap with a 7-day streak in your highest-impact categories.`;
-  }
-
-  return null;
-}
+import { getLocalSmallTalkReply, getLocalDataContextReply } from './intelligence.local';
 
 // --- Main Chat UI ---
 
@@ -296,15 +228,7 @@ export function renderIntelligenceBriefing(): void {
       } else {
         const chatOutput = document.getElementById('maamuChatOutput');
         if (chatOutput) {
-          chatOutput.innerHTML = `
-            <div class="h-full flex flex-col items-center justify-center p-8 text-center text-[var(--text-muted)]" style="opacity: 0.7; transform: translateY(4vh);">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 1rem;">
-                <path d="M12 15V17M12 7V13M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke-linecap="round"/>
-              </svg>
-              <p style="font-size: 1.25rem; font-weight: 600; font-family: 'Space Grotesk', sans-serif;">Identity Required</p>
-              <p style="font-size: 0.9rem; max-width: 250px; margin-top: 0.5rem; line-height: 1.4;">Login to your Mission Profile to activate your private AI Strategist.</p>
-            </div>
-          `;
+          chatOutput.innerHTML = buildIdentityRequiredScreen();
         }
       }
     });
@@ -935,7 +859,7 @@ function setupListeners(): boolean {
     if (isSending) return;
     const query = (overrideQuery ?? input.value).trim();
     if (!query) return;
-    const localReply = getLocalDataContextReply(query) || getLocalSmallTalkReply(query);
+    const localReply = getLocalSmallTalkReply(query, getUserDisplayName()) || getLocalDataContextReply(query);
     let session = getActiveSession();
     if (!session) {
       createNewSession();

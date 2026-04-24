@@ -220,14 +220,39 @@ export const intelligenceView = `
   </div>
 `;
 
-// --- HTML Templates ---
+export function buildIdentityRequiredScreen(): string {
+  return `
+    <div class="h-full flex flex-col items-center justify-center p-8 text-center text-[var(--text-muted)]" style="opacity: 0.7; transform: translateY(4vh);">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 1rem;">
+        <path d="M12 15V17M12 7V13M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke-linecap="round"/>
+      </svg>
+      <p style="font-size: 1.25rem; font-weight: 600; font-family: 'Space Grotesk', sans-serif;">Identity Required</p>
+      <p style="font-size: 0.9rem; max-width: 250px; margin-top: 0.5rem; line-height: 1.4;">Login to your Mission Profile to activate your private AI Strategist.</p>
+    </div>
+  `;
+}
+
+export function markdownToPlainText(text: string): string {
+  return text
+    .replace(/```[\s\S]*?```/g, (m) => m.replace(/```/g, ''))
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/^>\s?/gm, '')
+    .replace(/^#{1,6}\s*/gm, '')
+    .replace(/\*\*(.*?)\*\*/g, '$1')
+    .replace(/\*(.*?)\*/g, '$1')
+    .replace(/==(.+?)==/g, '$1')
+    .replace(/^\s*[-*]\s+/gm, '- ')
+    .replace(/^\s*\d+\.\s+/gm, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
 
 export function buildWelcomeScreen(): string {
   return `
     <div class="maamu-welcome">
       <div class="maamu-welcome-avatar">🧠</div>
       <h3 class="maamu-welcome-title">THE MAAMU</h3>
-      <p class="maamu-welcome-sub">Elite AI mentor. 30-day analytics loaded.<br/>Ask anything — strategy, code, career, or a reality check.</p>
+      <p class="maamu-welcome-sub">Elite AI strategist. Full mission history analyzed. 🧠<br/>Ask for a reality check, a roadmap, or brutal honesty.</p>
       <div class="maamu-quick-prompts">
         <button class="quick-prompt">Analyze my weaknesses this week</button>
         <button class="quick-prompt">Reality check hindi mein do</button>

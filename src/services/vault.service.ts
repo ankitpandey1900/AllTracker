@@ -104,13 +104,7 @@ export async function loadTimerStateCloud(): Promise<VaultResponse<ActiveTimer> 
   return getVault<ActiveTimer>("timer");
 }
 
-export async function saveRoutineResetCloud(_reset: string): Promise<void> {
-  // Routine reset is handled in settings/history storage for this schema shape.
-}
-
-export async function loadRoutineResetCloud(): Promise<string | null> {
-  return null;
-}
+// Routine reset is handled in settings/history storage.
 
 export async function saveTasksCloud(tasks: StudyTask[]): Promise<void> {
   await putVault("tasks", tasks);
@@ -282,21 +276,7 @@ export async function loadUserProfileCloud(): Promise<GlobalProfile | null> {
   };
 }
 
-export async function checkIfSyncIdHasData(_syncId: string): Promise<boolean> {
-  return false;
-}
-
-export async function deleteOldSyncIdData(_oldSyncId: string): Promise<void> {
-  // Legacy sync-id auth has been removed in the Better Auth migration.
-}
-
-export async function transferCloudRecord(
-  _table: string,
-  _oldSyncId: string,
-  _newSyncId: string,
-): Promise<void> {
-  // Legacy sync-id auth has been removed in the Better Auth migration.
-}
+// Profile Management
 
 export async function isUsernameTaken(
   username: string,
@@ -309,17 +289,7 @@ export async function isUsernameTaken(
   return response.taken;
 }
 
-export async function verifyUserCredentials(): Promise<boolean> {
-  return false;
-}
-
-export async function isEmailTaken(): Promise<boolean> {
-  return false;
-}
-
-export async function isPhoneTaken(): Promise<boolean> {
-  return false;
-}
+// Telemetry
 
 export async function fetchGlobalTelemetry(): Promise<{
   total_pilots: number;

@@ -1,52 +1,36 @@
-# 🚀 All Tracker: Pilot Manual
+# THE PILOT'S HANDBOOK: SURVIVING THE ARENA 🚀
 
-If you're reading this, you've been recruited into **All Tracker**. This isn't just a habit tracker—it's a clinical command center designed for high-stakes focus and elite consistency.
-
----
-
-## 🏮 Identity System (The Mission Profile)
-Your identity is your legacy. All Tracker uses a **high-security authentication flow** to anchor your performance.
-
-1.  **OAuth Registration**: You can enter the Arena using your **Google** or **GitHub** account. This ensures your identity is verified and your data is linked securely to your professional profile.
-2.  **Mission Profile**: Upon first entry, you will establish your **Real Name**, a unique **Pilot Handle**, and your **Nation**.
-3.  **Identity Lockdown**: To ensure leaderboard integrity, your Real Name, Handle, and Nation are **permanently locked** once set. Choose your callsign carefully.
-4.  **Tactical Avatars**: Choose from **36+ unique avatars**. This is the only visual field you can change after registration to maintain your operational look.
-
-## 🎖️ World Stage & Global Ranking
-The World Stage is a **live, real-time leaderboard**. No refresh is required to see rank jumps.
-
--   **Leveling Engine**: Earn **1 Level for every 10 Study Hours**. You start as a **Level 1 Recruit**. 
--   **Clinical Telemetry HUD**: The leaderboard features a real-time status matrix:
-    -   **GLOBAL_OPERATIVES**: Total registered pilots.
-    -   **LIVE_MISSIONS**: Pilots currently in a focus session.
-    -   **XP_VELOCITY_24H**: Aggregate platform output today.
--   **Dynamic Titles**: Your title evolves as you conquer more hours:
-    -   **0 - 10h**: 🛡️ RECRUIT
-    -   **10 - 30h**: 🚀 CADET
-    -   **30 - 70h**: 🛸 PILOT
-    -   **70 - 150h**: 🛰️ OFFICER
-    -   **150 - 300h**: 🎖️ COMMANDER
-    -   **300 - 600h**: 👨‍✈️ CAPTAIN
-    -   **600 - 1200h**: 🥇 VETERAN
-    -   **1200 - 2500h**: 💠 ELITE
-    -   **2500 - 5000h**: 👑 LEGEND
-    -   **5000h+**: ✨ ETERNAL / SINGULARITY
-
-## 🛡️ The Vault (Data Integrity)
-All Tracker is **Local-First, Cloud-Synced**. 
-
--   **Differential Sync**: Your app renders instantly from local storage while a background engine mirrors your data to the secure Vercel-hosted vault.
--   **Multi-Device Protocol**: Log in from any device using your OAuth account, and your entire mission history will hydrate in seconds.
-
-## 🌒 Midnight Mission Protocol
-Never lose a minute to the clock. If you start a session at 11:45 PM and finish at 12:15 AM:
--   The system **mathematically splits** your time.
--   15 minutes go to "Yesterday" and 15 minutes go to "Today."
--   Your **Notes** are copied to both days automatically.
-
-## 🤝 Maamu AI Strategy
-If you're stuck or losing focus, consult the **Maamu AI Strategist**. Maamu analyzes your real-world progress and provides tactical briefings or "Beast Mode" motivation when you need it most.
+Welcome to **AllTracker**. If you're here, you're not just tracking habits—you're managing a high-stakes mission. I built this app for those who work in silence and want to see where they actually stand on a world stage.
 
 ---
 
-**Victory is earned in the silence of deep work.** 🛸🔥
+## 🏮 YOUR IDENTITY (CHOOSE WISELY)
+Your profile is your legacy here. I’ve built a secure identity system so your progress is actually yours.
+
+1.  **Login**: Use Google or GitHub. It’s fast, secure, and I don't have to manage your passwords.
+2.  **The Lockdown**: Once you pick your **Real Name**, **Handle**, and **Nation**, they are locked. No changing your mind later. I did this to keep the leaderboard honest.
+3.  **Avatars**: You can swap between 36+ unique looks whenever you want. This is the only part of your identity that isn't permanent.
+
+## 🎖️ THE WORLD STAGE (GLOBAL RANKINGS)
+This is where the grind pays off. The leaderboard is live and real-time.
+- **Leveling Up**: You get 1 Level for every 10 hours you study. You start as a Recruit.
+- **The HUD**: Check the top of the leaderboard to see how many people are online and what the total "XP Velocity" is for the day. 
+- **Titles**: From Recruit to Singularity—how far can you push?
+
+## 🛡️ THE DATA VAULT (SYNC LOGIC)
+I hate losing data. AllTracker is **Local-First.** 
+- The app loads instantly from your browser's storage. 
+- While you're working, a background engine mirrors everything to the cloud. 
+- If you switch devices, just log in and your entire history will hydrate in seconds.
+
+## 🌒 THE MIDNIGHT SPLIT (TOTAL ACCURACY)
+Most apps mess up if you study past midnight. I fixed that. 
+- If you start at 11:30 PM and finish at 12:30 AM, the system mathematically splits the time. 
+- 30 minutes go to yesterday, 30 minutes go to today. Your notes are copied to both days automatically. No data lost.
+
+## 🤖 MAAMU AI (YOUR STRATEGIST)
+If you're slacking, talk to Maamu. He analyzes your actual stats and gives you a tactical briefing. If you need a real kick in the teeth, turn on **Beast Mode.**
+
+---
+
+**Victory is earned in the silence of deep work. Get to it.** 🛸🔥

@@ -1,44 +1,73 @@
-# All Tracker: Repository Architecture
+# THE MASTER MAP: COMPLETE REPO TREE 🗺️🏗️
 
-Welcome to the internal map of **All Tracker**. This document details our folder organization and file-level responsibilities.
+This is the entire "DNA" of AllTracker. I’ve mapped out every single file so you know exactly where the bones are buried. No more guessing.
 
-## 📂 Project Hierarchy
+---
+
+## 📂 THE FULL RECURSIVE TREE
 
 ```text
-Tracker/
-├── api/                       # Vercel Serverless Backend (Node.js)
-├── docs/                      # Blueprints & User Guides
-├── server/                    # Shared Server Utilities & DB Logic
-├── arena-pilots/              # Contributor Records & Templates
-├── public/                    # Static Assets (Logo, Fonts)
-├── src/
-│   ├── core/                  # Core Constants & Lifecycle Logic
-│   ├── components/            # UI Architecture (Shared Modals & Fragments)
-│   ├── features/              # Feature Dedicated Pillars
-│   │   ├── layout/            # Persistent Shell & Shell UI
-│   │   ├── dashboard/         # Leaderboard & Performance HUD
-│   │   ├── tasks/             # Priority-based Task Management
-│   │   ├── routines/          # Daily Habit Tracking
-│   │   ├── profile/           # Identity & World Stage Broadcasts
-│   │   ├── timer/             # Focus Mode & Heartbeat logic
-│   │   ├── settings/          # Local Configuration & AI Key Management
-│   │   ├── notifications/     # Browser-based Alert Engine
-│   │   ├── intelligence/      # Maamu AI (Groq Integration)
-│   │   └── bookmarks/         # Tactical Link Vault
-│   ├── services/              # Core Logic Gatekeepers (API, Auth, Data Bridge)
-│   ├── state/                 # Single Source of Truth (App State)
-│   ├── utils/                 # Calculation, Security, & Formatting Helpers
-│   ├── main.ts                # Application Bootstrapper
-│   └── index.css              # Global Design System
-├── index.html                 # The Thin Shell (Mounting Point)
-├── vercel.json                # Vercel Deployment Configuration
-└── package.json               # Engine Configuration & Dependencies
+AllTracker/
+├── api/                       # THE CLOUD (Vercel Serverless Backend)
+│   ├── app/                   # App-specific endpoints (Sessions, Tasks, Profile)
+│   ├── auth/                  # Better Auth OAuth endpoints
+│   └── _lib/                  # Shared backend logic and Database patterns
+├── docs/                      # THE MANUALS (Where you are now)
+│   ├── engineering/           # Empty for now (Legacy)
+│   ├── development.md         # The Hacker's Blueprint
+│   ├── guide.md               # The Pilot's Survival Guide
+│   └── structure.md           # This file (The Master Map)
+├── public/                    # THE ASSETS (Logos, Icons, and MP3s)
+│   ├── logo.png               # The face of the app
+│   ├── interstellar.mp3       # The mood
+│   └── manifest.json          # PWA configuration
+├── src/                       # THE FRONTEND (The Heart of the App)
+│   ├── main.ts                # THE ORCHESTRATOR (App Entry Point)
+│   ├── vite-env.d.ts          # Global types for Vite
+│   ├── core/                  # THE HEART (Lifecycle & System logic)
+│   │   ├── app-ignition.ts    # The Spark (Auth check & data hydration)
+│   │   ├── command-center.ts  # The CNS (Global events & navigation)
+│   │   └── mission-pulse.ts   # The Heartbeat (12s Sync loop)
+│   ├── features/              # THE MUSCLE (Specific App Pillars)
+│   │   ├── dashboard/         # Leaderboard, Analytics, and Particles
+│   │   ├── intelligence/      # Maamu AI (Prompts, Math, and Chat)
+│   │   ├── timer/             # Focus sessions & Midnight Split logic
+│   │   ├── tracker/           # The 120-day categorical grid
+│   │   ├── tasks/             # Priority-based task management
+│   │   ├── routines/          # Habit tracking and 14-day trends
+│   │   └── layout/            # The Shell and persistent UI
+│   ├── services/              # THE NERVES (Data & API Gatekeepers)
+│   │   ├── data-bridge.ts     # The Gatekeeper (Local-First sync)
+│   │   ├── groq.service.ts    # The AI Uplink (Maamu's brain)
+│   │   ├── vault.service.ts   # The Registry (Mapping data to API)
+│   │   ├── auth.service.ts    # The Identity Guard (OAuth management)
+│   │   └── api.service.ts     # The Resilient Uplink (Fetch wrapper)
+│   ├── components/            # THE FRAGMENTS (Shared UI Modals)
+│   │   └── modals/            # 15+ specialized UI overlays
+│   ├── state/                 # THE MEMORY (App State)
+│   │   └── app-state.ts       # Single Source of Truth
+│   ├── styles/                # THE SKIN (Modular CSS)
+│   │   ├── themes/            # Chanakya, Ayodhya, and Default themes
+│   │   └── components/        # Feature-specific styles (Intelligence, Modal, etc.)
+│   ├── types/                 # THE DNA (TypeScript Definitions)
+│   └── utils/                 # THE TOOLS (Math, Date, and Security helpers)
+├── index.html                 # The mounting point for the SPA
+├── vercel.json                # Deployment configuration
+└── package.json               # Dependencies and build scripts
 ```
 
-## 🏗️ Structural Logic
+---
 
-1.  **Monolithic Vanilla TS**: No heavy frameworks (React/Vue). We use high-performance Vanilla TypeScript for near-zero memory footprint and maximum control over the DOM.
-2.  **API-Driven Sync**: The frontend is detached from the database. All persistence happens via secure REST communication with the `api/` directory.
-3.  **Local-First Hydration**: The app renders from `localStorage` immediately on boot. `data-bridge.ts` then performs a non-blocking background sync with the Vercel backend.
-4.  **Feature Encapsulation**: Each folder in `src/features/` is a self-contained pillar with its own logic (`.ts`) and UI templates (`.ui.ts`).
-5.  **Design System**: Global styling is maintained in `index.css` using CSS Variables, ensuring the "Neon Space" aesthetic is consistent across all components.
+## 🏗️ THE STRUCTURAL LOGIC
+
+1.  **Pure TypeScript**: I skipped the heavy frameworks. We use Vanilla TS for near-zero memory footprint and total control over the DOM.
+2.  **Logic + UI Split**: In `src/features/`, you'll notice `feature.ts` handles the math/state, while `feature.ui.ts` handles the HTML. Never mix them.
+3.  **Local-First Sync**: We save to `localStorage` first (instant), then the **Data Bridge** pushes it to the cloud in the background.
+4.  **The Service Hierarchy**: 
+    - `api.service` = Low-level Fetch.
+    - `vault.service` = Data Mapping.
+    - `data-bridge` = Sync Orchestration.
+
+---
+
+**This map is the ground truth. Use it to navigate the grind.** 🚀
