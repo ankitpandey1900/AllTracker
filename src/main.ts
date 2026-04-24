@@ -179,6 +179,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       // ⚡ REAL-TIME SYNC BOOT: Listen for remote changes on other devices
       await (await import('@/services/data-bridge')).startLiveSync();
 
+      // 🧠 MAAMU RECALL: Load past conversations from the database
+      const { loadMaamuSessionsIntoState } = await import('@/features/intelligence/intelligence.service');
+      await loadMaamuSessionsIntoState();
+
       const [
         { initManualLogic },
         { initNotifications },

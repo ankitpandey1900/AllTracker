@@ -676,6 +676,13 @@ function streamResponse(
         renderSessionsList();
         saveSettingsToStorage(appState.settings);
       }
+
+      // 🛡️ Universal Recall: Persist both query and full response to DB
+      import('./intelligence.service').then(({ persistMessage }) => {
+        persistMessage(options.sessionId, 'user', query);
+        persistMessage(options.sessionId, 'assistant', fullResponse);
+      });
+
       addDailyUsage(estimateTokens(query) + estimateTokens(fullResponse));
       renderUsageChip();
       chatOutput.scrollTop = chatOutput.scrollHeight;
