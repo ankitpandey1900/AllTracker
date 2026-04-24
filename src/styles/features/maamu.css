@@ -782,14 +782,30 @@
 .maamu-table-wrap th,
 .maamu-table-wrap td {
   border-bottom: 1px solid rgba(148, 163, 184, 0.12);
-  padding: 8px 10px;
+  padding: 8px 12px;
   text-align: left;
+  vertical-align: top;
+  line-height: 1.5;
+}
+
+.maamu-table-wrap th:first-child,
+.maamu-table-wrap td:first-child {
+  white-space: nowrap;
+  min-width: 130px;
+  font-weight: 600;
+  color: #c7d2fe;
+}
+
+.maamu-table-wrap td:not(:first-child) {
+  word-break: break-word;
+  max-width: 420px;
 }
 
 .maamu-table-wrap th {
   background: rgba(99, 102, 241, 0.1);
   color: #c7d2fe;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 /* System Messages */
