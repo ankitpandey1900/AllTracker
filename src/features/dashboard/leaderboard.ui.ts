@@ -239,12 +239,12 @@ export function renderPodium(
             <div style="font-size: 0.55rem; color: #94a3b8; font-weight: 800; letter-spacing: 2px; margin-top: 4px; opacity: 0.7;">RANK SCORE</div>
           </div>
 
-          <div class="podium-today" style="display: flex; flex-direction: column; align-items: center; padding: 8px 12px; background: rgba(34, 197, 94, 0.05); border-radius: 8px; border: 1px solid rgba(34, 197, 94, 0.1);">
-            <div style="color: #22c55e; font-size: 0.8rem; font-weight: 800;">
-              ${formatDuration(todayHoursDisplay) || '0h'} <span style="font-size: 0.6rem; opacity: 0.8;">TODAY</span>
+          <div class="podium-today" style="display: flex; flex-direction: column; align-items: center; padding: 6px 10px; background: rgba(34, 197, 94, 0.05); border-radius: 8px; border: 1px solid rgba(34, 197, 94, 0.1); width: 90%; max-width: 120px;">
+            <div style="color: #22c55e; font-size: 0.75rem; font-weight: 800; white-space: nowrap;">
+              ${formatDuration(todayHoursDisplay) || '0h'} <span style="font-size: 0.55rem; opacity: 0.8;">TODAY</span>
             </div>
-            <div style="color: #94a3b8; font-size: 0.65rem; font-weight: 600; margin-top: 2px; opacity: 0.8;">
-              ${formatDuration(u.total_hours) || '0h'} <span style="font-size: 0.55rem; opacity: 0.6;">TOTAL</span>
+            <div style="color: #94a3b8; font-size: 0.6rem; font-weight: 600; margin-top: 1px; opacity: 0.8; white-space: nowrap;">
+              ${formatDuration(u.total_hours) || '0h'} <span style="font-size: 0.5rem; opacity: 0.6;">TOTAL</span>
             </div>
           </div>
         </div>
