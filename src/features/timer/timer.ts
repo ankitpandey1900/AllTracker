@@ -437,6 +437,12 @@ export async function stopTimer(autoNote?: string): Promise<void> {
 
   saveTimerState();
 
+  // 🔥 FULL UI RECONCILIATION
+  updateDashboard();
+  generateTable();
+  renderHeatmap();
+  renderPerformanceCurve();
+
   const section = document.getElementById('activeTimerSection');
   if (section) section.style.display = 'none';
   document.getElementById('timerModal')?.classList.remove('active');
