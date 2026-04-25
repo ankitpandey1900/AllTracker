@@ -390,11 +390,11 @@ export const manualModal = `
             <section class="docs-section" id="doc-leaderboard">
               <div class="docs-breadcrumb">Community &amp; AI <b>›</b> Global Rankings</div>
               <h2 class="docs-h2">The Global Leaderboard</h2>
-              <p>Compete with dedicated students worldwide. Your position is decided by your <strong>Competitive XP (C-XP)</strong>, a multi-factor score that rewards consistency and integrity.</p>
+              <p>Compete with dedicated students worldwide. Your position is decided by your <strong>Rank Score</strong>, a multi-factor score that rewards consistency and integrity.</p>
               
               <div class="docs-callout docs-callout-info">
-                <div class="docs-callout-title">⚔️ C-XP Formula</div>
-                <p><strong>C-XP</strong> = (Hours &times; 100) + (Current Streak &times; 50) + (Trust Score &times; 2)</p>
+                <div class="docs-callout-title">⚔️ Rank Score Formula</div>
+                <p><strong>Rank Score</strong> = (Hours &times; 100) + (Current Streak &times; 50) + (Trust Score &times; 2)</p>
               </div>
 
               <h3 class="docs-h3">Rank Tiers</h3>

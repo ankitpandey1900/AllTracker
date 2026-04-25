@@ -135,7 +135,7 @@ export function renderHoverCard(
            <div class="hover-handle">@${escapeHtml(u.display_name)} ${verifiedTick}</div>
            <div class="hover-title">${age}${title.toUpperCase()} PROFILE</div>
            <div class="hover-integrity" style="color: ${u.is_verified ? '#fbbf24' : '#94a3b8'}; font-size: 0.65rem; margin-top: 2px; font-weight: bold; letter-spacing: 0.5px;">
-              TRUST SCORE: ${u.integrity_score || 0}% ${u.is_verified ? '(VERIFIED)' : '(MANUAL)'}
+              TRUST SCORE: ${u.integrity_score === 0 ? 'VERIFYING...' : (u.integrity_score || 0) + '% ' + (u.is_verified ? '(VERIFIED)' : '(MANUAL)')}
            </div>
          </div>
       </div>
@@ -232,7 +232,7 @@ export function renderPodium(
             ${verifiedTick}
           </div>
           <div class="status-tag ${statusClass}" style="margin-bottom: 2px;">${statusLabel}</div>
-          <div class="podium-hours" style="font-size: 0.9rem; color: #fbbf24;">${(u.competitive_score || 0).toLocaleString()} <span style="font-size: 0.55rem; color: #94a3b8; font-weight: 500;">C-XP</span></div>
+          <div class="podium-hours" style="font-size: 0.9rem; color: #fbbf24;">${(u.competitive_score || (u.total_hours * 100)).toLocaleString()} <span style="font-size: 0.55rem; color: #94a3b8; font-weight: 500;">Rank Score</span></div>
           <div class="podium-today">${formatDuration(u.total_hours) || '0h'} total</div>
         </div>
         ${renderHoverCard(u, rankColor, isMe, isFocusing, todayHoursDisplay, streakCount)}
@@ -299,7 +299,7 @@ export function renderUserRow(
             </svg>` : ''}</span>
           <span class="status-tag ${statusClass}">${statusLabel}</span>
         </div>
-        <div class="lb-meta">${(u.competitive_score || 0).toLocaleString()} <span style="font-size: 0.6rem; opacity: 0.6;">C-XP</span> • <span style="color: ${rankColor}; font-weight: 800;">${title.toUpperCase()}</span></div>
+        <div class="lb-meta">${(u.competitive_score || (u.total_hours * 100)).toLocaleString()} <span style="font-size: 0.6rem; opacity: 0.6;">Rank Score</span></div>
         <div class="lb-xp-container"><div class="lb-xp-bar" style="width: ${xpPercent}%; background: ${rankColor};"></div></div>
       </div>
       <div class="lb-hours-container">
