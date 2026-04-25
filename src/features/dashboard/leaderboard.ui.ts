@@ -135,7 +135,7 @@ export function renderHoverCard(
            <div class="hover-handle">@${escapeHtml(u.display_name)} ${verifiedTick}</div>
            <div class="hover-title">${age}${getRankTitle(u.total_hours)} PROFILE</div>
            <div class="hover-integrity" style="color: ${u.is_verified ? '#fbbf24' : '#94a3b8'}; font-size: 0.65rem; margin-top: 2px; font-weight: bold; letter-spacing: 0.5px;">
-              TRUST SCORE: ${u.integrity_score === 0 ? 'VERIFYING...' : (u.integrity_score || 0) + '% ' + (u.is_verified ? '(VERIFIED)' : '(MANUAL)')}
+              TRUST SCORE: ${u.integrity_score === 0 ? 'VERIFYING...' : (u.integrity_score || 0) + '%'}
            </div>
          </div>
       </div>

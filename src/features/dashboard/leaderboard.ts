@@ -101,8 +101,8 @@ export function getCurrentUserLeaderboardContext(): {
   if (!myDisplayName) return null;
 
   const sorted = [...lbAllUsers].sort((a, b) => {
-    const scoreA = a.competitive_score ?? (a.total_hours * 100);
-    const scoreB = b.competitive_score ?? (b.total_hours * 100);
+    const scoreA = a.competitive_score || ((a.total_hours || 0) * 100);
+    const scoreB = b.competitive_score || ((b.total_hours || 0) * 100);
     return scoreB - scoreA;
   });
   const myIndex = sorted.findIndex(u => u.display_name === myDisplayName);
@@ -195,8 +195,8 @@ export async function refreshLeaderboard(): Promise<void> {
   const myDisplayName = profileData ? JSON.parse(profileData).displayName : null;
 
   users = users.sort((a, b) => {
-    const scoreA = a.competitive_score ?? ((a.total_hours || 0) * 100);
-    const scoreB = b.competitive_score ?? ((b.total_hours || 0) * 100);
+    const scoreA = a.competitive_score || ((a.total_hours || 0) * 100);
+    const scoreB = b.competitive_score || ((b.total_hours || 0) * 100);
     return scoreB - scoreA;
   });
   setLbAllUsers(users);
