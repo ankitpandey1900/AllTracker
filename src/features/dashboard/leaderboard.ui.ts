@@ -232,11 +232,20 @@ export function renderPodium(
             ${verifiedTick}
           </div>
           <div class="status-tag ${statusClass}" style="margin-bottom: 2px;">${statusLabel}</div>
-          <div class="podium-hours" style="font-size: 0.95rem; color: #fbbf24; white-space: nowrap;">${(u.competitive_score || (u.total_hours * 100)).toLocaleString()} <span style="font-size: 0.5rem; color: #94a3b8; font-weight: 500; letter-spacing: 1px;">RANK SCORE</span></div>
-          <div class="podium-today" style="font-size: 0.7rem; margin-top: 4px;">
-            <span style="color: #22c55e; font-weight: 800;">${formatDuration(todayHoursDisplay) || '0h'} today</span>
-            <span style="opacity: 0.4; margin: 0 4px; color: #94a3b8;">•</span>
-            <span style="color: #94a3b8; font-weight: 500;">${formatDuration(u.total_hours) || '0h'} total</span>
+          <div class="podium-hours" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 8px;">
+            <div style="font-size: 1.2rem; color: #fbbf24; font-weight: 900; letter-spacing: 1px; line-height: 1;">
+              ${(u.competitive_score || (u.total_hours * 100)).toLocaleString()}
+            </div>
+            <div style="font-size: 0.55rem; color: #94a3b8; font-weight: 800; letter-spacing: 2px; margin-top: 4px; opacity: 0.7;">RANK SCORE</div>
+          </div>
+
+          <div class="podium-today" style="display: flex; flex-direction: column; align-items: center; padding: 8px 12px; background: rgba(34, 197, 94, 0.05); border-radius: 8px; border: 1px solid rgba(34, 197, 94, 0.1);">
+            <div style="color: #22c55e; font-size: 0.8rem; font-weight: 800;">
+              ${formatDuration(todayHoursDisplay) || '0h'} <span style="font-size: 0.6rem; opacity: 0.8;">TODAY</span>
+            </div>
+            <div style="color: #94a3b8; font-size: 0.65rem; font-weight: 600; margin-top: 2px; opacity: 0.8;">
+              ${formatDuration(u.total_hours) || '0h'} <span style="font-size: 0.55rem; opacity: 0.6;">TOTAL</span>
+            </div>
           </div>
         </div>
         ${renderHoverCard(u, rankColor, isMe, isFocusing, todayHoursDisplay, streakCount)}
