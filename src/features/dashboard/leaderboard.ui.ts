@@ -167,8 +167,12 @@ export function renderHoverCard(
           <div class="stat-val">${formatDuration(u.total_hours) || '0h'}</div>
         </div>
         <div class="hover-stat-box">
-          <div class="stat-name">SESSION_LOG</div>
+          <div class="stat-name">TODAY_EXP</div>
           <div class="stat-val">${formatDuration(todayHoursDisplay) || '0h'}</div>
+        </div>
+        <div class="hover-stat-box">
+          <div class="stat-name">VERIFIED_XP</div>
+          <div class="stat-val">${formatDuration(u.total_hours * ((u.integrity_score || 0) / 100)) || '0h'}</div>
         </div>
         <div class="hover-stat-box">
           <div class="stat-name">CURRENT_STREAK</div>

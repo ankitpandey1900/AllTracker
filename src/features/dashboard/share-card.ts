@@ -36,7 +36,7 @@ export async function generateShareCard(): Promise<void> {
   
   const streak = currentStreak;
   const trackerTotal = totalHours;
-  const verificationScore = calculateVerificationScore(totalHours, trackerTotal);
+  const verificationScore = calculateVerificationScore(appState.verifiedHours, trackerTotal);
   const rankScore = calculateCompetitiveXP(totalHours, streak, verificationScore);
 
   // 3. User Identity

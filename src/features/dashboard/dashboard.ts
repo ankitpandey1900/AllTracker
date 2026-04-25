@@ -121,8 +121,7 @@ export function updateDashboard(): void {
 
   // --- Competitive Rank Score (Elite Upgrade) ---
   const trackerTotal = totalHours; 
-  const sessionTotal = (appState.settings.sessionLogs || []).reduce((sum: number, s: any) => sum + (s.duration || 0), 0);
-  const verificationScore = calculateVerificationScore(sessionTotal, trackerTotal); 
+  const verificationScore = calculateVerificationScore(appState.verifiedHours, trackerTotal); 
   const competitiveScore = calculateCompetitiveXP(totalHours, streak, verificationScore);
   
   setTxt('rankScoreDisplay', competitiveScore.toLocaleString());

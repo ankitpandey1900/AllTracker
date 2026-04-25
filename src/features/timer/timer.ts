@@ -381,17 +381,23 @@ export async function stopTimer(autoNote?: string): Promise<void> {
 
         // 🌐 CLOUD SESSION LOG — two separate records, matching the local split exactly
         if (hoursBefore > 0) {
-          logStudySessionCloud(hoursBefore, appState.activeTimer.colName || 'GENERAL', sessionStart, note);
+          await logStudySessionCloud(hoursBefore, appState.activeTimer.colName || 'GENERAL', sessionStart, note);
         }
         if (hoursAfter > 0) {
-          logStudySessionCloud(hoursAfter, appState.activeTimer.colName || 'GENERAL', midnight, note);
+          await logStudySessionCloud(hoursAfter, appState.activeTimer.colName || 'GENERAL', midnight, note);
         }
+        
+        // 🛡️ LIVE BUFFER: Update local verified total immediately to prevent Trust Score drop
+        appState.verifiedHours += (hoursBefore + hoursAfter);
       } else {
         saveSessionToDate(colIdx, totalHours, note, sessionEnd);
         showToast(autoNote ? `Auto-Safe Triggered: ${formatMsToTime(totalElapsed)}` : `Session saved: ${formatMsToTime(totalElapsed)}`, 'success');
 
         // 🌐 CLOUD SESSION LOG (UTC)
-        logStudySessionCloud(totalHours, appState.activeTimer.colName || 'GENERAL', sessionStart, note);
+        await logStudySessionCloud(totalHours, appState.activeTimer.colName || 'GENERAL', sessionStart, note);
+        
+        // 🛡️ LIVE BUFFER: Update local verified total immediately
+        appState.verifiedHours += totalHours;
       }
     }
   } catch (error) {

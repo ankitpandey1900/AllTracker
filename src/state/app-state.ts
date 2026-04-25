@@ -106,6 +106,9 @@ const rawState = {
   phase1End: 0,
   phase2End: 0,
   phase3End: 0,
+  
+  /** Sum of all timer-verified session durations (Cloud + Local) */
+  verifiedHours: 0,
 };
 
 /** 

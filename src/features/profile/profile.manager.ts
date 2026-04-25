@@ -138,6 +138,12 @@ export async function syncProfileBroadcast(): Promise<void> {
         todayHours = cloudToday;
       }
     }
+    
+    // 🛡️ RECONCILIATION GUARD: Use whichever is higher (Cloud vs Local Buffer)
+    // This prevents Trust Score drops if the cloud fetch is lagging behind a just-finished session.
+    appState.verifiedHours = Math.max(sessionTotal, appState.verifiedHours);
+    sessionTotal = appState.verifiedHours;
+
   } catch (err) {
     log.error('Cloud session reconciliation failed', err);
   }
