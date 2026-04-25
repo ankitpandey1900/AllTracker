@@ -147,14 +147,14 @@ export function renderHoverCard(
           <span class="hud-rank-label next">${rankProg.next}</span>
         </div>
         <div class="holographic-bar hud-bar">
-          <div class="holographic-fill" style="width: ${rankProg.percent}%; background: ${rankColor}; box-shadow: 0 0 10px ${rankColor};"></div>
+          <div class="holographic-fill" style="width: ${rankProg.percent}%; background: ${rankColor};"></div>
         </div>
       </div>
 
       <div class="hover-subject-container">
         <div class="focus-label">MISSION TELEMETRY</div>
         <div class="lb-mission-status-link">
-          <span class="lb-pulse-dot" style="background: ${isFocusing ? '#ef4444' : rankColor}; box-shadow: 0 0 8px ${isFocusing ? '#ef4444' : rankColor}"></span>
+          <span class="lb-pulse-dot" style="background: ${isFocusing ? '#ef4444' : rankColor};"></span>
           <span class="focus-topic ${!isFocusing ? 'offline-topic' : ''}" style="--focus-color: ${isFocusing ? '#ef4444' : rankColor}">
             ${isFocusing ? (u.is_focus_public || isMe ? (u.current_focus_subject || 'ACTIVE MISSION') : '[ CONFIDENTIAL MISSION ]') : 'IDLE / REFUELING'}
           </span>
@@ -212,12 +212,12 @@ export function renderPodium(
     const delay = globalIndex * 0.15; // Staggered animation
     
     const { isFocusing, statusClass, statusLabel, todayHoursDisplay } = getUserStatus(u);
-    const statusPulse = isFocusing ? `<div class="podium-pulse" style="background: #ef4444; box-shadow: 0 0 10px #ef4444;"></div>` : '';
+    const statusPulse = isFocusing ? `<div class="podium-pulse" style="background: #ef4444;"></div>` : '';
 
     return `
       <div class="podium-node leaderboard-item ${medalClass} ${isMe ? 'is-me' : ''}" style="--rank-color: ${rankColor}; animation-delay: ${delay}s;">
         <div class="podium-rank">${globalIndex + 1}</div>
-        <div class="podium-avatar-wrapper" style="border-color: ${rankColor}; box-shadow: 0 0 20px ${rankColor}40;">
+        <div class="podium-avatar-wrapper" style="border-color: ${rankColor};">
           <div class="podium-avatar">${avatar}</div>
           ${statusPulse}
         </div>
