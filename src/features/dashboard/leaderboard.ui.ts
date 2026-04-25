@@ -232,11 +232,11 @@ export function renderPodium(
             ${verifiedTick}
           </div>
           <div class="status-tag ${statusClass}" style="margin-bottom: 2px;">${statusLabel}</div>
-          <div class="podium-hours" style="font-size: 0.9rem; color: #fbbf24;">${(u.competitive_score || (u.total_hours * 100)).toLocaleString()} <span style="font-size: 0.55rem; color: #94a3b8; font-weight: 500;">Rank Score</span></div>
+          <div class="podium-hours" style="font-size: 0.95rem; color: #fbbf24; white-space: nowrap;">${(u.competitive_score || (u.total_hours * 100)).toLocaleString()} <span style="font-size: 0.5rem; color: #94a3b8; font-weight: 500; letter-spacing: 1px;">RANK SCORE</span></div>
           <div class="podium-today" style="font-size: 0.7rem; margin-top: 4px;">
-            <span style="color: #22c55e; font-weight: 800;">${todayHoursDisplay} today</span>
-            <span style="opacity: 0.4; margin: 0 4px;">•</span>
-            <span style="opacity: 0.8;">${formatDuration(u.total_hours) || '0h'} total</span>
+            <span style="color: #22c55e; font-weight: 800;">${formatDuration(todayHoursDisplay) || '0h'} today</span>
+            <span style="opacity: 0.4; margin: 0 4px; color: #94a3b8;">•</span>
+            <span style="color: #94a3b8; font-weight: 500;">${formatDuration(u.total_hours) || '0h'} total</span>
           </div>
         </div>
         ${renderHoverCard(u, rankColor, isMe, isFocusing, todayHoursDisplay, streakCount)}
