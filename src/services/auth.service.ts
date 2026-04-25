@@ -71,7 +71,7 @@ export function setupHeaderScroll(): void {
 
   window.addEventListener("scroll", () => {
     header.classList.toggle("scrolled", window.scrollY > 20);
-  });
+  }, { passive: true });
 }
 
 function buildLocalProfile(payload: BootstrapResponse) {

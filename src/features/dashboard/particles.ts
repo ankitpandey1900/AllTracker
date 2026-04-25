@@ -39,7 +39,7 @@ export function initAtmosphericProtocol(): void {
   }
 
   ctx = canvas.getContext('2d');
-  window.addEventListener('resize', resizeCanvas);
+  window.addEventListener('resize', resizeCanvas, { passive: true });
   resizeCanvas();
 
   createParticles();
