@@ -1079,7 +1079,7 @@ export function setupFocusListeners(): void {
     });
     // Prevent dragging HUD when adjusting volume
     volumeSlider.addEventListener('mousedown', (e) => e.stopPropagation());
-    volumeSlider.addEventListener('touchstart', (e) => e.stopPropagation());
+    volumeSlider.addEventListener('touchstart', (e) => e.stopPropagation(), { passive: true });
   }
 
   // 🎙️ MUTE TOGGLE

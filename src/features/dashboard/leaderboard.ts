@@ -68,8 +68,8 @@ export function initActivityTracking(): void {
   const updateActivity = () => { updateLastInteraction(); };
   window.addEventListener('mousedown', updateActivity);
   window.addEventListener('keydown', updateActivity);
-  window.addEventListener('touchstart', updateActivity);
-  window.addEventListener('scroll', updateActivity);
+  window.addEventListener('touchstart', updateActivity, { passive: true });
+  window.addEventListener('scroll', updateActivity, { passive: true });
 
   Registry.setInterval('profile_heartbeat', () => {
     const isTimerRunning = appState.activeTimer.isRunning;

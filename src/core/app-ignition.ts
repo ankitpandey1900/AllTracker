@@ -103,14 +103,17 @@ export async function igniteApp(): Promise<void> {
         { initManualLogic },
         { initNotifications },
         { initIntegrityService },
-        { loadMaamuSessionsIntoState }
+        { loadMaamuSessionsIntoState },
+        { hydrateSessionCache }
       ] = await Promise.all([
         import('@/features/manual/manual'),
         import('@/features/notifications/notifications'),
         import('@/services/integrity'),
-        import('@/features/intelligence/intelligence.service')
+        import('@/features/intelligence/intelligence.service'),
+        import('@/services/vault.service')
       ]);
 
+      await hydrateSessionCache();
       await loadMaamuSessionsIntoState();
       initManualLogic();
       initNotifications();

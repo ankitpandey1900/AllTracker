@@ -268,6 +268,21 @@ export async function migrateLocalHistoryToCloud(
   return { success: true, count };
 }
 
+export async function hydrateSessionCache(): Promise<void> {
+  if (!getCurrentUserId()) return;
+  try {
+    const sessions = await fetchMySessionsCloud();
+    if (sessions && sessions.length > 0) {
+      localStorage.setItem('all_tracker_history', JSON.stringify(sessions.slice(-100)));
+      // Trigger a dashboard refresh once we have the data
+      const { updateDashboard } = await import('@/features/dashboard/dashboard');
+      updateDashboard();
+    }
+  } catch (err) {
+    // Silent fail for background hydration
+  }
+}
+
 export async function fetchMySessionsCloud(): Promise<StudySession[]> {
   if (!getCurrentUserId()) return [];
   return apiRequest<StudySession[]>("/api/app/study-sessions");
