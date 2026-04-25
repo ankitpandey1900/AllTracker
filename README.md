@@ -63,11 +63,5 @@ Most AIs are too "nice." Maamu isn't. He’s a data-driven strategist who analyz
 
 ---
 
-## 🏆 THE HALL OF FAME
-The architects behind the grind:
-- **Lead Architect: Ankit Pandey**
-- **Full Stack Developer: Saumya Jha**
-
----
 
 <p align="center"><strong>Victory is earned in the silence of deep work.</strong> 🛸🔥</p>
