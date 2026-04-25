@@ -47,15 +47,12 @@ export const dashboardView = `
           <div id="kpiContainer" class="mobile-collapsible">
             <div class="kpi-metrics-grid items-stretch">
               <!-- Row 1 -->
-              <article class="card rank-card">
-                <div class="label">Study Rank</div>
-                <div id="studyRank" class="big">IRON</div>
-                <div class="rank-tier-row"><span id="rankTierText">IV</span></div>
-                <div class="meta">
-                  World rank: <span id="worldRankPos">#40,000,000</span>
-                </div>
-                <div class="xp-track">
-                  <div id="rankXPBar" class="rank-fill"></div>
+              <article class="card rank-card momentum-card" style="border: 1px solid rgba(59, 130, 246, 0.2); background: rgba(59, 130, 246, 0.05);">
+                <div class="label" style="color: #60a5fa; font-weight: 800; letter-spacing: 1px;">RANK MOMENTUM</div>
+                <div id="rankScoreDisplay" class="big" style="color: #60a5fa; font-size: 2.2rem; margin: 5px 0;">0</div>
+                <div class="meta" style="font-weight: 600; color: #94a3b8;">Current Rank Score</div>
+                <div class="meta" style="margin-top: 4px; font-size: 0.7rem; opacity: 0.8;">
+                   Verified operative on World Stage
                 </div>
               </article>
               <article class="card aura-focus">

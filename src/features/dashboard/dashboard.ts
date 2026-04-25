@@ -19,7 +19,9 @@ import {
   calculateSummaryStats, 
   getNextRoutine,
   calculateEstimatedFinishWithTrend,
-  getDynamicStatusMessage
+  getDynamicStatusMessage,
+  calculateVerificationScore,
+  calculateCompetitiveXP
 } from '@/utils/calc.utils';
 import { VanguardService } from '@/services/vanguard.service';
 
@@ -117,14 +119,18 @@ export function updateDashboard(): void {
   if (sustainLabelEl) sustainLabelEl.innerHTML = `${sustain.label}${sustainArrow}`;
   setTxt('sustainabilityDesc', sustain.description);
 
-  setTxt('studyRank', rankData.name.toUpperCase());
-  setTxt('rankTierText', rankData.division);
+  // --- Competitive Rank Score (Elite Upgrade) ---
+  const trackerTotal = totalHours; 
+  const verificationScore = calculateVerificationScore(totalHours, trackerTotal); 
+  const competitiveScore = calculateCompetitiveXP(totalHours, streak, verificationScore);
+  
+  setTxt('rankScoreDisplay', competitiveScore.toLocaleString());
   setTxt('currentStreakStat', streak.toString());
   setTxt('bestStreakStat', maxStreak.toString());
   setTxt('totalHoursStartDate', `Start: ${formatDate(appState.startDate)}`);
   setTxt('estimatedStartDate', `Start: ${formatDate(appState.startDate)}`);
-  setTxt('worldRankPos', `#${formatNum(rankData.absolutePos || 40000000)}`);
 
+  // --- Mission Telemetry ---
   const { date: estimatedFinish, trend: finishTrend } = calculateEstimatedFinishWithTrend(today.day, completedDays);
   const finishArrow = finishTrend === 'up'
     ? '<span style="color: #22c55e; margin-left: 5px;">↑</span>'
@@ -133,8 +139,6 @@ export function updateDashboard(): void {
       : '';
   const finishEl = document.getElementById('estimatedFinishDate');
   if (finishEl) finishEl.innerHTML = `${estimatedFinish}${finishArrow}`;
-  const rankXPBar = document.getElementById('rankXPBar');
-  if (rankXPBar) rankXPBar.style.width = `${rankData.tierXP}%`;
 
   // --- Delegate Rendering to Sub-Modules ---
   renderSectorTokens(today);

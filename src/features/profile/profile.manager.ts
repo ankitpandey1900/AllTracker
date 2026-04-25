@@ -18,6 +18,7 @@ import {
   calculateVerificationScore,
   calculateCompetitiveXP 
 } from '@/utils/calc.utils';
+import { getRankTitle } from '@/utils/rank.utils';
 import { UserProfile, StudySession } from '@/types/profile.types';
 
 // Tracks the last time the user did something in the app
@@ -157,9 +158,6 @@ export async function syncProfileBroadcast(): Promise<void> {
     return;
   }
   
-  // Get current Rank Label (approximate for broadcast)
-  const rank = document.getElementById('studyRank')?.textContent || 'IRON';
-
   // If timer is running, add its progress to the broadcast immediately
   if (isFocusing && appState.activeTimer.startTime) {
     const elapsedMs = (Date.now() - appState.activeTimer.startTime) + appState.activeTimer.elapsedAcc;
@@ -194,7 +192,7 @@ export async function syncProfileBroadcast(): Promise<void> {
     avatar: profile.avatar,
     total_hours: Number(totalHours.toFixed(4)),
     today_hours: Number(todayHours.toFixed(4)),
-    current_rank: `${rank} [S:${streak}]${profile.isFocusPublic === false ? ' [PRIV]' : ''}`,
+    current_rank: `${getRankTitle(totalHours)} [S:${streak}]${profile.isFocusPublic === false ? ' [PRIV]' : ''}`,
     is_focusing_now: isFocusing,
     current_focus_subject: isFocusing ? (appState.activeTimer.colName || 'ACTIVE MISSION') : null,
     phone_number: profile.phoneNumber,

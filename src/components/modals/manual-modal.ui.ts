@@ -404,17 +404,18 @@ export const manualModal = `
                     <tr><th>RANK</th><th>HOURS NEEDED</th><th>BADGE</th></tr>
                   </thead>
                   <tbody>
-                    <tr><td>Iron</td><td>0 – 50 hrs</td><td>⚙️</td></tr>
-                    <tr><td>Bronze</td><td>50 – 200 hrs</td><td>🥉</td></tr>
-                    <tr><td>Silver</td><td>200 – 500 hrs</td><td>🥈</td></tr>
-                    <tr><td>Gold</td><td>500 – 1,000 hrs</td><td>🥇</td></tr>
-                    <tr><td>Platinum</td><td>1,000 – 1,750 hrs</td><td>💠</td></tr>
-                    <tr><td>Diamond</td><td>1,750 – 3,000 hrs</td><td>💎</td></tr>
-                    <tr><td>Master</td><td>3,000 – 5,000 hrs</td><td>🎖️</td></tr>
-                    <tr><td>Eternal</td><td>5,000 – 9,000 hrs</td><td>🌟</td></tr>
-                    <tr><td>Ascended</td><td>9,000 – 14,000 hrs</td><td>🔱</td></tr>
-                    <tr><td>Deity</td><td>14,000 – 20,000 hrs</td><td>🌌</td></tr>
-                    <tr><td>Singularity</td><td>20,000+ hrs</td><td>✨</td></tr>
+                    <tr><td>Recruit</td><td>0 – 10 hrs</td><td>⚙️</td></tr>
+                    <tr><td>Cadet</td><td>10 – 30 hrs</td><td>🎖️</td></tr>
+                    <tr><td>Pilot</td><td>30 – 70 hrs</td><td>🚀</td></tr>
+                    <tr><td>Officer</td><td>70 – 150 hrs</td><td>🛡️</td></tr>
+                    <tr><td>Commander</td><td>150 – 300 hrs</td><td>🛸</td></tr>
+                    <tr><td>Captain</td><td>300 – 600 hrs</td><td>⚔️</td></tr>
+                    <tr><td>Veteran</td><td>600 – 1,200 hrs</td><td>🏅</td></tr>
+                    <tr><td>Elite</td><td>1,200 – 2,500 hrs</td><td>🔥</td></tr>
+                    <tr><td>Legend</td><td>2,500 – 5,000 hrs</td><td>✨</td></tr>
+                    <tr><td>Eternal</td><td>5,000 – 10,000 hrs</td><td>🌟</td></tr>
+                    <tr><td>Deity</td><td>10,000 – 20,000 hrs</td><td>🌌</td></tr>
+                    <tr><td>Singularity</td><td>20,000+ hrs</td><td>⚛️</td></tr>
                   </tbody>
                 </table>
               </div>
