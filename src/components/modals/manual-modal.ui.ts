@@ -7,7 +7,7 @@ export const manualModal = `
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--docs-accent)" stroke-width="3">
             <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
           </svg>
-          <span class="docs-version">v4.1.0</span>
+          <span class="docs-version">v4.2.0</span>
         </div>
 
         <div class="docs-search-shell">
@@ -390,7 +390,14 @@ export const manualModal = `
             <section class="docs-section" id="doc-leaderboard">
               <div class="docs-breadcrumb">Community &amp; AI <b>›</b> Global Rankings</div>
               <h2 class="docs-h2">The Global Leaderboard</h2>
-              <p>Compete with dedicated students worldwide. Every hour you log earns XP and pushes you up the ranks.</p>
+              <p>Compete with dedicated students worldwide. Your position is decided by your <strong>Competitive XP (C-XP)</strong>, a multi-factor score that rewards consistency and integrity.</p>
+              
+              <div class="docs-callout docs-callout-info">
+                <div class="docs-callout-title">⚔️ C-XP Formula</div>
+                <p><strong>C-XP</strong> = (Hours &times; 100) + (Current Streak &times; 50) + (Trust Score &times; 2)</p>
+              </div>
+
+              <h3 class="docs-h3">Rank Tiers</h3>
               <div class="docs-table-wrap">
                 <table class="docs-table">
                   <thead>

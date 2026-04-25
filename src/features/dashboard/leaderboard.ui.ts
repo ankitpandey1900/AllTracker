@@ -171,7 +171,7 @@ export function renderHoverCard(
           <div class="stat-val">${formatDuration(todayHoursDisplay) || '0h'}</div>
         </div>
         <div class="hover-stat-box">
-          <div class="stat-name">BEST_STREAK</div>
+          <div class="stat-name">CURRENT_STREAK</div>
           <div class="stat-val">${streakCount} DAYS</div>
         </div>
       </div>
@@ -197,9 +197,9 @@ export function renderPodium(
     const globalIndex = positions[idx];
     const isMe = myDisplayName ? u.display_name === myDisplayName : false;
     const rankRaw = u.current_rank || 'IRON';
-    const streakMatch = rankRaw.match(/\[B:(\d+)\]/);
+    const streakMatch = rankRaw.match(/\[S:(\d+)\]/);
     const streakCount = streakMatch ? streakMatch[1] : '0';
-    const title = rankRaw.replace(/\[B:\d+\]/, '').replace('[PRIV]', '').trim();
+    const title = rankRaw.replace(/\[S:(\d+)\]/, '').replace('[PRIV]', '').trim();
     const rankColor = getRankColor(title);
     const avatar = u.avatar || `👤`;
     
@@ -232,8 +232,8 @@ export function renderPodium(
             ${verifiedTick}
           </div>
           <div class="status-tag ${statusClass}" style="margin-bottom: 2px;">${statusLabel}</div>
-          <div class="podium-hours">${formatDuration(u.total_hours) || '0h'}</div>
-          <div class="podium-today">${formatDuration(todayHoursDisplay) || '0h'} today</div>
+          <div class="podium-hours" style="font-size: 0.9rem; color: #fbbf24;">${(u.competitive_score || 0).toLocaleString()} <span style="font-size: 0.55rem; color: #94a3b8; font-weight: 500;">C-XP</span></div>
+          <div class="podium-today">${formatDuration(u.total_hours) || '0h'} total</div>
         </div>
         ${renderHoverCard(u, rankColor, isMe, isFocusing, todayHoursDisplay, streakCount)}
       </div>
@@ -259,9 +259,9 @@ export function renderUserRow(
   const xpPercent = Math.min(100, (u.total_hours % 10) * 10);
   
   const rankRaw = u.current_rank || 'IRON';
-  const streakMatch = rankRaw.match(/\[B:(\d+)\]/);
+  const streakMatch = rankRaw.match(/\[S:(\d+)\]/);
   const streakCount = streakMatch ? streakMatch[1] : '0';
-  const title = rankRaw.replace(/\[B:\d+\]/, '').replace('[PRIV]', '').trim();
+  const title = rankRaw.replace(/\[S:(\d+)\]/, '').replace('[PRIV]', '').trim();
 
   const rankColor = getRankColor(title);
   const currentRank = globalIndex + 1;
@@ -299,7 +299,7 @@ export function renderUserRow(
             </svg>` : ''}</span>
           <span class="status-tag ${statusClass}">${statusLabel}</span>
         </div>
-        <div class="lb-meta">${age}Lvl ${level} • <span style="color: ${rankColor}; font-weight: 800;">${title.toUpperCase()}</span></div>
+        <div class="lb-meta">${(u.competitive_score || 0).toLocaleString()} <span style="font-size: 0.6rem; opacity: 0.6;">C-XP</span> • <span style="color: ${rankColor}; font-weight: 800;">${title.toUpperCase()}</span></div>
         <div class="lb-xp-container"><div class="lb-xp-bar" style="width: ${xpPercent}%; background: ${rankColor};"></div></div>
       </div>
       <div class="lb-hours-container">

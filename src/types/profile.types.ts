@@ -34,6 +34,8 @@ export interface GlobalProfile {
   is_online: boolean; // true if last_active within 60s (set by server)
   integrity_score?: number;
   is_verified?: boolean;
+  competitive_score?: number;
+  current_streak?: number;
 }
 
 export interface StudySession {

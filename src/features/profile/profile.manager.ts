@@ -15,7 +15,8 @@ import {
   calculateTotalStudyHours, 
   calculateStreak, 
   calculateBestStreak,
-  calculateVerificationScore 
+  calculateVerificationScore,
+  calculateCompetitiveXP 
 } from '@/utils/calc.utils';
 import { UserProfile, StudySession } from '@/types/profile.types';
 
@@ -147,6 +148,7 @@ export async function syncProfileBroadcast(): Promise<void> {
   }
 
   const verificationScore = calculateVerificationScore(sessionTotal, trackerTotal);
+  const isFocusing = appState.activeTimer.isRunning;
   
   // 🛡️ ZERO-BROADCAST GUARD: If we have table hours but sessionTotal is precisely 0, 
   // it might mean the cloud fetch is still in progress. Do not broadcast an integrity drop.
@@ -157,7 +159,6 @@ export async function syncProfileBroadcast(): Promise<void> {
   
   // Get current Rank Label (approximate for broadcast)
   const rank = document.getElementById('studyRank')?.textContent || 'IRON';
-  const isFocusing = appState.activeTimer.isRunning;
 
   // If timer is running, add its progress to the broadcast immediately
   if (isFocusing && appState.activeTimer.startTime) {
@@ -193,7 +194,7 @@ export async function syncProfileBroadcast(): Promise<void> {
     avatar: profile.avatar,
     total_hours: Number(totalHours.toFixed(4)),
     today_hours: Number(todayHours.toFixed(4)),
-    current_rank: `${rank} [B:${bestStreak}]${profile.isFocusPublic === false ? ' [PRIV]' : ''}`,
+    current_rank: `${rank} [S:${streak}]${profile.isFocusPublic === false ? ' [PRIV]' : ''}`,
     is_focusing_now: isFocusing,
     current_focus_subject: isFocusing ? (appState.activeTimer.colName || 'ACTIVE MISSION') : null,
     phone_number: profile.phoneNumber,
@@ -202,7 +203,9 @@ export async function syncProfileBroadcast(): Promise<void> {
     email: (profile as any).email,
     User_name: profile.realName,
     integrity_score: verificationScore,
-    is_verified: verificationScore > 75 
+    is_verified: verificationScore > 75,
+    competitive_score: calculateCompetitiveXP(totalHours, streak, verificationScore),
+    current_streak: streak
   };
 
   // 🛡️ BROADCAST DEDUPLICATION: Only sync if status or hours changed significantly

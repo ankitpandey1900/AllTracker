@@ -100,7 +100,11 @@ export function getCurrentUserLeaderboardContext(): {
   const myDisplayName = profileData ? JSON.parse(profileData).displayName : null;
   if (!myDisplayName) return null;
 
-  const sorted = [...lbAllUsers].sort((a, b) => (b.total_hours || 0) - (a.total_hours || 0));
+  const sorted = [...lbAllUsers].sort((a, b) => {
+    const scoreA = a.competitive_score ?? (a.total_hours * 100);
+    const scoreB = b.competitive_score ?? (b.total_hours * 100);
+    return scoreB - scoreA;
+  });
   const myIndex = sorted.findIndex(u => u.display_name === myDisplayName);
   if (myIndex === -1) return null;
 
@@ -190,7 +194,11 @@ export async function refreshLeaderboard(): Promise<void> {
   const profileData = getSecureLocalProfileString();
   const myDisplayName = profileData ? JSON.parse(profileData).displayName : null;
 
-  users = users.sort((a, b) => (b.total_hours || 0) - (a.total_hours || 0));
+  users = users.sort((a, b) => {
+    const scoreA = a.competitive_score ?? ((a.total_hours || 0) * 100);
+    const scoreB = b.competitive_score ?? ((b.total_hours || 0) * 100);
+    return scoreB - scoreA;
+  });
   setLbAllUsers(users);
 
   const climbData = { worst: {} as Record<string, number>, best: {} as Record<string, number> };

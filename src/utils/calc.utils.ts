@@ -581,3 +581,14 @@ export function calculateVerificationScore(sessionHours: number, trackerHours: n
   const verifiedRatio = Math.min(1.1, sessionHours / trackerHours);
   return Math.min(100, Math.round(verifiedRatio * 100));
 }
+
+/**
+ * COMPETITIVE XP ENGINE (Rank 2.0)
+ * Weights: Hours (100x), Current Streak (50x), Trust Score (2x)
+ */
+export function calculateCompetitiveXP(totalHours: number, currentStreak: number, trustScore: number): number {
+  const hourPoints = totalHours * 100;
+  const streakPoints = currentStreak * 50;
+  const integrityPoints = trustScore * 2;
+  return Math.round(hourPoints + streakPoints + integrityPoints);
+}
