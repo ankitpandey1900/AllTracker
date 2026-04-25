@@ -83,12 +83,21 @@ export function generateTable(resetPagination = false): void {
 
   // Build dynamic header
   const labels = getAllHourColumnLabels(1);
+  
+  // 🕵️ ORPHANED DETECTION: Check if any row has more data than current labels
+  let maxOrphanCount = 0;
+  paginatedData.forEach(d => {
+    const orphans = (d.studyHours || []).length - labels.length;
+    if (orphans > maxOrphanCount) maxOrphanCount = orphans;
+  });
+
   const theadRow = document.querySelector('#trackerTable thead tr');
   if (theadRow) {
     theadRow.innerHTML = `
       <th>Day</th>
       <th>Date</th>
       ${labels.map((l) => `<th>${l} Hrs</th>`).join('')}
+      ${Array.from({ length: maxOrphanCount }).map((_, i) => `<th class="orphaned-header">Orphaned ${i + 1}</th>`).join('')}
       <th>Problems Solved</th>
       <th>Topics</th>
       <th>Project Work</th>
@@ -131,6 +140,18 @@ export function generateTable(resetPagination = false): void {
         }).join('')
         : `<td colspan="1" class="no-cat-warning">No Categories Defined (Check Settings)</td>`
       }
+        <!-- 🕵️ ORPHANED DATA RECOVERY: Show hours logged to deleted categories -->
+        ${Array.from({ length: maxOrphanCount }).map((_, i) => {
+          const v = (day.studyHours || [])[dayLabels.length + i];
+          if (!v || v <= 0) return '<td></td>';
+          return `
+            <td class="orphaned-data-cell" title="These hours were logged to a category that has been deleted.">
+              <div class="orphaned-hours">
+                ${v}h
+                <span class="orphaned-label">ORPHANED</span>
+              </div>
+            </td>`;
+        }).join('')}
         <td><input type="number" class="cell-input topics-solved" value="${day.problemsSolved}" min="0" step="1" ${!editable ? 'disabled' : ''}></td>
         <td>
           <div class="topics-cell">
