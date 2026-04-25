@@ -80,10 +80,14 @@ export function updateDashboard(): void {
   const todayIndex = findTodayIndex();
   const today = todayIndex >= 0 ? data[todayIndex] : data[data.length - 1];
 
-  const { totalHours, completedDays, studyDays, maxStreak } = calculateSummaryStats(data);
+  const { totalHours: localTotal, completedDays, studyDays, maxStreak } = calculateSummaryStats(data);
   const streak = calculateStreak(data);
   const completionRate = completedDays > 0 ? (completedDays / (appState.totalDays || 1)) * 100 : 0;
-  const avgHoursPerStudyDay = studyDays > 0 ? totalHours / studyDays : 0;
+  
+  // 🛰️ UNIFIED DATA SOURCE: Mirror the Leaderboard's logic
+  // We use the MAX of local table data or cloud-verified data.
+  const totalHours = Math.max(localTotal, appState.verifiedTotalHours);
+  const rankScore = Math.max(calculateCompetitiveXP(totalHours, streak, calculateVerificationScore(appState.verifiedHours, localTotal)), appState.verifiedRankScore);
 
   const xpData = calculateXP(totalHours);
   const rankData = getRank(totalHours);
@@ -107,6 +111,8 @@ export function updateDashboard(): void {
   setTxt('completionPercent', `${Math.round(completionRate)}%`);
   setTxt('completedDaysCount', completedDays.toString());
   setTxt('completionPercentMirror', `${Math.round(completionRate)}%`);
+  
+  const avgHoursPerStudyDay = studyDays > 0 ? totalHours / studyDays : 0;
   setTxt('avgHoursPerDay', formatDuration(avgHoursPerStudyDay) || '0m');
 
   const sustain = calculateSustainability(data);
@@ -119,12 +125,8 @@ export function updateDashboard(): void {
   if (sustainLabelEl) sustainLabelEl.innerHTML = `${sustain.label}${sustainArrow}`;
   setTxt('sustainabilityDesc', sustain.description);
 
-  // --- Competitive Rank Score (Elite Upgrade) ---
-  const trackerTotal = totalHours; 
-  const verificationScore = calculateVerificationScore(appState.verifiedHours, trackerTotal); 
-  const competitiveScore = calculateCompetitiveXP(totalHours, streak, verificationScore);
-  
-  setTxt('rankScoreDisplay', competitiveScore.toLocaleString());
+  // --- Competitive Rank Score (Unified with Leaderboard) ---
+  setTxt('rankScoreDisplay', rankScore.toLocaleString());
   setTxt('currentStreakStat', streak.toString());
   setTxt('bestStreakStat', maxStreak.toString());
   setTxt('totalHoursStartDate', `Start: ${formatDate(appState.startDate)}`);

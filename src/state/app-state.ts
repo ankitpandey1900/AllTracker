@@ -96,6 +96,10 @@ const rawState = {
   /** Timer interval reference */
   timerInterval: null as ReturnType<typeof setInterval> | null,
 
+  /** 🛰️ CLOUD-SYNCHRONIZED STATS (Source of Truth) */
+  verifiedTotalHours: 0,
+  verifiedRankScore: 0,
+
   /** Deadline countdown interval reference */
   deadlineInterval: null as ReturnType<typeof setInterval> | null,
 

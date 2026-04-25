@@ -208,6 +208,11 @@ export async function syncProfileBroadcast(): Promise<void> {
 
   // 🔥 PERSISTENT BROADCAST: We remove deduplication to force the World Stage to match local state.
   lastBroadcastPayload = JSON.stringify(payload);
+
+  // 🛰️ MASTER STATE SYNC: Reconcile appState with cloud-verified stats
+  // This is the bridge that ensures Dashboard matches Leaderboard.
+  appState.verifiedTotalHours = payload.total_hours;
+  appState.verifiedRankScore = payload.competitive_score;
   
   // 🔥 BLOCKING BROADCAST: Ensure database state matches before we re-fetch the leaderboard
   try {
@@ -216,10 +221,9 @@ export async function syncProfileBroadcast(): Promise<void> {
     console.error('Broadcast failed:', err);
   }
 
-  // Automatically refresh the UI leaderboard to show the new stat
-  import('@/features/dashboard/leaderboard').then(m => {
-    m.refreshLeaderboard();
-  });
+  // Automatically refresh the UI to show the new stats
+  import('@/features/dashboard/leaderboard').then(m => m.refreshLeaderboard());
+  import('@/features/dashboard/dashboard').then(m => m.updateDashboard());
 }
 
 /** Professional Profile Persistence Flow */
