@@ -17,6 +17,52 @@ export async function logStudySession(
     ? new Date(payload.startAt)
     : new Date(endAt.getTime() - payload.duration * 60 * 60 * 1000);
 
+  // 🛡️ PROFESSIONAL MIDNIGHT SPLIT (IST)
+  const fmt = (d: Date) => d.toLocaleDateString('en-GB', { timeZone: 'Asia/Kolkata' });
+  
+  if (fmt(startAt) !== fmt(endAt)) {
+    console.log(`[Log]: Session crossing IST midnight detected. Splitting log...`);
+    
+    // 1. Find Midnight IST in UTC
+    // We create a date string for the end day at 00:00:00 in IST
+    const midnightIST = new Date(endAt.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+    midnightIST.setHours(0, 0, 0, 0);
+    
+    // We need to get the UTC equivalent of that 12:00 AM IST
+    // IST is UTC+5:30, so 12:00 AM IST is 6:30 PM UTC (Previous Day)
+    const splitPoint = new Date(midnightIST.getTime() - (0)); // Placeholder, the constructor above handles it if we are careful
+    
+    // Actually, a safer way:
+    const startMs = startAt.getTime();
+    const endMs = endAt.getTime();
+    const totalMs = endMs - startMs;
+    
+    // Calculate how much of the session was before midnight IST
+    const midnightUtc = new Date(endAt);
+    midnightUtc.setUTCHours(18, 30, 0, 0); 
+    if (midnightUtc.getTime() > endAt.getTime()) {
+      midnightUtc.setTime(midnightUtc.getTime() - 24 * 60 * 60 * 1000);
+    }
+    
+    const beforeMs = midnightUtc.getTime() - startMs;
+    const afterMs = endMs - midnightUtc.getTime();
+    
+    if (beforeMs > 0 && afterMs > 0) {
+      // Log part 1 (Yesterday)
+      await pool.query(
+        `insert into study_sessions (user_id, duration, subject, start_time, end_time, note) values ($1::uuid, $2, $3, $4, $5, $6)`,
+        [profile.profileId, Number((beforeMs / 3600000).toFixed(4)), payload.subject, startAt.toISOString(), midnightUtc.toISOString(), (payload.note || "") + " (Part 1/2)"]
+      );
+      // Log part 2 (Today)
+      await pool.query(
+        `insert into study_sessions (user_id, duration, subject, start_time, end_time, note) values ($1::uuid, $2, $3, $4, $5, $6)`,
+        [profile.profileId, Number((afterMs / 3600000).toFixed(4)), payload.subject, midnightUtc.toISOString(), endAt.toISOString(), (payload.note || "") + " (Part 2/2)"]
+      );
+      await reconcileProfileHours(profile.profileId);
+      return;
+    }
+  }
+
   await pool.query(
     `
       insert into study_sessions (

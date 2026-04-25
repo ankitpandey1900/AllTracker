@@ -97,8 +97,8 @@ export function getUserStatus(u: GlobalProfile): {
   }
 
   const now = new Date();
-  const fmtIST = (d: Date) => d.toLocaleDateString('en-GB', { timeZone: 'Asia/Kolkata' });
-  const isActuallyToday = lastActive && fmtIST(lastActive) === fmtIST(now);
+  const fmtLocal = (d: Date) => d.toLocaleDateString('en-GB'); // Uses system default locale
+  const isActuallyToday = lastActive && fmtLocal(lastActive) === fmtLocal(now);
   const todayHoursDisplay = isActuallyToday ? (u.today_hours || 0) : 0;
 
   return { isOnline, isFocusing, statusClass, statusLabel, todayHoursDisplay };

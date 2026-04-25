@@ -163,7 +163,7 @@ export const dashboardView = `
                 <div class="telem-node">
                   <div class="telem-icon status-blue">⚡</div>
                   <div class="telem-content">
-                    <div class="telem-label status-blue">Global Hours Today</div>
+                  <div class="telem-label status-blue">Global Hours Today</div>
                     <div id="telemetry-global-hours" class="telem-value status-blue">--</div>
                   </div>
                 </div>

@@ -5,7 +5,7 @@
  * UI rendering is delegated to dashboard.renderers.ts and session-history.ts.
  */
 
-import { appState } from '@/state/app-state';
+import { appState, ensureTimelineIntegrity } from '@/state/app-state';
 import { formatDate, getLocalIsoDate, formatDuration } from '@/utils/date.utils';
 import { setTxt } from '@/utils/dom.utils';
 import { renderIntelligenceBriefing } from '@/features/intelligence/intelligence';
@@ -77,8 +77,21 @@ export function updateDashboard(): void {
   const data = appState.trackerData;
   if (!data || data.length === 0) return;
 
+  // 🛡️ LOCAL DAY SYNC: Ensure we are showing the absolute current day
+  ensureTimelineIntegrity();
+
   const todayIndex = findTodayIndex();
-  const today = todayIndex >= 0 ? data[todayIndex] : data[data.length - 1];
+  
+  // If today isn't found even after integrity check, we use a placeholder instead of yesterday
+  const today = todayIndex >= 0 ? data[todayIndex] : { 
+    day: data.length + 1, 
+    date: getLocalIsoDate(), 
+    studyHours: [], 
+    problemsSolved: 0, 
+    topics: '', 
+    project: '', 
+    completed: false 
+  };
 
   const { totalHours: localTotal, completedDays, studyDays, maxStreak } = calculateSummaryStats(data);
   const streak = calculateStreak(data);

@@ -278,16 +278,17 @@ export function ensureTimelineIntegrity(): void {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   
-  const tomorrow = new Date(today);
-  tomorrow.setDate(today.getDate() + 1);
+  // We ensure the timeline includes Today and Tomorrow to prevent gaps at midnight
+  const targetDate = new Date(today);
+  targetDate.setDate(today.getDate() + 1);
 
-  if (lastDate < tomorrow) {
-    console.log('[Integrity]: Timeline expansion triggered. Provisioning tomorrow...');
+  if (lastDate < targetDate) {
+    console.log(`[Integrity]: Timeline check at ${new Date().toLocaleTimeString()}. Provisioning new cycle...`);
     const missingDays: TrackerDay[] = [];
     let current = new Date(lastDate);
     current.setDate(current.getDate() + 1);
 
-    while (current <= tomorrow) {
+    while (current <= targetDate) {
       const colCount = (appState.settings.columns || []).length;
       missingDays.push({
         day: data.length + missingDays.length + 1,
@@ -305,8 +306,8 @@ export function ensureTimelineIntegrity(): void {
     
     // Auto-update the End Date in settings if we exceeded the plan
     const currentEnd = new Date(appState.settings.endDate);
-    if (tomorrow > currentEnd) {
-      appState.settings.endDate = getLocalIsoDate(tomorrow);
+    if (targetDate > currentEnd) {
+      appState.settings.endDate = getLocalIsoDate(targetDate);
     }
     
     calculateDates();

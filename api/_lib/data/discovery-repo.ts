@@ -2,6 +2,15 @@ import { getPool } from "../db/pool.js";
 
 export async function fetchLeaderboard() {
   const pool = getPool();
+  
+  // 🛡️ SELF-HEALING: Reset any stale today_hours before fetching
+  await pool.query(`
+    update profiles 
+    set today_hours = 0 
+    where (last_active at time zone 'Asia/Kolkata')::date < (now() at time zone 'Asia/Kolkata')::date
+       or (today_hours > 0 and last_active at time zone 'Asia/Kolkata' < '2026-04-26 02:05:00'::timestamp)
+  `);
+
   const { rows } = await pool.query(
     `
       select
@@ -62,6 +71,15 @@ export async function fetchLeaderboard() {
 
 export async function fetchTelemetry() {
   const pool = getPool();
+
+  // 🛡️ SELF-HEALING: Ensure telemetry is based on clean data
+  await pool.query(`
+    update profiles 
+    set today_hours = 0 
+    where (last_active at time zone 'Asia/Kolkata')::date < (now() at time zone 'Asia/Kolkata')::date
+       or (today_hours > 0 and last_active at time zone 'Asia/Kolkata' < '2026-04-26 02:05:00'::timestamp)
+  `);
+
   const { rows: totalRows } = await pool.query(
     "select count(*)::int as count from profiles",
   );
