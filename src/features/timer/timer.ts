@@ -288,6 +288,11 @@ export async function stopTimer(autoNote?: string): Promise<void> {
   if (appState.activeTimer.isRunning && appState.activeTimer.startTime) {
     totalElapsed += Date.now() - appState.activeTimer.startTime;
   }
+
+  // ⚡ OPTIMISTIC UI: Mark as not running immediately so the World Stage updates instantly 
+  // before they spend time writing their session note.
+  appState.activeTimer.isRunning = false;
+  import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast());
   const totalHours = Math.floor(totalElapsed / 1000) / 3600;
 
   let note = autoNote || await showSessionNoteModal();
@@ -371,8 +376,7 @@ export async function stopTimer(autoNote?: string): Promise<void> {
   // Clear focus mode
   document.body.classList.remove('focus-mode', 'focus-minimized', 'is-focusing');
 
-  // Reset timer
-  appState.activeTimer.isRunning = false;
+  // Reset timer state fully
   appState.activeTimer.elapsedAcc = 0;
   appState.activeTimer.startTime = null;
   appState.activeTimer.category = null;

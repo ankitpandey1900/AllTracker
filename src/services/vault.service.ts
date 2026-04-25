@@ -181,6 +181,7 @@ export async function broadcastGlobalStats(
   await apiRequest("/api/app/broadcast", {
     method: "POST",
     body: profile,
+    keepalive: true,
   });
 }
 

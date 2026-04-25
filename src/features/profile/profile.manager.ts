@@ -147,8 +147,12 @@ export async function syncProfileBroadcast(): Promise<void> {
 
   lastBroadcastPayload = currentPayloadStr;
   
-  // 🔥 NON-BLOCKING BROADCAST: Fire and forget to free the UI thread
-  broadcastGlobalStats(payload).catch(err => console.error('Broadcast failed:', err));
+  // 🔥 BLOCKING BROADCAST: Ensure database state matches before we re-fetch the leaderboard
+  try {
+    await broadcastGlobalStats(payload);
+  } catch (err) {
+    console.error('Broadcast failed:', err);
+  }
 
   // Automatically refresh the UI leaderboard to show the new stat
   import('@/features/dashboard/leaderboard').then(m => {

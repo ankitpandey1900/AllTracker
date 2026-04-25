@@ -1,6 +1,7 @@
 type RequestOptions = {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: unknown;
+  keepalive?: boolean;
 };
 
 export class ApiError extends Error {
@@ -32,6 +33,7 @@ export async function apiRequest<T>(
       headers: options.body ? { "Content-Type": "application/json" } : undefined,
       body: options.body ? JSON.stringify(options.body) : undefined,
       signal: controller.signal,
+      keepalive: options.keepalive,
     });
 
     clearTimeout(id);
