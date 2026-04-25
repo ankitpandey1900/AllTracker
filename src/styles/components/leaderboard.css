@@ -1086,13 +1086,13 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  border: 2px solid var(--hover-color);
+  border: 2px dotted var(--hover-color);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.8rem;
   background: #0d152a;
-  box-shadow: 0 0 25px var(--hover-color), inset 0 2px 5px rgba(255,255,255,0.1);
+  box-shadow: inset 0 2px 5px rgba(255,255,255,0.1);
   flex-shrink: 0;
   position: relative;
 }
@@ -1115,13 +1115,22 @@
   overflow: hidden;
 }
 
-.hover-handle {
+.hover-real-name {
   font-family: 'Outfit', sans-serif;
   font-size: 1.15rem;
   font-weight: 900;
   color: #fff;
   line-height: 1.1;
   letter-spacing: 0.2px;
+}
+
+.hover-handle {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #94a3b8;
+  line-height: 1.1;
+  margin-top: 2px;
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -1133,7 +1142,6 @@
   letter-spacing: 0.1em;
   color: var(--hover-color, #94a3b8);
   margin-top: 6px;
-  text-shadow: 0 0 10px var(--hover-color, rgba(255,255,255,0.2));
   text-transform: uppercase;
 }
 
@@ -1198,7 +1206,7 @@
 
 .hover-stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 8px;
   margin-top: 4px;
 }
@@ -1231,6 +1239,113 @@
   font-weight: 400;
   text-transform: uppercase;
   opacity: 0.7;
+}
+
+/* --- Tactical Enhancements --- */
+.hover-integrity-meter {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+.integrity-text {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #94a3b8;
+}
+.integrity-track {
+  height: 2px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.integrity-fill {
+  height: 100%;
+  border-radius: 2px;
+}
+
+.tactical-gauge {
+  background: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 255, 255, 0.1) 2px,
+    rgba(255, 255, 255, 0.1) 4px
+  ) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.tactical-gauge .holographic-fill {
+  background: repeating-linear-gradient(
+    90deg,
+    var(--hover-color),
+    var(--hover-color) 2px,
+    rgba(0, 0, 0, 0.2) 2px,
+    rgba(0, 0, 0, 0.2) 4px
+  ) !important;
+}
+
+.lb-telemetry-readout {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  background: rgba(10, 15, 25, 0.6);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-left: 3px solid #3b82f6;
+}
+.readout-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+}
+.readout-key {
+  font-family: 'Tektur', sans-serif;
+  color: #64748b;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.readout-val {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
+}
+
+.hover-stat-box.tactical-glass-box {
+  background: linear-gradient(180deg, rgba(30, 41, 59, 0.6), rgba(15, 23, 42, 0.8));
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+.tactical-corner.bottom-right {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 8px;
+  height: 8px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  border-right: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.lb-hud-close.tactical-btn {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 2px dashed rgba(255, 255, 255, 0.2);
+  color: #94a3b8;
+}
+.lb-hud-close.tactical-btn:hover {
+  border-bottom-color: #ef4444;
+  color: #f8fafc;
 }
 
 /* ðŸ’  V2 HUD PROGRESSION */
@@ -2577,7 +2692,8 @@
   flex: 1;
   min-width: 0;
   max-width: 140px;
-  height: 240px; /* 📏 EXPANDED SYMMETRY */
+  min-height: 240px; /* 📏 EXPANDED SYMMETRY */
+  height: auto;
   text-align: center;
   /* transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); DISABLED FOR STATIC UX */
   /* animation: lb-podium-entrance 0.6s cubic-bezier(0.19, 1, 0.22, 1) both; REMOVED FOR STATIC UX */

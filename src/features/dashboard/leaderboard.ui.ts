@@ -129,13 +129,16 @@ export function renderHoverCard(
       <div class="lb-hud-corner tl"></div><div class="lb-hud-corner tr"></div>
       
       <div class="hover-header">
-         <div class="hover-avatar-wrapper" style="border-color: ${rankColor};">${avatar}</div>
+         <div class="hover-avatar-wrapper tactical-ring" style="border-color: ${rankColor};">${avatar}</div>
          <div class="hover-player-info">
            <div class="hover-real-name">${u.User_name ? escapeHtml(u.User_name) : 'Operative'}</div>
            <div class="hover-handle">@${escapeHtml(u.display_name)} ${verifiedTick}</div>
-           <div class="hover-title">${age}${getRankTitle(u.total_hours)} PROFILE</div>
-           <div class="hover-integrity" style="color: ${u.is_verified ? '#fbbf24' : '#94a3b8'}; font-size: 0.65rem; margin-top: 2px; font-weight: bold; letter-spacing: 0.5px;">
-              TRUST SCORE: ${u.integrity_score === 0 ? 'VERIFYING...' : (u.integrity_score || 0) + '%'}
+           <div class="hover-title" style="color: ${rankColor};">${age}${getRankTitle(u.total_hours)} PROFILE</div>
+           <div class="hover-integrity-meter">
+              <div class="integrity-text">TRUST SCORE: ${u.integrity_score === 0 ? 'VERIFYING...' : (u.integrity_score || 0) + '%'}</div>
+              <div class="integrity-track">
+                <div class="integrity-fill" style="width: ${u.integrity_score || 0}%; background: ${u.is_verified ? '#fbbf24' : '#94a3b8'};"></div>
+              </div>
            </div>
          </div>
       </div>
@@ -146,33 +149,44 @@ export function renderHoverCard(
           <span class="hud-xp-percent">${rankProg.percent}% XP</span>
           <span class="hud-rank-label next">${rankProg.next}</span>
         </div>
-        <div class="holographic-bar hud-bar">
+        <div class="holographic-bar hud-bar tactical-gauge">
           <div class="holographic-fill" style="width: ${rankProg.percent}%; background: ${rankColor};"></div>
         </div>
       </div>
 
       <div class="hover-subject-container">
         <div class="focus-label">MISSION TELEMETRY</div>
-        <div class="lb-mission-status-link">
-          <span class="lb-pulse-dot" style="background: ${isFocusing ? '#ef4444' : rankColor};"></span>
-          <span class="focus-topic ${!isFocusing ? 'offline-topic' : ''}" style="--focus-color: ${isFocusing ? '#ef4444' : rankColor}">
-            ${isFocusing ? (u.is_focus_public || isMe ? (u.current_focus_subject || 'ACTIVE MISSION') : '[ CONFIDENTIAL MISSION ]') : 'IDLE / REFUELING'}
-          </span>
+        <div class="lb-telemetry-readout">
+          <div class="readout-row">
+            <span class="readout-key">STATUS</span>
+            <span class="readout-val" style="color: ${isFocusing ? '#ef4444' : '#64748b'};">
+              <span class="lb-pulse-dot" style="background: ${isFocusing ? '#ef4444' : '#64748b'};"></span>
+              ${isFocusing ? 'ACTIVE' : 'OFFLINE'}
+            </span>
+          </div>
+          <div class="readout-row">
+            <span class="readout-key">TARGET</span>
+            <span class="readout-val" style="color: ${isFocusing ? '#e2e8f0' : '#94a3b8'};">
+              ${isFocusing ? (u.is_focus_public || isMe ? (u.current_focus_subject || 'CLASSIFIED') : '[ CONFIDENTIAL ]') : 'IDLE / REFUELING'}
+            </span>
+          </div>
         </div>
       </div>
 
       <div class="hover-stats">
-        <div class="hover-stat-box">
+        <div class="hover-stat-box tactical-glass-box">
           <div class="stat-name">LIFETIME_EXP</div>
-          <div class="stat-val">${formatDuration(u.total_hours) || '0h'}</div>
+          <div class="stat-val" style="text-transform: uppercase;">${formatDuration(u.total_hours) || '0H'}</div>
+          <div class="tactical-corner bottom-right"></div>
         </div>
-        <div class="hover-stat-box">
+        <div class="hover-stat-box tactical-glass-box">
           <div class="stat-name">CURRENT_STREAK</div>
-          <div class="stat-val">${streakCount} DAYS</div>
+          <div class="stat-val" style="text-transform: uppercase;">${streakCount} DAY${streakCount === '1' ? '' : 'S'}</div>
+          <div class="tactical-corner bottom-right"></div>
         </div>
       </div>
 
-      <button class="lb-hud-close">✕ SECURE TERMINAL</button>
+      <button class="lb-hud-close tactical-btn">✕ SECURE TERMINAL</button>
     </div>
   `;
 }
