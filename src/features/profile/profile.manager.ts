@@ -109,16 +109,18 @@ export async function syncProfileBroadcast(): Promise<void> {
   let todayHours = calculateTodayStudyHours(appState.trackerData);
   
   // 🛡️ PERFECT SYNC: Hybrid Verification (Local + Cloud)
-  // We start with the reactive global buffer to ensure immediate Dashboard-to-Leaderboard alignment.
   let sessionTotal = appState.verifiedHours;
 
-  // 🛡️ PERFECT SYNC: Cross-reference with Live Cloud Sessions
-  // This prevents the leaderboard from regressing if local trackerData is out of sync
+  // 🛡️ CRITICAL SYNC: Fetch cloud sessions BEFORE broadcasting to ensure integrity isn't 0
   try {
     const cloudSessions = await fetchMySessionsCloud();
+    const cloudTotal = (cloudSessions || []).reduce((sum, s) => sum + (s.duration || 0), 0);
+    
+    // Update local buffer immediately
+    appState.verifiedHours = Math.max(cloudTotal, appState.verifiedHours);
+    sessionTotal = appState.verifiedHours;
+
     if (cloudSessions && cloudSessions.length > 0) {
-      const cloudTotal = cloudSessions.reduce((sum, s) => sum + (s.duration || 0), 0);
-      
       // Calculate cloud today (matching local YYYY-MM-DD)
       const todayStr = new Date().toISOString().split('T')[0];
       const cloudToday = cloudSessions.reduce((sum, s) => {
@@ -133,10 +135,6 @@ export async function syncProfileBroadcast(): Promise<void> {
       if (cloudToday > todayHours) {
         todayHours = cloudToday;
       }
-      
-      // 🛡️ RECONCILIATION GUARD: Merge Cloud with Local Buffer
-      appState.verifiedHours = Math.max(cloudTotal, appState.verifiedHours);
-      sessionTotal = appState.verifiedHours;
     }
   } catch (err) {
     log.error('Cloud session reconciliation failed', err);
@@ -208,11 +206,8 @@ export async function syncProfileBroadcast(): Promise<void> {
     current_streak: streak
   };
 
-  // 🛡️ BROADCAST DEDUPLICATION: Only sync if status or hours changed significantly
-  const currentPayloadStr = JSON.stringify(payload);
-  if (lastBroadcastPayload === currentPayloadStr) return;
-
-  lastBroadcastPayload = currentPayloadStr;
+  // 🔥 PERSISTENT BROADCAST: We remove deduplication to force the World Stage to match local state.
+  lastBroadcastPayload = JSON.stringify(payload);
   
   // 🔥 BLOCKING BROADCAST: Ensure database state matches before we re-fetch the leaderboard
   try {

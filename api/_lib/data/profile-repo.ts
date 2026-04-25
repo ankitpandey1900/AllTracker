@@ -33,6 +33,9 @@ export type AuthenticatedProfile = {
   email: string;
   image: string | null;
   metadata: ProfileMetadata;
+  integrityScore: number;
+  competitiveScore: number;
+  currentStreak: number;
 };
 
 function makeUsernameSeed(user: SessionUser): string {
@@ -106,7 +109,9 @@ function mapProfileRow(row: any): AuthenticatedProfile {
       isPublic: row.is_public !== false,
       isFocusPublic: row.is_focus_public !== false,
     },
-
+    integrityScore: Number(row.integrity_score || 0),
+    competitiveScore: Number(row.competitive_score || 0),
+    currentStreak: Number(row.current_streak || 0),
   };
 }
 
@@ -135,6 +140,9 @@ async function fetchProfile(
         p.phone_number,
         p.is_public,
         p.is_focus_public,
+        p.integrity_score,
+        p.competitive_score,
+        p.current_streak,
         u.name as user_name,
         u.email,
         u.image
@@ -195,10 +203,13 @@ export async function ensureProfileForUser(
           phone_number,
           is_public,
           is_focus_public,
+          integrity_score,
+          competitive_score,
+          current_streak,
           last_active,
           updated_at
         )
-        values ($1, $2, $3, $4, 'Global', 'IRON', 0, 0, false, null, '', true, true, now(), now())
+        values ($1, $2, $3, $4, 'Global', 'IRON', 0, 0, false, null, '', true, true, 0, 0, 0, now(), now())
         returning id
       `,
       [user.id, username, fullName, avatar],
@@ -361,6 +372,9 @@ export async function broadcastProfileStats(
         phone_number = $12,
         is_public = $13,
         is_focus_public = $14,
+        integrity_score = $15,
+        competitive_score = $16,
+        current_streak = $17,
         last_active = now(),
         updated_at = now()
       where id = $1
@@ -410,6 +424,9 @@ export async function broadcastProfileStats(
       typeof payload.is_focus_public === "boolean"
         ? payload.is_focus_public
         : profile.metadata.isFocusPublic !== false,
+      Number(payload.integrity_score || 0),
+      Number(payload.competitive_score || 0),
+      Number(payload.current_streak || 0),
     ],
   );
 }

@@ -24,11 +24,14 @@ export async function fetchLeaderboard() {
         p.phone_number,
         p.is_public,
         p.is_focus_public,
+        p.integrity_score,
+        p.competitive_score,
+        p.current_streak,
         u.email,
         (p.last_active > now() - interval '60 seconds') as is_online
       from profiles p
       join "user" u on u.id = p.auth_user_id
-      order by p.total_hours desc, p.updated_at desc nulls last
+      order by p.competitive_score desc, p.total_hours desc, p.updated_at desc nulls last
       limit 1000
     `,
   );
@@ -51,6 +54,9 @@ export async function fetchLeaderboard() {
     is_focus_public: row.is_focus_public !== false,
     email: row.email,
     is_online: row.is_online === true,
+    integrity_score: Number(row.integrity_score || 0),
+    competitive_score: Number(row.competitive_score || 0),
+    current_streak: Number(row.current_streak || 0),
   }));
 }
 
