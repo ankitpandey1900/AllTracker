@@ -55,8 +55,10 @@ export const profileModal = `
 
             <!-- PERSONAL DOSSIER SECTION -->
             <div class="profile-dossier">
-              <h3 class="dossier-title">IDENTITY_DOSSIER</h3>
-              
+              <div class="dossier-row">
+                <div class="dossier-label">TRUST SCORE</div>
+                <div id="dossierTrustScore" class="dossier-value">[ VERIFYING... ]</div>
+              </div>
               <div class="dossier-row">
                 <div class="dossier-label">Real Name</div>
                 <div id="dossierRealName" class="dossier-value">[ NOT SET ]</div>

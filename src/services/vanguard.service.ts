@@ -4,6 +4,7 @@ import { getSecureLocalProfileString } from '@/utils/security';
 export interface RivalContext {
   handle: string;
   gap: number;
+  gapPoints: number;
   rank: number;
 }
 
@@ -37,9 +38,13 @@ export class VanguardService {
     const rival = sorted[myIndex - 1];
     const me = sorted[myIndex];
     
+    const scoreA = rival.competitive_score || ((rival.total_hours || 0) * 100);
+    const scoreB = me.competitive_score || ((me.total_hours || 0) * 100);
+    
     return {
       handle: `@${rival.display_name}`,
       gap: Number(((rival.total_hours || 0) - (me.total_hours || 0)).toFixed(1)),
+      gapPoints: Math.max(0, Math.round(scoreA - scoreB)),
       rank: myIndex, 
     };
   }

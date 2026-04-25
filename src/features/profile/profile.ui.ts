@@ -1,6 +1,6 @@
 import { getSecureLocalProfileString, setSecureLocalProfileString } from "@/utils/security";
 import { appState } from "@/state/app-state";
-import { calculateTodayStudyHours, calculateTotalStudyHours, getRankProgression } from "@/utils/calc.utils";
+import { calculateTodayStudyHours, calculateTotalStudyHours, getRankProgression, calculateVerificationScore } from "@/utils/calc.utils";
 import type { UserProfile } from "@/types/profile.types";
 import { saveProfileData } from "./profile.manager";
 
@@ -137,6 +137,14 @@ function hydrateIdentityFields(): void {
   setDossierVal(dossierName, profile.realName);
   setDossierVal(dossierEmail, profile.email);
   setDossierVal(dossierPhone, profile.phoneNumber);
+
+  const trackerTotal = calculateTotalStudyHours(appState.trackerData);
+  const verifiedScore = calculateVerificationScore(appState.verifiedHours || 0, trackerTotal);
+  const dossierTrust = document.getElementById("dossierTrustScore");
+  if (dossierTrust) {
+    dossierTrust.textContent = `${verifiedScore}%`;
+    dossierTrust.style.color = verifiedScore > 75 ? '#10b981' : (verifiedScore > 40 ? '#fbbf24' : '#ef4444');
+  }
 
   const hInput = document.getElementById("profileNameInput") as HTMLInputElement;
   const rnInput = document.getElementById("profileRealNameInput") as HTMLInputElement;

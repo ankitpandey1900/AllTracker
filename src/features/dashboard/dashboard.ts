@@ -184,7 +184,7 @@ export function updateRivalryHUD(): void {
     hud.style.background = 'rgba(239, 68, 68, 0.05)';
     if (labelEl) { labelEl.style.color = '#ef4444'; labelEl.textContent = 'TARGET IDENTIFIED 🎯'; }
     if (handleEl) { handleEl.style.color = '#ef4444'; handleEl.textContent = rival.handle; }
-    if (metaEl) metaEl.innerHTML = `RANK <span id="rivalRank">${rival.rank}</span> • <span id="rivalGap" style="color: #fca5a5; font-weight: 900;">-${formatDuration(rival.gap) || '0h'}</span> TO OVERTAKE`;
+    if (metaEl) metaEl.innerHTML = `RANK <span id="rivalRank">${rival.rank}</span> • <span id="rivalGap" style="color: #fca5a5; font-weight: 900;">-${rival.gapPoints} PTS (${rival.gap}H)</span> TO OVERTAKE`;
   } else {
     hud.style.display = 'block';
     hud.style.border = '1px solid rgba(250, 204, 21, 0.4)';
