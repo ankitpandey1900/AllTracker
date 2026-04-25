@@ -583,12 +583,13 @@ export function calculateVerificationScore(sessionHours: number, trackerHours: n
 }
 
 /**
- * COMPETITIVE XP ENGINE (Rank 2.0)
- * Weights: Hours (100x), Current Streak (50x), Trust Score (2x)
+ * COMPETITIVE XP ENGINE (Rank 2.0 - God Tier Scaling)
+ * Weights: Hours (1.8x), Current Streak (1.5x), Trust Score (0.1x)
+ * Insanely strict scaling. Breaking 1,000 points requires ~500+ hours of verified work.
  */
 export function calculateCompetitiveXP(totalHours: number, currentStreak: number, trustScore: number): number {
-  const hourPoints = totalHours * 100;
-  const streakPoints = currentStreak * 50;
-  const integrityPoints = trustScore * 2;
+  const hourPoints = totalHours * 1.8;
+  const streakPoints = currentStreak * 1.5;
+  const integrityPoints = trustScore * 0.1;
   return Math.round(hourPoints + streakPoints + integrityPoints);
 }
