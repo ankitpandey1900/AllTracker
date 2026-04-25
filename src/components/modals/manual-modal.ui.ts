@@ -390,11 +390,12 @@ export const manualModal = `
             <section class="docs-section" id="doc-leaderboard">
               <div class="docs-breadcrumb">Community &amp; AI <b>›</b> Global Rankings</div>
               <h2 class="docs-h2">The Global Leaderboard</h2>
-              <p>Compete with dedicated students worldwide. Your position is decided by your <strong>Rank Score</strong>, a multi-factor score that rewards consistency and integrity.</p>
+              <p>Compete with dedicated students worldwide. Your position is decided by your <strong>Rank Score</strong>, a multi-factor "God Tier" score that rewards long-term consistency and absolute integrity.</p>
               
               <div class="docs-callout docs-callout-info">
-                <div class="docs-callout-title">⚔️ Rank Score Formula</div>
-                <p><strong>Rank Score</strong> = (Hours &times; 100) + (Current Streak &times; 50) + (Trust Score &times; 2)</p>
+                <div class="docs-callout-title">⚔️ Elite Rank Score Formula</div>
+                <p><strong>Rank Score</strong> = (Hours &times; 1.8) + (Current Streak &times; 1.5) + (Trust Score &times; 0.1)</p>
+                <p style="font-size: 0.75rem; margin-top: 8px; opacity: 0.8;">Note: Reaching a score of <strong>1,000</strong> is a legendary milestone requiring approximately <strong>500+ hours</strong> of verified work.</p>
               </div>
 
               <h3 class="docs-h3">Rank Tiers</h3>

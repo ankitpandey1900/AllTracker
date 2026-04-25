@@ -244,7 +244,7 @@ export function renderPodium(
           <div class="status-tag ${statusClass}" style="margin-bottom: 2px;">${statusLabel}</div>
           <div class="podium-hours" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 8px;">
             <div style="font-size: 1.2rem; color: #fbbf24; font-weight: 900; letter-spacing: 1px; line-height: 1;">
-              ${(u.competitive_score || calculateCompetitiveXP(u.total_hours, u.current_streak || 0, u.integrity_score || 0)).toLocaleString()}
+              ${(calculateCompetitiveXP(u.total_hours, u.current_streak || 0, u.integrity_score || 0)).toLocaleString()}
             </div>
             <div style="font-size: 0.55rem; color: #94a3b8; font-weight: 800; letter-spacing: 2px; margin-top: 4px; opacity: 0.7;">RANK SCORE</div>
           </div>
@@ -320,7 +320,7 @@ export function renderUserRow(
             </svg>` : ''}</span>
           <span class="status-tag ${statusClass}">${statusLabel}</span>
         </div>
-        <div class="lb-meta">${(u.competitive_score || calculateCompetitiveXP(u.total_hours, u.current_streak || 0, u.integrity_score || 0)).toLocaleString()} <span style="font-size: 0.6rem; opacity: 0.6;">Rank Score</span></div>
+        <div class="lb-meta">${(calculateCompetitiveXP(u.total_hours, u.current_streak || 0, u.integrity_score || 0)).toLocaleString()} <span style="font-size: 0.6rem; opacity: 0.6;">Rank Score</span></div>
         <div class="lb-xp-container"><div class="lb-xp-bar" style="width: ${xpPercent}%; background: ${rankColor};"></div></div>
       </div>
       <div class="lb-hours-container">

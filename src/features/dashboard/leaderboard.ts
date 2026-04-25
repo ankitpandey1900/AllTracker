@@ -5,6 +5,7 @@ import { fetchLeaderboard, fetchGlobalTelemetry } from '@/services/vault.service
 import { GlobalProfile } from '@/types/profile.types';
 import { setupPasswordToggle } from '@/services/auth.service';
 import { formatDuration } from '@/utils/date.utils';
+import { calculateCompetitiveXP } from '@/utils/calc.utils';
 
 // 📡 FEATURE BRIDGE: Profile and Identity logic moved to src/features/profile/
 import { syncProfileBroadcast, updateLastInteraction, lastInteractionAt } from '@/features/profile/profile.manager';
@@ -101,8 +102,8 @@ export function getCurrentUserLeaderboardContext(): {
   if (!myDisplayName) return null;
 
   const sorted = [...lbAllUsers].sort((a, b) => {
-    const scoreA = a.competitive_score || ((a.total_hours || 0) * 100);
-    const scoreB = b.competitive_score || ((b.total_hours || 0) * 100);
+    const scoreA = calculateCompetitiveXP(a.total_hours, a.current_streak || 0, a.integrity_score || 0);
+    const scoreB = calculateCompetitiveXP(b.total_hours, b.current_streak || 0, b.integrity_score || 0);
     return scoreB - scoreA;
   });
   const myIndex = sorted.findIndex(u => u.display_name === myDisplayName);
@@ -195,8 +196,8 @@ export async function refreshLeaderboard(): Promise<void> {
   const myDisplayName = profileData ? JSON.parse(profileData).displayName : null;
 
   users = users.sort((a, b) => {
-    const scoreA = a.competitive_score || ((a.total_hours || 0) * 100);
-    const scoreB = b.competitive_score || ((b.total_hours || 0) * 100);
+    const scoreA = calculateCompetitiveXP(a.total_hours, a.current_streak || 0, a.integrity_score || 0);
+    const scoreB = calculateCompetitiveXP(b.total_hours, b.current_streak || 0, b.integrity_score || 0);
     return scoreB - scoreA;
   });
   setLbAllUsers(users);
