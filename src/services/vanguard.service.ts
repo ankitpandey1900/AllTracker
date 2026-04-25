@@ -25,7 +25,11 @@ export class VanguardService {
     const myName = profileData ? JSON.parse(profileData).displayName : null;
     if (!myName) return null;
 
-    const sorted = [...users].sort((a, b) => (b.total_hours || 0) - (a.total_hours || 0));
+    const sorted = [...users].sort((a, b) => {
+      const scoreA = a.competitive_score || ((a.total_hours || 0) * 100);
+      const scoreB = b.competitive_score || ((b.total_hours || 0) * 100);
+      return scoreB - scoreA;
+    });
     const myIndex = sorted.findIndex(u => u.display_name === myName);
 
     if (myIndex <= 0) return null; // Top of the board or not found

@@ -13,8 +13,7 @@ export const profileModal = `
           
           <div class="social-header">
             <div class="profile-avatar-container">
-              <div class="avatar-ring-pulse"></div>
-              <div class="profile-avatar-box">
+              <div class="profile-avatar-box tactical-ring">
                 <div class="profile-avatar" id="passportAvatar">👤</div>
               </div>
               <div id="statusBeacon" class="status-beacon idle" title="Current Status"></div>
@@ -39,17 +38,17 @@ export const profileModal = `
             <!-- SOCIAL CREDIBILITY BAR -->
             <div class="social-stats-bar">
               <div class="stat-item">
-                <div id="totalHoursPassport" class="stat-value">0.0h</div>
+                <div class="stat-val-row"><span id="totalHoursPassport" class="stat-value">0.0</span><span class="stat-unit">HRS</span></div>
                 <div class="stat-label">TOTAL STUDY</div>
               </div>
               <div class="stat-divider"></div>
               <div class="stat-item">
-                <div id="bestStreakPassport" class="stat-value">0d</div>
+                <div class="stat-val-row"><span id="bestStreakPassport" class="stat-value">0</span><span class="stat-unit">DAYS</span></div>
                 <div class="stat-label">BEST STREAK</div>
               </div>
               <div class="stat-divider"></div>
               <div class="stat-item">
-                <div id="todayHoursPassport" class="stat-value">0.0h</div>
+                <div class="stat-val-row"><span id="todayHoursPassport" class="stat-value">0.0</span><span class="stat-unit">HRS</span></div>
                 <div class="stat-label">TODAY</div>
               </div>
             </div>
@@ -60,17 +59,17 @@ export const profileModal = `
               
               <div class="dossier-row">
                 <div class="dossier-label">Real Name</div>
-                <div id="dossierRealName" class="dossier-value">-</div>
+                <div id="dossierRealName" class="dossier-value">[ NOT SET ]</div>
               </div>
               
               <div class="dossier-row">
                 <div class="dossier-label">Email UPLINK</div>
-                <div id="dossierEmail" class="dossier-value">-</div>
+                <div id="dossierEmail" class="dossier-value">[ NOT SET ]</div>
               </div>
 
               <div class="dossier-row">
-                <div class="dossier-label">Contact MOBILE</div>
-                <div id="dossierPhone" class="dossier-value">-</div>
+                <div class="dossier-label">MOBILE SECURE</div>
+                <div id="dossierPhone" class="dossier-value">[ NOT SET ]</div>
               </div>
 
             </div>

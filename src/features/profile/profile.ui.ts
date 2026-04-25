@@ -48,12 +48,12 @@ export async function openProfileModal(): Promise<void> {
   const totalHoursEl = document.getElementById("totalHoursPassport");
   const todayHoursEl = document.getElementById("todayHoursPassport");
 
-  if (totalHoursEl) totalHoursEl.textContent = `${totalHours.toFixed(1)}h`;
-  if (todayHoursEl) todayHoursEl.textContent = `${todayHours.toFixed(1)}h`;
+  if (totalHoursEl) totalHoursEl.textContent = `${totalHours.toFixed(1)}`;
+  if (todayHoursEl) todayHoursEl.textContent = `${todayHours.toFixed(1)}`;
 
   const bestStreak = document.getElementById("bestStreakPassport");
   const { calculateBestStreak } = await import("@/utils/calc.utils");
-  if (bestStreak) bestStreak.textContent = `${calculateBestStreak(appState.trackerData)}d`;
+  if (bestStreak) bestStreak.textContent = `${calculateBestStreak(appState.trackerData)}`;
 
   const beacon = document.getElementById("statusBeacon");
   if (beacon) {
@@ -118,9 +118,25 @@ function hydrateIdentityFields(): void {
   if (handleEl) handleEl.textContent = `@${profile.displayName}`;
   if (passportAvatar) passportAvatar.textContent = profile.avatar || "👤";
   if (nationBadge) nationBadge.textContent = profile.nation || "Global";
-  if (dossierName) dossierName.textContent = profile.realName || "-";
-  if (dossierEmail) dossierEmail.textContent = profile.email || "-";
-  if (dossierPhone) dossierPhone.textContent = profile.phoneNumber || "-";
+  
+  const setDossierVal = (el: HTMLElement | null, val: string | undefined) => {
+    if (!el) return;
+    if (val) {
+      el.textContent = val;
+      el.style.color = '#f8fafc';
+      el.style.fontStyle = 'normal';
+      el.style.opacity = '1';
+    } else {
+      el.textContent = '[ NOT SET ]';
+      el.style.color = '#ef4444';
+      el.style.fontStyle = 'italic';
+      el.style.opacity = '0.7';
+    }
+  };
+
+  setDossierVal(dossierName, profile.realName);
+  setDossierVal(dossierEmail, profile.email);
+  setDossierVal(dossierPhone, profile.phoneNumber);
 
   const hInput = document.getElementById("profileNameInput") as HTMLInputElement;
   const rnInput = document.getElementById("profileRealNameInput") as HTMLInputElement;
