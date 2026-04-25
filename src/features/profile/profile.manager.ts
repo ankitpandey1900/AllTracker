@@ -3,14 +3,15 @@ import { appState } from '@/state/app-state';
 import { 
   broadcastGlobalStats, 
   isUsernameTaken, 
-  loadUserProfileCloud 
+  loadUserProfileCloud,
+  fetchMySessionsCloud
 } from '@/services/vault.service';
 import { getCurrentUserId } from '@/services/auth.service';
 import { showToast } from '@/utils/dom.utils';
 import { log } from '@/utils/logger.utils';
 import { apiRequest } from '@/services/api.service';
-import type { UserProfile } from '@/types/profile.types';
 import { calculateTodayStudyHours, calculateTotalStudyHours, calculateStreak, calculateBestStreak } from '@/utils/calc.utils';
+import { UserProfile, StudySession } from '@/types/profile.types';
 
 // Tracks the last time the user did something in the app
 export let lastInteractionAt = Date.now();
@@ -59,6 +60,11 @@ export async function checkProfileIdentity(): Promise<void> {
       
       // 🔥 BROADCAST AFTER HYDRATION: Sync metrics with the now-correct identity
       await syncProfileBroadcast();
+
+      // 🛡️ SELF-HEAL: Reconcile tracker with sessions if lagging
+      fetchMySessionsCloud().then(sessions => {
+        if (sessions) selfHealTrackerFromSessions(sessions);
+      });
     } else if (profileSaved) {
       // 🚨 RECOVERY MODE: Local profile exists but Cloud is empty (Data loss recovery)
       console.warn("🛡️ RECOVERY: Cloud profile missing. Re-broadcasting local identity...");
@@ -92,6 +98,32 @@ export async function syncProfileBroadcast(): Promise<void> {
   // Calculate stats from appState using centralized engine
   let totalHours = calculateTotalStudyHours(appState.trackerData);
   let todayHours = calculateTodayStudyHours(appState.trackerData);
+
+  // 🛡️ PERFECT SYNC: Cross-reference with Live Cloud Sessions
+  // This prevents the leaderboard from regressing if local trackerData is out of sync
+  try {
+    const cloudSessions = await fetchMySessionsCloud();
+    if (cloudSessions && cloudSessions.length > 0) {
+      const cloudTotal = cloudSessions.reduce((sum, s) => sum + (s.duration || 0), 0);
+      
+      // Calculate cloud today (matching local YYYY-MM-DD)
+      const todayStr = new Date().toISOString().split('T')[0];
+      const cloudToday = cloudSessions.reduce((sum, s) => {
+        const sDate = s.log_date || (s.end_at || '').split('T')[0];
+        return sDate === todayStr ? sum + (s.duration || 0) : sum;
+      }, 0);
+
+      if (cloudTotal > totalHours) {
+        log.info(`[Sync] Leaderboard updated from Cloud Sessions: ${cloudTotal.toFixed(1)}h`);
+        totalHours = cloudTotal;
+      }
+      if (cloudToday > todayHours) {
+        todayHours = cloudToday;
+      }
+    }
+  } catch (err) {
+    log.error('Cloud session reconciliation failed', err);
+  }
   
   // Get current Rank Label (approximate for broadcast)
   const rank = document.getElementById('studyRank')?.textContent || 'IRON';
@@ -259,4 +291,39 @@ export async function handleIdentityMigration(currentKey: string, newKey: string
 /** Update the interaction timestamp for heartbeat management */
 export function updateLastInteraction(): void {
   lastInteractionAt = Date.now();
+}
+
+/** 🛡️ SELF-HEALING: Fills the tracker table with missing cloud session data */
+async function selfHealTrackerFromSessions(sessions: StudySession[]): Promise<void> {
+  const { adjustTrackerDataForSessionDelta } = await import('@/features/tracker/tracker');
+  // Group sessions by day and subject to avoid redundant saves
+  const dailyTotals = new Map<string, Map<string, number>>();
+  
+  sessions.forEach(s => {
+    const date = s.log_date || (s.end_at || '').split('T')[0];
+    const subject = s.subject || 'General';
+    const duration = s.duration || 0;
+    if (!date || duration <= 0) return;
+
+    if (!dailyTotals.has(date)) dailyTotals.set(date, new Map());
+    const dayMap = dailyTotals.get(date)!;
+    dayMap.set(subject, (dayMap.get(subject) || 0) + duration);
+  });
+
+  // Apply absolute totals (Silent batch mode)
+  for (const [date, subjects] of dailyTotals.entries()) {
+    for (const [subject, total] of subjects.entries()) {
+      await adjustTrackerDataForSessionDelta(date, subject, 0, total, true);
+    }
+  }
+
+  // 🔥 FINAL SYNC: Update the World Stage once after reconstruction
+  await syncProfileBroadcast();
+
+  // 🔥 UI REFRESH: Ensure the dashboard reflects the restored timeline
+  const { generateTable } = await import('@/features/tracker/tracker');
+  const { updateDashboard } = await import('@/features/dashboard/dashboard');
+  generateTable();
+  updateDashboard();
+  log.success(`[Self-Heal]: Reconstructed dashboard from ${sessions.length} sessions.`);
 }

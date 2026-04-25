@@ -11,7 +11,8 @@
 import { RANK_TIERS, TIER_TITLES } from '@/config/constants';
 import type { TrackerDay, RankDetails } from '@/types/tracker.types';
 import type { RoutineItem } from '@/types/routine.types';
-import { formatTime12h } from '@/utils/date.utils';
+import { formatTime12h, formatDate } from '@/utils/date.utils';
+import { appState } from '@/state/app-state';
 
 /** 
  * XP & Leveling Engine
@@ -476,4 +477,96 @@ export function calculateSustainability(trackerData: TrackerDay[]): {
       isVolatile: sep.isVolatile 
     }
   };
+}
+
+/**
+ * MISSION ETA ENGINE
+ * Calculates estimated finish date based on current pace vs yesterday's pace.
+ */
+export function calculateEstimatedFinishWithTrend(currentDayNumber: number, completedDays: number): { date: string; trend: 'up' | 'down' | 'stable' } {
+  if (currentDayNumber <= 0) return { date: 'Analyzing...', trend: 'stable' };
+  if (completedDays <= 0) return { date: 'Need 1 session', trend: 'stable' };
+
+  const pace = completedDays / currentDayNumber;
+  if (pace <= 0) return { date: 'Studying...', trend: 'stable' };
+
+  const remainingCompletions = Math.max(0, (appState.totalDays || 365) - completedDays);
+  if (remainingCompletions === 0) return { date: 'Goal Completed! 🏆', trend: 'stable' };
+
+  const daysNeeded = Math.ceil(remainingCompletions / pace);
+  const eta = new Date();
+  eta.setDate(eta.getDate() + daysNeeded);
+
+  const yesterdayDayNumber = currentDayNumber - 1;
+  const wasCompletedToday = appState.trackerData[appState.trackerData.length - 1]?.completed || false;
+  const yesterdayCompletedDays = wasCompletedToday ? completedDays - 1 : completedDays;
+
+  let trend: 'up' | 'down' | 'stable' = 'stable';
+  if (yesterdayDayNumber > 0 && yesterdayCompletedDays > 0) {
+    const yesterdayPace = yesterdayCompletedDays / yesterdayDayNumber;
+    if (pace > yesterdayPace + 0.01) trend = 'up';
+    else if (pace < yesterdayPace - 0.01) trend = 'down';
+  }
+
+  return { date: formatDate(eta), trend };
+}
+
+// Cached status message — only re-randomised when the pace category changes.
+let _cachedStatusMsg = '';
+let _cachedPaceCategory = '';
+
+/**
+ * PSYCHOLOGICAL STATUS ENGINE
+ * Generates dynamic feedback based on study pace and consistency.
+ */
+export function getDynamicStatusMessage(currentDay: number, completedDays: number): string {
+  const totalDays = appState.totalDays || 365;
+  const expectedPace = currentDay / totalDays;
+  const actualPace = completedDays / totalDays;
+  const diff = actualPace - expectedPace;
+
+  let category: string;
+  if (diff < -0.05) category = 'behind';
+  else if (diff > 0.10) category = 'ahead-high';
+  else if (diff > 0) category = 'ahead-low';
+  else category = 'steady';
+
+  if (category === _cachedPaceCategory && _cachedStatusMsg) {
+    return _cachedStatusMsg;
+  }
+
+  const taunts = [
+    "The clock is ticking. Get moving!",
+    "You're slipping behind. Pick up the pace!",
+    "Another day wasted? Do it fast!",
+    "Laziness is the enemy. Start now.",
+    "Is this your best? Prove it.",
+    "Your future self is disappointed. Fix it."
+  ];
+
+  const steadyArr = [
+    "Staying consistent. Keep going.",
+    "Steady progress. Don't stop.",
+    "On track. Maintain the discipline.",
+    "The grind continues. Stay focused."
+  ];
+
+  const appreciation = [
+    "Crushing it! Keep this energy.",
+    "Eternity awaits. You're ahead of schedule.",
+    "Legend in the making. Exceptional work!",
+    "Pure focus. Most people can't do this.",
+    "Ahead of the game. Keep leading.",
+    "God tier discipline. Unstoppable!"
+  ];
+
+  let msg: string;
+  if (category === 'behind') msg = taunts[Math.floor(Math.random() * taunts.length)];
+  else if (category === 'ahead-high') msg = appreciation[Math.floor(Math.random() * appreciation.length)];
+  else if (category === 'ahead-low') msg = appreciation[Math.floor(Math.random() * 3)];
+  else msg = steadyArr[Math.floor(Math.random() * steadyArr.length)];
+
+  _cachedPaceCategory = category;
+  _cachedStatusMsg = msg;
+  return msg;
 }

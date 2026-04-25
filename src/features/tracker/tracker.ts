@@ -401,45 +401,42 @@ function filterTable(): void {
 export async function adjustTrackerDataForSessionDelta(
   dateStr: string,
   subject: string,
-  deltaHours: number
+  deltaHours: number,
+  absoluteHours?: number,
+  silent: boolean = false
 ): Promise<void> {
   const data = appState.trackerData;
   if (!data || data.length === 0) return;
 
-  // 1. Find the day entry for this date
   const isoDate = dateStr.split('T')[0];
   const day = data.find(d => d.date.startsWith(isoDate));
-  if (!day) {
-    log.warn(`[Reconciler]: No tracker entry found for date ${isoDate}. Local state might be out of sync.`);
-    return;
-  }
+  if (!day) return;
 
-  // 2. Map subject name to column index for this specific day
-  // Senior Implementation: Support Custom Ranges by fetching schema for that specific day
   const dayCols = getColumnsForDay(day.day);
   const colIdx = dayCols.findIndex((c: StudyCategory) => c.name.trim().toLowerCase() === subject.trim().toLowerCase());
 
-  if (colIdx === -1) {
-    log.warn(`[Reconciler]: Subject '${subject}' not found in column schema for day ${day.day}. Local adjustment skipped.`);
-    return;
-  }
+  if (colIdx === -1) return;
 
-  // 3. Apply the delta
   const currentVal = getHourAt(day, colIdx);
-  const newVal = Math.max(0, currentVal + deltaHours);
+  
+  let newVal: number;
+  if (typeof absoluteHours === 'number') {
+    newVal = Math.max(currentVal, absoluteHours);
+  } else {
+    newVal = Math.max(0, currentVal + deltaHours);
+  }
+  
+  if (newVal === currentVal) return;
+
   setHourAt(day, colIdx, newVal);
 
-  // 4. Auto-calculate 'completed' status
   const totalHours = getTotalHours(day);
   const totalTarget = dayCols.reduce((acc: number, c: StudyCategory) => acc + (c.target || 0), 0);
-  
   day.completed = totalHours >= totalTarget && totalHours > 0;
 
-  // 5. Persistence
   await saveTrackerDataToStorage(data);
   
-  // 6. Broadcast to trigger leaderboard/profile updates in cloud
-  syncProfileBroadcast();
-  
-  log.info(`[Reconciler]: Adjusted ${subject} by ${deltaHours}h for ${isoDate}. New total: ${totalHours}h.`);
+  if (!silent) {
+    syncProfileBroadcast();
+  }
 }

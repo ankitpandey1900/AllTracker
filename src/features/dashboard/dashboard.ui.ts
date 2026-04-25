@@ -221,6 +221,7 @@ export const dashboardView = `
               </div>
             </div>
 
+            <div id="leaderboardPodium" class="leaderboard-podium" style="display: none;"></div>
             <div id="leaderboardList" class="leaderboard-list">
               <div class="leaderboard-placeholder">Connecting to World Stage...</div>
             </div>

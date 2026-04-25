@@ -164,6 +164,11 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
 
     await refreshAppAfterSync();
     updateSyncStatus('synced');
+
+    // 🛡️ FINAL INTEGRITY CHECK: Re-verify sessions vs tracker after sync
+    import('@/features/profile/profile.manager').then(m => {
+      m.checkProfileIdentity();
+    });
   } catch (err) {
     log.error('Sync failure:', err);
     updateSyncStatus('error');

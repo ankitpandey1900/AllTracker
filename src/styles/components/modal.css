@@ -2,8 +2,10 @@
   display: none;
   position: fixed;
   inset: 0;
-  z-index: 40;
-  background: rgba(0, 0, 0, 0.75);
+  z-index: 200; /* Ensure it sits above all dashboard layers */
+  background: rgba(4, 7, 13, 0.65);
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
   align-items: center;
   justify-content: center;
   padding: 20px;
