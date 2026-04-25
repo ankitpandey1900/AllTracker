@@ -627,13 +627,13 @@ function startTimerInterval(): void {
         } catch (e) { /* silent fail */ }
       }
 
-      // 🛑 OVERRUN GUARD: HARD CAP LIVE SESSIONS AT 5 HOURS
-      const FIVE_HOURS_MS = 5 * 60 * 60 * 1000;
-      if (totalElapsedMs > FIVE_HOURS_MS) {
-        log.warn('[Timer] Hard cap reached. Session over 5hrs. Auto-stopping.');
-        // Trick stopTimer into thinking exactly 5 hours passed so it doesn't log excess
-        appState.activeTimer.startTime = Date.now() - (FIVE_HOURS_MS - appState.activeTimer.elapsedAcc);
-        stopTimer('[AUTO-SAFE] 5hr Max Limit Reached');
+      // 🛑 OVERRUN GUARD: HARD CAP LIVE SESSIONS AT 3 HOURS
+      const THREE_HOURS_MS = 3 * 60 * 60 * 1000;
+      if (totalElapsedMs > THREE_HOURS_MS) {
+        log.warn('[Timer] Hard cap reached. Session over 3hrs. Auto-stopping.');
+        // Trick stopTimer into thinking exactly 3 hours passed so it doesn't log excess
+        appState.activeTimer.startTime = Date.now() - (THREE_HOURS_MS - appState.activeTimer.elapsedAcc);
+        stopTimer('[AUTO-SAFE] 3hr Max Limit Reached');
         return;
       }
 

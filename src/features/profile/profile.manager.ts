@@ -10,7 +10,13 @@ import { getCurrentUserId } from '@/services/auth.service';
 import { showToast } from '@/utils/dom.utils';
 import { log } from '@/utils/logger.utils';
 import { apiRequest } from '@/services/api.service';
-import { calculateTodayStudyHours, calculateTotalStudyHours, calculateStreak, calculateBestStreak } from '@/utils/calc.utils';
+import { 
+  calculateTodayStudyHours, 
+  calculateTotalStudyHours, 
+  calculateStreak, 
+  calculateBestStreak,
+  calculateVerificationScore 
+} from '@/utils/calc.utils';
 import { UserProfile, StudySession } from '@/types/profile.types';
 
 // Tracks the last time the user did something in the app
@@ -96,8 +102,10 @@ export async function syncProfileBroadcast(): Promise<void> {
   const profile = JSON.parse(saved) as UserProfile;
 
   // Calculate stats from appState using centralized engine
-  let totalHours = calculateTotalStudyHours(appState.trackerData);
+  const trackerTotal = calculateTotalStudyHours(appState.trackerData);
+  let totalHours = trackerTotal;
   let todayHours = calculateTodayStudyHours(appState.trackerData);
+  let sessionTotal = 0;
 
   // 🛡️ PERFECT SYNC: Cross-reference with Live Cloud Sessions
   // This prevents the leaderboard from regressing if local trackerData is out of sync
@@ -105,6 +113,7 @@ export async function syncProfileBroadcast(): Promise<void> {
     const cloudSessions = await fetchMySessionsCloud();
     if (cloudSessions && cloudSessions.length > 0) {
       const cloudTotal = cloudSessions.reduce((sum, s) => sum + (s.duration || 0), 0);
+      sessionTotal = cloudTotal;
       
       // Calculate cloud today (matching local YYYY-MM-DD)
       const todayStr = new Date().toISOString().split('T')[0];
@@ -124,6 +133,14 @@ export async function syncProfileBroadcast(): Promise<void> {
   } catch (err) {
     log.error('Cloud session reconciliation failed', err);
   }
+
+  // 🛡️ HUMAN LIMIT GUARD: Prevent impossible study counts (Max 20h/day)
+  if (todayHours > 20) {
+    log.warn(`INTEGRITY ALERT: ${todayHours.toFixed(1)}h/day exceeds human limits. Clipping to 20h.`);
+    todayHours = 20;
+  }
+
+  const verificationScore = calculateVerificationScore(sessionTotal, trackerTotal);
   
   // Get current Rank Label (approximate for broadcast)
   const rank = document.getElementById('studyRank')?.textContent || 'IRON';
@@ -170,7 +187,9 @@ export async function syncProfileBroadcast(): Promise<void> {
     is_focus_public: profile.isFocusPublic !== false,
     is_public: profile.isPublic !== false,
     email: (profile as any).email,
-    User_name: profile.realName
+    User_name: profile.realName,
+    integrity_score: verificationScore,
+    is_verified: verificationScore > 75 
   };
 
   // 🛡️ BROADCAST DEDUPLICATION: Only sync if status or hours changed significantly

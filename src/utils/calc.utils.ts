@@ -570,3 +570,14 @@ export function getDynamicStatusMessage(currentDay: number, completedDays: numbe
   _cachedStatusMsg = msg;
   return msg;
 }
+/**
+ * INTEGRITY ENGINE
+ * Calculates a verification score based on timer sessions vs manual entry.
+ * High score (>75) means most hours were done via live timer.
+ */
+export function calculateVerificationScore(sessionHours: number, trackerHours: number): number {
+  if (trackerHours <= 0) return 100; 
+  if (sessionHours <= 0) return 0;
+  const verifiedRatio = Math.min(1.1, sessionHours / trackerHours);
+  return Math.min(100, Math.round(verifiedRatio * 100));
+}
