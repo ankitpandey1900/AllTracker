@@ -377,6 +377,9 @@ export async function stopTimer(autoNote?: string): Promise<void> {
         saveSessionToDate(colIdx, hoursBefore, note, sessionStart);
         saveSessionToDate(colIdx, hoursAfter, note, sessionEnd);
 
+        // 🛡️ PERSISTENCE GUARD: Ensure local table is written to disk immediately
+        saveTrackerDataToStorage(appState.trackerData);
+
         showToast(`🛡️ MIDNIGHT SECTOR SPLIT: ${formatDuration(hoursBefore)} (Yesterday) + ${formatDuration(hoursAfter)} (Today)`, 'success');
 
         // 🌐 CLOUD SESSION LOG — two separate records, matching the local split exactly
@@ -391,6 +394,10 @@ export async function stopTimer(autoNote?: string): Promise<void> {
         appState.verifiedHours += (hoursBefore + hoursAfter);
       } else {
         saveSessionToDate(colIdx, totalHours, note, sessionEnd);
+
+        // 🛡️ PERSISTENCE GUARD: Ensure local table is written to disk immediately
+        saveTrackerDataToStorage(appState.trackerData);
+
         showToast(autoNote ? `Auto-Safe Triggered: ${formatMsToTime(totalElapsed)}` : `Session saved: ${formatMsToTime(totalElapsed)}`, 'success');
 
         // 🌐 CLOUD SESSION LOG (UTC)
