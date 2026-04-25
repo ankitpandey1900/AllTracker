@@ -109,11 +109,8 @@ export async function syncProfileBroadcast(): Promise<void> {
   let todayHours = calculateTodayStudyHours(appState.trackerData);
   
   // 🛡️ PERFECT SYNC: Hybrid Verification (Local + Cloud)
-  // We start with local session logs as a fast fallback
-  let sessionTotal = 0;
-  if (appState.settings.sessionLogs) {
-    sessionTotal = appState.settings.sessionLogs.reduce((sum, s) => sum + (s.duration || 0), 0);
-  }
+  // We start with the reactive global buffer to ensure immediate Dashboard-to-Leaderboard alignment.
+  let sessionTotal = appState.verifiedHours;
 
   // 🛡️ PERFECT SYNC: Cross-reference with Live Cloud Sessions
   // This prevents the leaderboard from regressing if local trackerData is out of sync
@@ -121,7 +118,6 @@ export async function syncProfileBroadcast(): Promise<void> {
     const cloudSessions = await fetchMySessionsCloud();
     if (cloudSessions && cloudSessions.length > 0) {
       const cloudTotal = cloudSessions.reduce((sum, s) => sum + (s.duration || 0), 0);
-      sessionTotal = cloudTotal;
       
       // Calculate cloud today (matching local YYYY-MM-DD)
       const todayStr = new Date().toISOString().split('T')[0];
@@ -137,13 +133,11 @@ export async function syncProfileBroadcast(): Promise<void> {
       if (cloudToday > todayHours) {
         todayHours = cloudToday;
       }
+      
+      // 🛡️ RECONCILIATION GUARD: Merge Cloud with Local Buffer
+      appState.verifiedHours = Math.max(cloudTotal, appState.verifiedHours);
+      sessionTotal = appState.verifiedHours;
     }
-    
-    // 🛡️ RECONCILIATION GUARD: Use whichever is higher (Cloud vs Local Buffer)
-    // This prevents Trust Score drops if the cloud fetch is lagging behind a just-finished session.
-    appState.verifiedHours = Math.max(sessionTotal, appState.verifiedHours);
-    sessionTotal = appState.verifiedHours;
-
   } catch (err) {
     log.error('Cloud session reconciliation failed', err);
   }
@@ -156,10 +150,9 @@ export async function syncProfileBroadcast(): Promise<void> {
 
   const isFocusing = appState.activeTimer.isRunning;
   
-  // 🛡️ ZERO-BROADCAST GUARD: If we have table hours but sessionTotal is precisely 0, 
-  // it might mean the cloud fetch is still in progress. Do not broadcast an integrity drop.
-  if (trackerTotal > 5 && sessionTotal === 0 && !isFocusing) {
-    log.info("SYNC GUARD: Deferring broadcast to prevent false Integrity drop (Sync in progress).");
+  // 🛡️ ZERO-BROADCAST GUARD: Prevent broadcasting a '0% Integrity' drop if we expect data.
+  if (trackerTotal > 1 && sessionTotal === 0 && !isFocusing) {
+    log.info("SYNC GUARD: Deferring broadcast to prevent false Integrity drop (Waiting for sessions).");
     return;
   }
   
@@ -169,7 +162,7 @@ export async function syncProfileBroadcast(): Promise<void> {
     const elapsedHrs = elapsedMs / (1000 * 60 * 60);
     todayHours += elapsedHrs;
     totalHours += elapsedHrs;
-    sessionTotal += elapsedHrs; // 🛡️ Live focus is verified by definition
+    sessionTotal += elapsedHrs; 
   }
 
   // Recalculate verification score with live hours included
