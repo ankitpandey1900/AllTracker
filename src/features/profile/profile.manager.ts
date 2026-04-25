@@ -105,7 +105,13 @@ export async function syncProfileBroadcast(): Promise<void> {
   const trackerTotal = calculateTotalStudyHours(appState.trackerData);
   let totalHours = trackerTotal;
   let todayHours = calculateTodayStudyHours(appState.trackerData);
+  
+  // 🛡️ PERFECT SYNC: Hybrid Verification (Local + Cloud)
+  // We start with local session logs as a fast fallback
   let sessionTotal = 0;
+  if (appState.settings.sessionLogs) {
+    sessionTotal = appState.settings.sessionLogs.reduce((sum, s) => sum + (s.duration || 0), 0);
+  }
 
   // 🛡️ PERFECT SYNC: Cross-reference with Live Cloud Sessions
   // This prevents the leaderboard from regressing if local trackerData is out of sync
@@ -141,6 +147,13 @@ export async function syncProfileBroadcast(): Promise<void> {
   }
 
   const verificationScore = calculateVerificationScore(sessionTotal, trackerTotal);
+  
+  // 🛡️ ZERO-BROADCAST GUARD: If we have table hours but sessionTotal is precisely 0, 
+  // it might mean the cloud fetch is still in progress. Do not broadcast an integrity drop.
+  if (trackerTotal > 5 && sessionTotal === 0 && !isFocusing) {
+    log.info("SYNC GUARD: Deferring broadcast to prevent false Integrity drop (Sync in progress).");
+    return;
+  }
   
   // Get current Rank Label (approximate for broadcast)
   const rank = document.getElementById('studyRank')?.textContent || 'IRON';

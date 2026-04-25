@@ -7,7 +7,7 @@ export const manualModal = `
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--docs-accent)" stroke-width="3">
             <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
           </svg>
-          <span class="docs-version">v4.0.0</span>
+          <span class="docs-version">v4.1.0</span>
         </div>
 
         <div class="docs-search-shell">
@@ -61,6 +61,9 @@ export const manualModal = `
             </a>
             <a class="docs-nav-link" onclick="docScrollTo('doc-leaderboard')">
               <span class="nav-icon">🏆</span> Leaderboard
+            </a>
+            <a class="docs-nav-link" onclick="docScrollTo('doc-integrity')">
+              <span class="nav-icon">🛡️</span> Trust Score
             </a>
             <a class="docs-nav-link" onclick="docScrollTo('doc-maamu')">
               <span class="nav-icon">🤖</span> AI Mentor
@@ -254,19 +257,19 @@ export const manualModal = `
                   <div class="feature-card-desc">Hours are calculated and written directly into today's Study Log when you stop the timer.</div>
                 </div>
                 <div class="docs-feature-card">
-                  <div class="feature-card-icon">🌙</div>
-                  <div class="feature-card-title">Midnight Split</div>
-                  <div class="feature-card-desc">Study past midnight? The timer intelligently splits hours between yesterday and today automatically.</div>
+                  <div class="feature-card-icon">⚡</div>
+                  <div class="feature-card-title">Grind Guard</div>
+                  <div class="feature-card-desc">Sessions are capped at 3 hours to prevent "zombie logs." Approaching the limit? Click the golden EXTEND button on the HUD to grant yourself another hour.</div>
                 </div>
                 <div class="docs-feature-card">
-                  <div class="feature-card-icon">📌</div>
-                  <div class="feature-card-title">Mini-Player</div>
-                  <div class="feature-card-desc">Pin the timer as a compact floating HUD so it's always visible no matter which tab you're on.</div>
+                  <div class="feature-card-icon">🛡️</div>
+                  <div class="feature-card-title">Insomniac Mode</div>
+                  <div class="feature-card-desc">The app aggressively prevents your laptop from sleeping while the timer is active—even during breaks—so you never lose sight of your mission.</div>
                 </div>
                 <div class="docs-feature-card">
-                  <div class="feature-card-icon">🔔</div>
-                  <div class="feature-card-title">Session Goal</div>
-                  <div class="feature-card-desc">Set a target hours goal and get notified when your session reaches it.</div>
+                  <div class="feature-card-icon">📡</div>
+                  <div class="feature-card-title">Cross-Device Sync</div>
+                  <div class="feature-card-desc">Start on mobile, follow on desktop. Your session status, subject, and elapsed time sync across all active devices in real-time.</div>
                 </div>
               </div>
             </section>
@@ -408,6 +411,26 @@ export const manualModal = `
                   </tbody>
                 </table>
               </div>
+            </section>
+
+            <div class="docs-divider"></div>
+
+            <!-- INTEGRITY & TRUST -->
+            <section class="docs-section" id="doc-integrity">
+              <div class="docs-breadcrumb">Community &amp; AI <b>›</b> Mission Integrity</div>
+              <h2 class="docs-h2">Trust Score &amp; Verification</h2>
+              <p>The World Stage is built on fairness. The Integrity Engine verifies your study habits to ensure a level playing field.</p>
+              
+              <div class="docs-callout docs-callout-info">
+                <div class="docs-callout-title">🔘 The Blue Tick (Verified Operative)</div>
+                <p>Cross the <strong>75% Trust Threshold</strong> to earn the elite Blue Tick next to your name. This proves your hours are backed by real Live Timer logs.</p>
+              </div>
+
+              <h3 class="docs-h3">How it's calculated</h3>
+              <p>Your Trust Score is the ratio of <strong>Verified Timer Hours</strong> to <strong>Total Table Hours</strong>. If you enter 10 hours manually but only use the timer for 1 hour, your score drops. Use the Focus Timer for all your grinds to maintain a high-integrity profile.</p>
+
+              <h3 class="docs-h3">Broadcast Guard</h3>
+              <p>The system uses a <strong>Hybrid Sync</strong> protocol. If you study offline or on a slow connection, the app remembers your session logs locally and only broadcasts your score once it is perfectly verified with the cloud.</p>
             </section>
 
             <div class="docs-divider"></div>

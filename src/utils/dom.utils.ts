@@ -155,7 +155,14 @@ export function hideLoading(): void {
 /**
  * Animates a numeric value from 0 to target for a cinematic feel.
  */
-export function animateValue(el: HTMLElement | null, target: number, duration: number = 800, suffix: string = '', decimals: number = 0): void {
+export function animateValue(
+  el: HTMLElement | null,
+  target: number,
+  duration: number = 800,
+  suffix: string = '',
+  decimals: number = 0,
+  formatter?: (val: number) => string
+): void {
   if (!el) return;
   let startTimestamp: number | null = null;
   const step = (timestamp: number) => {
@@ -163,8 +170,14 @@ export function animateValue(el: HTMLElement | null, target: number, duration: n
     const progress = Math.min((timestamp - startTimestamp) / duration, 1);
     // Ease out expo
     const easedProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-    const current = (easedProgress * target).toFixed(decimals);
-    el.textContent = `${current}${suffix}`;
+    const current = easedProgress * target;
+    
+    if (formatter) {
+      el.textContent = formatter(current);
+    } else {
+      el.textContent = `${current.toFixed(decimals)}${suffix}`;
+    }
+    
     if (progress < 1) {
       window.requestAnimationFrame(step);
     }

@@ -86,6 +86,7 @@ export const hudView = `
       </div>
 
       <div class="control-row">
+        <button id="timerExtendBtn" class="btn" style="display: none; background: linear-gradient(135deg, #fbbf24, #d97706); color: #fff; font-size: 0.65rem; font-weight: 800; border: none; box-shadow: 0 0 15px rgba(251, 191, 26, 0.4);">EXTEND GRIND +1H</button>
         <button id="timerPauseBtn" class="btn btn-outline" style="min-width: 100px;">Break ☕</button>
         <button id="timerTerminateBtn" class="btn btn-ghost" title="Discard session — no data saved" style="border: 1px solid rgba(239,68,68,0.4); color: #ef4444; font-size: 0.65rem; letter-spacing: 1px; opacity: 0.8;">TERMINATE</button>
         <button id="timerStopBtn" class="btn btn-danger glow-danger">Stop</button>

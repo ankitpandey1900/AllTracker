@@ -33,20 +33,41 @@ export function initTimerModules(): void {
   // Initial Check
   SyncIndicator.update(window.navigator.onLine ? 'synced' : 'offline');
 
-  // Split-Brain Timer Sync (Listen for cross-device pauses)
+  // 📡 Split-Brain Timer Sync: Full Bi-Directional Real-time Integration
   import('@/services/vault.service').then(({ subscribeToRealtimeTelemetry }) => {
     subscribeToRealtimeTelemetry(async (payload) => {
       const { getCurrentUserId } = await import('@/services/auth.service');
       const me = getCurrentUserId();
-      // If the telemetry event is for this user
+      
       if (payload.new && payload.new.id === me) {
-        const newIsFocusing = payload.new.is_focusing;
-        if (appState.activeTimer.isRunning && !newIsFocusing) {
-          log.info('🚨 SILENT OVERRIDE: External pause detected. Freezing local timer...');
+        const cloudIsRunning = payload.new.is_focusing;
+        const localIsRunning = appState.activeTimer.isRunning;
+
+        // If Cloud state differs from Local state, we have a remote event
+        if (cloudIsRunning !== localIsRunning) {
+          log.info(`📡 REMOTE SYNC: External ${cloudIsRunning ? 'START' : 'PAUSE'} detected. Synchronizing...`);
+          
           const { loadTimerStateFromStorage } = await import('@/services/data-bridge');
           const cloudState = await loadTimerStateFromStorage();
-          if (cloudState) Object.assign(appState.activeTimer, cloudState);
-          updateTimerDisplay();
+          
+          if (cloudState) {
+            // Update local memory
+            Object.assign(appState.activeTimer, cloudState);
+            
+            // Handle UI transitions
+            if (cloudIsRunning) {
+              updateTimerUI(true);
+              startTimerInterval();
+              document.body.classList.add('is-focusing');
+              requestWakeLock();
+            } else {
+              if (appState.timerInterval) clearInterval(appState.timerInterval);
+              updateTimerUI(true); // Still show it, but in paused/break state
+              document.body.classList.remove('is-focusing');
+              // We don't release wakeLock here because user might be on break
+            }
+            updateTimerDisplay();
+          }
         }
       }
     });
@@ -88,10 +109,12 @@ function releaseWakeLock() {
   }
 }
 
-// Re-acquire wake lock if tab becomes visible again (OS often kills it in background)
+// Re-acquire wake lock if tab becomes visible again or if the OS releases it
 document.addEventListener('visibilitychange', async () => {
-  if (wakeLock !== null && document.visibilityState === 'visible') {
-    await requestWakeLock();
+  if (appState.activeTimer.isRunning || appState.activeTimer.activeBreak) {
+    if (document.visibilityState === 'visible') {
+      await requestWakeLock();
+    }
   }
 });
 
@@ -192,8 +215,10 @@ export function startBreak(reason: string): void {
   // ⚡ ELITE UX: Rest Mode
   document.body.classList.remove('is-focusing');
 
-  // 🌙 RELEASE LOCKS
-  releaseWakeLock();
+  // ⚡ ELITE UX: Rest Mode
+  document.body.classList.remove('is-focusing');
+
+  // NOTE: We NO LONGER release wakeLock here so the screen stays awake during breaks as requested.
   updateMediaSession(false);
 
   import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast());
@@ -274,6 +299,9 @@ function startBreakInterval(): void {
 
     // 💓 HEARBEAT SYNC
     saveTimerState();
+
+    // 🛡️ ANTI-SLEEP HEARTBEAT: Keep screen awake during breaks
+    if (!wakeLock) requestWakeLock();
   }, 1000);
 }
 
@@ -384,6 +412,9 @@ export async function stopTimer(autoNote?: string): Promise<void> {
   appState.activeTimer.sessionStartClock = null;
   appState.activeTimer.activeBreak = null;
   appState.activeTimer.completedBreaks = [];
+  appState.activeTimer.overrunCapMs = undefined;
+  appState.activeTimer.hasWarnedOverrun1 = false;
+  appState.activeTimer.hasWarnedOverrun2 = false;
 
   // 🎙️ AMBIENT AUDIO: Safety stop
   notificationService.stopAmbient();
@@ -402,6 +433,7 @@ export async function stopTimer(autoNote?: string): Promise<void> {
   updateDashboard();
   renderHeatmap();
   renderPerformanceCurve();
+  releaseWakeLock();
   generateTable();
 }
 
@@ -426,6 +458,9 @@ export async function terminateTimer(): Promise<void> {
   appState.activeTimer.sessionStartClock = null;
   appState.activeTimer.activeBreak = null;
   appState.activeTimer.completedBreaks = [];
+  appState.activeTimer.overrunCapMs = undefined;
+  appState.activeTimer.hasWarnedOverrun1 = false;
+  appState.activeTimer.hasWarnedOverrun2 = false;
 
   // 🎙️ AMBIENT AUDIO: Safety stop
   notificationService.stopAmbient();
@@ -441,6 +476,7 @@ export async function terminateTimer(): Promise<void> {
 
   updateTimerUI(false);
   toggleFocusHUD(false);
+  releaseWakeLock();
   showToast('Session terminated. No data recorded.', 'error');
 
   // Broadcast Idle telemetry so leaderboard/HUD reflects Idle state
@@ -627,13 +663,40 @@ function startTimerInterval(): void {
         } catch (e) { /* silent fail */ }
       }
 
-      // 🛑 OVERRUN GUARD: HARD CAP LIVE SESSIONS AT 3 HOURS
-      const THREE_HOURS_MS = 3 * 60 * 60 * 1000;
-      if (totalElapsedMs > THREE_HOURS_MS) {
-        log.warn('[Timer] Hard cap reached. Session over 3hrs. Auto-stopping.');
-        // Trick stopTimer into thinking exactly 3 hours passed so it doesn't log excess
-        appState.activeTimer.startTime = Date.now() - (THREE_HOURS_MS - appState.activeTimer.elapsedAcc);
-        stopTimer('[AUTO-SAFE] 3hr Max Limit Reached');
+      // 🛑 OVERRUN GUARD: HARD CAP LIVE SESSIONS (Default 3 hours)
+      const currentCapMs = appState.activeTimer.overrunCapMs || (3 * 60 * 60 * 1000);
+      const remainingMs = currentCapMs - totalElapsedMs;
+
+      // Warning 1: 10 mins before
+      const extendBtn = document.getElementById('timerExtendBtn');
+      if (remainingMs <= 10 * 60 * 1000 && remainingMs > 0) {
+        if (extendBtn) extendBtn.style.display = 'block';
+      } else {
+        if (extendBtn) extendBtn.style.display = 'none';
+      }
+
+      if (remainingMs <= 10 * 60 * 1000 && remainingMs > 9 * 60 * 1000 && !appState.activeTimer.hasWarnedOverrun1) {
+        appState.activeTimer.hasWarnedOverrun1 = true;
+        notificationService.sendAlert(
+          "Grind Guard: 10m Left ⚠️",
+          "Bhai 3 ghante hone wale hain! Are you still studying? HUD check karlo extension ke liye."
+        );
+        showToast("Overrun Guard: 10 minutes remaining. Check HUD to extend.", "warning");
+      }
+
+      // Warning 2: 2 mins before
+      if (remainingMs <= 2 * 60 * 1000 && remainingMs > 0 && !appState.activeTimer.hasWarnedOverrun2) {
+        appState.activeTimer.hasWarnedOverrun2 = true;
+        notificationService.sendAlert(
+          "FINAL WARNING 🛑",
+          "Session auto-stopping in 2 mins to protect your stats! Extend now if you are still here."
+        );
+      }
+
+      if (totalElapsedMs > currentCapMs) {
+        log.warn(`[Timer] Hard cap reached (${currentCapMs/3600000}h). Auto-stopping.`);
+        appState.activeTimer.startTime = Date.now() - (currentCapMs - appState.activeTimer.elapsedAcc);
+        stopTimer('[AUTO-SAFE] Overrun Guard Triggered');
         return;
       }
 
@@ -642,6 +705,9 @@ function startTimerInterval(): void {
         saveTimerState();
         // Live Leaderboard Push: Broadcast active hours so the World Stage updates in real-time
         import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast());
+        
+        // 🛡️ ANTI-SLEEP HEARTBEAT: Re-verify wake lock every 30s
+        if (!wakeLock) requestWakeLock();
       }
     }
   }, 1000);
@@ -844,6 +910,23 @@ export function openTimerModal(): void {
   modal?.classList.add('active');
 }
 
+/** Proves user presence and pushes the auto-stop guard back by 1 hour */
+export function extendTimerCap(): void {
+  const DEFAULT_CAP = 3 * 60 * 60 * 1000;
+  const current = appState.activeTimer.overrunCapMs || DEFAULT_CAP;
+  appState.activeTimer.overrunCapMs = current + (60 * 60 * 1000); // +1 Hour
+  
+  // Reset warning flags so they fire again for the new cap
+  appState.activeTimer.hasWarnedOverrun1 = false;
+  appState.activeTimer.hasWarnedOverrun2 = false;
+
+  const extendBtn = document.getElementById('timerExtendBtn');
+  if (extendBtn) extendBtn.style.display = 'none';
+
+  showToast("Grind Guard Extended: 1 more hour granted! 🚀", "success");
+  saveTimerState();
+}
+
 /** Resumes a timer if it was running when the page loaded */
 export function resumeTimerIfNeeded(): void {
   const { isRunning, startTime, elapsedAcc } = appState.activeTimer;
@@ -992,7 +1075,9 @@ export function setupFocusListeners(): void {
 
   // Wire up Terminate Button
   const terminateBtn = document.getElementById('timerTerminateBtn');
+  const extendBtn = document.getElementById('timerExtendBtn');
   if (terminateBtn) terminateBtn.addEventListener('click', () => terminateTimer());
+  if (extendBtn) extendBtn.addEventListener('click', () => extendTimerCap());
 
   // Draggable Logic
   let currX = 0, currY = 0;

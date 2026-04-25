@@ -2,7 +2,7 @@ import { appState } from '@/state/app-state';
 import { StudySession } from '@/types/profile.types';
 import { fetchMySessionsCloud, deleteStudySessionCloud, updateStudySessionCloud } from '@/services/vault.service';
 import { showToast, showLoading, hideLoading, animateValue } from '@/utils/dom.utils';
-import { formatTime12h, formatDuration } from '@/utils/date.utils';
+import { formatTime12h, formatDuration, formatMinutes } from '@/utils/date.utils';
 import { isRowEditable } from '@/services/integrity';
 import { adjustTrackerDataForSessionDelta, generateTable } from '@/features/tracker/tracker';
 import { log } from '@/utils/logger.utils';
@@ -132,7 +132,7 @@ export async function renderSessionHistory(): Promise<void> {
       <span class="sh-stat"><span class="sh-stat-val">${formatDuration(totalHours)}</span><span class="sh-stat-lbl">Total Time</span></span>
       ${totalBreakMins > 0 ? `
         <span class="sh-stat-div"></span>
-        <span class="sh-stat"><span class="sh-stat-val" id="sh-stat-break" style="color:#38bdf8">${totalBreakMins}m</span><span class="sh-stat-lbl">Total Break</span></span>
+        <span class="sh-stat"><span class="sh-stat-val" id="sh-stat-break" style="color:#38bdf8">${formatMinutes(totalBreakMins)}</span><span class="sh-stat-lbl">Total Break</span></span>
       ` : ''}
       <span class="sh-stat-div"></span>
       <span class="sh-stat"><span class="sh-stat-val sh-stat-range">${rangeText}</span><span class="sh-stat-lbl">Date Range</span></span>
@@ -142,7 +142,7 @@ export async function renderSessionHistory(): Promise<void> {
     requestAnimationFrame(() => {
       animateValue(document.getElementById('sh-stat-count'), displayLogs.length, 600);
       if (totalBreakMins > 0) {
-        animateValue(document.getElementById('sh-stat-break'), totalBreakMins, 800, 'm');
+        animateValue(document.getElementById('sh-stat-break'), totalBreakMins, 800, '', 0, formatMinutes);
       }
     });
   }
@@ -180,7 +180,7 @@ export async function renderSessionHistory(): Promise<void> {
         </div>
         <div class="sh-date-sessions-label">
           ${dayData.session_count} session${dayData.session_count !== 1 ? 's' : ''}
-          ${dayData.total_breaks > 0 ? `<span style="color:#38bdf8; margin-left:8px; opacity:0.8;">${dayData.total_breaks}m break</span>` : ''}
+          ${dayData.total_breaks > 0 ? `<span style="color:#38bdf8; margin-left:8px; opacity:0.8;">${formatMinutes(dayData.total_breaks)} break</span>` : ''}
         </div>
         <div class="sh-total-hours">${formatDuration(dayData.total_hours)}</div>
         <div></div>
@@ -204,7 +204,7 @@ export async function renderSessionHistory(): Promise<void> {
             <span class="sh-subject-badge" style="background:${col.bg}; border-color:${col.border}; color:${col.text};">${subName}</span>
             <span class="sh-subject-count">
               ${sessions.length} session${sessions.length > 1 ? 's' : ''}
-              ${subBreaks > 0 ? `<span style="color:#38bdf8; margin-left:6px; opacity:0.7; font-size:0.6rem;">${subBreaks}m break</span>` : ''}
+              ${subBreaks > 0 ? `<span style="color:#38bdf8; margin-left:6px; opacity:0.7; font-size:0.6rem;">${formatMinutes(subBreaks)} break</span>` : ''}
             </span>
           </div>
           <div></div>
@@ -221,7 +221,7 @@ export async function renderSessionHistory(): Promise<void> {
         let note = (log.note && log.note !== 'null' && log.note.trim()) ? log.note : '';
         const breakInfo = parseBreaks(note);
         const breakBadge = breakInfo.count > 0
-          ? `<span class="sh-break-badge">${breakInfo.count} BREAK${breakInfo.count > 1 ? 'S' : ''} ${breakInfo.mins > 0 ? `(${breakInfo.mins}m)` : ''}</span>`
+          ? `<span class="sh-break-badge">${breakInfo.count} BREAK${breakInfo.count > 1 ? 'S' : ''} ${breakInfo.mins > 0 ? `(${formatMinutes(breakInfo.mins)})` : ''}</span>`
           : '';
         const sessionNum = idx + 1;
         const barW = maxDuration > 0 ? Math.max(6, Math.round((duration / maxDuration) * 100)) : 6;

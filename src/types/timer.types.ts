@@ -23,4 +23,7 @@ export interface ActiveTimer {
     reason: string;
     durationMs: number;
   }[];
+  overrunCapMs?: number;
+  hasWarnedOverrun1?: boolean;
+  hasWarnedOverrun2?: boolean;
 }
