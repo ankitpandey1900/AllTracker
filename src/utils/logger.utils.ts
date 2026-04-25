@@ -18,7 +18,7 @@ const LOG_LEVELS: Record<LogLevel, number> = {
 const getLogLevel = (): number => {
   const saved = localStorage.getItem('ALL_TRACKER_LOG_LEVEL') as LogLevel;
   if (saved && LOG_LEVELS[saved] !== undefined) return LOG_LEVELS[saved];
-  return localStorage.getItem('ALL_TRACKER_DEBUG') === 'true' ? 1 : 2; // Default to INFO (2) or DEBUG (1)
+  return 3; // Default to WARN (3) for professional silent console
 };
 
 const threshold = getLogLevel();

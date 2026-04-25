@@ -189,11 +189,35 @@ export function calculateSummaryStats(trackerData: TrackerDay[]): {
   let maxStreak = 0;
   let running = 0;
 
+  // 🛰️ SESSION HISTORY RECONCILIATION
+  // Load local session history to find any "hidden" hours that aren't in the trackerData
+  const localHistoryRaw = localStorage.getItem('all_tracker_history');
+  const localSessions: any[] = localHistoryRaw ? JSON.parse(localHistoryRaw) : [];
+  
+  // Group local sessions by date for fast lookup
+  const sessionMap = new Map<string, number>();
+  localSessions.forEach(s => {
+    const d = s.log_date || (s.end_at || s.date || '').split('T')[0];
+    if (d) {
+      sessionMap.set(d, (sessionMap.get(d) || 0) + (s.duration || 0));
+    }
+  });
+
   for (const day of trackerData) {
-    const dayTotal = Array.isArray(day.studyHours) ? day.studyHours.reduce((s, n) => s + (n || 0), 0) : 0;
+    const tableDayTotal = Array.isArray(day.studyHours) ? day.studyHours.reduce((s, n) => s + (n || 0), 0) : 0;
+    
+    // ⚔️ DOUBLE-VERIFICATION: Take the maximum of Table hours or Session hours
+    const isoDate = day.date.split('T')[0];
+    const sessionDayTotal = sessionMap.get(isoDate) || 0;
+    
+    const dayTotal = Math.max(tableDayTotal, sessionDayTotal);
+    
     totalHours += dayTotal;
     
-    if (day.completed) {
+    // Streak logic: A day is "active" if it has hours or is marked completed/rest
+    const isActive = day.completed || day.restDay || dayTotal > 0;
+
+    if (day.completed || (dayTotal > 0 && !day.restDay)) {
       completedDays++;
       running++;
       if (running > maxStreak) maxStreak = running;

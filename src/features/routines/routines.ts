@@ -308,7 +308,10 @@ export async function checkDailyRoutineReset(): Promise<void> {
   });
 
   if (needsSave) {
-    if (isNewDay) console.log('Mission Log: New day detected. Routine state purged.');
+    if (isNewDay) {
+       // Silent mission log (DEBUG level only)
+       import('@/utils/logger.utils').then(({ log }) => log.debug('Routine state purged for new day.'));
+    }
     saveRoutinesToStorage(appState.routines);
     await saveRoutineResetToStorage(today);
     updateDashboard(); 

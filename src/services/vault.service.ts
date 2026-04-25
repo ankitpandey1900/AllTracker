@@ -191,8 +191,25 @@ export async function logStudySessionCloud(
   startTime?: Date,
   note?: string,
 ): Promise<void> {
-  if (!getCurrentUserId()) return;
-  await apiRequest("/api/app/study-sessions", {
+  if (!getCurrentUserId()) {
+    // 🛡️ OFFLINE FALLBACK: Save to local history if not logged in
+    const localSaved = localStorage.getItem('all_tracker_history');
+    const localLogs: StudySession[] = localSaved ? JSON.parse(localSaved) : [];
+    localLogs.push({
+      id: crypto.randomUUID(),
+      user_id: 'local-session', // Offline placeholder
+      duration,
+      subject,
+      start_at: startTime?.toISOString() || new Date().toISOString(),
+      end_at: new Date().toISOString(),
+      note: note || '',
+      log_date: (startTime || new Date()).toISOString().split('T')[0]
+    });
+    localStorage.setItem('all_tracker_history', JSON.stringify(localLogs));
+    return;
+  }
+
+  const response = await apiRequest<StudySession>("/api/app/study-sessions", {
     method: "POST",
     body: {
       duration,
@@ -201,6 +218,14 @@ export async function logStudySessionCloud(
       note,
     },
   });
+
+  // 🛰️ CLOUD MIRROR: Update local cache immediately so dashboard is instant
+  if (response) {
+    const localSaved = localStorage.getItem('all_tracker_history');
+    const localLogs: StudySession[] = localSaved ? JSON.parse(localSaved) : [];
+    localLogs.push(response);
+    localStorage.setItem('all_tracker_history', JSON.stringify(localLogs.slice(-100))); // Keep last 100 locally
+  }
 }
 
 export async function deleteStudySessionCloud(sessionId: string): Promise<void> {
