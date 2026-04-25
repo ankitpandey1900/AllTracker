@@ -1,4 +1,4 @@
-﻿/* World Stage & Profile UI V1 */
+/* World Stage & Profile UI V1 */
 
 .world-stage-card {
   height: 100%;
@@ -71,7 +71,7 @@
   background: #ef4444;
   border-radius: 50%;
   box-shadow: 0 0 8px #ef4444;
-  animation: pulse-live 1.5s infinite;
+  /* animation: pulse-live 1.5s infinite; DISABLED FOR STATIC UX */
 }
 
 @keyframes pulse-live {
@@ -112,8 +112,8 @@
   position: relative;
 
   /* ðŸŽ¬ TACTICAL REVEAL: Smooth Entry when page renders */
-  animation: lb-row-reveal 0.45s cubic-bezier(0.23, 1, 0.32, 1) forwards;
-  opacity: 0;
+  /* animation: lb-row-reveal 0.45s cubic-bezier(0.23, 1, 0.32, 1) forwards; REMOVED FOR STATIC UX */
+  opacity: 1; /* Ensure visible without animation */
   will-change: transform, opacity;
 }
 
@@ -245,7 +245,7 @@
   background: linear-gradient(45deg, transparent, rgba(20, 184, 166, 0.3), transparent);
   z-index: -1;
   border-radius: 15px;
-  animation: my-glow-pulse 3s infinite;
+  /* animation: my-glow-pulse 3s infinite; DISABLED FOR STATIC UX */
 }
 
 @keyframes my-glow-pulse {
@@ -297,7 +297,7 @@
   height: 200%;
   background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
   transform: rotate(45deg);
-  animation: lb-medal-shine 3s infinite;
+  /* animation: lb-medal-shine 3s infinite; DISABLED FOR STATIC UX */
 }
 
 @keyframes lb-medal-shine {
@@ -458,7 +458,7 @@
 .pilot-medal {
   font-size: 0.8rem;
   letter-spacing: 0.5px;
-  animation: medal-float 2s infinite ease-in-out;
+  /* animation: medal-float 2s infinite ease-in-out; DISABLED FOR STATIC UX */
 }
 
 .lb-medal-gold,
@@ -490,7 +490,7 @@
   height: 200%;
   background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.15), transparent);
   transform: rotate(45deg);
-  animation: medal-shimmer 3.5s infinite;
+  /* animation: medal-shimmer 3.5s infinite; DISABLED FOR STATIC UX */
 }
 
 @keyframes medal-shimmer {
@@ -600,7 +600,7 @@
   background: rgba(16, 185, 129, 0.4);
   z-index: 10;
   pointer-events: none;
-  animation: radar-scan 4s linear infinite;
+  /* animation: radar-scan 4s linear infinite; DISABLED FOR STATIC UX */
   box-shadow: 0 0 15px rgba(16, 185, 129, 0.6);
 }
 
@@ -656,7 +656,7 @@
   inset: -6px;
   border: 1px solid rgba(16, 185, 129, 0.2);
   border-radius: 50%;
-  animation: avatar-pulse 3s infinite linear;
+  /* animation: avatar-pulse 3s infinite linear; DISABLED FOR STATIC UX */
 }
 
 @keyframes avatar-pulse {
@@ -866,14 +866,14 @@
   color: #10b981;
   background: rgba(16, 185, 129, 0.1);
   filter: drop-shadow(0 0 5px rgba(16, 185, 129, 0.4));
-  animation: trend-float-up 1.5s infinite ease-in-out;
+  /* animation: trend-float-up 1.5s infinite ease-in-out; DISABLED FOR STATIC UX */
 }
 
 .trend-down {
   color: #ef4444;
   background: rgba(239, 68, 68, 0.1);
   filter: drop-shadow(0 0 5px rgba(239, 68, 68, 0.4));
-  animation: trend-pulse-down 2s infinite ease-in-out;
+  /* animation: trend-pulse-down 2s infinite ease-in-out; DISABLED FOR STATIC UX */
 }
 
 @keyframes trend-float-up {
@@ -928,7 +928,7 @@
   color: #f472b6;
   border: 1px solid rgba(236, 72, 153, 0.3);
   box-shadow: 0 0 12px rgba(236, 72, 153, 0.2);
-  animation: focusing-glow 2s infinite ease-in-out;
+  /* animation: focusing-glow 2s infinite ease-in-out; DISABLED FOR STATIC UX */
 }
 
 .status-tag.focusing::before {
@@ -938,7 +938,7 @@
   background: #f472b6;
   border-radius: 50%;
   box-shadow: 0 0 10px #f472b6;
-  animation: focus-status-pulse 1.5s infinite;
+  /* animation: focus-status-pulse 1.5s infinite; DISABLED FOR STATIC UX */
   flex-shrink: 0;
 }
 
@@ -1144,7 +1144,7 @@
   height: 10px;
   border-radius: 50%;
 }
-.status-indicator.focusing { background: #ef4444; box-shadow: 0 0 12px #ef4444; animation: lb-pulse 2s infinite; }
+.status-indicator.focusing { background: #ef4444; box-shadow: 0 0 12px #ef4444; /* animation: lb-pulse 2s infinite; DISABLED FOR STATIC UX */ }
 .status-indicator.online { background: #10b981; box-shadow: 0 0 12px #10b981; }
 .status-indicator.offline { background: #64748b; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); }
 
@@ -1504,7 +1504,7 @@
   opacity: 0.3;
   pointer-events: none;
   mask-image: radial-gradient(circle at center, black 30%, transparent 90%);
-  animation: lb-mesh-drift 60s linear infinite;
+  /* animation: lb-mesh-drift 60s linear infinite; DISABLED FOR STATIC UX */
   z-index: 0;
 }
 
@@ -1531,7 +1531,7 @@
   opacity: 0;
   pointer-events: none;
   z-index: 5;
-  animation: lb-scan-sweep 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  /* animation: lb-scan-sweep 4s cubic-bezier(0.4, 0, 0.2, 1) infinite; REMOVED FOR STATIC UX */
   animation-delay: 2s;
   will-change: transform, opacity;
 }
@@ -1625,7 +1625,7 @@
   border-radius: 50%;
   background: var(--hover-color);
   box-shadow: 0 0 8px var(--hover-color);
-  animation: lb-pulse 1.5s infinite;
+  /* animation: lb-pulse 1.5s infinite; DISABLED FOR STATIC UX */
   will-change: transform, opacity;
 }
 
@@ -1749,7 +1749,7 @@
 
 /* âš¡ Live Focus Pulse */
 .telem-pulse {
-  animation: telemPulse 2s infinite ease-in-out;
+  /* animation: telemPulse 2s infinite ease-in-out; DISABLED FOR STATIC UX */
   text-shadow: 0 0 15px currentColor;
 }
 
@@ -1766,7 +1766,7 @@
   width: 100%;
   height: 2px;
   background: linear-gradient(90deg, transparent, var(--border-strong), transparent);
-  animation: hudScan 6s linear infinite;
+  /* animation: hudScan 6s linear infinite; DISABLED FOR STATIC UX */
   z-index: 1;
   pointer-events: none;
   opacity: 0.3;
@@ -1840,7 +1840,7 @@
 .status-beacon.focusing { 
   background: #10b981; 
   box-shadow: 0 0 10px #10b981;
-  animation: beacon-pulse 2s infinite;
+  /* animation: beacon-pulse 2s infinite; DISABLED FOR STATIC UX */
 }
 
 @keyframes beacon-pulse {
@@ -2377,7 +2377,7 @@
   border-left: 7px solid #34d399;
   filter: drop-shadow(0 0 5px var(--success));
   pointer-events: none;
-  animation: pulse-arrow 2s infinite;
+  /* animation: pulse-arrow 2s infinite; DISABLED FOR STATIC UX */
 }
 
 @keyframes pulse-arrow {
@@ -2438,7 +2438,7 @@
 
 .current-target .node-ring {
   border-color: rgba(16, 185, 129, 0.3);
-  animation: node-ring-pulse 2s infinite;
+  /* animation: node-ring-pulse 2s infinite; DISABLED FOR STATIC UX */
 }
 
 @keyframes node-ring-pulse {
@@ -2580,7 +2580,7 @@
   height: 240px; /* 📏 EXPANDED SYMMETRY */
   text-align: center;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  animation: lb-podium-entrance 0.6s cubic-bezier(0.19, 1, 0.22, 1) both;
+  /* animation: lb-podium-entrance 0.6s cubic-bezier(0.19, 1, 0.22, 1) both; REMOVED FOR STATIC UX */
 }
 
 .podium-node:hover {
@@ -2649,7 +2649,7 @@
   height: 14px;
   border-radius: 50%;
   border: 2px solid #0d1222;
-  animation: lb-pulse 1.5s infinite;
+  /* animation: lb-pulse 1.5s infinite; DISABLED FOR STATIC UX */
 }
 
 .podium-info {
@@ -2744,7 +2744,7 @@
     font-size: 0.9rem;
     cursor: help;
     filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.6));
-    animation: verified-pulse 2s infinite ease-in-out;
+    /* animation: verified-pulse 2s infinite ease-in-out; DISABLED FOR STATIC UX */
 }
 
 @keyframes verified-pulse {
