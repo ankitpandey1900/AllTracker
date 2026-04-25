@@ -233,7 +233,11 @@ export function renderPodium(
           </div>
           <div class="status-tag ${statusClass}" style="margin-bottom: 2px;">${statusLabel}</div>
           <div class="podium-hours" style="font-size: 0.9rem; color: #fbbf24;">${(u.competitive_score || (u.total_hours * 100)).toLocaleString()} <span style="font-size: 0.55rem; color: #94a3b8; font-weight: 500;">Rank Score</span></div>
-          <div class="podium-today">${formatDuration(u.total_hours) || '0h'} total</div>
+          <div class="podium-today" style="font-size: 0.7rem; margin-top: 4px;">
+            <span style="color: #22c55e; font-weight: 800;">${todayHoursDisplay} today</span>
+            <span style="opacity: 0.4; margin: 0 4px;">•</span>
+            <span style="opacity: 0.8;">${formatDuration(u.total_hours) || '0h'} total</span>
+          </div>
         </div>
         ${renderHoverCard(u, rankColor, isMe, isFocusing, todayHoursDisplay, streakCount)}
       </div>

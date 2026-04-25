@@ -148,7 +148,6 @@ export async function syncProfileBroadcast(): Promise<void> {
     todayHours = 20;
   }
 
-  const verificationScore = calculateVerificationScore(sessionTotal, trackerTotal);
   const isFocusing = appState.activeTimer.isRunning;
   
   // 🛡️ ZERO-BROADCAST GUARD: If we have table hours but sessionTotal is precisely 0, 
@@ -164,7 +163,11 @@ export async function syncProfileBroadcast(): Promise<void> {
     const elapsedHrs = elapsedMs / (1000 * 60 * 60);
     todayHours += elapsedHrs;
     totalHours += elapsedHrs;
+    sessionTotal += elapsedHrs; // 🛡️ Live focus is verified by definition
   }
+
+  // Recalculate verification score with live hours included
+  const verificationScore = calculateVerificationScore(sessionTotal, trackerTotal);
 
   // 🛡️ CONTINUITY GUARD: Prevent time regression during focus sessions
   // If we have a cached payload that had more time, stick with it until the next second
