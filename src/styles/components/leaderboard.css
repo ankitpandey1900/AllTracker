@@ -1,4 +1,4 @@
-/* World Stage & Profile UI V1 */
+﻿/* World Stage & Profile UI V1 */
 
 .world-stage-card {
   height: 100%;
@@ -111,7 +111,7 @@
   transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
   position: relative;
 
-  /* 🎬 TACTICAL REVEAL: Smooth Entry when page renders */
+  /* ðŸŽ¬ TACTICAL REVEAL: Smooth Entry when page renders */
   animation: lb-row-reveal 0.45s cubic-bezier(0.23, 1, 0.32, 1) forwards;
   opacity: 0;
   will-change: transform, opacity;
@@ -145,7 +145,7 @@
   }
 }
 
-/* Hover effects ONLY for real pointer devices (mouse) — NOT touch screens */
+/* Hover effects ONLY for real pointer devices (mouse) â€” NOT touch screens */
 @media (hover: hover) and (pointer: fine) {
   .leaderboard-item:hover {
     background: rgba(30, 41, 59, 0.7);
@@ -175,12 +175,12 @@
   }
 }
 
-/* ─── ACTIVE HUD ROW ─────────────────────────────────────── */
+/* â”€â”€â”€ ACTIVE HUD ROW â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 /* Active HUD row must sit ABOVE all siblings so the card isn't clipped */
 .leaderboard-item.force-hud {
   z-index: 2000000; /* CRITICAL: Lift above all shell layers */
   position: relative;
-  /* 🛡️ DEFEAT CUSTOM THEME STACKING TRAPS */
+  /* ðŸ›¡ï¸ DEFEAT CUSTOM THEME STACKING TRAPS */
   transform: none !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
@@ -271,7 +271,7 @@
   justify-content: center;
 }
 
-/* 🏅 PREMIUM MEDAL ENGINE */
+/* ðŸ… PREMIUM MEDAL ENGINE */
 .pilot-medal {
   display: flex;
   align-items: center;
@@ -563,7 +563,7 @@
   line-height: 1;
 }
 
-/* 🛂 Arena Passport - Compact & Professional Update */
+/* ðŸ›‚ Arena Passport - Compact & Professional Update */
 .profile-passport-card {
   background: rgba(13, 17, 23, 0.95) !important;
   border: 1px solid rgba(16, 185, 129, 0.2) !important;
@@ -1057,7 +1057,7 @@
   border-top: 8px solid #0d1222;
 }
 
-/* 🛡️ INVERT ARROW for Top Rows */
+/* ðŸ›¡ï¸ INVERT ARROW for Top Rows */
 .leaderboard-item:nth-child(-n+3) .lb-hover-card::after {
   top: auto;
   bottom: 100%;
@@ -1233,7 +1233,7 @@
   opacity: 0.7;
 }
 
-/* 💠 V2 HUD PROGRESSION */
+/* ðŸ’  V2 HUD PROGRESSION */
 .hud-progression-box {
   margin-bottom: 4px;
 }
@@ -1306,7 +1306,7 @@
     max-width: none;
   }
 
-  /* 📱 Centering HUD to prevent mobile clipping */
+  /* ðŸ“± Centering HUD to prevent mobile clipping */
   .lb-hover-card {
     left: 50% !important;
     transform: translate3d(-50%, 10px, 0) !important;
@@ -1412,7 +1412,7 @@
   font-size: 1.1rem;
 }
 
-/* ─── WORLD STAGE PAGINATION ──────────────────────────────── */
+/* â”€â”€â”€ WORLD STAGE PAGINATION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .lb-pagination {
   display: flex;
   align-items: center;
@@ -1491,7 +1491,7 @@
   line-height: 30px;
 }
 
-/* ─── TACTICAL UI SYSTEMS ────────────────────────────────── */
+/* â”€â”€â”€ TACTICAL UI SYSTEMS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 /* Moving mesh background inside HUD */
 .lb-tactical-mesh {
@@ -1536,7 +1536,7 @@
   will-change: transform, opacity;
 }
 
-/* 💠 Global Telemetry Styles */
+/* ðŸ’  Global Telemetry Styles */
 #telemetry-global-total {
   color: #fbbf24 !important;
   text-shadow: 0 0 10px rgba(251, 191, 36, 0.4);
@@ -1650,7 +1650,7 @@
   }
 }
 
-/* 📡 GLOBAL TELEMETRY HUD V2: Premium Tactical UI (Theme-Ready) */
+/* ðŸ“¡ GLOBAL TELEMETRY HUD V2: Premium Tactical UI (Theme-Ready) */
 .tactical-hud-card {
   position: relative;
   background: var(--surface);
@@ -1733,7 +1733,7 @@
   letter-spacing: -0.02em;
 }
 
-/* 🎨 Adaptive Theme Color Overrides */
+/* ðŸŽ¨ Adaptive Theme Color Overrides */
 .status-amber { 
   color: var(--accent-cyan) !important; 
   border-color: rgba(34, 211, 238, 0.2) !important;
@@ -1747,7 +1747,7 @@
   border-color: rgba(139, 92, 246, 0.2) !important;
 }
 
-/* ⚡ Live Focus Pulse */
+/* âš¡ Live Focus Pulse */
 .telem-pulse {
   animation: telemPulse 2s infinite ease-in-out;
   text-shadow: 0 0 15px currentColor;
@@ -1777,7 +1777,7 @@
   100% { transform: translateY(100vh); }
 }
 
-/* ─── SOCIAL STUDY IDENTITY: Premium Social Card System ─── */
+/* â”€â”€â”€ SOCIAL STUDY IDENTITY: Premium Social Card System â”€â”€â”€ */
 .social-profile-card {
   background: rgba(10, 16, 30, 0.8) !important;
   backdrop-filter: blur(25px) saturate(200%) !important;
@@ -2060,7 +2060,7 @@
   box-shadow: 0 15px 35px rgba(59, 130, 246, 0.5);
 }
 
-/* ⚒️ SOCIAL EDITOR STYLES */
+/* âš’ï¸ SOCIAL EDITOR STYLES */
 .social-edit-header {
   padding: 30px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
@@ -2283,7 +2283,7 @@
   opacity: 1;
 }
 
-/* 🌐 MILESTONE HUD STYLES (Merged into Hud Card) */
+/* ðŸŒ MILESTONE HUD STYLES (Merged into Hud Card) */
 .hud-milestone-section {
   padding: 18px 20px 20px;
   position: relative;
@@ -2309,7 +2309,7 @@
   margin-top: 2px;
 }
 
-/* Timeline wrapper: ticks → bar → labels stacked vertically */
+/* Timeline wrapper: ticks â†’ bar â†’ labels stacked vertically */
 .milestone-timeline {
   display: flex;
   flex-direction: column;
@@ -2577,6 +2577,7 @@
   flex: 1;
   min-width: 0;
   max-width: 140px;
+  height: 220px; /* 📏 FIXED SYMMETRY */
   text-align: center;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   animation: lb-podium-entrance 0.6s cubic-bezier(0.19, 1, 0.22, 1) both;
@@ -2591,6 +2592,7 @@
   flex: 1.2;
   max-width: 160px;
   padding-bottom: 25px;
+  height: 260px; /* 👑 GOLD HEIGHT */
   z-index: 3;
   transform: translateY(-20px);
   border-color: var(--rank-color);

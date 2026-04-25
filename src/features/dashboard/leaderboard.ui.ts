@@ -1,6 +1,6 @@
 import { GlobalProfile } from '@/types/profile.types';
 import { escapeHtml } from '@/utils/security';
-import { getRankColor } from '@/utils/rank.utils';
+import { getRankColor, getRankTitle } from '@/utils/rank.utils';
 import { getRankProgression } from '@/utils/calc.utils';
 import { formatDuration } from '@/utils/date.utils';
 import { NATION_FLAGS } from '@/config/constants';
@@ -107,7 +107,6 @@ export function getUserStatus(u: GlobalProfile): {
 /** Shared hover card renderer */
 export function renderHoverCard(
   u: GlobalProfile,
-  rankColor: string,
   isMe: boolean,
   isFocusing: boolean,
   todayHoursDisplay: number,
@@ -119,7 +118,8 @@ export function renderHoverCard(
     </svg>` : '';
 
   const age = u.dob ? `${calculateAge(u.dob)}Y • ` : '';
-  const title = (u.current_rank || 'IRON').replace(/\[B:\d+\]/, '').replace('[PRIV]', '').trim();
+  const rankTitle = getRankTitle(u.total_hours);
+  const rankColor = getRankColor(rankTitle);
   const avatar = u.avatar || `👤`;
   const rankProg = getRankProgression(u.total_hours);
 
@@ -133,7 +133,7 @@ export function renderHoverCard(
          <div class="hover-player-info">
            <div class="hover-real-name">${u.User_name ? escapeHtml(u.User_name) : 'Operative'}</div>
            <div class="hover-handle">@${escapeHtml(u.display_name)} ${verifiedTick}</div>
-           <div class="hover-title">${age}ACTIVE OPERATIVE</div>
+           <div class="hover-title">${age}${getRankTitle(u.total_hours)} PROFILE</div>
            <div class="hover-integrity" style="color: ${u.is_verified ? '#fbbf24' : '#94a3b8'}; font-size: 0.65rem; margin-top: 2px; font-weight: bold; letter-spacing: 0.5px;">
               TRUST SCORE: ${u.integrity_score === 0 ? 'VERIFYING...' : (u.integrity_score || 0) + '% ' + (u.is_verified ? '(VERIFIED)' : '(MANUAL)')}
            </div>
@@ -196,11 +196,11 @@ export function renderPodium(
     if (!u) return '';
     const globalIndex = positions[idx];
     const isMe = myDisplayName ? u.display_name === myDisplayName : false;
-    const rankRaw = u.current_rank || 'IRON';
-    const streakMatch = rankRaw.match(/\[S:(\d+)\]/);
-    const streakCount = streakMatch ? streakMatch[1] : '0';
-    const title = rankRaw.replace(/\[S:(\d+)\]/, '').replace('[PRIV]', '').trim();
-    const rankColor = getRankColor(title);
+    const rankTitle = getRankTitle(u.total_hours);
+    const rankColor = getRankColor(rankTitle);
+
+    const streakMatch = (u.current_rank || '').match(/\[S:(\d+)\]/);
+    const streakCount = u.current_streak !== undefined ? String(u.current_streak) : (streakMatch ? streakMatch[1] : '0');
     const avatar = u.avatar || `👤`;
     
     const isoCode = NATION_FLAGS[u.nation] || 'un';
@@ -248,7 +248,7 @@ export function renderPodium(
             </div>
           </div>
         </div>
-        ${renderHoverCard(u, rankColor, isMe, isFocusing, todayHoursDisplay, streakCount)}
+        ${renderHoverCard(u, isMe, isFocusing, todayHoursDisplay, streakCount)}
       </div>
     `;
   }).join('');
@@ -271,12 +271,10 @@ export function renderUserRow(
   const level = Math.floor(u.total_hours / 10) + 1;
   const xpPercent = Math.min(100, (u.total_hours % 10) * 10);
   
-  const rankRaw = u.current_rank || 'IRON';
-  const streakMatch = rankRaw.match(/\[S:(\d+)\]/);
-  const streakCount = streakMatch ? streakMatch[1] : '0';
-  const title = rankRaw.replace(/\[S:(\d+)\]/, '').replace('[PRIV]', '').trim();
-
-  const rankColor = getRankColor(title);
+  const rankTitle = getRankTitle(u.total_hours);
+  const rankColor = getRankColor(rankTitle);
+  const streakMatch = (u.current_rank || '').match(/\[S:(\d+)\]/);
+  const streakCount = u.current_streak !== undefined ? String(u.current_streak) : (streakMatch ? streakMatch[1] : '0');
   const currentRank = globalIndex + 1;
   
   const worstSeen = climbData.worst[u.display_name] || currentRank;
@@ -320,7 +318,7 @@ export function renderUserRow(
         <div class="lb-today-badge">${formatDuration(todayHoursDisplay) || '0h'} today${trendHtml}</div>
       </div>
       
-      ${renderHoverCard(u, rankColor, isMe, isFocusing, todayHoursDisplay, streakCount)}
+      ${renderHoverCard(u, isMe, isFocusing, todayHoursDisplay, streakCount)}
     </div>
   `;
 }
