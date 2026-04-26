@@ -147,7 +147,7 @@ export function startTimer(categoryIdx: number, categoryName: string): void {
   showToast(`Timer started for ${categoryName}`, 'success');
   document.body.classList.add('is-focusing');
   requestWakeLock(); updateMediaSession(true);
-  import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast());
+  import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast(true));
 }
 
 export function startBreak(reason: string): void {
@@ -164,7 +164,7 @@ export function startBreak(reason: string): void {
   saveTimerState();
   document.body.classList.remove('is-focusing');
   updateMediaSession(false);
-  import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast());
+  import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast(true));
 }
 
 export function resumeFromBreak(): void {
@@ -181,7 +181,7 @@ export function resumeFromBreak(): void {
   notificationService.startAmbient(); saveTimerState();
   document.body.classList.add('is-focusing');
   requestWakeLock(); updateMediaSession(true);
-  import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast());
+  import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast(true));
 }
 
 export function pauseTimer(): void { startBreak('Paused'); }
@@ -243,7 +243,7 @@ export async function stopTimer(autoNote?: string): Promise<void> {
   appState.activeTimer.startTime = null;
   appState.activeTimer.elapsedAcc = totalElapsed; // Freeze accumulated value
   saveTimerState(); // Pushes isRunning: false to the cloud immediately
-  import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast());
+  import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast(true));
 
   const totalHours = totalElapsed / 3600000;
   let note = autoNote || await showSessionNoteModal();
@@ -292,7 +292,7 @@ export async function stopTimer(autoNote?: string): Promise<void> {
   appState.activeTimer.activeBreak = null; appState.activeTimer.completedBreaks = [];
   appState.activeTimer.overrunCapMs = undefined; appState.activeTimer.hasWarnedOverrun1 = false; appState.activeTimer.hasWarnedOverrun2 = false;
   notificationService.stopAmbient();
-  import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast());
+  import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast(true));
   saveTimerState(); updateDashboard(); generateTable(); renderHeatmap(); renderPerformanceCurve();
   const section = document.getElementById('activeTimerSection');
   if (section) section.style.display = 'none';
@@ -319,7 +319,7 @@ export async function terminateTimer(): Promise<void> {
   if (section) section.style.display = 'none';
   updateTimerUI(false); toggleFocusHUD(false); releaseWakeLock();
   showToast('Session terminated.', 'error');
-  import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast());
+  import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast(true));
 }
 
 async function showTerminateConfirmModal(): Promise<boolean> {

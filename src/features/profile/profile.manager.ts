@@ -94,7 +94,7 @@ export async function checkProfileIdentity(): Promise<void> {
 }
 
 /** 🚀 WORLD STAGE BROADCAST: Sync local stats to the global leaderboard */
-export async function syncProfileBroadcast(): Promise<void> {
+export async function syncProfileBroadcast(focusStateChanged = false): Promise<void> {
   const syncId = getCurrentUserId();
   if (!syncId) return;
 
@@ -102,6 +102,26 @@ export async function syncProfileBroadcast(): Promise<void> {
   if (!saved) return;
 
   const profile = JSON.parse(saved) as UserProfile;
+
+  // ⚡ FAST PATH: If focus state just changed (start/stop/break), broadcast IMMEDIATELY
+  // without waiting for the slow cloud sessions fetch. This ensures the leaderboard
+  // updates within milliseconds, not seconds.
+  if (focusStateChanged) {
+    const isFocusingNow = appState.activeTimer.isRunning;
+    const fastPayload = {
+      display_name: profile.displayName,
+      is_focus_public: profile.isFocusPublic !== false,
+      is_public: profile.isPublic !== false,
+      // Pass current cached values for other fields so they're not zeroed out
+      ...(lastBroadcastPayload ? JSON.parse(lastBroadcastPayload) : {}),
+      // Override focus fields with current values
+      is_focusing_now: isFocusingNow,
+      current_focus_subject: isFocusingNow ? (appState.activeTimer.colName || 'ACTIVE MISSION') : null,
+    };
+    broadcastGlobalStats(fastPayload).catch(() => {});
+    // ⚡ INSTANT UI: Refresh leaderboard immediately so the actor sees the change
+    import('@/features/dashboard/leaderboard').then(m => m.refreshLeaderboard());
+  }
 
   // Calculate stats from appState using centralized engine
   const trackerTotal = calculateTotalStudyHours(appState.trackerData);
@@ -146,6 +166,7 @@ export async function syncProfileBroadcast(): Promise<void> {
     todayHours = 20;
   }
 
+  // Capture isFocusing AFTER the async fetch to get current state
   const isFocusing = appState.activeTimer.isRunning;
   
   // 🛡️ ZERO-BROADCAST GUARD: Prevent broadcasting a '0% Integrity' drop if we expect data.
@@ -167,7 +188,6 @@ export async function syncProfileBroadcast(): Promise<void> {
   const verificationScore = calculateVerificationScore(sessionTotal, trackerTotal);
 
   // 🛡️ CONTINUITY GUARD: Prevent time regression during focus sessions
-  // If we have a cached payload that had more time, stick with it until the next second
   if (lastBroadcastPayload) {
     const prev = JSON.parse(lastBroadcastPayload);
     if (prev.display_name === profile.displayName) {
@@ -182,7 +202,6 @@ export async function syncProfileBroadcast(): Promise<void> {
   }
 
   const streak = calculateStreak(appState.trackerData);
-
   const bestStreak = calculateBestStreak(appState.trackerData);
 
   const payload = {
@@ -206,15 +225,13 @@ export async function syncProfileBroadcast(): Promise<void> {
     current_streak: streak
   };
 
-  // 🔥 PERSISTENT BROADCAST: We remove deduplication to force the World Stage to match local state.
+  // 🔥 PERSISTENT BROADCAST: Full stats update
   lastBroadcastPayload = JSON.stringify(payload);
 
-  // 🛰️ MASTER STATE SYNC: Reconcile appState with cloud-verified stats
-  // This is the bridge that ensures Dashboard matches Leaderboard.
+  // 🛰️ MASTER STATE SYNC
   appState.verifiedTotalHours = payload.total_hours;
   appState.verifiedRankScore = payload.competitive_score;
   
-  // 🔥 BLOCKING BROADCAST: Ensure database state matches before we re-fetch the leaderboard
   try {
     await broadcastGlobalStats(payload);
   } catch (err) {
