@@ -201,19 +201,43 @@ export function updateRivalryHUD(): void {
     if (handleEl) { handleEl.style.color = '#ef4444'; handleEl.textContent = rival.handle; }
     if (metaEl) metaEl.innerHTML = `RANK <span id="rivalRank">${rival.rank}</span> • <span id="rivalGap" style="color: #fca5a5; font-weight: 900;">-${rival.gapPoints} PTS (${rival.gap}H)</span> TO OVERTAKE`;
   } else {
+    // 🏆 RANK #1 — Show who's chasing and by how much
+    const sorted = [...(lbAllUsers || [])].sort((a, b) => {
+      return calculateCompetitiveXP(b.total_hours, b.current_streak || 0, b.integrity_score || 0)
+           - calculateCompetitiveXP(a.total_hours, a.current_streak || 0, a.integrity_score || 0);
+    });
+    const chaser = sorted[1];
+    const me = sorted[0];
+
     hud.style.display = 'block';
     hud.style.border = '1px solid rgba(250, 204, 21, 0.4)';
     hud.style.background = 'rgba(250, 204, 21, 0.06)';
     if (labelEl) { labelEl.style.color = '#facc15'; labelEl.textContent = 'TOP OF THE BOARD 👑'; }
     if (handleEl) { handleEl.style.color = '#facc15'; handleEl.textContent = 'RANK #1'; }
     if (metaEl) {
-      const defenseLines = [
-        'Others are studying right now to take your #1 — stay ahead!',
-        'Rank #1 is yours today. What about tomorrow?',
-        'The squad is chasing you. Don\'t give them a chance.',
-        'Everyone below you is gunning for your spot. Keep grinding!',
-      ];
-      metaEl.innerHTML = `<span style="color: #fde68a; font-style: italic;">${defenseLines[Math.floor(Math.random() * defenseLines.length)]}</span>`;
+      if (chaser && me) {
+        const gapHrs = Number(((me.total_hours || 0) - (chaser.total_hours || 0)).toFixed(1));
+        const chaserHandle = `@${chaser.display_name}`;
+
+        let threatMsg = '';
+        let threatColor = '#fde68a';
+        if (gapHrs < 0.5) {
+          threatMsg = `⚠️ ${chaserHandle} is only ${(gapHrs * 60).toFixed(0)}m behind. START NOW.`;
+          threatColor = '#ef4444';
+        } else if (gapHrs < 2) {
+          threatMsg = `🔥 ${chaserHandle} is ${gapHrs}h away. Don't stop — the gap is closing.`;
+          threatColor = '#fb923c';
+        } else if (gapHrs < 5) {
+          threatMsg = `⚡ ${chaserHandle} is ${gapHrs}h behind. Stay focused to keep the crown.`;
+          threatColor = '#fbbf24';
+        } else {
+          threatMsg = `👑 ${gapHrs}h ahead of ${chaserHandle}. Dominating the board.`;
+          threatColor = '#a3e635';
+        }
+        metaEl.innerHTML = `<span style="color: ${threatColor}; font-style: italic;">${threatMsg}</span>`;
+      } else {
+        metaEl.innerHTML = `<span style="color: #fde68a; font-style: italic;">You're the first on the board. Set the standard.</span>`;
+      }
     }
   }
 }

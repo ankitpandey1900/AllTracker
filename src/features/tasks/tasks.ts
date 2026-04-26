@@ -22,7 +22,10 @@ export function initTasks(): void {
     if (path === 'tasks') renderTasks();
   });
 
-  cleanupTasks();
+  // 🛡️ CLOUD-SAFE CLEANUP: Delayed 5s so cloud sync can pull fresh task data first.
+  // Without this delay, cleanup ran on stale local state and then OVERWROTE the cloud vault
+  // with fewer tasks — permanently deleting tasks that only existed in the cloud.
+  setTimeout(() => cleanupTasks(), 5000);
   renderTasks();
   setupTaskListeners();
 }
