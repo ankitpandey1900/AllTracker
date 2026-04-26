@@ -36,32 +36,53 @@ export function initTimerModules(): void {
   import('@/services/vault.service').then(({ subscribeToUserDataSync }) => {
     subscribeToUserDataSync((payload) => {
       // payload.new.data is [trackerData, settings, routines, history, bookmarks, tasks, timerState]
-      if (payload.new && payload.new.data && payload.new.data[6]) {
-        const cloudState = payload.new.data[6].data; // Vault Response wrapper
-        if (!cloudState) return;
+      if (!payload.new || !payload.new.data || !payload.new.data[6]) return;
+      const cloudState = payload.new.data[6].data; // Vault Response wrapper
+      if (!cloudState) return;
 
-        const cloudIsRunning = cloudState.isRunning;
-        const localIsRunning = appState.activeTimer.isRunning;
+      const cloudIsRunning = cloudState.isRunning;
+      const cloudOnBreak  = !!cloudState.activeBreak;
+      const localIsRunning = appState.activeTimer.isRunning;
+      const localOnBreak   = !!appState.activeTimer.activeBreak;
+      const localHasSession = appState.activeTimer.elapsedAcc > 0 || appState.activeTimer.isRunning || localOnBreak;
+      const cloudHasSession = cloudState.elapsedAcc > 0 || cloudIsRunning || cloudOnBreak;
 
-        if (cloudIsRunning !== localIsRunning) {
-          log.info(`📡 CLOUD SYNC: External ${cloudIsRunning ? 'START' : 'PAUSE'} detected.`);
-          
-          // Synchronize State
-          Object.assign(appState.activeTimer, cloudState);
-          
-          if (cloudIsRunning) {
-            updateTimerUI(true);
-            startTimerInterval();
-            document.body.classList.add('is-focusing');
-            requestWakeLock();
-          } else {
-            if (appState.timerInterval) clearInterval(appState.timerInterval);
-            updateTimerUI(true);
-            document.body.classList.remove('is-focusing');
-          }
-          updateTimerDisplay();
-        }
+      // Detect any meaningful state change
+      const stateChanged =
+        cloudIsRunning !== localIsRunning ||
+        cloudOnBreak   !== localOnBreak   ||
+        (!localHasSession && cloudHasSession) ||
+        (localHasSession && !cloudHasSession);
+
+      if (!stateChanged) return;
+
+      log.info(`📡 CLOUD SYNC: Remote state → running=${cloudIsRunning}, break=${cloudOnBreak}`);
+
+      // Stop any local interval first
+      if (appState.timerInterval) clearInterval(appState.timerInterval);
+
+      // Apply cloud state fully
+      Object.assign(appState.activeTimer, cloudState);
+
+      if (cloudIsRunning) {
+        // Remote device is actively focusing
+        updateTimerUI(true);
+        startTimerInterval();
+        document.body.classList.add('is-focusing');
+        requestWakeLock();
+      } else if (cloudOnBreak) {
+        // Remote device is on break — show break HUD
+        updateTimerUI(true);
+        startBreakInterval();
+        document.body.classList.remove('is-focusing');
+      } else if (!cloudHasSession) {
+        // Remote device stopped/terminated — clear everything
+        document.body.classList.remove('focus-mode', 'focus-minimized', 'is-focusing');
+        updateTimerUI(false);
+        toggleFocusHUD(false);
+        releaseWakeLock();
       }
+      updateTimerDisplay();
     });
   });
 }
@@ -195,20 +216,27 @@ function startBreakInterval(): void {
 
 export async function stopTimer(autoNote?: string): Promise<void> {
   if (isStopping) return;
-  if (!appState.activeTimer.isRunning && appState.activeTimer.elapsedAcc === 0) return;
+  // Allow stopping when on break (isRunning=false but elapsedAcc > 0 or activeBreak exists)
+  const hasActiveSession = appState.activeTimer.isRunning ||
+    appState.activeTimer.elapsedAcc > 0 ||
+    !!appState.activeTimer.activeBreak;
+  if (!hasActiveSession) return;
   isStopping = true;
   if (appState.timerInterval) clearInterval(appState.timerInterval);
-  
+
+  // Calculate total elapsed BEFORE modifying state
+  let totalElapsed = appState.activeTimer.elapsedAcc;
+  if (appState.activeTimer.isRunning && appState.activeTimer.startTime) {
+    totalElapsed += Date.now() - appState.activeTimer.startTime;
+  }
+
   // 🛰️ INSTANT CLOUD BROADCAST: Tell all other devices to stop NOW
-  const wasRunning = appState.activeTimer.isRunning;
-  const startTime = appState.activeTimer.startTime;
   appState.activeTimer.isRunning = false;
-  if (wasRunning && startTime) appState.activeTimer.elapsedAcc += Date.now() - startTime;
   appState.activeTimer.startTime = null;
+  appState.activeTimer.elapsedAcc = totalElapsed; // Freeze accumulated value
   saveTimerState(); // Pushes isRunning: false to the cloud immediately
   import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast());
 
-  let totalElapsed = appState.activeTimer.elapsedAcc;
   const totalHours = totalElapsed / 3600000;
   let note = autoNote || await showSessionNoteModal();
   if (appState.activeTimer.activeBreak) {
@@ -265,7 +293,11 @@ export async function stopTimer(autoNote?: string): Promise<void> {
 }
 
 export async function terminateTimer(): Promise<void> {
-  if (!appState.activeTimer.isRunning && appState.activeTimer.elapsedAcc === 0) return;
+  // Allow termination when on break (isRunning=false but elapsedAcc > 0 or activeBreak exists)
+  const hasActiveSession = appState.activeTimer.isRunning ||
+    appState.activeTimer.elapsedAcc > 0 ||
+    !!appState.activeTimer.activeBreak;
+  if (!hasActiveSession) return;
   const confirmed = await showTerminateConfirmModal();
   if (!confirmed) return;
   if (appState.timerInterval) clearInterval(appState.timerInterval);
@@ -448,10 +480,38 @@ export function extendTimerCap(): void {
 }
 
 export function resumeTimerIfNeeded(): void {
-  const { isRunning, startTime } = appState.activeTimer;
-  if (!isRunning) { if (appState.timerInterval) clearInterval(appState.timerInterval); updateTimerUI(false); return; }
-  if (startTime && (Date.now() - startTime) > 18000000) { stopTimer('[AUTO-SAFE] Recovered'); return; }
-  startTimerInterval(); updateTimerUI(true); updateTimerDisplay();
+  const { isRunning, startTime, activeBreak, elapsedAcc } = appState.activeTimer;
+
+  // Case 1: No active session at all
+  if (!isRunning && !activeBreak && elapsedAcc === 0) {
+    if (appState.timerInterval) clearInterval(appState.timerInterval);
+    updateTimerUI(false);
+    return;
+  }
+
+  // Case 2: Timer is running
+  if (isRunning) {
+    if (startTime && (Date.now() - startTime) > 18000000) { stopTimer('[AUTO-SAFE] Recovered'); return; }
+    startTimerInterval();
+    updateTimerUI(true);
+    updateTimerDisplay();
+    document.body.classList.add('is-focusing');
+    requestWakeLock();
+    return;
+  }
+
+  // Case 3: On break (isRunning=false but activeBreak is set)
+  if (activeBreak) {
+    updateTimerUI(true);
+    startBreakInterval();
+    updateTimerDisplay();
+    document.body.classList.remove('is-focusing');
+    return;
+  }
+
+  // Case 4: Paused with accumulated time (no active break object)
+  updateTimerUI(true);
+  updateTimerDisplay();
 }
 
 export function setupFocusListeners(): void {
