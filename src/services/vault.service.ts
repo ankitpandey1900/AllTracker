@@ -8,6 +8,8 @@ import type { GlobalProfile, StudySession } from "@/types/profile.types";
 import { getCurrentUserId } from "@/services/auth.service";
 import { log } from "@/utils/logger.utils";
 
+import { getLocalIsoDate } from "@/utils/date.utils";
+
 type VaultResponse<T> = { data: T; updatedAt: string | null };
 
 async function getVault<T>(vault: string): Promise<VaultResponse<T> | null> {
@@ -203,13 +205,13 @@ export async function logStudySessionCloud(
       start_at: startTime?.toISOString() || new Date().toISOString(),
       end_at: new Date().toISOString(),
       note: note || '',
-      log_date: (startTime || new Date()).toISOString().split('T')[0]
+      log_date: getLocalIsoDate(startTime || new Date())
     });
     localStorage.setItem('all_tracker_history', JSON.stringify(localLogs));
     return;
   }
 
-  const response = await apiRequest<StudySession>("/api/app/study-sessions", {
+  const response = await apiRequest<any>("/api/app/study-sessions", {
     method: "POST",
     body: {
       duration,
@@ -219,12 +221,9 @@ export async function logStudySessionCloud(
     },
   });
 
-  // 🛰️ CLOUD MIRROR: Update local cache immediately so dashboard is instant
+  // 🛰️ Refresh local data once saved
   if (response) {
-    const localSaved = localStorage.getItem('all_tracker_history');
-    const localLogs: StudySession[] = localSaved ? JSON.parse(localSaved) : [];
-    localLogs.push(response);
-    localStorage.setItem('all_tracker_history', JSON.stringify(localLogs.slice(-100))); // Keep last 100 locally
+    hydrateSessionCache();
   }
 }
 

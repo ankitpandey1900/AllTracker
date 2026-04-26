@@ -30,8 +30,6 @@ export async function logStudySession(
     
     // We need to get the UTC equivalent of that 12:00 AM IST
     // IST is UTC+5:30, so 12:00 AM IST is 6:30 PM UTC (Previous Day)
-    const splitPoint = new Date(midnightIST.getTime() - (0)); // Placeholder, the constructor above handles it if we are careful
-    
     // Actually, a safer way:
     const startMs = startAt.getTime();
     const endMs = endAt.getTime();
@@ -100,7 +98,7 @@ export async function fetchStudySessions(profile: AuthenticatedProfile) {
         note,
         start_time,
         end_time,
-        to_char((end_time at time zone 'Asia/Kolkata')::date, 'YYYY-MM-DD') as log_date
+        to_char((start_time at time zone 'Asia/Kolkata')::date, 'YYYY-MM-DD') as log_date
       from study_sessions
       where user_id = $1::uuid
       order by end_time desc
@@ -179,7 +177,7 @@ async function reconcileProfileHours(profileId: string): Promise<void> {
           select coalesce(sum(duration), 0)
           from study_sessions
           where user_id = $1::uuid
-            and (end_time at time zone 'Asia/Kolkata')::date = (now() at time zone 'Asia/Kolkata')::date
+            and (start_time at time zone 'Asia/Kolkata')::date = (now() at time zone 'Asia/Kolkata')::date
         ),
         updated_at = now()
       where id = $1::uuid

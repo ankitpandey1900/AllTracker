@@ -11,7 +11,7 @@
 import { RANK_TIERS, TIER_TITLES } from '@/config/constants';
 import type { TrackerDay, RankDetails } from '@/types/tracker.types';
 import type { RoutineItem } from '@/types/routine.types';
-import { formatTime12h, formatDate } from '@/utils/date.utils';
+import { formatTime12h, formatDate, getLocalIsoDate } from '@/utils/date.utils';
 import { appState } from '@/state/app-state';
 
 /** 
@@ -149,13 +149,11 @@ export function getRankDetails(totalHours: number): RankDetails {
  * Aggregates hours for a specific date (usually today).
  */
 export function calculateTodayStudyHours(trackerData: TrackerDay[], targetDate: Date = new Date()): number {
-  const target = new Date(targetDate);
-  target.setHours(0, 0, 0, 0);
+  const targetStr = getLocalIsoDate(targetDate);
 
   const entry = trackerData.find(d => {
-    const dDate = new Date(d.date);
-    dDate.setHours(0, 0, 0, 0);
-    return dDate.getTime() === target.getTime();
+    // Some dates might be YYYY-MM-DD, others might be ISO
+    return d.date.startsWith(targetStr);
   });
 
   if (!entry || !Array.isArray(entry.studyHours)) return 0;
