@@ -153,6 +153,7 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
     sync(STORAGE_KEYS.SETTINGS, cloudSettings, appState.settings, (d: any) => saveSecuredSettings(d), saveSettingsCloud);
     sync(STORAGE_KEYS.ROUTINES, cloudRoutines, appState.routines, (d: any) => { appState.routines = d; saveLocal(STORAGE_KEYS.ROUTINES, d); }, saveRoutinesCloud);
     sync(STORAGE_KEYS.TASKS, cloudTasks, appState.tasks, (d: any) => { appState.tasks = d; saveLocal(STORAGE_KEYS.TASKS, d); }, saveTasksCloud);
+    sync(STORAGE_KEYS.BOOKMARKS, cloudBookmarks, appState.bookmarks, (d: any) => { appState.bookmarks = d; saveLocal(STORAGE_KEYS.BOOKMARKS, d); }, saveBookmarksCloud);
 
     // Profile Restore
     const profile = await loadUserProfileCloud();

@@ -14,6 +14,7 @@ import {
   getActiveSession, 
   createNewSession, 
   deleteSession, 
+  loadMaamuSessionsIntoState,
   switchSession 
 } from './intelligence.service';
 import { getMaamuResponseStream, generateSessionTitle, MAAMU_MODELS, normalizeMaamuModel } from '@/services/groq.service';
@@ -34,6 +35,7 @@ import {
 let listenersBound = false;
 let sendMessageFn: ((query?: string) => void) | null = null;
 let activeStreamController: AbortController | null = null;
+let maamuSessionsLoaded = false;
 const MAAMU_COMPACT_STORAGE_KEY = 'maamu_compact_view';
 const MAAMU_TEMPLATES_COLLAPSED_KEY = 'maamu_templates_collapsed';
 const MAAMU_TEMPLATE_FAVS_KEY = 'maamu_template_favs';
@@ -208,6 +210,10 @@ import { getLocalSmallTalkReply, getLocalDataContextReply } from './intelligence
 
 // --- Main Chat UI ---
 
+export function resetMaamuState(): void {
+  maamuSessionsLoaded = false;
+}
+
 export function renderIntelligenceBriefing(): void {
   const container = document.getElementById('intelligencePane');
   if (!container) return;
@@ -218,6 +224,15 @@ export function renderIntelligenceBriefing(): void {
   }
   if (!listenersBound) {
     listenersBound = setupListeners();
+  }
+
+  // 🛰️ CLOUD SYNC: Load Maamu sessions from DB on first open
+  if (!maamuSessionsLoaded && getCurrentUserId()) {
+    maamuSessionsLoaded = true;
+    loadMaamuSessionsIntoState().then(() => {
+      renderIntelligenceBriefing();
+    });
+    return;
   }
 
   // Ensure send flow always has an active session.
