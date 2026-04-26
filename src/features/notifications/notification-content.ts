@@ -1,3 +1,6 @@
+import { QUOTES } from '../../data/quotes.data';
+import { calculatePaceProjections, calculateSummaryStats } from '@/utils/calc.utils';
+import { appState } from '@/state/app-state';
 
 /**
  * Zomato-Style Notification Content Engine
@@ -6,7 +9,7 @@
  * Standardized for Indian students.
  */
 
-export type NotificationMood = 'roast' | 'king' | 'motivate' | 'last_chance' | 'peer_pressure';
+export type NotificationMood = 'roast' | 'king' | 'motivate' | 'last_chance' | 'peer_pressure' | 'wisdom';
 
 interface NotificationMessage {
   title: string;
@@ -55,6 +58,42 @@ const LAST_CHANCE_MESSAGES: NotificationMessage[] = [
   { title: "Ab toh sharam karlo! 🫣", body: "Poora din nikal gaya. Kam se kam 15 minute padh lo profile bachane ke liye." },
 ];
 
+export function getWisdomNotification(): NotificationMessage {
+  const projections = calculatePaceProjections(appState.trackerData, appState.totalDays);
+  const { paceDiff, projectedTotalDays, projectedEndDate } = projections;
+  
+  const endStr = projectedEndDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  
+  let pool = QUOTES;
+  let prefix = "";
+  let title = "Titan Wisdom ⚡";
+
+  if (paceDiff < -0.05) {
+    // ROAST MODE
+    pool = QUOTES.filter(q => q.category === 'behavior' || q.category === 'SAVAGE_WISDOM');
+    title = "Reality Check! 💀";
+    prefix = `Pace is slow. Projection: Finish in ${projectedTotalDays} days (${endStr}). `;
+  } else if (paceDiff > 0.10) {
+    // KING MODE
+    pool = QUOTES.filter(q => q.category === 'future' || q.category === 'THE_CRAFT');
+    title = "Elite Momentum 👑";
+    prefix = `Legendary pace! Projected finish: ${endStr}. `;
+  } else {
+    // STEADY
+    pool = QUOTES.filter(q => q.category === 'EXECUTION' || q.category === 'THE_CRAFT');
+    title = "Stay Disciplined ⚔️";
+    prefix = `On track. Expected finish: ${endStr}. `;
+  }
+
+  const quote = pool[Math.floor(Math.random() * pool.length)];
+  const author = (quote.a === 'Unknown' || quote.a === 'Aap Ka Shubh Chintak' || !quote.a) ? 'All Tracker' : quote.a;
+
+  return {
+    title,
+    body: `${prefix} "${quote.t}" — ${author}`
+  };
+}
+
 export function getDeedMessage(hours: number, hourOfDay: number): NotificationMessage {
   if (hours === 0) {
     if (hourOfDay >= 20) return getRandom(LAST_CHANCE_MESSAGES);
@@ -65,7 +104,6 @@ export function getDeedMessage(hours: number, hourOfDay: number): NotificationMe
 }
 
 export function getPeerPressureMessage(topUser: string, focusingUser: string | undefined, myName: string): NotificationMessage {
-  // Scenario 1: I am the King (#1)
   if (topUser === myName) {
     return { 
       title: "King's Throne under threat! 👑", 
@@ -75,7 +113,6 @@ export function getPeerPressureMessage(topUser: string, focusingUser: string | u
     };
   }
 
-  // Scenario 2: A specific rival is active (and it's not me)
   if (focusingUser && focusingUser !== myName) {
     return {
       title: "Peeche dekho... 🕵️",
@@ -83,7 +120,6 @@ export function getPeerPressureMessage(topUser: string, focusingUser: string | u
     };
   }
 
-  // Scenario 3: Generic Top User Pressure
   const pools = [
     { title: "Oye! Jaldi aao 🏃‍♂️", body: `@${topUser} is #1 right now. Tumhe peeche nahi chhodna kya?` },
     { title: "Sharam karo thodi! 😰", body: `@${topUser} is leading the board. Aur aap abhi tak idle ho?` },

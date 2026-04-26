@@ -24,6 +24,7 @@ import {
   calculateCompetitiveXP
 } from '@/utils/calc.utils';
 import { VanguardService } from '@/services/vanguard.service';
+import { QuotesManager } from './quotes.manager';
 
 // --- Sub-Module Imports ---
 import { 
@@ -79,6 +80,9 @@ export function updateDashboard(): void {
 
   // 🛡️ LOCAL DAY SYNC: Ensure we are showing the absolute current day
   ensureTimelineIntegrity();
+  
+  // 🎙️ Dynamic Wisdom Rotation (User-Centric)
+  QuotesManager.getInstance().startRotation();
 
   const todayIndex = findTodayIndex();
   
@@ -162,10 +166,14 @@ export function updateDashboard(): void {
   updateHeroRoutine();
   renderVelocitySparkline(data);
   
-  // Dynamic Hero Status
+  // Dynamic Hero Status / Wisdom
   const statusEl = document.getElementById('heroStatusTitle');
   if (statusEl) {
-    statusEl.textContent = getDynamicStatusMessage(today.day, completedDays);
+    const currentQuote = QuotesManager.getInstance().getCurrentQuote();
+    if (!currentQuote) {
+      statusEl.textContent = getDynamicStatusMessage(today.day, completedDays);
+    }
+    // If quote exists, it's already being managed by QuotesManager.rotate() timer
   }
 
   // Intelligence Briefing

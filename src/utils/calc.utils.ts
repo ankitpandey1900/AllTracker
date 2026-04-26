@@ -298,9 +298,44 @@ export function getTopCategories(trackerData: TrackerDay[], activeColumns: { nam
   });
 
   return Object.entries(categoryMap)
-    .map(([label, hours]) => ({ label, hours }))
-    .sort((a, b) => b.hours - a.hours)
-    .slice(0, limit);
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, limit)
+    .map(([name, hours]) => ({ name, hours }));
+}
+
+/**
+ * PACE PROJECTION ENGINE
+ * Calculates if the user is ahead/behind and when they'll actually finish.
+ */
+export function calculatePaceProjections(trackerData: TrackerDay[], totalDays: number = 365) {
+  const stats = calculateSummaryStats(trackerData);
+  const currentDay = trackerData[trackerData.length - 1]?.day || 1;
+  
+  // Pace logic: currentDay/totalDays is where we SHOULD be.
+  // stats.completedDays/totalDays is where we ARE.
+  const expectedPace = currentDay / totalDays;
+  const actualPace = stats.completedDays / totalDays;
+  const paceDiff = actualPace - expectedPace;
+
+  // Projection: If they continue at their current completion rate
+  // (completedDays / currentDay), how long will the full challenge take?
+  const completionRate = stats.completedDays / currentDay;
+  const projectedTotalDays = completionRate > 0 ? Math.round(totalDays / completionRate) : Infinity;
+  
+  // Forecasted End Date
+  const startDate = new Date(appState.startDate);
+  const projectedEndDate = new Date(startDate);
+  projectedEndDate.setDate(startDate.getDate() + projectedTotalDays);
+
+  return {
+    paceDiff,
+    completionRate,
+    projectedTotalDays,
+    projectedEndDate,
+    isAhead: paceDiff > 0,
+    isWayBehind: paceDiff < -0.10,
+    isLegendary: paceDiff > 0.15
+  };
 }
 
 /**

@@ -1,6 +1,6 @@
 import { appState } from '@/state/app-state';
 import { showToast } from '@/utils/dom.utils';
-import { getDeedMessage, getPeerPressureMessage, getDailyBriefingMessage } from './notification-content';
+import { getDeedMessage, getPeerPressureMessage, getDailyBriefingMessage, getWisdomNotification } from './notification-content';
 import { fetchLeaderboard } from '@/services/vault.service';
 
 /**
@@ -168,6 +168,15 @@ async function sendDynamicAlert(window: string, hour: number): Promise<void> {
 
   const totalHours = todayData ? (todayData.studyHours || []).reduce((a, b) => a + (b || 0), 0) : 0;
   
+  // 🎲 Chance to swap to Wisdom/Projection Alert (40% chance if hours are low, or 20% otherwise)
+  const wisdomChance = totalHours < 2 ? 0.4 : 0.2;
+
+  if (Math.random() < wisdomChance) {
+    const wisdom = getWisdomNotification();
+    sendNotification(wisdom.title, wisdom.body);
+    return;
+  }
+
   // 1. Deed-Based Messaging (Standard)
   const { title, body } = getDeedMessage(totalHours, hour);
 
