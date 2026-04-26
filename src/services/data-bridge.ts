@@ -178,7 +178,15 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
 export async function performBackgroundSync(): Promise<void> {
   if (!isAuthenticated()) return;
   try {
-    const cloud = await Promise.all([loadTrackerDataCloud(), loadSettingsCloud(), loadRoutinesCloud(), loadTasksCloud()]);
+    const cloud = await Promise.all([
+      loadTrackerDataCloud(), 
+      loadSettingsCloud(), 
+      loadRoutinesCloud(), 
+      loadTasksCloud(),
+      loadRoutineHistoryCloud(),
+      loadBookmarksCloud(),
+      loadTimerStateCloud()
+    ]);
     let changed = false;
 
     const check = (key: string, cloud: any, local: any, setter: Function) => {
@@ -191,6 +199,12 @@ export async function performBackgroundSync(): Promise<void> {
 
     check(STORAGE_KEYS.TRACKER_DATA, cloud[0], appState.trackerData, (d: any) => { appState.trackerData = d; ensureTimelineIntegrity(); saveLocal(STORAGE_KEYS.TRACKER_DATA, d); });
     check(STORAGE_KEYS.SETTINGS, cloud[1], appState.settings, (d: any) => saveSecuredSettings(d));
+    check(STORAGE_KEYS.ROUTINES, cloud[2], appState.routines, (d: any) => { appState.routines = d; saveLocal(STORAGE_KEYS.ROUTINES, d); });
+    check(STORAGE_KEYS.TASKS, cloud[3], appState.tasks, (d: any) => { appState.tasks = d; saveLocal(STORAGE_KEYS.TASKS, d); });
+    check(STORAGE_KEYS.ROUTINE_HISTORY, cloud[4], appState.routineHistory, (d: any) => { appState.routineHistory = d; saveLocal(STORAGE_KEYS.ROUTINE_HISTORY, d); });
+    check(STORAGE_KEYS.BOOKMARKS, cloud[5], appState.bookmarks, (d: any) => { appState.bookmarks = d; saveLocal(STORAGE_KEYS.BOOKMARKS, d); });
+
+    // Timer sync is handled separately via the 'Live' subscription in timer.ts for instant HUD response.
 
     if (changed) await refreshAppAfterSync();
   } catch (err) { /* silent */ }

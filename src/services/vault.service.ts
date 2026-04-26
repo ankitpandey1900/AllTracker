@@ -167,7 +167,7 @@ export async function subscribeToUserDataSync(
     } catch (error) {
       log.error("User data polling failed", error);
     }
-  }, 12000);
+  }, 5000);
 
   return {
     unsubscribe: () => window.clearInterval(intervalId),

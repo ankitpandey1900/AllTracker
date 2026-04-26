@@ -32,31 +32,34 @@ export function initTimerModules(): void {
   // Initial Check
   SyncIndicator.update(window.navigator.onLine ? 'synced' : 'offline');
 
-  // 📡 Split-Brain Timer Sync: Full Bi-Directional Real-time Integration
-  import('@/services/vault.service').then(({ subscribeToRealtimeTelemetry }) => {
-    subscribeToRealtimeTelemetry(async (payload) => {
-      const { getCurrentUserId } = await import('@/services/auth.service');
-      const me = getCurrentUserId();
-      
-      if (payload.new && payload.new.id === me) {
-        const cloudIsRunning = payload.new.is_focusing;
+  // 📡 Mission-Critical Timer Sync: Full Cross-Device Integration
+  import('@/services/vault.service').then(({ subscribeToUserDataSync }) => {
+    subscribeToUserDataSync((payload) => {
+      // payload.new.data is [trackerData, settings, routines, history, bookmarks, tasks, timerState]
+      if (payload.new && payload.new.data && payload.new.data[6]) {
+        const cloudState = payload.new.data[6].data; // Vault Response wrapper
+        if (!cloudState) return;
+
+        const cloudIsRunning = cloudState.isRunning;
         const localIsRunning = appState.activeTimer.isRunning;
 
         if (cloudIsRunning !== localIsRunning) {
-          log.info(`📡 REMOTE SYNC: External ${cloudIsRunning ? 'START' : 'PAUSE'} detected.`);
-          const { loadTimerStateFromStorage } = await import('@/services/data-bridge');
-          const cloudState = await loadTimerStateFromStorage();
-          if (cloudState) {
-            Object.assign(appState.activeTimer, cloudState);
-            if (cloudIsRunning) {
-              updateTimerUI(true); startTimerInterval();
-              document.body.classList.add('is-focusing'); requestWakeLock();
-            } else {
-              if (appState.timerInterval) clearInterval(appState.timerInterval);
-              updateTimerUI(true); document.body.classList.remove('is-focusing');
-            }
-            updateTimerDisplay();
+          log.info(`📡 CLOUD SYNC: External ${cloudIsRunning ? 'START' : 'PAUSE'} detected.`);
+          
+          // Synchronize State
+          Object.assign(appState.activeTimer, cloudState);
+          
+          if (cloudIsRunning) {
+            updateTimerUI(true);
+            startTimerInterval();
+            document.body.classList.add('is-focusing');
+            requestWakeLock();
+          } else {
+            if (appState.timerInterval) clearInterval(appState.timerInterval);
+            updateTimerUI(true);
+            document.body.classList.remove('is-focusing');
           }
+          updateTimerDisplay();
         }
       }
     });
@@ -195,10 +198,17 @@ export async function stopTimer(autoNote?: string): Promise<void> {
   if (!appState.activeTimer.isRunning && appState.activeTimer.elapsedAcc === 0) return;
   isStopping = true;
   if (appState.timerInterval) clearInterval(appState.timerInterval);
-  let totalElapsed = appState.activeTimer.elapsedAcc;
-  if (appState.activeTimer.isRunning && appState.activeTimer.startTime) totalElapsed += Date.now() - appState.activeTimer.startTime;
+  
+  // 🛰️ INSTANT CLOUD BROADCAST: Tell all other devices to stop NOW
+  const wasRunning = appState.activeTimer.isRunning;
+  const startTime = appState.activeTimer.startTime;
   appState.activeTimer.isRunning = false;
+  if (wasRunning && startTime) appState.activeTimer.elapsedAcc += Date.now() - startTime;
+  appState.activeTimer.startTime = null;
+  saveTimerState(); // Pushes isRunning: false to the cloud immediately
   import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast());
+
+  let totalElapsed = appState.activeTimer.elapsedAcc;
   const totalHours = totalElapsed / 3600000;
   let note = autoNote || await showSessionNoteModal();
   if (appState.activeTimer.activeBreak) {
@@ -262,6 +272,7 @@ export async function terminateTimer(): Promise<void> {
   appState.activeTimer.isRunning = false; appState.activeTimer.elapsedAcc = 0;
   appState.activeTimer.startTime = null; appState.activeTimer.category = null;
   appState.activeTimer.colName = ''; appState.activeTimer.activeBreak = null;
+  saveTimerState(); // Notify other devices to clear HUD
   notificationService.stopAmbient(); await clearTimerStateDB();
   document.body.classList.remove('focus-mode', 'focus-minimized', 'is-focusing');
   const section = document.getElementById('activeTimerSection');
