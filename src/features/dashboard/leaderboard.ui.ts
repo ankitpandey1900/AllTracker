@@ -105,7 +105,10 @@ export function getUserStatus(u: GlobalProfile): {
   }
 
   const now = new Date();
-  const fmtLocal = (d: Date) => d.toLocaleDateString('en-GB'); // Uses system default locale
+  // 🛡️ TIMEZONE INTEGRITY: The backend resets today_hours at Midnight IST (Asia/Kolkata).
+  // The frontend MUST evaluate "today" based on IST, otherwise international users will see 
+  // their hours incorrectly zeroed out when their local clock crosses midnight.
+  const fmtLocal = (d: Date) => d.toLocaleDateString('en-GB', { timeZone: 'Asia/Kolkata' });
   const isActuallyToday = lastActive && fmtLocal(lastActive) === fmtLocal(now);
   const todayHoursDisplay = isActuallyToday ? (u.today_hours || 0) : 0;
 

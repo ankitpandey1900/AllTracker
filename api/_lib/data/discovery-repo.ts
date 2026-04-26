@@ -8,7 +8,6 @@ export async function fetchLeaderboard() {
     update profiles 
     set today_hours = 0 
     where (last_active at time zone 'Asia/Kolkata')::date < (now() at time zone 'Asia/Kolkata')::date
-       or (today_hours > 0 and last_active at time zone 'Asia/Kolkata' < '2026-04-26 02:05:00'::timestamp)
   `);
 
   // 👻 GHOST FOCUS FIX: Auto-clear is_focusing if last_active > 10 minutes ago
@@ -86,7 +85,6 @@ export async function fetchTelemetry() {
     update profiles 
     set today_hours = 0 
     where (last_active at time zone 'Asia/Kolkata')::date < (now() at time zone 'Asia/Kolkata')::date
-       or (today_hours > 0 and last_active at time zone 'Asia/Kolkata' < '2026-04-26 02:05:00'::timestamp)
   `);
 
   // 👻 GHOST FOCUS FIX: Auto-clear is_focusing if last_active > 10 minutes ago
@@ -121,11 +119,62 @@ export async function fetchTelemetry() {
     `,
   );
 
-  return {
+  const result = {
     total_pilots: Number(totalRows[0]?.count || 0),
     active_now: Number(activeRows[0]?.count || 0),
     global_hours_today: Number(totals[0]?.global_hours_today || 0),
     total_platform_hours: Number(totals[0]?.total_platform_hours || 0),
     nations_active: 0,
   };
+
+  // 📊 PLATFORM ANALYTICS: Write daily snapshot to platform_stats table.
+  // Uses UPSERT so we can call this frequently without creating duplicate rows.
+  // All values are calculated fresh from the live profiles data above.
+  try {
+    const avgHours = result.total_pilots > 0
+      ? (result.global_hours_today / result.total_pilots)
+      : 0;
+
+    await pool.query(
+      `
+        insert into platform_stats (
+          stat_date,
+          active_users,
+          total_hours,
+          avg_hours,
+          peak_focusing,
+          all_time_users,
+          all_time_hours,
+          created_at,
+          updated_at
+        )
+        values (
+          (now() at time zone 'Asia/Kolkata')::date,
+          $1, $2, $3, $4, $5, $6,
+          now(), now()
+        )
+        on conflict (stat_date) do update set
+          active_users   = greatest(platform_stats.active_users, $1),
+          total_hours    = $2,
+          avg_hours      = $3,
+          peak_focusing  = greatest(platform_stats.peak_focusing, $4),
+          all_time_users = $5,
+          all_time_hours = $6,
+          updated_at     = now()
+      `,
+      [
+        result.active_now,
+        result.global_hours_today,
+        avgHours,
+        result.active_now,
+        result.total_pilots,
+        result.total_platform_hours,
+      ],
+    );
+  } catch (err) {
+    // Non-fatal: analytics write failures should never break the main telemetry response
+    console.warn('[platform_stats] Snapshot write failed:', err);
+  }
+
+  return result;
 }
