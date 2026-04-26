@@ -3,11 +3,12 @@
  * 
  * It shows the image we generated and lets you download it or 
  * share it using your phone's native share menu.
+ * 
+ * CLEANED: Removed dead theme-dot logic.
  */
 
 import { showToast } from '@/utils/dom.utils';
 import { generateQuoteShareCard } from '@/features/dashboard/share-quote-card';
-import { generateShareCard } from '@/features/dashboard/share-card';
 
 let _activeDataUrl: string = '';
 let _currentType: 'quote' | 'stats' = 'stats';
@@ -25,6 +26,8 @@ export function openSharePreview(imageDataUrl: string, title: string = 'SHARE YO
 
   const customTrigger = document.getElementById('customBriefingTrigger');
   const customContainer = document.getElementById('customTextContainer');
+  
+  // Custom Quote specific controls
   if (customTrigger) customTrigger.style.display = _currentType === 'quote' ? 'block' : 'none';
   if (customContainer) customContainer.style.display = 'none';
 
@@ -36,7 +39,6 @@ export function openSharePreview(imageDataUrl: string, title: string = 'SHARE YO
   const shareBtn = document.getElementById('shareNativeBtn');
   const downloadBtn = document.getElementById('downloadShareBtn');
   const copyBtn = document.getElementById('copyShareBtn');
-  const dots = document.querySelectorAll('.theme-dot');
   
   // Custom Text UI
   const customInput = document.getElementById('customBriefingInput') as HTMLTextAreaElement;
@@ -51,14 +53,12 @@ export function openSharePreview(imageDataUrl: string, title: string = 'SHARE YO
   if (applyBtn) {
     applyBtn.onclick = async () => {
       const text = customInput?.value;
-      const activeDot = document.querySelector('.theme-dot.active') as HTMLElement;
-      const theme = activeDot?.dataset.theme || 'default';
-      
       const loader = document.getElementById('shareLoadingOverlay');
       if (loader) loader.style.display = 'flex';
       
       try {
-        await generateQuoteShareCard(theme, text);
+        // Regenerate card with custom text
+        await generateQuoteShareCard('default', text);
       } finally {
         if (loader) loader.style.display = 'none';
       }
@@ -73,36 +73,6 @@ export function openSharePreview(imageDataUrl: string, title: string = 'SHARE YO
   if (shareBtn) shareBtn.onclick = handleNativeShare;
   if (downloadBtn) downloadBtn.onclick = triggerDownload;
   if (copyBtn) copyBtn.onclick = handleCopyToClipboard;
-
-  // Theme Dots logic
-  dots.forEach(dot => {
-    (dot as HTMLElement).onclick = async (e) => {
-      const selectedTheme = (e.currentTarget as HTMLElement).dataset.theme;
-      if (!selectedTheme) return;
-
-      // Update UI dots
-      dots.forEach(d => {
-        (d as HTMLElement).style.borderColor = 'transparent';
-        (d as HTMLElement).classList.remove('active');
-      });
-      (e.currentTarget as HTMLElement).style.borderColor = '#fff';
-      (e.currentTarget as HTMLElement).classList.add('active');
-
-      // Show loading
-      const loader = document.getElementById('shareLoadingOverlay');
-      if (loader) loader.style.display = 'flex';
-
-      try {
-        if (_currentType === 'quote') {
-          await generateQuoteShareCard(selectedTheme, customInput?.value);
-        } else {
-          await generateShareCard(); 
-        }
-      } finally {
-        if (loader) loader.style.display = 'none';
-      }
-    };
-  });
 
   // 3. Show Modal
   modal.style.display = 'flex';
@@ -134,7 +104,6 @@ async function handleNativeShare(): Promise<void> {
     }
 
     try {
-        // Convert base64 to Blob/File for sharing
         const res = await fetch(_activeDataUrl);
         const blob = await res.blob();
         const file = new File([blob], 'arena_stats.png', { type: 'image/png' });
@@ -148,17 +117,15 @@ async function handleNativeShare(): Promise<void> {
         } else {
             showToast("Native File Sharing is not allowed on this browser. Try Download.", "warning");
         }
-    } catch (err) {
-        console.error("Sharing error:", err);
-        showToast("Sharing failed. Check permissions.", "error");
+    } catch (e) {
+        console.error("Share error:", e);
     }
 }
 
-/** Fallback trigger for manual PNG download */
+/** Legacy fallback download for all browsers */
 function triggerDownload(): void {
     const link = document.createElement('a');
-    link.download = `Arena_Stats_${new Date().toISOString().split('T')[0]}.png`;
+    link.download = 'all_tracker_progress.png';
     link.href = _activeDataUrl;
     link.click();
-    showToast("Progress Captured! Ready for transmission.", "success");
 }

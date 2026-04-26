@@ -1,6 +1,6 @@
 import html2canvas from 'html2canvas';
 import { appState } from '@/state/app-state';
-import { calculateStreak } from '@/utils/calc.utils';
+import { calculateStreak, calculateTotalStudyHours } from '@/utils/calc.utils';
 import { openSharePreview } from '@/features/dashboard/share-preview';
 import { QuotesManager } from '@/features/dashboard/quotes.manager';
 import { getSecureLocalProfileString } from '@/utils/security';
@@ -8,8 +8,7 @@ import { getRank } from '@/features/dashboard/dashboard';
 
 /**
  * Generates the "Cinematic Wisdom" Style Share Card.
- * FIXED: Removed background-clip text gradient (fixes html2canvas white box bug).
- * FIXED: Removed category-like author names.
+ * UPDATED: Precise Author filtering to remove category-like placeholders.
  */
 export async function generateQuoteShareCard(themeKey?: string, customText?: string): Promise<void> {
   const quote = QuotesManager.getInstance().getCurrentQuote();
@@ -28,13 +27,23 @@ export async function generateQuoteShareCard(themeKey?: string, customText?: str
 
   const finalQuoteText = customText || (quote ? quote.t : "Stay focused. Stay consistent.");
   
-  // Logic to filter out "Category-like" authors (e.g., "Success Psychology")
-  const rawAuthor = quote ? (quote.a === 'Unknown' || !quote.a ? 'ALL TRACKER' : quote.a) : "ALL TRACKER";
-  const isCategoryLike = rawAuthor.toLowerCase().includes('psychology') || 
-                         rawAuthor.toLowerCase().includes('check') || 
-                         rawAuthor.toLowerCase().includes('nature');
-                         
-  const finalAuthor = customText ? `@${displayName}` : (isCategoryLike ? 'ALL TRACKER' : rawAuthor);
+  /**
+   * REFINED AUTHOR LOGIC:
+   * Only show names of real people or sources. 
+   * Filter out generic "Category-like" placeholders.
+   */
+  const rawAuthor = quote ? (quote.a || 'Unknown') : "ALL TRACKER";
+  const genericKeywords = [
+    'wisdom', 'mindset', 'culture', 'science', 'psychology', 'nature', 
+    'coach', 'truth', 'code', 'logic', 'practice', 'human', 'nature', 
+    'reality', 'self', 'empowerment', 'commitment', 'reframe', 'freedom', 
+    'mental', 'choice', 'effort', 'upgrade', 'motivation', 'action', 
+    'goal', 'destiny', 'success', 'productivity', 'growth', 'inner', 
+    'aap ka shubh chintak', 'unknown', 'maxim', 'proverb', 'rule', 'code'
+  ];
+
+  const isGeneric = genericKeywords.some(kw => rawAuthor.toLowerCase().includes(kw));
+  const finalAuthor = customText ? `@${displayName}` : (isGeneric ? 'ALL TRACKER' : rawAuthor);
 
   const container = document.createElement('div');
   container.style.position = 'absolute';
@@ -44,10 +53,10 @@ export async function generateQuoteShareCard(themeKey?: string, customText?: str
 
   const currentStreak = calculateStreak(appState.trackerData);
   
-  // Calculate Accurate Rank
-  const totalHours = appState.trackerData.reduce((acc, current) => {
-    return acc + (current.studyHours || []).reduce((a, b) => a + (b || 0), 0);
-  }, 0);
+  const localTotal = calculateTotalStudyHours(appState.trackerData);
+  
+  // 🛰️ UNIFIED DATA SOURCE: Mirror the Dashboard/Leaderboard's logic
+  const totalHours = Math.max(localTotal, appState.verifiedTotalHours);
   const userRank = getRank(totalHours);
 
   const themes: Record<string, { color: string; label: string; icon: string }> = {

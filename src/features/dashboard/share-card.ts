@@ -2,11 +2,14 @@ import html2canvas from 'html2canvas';
 import { appState } from '@/state/app-state';
 import { getRank } from '@/features/dashboard/dashboard';
 import { openSharePreview } from '@/features/dashboard/share-preview';
-import { calculateVerificationScore, calculateCompetitiveXP } from '@/utils/calc.utils';
+import { calculateVerificationScore, calculateCompetitiveXP, calculateXP, calculateTotalStudyHours } from '@/utils/calc.utils';
 import { getSecureLocalProfileString } from '@/utils/security';
+import { getLocalIsoDate } from '@/utils/date.utils';
 
 /**
  * Reverted to Legacy Arena Style Stats Card with Added Tactical Heatmap.
+ * FIXED: Level calculation now syncs with Dashboard XP levels.
+ * FIXED: Heatmap now correctly reflects the last 7 calendar days.
  */
 export async function generateShareCard(): Promise<void> {
   const container = document.createElement('div');
@@ -15,11 +18,12 @@ export async function generateShareCard(): Promise<void> {
   container.style.left = '-9999px';
   document.body.appendChild(container);
 
-  const totalHours = appState.trackerData.reduce((acc: any, current: any) => {
-    return acc + (current.studyHours || []).reduce((a: any, b: any) => a + (b || 0), 0);
-  }, 0);
+  const localTotal = calculateTotalStudyHours(appState.trackerData);
   
+  // 🛰️ UNIFIED DATA SOURCE: Mirror the Dashboard/Leaderboard's logic
+  const totalHours = Math.max(localTotal, appState.verifiedTotalHours);
   const rank = getRank(totalHours);
+  const xpData = calculateXP(totalHours);
   
   let currentStreak = 0;
   for (let i = appState.trackerData.length - 1; i >= 0; i--) {
@@ -30,8 +34,9 @@ export async function generateShareCard(): Promise<void> {
   }
   
   const streak = currentStreak;
-  const verificationScore = calculateVerificationScore(appState.verifiedHours, totalHours);
-  const rankScore = calculateCompetitiveXP(totalHours, streak, verificationScore);
+  const verificationScore = calculateVerificationScore(appState.verifiedHours, localTotal);
+  const localRankScore = calculateCompetitiveXP(totalHours, streak, verificationScore);
+  const rankScore = Math.max(localRankScore, appState.verifiedRankScore);
 
   const profileRaw = getSecureLocalProfileString();
   let displayName = 'ALL TRACKER';
@@ -45,12 +50,23 @@ export async function generateShareCard(): Promise<void> {
     } catch (e) {}
   }
 
-  // Generate Heatmap Data (Last 7 Days)
-  const last7Days = appState.trackerData.slice(-7);
-  const heatmapDots = last7Days.map(day => {
-    const color = day.completed ? '#10b981' : (day.restDay ? '#6366f1' : '#27272a');
-    return `<div style="width: 12px; height: 12px; border-radius: 3px; background: ${color}; border: 1px solid rgba(255,255,255,0.05);"></div>`;
-  }).join('');
+  // --- 📅 TACTICAL HEATMAP (LAST 7 CALENDAR DAYS) ---
+  const today = new Date();
+  const heatmapDotsArr = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(today.getDate() - i);
+    const dateStr = getLocalIsoDate(d);
+    const dayData = appState.trackerData.find(day => day.date === dateStr);
+    
+    let color = '#27272a'; // Default (not studied)
+    if (dayData) {
+      if (dayData.completed) color = '#10b981';
+      else if (dayData.restDay) color = '#6366f1';
+    }
+    heatmapDotsArr.push(`<div style="width: 12px; height: 12px; border-radius: 3px; background: ${color}; border: 1px solid rgba(255,255,255,0.05);"></div>`);
+  }
+  const heatmapDots = heatmapDotsArr.join('');
 
   container.innerHTML = `
     <div id="arenaShareCardCapture" style="
@@ -75,7 +91,7 @@ export async function generateShareCard(): Promise<void> {
           </div>
         </div>
         <div style="text-align: right;">
-          <div style="font-size: 0.8rem; font-weight: 600; color: #6366f1;">LVL ${rank.level}</div>
+          <div style="font-size: 0.8rem; font-weight: 600; color: #6366f1;">LVL ${xpData.level}</div>
           <div style="font-size: 0.6rem; color: #a1a1aa;">XP SYSTEM ACTIVE</div>
         </div>
       </div>
@@ -84,7 +100,7 @@ export async function generateShareCard(): Promise<void> {
         <div style="flex: 1;">
           <div style="font-size: 0.7rem; font-weight: 800; color: #a1a1aa; letter-spacing: 2px; margin-bottom: 8px;">GLOBAL RANK</div>
           <div style="font-family: 'Tektur'; font-size: 3rem; font-weight: 900; line-height: 1; color: ${rank.color}; text-shadow: 0 0 20px ${rank.color}40;">${rank.name}</div>
-          <div style="font-size: 0.9rem; font-weight: 600; margin-top: 8px;">LEVEL ${rank.level} OPERATIVE</div>
+          <div style="font-size: 0.9rem; font-weight: 600; margin-top: 8px;">LEVEL ${xpData.level} OPERATIVE</div>
         </div>
         <div style="text-align: right; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 30px;">
           <div style="font-size: 0.7rem; font-weight: 800; color: #a1a1aa; letter-spacing: 2px; margin-bottom: 4px;">ALL-TIME HOURS</div>
