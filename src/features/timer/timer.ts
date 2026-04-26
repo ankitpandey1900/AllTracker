@@ -267,22 +267,25 @@ export async function stopTimer(autoNote?: string): Promise<void> {
       const colIdx = parseInt(appState.activeTimer.category);
       const sessionStart = appState.activeTimer.sessionStartClock ? new Date(appState.activeTimer.sessionStartClock) : new Date();
       const sessionEnd = new Date();
+      
+      // 🛡️ LOCAL SPLIT: For immediate UI feedback on the dashboard table
       if (sessionStart.getDate() !== sessionEnd.getDate()) {
         const midnight = new Date(sessionEnd); midnight.setHours(0,0,0,0);
         const hoursBefore = (midnight.getTime() - sessionStart.getTime()) / 3600000;
         const hoursAfter = (sessionEnd.getTime() - midnight.getTime()) / 3600000;
         saveSessionToDate(colIdx, hoursBefore, note, sessionStart);
         saveSessionToDate(colIdx, hoursAfter, note, sessionEnd);
-        saveTrackerDataToStorage(appState.trackerData);
-        await logStudySessionCloud(hoursBefore, appState.activeTimer.colName || 'GENERAL', sessionStart, note);
-        await logStudySessionCloud(hoursAfter, appState.activeTimer.colName || 'GENERAL', midnight, note);
         appState.verifiedHours += (hoursBefore + hoursAfter);
       } else {
         saveSessionToDate(colIdx, totalHours, note, sessionEnd);
-        saveTrackerDataToStorage(appState.trackerData);
-        await logStudySessionCloud(totalHours, appState.activeTimer.colName || 'GENERAL', sessionStart, note);
         appState.verifiedHours += totalHours;
       }
+      
+      saveTrackerDataToStorage(appState.trackerData);
+
+      // 🛰️ CLOUD SYNC: Send ONE raw request. The backend will handle splitting for history/leaderboard.
+      await logStudySessionCloud(totalHours, appState.activeTimer.colName || 'GENERAL', sessionStart, note);
+      
       showToast(autoNote ? "Auto-Safe: Session Saved" : `Saved: ${formatMsToTime(totalElapsed)}`, 'success');
     }
   } catch (error) { log.error('Save Error:', error); } finally { isStopping = false; }

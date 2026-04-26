@@ -10,11 +10,20 @@
 export const dashboardView = `
       <div class="dashboard-arena-layout">
         <div class="dashboard-main-content">
-          <article class="hero card shadow-2xl">
-            <div class="row-between hero-top">
-              <h2 id="heroStatusTitle">Initializing...</h2>
-              <div style="display:flex; gap:12px; align-items:center;">
-                <button id="shareStatsBtn" class="btn btn-primary" style="font-size: 0.65rem; font-weight:800; padding: 4px 10px; border-radius: 6px; background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.4); color: #60a5fa;">Share Stats 🚀</button>
+          <article class="hero card shadow-2xl" style="position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
+            <div class="hero-mesh-bg" style="position: absolute; inset: 0; background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.03) 1px, transparent 0); background-size: 24px 24px; pointer-events: none;"></div>
+            
+            <div class="row-between hero-top" style="position: relative; z-index: 2;">
+              <h2 id="heroStatusTitle" style="font-family: 'Tektur'; letter-spacing: 1px; font-weight: 800; text-transform: uppercase;">Initializing...</h2>
+              <div style="display:flex; gap:10px; align-items:center;">
+                <button id="shareQuoteBtn" class="hero-action-pill" title="Share Wisdom">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="margin-right: 6px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                  SHARE QUOTE
+                </button>
+                <button id="shareStatsBtn" class="hero-action-pill stats-pill" title="Share Stats">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="margin-right: 6px;"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                  STATS
+                </button>
                 <div class="hero-day-chip">
                   <div id="currentDay">DAY 0</div>
                   <small>OF <span class="hero-total-days">-</span></small>
@@ -44,61 +53,62 @@ export const dashboardView = `
             <button class="btn btn-ghost" id="toggleKpiBtn" style="padding: 4px 10px; font-size: 0.7rem;">Show</button>
           </div>
           
-          <div id="kpiContainer" class="mobile-collapsible">
-            <div class="kpi-metrics-grid items-stretch">
-              <!-- Row 1 -->
-              <article class="card rank-card momentum-card" style="border: 1px solid rgba(59, 130, 246, 0.2); background: rgba(59, 130, 246, 0.05);">
-                <div class="label" style="color: #60a5fa; font-weight: 800; letter-spacing: 1px;">RANK MOMENTUM</div>
-                <div id="rankScoreDisplay" class="big" style="color: #60a5fa; font-size: 2.2rem; margin: 5px 0;">0</div>
-                <div class="meta" style="font-weight: 600; color: #94a3b8;">Current Rank Score</div>
-                <div class="meta" style="margin-top: 4px; font-size: 0.7rem; opacity: 0.8;">
-                   Verified operative on World Stage
-                </div>
-              </article>
-              <article class="card aura-focus">
-                <div class="label">Sustainability</div>
-                <div id="sustainabilityLabel" class="big">OPTIMAL</div>
-                <div class="meta" id="sustainabilityDesc">Mission at optimal pace.</div>
-              </article>
-              <article class="card compact">
-                <div class="label">Estimated Finish</div>
-                <div class="big" id="estimatedFinishDate">-</div>
-                <div class="meta" id="estimatedStartDate">Start: -</div>
-              </article>
+            <div id="kpiContainer" class="mobile-collapsible">
+              <div class="kpi-metrics-grid items-stretch">
+                <!-- Row 1 -->
+                <article class="card rank-card momentum-card tactical-accent aura-focus" style="border: 1px solid rgba(59, 130, 246, 0.2); background: rgba(59, 130, 246, 0.05);">
+                  <div class="label" style="color: #60a5fa; font-weight: 800; letter-spacing: 2px;">RANK MOMENTUM</div>
+                  <div id="rankScoreDisplay" class="big" style="color: #60a5fa; font-size: 2.4rem; margin: 5px 0; font-family: 'Tektur';">0</div>
+                  <div class="meta" style="font-weight: 700; color: #94a3b8; font-size: 0.8rem; letter-spacing: 1px;">VERIFIED OPERATIVE</div>
+                </article>
 
-              <!-- Row 2 -->
-              <article class="card">
-                <div class="label">Avg / Day</div>
-                <div class="big" id="avgHoursPerDay">0</div>
-                <div class="meta">hrs/day avg</div>
-              </article>
-              <article class="card">
-                <div class="label">Completion</div>
-                <div id="completionPercent" class="big">0%</div>
-                <div class="meta">
-                  <span id="completedDaysCount">0</span> / <span class="hero-total-days">-</span> days
-                </div>
-              </article>
-              <article class="card">
-                <div class="label">Total Hours</div>
-                <div id="totalHours" class="big">0.0h</div>
-                <div class="meta">
-                   <canvas id="velocitySparkline" width="100" height="20" style="width: 100px; height: 20px; opacity: 0.6; margin: 4px 0;"></canvas>
-                   <div id="totalHoursStartDate">Start: -</div>
-                </div>
-              </article>
+                <article class="card aura-optimal tactical-accent">
+                  <div class="label" style="letter-spacing: 2px; color: #22c55e;">SUSTAINABILITY</div>
+                  <div id="sustainabilityLabel" class="big" style="font-family: 'Tektur'; font-size: 2.2rem; color: #22c55e;">OPTIMAL</div>
+                  <div class="meta" id="sustainabilityDesc">Mission at peak efficiency.</div>
+                </article>
 
-              <!-- Row 3 -->
-              <article class="card compact">
-                <div class="label">Current Streak</div>
-                <div class="big" id="currentStreakStat">0</div>
-                <div class="meta">days</div>
-              </article>
-              <article class="card compact">
-                <div class="label">Best Streak</div>
-                <div class="big" id="bestStreakStat">0</div>
-                <div class="meta">days (all time)</div>
-              </article>
+                <article class="card compact tactical-accent aura-focus">
+                  <div class="label" style="letter-spacing: 2px;">ESTIMATED FINISH</div>
+                  <div class="big" id="estimatedFinishDate" style="font-family: 'Tektur'; font-size: 1.8rem;">-</div>
+                  <div class="meta" id="estimatedStartDate" style="font-size: 0.75rem; opacity: 0.6;">INCEPTION: --</div>
+                </article>
+
+                <!-- Row 2 -->
+                <article class="card tactical-accent">
+                  <div class="label" style="letter-spacing: 2px;">DAILY INTENSITY</div>
+                  <div class="big" id="avgHoursPerDay" style="font-family: 'Tektur'; font-size: 2.4rem;">0.0</div>
+                  <div class="meta">AVG HOURS / DAY</div>
+                </article>
+
+                <article class="card tactical-accent aura-elite">
+                  <div class="label" style="letter-spacing: 2px; color: #f59e0b;">COMPLETION</div>
+                  <div id="completionPercent" class="big" style="font-family: 'Tektur'; font-size: 2.4rem; color: #f59e0b;">0%</div>
+                  <div class="meta">
+                    <span id="completedDaysCount">0</span> / <span class="hero-total-days">-</span> DAYS
+                  </div>
+                </article>
+
+                <article class="card tactical-accent">
+                  <div class="label" style="letter-spacing: 2px;">TOTAL FOCUS</div>
+                  <div id="totalHours" class="big" style="font-family: 'Tektur'; font-size: 2.4rem;">0.0h</div>
+                  <div class="meta">
+                    <canvas id="velocitySparkline" width="100" height="20" style="width: 100px; height: 20px; opacity: 0.6; margin: 4px 0;"></canvas>
+                  </div>
+                </article>
+
+                <!-- Row 3 -->
+                <article class="card compact tactical-accent aura-caution">
+                  <div class="label" style="letter-spacing: 2px; color: #f59e0b;">ACTIVE STREAK</div>
+                  <div class="big" id="currentStreakStat" style="font-family: 'Tektur'; font-size: 2.4rem; color: #f59e0b;">0</div>
+                  <div class="meta">DAYS 🔥</div>
+                </article>
+
+                <article class="card compact tactical-accent">
+                  <div class="label" style="letter-spacing: 2px;">ELITE STREAK</div>
+                  <div class="big" id="bestStreakStat" style="font-family: 'Tektur'; font-size: 2.4rem;">0</div>
+                  <div class="meta">ALL-TIME PEAK</div>
+                </article>
               </article>
 
               <!-- Row 4: Rivalry & Intelligence -->

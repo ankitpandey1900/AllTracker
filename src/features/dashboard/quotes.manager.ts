@@ -5,7 +5,9 @@ import { calculateSummaryStats } from '../../utils/calc.utils';
 export class QuotesManager {
   private static instance: QuotesManager;
   private currentQuote: Quote | null = null;
+  private previousQuote: Quote | null = null;
   private rotationInterval: any = null;
+  private clickTimer: any = null;
 
   private constructor() {}
 
@@ -27,8 +29,29 @@ export class QuotesManager {
     const statusEl = document.getElementById('heroStatusTitle');
     if (statusEl) {
       statusEl.style.cursor = 'pointer';
-      statusEl.title = 'Click for more wisdom';
-      statusEl.onclick = () => this.rotate();
+      statusEl.title = 'Click for next wisdom | Double-click for previous';
+      
+      statusEl.onclick = () => {
+        if (this.clickTimer) {
+          clearTimeout(this.clickTimer);
+          this.clickTimer = null;
+          // This was a double click (already handled by ondblclick)
+          // But to be safe, we just let ondblclick handle it
+        } else {
+          this.clickTimer = setTimeout(() => {
+            this.rotate();
+            this.clickTimer = null;
+          }, 250); // Small delay to check for dblclick
+        }
+      };
+
+      statusEl.ondblclick = () => {
+        if (this.clickTimer) {
+          clearTimeout(this.clickTimer);
+          this.clickTimer = null;
+        }
+        this.goBack();
+      };
     }
 
     // 5-minute interval (300,000 ms)
@@ -42,7 +65,19 @@ export class QuotesManager {
     const quote = this.pickQuote();
     if (!quote) return;
 
+    this.previousQuote = this.currentQuote;
     this.currentQuote = quote;
+    this.updateHUD();
+  }
+
+  public goBack(): void {
+    if (!this.previousQuote) return;
+    
+    // Swap
+    const temp = this.currentQuote;
+    this.currentQuote = this.previousQuote;
+    this.previousQuote = temp;
+    
     this.updateHUD();
   }
 
@@ -117,6 +152,9 @@ export class QuotesManager {
 
   /** Expose current quote for manual refresh or initial render */
   public getCurrentQuote(): Quote | null {
+    if (!this.currentQuote) {
+      this.currentQuote = this.pickQuote();
+    }
     return this.currentQuote;
   }
 }

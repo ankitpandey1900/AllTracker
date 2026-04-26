@@ -18,43 +18,42 @@ export async function logStudySession(
     : new Date(endAt.getTime() - payload.duration * 60 * 60 * 1000);
 
   // 🛡️ PROFESSIONAL MIDNIGHT SPLIT (IST)
-  const fmt = (d: Date) => d.toLocaleDateString('en-GB', { timeZone: 'Asia/Kolkata' });
+  // IST is UTC+5:30. Midnight IST (00:00) is 18:30 UTC of the previous calendar day.
   
-  if (fmt(startAt) !== fmt(endAt)) {
+  const getIstDateStr = (d: Date) => {
+    return new Intl.DateTimeFormat('en-GB', { 
+      timeZone: 'Asia/Kolkata', 
+      year: 'numeric', month: '2-digit', day: '2-digit' 
+    }).format(d);
+  };
+
+  if (getIstDateStr(startAt) !== getIstDateStr(endAt)) {
     console.log(`[Log]: Session crossing IST midnight detected. Splitting log...`);
     
-    // 1. Find Midnight IST in UTC
-    // We create a date string for the end day at 00:00:00 in IST
-    const midnightIST = new Date(endAt.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
-    midnightIST.setHours(0, 0, 0, 0);
-    
-    // We need to get the UTC equivalent of that 12:00 AM IST
-    // IST is UTC+5:30, so 12:00 AM IST is 6:30 PM UTC (Previous Day)
-    // Actually, a safer way:
-    const startMs = startAt.getTime();
-    const endMs = endAt.getTime();
-    const totalMs = endMs - startMs;
-    
-    // Calculate how much of the session was before midnight IST
-    const midnightUtc = new Date(endAt);
-    midnightUtc.setUTCHours(18, 30, 0, 0); 
-    if (midnightUtc.getTime() > endAt.getTime()) {
-      midnightUtc.setTime(midnightUtc.getTime() - 24 * 60 * 60 * 1000);
-    }
-    
-    const beforeMs = midnightUtc.getTime() - startMs;
-    const afterMs = endMs - midnightUtc.getTime();
+    // 1. Calculate Midnight IST boundary for the end day
+    const midnightIst = new Date(endAt);
+    // Convert to IST perspective
+    const istOffset = 5.5 * 60 * 60 * 1000;
+    const endMsIst = endAt.getTime() + istOffset;
+    const midnightMsIst = Math.floor(endMsIst / (24 * 60 * 60 * 1000)) * (24 * 60 * 60 * 1000);
+    const midnightUtc = new Date(midnightMsIst - istOffset);
+
+    const beforeMs = midnightUtc.getTime() - startAt.getTime();
+    const afterMs = endAt.getTime() - midnightUtc.getTime();
     
     if (beforeMs > 0 && afterMs > 0) {
+      const notePart1 = (payload.note || "").includes("(Part") ? payload.note : (payload.note || "") + " (Part 1/2)";
+      const notePart2 = (payload.note || "").includes("(Part") ? payload.note : (payload.note || "") + " (Part 2/2)";
+
       // Log part 1 (Yesterday)
       await pool.query(
         `insert into study_sessions (user_id, duration, subject, start_time, end_time, note) values ($1::uuid, $2, $3, $4, $5, $6)`,
-        [profile.profileId, Number((beforeMs / 3600000).toFixed(4)), payload.subject, startAt.toISOString(), midnightUtc.toISOString(), (payload.note || "") + " (Part 1/2)"]
+        [profile.profileId, Number((beforeMs / 3600000).toFixed(4)), payload.subject, startAt.toISOString(), midnightUtc.toISOString(), notePart1]
       );
       // Log part 2 (Today)
       await pool.query(
         `insert into study_sessions (user_id, duration, subject, start_time, end_time, note) values ($1::uuid, $2, $3, $4, $5, $6)`,
-        [profile.profileId, Number((afterMs / 3600000).toFixed(4)), payload.subject, midnightUtc.toISOString(), endAt.toISOString(), (payload.note || "") + " (Part 2/2)"]
+        [profile.profileId, Number((afterMs / 3600000).toFixed(4)), payload.subject, midnightUtc.toISOString(), endAt.toISOString(), notePart2]
       );
       await reconcileProfileHours(profile.profileId);
       return;

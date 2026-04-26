@@ -44,6 +44,9 @@ export function setupEventListeners(): void {
   bindClick("shareStatsBtn", () => {
     import('@/features/dashboard/share-card').then(m => m.generateShareCard());
   });
+  bindClick("shareQuoteBtn", () => {
+    import('@/features/dashboard/share-quote-card').then(m => m.generateQuoteShareCard());
+  });
 
   // Timer controls
   const timerStartBtn = document.getElementById("confirmStartTimerBtn");
