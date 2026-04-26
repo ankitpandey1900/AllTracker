@@ -72,7 +72,15 @@ export function getUserStatus(u: GlobalProfile): {
   const diffMins = isDateValid ? Math.max(0, (Date.now() - lastActive.getTime()) / 60000) : null;
 
   const isOnline = u.is_online === true;
-  const isFocusing = u.is_focusing_now && isOnline;
+
+  // 🛡️ Focus check:
+  // - Must be within the 10-minute activity window (matches telemetry count)
+  // - Must respect is_focus_public privacy setting
+  // - Using 10min window (not strict isOnline 60s) so heartbeat delay doesn't break it
+  const isRecentlyActive = diffMins !== null && diffMins < 10;
+  const isFocusing = u.is_focusing_now === true &&
+                     u.is_focus_public !== false &&
+                     isRecentlyActive;
   
   let statusClass = 'offline';
   let statusLabel = '';

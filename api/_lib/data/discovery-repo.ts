@@ -3,12 +3,21 @@ import { getPool } from "../db/pool.js";
 export async function fetchLeaderboard() {
   const pool = getPool();
   
-  // 🛡️ SELF-HEALING: Reset any stale today_hours before fetching
+  // 🛡️ SELF-HEALING: Reset stale today_hours from previous days
   await pool.query(`
     update profiles 
     set today_hours = 0 
     where (last_active at time zone 'Asia/Kolkata')::date < (now() at time zone 'Asia/Kolkata')::date
        or (today_hours > 0 and last_active at time zone 'Asia/Kolkata' < '2026-04-26 02:05:00'::timestamp)
+  `);
+
+  // 👻 GHOST FOCUS FIX: Auto-clear is_focusing if last_active > 10 minutes ago
+  // Handles users who closed their browser/app without clicking Stop
+  await pool.query(`
+    update profiles 
+    set is_focusing = false, focus_subject = null
+    where is_focusing = true
+      and last_active < now() - interval '10 minutes'
   `);
 
   const { rows } = await pool.query(
@@ -80,6 +89,14 @@ export async function fetchTelemetry() {
        or (today_hours > 0 and last_active at time zone 'Asia/Kolkata' < '2026-04-26 02:05:00'::timestamp)
   `);
 
+  // 👻 GHOST FOCUS FIX: Auto-clear is_focusing if last_active > 10 minutes ago
+  await pool.query(`
+    update profiles 
+    set is_focusing = false, focus_subject = null
+    where is_focusing = true
+      and last_active < now() - interval '10 minutes'
+  `);
+
   const { rows: totalRows } = await pool.query(
     "select count(*)::int as count from profiles",
   );
@@ -90,6 +107,7 @@ export async function fetchTelemetry() {
       select count(*)::int as count
       from profiles
       where is_focusing = true
+        and is_focus_public = true
         and last_active > $1
     `,
     [tenMinutesAgo],
