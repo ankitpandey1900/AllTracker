@@ -107,7 +107,6 @@ export async function fetchTelemetry() {
       select count(*)::int as count
       from profiles
       where is_focusing = true
-        and is_focus_public = true
         and last_active > $1
     `,
     [tenMinutesAgo],
