@@ -104,8 +104,16 @@ export async function renderPerformanceCurve(): Promise<void> {
     hoursData.push(dayHours);
   });
 
-  const totalPossibleHabits = chartData.length * (appState.routines.length || 1);
-  const consistency = totalPossibleHabits > 0 ? Math.round((completedHabits / totalPossibleHabits) * 100) : 0;
+  // \ud83d\udee1\ufe0f ACCURATE CONSISTENCY: Count only routines scheduled for each specific chart day
+  // Old: chartData.length * routines.length — wrong for day-specific schedules
+  const totalPossibleHabits = chartData.reduce((sum, dayData) => {
+    const dayOfWeek = new Date(dayData.date).getDay();
+    const scheduledCount = appState.routines.filter(r =>
+      !r.days || r.days.length === 0 || r.days.includes(dayOfWeek)
+    ).length;
+    return sum + scheduledCount;
+  }, 0) || 1;
+  const consistency = Math.round((completedHabits / totalPossibleHabits) * 100);
 
   setTxt('habitActiveDays', activeDays);
   setTxt('habitConsistency', `${consistency}%`);

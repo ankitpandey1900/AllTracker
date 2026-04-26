@@ -282,7 +282,11 @@ export async function checkDailyRoutineReset(): Promise<void> {
   const today = getLocalIsoDate();
   const lastReset = await loadRoutineResetFromStorage();
   const isNewDay = lastReset !== today;
-  
+
+  // 🛡️ CROSS-DEVICE GUARD: If any routine was touched today on another device,
+  // the reset has already effectively happened — don't re-process.
+  const alreadyTouchedToday = appState.routines.some(r => r.lastCompletedIso === today);
+
   let needsSave = isNewDay;
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
@@ -297,13 +301,19 @@ export async function checkDailyRoutineReset(): Promise<void> {
       needsSave = true;
     }
 
-    // 2. Handle Streak Breaks (Only on the first run of a new day)
-    if (isNewDay) {
+    // 2. Handle Streak Breaks + Fresh Start (Only on the first run of a new day)
+    if (isNewDay && !alreadyTouchedToday) {
       const scheduledYesterday = !item.days || item.days.length === 0 || item.days.includes(yesterdayDay);
-      if (scheduledYesterday && !item.completed && item.lastCompletedIso !== yesterdayStr) {
+      if (scheduledYesterday && item.lastCompletedIso !== yesterdayStr && item.lastCompletedIso !== today) {
+        // Streak breaks only if NOT completed yesterday and NOT already done today (cross-device)
         item.streak = 0;
       }
-      item.completed = false; // Fresh start for the new day
+
+      // 🛡️ CROSS-DEVICE GUARD: Only reset completion if NOT already done today on another device
+      // Without this, opening the app on PC would wipe completions done on mobile today.
+      if (item.lastCompletedIso !== today) {
+        item.completed = false;
+      }
     }
   });
 

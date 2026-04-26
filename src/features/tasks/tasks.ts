@@ -223,21 +223,37 @@ export function toggleTask(id: string): void {
   }
 }
 
-/** Automatically deletes tasks that have been in history for more than 3 days */
+/** Automatically deletes tasks that have been in history for more than 3 days,
+ *  and archives incomplete tasks older than 7 days to prevent backlog overflow. */
 function cleanupTasks(): void {
   const threeDaysInMs = 3 * 24 * 60 * 60 * 1000;
+  const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
   const now = Date.now();
 
   const originalCount = appState.tasks.length;
-  const filtered = appState.tasks.filter(t => {
-    if (!t.completed || !t.completedAt) return true;
-    return (now - t.completedAt) < threeDaysInMs;
-  });
+  let changed = false;
 
-  if (filtered.length < originalCount) {
-    appState.tasks = filtered;
+  const updated = appState.tasks
+    .map(t => {
+      // Auto-archive: incomplete tasks older than 7 days
+      if (!t.completed && t.createdAt && (now - t.createdAt) > sevenDaysInMs) {
+        changed = true;
+        return { ...t, completed: true, completedAt: now, text: `[Archived] ${t.text}` };
+      }
+      return t;
+    })
+    .filter(t => {
+      // Purge: completed tasks older than 3 days
+      if (t.completed && t.completedAt) {
+        return (now - t.completedAt) < threeDaysInMs;
+      }
+      return true;
+    });
+
+  if (changed || updated.length < originalCount) {
+    appState.tasks = updated;
     saveTasks();
-    log.info(`Cleaned up ${originalCount - filtered.length} old history tasks.`);
+    log.info(`Cleanup: ${originalCount - updated.length} tasks purged, stale backlog archived.`);
   }
 }
 

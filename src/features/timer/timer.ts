@@ -188,7 +188,9 @@ export function pauseTimer(): void { startBreak('Paused'); }
 
 function startBreakInterval(): void {
   if (appState.timerInterval) clearInterval(appState.timerInterval);
+  let breakTick = 0;
   appState.timerInterval = setInterval(() => {
+    breakTick++;
     updateTimerDisplay();
     const activeBreak = appState.activeTimer.activeBreak;
     if (activeBreak) {
@@ -207,10 +209,16 @@ function startBreakInterval(): void {
         else if (currentMilestone === 55) msg = "AB BAS! boht slacking ho gayi. Immediately return! 🛑";
         notificationService.sendAlert(`${activeBreak.reason} Break: ${currentMilestone}m`, msg);
         activeBreak.lastNotifiedMinutes = currentMilestone;
+        // Save immediately when a notification fires (milestone state change)
+        saveTimerState();
       }
     }
-    saveTimerState();
-    if (!wakeLock) requestWakeLock();
+    // 🛡️ Throttled cloud save: every 30s during break (same as study interval)
+    // Prevents write-war between devices where both save every second
+    if (breakTick % 30 === 0) {
+      saveTimerState();
+      if (!wakeLock) requestWakeLock();
+    }
   }, 1000);
 }
 
