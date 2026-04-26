@@ -10,18 +10,7 @@ export const shareModal = `
         </div>
         <div class="modal-body" style="padding: 20px 25px 25px; flex: 1;">
             <!-- Theme Selection -->
-            <div id="themeSelectorRow" style="display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 20px; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
-              <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="font-size: 0.7rem; font-weight: 800; color: #71717a; letter-spacing: 1.5px; text-transform: uppercase;">Theme:</span>
-                <div style="display: flex; gap: 8px;">
-                  <div class="theme-dot active" data-theme="default" style="width: 18px; height: 18px; border-radius: 50%; background: #60a5fa; cursor: pointer; border: 2px solid #fff;"></div>
-                  <div class="theme-dot" data-theme="toxic" style="width: 18px; height: 18px; border-radius: 50%; background: #22c55e; cursor: pointer; border: 2px solid transparent;"></div>
-                  <div class="theme-dot" data-theme="savage" style="width: 18px; height: 18px; border-radius: 50%; background: #a855f7; cursor: pointer; border: 2px solid transparent;"></div>
-                  <div class="theme-dot" data-theme="gold" style="width: 18px; height: 18px; border-radius: 50%; background: #f59e0b; cursor: pointer; border: 2px solid transparent;"></div>
-                  <div class="theme-dot" data-theme="critical" style="width: 18px; height: 18px; border-radius: 50%; background: #ef4444; cursor: pointer; border: 2px solid transparent;"></div>
-                </div>
-              </div>
-              
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
               <div id="customBriefingTrigger" style="font-size: 0.7rem; font-weight: 800; color: #60a5fa; cursor: pointer; letter-spacing: 1px; text-decoration: underline;">CUSTOM QUOTE</div>
             </div>
 
