@@ -2,15 +2,8 @@ import { getPool } from "../db/pool.js";
 
 export async function fetchLeaderboard() {
   const pool = getPool();
-  
-  // 🛡️ SELF-HEALING: Reset stale today_hours from previous days
-  await pool.query(`
-    update profiles 
-    set today_hours = 0 
-    where (last_active at time zone 'Asia/Kolkata')::date < (now() at time zone 'Asia/Kolkata')::date
-  `);
 
-  // 👻 GHOST FOCUS FIX: Auto-clear is_focusing if last_active > 10 minutes ago
+  // 🛡️ GHOST FOCUS FIX: Auto-clear is_focusing if last_active > 10 minutes ago
   // Handles users who closed their browser/app without clicking Stop
   await pool.query(`
     update profiles 
@@ -30,7 +23,7 @@ export async function fetchLeaderboard() {
         p.rank,
         p.total_hours,
         case 
-          when (p.last_active at time zone 'Asia/Kolkata')::date = (now() at time zone 'Asia/Kolkata')::date 
+          when p.last_active > now() - interval '18 hours'
           then p.today_hours 
           else 0 
         end as today_hours,
@@ -80,13 +73,6 @@ export async function fetchLeaderboard() {
 export async function fetchTelemetry() {
   const pool = getPool();
 
-  // 🛡️ SELF-HEALING: Ensure telemetry is based on clean data
-  await pool.query(`
-    update profiles 
-    set today_hours = 0 
-    where (last_active at time zone 'Asia/Kolkata')::date < (now() at time zone 'Asia/Kolkata')::date
-  `);
-
   // 👻 GHOST FOCUS FIX: Auto-clear is_focusing if last_active > 10 minutes ago
   await pool.query(`
     update profiles 
@@ -114,7 +100,7 @@ export async function fetchTelemetry() {
     `
       select
         coalesce(sum(total_hours), 0) as total_platform_hours,
-        coalesce(sum(case when (last_active at time zone 'Asia/Kolkata')::date = (now() at time zone 'Asia/Kolkata')::date then today_hours else 0 end), 0) as global_hours_today
+        coalesce(sum(case when last_active > now() - interval '18 hours' then today_hours else 0 end), 0) as global_hours_today
       from profiles
     `,
   );
@@ -149,7 +135,7 @@ export async function fetchTelemetry() {
           updated_at
         )
         values (
-          (now() at time zone 'Asia/Kolkata')::date,
+        (now())::date,
           $1, $2, $3, $4, $5, $6,
           now(), now()
         )

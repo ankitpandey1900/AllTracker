@@ -179,7 +179,21 @@ export async function syncProfileBroadcast(focusStateChanged = false): Promise<v
   if (isFocusing && appState.activeTimer.startTime) {
     const elapsedMs = (Date.now() - appState.activeTimer.startTime) + appState.activeTimer.elapsedAcc;
     const elapsedHrs = elapsedMs / (1000 * 60 * 60);
-    todayHours += elapsedHrs;
+    
+    // 🛡️ MIDNIGHT SPLIT: For today_hours, only count time after 00:00:00 Local Device Time
+    let todayElapsedHrs = elapsedHrs;
+    if (appState.activeTimer.sessionStartClock) {
+      const start = new Date(appState.activeTimer.sessionStartClock);
+      const now = new Date();
+      // Compare local calendar dates
+      if (start.getDate() !== now.getDate() || start.getMonth() !== now.getMonth() || start.getFullYear() !== now.getFullYear()) {
+        const midnight = new Date(now);
+        midnight.setHours(0, 0, 0, 0);
+        todayElapsedHrs = Math.max(0, (now.getTime() - midnight.getTime()) / 3600000);
+      }
+    }
+
+    todayHours += todayElapsedHrs;
     totalHours += elapsedHrs;
     sessionTotal += elapsedHrs; 
   }
