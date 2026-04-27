@@ -395,7 +395,17 @@ export async function broadcastProfileStats(
         ? payload.current_rank
         : profile.rank,
       Number(payload.total_hours || profile.totalHours || 0),
-      Number(payload.today_hours || 0),
+      Number((() => {
+        const providedHours = Number(payload.today_hours || 0);
+        // 🛡️ IST MIDNIGHT RESET PROTOCOL
+        const nDate = new Date().toLocaleDateString('en-GB', { timeZone: 'Asia/Kolkata' });
+        if (profile.lastActive) {
+          const lDate = new Date(profile.lastActive).toLocaleDateString('en-GB', { timeZone: 'Asia/Kolkata' });
+          // If the last activity was on a different IST day, reset hours unless currently focusing
+          if (lDate !== nDate && payload.is_focusing_now !== true) return 0;
+        }
+        return providedHours;
+      })()),
       payload.is_focusing_now === true,
       typeof payload.current_focus_subject === "string"
         ? payload.current_focus_subject

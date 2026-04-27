@@ -176,7 +176,7 @@ async function reconcileProfileHours(profileId: string): Promise<void> {
           select coalesce(sum(duration), 0)
           from study_sessions
           where user_id = $1::uuid
-            and start_time::date = now()::date
+            and ((start_time AT TIME ZONE 'UTC') AT TIME ZONE 'Asia/Kolkata')::date = ((now() AT TIME ZONE 'UTC') AT TIME ZONE 'Asia/Kolkata')::date
         ),
         updated_at = now()
       where id = $1::uuid

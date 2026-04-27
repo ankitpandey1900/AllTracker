@@ -3,8 +3,14 @@ import { getPool } from "../db/pool.js";
 export async function fetchLeaderboard() {
   const pool = getPool();
 
-  // 🛡️ GHOST FOCUS FIX: Auto-clear is_focusing if last_active > 10 minutes ago
-  // Handles users who closed their browser/app without clicking Stop
+  // 🛡️ SELF-HEALING: Reset stale today_hours at exactly 12:00 AM IST
+  await pool.query(`
+    update profiles 
+    set today_hours = 0 
+    where ((last_active AT TIME ZONE 'UTC') AT TIME ZONE 'Asia/Kolkata')::date < ((now() AT TIME ZONE 'UTC') AT TIME ZONE 'Asia/Kolkata')::date
+  `);
+
+  // 👻 GHOST FOCUS FIX: Auto-clear is_focusing if last_active > 10 minutes ago
   await pool.query(`
     update profiles 
     set is_focusing = false, focus_subject = null
@@ -23,7 +29,7 @@ export async function fetchLeaderboard() {
         p.rank,
         p.total_hours,
         case 
-          when p.last_active > now() - interval '18 hours'
+          when ((p.last_active AT TIME ZONE 'UTC') AT TIME ZONE 'Asia/Kolkata')::date = ((now() AT TIME ZONE 'UTC') AT TIME ZONE 'Asia/Kolkata')::date 
           then p.today_hours 
           else 0 
         end as today_hours,
@@ -73,6 +79,13 @@ export async function fetchLeaderboard() {
 export async function fetchTelemetry() {
   const pool = getPool();
 
+  // 🛡️ SELF-HEALING: Reset stale today_hours at exactly 12:00 AM IST
+  await pool.query(`
+    update profiles 
+    set today_hours = 0 
+    where ((last_active AT TIME ZONE 'UTC') AT TIME ZONE 'Asia/Kolkata')::date < ((now() AT TIME ZONE 'UTC') AT TIME ZONE 'Asia/Kolkata')::date
+  `);
+
   // 👻 GHOST FOCUS FIX: Auto-clear is_focusing if last_active > 10 minutes ago
   await pool.query(`
     update profiles 
@@ -100,7 +113,7 @@ export async function fetchTelemetry() {
     `
       select
         coalesce(sum(total_hours), 0) as total_platform_hours,
-        coalesce(sum(case when last_active > now() - interval '18 hours' then today_hours else 0 end), 0) as global_hours_today
+        coalesce(sum(case when ((last_active AT TIME ZONE 'UTC') AT TIME ZONE 'Asia/Kolkata')::date = ((now() AT TIME ZONE 'UTC') AT TIME ZONE 'Asia/Kolkata')::date then today_hours else 0 end), 0) as global_hours_today
       from profiles
     `,
   );
@@ -135,7 +148,7 @@ export async function fetchTelemetry() {
           updated_at
         )
         values (
-        (now())::date,
+        ((now() AT TIME ZONE 'UTC') AT TIME ZONE 'Asia/Kolkata')::date,
           $1, $2, $3, $4, $5, $6,
           now(), now()
         )
