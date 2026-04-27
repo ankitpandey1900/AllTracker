@@ -7,7 +7,7 @@ export async function fetchLeaderboard() {
   await pool.query(`
     update profiles 
     set today_hours = 0 
-    where ((last_active AT TIME ZONE 'UTC') AT TIME ZONE 'Asia/Kolkata')::date < ((now() AT TIME ZONE 'UTC') AT TIME ZONE 'Asia/Kolkata')::date
+    where (last_active + interval '5 hours 30 minutes')::date < (now() + interval '5 hours 30 minutes')::date
   `);
 
   // 👻 GHOST FOCUS FIX: Auto-clear is_focusing if last_active > 10 minutes ago
@@ -29,7 +29,7 @@ export async function fetchLeaderboard() {
         p.rank,
         p.total_hours,
         case 
-          when ((p.last_active AT TIME ZONE 'UTC') AT TIME ZONE 'Asia/Kolkata')::date = ((now() AT TIME ZONE 'UTC') AT TIME ZONE 'Asia/Kolkata')::date 
+          when (p.last_active + interval '5 hours 30 minutes')::date = (now() + interval '5 hours 30 minutes')::date 
           then p.today_hours 
           else 0 
         end as today_hours,
