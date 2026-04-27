@@ -146,28 +146,27 @@ export async function refreshLeaderboard(): Promise<void> {
     const totalPlatform = telemetry.total_platform_hours || 0;
     const allTargets = [50, 100, 250, 500, 1000, 2500, 5000, 10000];
     const nextTarget = allTargets.find(t => t > totalPlatform) || 50;
-    const futureTarget = allTargets[allTargets.indexOf(nextTarget) + 1] || nextTarget * 2;
+    const prevTarget = allTargets[allTargets.indexOf(nextTarget) - 1] || 0;
     
-    // Timeline window: 0 to futureTarget
-    const timelineEnd = futureTarget;
-    const pct = Math.min(100, (totalPlatform / nextTarget) * 100); // Progress towards NEXT target
-    const timelinePct = (totalPlatform / timelineEnd) * 100; // Position on the full bar
+    // Calculate percentage based on current target window (e.g. 50 to 100)
+    const range = nextTarget - prevTarget;
+    const progress = Math.max(0, totalPlatform - prevTarget);
+    const pct = Math.min(100, (progress / range) * 100);
 
     if (milestonePctEl) milestonePctEl.textContent = Math.round(pct) + '%';
     if (milestoneTargetEl) milestoneTargetEl.textContent = nextTarget + ' HRS';
 
-    // Update Progress Bar (The bar goes up to nextTarget or follows the timeline?)
-    // In legacy, the bar seems to go towards the next target.
+    // The progress bar now matches the percentage exactly
     const progressBar = document.getElementById('milestone-progress-bar');
-    if (progressBar) progressBar.style.width = timelinePct + '%';
+    if (progressBar) progressBar.style.width = pct + '%';
 
-    // Update Timeline Nodes (Tactical Ticks)
+    // Update Timeline Nodes (Tactical Ticks for current window)
     const nodesLayer = document.getElementById('milestone-timeline-nodes');
     const labelsRow = document.getElementById('milestone-labels-row');
     if (nodesLayer && labelsRow) {
-      const displayMilestones = [0, nextTarget, futureTarget];
+      const displayMilestones = [prevTarget, nextTarget];
       nodesLayer.innerHTML = displayMilestones.map(m => {
-        const left = (m / timelineEnd) * 100;
+        const left = m === prevTarget ? 0 : 100;
         const isCompleted = totalPlatform >= m;
         const isNext = m === nextTarget;
         return `<div class="milestone-node ${isCompleted ? 'unlocked' : 'locked'} ${isNext ? 'current-target' : ''}" style="left: ${left}%">
@@ -177,7 +176,7 @@ export async function refreshLeaderboard(): Promise<void> {
       }).join('');
 
       labelsRow.innerHTML = displayMilestones.map(m => {
-        const left = (m / timelineEnd) * 100;
+        const left = m === prevTarget ? 0 : 100;
         return `<div class="milestone-label" style="left: ${left}%">${m === 0 ? '0' : m + ' HRS'}</div>`;
       }).join('');
     }
