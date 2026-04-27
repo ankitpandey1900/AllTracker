@@ -142,13 +142,13 @@ export async function refreshLeaderboard(): Promise<void> {
     if (globalHoursEl) globalHoursEl.textContent = formatDuration(telemetry.global_hours_today || 0) || '0m';
     if (globalTotalEl) globalTotalEl.textContent = formatDuration(telemetry.total_platform_hours || 0) || '0h';
 
-    // Milestone Logic (Tactical Sliding Window)
+    // Milestone Logic (Tactical Sliding Window with History)
     const totalPlatform = telemetry.total_platform_hours || 0;
     const allTargets = [50, 100, 250, 500, 1000, 2500, 5000, 10000];
     const nextTarget = allTargets.find(t => t > totalPlatform) || 50;
     const prevTarget = allTargets[allTargets.indexOf(nextTarget) - 1] || 0;
     
-    // Calculate percentage based on current target window (e.g. 50 to 100)
+    // Percentage resets to 0% for the CURRENT quest (e.g. from 50 to 100)
     const range = nextTarget - prevTarget;
     const progress = Math.max(0, totalPlatform - prevTarget);
     const pct = Math.min(100, (progress / range) * 100);
@@ -156,17 +156,21 @@ export async function refreshLeaderboard(): Promise<void> {
     if (milestonePctEl) milestonePctEl.textContent = Math.round(pct) + '%';
     if (milestoneTargetEl) milestoneTargetEl.textContent = nextTarget + ' HRS';
 
-    // The progress bar now matches the percentage exactly
+    // The progress bar shows the FULL journey towards the next target (from 0 to nextTarget)
+    const timelineEnd = nextTarget;
+    const timelinePct = Math.min(100, (totalPlatform / timelineEnd) * 100);
     const progressBar = document.getElementById('milestone-progress-bar');
-    if (progressBar) progressBar.style.width = pct + '%';
+    if (progressBar) progressBar.style.width = timelinePct + '%';
 
-    // Update Timeline Nodes (Tactical Ticks for current window)
+    // Update Timeline Nodes (Showing 0, Previous, and Next)
     const nodesLayer = document.getElementById('milestone-timeline-nodes');
     const labelsRow = document.getElementById('milestone-labels-row');
     if (nodesLayer && labelsRow) {
-      const displayMilestones = [prevTarget, nextTarget];
+      // Always show 0, the previous milestone, and the current goal
+      const displayMilestones = Array.from(new Set([0, prevTarget, nextTarget])).sort((a, b) => a - b);
+      
       nodesLayer.innerHTML = displayMilestones.map(m => {
-        const left = m === prevTarget ? 0 : 100;
+        const left = (m / timelineEnd) * 100;
         const isCompleted = totalPlatform >= m;
         const isNext = m === nextTarget;
         return `<div class="milestone-node ${isCompleted ? 'unlocked' : 'locked'} ${isNext ? 'current-target' : ''}" style="left: ${left}%">
@@ -176,7 +180,7 @@ export async function refreshLeaderboard(): Promise<void> {
       }).join('');
 
       labelsRow.innerHTML = displayMilestones.map(m => {
-        const left = m === prevTarget ? 0 : 100;
+        const left = (m / timelineEnd) * 100;
         return `<div class="milestone-label" style="left: ${left}%">${m === 0 ? '0' : m + ' HRS'}</div>`;
       }).join('');
     }

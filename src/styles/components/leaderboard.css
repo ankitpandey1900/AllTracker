@@ -2483,6 +2483,7 @@
   overflow: visible;
   position: relative;
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.6), 0 0 15px rgba(16, 185, 129, 0.1);
+  margin: 0 10px; /* 🛡️ CLIP GUARD: Prevent nodes from touching the card edges */
 }
 
 .milestone-fill {
@@ -2504,10 +2505,11 @@
   height: 0;
   border-top: 5px solid transparent;
   border-bottom: 5px solid transparent;
-  border-left: 7px solid #34d399;
-  filter: drop-shadow(0 0 5px var(--success));
+  border-left: 12px solid #34d399; /* Larger tactical tip */
+  filter: drop-shadow(0 0 10px var(--success));
   pointer-events: none;
-  /* animation: pulse-arrow 2s infinite; DISABLED FOR STATIC UX */
+  animation: pulse-arrow 2s infinite;
+  z-index: 50; /* Ensure it sits ABOVE the node circles */
 }
 
 @keyframes pulse-arrow {
@@ -2568,7 +2570,7 @@
 
 .current-target .node-ring {
   border-color: rgba(16, 185, 129, 0.3);
-  /* animation: node-ring-pulse 2s infinite; DISABLED FOR STATIC UX */
+  animation: node-ring-pulse 2s infinite;
 }
 
 @keyframes node-ring-pulse {
