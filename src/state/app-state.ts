@@ -27,7 +27,7 @@ function createDefaultSettings(): Settings {
     sessionLogs: [],
     groqApiKey: '',
     maamuModel: 'openai/gpt-oss-20b',
-    theme: 'default',
+    theme: 'kaala',
     timerStyle: 'ring',
     ambientSound: 'none',
     ambientVolume: 0.5,
@@ -35,7 +35,7 @@ function createDefaultSettings(): Settings {
 }
 
 /** Applies the theme class to the HTML tag */
-export function applyThemeToDOM(themeName: string = 'default') {
+export function applyThemeToDOM(themeName: string = 'kaala') {
   document.documentElement.setAttribute('data-theme', themeName);
 }
 
