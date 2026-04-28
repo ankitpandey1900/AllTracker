@@ -34,10 +34,7 @@ export const DEFAULT_END_DATE = new Date(new Date().getFullYear(), 11, 31); // E
 // --- Default Study Groups ---
 
 export const DEFAULT_COLUMNS = [
-  { name: 'Python',           target: 100 },
-  { name: 'DSA',              target: 150 },
-  { name: 'Python(2)',        target: 80 },
-  { name: 'College/Backends', target: 200 },
+  // Empty by default as per user request
 ];
 
 /** Colors for the different study categories in the analytics */
