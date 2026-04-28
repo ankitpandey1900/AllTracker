@@ -106,7 +106,8 @@ export class Shell {
       'routinePane': 'Habit Rituals | All Tracker',
       'tasksPane': 'Mission Control | All Tracker',
       'intelligencePane': 'Maamu AI | All Tracker',
-      'bookmarksPane': 'Bookmark Vault | All Tracker'
+      'bookmarksPane': 'Bookmark Vault | All Tracker',
+      'feedPane': 'Arena Feed | All Tracker'
     };
 
     const descriptions: Record<string, string> = {
@@ -114,7 +115,8 @@ export class Shell {
       'routinePane': 'Manage your DSA and daily coding rituals.',
       'tasksPane': 'Execute your mission-critical tasks.',
       'intelligencePane': 'Get AI-powered study briefings from Maamu AI.',
-      'bookmarksPane': 'Your curated library of elite study resources.'
+      'bookmarksPane': 'Your curated library of elite study resources.',
+      'feedPane': 'Global study transmissions and learning in public.'
     };
 
     if (titles[viewId]) document.title = titles[viewId];
@@ -137,6 +139,7 @@ export class Shell {
     if (target === "tasksPane") import("@/features/tasks/tasks").then(m => m.renderTasks());
     if (target === "intelligencePane") import("@/features/intelligence/intelligence").then(m => m.renderIntelligenceBriefing());
     if (target === "routinePane") import("@/features/routines/routines").then(m => m.renderRoutine());
+    if (target === "feedPane") import("@/features/feed/feed.ui").then(m => m.renderFeedView(document.getElementById('feedPane')!));
   }
 
   private setupMobileMenu(): void {

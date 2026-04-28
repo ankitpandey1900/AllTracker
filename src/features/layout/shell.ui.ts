@@ -34,6 +34,7 @@ export const shellView = `
       <button class="nav-item active" data-target="dashboardPane" role="tab" aria-selected="true" title="View Dashboard" aria-label="Open study dashboard">Dashboard</button>
       <button class="nav-item" data-target="routinePane" role="tab" aria-selected="false" title="View Routines" aria-label="Open routine habits tracker">Routine</button>
       <button class="nav-item" data-target="tasksPane" role="tab" aria-selected="false" title="View Tasks" aria-label="Open mission task board">Tasks</button>
+      <button class="nav-item" data-target="feedPane" role="tab" aria-selected="false" title="View Feed" aria-label="Open arena feed">Feed</button>
       <button class="nav-item" data-target="intelligencePane" role="tab" aria-selected="false" title="Ask Maamu AI" aria-label="Open Maamu AI study mentor">Maamu</button>
       <button class="nav-item" data-target="bookmarksPane" role="tab" aria-selected="false" title="View Bookmarks" aria-label="Open resource bookmark vault">Bookmarks</button>
       <button id="excalidrawToggle" class="nav-item" style="margin-left: auto; display: flex; align-items: center; gap: 6px;" title="Toggle Canvas" aria-label="Open or close sketching canvas">
@@ -73,6 +74,7 @@ export const shellView = `
     <section id="dashboardPane" class="view-pane active" aria-label="Study Dashboard"></section>
     <section id="routinePane" class="view-pane" aria-label="Routine Tracker"></section>
     <section id="tasksPane" class="view-pane" aria-label="Task Missions"></section>
+    <section id="feedPane" class="view-pane" aria-label="Arena Feed"></section>
     <section id="intelligencePane" class="view-pane" aria-label="Maamu AI Intelligence"></section>
     <section id="bookmarksPane" class="view-pane" aria-label="Bookmarks Vault"></section>
   </main>

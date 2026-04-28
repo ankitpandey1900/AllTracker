@@ -11,6 +11,7 @@ import "./styles/components/leaderboard.css";
 import "./styles/components/intelligence.css";
 import "./styles/components/manual.css";
 import "./styles/components/canvas.css";
+import "./styles/components/feed.css";
 import "./styles/features/maamu.css";
 import "./styles/themes/default.css";
 import "./styles/themes/chanakya-strategy.css";
