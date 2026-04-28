@@ -414,7 +414,6 @@ function bindFeedEvents() {
 }
 
 async function openProfileModal(userId: string, name: string, handle: string, avatar: string, rank: string) {
-  // Remove existing modal
   document.getElementById('userProfileModal')?.remove();
 
   const rankColor = getRankColor(rank);
@@ -423,28 +422,81 @@ async function openProfileModal(userId: string, name: string, handle: string, av
   modal.className = 'profile-modal-overlay';
   modal.innerHTML = `
     <div class="profile-modal">
-      <div class="profile-modal-header">
-        <button class="profile-modal-close" id="closeProfileModal">✕</button>
+      <!-- Header -->
+      <div class="social-header" style="padding: 20px 24px;">
+        <div class="profile-avatar-container">
+          <div class="profile-avatar-box tactical-ring" style="width:60px;height:60px;">
+            <div class="profile-avatar" style="font-size:1.8rem;">${avatar}</div>
+          </div>
+        </div>
+        <div class="profile-identity-info" style="flex:1;margin-left:14px;">
+          <div class="name-row">
+            <h2 class="social-full-name" style="font-size:1.1rem;color:${rankColor};">${escapeHtml(name)}</h2>
+          </div>
+          <div class="handle-row">
+            <span class="social-handle">${escapeHtml(handle)}</span>
+            <span class="rank-tag" style="color:${rankColor};">${rank}</span>
+          </div>
+        </div>
+        <button class="profile-modal-close" style="position:absolute;top:16px;right:16px;">✕</button>
       </div>
-      <div class="profile-modal-user">
-        <div class="profile-modal-avatar" style="border-color: ${rankColor};">${avatar}</div>
-        <div class="profile-modal-info">
-          <div class="profile-modal-name" style="color: ${rankColor};">${name}</div>
-          <div class="profile-modal-handle">${handle}</div>
-          <div class="profile-modal-rank" style="color: ${rankColor};">▸ ${rank}</div>
+
+      <!-- Stats Bar -->
+      <div class="social-stats-bar" style="margin:0 24px 0;">
+        <div class="stat-item">
+          <div class="stat-val-row"><span id="fpPostCount" class="stat-value">—</span></div>
+          <div class="stat-label">POSTS</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-val-row"><span id="fpLikeCount" class="stat-value">—</span></div>
+          <div class="stat-label">LIKES</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-val-row"><span id="fpViewCount" class="stat-value">—</span></div>
+          <div class="stat-label">VIEWS</div>
         </div>
       </div>
-      <div class="profile-modal-divider"></div>
-      <div class="profile-modal-posts-label">Posts</div>
-      <div class="profile-modal-posts" id="profileModalPosts">
-        <div class="comment-loading">Loading posts...</div>
+
+      <!-- Tab Bar -->
+      <div class="profile-tab-bar" style="margin:0;">
+        <button class="profile-tab active" data-ftab="posts">Posts</button>
+        <button class="profile-tab" data-ftab="stats">Activity</button>
+      </div>
+
+      <!-- Tab Content -->
+      <div class="profile-tab-panels" style="max-height:350px;">
+        <div class="profile-tab-panel active" id="fpPostsPanel">
+          <div id="fpPostsList"><div class="profile-posts-loading">Loading posts...</div></div>
+        </div>
+        <div class="profile-tab-panel" id="fpStatsPanel">
+          <div class="profile-stats-grid">
+            <div class="profile-stat-card">
+              <div class="psc-label">RANK</div>
+              <div class="psc-value" style="color:${rankColor};">${rank}</div>
+            </div>
+            <div class="profile-stat-card">
+              <div class="psc-label">TOTAL POSTS</div>
+              <div class="psc-value" id="fpStatPosts">—</div>
+            </div>
+            <div class="profile-stat-card">
+              <div class="psc-label">TOTAL LIKES</div>
+              <div class="psc-value" id="fpStatLikes">—</div>
+            </div>
+            <div class="profile-stat-card">
+              <div class="psc-label">TOTAL VIEWS</div>
+              <div class="psc-value" id="fpStatViews">—</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   `;
   document.body.appendChild(modal);
   requestAnimationFrame(() => modal.classList.add('show'));
 
-  // Close via delegation on inner modal (handles overflow scroll issues)
+  // Close handlers
   const innerModal = modal.querySelector('.profile-modal') as HTMLElement;
   if (innerModal) {
     innerModal.addEventListener('click', (e) => {
@@ -455,41 +507,97 @@ async function openProfileModal(userId: string, name: string, handle: string, av
       }
     });
   }
-  // Close on backdrop click
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) closeProfileModal();
-  });
-  // Close on Escape key
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeProfileModal(); });
   const escHandler = (e: KeyboardEvent) => {
     if (e.key === 'Escape') { closeProfileModal(); document.removeEventListener('keydown', escHandler); }
   };
   document.addEventListener('keydown', escHandler);
 
-  // Fetch user posts
+  // Tab switching
+  modal.querySelectorAll('.profile-tab').forEach(tab => {
+    (tab as HTMLElement).addEventListener('click', () => {
+      modal.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
+      modal.querySelectorAll('.profile-tab-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      const target = (tab as HTMLElement).dataset.ftab;
+      if (target === 'posts') document.getElementById('fpPostsPanel')?.classList.add('active');
+      if (target === 'stats') document.getElementById('fpStatsPanel')?.classList.add('active');
+    });
+  });
+
+  // Fetch posts
   const posts = await fetchUserPosts(userId);
-  const postsEl = document.getElementById('profileModalPosts');
-  if (!postsEl) return;
+  const listEl = document.getElementById('fpPostsList');
+  if (!listEl) return;
+
+  // Aggregate stats
+  const totalLikes = posts.reduce((s, p) => s + (p.likes_count || 0), 0);
+  const totalViews = posts.reduce((s, p) => s + (p.views_count || 0), 0);
+
+  // Update stat counts
+  const setTxt = (id: string, val: string) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  setTxt('fpPostCount', String(posts.length));
+  setTxt('fpLikeCount', String(totalLikes));
+  setTxt('fpViewCount', String(totalViews));
+  setTxt('fpStatPosts', String(posts.length));
+  setTxt('fpStatLikes', String(totalLikes));
+  setTxt('fpStatViews', String(totalViews));
 
   if (posts.length === 0) {
-    postsEl.innerHTML = '<div class="comment-empty">No posts yet.</div>';
+    listEl.innerHTML = '<div class="profile-posts-empty">No posts yet.</div>';
     return;
   }
 
-  postsEl.innerHTML = posts.map(t => {
+  listEl.innerHTML = posts.map(t => {
     const time = getRelativeTime(new Date(t.created_at));
     return `
-      <div class="profile-post-item">
-        <div class="profile-post-text">${escapeHtml(t.content)}</div>
-        <div class="profile-post-meta">
-          <span>❤️ ${t.likes_count}</span>
-          <span>🔁 ${t.reposts_count}</span>
-          <span>💬 ${t.replies_count || 0}</span>
-          <span>👁 ${t.views_count}</span>
-          <span class="profile-post-time">${time}</span>
+      <div class="profile-feed-card" id="pfc-${t.id}">
+        <div class="pfc-top-row">
+          <div class="pfc-content">${highlightMentions(escapeHtml(t.content))}</div>
+          ${t.is_mine ? `<button class="pfc-delete-btn" data-id="${t.id}" title="Delete post">🗑️</button>` : ''}
+        </div>
+        <div class="pfc-meta">
+          <span>
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 7.501 4.435 5.605 8.222l-1.97 4.079a.75.75 0 0 1-1.42-.332l-.23-4.124a.75.75 0 0 0-.75-.697h-.975a.75.75 0 0 0-.75.75v4.5a.75.75 0 0 1-1.5 0v-4.5a.75.75 0 0 0-.75-.75H8.375a.75.75 0 0 0-.75.697l-.23 4.124a.75.75 0 0 1-1.42.332L4.005 14C2.505 11.987 1.751 10 1.751 10z"/></svg>
+            ${t.replies_count || 0}
+          </span>
+          <span>
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M4.5 3.88l4.432 4.14-1.364 1.46L5.5 7.55V16c0 1.1.896 2 2 2H13v2H7.5c-2.209 0-4-1.79-4-4V7.55L1.432 9.48.068 8.02 4.5 3.88zM16.5 6H11V4h5.5c2.209 0 4 1.79 4 4v8.45l2.068-1.93 1.364 1.46-4.432 4.14-4.432-4.14 1.364-1.46 2.068 1.93V8c0-1.1-.896-2-2-2z"/></svg>
+            ${t.reposts_count || 0}
+          </span>
+          <span>
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z"/></svg>
+            ${t.likes_count || 0}
+          </span>
+          <span>
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10h2L6 21H4zm9.248 0v-7h2v7h-2z"/></svg>
+            ${t.views_count || 0}
+          </span>
+          <span class="pfc-time">${time}</span>
         </div>
       </div>
     `;
   }).join('');
+
+  // Wire up delete buttons
+  listEl.querySelectorAll('.pfc-delete-btn').forEach(btn => {
+    (btn as HTMLElement).onclick = async (e) => {
+      const id = (e.currentTarget as HTMLElement).dataset.id;
+      if (!id) return;
+      if (!confirm('Delete this post?')) return;
+
+      const card = document.getElementById(`pfc-${id}`);
+      if (card) {
+        card.style.transition = 'opacity 0.3s, transform 0.3s';
+        card.style.opacity = '0';
+        card.style.transform = 'translateX(-10px)';
+        setTimeout(() => card.remove(), 300);
+      }
+      const success = await deletePost(id);
+      if (!success) showFeedToast('Failed to delete.', 'error');
+      else showFeedToast('Post deleted.', 'success');
+    };
+  });
 }
 
 function closeProfileModal() {

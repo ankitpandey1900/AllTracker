@@ -1,5 +1,6 @@
 /**
- * The Social Study Profile / Identity editor modal.
+ * The Social Study Profile — Twitter-style layout.
+ * Posts tab shows user's feed posts. About tab is owner-only.
  */
 export const profileModal = `
   <div class="modal" id="profileSetupModal">
@@ -11,6 +12,7 @@ export const profileModal = `
         <!-- 🪪 PANE 1: THE SOCIAL PROFILE (View Mode) -->
         <div id="passportViewPane" class="vault-pane">
           
+          <!-- TWITTER-STYLE HEADER -->
           <div class="social-header">
             <div class="profile-avatar-container">
               <div class="profile-avatar-box tactical-ring">
@@ -51,29 +53,69 @@ export const profileModal = `
                 <div class="stat-val-row"><span id="todayHoursPassport" class="stat-value">0.0</span><span class="stat-unit">HRS</span></div>
                 <div class="stat-label">TODAY</div>
               </div>
+              <div class="stat-divider"></div>
+              <div class="stat-item">
+                <div class="stat-val-row"><span id="postCountPassport" class="stat-value">0</span></div>
+                <div class="stat-label">POSTS</div>
+              </div>
             </div>
 
-            <!-- PERSONAL DOSSIER SECTION -->
-            <div class="profile-dossier">
-              <div class="dossier-row">
-                <div class="dossier-label">TRUST SCORE</div>
-                <div id="dossierTrustScore" class="dossier-value">[ VERIFYING... ]</div>
-              </div>
-              <div class="dossier-row">
-                <div class="dossier-label">Real Name</div>
-                <div id="dossierRealName" class="dossier-value">[ NOT SET ]</div>
-              </div>
+            <!-- TWITTER-STYLE TAB BAR -->
+            <div class="profile-tab-bar">
+              <button class="profile-tab active" data-tab="posts">Posts</button>
+              <button class="profile-tab" data-tab="stats">Stats</button>
+              <button class="profile-tab" data-tab="about" id="aboutTabBtn">About</button>
+            </div>
+
+            <!-- TAB CONTENT -->
+            <div class="profile-tab-panels">
               
-              <div class="dossier-row">
-                <div class="dossier-label">Email UPLINK</div>
-                <div id="dossierEmail" class="dossier-value">[ NOT SET ]</div>
+              <!-- POSTS TAB -->
+              <div class="profile-tab-panel active" id="profilePostsTab">
+                <div class="profile-posts-list" id="profilePostsList">
+                  <div class="profile-posts-loading">Loading posts...</div>
+                </div>
               </div>
 
-              <div class="dossier-row">
-                <div class="dossier-label">MOBILE SECURE</div>
-                <div id="dossierPhone" class="dossier-value">[ NOT SET ]</div>
+              <!-- STATS TAB -->
+              <div class="profile-tab-panel" id="profileStatsTab">
+                <div class="profile-stats-grid">
+                  <div class="profile-stat-card">
+                    <div class="psc-label">TRUST SCORE</div>
+                    <div id="dossierTrustScore" class="psc-value">—</div>
+                  </div>
+                  <div class="profile-stat-card">
+                    <div class="psc-label">RANK</div>
+                    <div id="dossierRankFull" class="psc-value">—</div>
+                  </div>
+                  <div class="profile-stat-card">
+                    <div class="psc-label">CURRENT STREAK</div>
+                    <div id="dossierCurrentStreak" class="psc-value">—</div>
+                  </div>
+                  <div class="profile-stat-card">
+                    <div class="psc-label">BEST STREAK</div>
+                    <div id="dossierBestStreak" class="psc-value">—</div>
+                  </div>
+                </div>
               </div>
 
+              <!-- ABOUT TAB (owner-only, hidden for other users) -->
+              <div class="profile-tab-panel" id="profileAboutTab">
+                <div class="profile-dossier">
+                  <div class="dossier-row">
+                    <div class="dossier-label">Real Name</div>
+                    <div id="dossierRealName" class="dossier-value">[ NOT SET ]</div>
+                  </div>
+                  <div class="dossier-row">
+                    <div class="dossier-label">Email</div>
+                    <div id="dossierEmail" class="dossier-value">[ NOT SET ]</div>
+                  </div>
+                  <div class="dossier-row">
+                    <div class="dossier-label">Mobile</div>
+                    <div id="dossierPhone" class="dossier-value">[ NOT SET ]</div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div class="profile-social-actions">

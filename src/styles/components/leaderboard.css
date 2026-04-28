@@ -2147,6 +2147,160 @@
   font-weight: 700;
 }
 
+/* ─── Twitter-Style Profile Tabs ─── */
+.profile-tab-bar {
+  display: flex;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  margin: 0 -24px;
+  padding: 0 8px;
+}
+
+.profile-tab {
+  flex: 1;
+  padding: 14px 8px;
+  background: transparent;
+  border: none;
+  color: #64748b;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s;
+}
+
+.profile-tab:hover {
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.profile-tab.active {
+  color: #f8fafc;
+}
+
+.profile-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 56px;
+  height: 3px;
+  background: #38bdf8;
+  border-radius: 3px 3px 0 0;
+}
+
+/* ─── Tab Panels ─── */
+.profile-tab-panels {
+  margin: 0 -24px;
+  padding: 0;
+  min-height: 180px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.profile-tab-panel {
+  display: none;
+  padding: 16px 24px;
+}
+
+.profile-tab-panel.active {
+  display: block;
+  animation: fadeInTab 0.2s ease;
+}
+
+@keyframes fadeInTab {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Profile Posts ─── */
+.profile-posts-loading, .profile-posts-empty {
+  text-align: center;
+  color: #64748b;
+  font-size: 0.85rem;
+  padding: 32px 0;
+}
+
+.profile-feed-card {
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.profile-feed-card:last-child { border-bottom: none; }
+
+.pfc-content {
+  color: #e2e8f0;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  margin-bottom: 8px;
+  word-wrap: break-word;
+}
+
+.pfc-meta {
+  display: flex;
+  gap: 14px;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.pfc-meta span { display: flex; align-items: center; gap: 3px; }
+.pfc-time { margin-left: auto; }
+
+.pfc-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.pfc-delete-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.8rem;
+  opacity: 0.3;
+  transition: opacity 0.2s, transform 0.2s;
+  padding: 2px 4px;
+  flex-shrink: 0;
+}
+
+.pfc-delete-btn:hover {
+  opacity: 1;
+  transform: scale(1.15);
+}
+
+/* ─── Stats Grid ─── */
+.profile-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.profile-stat-card {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 14px;
+  padding: 16px;
+  text-align: center;
+}
+
+.psc-label {
+  font-family: 'Tektur', sans-serif;
+  font-size: 0.6rem;
+  color: #64748b;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.psc-value {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #f8fafc;
+}
+
 .profile-social-actions {
   display: flex;
   gap: 12px;

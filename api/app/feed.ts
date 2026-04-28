@@ -22,9 +22,19 @@ export default async function handler(
     if (req.method === "GET") {
       const transmissions = await fetchTransmissions(profile?.profileId);
       
-      // Increment view counts for all returned posts (fire-and-forget)
-      const postIds = transmissions.map((t: any) => t.id);
-      incrementViewsBulk(postIds).catch(() => {});
+      // Parse query string for already-seen post IDs to avoid re-counting views
+      const url = new URL(req.url || '/', `http://localhost`);
+      const seenParam = url.searchParams.get('seen') || '';
+      const seenIds = seenParam ? seenParam.split(',').filter(Boolean) : [];
+      
+      // Only increment views for posts the client hasn't seen yet this session
+      const newPostIds = transmissions
+        .map((t: any) => t.id)
+        .filter((id: string) => !seenIds.includes(id));
+      
+      if (newPostIds.length > 0) {
+        incrementViewsBulk(newPostIds).catch(() => {});
+      }
       
       res.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate');
       sendJson(res, 200, transmissions);
@@ -83,11 +93,17 @@ export default async function handler(
       const body = await readJsonBody<{ action: string; post_id?: string; user_id?: string; content?: string }>(req);
 
       if (body?.action === 'user_posts') {
-        if (!body.user_id) {
+        let targetUserId = body.user_id;
+        if (!targetUserId) {
           sendJson(res, 400, { error: "user_id is required." });
           return;
         }
-        const posts = await fetchUserPosts(body.user_id, profile?.profileId);
+        // 'me' = current authenticated user
+        if (targetUserId === 'me') {
+          if (!profile) { sendJson(res, 401, { error: "Unauthorized." }); return; }
+          targetUserId = profile.profileId;
+        }
+        const posts = await fetchUserPosts(targetUserId, profile?.profileId);
         sendJson(res, 200, posts);
         return;
       }

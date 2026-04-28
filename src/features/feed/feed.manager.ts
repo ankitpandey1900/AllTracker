@@ -3,7 +3,19 @@ import { Transmission } from './feed.types';
 
 export async function fetchFeed(): Promise<Transmission[]> {
   try {
-    return await apiRequest<Transmission[]>('/api/app/feed');
+    // Track which posts we've already "viewed" this session
+    const seenKey = 'feed_seen_ids';
+    const seenIds: string[] = JSON.parse(sessionStorage.getItem(seenKey) || '[]');
+    const seenParam = seenIds.length > 0 ? `?seen=${seenIds.join(',')}` : '';
+
+    const posts = await apiRequest<Transmission[]>(`/api/app/feed${seenParam}`);
+
+    // Mark all returned posts as seen
+    const allIds = [...new Set([...seenIds, ...posts.map(p => p.id)])];
+    // Cap at 200 to avoid huge query strings — keep the most recent
+    sessionStorage.setItem(seenKey, JSON.stringify(allIds.slice(-200)));
+
+    return posts;
   } catch (error) {
     console.error('Failed to fetch feed:', error);
     return [];
@@ -119,7 +131,7 @@ export async function markNotifsRead(): Promise<void> {
       method: 'PATCH',
       body: { action: 'mark_read' }
     });
-  } catch {}
+  } catch { }
 }
 
 export async function searchMentionUsers(query: string): Promise<any[]> {
