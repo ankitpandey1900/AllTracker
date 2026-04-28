@@ -1,19 +1,32 @@
 import { apiRequest } from '@/services/api.service';
 import { Transmission } from './feed.types';
 
-export async function fetchFeed(): Promise<Transmission[]> {
+export async function fetchFeed(forceView: boolean = false): Promise<Transmission[]> {
   try {
-    // Track which posts we've already "viewed" this session
+    // Track which posts we've already viewed — persists across refreshes, resets every 24h
     const seenKey = 'feed_seen_ids';
-    const seenIds: string[] = JSON.parse(sessionStorage.getItem(seenKey) || '[]');
-    const seenParam = seenIds.length > 0 ? `?seen=${seenIds.join(',')}` : '';
+    const seenExpKey = 'feed_seen_exp';
+    const now = Date.now();
+    const expiry = Number(localStorage.getItem(seenExpKey) || 0);
 
-    const posts = await apiRequest<Transmission[]>(`/api/app/feed${seenParam}`);
+    // Reset every 24 hours so views stay meaningful
+    if (now > expiry) {
+      localStorage.removeItem(seenKey);
+      localStorage.setItem(seenExpKey, String(now + 24 * 60 * 60 * 1000));
+    }
 
-    // Mark all returned posts as seen
+    const seenIds: string[] = JSON.parse(localStorage.getItem(seenKey) || '[]');
+    const seenParam = seenIds.length > 0 ? `&seen=${seenIds.join(',')}` : '';
+    const forceParam = forceView ? '&force_view=true' : '';
+    
+    // We use ?action=none or similar to ensure we have a ? to start the query string if needed
+    // or just handle the first param correctly.
+    const url = `/api/app/feed?_=${now}${seenParam}${forceParam}`;
+    const posts = await apiRequest<Transmission[]>(url);
+
+    // Mark all returned posts as seen for this 24h window
     const allIds = [...new Set([...seenIds, ...posts.map(p => p.id)])];
-    // Cap at 200 to avoid huge query strings — keep the most recent
-    sessionStorage.setItem(seenKey, JSON.stringify(allIds.slice(-200)));
+    localStorage.setItem(seenKey, JSON.stringify(allIds.slice(-500)));
 
     return posts;
   } catch (error) {
@@ -90,6 +103,19 @@ export async function postComment(postId: string, content: string): Promise<bool
     return true;
   } catch (error) {
     console.error('Failed to post comment:', error);
+    return false;
+  }
+}
+
+export async function deleteComment(commentId: string): Promise<boolean> {
+  try {
+    await apiRequest('/api/app/feed', {
+      method: 'DELETE',
+      body: { comment_id: commentId }
+    });
+    return true;
+  } catch (error) {
+    console.error('Failed to delete comment:', error);
     return false;
   }
 }

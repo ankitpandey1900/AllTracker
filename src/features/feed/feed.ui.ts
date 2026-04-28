@@ -1,5 +1,5 @@
 import { Transmission } from './feed.types';
-import { fetchFeed, toggleLike, toggleRepost, postTransmission, deletePost, fetchComments, postComment, fetchUserPosts, getUnreadNotifCount, getNotifications, markNotifsRead, searchMentionUsers } from './feed.manager';
+import { fetchFeed, toggleLike, toggleRepost, postTransmission, deletePost, fetchComments, postComment, deleteComment, fetchUserPosts, getUnreadNotifCount, getNotifications, markNotifsRead, searchMentionUsers } from './feed.manager';
 
 const MAX_CHARS = 280;
 let feedPollTimer: ReturnType<typeof setInterval> | null = null;
@@ -173,7 +173,13 @@ async function toggleNotifDropdown() {
   }
 
   dropdown.innerHTML = notifs.map((n: any) => {
-    const typeLabel = n.type === 'POST_MENTION' ? 'mentioned you in a post' : 'mentioned you in a reply';
+    let typeLabel = 'interacted with your post';
+    if (n.type === 'POST_MENTION') typeLabel = 'mentioned you in a post';
+    else if (n.type === 'COMMENT_MENTION') typeLabel = 'mentioned you in a reply';
+    else if (n.type === 'POST_LIKE') typeLabel = 'liked your post';
+    else if (n.type === 'POST_REPOST') typeLabel = 'reposted your post';
+    else if (n.type === 'POST_REPLY') typeLabel = 'replied to your post';
+    
     const time = getRelativeTime(new Date(n.created_at));
     return `
       <div class="notif-item ${n.is_read ? '' : 'unread'}">
@@ -232,12 +238,30 @@ function renderTransmission(t: Transmission): string {
   
   return `
     <div class="transmission-card ${t.is_mine ? 'is-mine' : ''}" data-id="${t.id}" style="--rank-accent: ${rankColor};">
-      <div class="trans-avatar-wrapper profile-link" data-user-id="${t.user_id}" data-user-name="${escapeHtml(t.display_name || 'User')}" data-user-handle="${escapeHtml(t.handle)}" data-user-avatar="${t.avatar}" data-user-rank="${t.rank}">
+      <div class="trans-avatar-wrapper profile-link" 
+           data-user-id="${t.user_id}" 
+           data-user-name="${escapeHtml(t.display_name || 'User')}" 
+           data-user-handle="${escapeHtml(t.handle)}" 
+           data-user-avatar="${t.avatar}" 
+           data-user-rank="${t.rank}"
+           data-total-study="${t.total_hours?.toFixed(1) || '0.0'}"
+           data-streak="${t.current_streak || '0'}"
+           data-rank-score="${t.competitive_score || '0'}"
+      >
         <div class="trans-avatar" style="border-color: ${rankColor};">${t.avatar}</div>
       </div>
       <div class="trans-content">
         <div class="trans-header">
-          <span class="trans-name profile-link" style="color: ${rankColor}; cursor:pointer;" data-user-id="${t.user_id}" data-user-name="${escapeHtml(t.display_name || 'User')}" data-user-handle="${escapeHtml(t.handle)}" data-user-avatar="${t.avatar}" data-user-rank="${t.rank}">${escapeHtml(t.display_name || 'User')}</span>
+          <span class="trans-name profile-link" style="color: ${rankColor}; cursor:pointer;" 
+                data-user-id="${t.user_id}" 
+                data-user-name="${escapeHtml(t.display_name || 'User')}" 
+                data-user-handle="${escapeHtml(t.handle)}" 
+                data-user-avatar="${t.avatar}" 
+                data-user-rank="${t.rank}"
+                data-total-study="${t.total_hours?.toFixed(1) || '0.0'}"
+                data-streak="${t.current_streak || '0'}"
+                data-rank-score="${t.competitive_score || '0'}"
+          >${escapeHtml(t.display_name || 'User')}</span>
           ${mineLabel}
           <span class="trans-handle">${escapeHtml(t.handle)}</span>
           <span class="trans-time">· ${timeDisplay}</span>
@@ -262,7 +286,7 @@ function renderTransmission(t: Transmission): string {
           </button>
           ${t.is_mine ? `
           <button class="action-btn delete-btn" data-action="delete" data-id="${t.id}" title="Delete post">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4h6v2"></path></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
           </button>` : ''}
         </div>
         <div class="comments-section" id="comments-${t.id}" style="display:none;">
@@ -298,7 +322,7 @@ function bindFeedEvents() {
   });
 
   // Delete
-  document.querySelectorAll('.delete-btn').forEach(btn => {
+  document.querySelectorAll('.delete-btn, .action-more-btn').forEach(btn => {
     (btn as HTMLElement).onclick = async (e) => {
       const id = (e.currentTarget as HTMLElement).dataset.id;
       if (!id) return;
@@ -336,18 +360,33 @@ function bindFeedEvents() {
             listEl.innerHTML = '<div class="comment-empty">No replies yet. Be the first!</div>';
           } else {
             listEl.innerHTML = comments.map((c: any) => `
-              <div class="comment-item">
+              <div class="comment-item" id="comment-${c.id}">
                 <div class="comment-avatar">${c.avatar}</div>
                 <div class="comment-body">
-                  <span class="comment-author" style="color: ${getRankColor(c.rank)};">${escapeHtml(c.display_name)}</span>
-                  <span class="comment-handle">${escapeHtml(c.handle)}</span>
-                  <span class="comment-time">· ${getRelativeTime(new Date(c.created_at))}</span>
+                  <div class="comment-header">
+                    <span class="comment-author" style="color: ${getRankColor(c.rank)};">${escapeHtml(c.display_name)}</span>
+                    <span class="comment-handle">${escapeHtml(c.handle)}</span>
+                    <span class="comment-time">· ${getRelativeTime(new Date(c.created_at))}</span>
+                    ${c.is_mine ? `
+                    <button class="delete-comment-btn" data-id="${c.id}" data-post-id="${id}" title="Delete comment">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                    ` : ''}
+                  </div>
                   <div class="comment-text">${escapeHtml(c.content)}</div>
                 </div>
               </div>
             `).join('');
+            bindCommentDeleteEvents();
           }
         }
+        // Force a view count increment on server since the user explicitly clicked to see the post details
+        fetchFeed(true).then(posts => {
+          const updated = posts.find(p => p.id === id);
+          if (updated) {
+            const viewCount = document.querySelector(`.transmission-card[data-id="${id}"] .view-btn .count`);
+            if (viewCount) viewCount.textContent = String(updated.views_count);
+          }
+        });
       } else {
         section.style.display = 'none';
       }
@@ -374,16 +413,23 @@ function bindFeedEvents() {
         if (listEl) {
           const comments = await fetchComments(postId);
           listEl.innerHTML = comments.map((c: any) => `
-            <div class="comment-item">
+            <div class="comment-item" id="comment-${c.id}">
               <div class="comment-avatar">${c.avatar}</div>
               <div class="comment-body">
-                <span class="comment-author" style="color: ${getRankColor(c.rank)};">${escapeHtml(c.display_name)}</span>
-                <span class="comment-handle">${escapeHtml(c.handle)}</span>
-                <span class="comment-time">· ${getRelativeTime(new Date(c.created_at))}</span>
+                <div class="comment-header">
+                  <span class="comment-author" style="color: ${getRankColor(c.rank)};">${escapeHtml(c.display_name)}</span>
+                  <span class="comment-handle">${escapeHtml(c.handle)}</span>
+                  <span class="comment-time">· ${getRelativeTime(new Date(c.created_at))}</span>
+                  ${c.is_mine ? `
+                  <button class="delete-comment-btn" data-id="${c.id}" data-post-id="${postId}" title="Delete comment">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                  ` : ''}
+                </div>
                 <div class="comment-text">${escapeHtml(c.content)}</div>
               </div>
             </div>
           `).join('');
+          bindCommentDeleteEvents();
         }
         // Update reply count on button
         const replyBtn = document.querySelector(`.reply-btn[data-id="${postId}"] .count`);
@@ -408,12 +454,18 @@ function bindFeedEvents() {
       const userHandle = target.dataset.userHandle || '@user';
       const userAvatar = target.dataset.userAvatar || '👤';
       const userRank = target.dataset.userRank || 'IRON';
-      if (userId) openProfileModal(userId, userName, userHandle, userAvatar, userRank);
+
+      if (userId) {
+        const total = target.dataset.totalStudy || '0.0';
+        const streak = target.dataset.streak || '0';
+        const score = target.dataset.rankScore || '0';
+        openProfileModal(userId, userName, userHandle, userAvatar, userRank, total, streak, score);
+      }
     };
   });
 }
 
-async function openProfileModal(userId: string, name: string, handle: string, avatar: string, rank: string) {
+async function openProfileModal(userId: string, name: string, handle: string, avatar: string, rank: string, totalStudy: string = '0.0', streak: string = '0', rankScore: string = '0') {
   document.getElementById('userProfileModal')?.remove();
 
   const rankColor = getRankColor(rank);
@@ -444,18 +496,18 @@ async function openProfileModal(userId: string, name: string, handle: string, av
       <!-- Stats Bar -->
       <div class="social-stats-bar" style="margin:0 24px 0;">
         <div class="stat-item">
-          <div class="stat-val-row"><span id="fpPostCount" class="stat-value">—</span></div>
-          <div class="stat-label">POSTS</div>
+          <div class="stat-val-row"><span class="stat-value">${totalStudy}</span><span class="stat-unit">HRS</span></div>
+          <div class="stat-label">TOTAL STUDY</div>
         </div>
         <div class="stat-divider"></div>
         <div class="stat-item">
-          <div class="stat-val-row"><span id="fpLikeCount" class="stat-value">—</span></div>
-          <div class="stat-label">LIKES</div>
+          <div class="stat-val-row"><span class="stat-value">${streak}</span><span class="stat-unit">DAYS</span></div>
+          <div class="stat-label">STREAK</div>
         </div>
         <div class="stat-divider"></div>
         <div class="stat-item">
-          <div class="stat-val-row"><span id="fpViewCount" class="stat-value">—</span></div>
-          <div class="stat-label">VIEWS</div>
+          <div class="stat-val-row"><span class="stat-value">${rankScore}</span></div>
+          <div class="stat-label">RANK SCORE</div>
         </div>
       </div>
 
@@ -554,24 +606,27 @@ async function openProfileModal(userId: string, name: string, handle: string, av
       <div class="profile-feed-card" id="pfc-${t.id}">
         <div class="pfc-top-row">
           <div class="pfc-content">${highlightMentions(escapeHtml(t.content))}</div>
-          ${t.is_mine ? `<button class="pfc-delete-btn" data-id="${t.id}" title="Delete post">🗑️</button>` : ''}
+          ${t.is_mine ? `
+          <button class="pfc-delete-btn" data-id="${t.id}" title="Delete post">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+          </button>` : ''}
         </div>
         <div class="pfc-meta">
-          <span>
-            <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 7.501 4.435 5.605 8.222l-1.97 4.079a.75.75 0 0 1-1.42-.332l-.23-4.124a.75.75 0 0 0-.75-.697h-.975a.75.75 0 0 0-.75.75v4.5a.75.75 0 0 1-1.5 0v-4.5a.75.75 0 0 0-.75-.75H8.375a.75.75 0 0 0-.75.697l-.23 4.124a.75.75 0 0 1-1.42.332L4.005 14C2.505 11.987 1.751 10 1.751 10z"/></svg>
-            ${t.replies_count || 0}
-          </span>
-          <span>
-            <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M4.5 3.88l4.432 4.14-1.364 1.46L5.5 7.55V16c0 1.1.896 2 2 2H13v2H7.5c-2.209 0-4-1.79-4-4V7.55L1.432 9.48.068 8.02 4.5 3.88zM16.5 6H11V4h5.5c2.209 0 4 1.79 4 4v8.45l2.068-1.93 1.364 1.46-4.432 4.14-4.432-4.14 1.364-1.46 2.068 1.93V8c0-1.1-.896-2-2-2z"/></svg>
-            ${t.reposts_count || 0}
-          </span>
-          <span>
-            <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z"/></svg>
-            ${t.likes_count || 0}
-          </span>
-          <span>
-            <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10h2L6 21H4zm9.248 0v-7h2v7h-2z"/></svg>
-            ${t.views_count || 0}
+          <button class="pfc-action-btn" data-action="comment" data-id="${t.id}">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 7.501 4.435 5.605 8.222l-1.97 4.079a.75.75 0 0 1-1.42-.332l-.23-4.124a.75.75 0 0 0-.75-.697h-.975a.75.75 0 0 0-.75.75v4.5a.75.75 0 0 1-1.5 0v-4.5a.75.75 0 0 0-.75-.75H8.375a.75.75 0 0 0-.75.697l-.23 4.124a.75.75 0 0 1-1.42.332L4.005 14C2.505 11.987 1.751 10 1.751 10z"/></svg>
+            <span class="count">${t.replies_count || 0}</span>
+          </button>
+          <button class="pfc-action-btn ${t.is_reposted_by_me ? 'active' : ''}" data-action="repost" data-id="${t.id}">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M4.5 3.88l4.432 4.14-1.364 1.46L5.5 7.55V16c0 1.1.896 2 2 2H13v2H7.5c-2.209 0-4-1.79-4-4V7.55L1.432 9.48.068 8.02 4.5 3.88zM16.5 6H11V4h5.5c2.209 0 4 1.79 4 4v8.45l2.068-1.93 1.364 1.46-4.432 4.14-4.432-4.14 1.364-1.46 2.068 1.93V8c0-1.1-.896-2-2-2z"/></svg>
+            <span class="count">${t.reposts_count || 0}</span>
+          </button>
+          <button class="pfc-action-btn ${t.is_liked_by_me ? 'active' : ''}" data-action="like" data-id="${t.id}">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z"/></svg>
+            <span class="count">${t.likes_count || 0}</span>
+          </button>
+          <span class="pfc-stat">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10h2L6 21H4zm9.248 0v-7h2v7h-2z"/></svg>
+            <span class="count">${t.views_count || 0}</span>
           </span>
           <span class="pfc-time">${time}</span>
         </div>
@@ -579,23 +634,67 @@ async function openProfileModal(userId: string, name: string, handle: string, av
     `;
   }).join('');
 
-  // Wire up delete buttons
+  // Wire up interaction buttons
   listEl.querySelectorAll('.pfc-delete-btn').forEach(btn => {
     (btn as HTMLElement).onclick = async (e) => {
       const id = (e.currentTarget as HTMLElement).dataset.id;
       if (!id) return;
-      if (!confirm('Delete this post?')) return;
-
+      if (!confirm('Delete this transmission?')) return;
       const card = document.getElementById(`pfc-${id}`);
       if (card) {
-        card.style.transition = 'opacity 0.3s, transform 0.3s';
-        card.style.opacity = '0';
-        card.style.transform = 'translateX(-10px)';
-        setTimeout(() => card.remove(), 300);
+        card.style.opacity = '0.5';
+        card.style.pointerEvents = 'none';
+        const success = await deletePost(id);
+        if (success) {
+          card.remove();
+        } else {
+          card.style.opacity = '1';
+          card.style.pointerEvents = 'all';
+        }
       }
-      const success = await deletePost(id);
-      if (!success) showFeedToast('Failed to delete.', 'error');
-      else showFeedToast('Post deleted.', 'success');
+    };
+  });
+
+  listEl.querySelectorAll('.pfc-action-btn').forEach(btn => {
+    (btn as HTMLElement).onclick = async (e) => {
+      const target = e.currentTarget as HTMLElement;
+      const action = target.dataset.action;
+      const id = target.dataset.id;
+      if (!id || !action) return;
+
+      if (action === 'comment') {
+        const modal1 = document.getElementById('profileSetupModal');
+        if (modal1) {
+          modal1.classList.remove('active');
+          modal1.style.display = 'none';
+        }
+        const modal2 = document.getElementById('userProfileModal');
+        if (modal2) modal2.classList.remove('show');
+        
+        const card = document.querySelector(`.transmission-card[data-id="${id}"]`);
+        if (card) {
+          card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          (card as HTMLElement).style.boxShadow = '0 0 20px rgba(29, 155, 240, 0.3)';
+          setTimeout(() => { (card as HTMLElement).style.boxShadow = ''; }, 2000);
+          
+          // Trigger comment section toggle if possible
+          const replyBtn = card.querySelector('.reply-btn') as HTMLElement;
+          if (replyBtn) replyBtn.click();
+        } else {
+          showFeedToast('Post found! Scroll main feed to view.', 'success');
+        }
+        return;
+      }
+
+      target.classList.toggle('active');
+      const countEl = target.querySelector('.count');
+      if (countEl) {
+        const current = Number(countEl.textContent || '0');
+        countEl.textContent = String(target.classList.contains('active') ? current + 1 : Math.max(0, current - 1));
+      }
+
+      if (action === 'like') await toggleLike(id);
+      if (action === 'repost') await toggleRepost(id);
     };
   });
 }
@@ -690,4 +789,29 @@ function showMentionDropdown(inputEl: HTMLTextAreaElement, users: any[], matchIn
 
 function hideMentionDropdown() {
   document.getElementById('mentionDropdown')?.remove();
+}
+function bindCommentDeleteEvents() {
+  document.querySelectorAll('.delete-comment-btn').forEach(btn => {
+    (btn as HTMLElement).onclick = async (e) => {
+      e.stopPropagation();
+      const id = (e.currentTarget as HTMLElement).dataset.id;
+      const postId = (e.currentTarget as HTMLElement).dataset.postId;
+      if (!id || !postId) return;
+      
+      if (!confirm('Delete this comment?')) return;
+      
+      const success = await deleteComment(id);
+      if (success) {
+        document.getElementById(`comment-${id}`)?.remove();
+        // Update reply count UI
+        const replyBtn = document.querySelector(`.reply-btn[data-id="${postId}"] .count`);
+        if (replyBtn) {
+          replyBtn.textContent = String(Math.max(0, Number(replyBtn.textContent || '0') - 1));
+        }
+        showFeedToast('Comment deleted.', 'success');
+      } else {
+        showFeedToast('Failed to delete comment.', 'error');
+      }
+    };
+  });
 }

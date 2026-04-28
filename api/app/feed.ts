@@ -1,7 +1,7 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { getAuth } from "../_lib/auth/index.js";
 import { ensureProfileForUser } from "../_lib/data/profile-repo.js";
-import { fetchTransmissions, createTransmission, deleteTransmission, fetchComments, createComment, incrementViewsBulk, fetchUserPosts, fetchNotifications, getUnreadCount, markNotificationsRead, searchUsers, toggleInteraction } from "../_lib/data/feed-repo.js";
+import { fetchTransmissions, createTransmission, deleteTransmission, deleteComment, fetchComments, createComment, incrementViewsBulk, fetchUserPosts, fetchNotifications, getUnreadCount, markNotificationsRead, searchUsers, toggleInteraction } from "../_lib/data/feed-repo.js";
 import { headersFromNode, readJsonBody } from "../_lib/http/request.js";
 import { handleRouteError, sendJson, sendMethodNotAllowed } from "../_lib/http/response.js";
 
@@ -22,15 +22,17 @@ export default async function handler(
     if (req.method === "GET") {
       const transmissions = await fetchTransmissions(profile?.profileId);
       
-      // Parse query string for already-seen post IDs to avoid re-counting views
+      // Parse query string for already-seen post IDs and force_view flag
       const url = new URL(req.url || '/', `http://localhost`);
       const seenParam = url.searchParams.get('seen') || '';
+      const forceView = url.searchParams.get('force_view') === 'true';
       const seenIds = seenParam ? seenParam.split(',').filter(Boolean) : [];
       
-      // Only increment views for posts the client hasn't seen yet this session
+      // If force_view is true, we increment for all IDs regardless of seen list
+      // Otherwise, only increment views for posts the client hasn't seen yet this session
       const newPostIds = transmissions
         .map((t: any) => t.id)
-        .filter((id: string) => !seenIds.includes(id));
+        .filter((id: string) => forceView || !seenIds.includes(id));
       
       if (newPostIds.length > 0) {
         incrementViewsBulk(newPostIds).catch(() => {});
@@ -71,10 +73,20 @@ export default async function handler(
         return;
       }
 
-      const body = await readJsonBody<{ post_id: string }>(req);
+      const body = await readJsonBody<{ post_id?: string; comment_id?: string }>(req);
+
+      if (body?.comment_id) {
+        const success = await deleteComment(profile.profileId, body.comment_id);
+        if (!success) {
+          sendJson(res, 403, { error: "You can only delete your own comments." });
+          return;
+        }
+        sendJson(res, 200, { status: 'deleted' });
+        return;
+      }
 
       if (!body?.post_id) {
-        sendJson(res, 400, { error: "post_id is required." });
+        sendJson(res, 400, { error: "post_id or comment_id is required." });
         return;
       }
 
@@ -113,7 +125,7 @@ export default async function handler(
           sendJson(res, 400, { error: "post_id is required." });
           return;
         }
-        const comments = await fetchComments(body.post_id);
+        const comments = await fetchComments(body.post_id, profile?.profileId || '');
         sendJson(res, 200, comments);
         return;
       }

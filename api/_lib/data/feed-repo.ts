@@ -22,6 +22,7 @@ export async function fetchTransmissions(userId?: string) {
       t.replies_count,
       t.views_count,
       t.created_at,
+      p.total_hours, p.current_streak, p.competitive_score,
       (t.user_id = $1) as is_mine,
       EXISTS (
         SELECT 1 FROM feed_interactions fi 
@@ -55,7 +56,10 @@ export async function fetchTransmissions(userId?: string) {
     created_at: row.created_at,
     is_mine: row.is_mine,
     is_liked_by_me: row.is_liked_by_me,
-    is_reposted_by_me: row.is_reposted_by_me
+    is_reposted_by_me: row.is_reposted_by_me,
+    total_hours: Number(row.total_hours || 0),
+    current_streak: Number(row.current_streak || 0),
+    competitive_score: Number(row.competitive_score || 0)
   }));
 }
 
@@ -98,7 +102,22 @@ export async function toggleInteraction(userId: string, postId: string, type: 'L
     
     // Increment count on transmission
     const field = type === 'LIKE' ? 'likes_count' : 'reposts_count';
-    await pool.query(`UPDATE transmissions SET ${field} = ${field} + 1 WHERE id = $1`, [postId]);
+    const { rows: postRows } = await pool.query(
+      `UPDATE transmissions SET ${field} = ${field} + 1 WHERE id = $1 RETURNING user_id, content`,
+      [postId]
+    );
+    
+    // Notify post owner if it's not their own interaction
+    if (postRows.length > 0 && postRows[0].user_id !== userId) {
+      const notifType = type === 'LIKE' ? 'POST_LIKE' : 'POST_REPOST';
+      await createNotification(
+        postRows[0].user_id, 
+        userId, 
+        notifType, 
+        postId, 
+        postRows[0].content.substring(0, 50)
+      );
+    }
     return { status: 'added' };
   }
 }
@@ -116,30 +135,33 @@ export async function deleteTransmission(userId: string, postId: string) {
   return rowCount !== null && rowCount > 0;
 }
 
-export async function fetchComments(postId: string) {
+export async function fetchComments(postId: string, currentUserId?: string) {
   const pool = getPool();
   const query = `
     SELECT 
-      c.id, c.content, c.created_at,
+      c.id, c.user_id, c.content, c.created_at,
       p.full_name as display_name,
       p.username as handle,
       p.avatar,
-      p.rank
+      p.rank,
+      (c.user_id = $2) as is_mine
     FROM feed_comments c
     JOIN profiles p ON c.user_id = p.id
     WHERE c.post_id = $1
     ORDER BY c.created_at ASC
     LIMIT 50
   `;
-  const { rows } = await pool.query(query, [postId]);
+  const { rows } = await pool.query(query, [postId, currentUserId || '00000000-0000-0000-0000-000000000000']);
   return rows.map((row: any) => ({
     id: row.id,
+    user_id: row.user_id,
     content: row.content,
     display_name: row.display_name || 'User',
     handle: `@${row.handle}`,
     avatar: row.avatar || '👤',
     rank: row.rank || 'IRON',
-    created_at: row.created_at
+    created_at: row.created_at,
+    is_mine: row.is_mine
   }));
 }
 
@@ -150,13 +172,31 @@ export async function createComment(userId: string, postId: string, content: str
     [userId, postId, content]
   );
   // Increment replies count on the post
-  await pool.query(
-    `UPDATE transmissions SET replies_count = replies_count + 1 WHERE id = $1`,
+  const { rows: postRows } = await pool.query(
+    `UPDATE transmissions SET replies_count = replies_count + 1 WHERE id = $1 RETURNING user_id`,
     [postId]
   );
+  
+  // Notify post owner if it's not their own comment
+  if (postRows.length > 0 && postRows[0].user_id !== userId) {
+    await createNotification(postRows[0].user_id, userId, 'POST_REPLY', postId, content.substring(0, 50));
+  }
+
   // Fire-and-forget: parse @mentions in comment
   parseAndNotifyMentions(content, userId, postId, 'COMMENT_MENTION').catch(() => {});
   return { status: 'created' };
+}
+
+export async function deleteComment(userId: string, commentId: string) {
+  const pool = getPool();
+  // Get post_id first to decrement count
+  const { rows } = await pool.query(`SELECT post_id FROM feed_comments WHERE id = $1 AND user_id = $2`, [commentId, userId]);
+  if (rows.length === 0) return false;
+  
+  const postId = rows[0].post_id;
+  await pool.query(`DELETE FROM feed_comments WHERE id = $1`, [commentId]);
+  await pool.query(`UPDATE transmissions SET replies_count = GREATEST(replies_count - 1, 0) WHERE id = $1`, [postId]);
+  return true;
 }
 
 export async function fetchUserPosts(targetUserId: string, currentUserId?: string) {
@@ -168,6 +208,7 @@ export async function fetchUserPosts(targetUserId: string, currentUserId?: strin
       t.content, t.focus_tag,
       t.likes_count, t.reposts_count, t.replies_count, t.views_count,
       t.created_at,
+      p.total_hours, p.current_streak, p.competitive_score,
       (t.user_id = $2) as is_mine,
       EXISTS (SELECT 1 FROM feed_interactions fi WHERE fi.post_id = t.id AND fi.user_id = $2 AND fi.interaction_type = 'LIKE') as is_liked_by_me,
       EXISTS (SELECT 1 FROM feed_interactions fi WHERE fi.post_id = t.id AND fi.user_id = $2 AND fi.interaction_type = 'REPOST') as is_reposted_by_me
@@ -186,7 +227,10 @@ export async function fetchUserPosts(targetUserId: string, currentUserId?: strin
     likes_count: Number(row.likes_count || 0), reposts_count: Number(row.reposts_count || 0),
     replies_count: Number(row.replies_count || 0), views_count: Number(row.views_count || 0),
     created_at: row.created_at, is_mine: row.is_mine,
-    is_liked_by_me: row.is_liked_by_me, is_reposted_by_me: row.is_reposted_by_me
+    is_liked_by_me: row.is_liked_by_me, is_reposted_by_me: row.is_reposted_by_me,
+    total_hours: Number(row.total_hours || 0),
+    current_streak: Number(row.current_streak || 0),
+    competitive_score: Number(row.competitive_score || 0)
   }));
 }
 

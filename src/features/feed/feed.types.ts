@@ -15,4 +15,7 @@ export interface Transmission {
   is_liked_by_me?: boolean;
   is_reposted_by_me?: boolean;
   is_mine?: boolean;
+  total_hours?: number;
+  current_streak?: number;
+  competitive_score?: number;
 }

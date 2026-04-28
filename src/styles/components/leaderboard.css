@@ -2239,35 +2239,97 @@
 
 .pfc-meta {
   display: flex;
-  gap: 14px;
+  gap: 12px;
   font-size: 0.75rem;
   color: #64748b;
+  margin-top: 8px;
 }
 
-.pfc-meta span { display: flex; align-items: center; gap: 3px; }
-.pfc-time { margin-left: auto; }
+.pfc-action-btn, .pfc-stat {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.pfc-action-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #f8fafc;
+}
+
+.pfc-action-btn.active[data-action="like"] {
+  color: #f43f5e;
+}
+
+.pfc-action-btn.active[data-action="repost"] {
+  color: #10b981;
+}
+
+.pfc-time { margin-left: auto; color: #475569; }
 
 .pfc-top-row {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 8px;
+  gap: 12px;
 }
 
 .pfc-delete-btn {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 0.8rem;
-  opacity: 0.3;
-  transition: opacity 0.2s, transform 0.2s;
-  padding: 2px 4px;
+  color: #ef4444;
+  opacity: 0.4;
+  transition: all 0.2s;
+  padding: 4px;
+  border-radius: 4px;
   flex-shrink: 0;
 }
 
 .pfc-delete-btn:hover {
   opacity: 1;
-  transform: scale(1.15);
+  background: rgba(239, 68, 68, 0.1);
+  transform: scale(1.1);
+}
+
+/* ─── Comment Styles ─── */
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.delete-comment-btn {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  opacity: 0.8;
+  color: #ef4444;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+}
+
+.delete-comment-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.delete-comment-btn:hover {
+  opacity: 1;
+  transform: scale(1.2);
+  background: rgba(239, 68, 68, 0.15);
+  border-radius: 50%;
 }
 
 /* ─── Stats Grid ─── */

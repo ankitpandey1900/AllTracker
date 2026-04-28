@@ -172,33 +172,103 @@ async function loadProfilePosts(): Promise<void> {
     listEl.innerHTML = posts.map((t: any) => {
       const time = getRelativeTime(new Date(t.created_at));
       return `
-        <div class="profile-feed-card">
-          <div class="pfc-content">${escapeHtml(t.content)}</div>
+        <div class="profile-feed-card" id="pfc-${t.id}">
+          <div class="pfc-top-row">
+            <div class="pfc-content">${escapeHtml(t.content)}</div>
+            <button class="pfc-delete-btn" data-id="${t.id}" title="Delete post">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            </button>
+          </div>
           <div class="pfc-meta">
-            <span>
-              <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 7.501 4.435 5.605 8.222l-1.97 4.079a.75.75 0 0 1-1.42-.332l-.23-4.124a.75.75 0 0 0-.75-.697h-.975a.75.75 0 0 0-.75.75v4.5a.75.75 0 0 1-1.5 0v-4.5a.75.75 0 0 0-.75-.75H8.375a.75.75 0 0 0-.75.697l-.23 4.124a.75.75 0 0 1-1.42.332L4.005 14C2.505 11.987 1.751 10 1.751 10z"/></svg>
-              ${t.replies_count || 0}
-            </span>
-            <span>
-              <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M4.5 3.88l4.432 4.14-1.364 1.46L5.5 7.55V16c0 1.1.896 2 2 2H13v2H7.5c-2.209 0-4-1.79-4-4V7.55L1.432 9.48.068 8.02 4.5 3.88zM16.5 6H11V4h5.5c2.209 0 4 1.79 4 4v8.45l2.068-1.93 1.364 1.46-4.432 4.14-4.432-4.14 1.364-1.46 2.068 1.93V8c0-1.1-.896-2-2-2z"/></svg>
-              ${t.reposts_count || 0}
-            </span>
-            <span>
-              <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z"/></svg>
-              ${t.likes_count || 0}
-            </span>
-            <span>
-              <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10h2L6 21H4zm9.248 0v-7h2v7h-2z"/></svg>
-              ${t.views_count || 0}
+            <button class="pfc-action-btn" data-action="comment" data-id="${t.id}">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 7.501 4.435 5.605 8.222l-1.97 4.079a.75.75 0 0 1-1.42-.332l-.23-4.124a.75.75 0 0 0-.75-.697h-.975a.75.75 0 0 0-.75.75v4.5a.75.75 0 0 1-1.5 0v-4.5a.75.75 0 0 0-.75-.75H8.375a.75.75 0 0 0-.75.697l-.23 4.124a.75.75 0 0 1-1.42.332L4.005 14C2.505 11.987 1.751 10 1.751 10z"/></svg>
+              <span class="count">${t.replies_count || 0}</span>
+            </button>
+            <button class="pfc-action-btn ${t.is_reposted_by_me ? 'active' : ''}" data-action="repost" data-id="${t.id}">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M4.5 3.88l4.432 4.14-1.364 1.46L5.5 7.55V16c0 1.1.896 2 2 2H13v2H7.5c-2.209 0-4-1.79-4-4V7.55L1.432 9.48.068 8.02 4.5 3.88zM16.5 6H11V4h5.5c2.209 0 4 1.79 4 4v8.45l2.068-1.93 1.364 1.46-4.432 4.14-4.432-4.14 1.364-1.46 2.068 1.93V8c0-1.1-.896-2-2-2z"/></svg>
+              <span class="count">${t.reposts_count || 0}</span>
+            </button>
+            <button class="pfc-action-btn ${t.is_liked_by_me ? 'active' : ''}" data-action="like" data-id="${t.id}">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z"/></svg>
+              <span class="count">${t.likes_count || 0}</span>
+            </button>
+            <span class="pfc-stat">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10h2L6 21H4zm9.248 0v-7h2v7h-2z"/></svg>
+              <span class="count">${t.views_count || 0}</span>
             </span>
             <span class="pfc-time">${time}</span>
           </div>
         </div>
       `;
     }).join('');
+    bindProfileInteractionEvents();
   } catch {
     listEl.innerHTML = '<div class="profile-posts-empty">Could not load posts.</div>';
   }
+}
+
+function bindProfileInteractionEvents(): void {
+  const { toggleLike, toggleRepost, deletePost } = require('@/features/feed/feed.manager');
+  const { showFeedToast } = require('@/features/feed/feed.ui');
+
+  document.querySelectorAll('.pfc-delete-btn').forEach(btn => {
+    (btn as HTMLElement).onclick = async (e) => {
+      const id = (e.currentTarget as HTMLElement).dataset.id;
+      if (!id) return;
+      if (!confirm('Delete this post?')) return;
+      const card = document.getElementById(`pfc-${id}`);
+      if (card) {
+        card.style.opacity = '0.5';
+        card.style.pointerEvents = 'none';
+        const success = await deletePost(id);
+        if (success) card.remove();
+        else { card.style.opacity = '1'; card.style.pointerEvents = 'all'; }
+      }
+    };
+  });
+
+  document.querySelectorAll('.pfc-action-btn').forEach(btn => {
+    (btn as HTMLElement).onclick = async (e) => {
+      const target = e.currentTarget as HTMLElement;
+      const action = target.dataset.action;
+      const id = target.dataset.id;
+      if (!id || !action) return;
+
+      if (action === 'comment') {
+        const modal1 = document.getElementById('profileSetupModal');
+        if (modal1) {
+          modal1.classList.remove('active');
+          modal1.style.display = 'none';
+        }
+        const modal2 = document.getElementById('userProfileModal');
+        if (modal2) modal2.classList.remove('show');
+        
+        const card = document.querySelector(`.transmission-card[data-id="${id}"]`);
+        if (card) {
+          card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          (card as HTMLElement).style.boxShadow = '0 0 20px rgba(29, 155, 240, 0.3)';
+          setTimeout(() => { (card as HTMLElement).style.boxShadow = ''; }, 2000);
+          
+          // Trigger comment section toggle if possible
+          const replyBtn = card.querySelector('.reply-btn') as HTMLElement;
+          if (replyBtn) replyBtn.click();
+        } else {
+          showFeedToast('Post found! Scroll main feed to view.', 'success');
+        }
+        return;
+      }
+
+      target.classList.toggle('active');
+      const countEl = target.querySelector('.count');
+      if (countEl) {
+        const current = Number(countEl.textContent || '0');
+        countEl.textContent = String(target.classList.contains('active') ? current + 1 : Math.max(0, current - 1));
+      }
+
+      if (action === 'like') await toggleLike(id);
+      if (action === 'repost') await toggleRepost(id);
+    };
+  });
 }
 
 function getRelativeTime(d: Date): string {
