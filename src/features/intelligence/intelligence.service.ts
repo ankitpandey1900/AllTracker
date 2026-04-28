@@ -153,7 +153,6 @@ export async function deleteSession(id: string): Promise<void> {
   await deleteMaamuSession(id);
   maamuSessions = maamuSessions.filter(s => s.id !== id);
   if (maamuActiveId === id) maamuActiveId = maamuSessions[0]?.id || '';
-  if (maamuSessions.length === 0) await createNewSession();
 }
 
 export function switchSession(id: string): void {

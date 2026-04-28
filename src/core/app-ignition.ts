@@ -42,7 +42,10 @@ export async function igniteApp(): Promise<void> {
     await initUI();
     shell.setupTabNavigation();
 
-    // 2. Data Load (Local-First)
+    // 2. Auth & Data Load (Identity-First)
+    await initSyncAuth();
+    setupHeaderScroll();
+
     const [settings, trackerData, routines, history, bookmarks, savedTimer, tasks] = await Promise.all([
       loadSettingsFromStorage(),
       loadTrackerDataFromStorage(),
@@ -93,8 +96,6 @@ export async function igniteApp(): Promise<void> {
       renderBadges();
       checkBadges();
 
-      initSyncAuth();
-      setupHeaderScroll();
       initTasks();
 
       await (await import('@/services/data-bridge')).startLiveSync();

@@ -107,11 +107,15 @@ export function buildDeepContextJSON(data: {
   });
 
   // 1. Hybrid History: Last 30 days daily (tracker grid hours)
-  const last30Days = pastData.slice(-30).map(d => ({
-    d: d.day,
-    h: (d.studyHours || []).reduce((s: number, h: number) => s + (h || 0), 0),
-    c: d.completed ? 1 : 0
-  }));
+  const last30Days = pastData.slice(-30).map(d => {
+    const dt = new Date(d.date);
+    const dtStr = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
+    return {
+      dt: dtStr,
+      h: (d.studyHours || []).reduce((s: number, h: number) => s + (h || 0), 0),
+      c: d.completed ? 1 : 0
+    };
+  });
 
   // Older data -> Weekly summaries (7-day buckets)
   const olderData = pastData.slice(0, -30);

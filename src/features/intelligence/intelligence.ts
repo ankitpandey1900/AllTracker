@@ -235,20 +235,15 @@ export function renderIntelligenceBriefing(): void {
     return;
   }
 
-  // Ensure send flow always has an active session.
-  if (!getActiveSession()) {
-    createNewSession().then((id) => {
-      if (id) {
-        renderIntelligenceBriefing();
-      } else {
-        const chatOutput = document.getElementById('maamuChatOutput');
-        if (chatOutput) {
-          chatOutput.innerHTML = buildIdentityRequiredScreen();
-        }
-      }
-    });
-    return;
-  }
+  // Ensure shell is updated with current state
+  renderSidebarMetrics();
+  renderSessionsList();
+  renderActiveChat();
+  renderSessionQuickAccess();
+
+  const s = getActiveSession();
+  const t = document.getElementById('activeMissionTitle');
+  if (t) t.textContent = s ? s.title : 'MAAMU AI';
 
   const toggle = document.getElementById('beastModeToggle') as HTMLInputElement;
   if (toggle) toggle.checked = !!appState.settings.beastMode;
@@ -457,7 +452,22 @@ function renderActiveChat(): void {
   const chatOutput = document.getElementById('maamuChatOutput');
   if (!chatOutput) return;
   const session = getActiveSession();
-  if (!session) return;
+  
+  if (!session) {
+    if (!getCurrentUserId()) {
+      chatOutput.innerHTML = buildIdentityRequiredScreen();
+    } else {
+      chatOutput.innerHTML = buildWelcomeScreen();
+      chatOutput.querySelectorAll('.quick-prompt').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const input = document.getElementById('maamuQueryInput') as HTMLTextAreaElement;
+          if (input) { input.value = (btn as HTMLElement).textContent || ''; input.dispatchEvent(new Event('input')); input.focus(); }
+        });
+      });
+      injectDailyBriefing(chatOutput);
+    }
+    return;
+  }
 
   const msgs = session.messages.filter(m => m.role !== 'system');
   if (msgs.length > 0 && !areTemplatesCollapsed()) setTemplatesCollapsed(true);
@@ -574,7 +584,11 @@ function streamResponse(
   getMaamuResponseStream(
     query, tacticalBrief,
     (_chunk, accumulated) => {
-      if (contentEl) { contentEl.innerHTML = formatMaamuText(accumulated) + '<span class="stream-cursor">▋</span>'; chatOutput.scrollTop = chatOutput.scrollHeight; }
+      if (contentEl) {
+        const isAtBottom = chatOutput.scrollHeight - chatOutput.scrollTop - chatOutput.clientHeight < 50;
+        contentEl.innerHTML = formatMaamuText(accumulated) + '<span class="stream-cursor">▋</span>';
+        if (isAtBottom) chatOutput.scrollTop = chatOutput.scrollHeight;
+      }
     },
     (fullResponse) => {
       assistantRow.classList.remove('streaming');
@@ -670,7 +684,10 @@ function renderSidebarMetrics(): void {
           <input type="text" name="username" style="display:none;" autocomplete="username" value="maamu-ai-key">
           <input type="password" id="maamuApiKeyInput" class="api-key-input" value="${appState.settings.groqApiKey || ''}" placeholder="gsk_..." autocomplete="new-password">
         </form>
-        <button type="button" id="saveMaamuApiKey" class="save-api-btn">Save Key</button>
+        <div class="row" style="gap: 8px;">
+          <button type="button" id="saveMaamuApiKey" class="save-api-btn" style="flex: 1;">Save Key</button>
+          <button type="button" id="resetMaamuApiKey" class="save-api-btn" style="flex: 1; background: rgba(239,68,68,0.1); color: #ef4444; border: 1px solid rgba(239,68,68,0.3);">Reset</button>
+        </div>
         <a href="https://console.groq.com" target="_blank" class="api-link">Get your free key →</a>
       </div>
     `;
@@ -680,6 +697,15 @@ function renderSidebarMetrics(): void {
       saveSettingsToStorage(appState.settings);
       const btn = document.getElementById('saveMaamuApiKey');
       if (btn) { btn.textContent = '✓ Saved!'; setTimeout(() => btn.textContent = 'Save Key', 2000); }
+    });
+    document.getElementById('resetMaamuApiKey')?.addEventListener('click', () => {
+      if (!confirm('Clear your API Key? You will need to re-enter it to use Maamu.')) return;
+      appState.settings.groqApiKey = '';
+      saveSettingsToStorage(appState.settings);
+      const input = document.getElementById('maamuApiKeyInput') as HTMLInputElement;
+      if (input) input.value = '';
+      const btn = document.getElementById('resetMaamuApiKey');
+      if (btn) { btn.textContent = '✓ Reset!'; setTimeout(() => btn.textContent = 'Reset', 2000); }
     });
     footer.querySelectorAll('.maamu-footer-session').forEach(el => {
       el.addEventListener('click', (e) => {
@@ -864,20 +890,20 @@ function setupListeners(): boolean {
     updateSendButtonState();
   });
 
-  const handleSend = (overrideQuery?: string) => {
-    if (isSending) return;
-    const query = (overrideQuery ?? input.value).trim();
-    if (!query) return;
-    const localReply = getLocalSmallTalkReply(query, getUserDisplayName()) || getLocalDataContextReply(query);
-    let session = getActiveSession();
-    if (!session) {
-      createNewSession();
-      saveSettingsToStorage(appState.settings);
-      session = getActiveSession();
-      if (!session) return;
-      renderSessionsList();
-    }
-    const lockedSessionId = session.id;
+    const handleSend = async (overrideQuery?: string) => {
+      if (isSending) return;
+      const query = (overrideQuery ?? input.value).trim();
+      if (!query) return;
+      const localReply = getLocalSmallTalkReply(query, getUserDisplayName()) || getLocalDataContextReply(query);
+      let session = getActiveSession();
+      if (!session) {
+        const sid = await createNewSession();
+        if (!sid) return;
+        session = getActiveSession();
+        if (!session) return;
+        renderSessionsList();
+      }
+      const lockedSessionId = session.id;
 
     isSending = true;
     updateSendButtonState();

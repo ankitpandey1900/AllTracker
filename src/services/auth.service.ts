@@ -115,10 +115,10 @@ async function hydrateSessionState(): Promise<void> {
   await syncDataOnLogin(true);
 }
 
-export function initSyncAuth(): void {
+export function initSyncAuth(): Promise<void> {
   bindAuthUi();
 
-  void hydrateSessionState().catch((error) => {
+  return hydrateSessionState().catch((error) => {
     log.error("Better Auth session bootstrap failed", error);
     if (error instanceof ApiError && error.code === "SERVICE_NOT_CONFIGURED") {
       handleUserSignedOut(error.message);

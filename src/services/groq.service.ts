@@ -39,16 +39,17 @@ function stripThinkingContent(text: string): string {
 function isLightweightQuery(query: string): boolean {
   const q = query.trim().toLowerCase();
   if (!q) return true;
-  const hasAccessIntent = /(access|data|profile|privacy|personal|leaderboard|category|categories|study|tracker)/.test(q);
+  const hasAccessIntent = /(access|data|profile|history|stat|hours|minutes|leaderboard|rank|category|study|tracker|mission|plan)/.test(q);
   if (hasAccessIntent) return false;
-  return /^(hi|hello|hey|yo|ok|okay|thanks|thank you|thx|bye|good morning|good evening|good night|kaise ho|kya haal)$/.test(q) || q.length <= 16;
+  return /^(hi+|hello+|hey+|yo+|ok(ay)?|thanks?|thx|bye|good (morning|evening|night)|kaise ho|kya haal)$/.test(q) || q.length <= 8;
 }
 
 function shouldUseTacticalContext(query: string): boolean {
   const q = query.trim().toLowerCase();
   if (!q) return false;
-  const pureSocial = /^(hi|hello|hey|yo|ok|okay|thanks|thank you|thx|bye|good morning|good evening|good night|kaise ho|kya haal)$/.test(q);
-  return !pureSocial;
+  const isGreeting = /^(hi+|hello+|hey+|yo+|ok(ay)?|thanks?|thx|bye|good (morning|evening|night)|kaise ho|kya haal)$/.test(q);
+  const asksForReport = /(report|stat|data|history|progress|hours|track)/.test(q);
+  return !isGreeting || asksForReport;
 }
 
 function saveToMentorHistory(role: MentorMessage['role'], content: string, sessionId?: string) {
@@ -101,15 +102,20 @@ function buildMessages(
       
       CORE DIRECTIVES:
       1. PEAK ROAST: If the Tactical Brief shows low hours, high debt, or bad consistency, ROAST them. Use sarcasm. 
-      2. TOTAL RECALL: You have access to the user's FULL tracker history (day 1 to now). Analyze their long-term patterns.
-      3. DATA VALIDITY: You see two hour metrics: 'total_hours_grid' (manual/grid input) and 'verified_mins_timer' (stopwatch). If grid hours exist but timer mins are 0, ACKNOWLEDGE the grid hours as real work. Never say "I don't see any data" if total_hours_grid is > 0.
-      4. EMOJI MAXIMISM: Use a chaotic amount of emojis. 🤡 for failure, 📉 for drops, 💩 for excuses, 🚀 for rare wins, 🧠 for insights, 💀 for total breakdown. 
-      5. DATA-DRIVEN TRUTH: Always ground your roasts in their actual AllTracker stats.
-      6. HINGLISH SAVAGE: Use Hinglish phrases to hit harder.
-      7. NO APOLOGIES: Never apologize for being harsh.
-      8. ACTION ENGINE: ALWAYS end with "**WAKE UP CALL FOR ${userHandle}**" followed by 1-3 brutal action items as a bullet list.
-      9. MODE: ${beastModeDirective}
-      10. ACCESS SCOPE: Use only current user's AllTracker context.
+      2. BREVITY: If the user message is just a greeting (like "Hi", "Hey", "Hello"), respond with a short, punchy, savage greeting only. Do NOT provide a full data report unless explicitly asked.
+      3. DATE-WISE ANALYSIS: When asked for history or progress analysis, ALWAYS show the data in a date-wise format using the actual dates from 'hist.daily_30d'.
+      4. TOTAL RECALL: You have access to the user's FULL tracker history (day 1 to now). Analyze their long-term patterns.
+      5. DATA VALIDITY: You see multiple data streams: 'total_hours_grid' (manual), 'verified_mins_timer' (stopwatch), and 'back' (Backlog).
+         - If total_hours_grid > 0, NEVER say "I don't see any data" or "No history". Acknowledge them as valid manual entries.
+         - If Backlog exists but History is low, treat it as "High Potential, Low Execution" rather than "No Data".
+         - Be savage about the LACK of timer proof, but acknowledge the manual work exists. 
+      6. EMOJI MAXIMISM: Use a chaotic amount of emojis. 🤡 for failure, 📉 for drops, 💩 for excuses, 🚀 for rare wins, 🧠 for insights, 💀 for total breakdown. 
+      7. DATA-DRIVEN TRUTH: Always ground your roasts in their actual AllTracker stats (Backlog, Grid, Momentum).
+      8. HINGLISH SAVAGE: Use Hinglish phrases to hit harder.
+      9. NO APOLOGIES: Never apologize for being harsh.
+      10. ACTION ENGINE: ALWAYS end serious advice with "**WAKE UP CALL FOR ${userHandle}**" followed by 1-3 brutal action items as a bullet list.
+      11. MODE: ${beastModeDirective}
+      12. ACCESS SCOPE: Use only current user's AllTracker context.
       
       OUTPUT FORMAT (CRITICAL — NEVER BREAK THESE RULES):
       - Use ONLY pure Markdown. NEVER use HTML tags like <br>, <div>, <span>, or any other HTML.
@@ -163,38 +169,35 @@ export async function getMaamuResponseStream(
 
   try {
     const requestWithModel = async (model: string) => {
-      const fetchOptions: RequestInit = {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model,
-          messages,
-          temperature: 0.6,
-          max_tokens: 2048,
-          stream: true
-        })
-      };
+      try {
+        const cleanKey = String(apiKey || '').trim().replace(/[\r\n\t]/g, '');
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${cleanKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model,
+            messages,
+            temperature: 0.6,
+            max_tokens: 2048,
+            stream: true
+          })
+        });
 
-      if (options?.signal instanceof AbortSignal) {
-        fetchOptions.signal = options.signal;
-      }
-
-      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', fetchOptions);
-
-      if (!response.ok) {
-        let message = 'Failed to connect to Maamu AI Core.';
-        try {
-          const err = await response.json();
-          message = err.error?.message || message;
-        } catch {
-          // keep fallback message
+        if (!response.ok) {
+          let message = `AI Core Error (${response.status})`;
+          try {
+            const err = await response.json();
+            message = err.error?.message || message;
+          } catch { /* fallback */ }
+          return { ok: false as const, message };
         }
-        return { ok: false as const, message };
+        return { ok: true as const, response };
+      } catch (err: any) {
+        return { ok: false as const, message: `Network Error: ${err.message || 'Connection failed'}` };
       }
-      return { ok: true as const, response };
     };
 
     let result = await requestWithModel(activeModel);
