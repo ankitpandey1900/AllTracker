@@ -163,13 +163,12 @@ export async function getMaamuResponseStream(
 
   try {
     const requestWithModel = async (model: string) => {
-      const response = await fetch(GROQ_API_URL, {
+      const fetchOptions: RequestInit = {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json'
         },
-        signal: options?.signal,
         body: JSON.stringify({
           model,
           messages,
@@ -177,7 +176,13 @@ export async function getMaamuResponseStream(
           max_tokens: 2048,
           stream: true
         })
-      });
+      };
+
+      if (options?.signal instanceof AbortSignal) {
+        fetchOptions.signal = options.signal;
+      }
+
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', fetchOptions);
 
       if (!response.ok) {
         let message = 'Failed to connect to Maamu AI Core.';
