@@ -24,8 +24,8 @@ export async function postTransmission(content: string): Promise<void> {
 
 export async function toggleLike(postId: string): Promise<void> {
   try {
-    await apiRequest('/api/app/feed-interact', {
-      method: 'POST',
+    await apiRequest('/api/app/feed', {
+      method: 'PUT',
       body: { post_id: postId, interaction_type: 'LIKE' }
     });
   } catch (error) {
@@ -35,8 +35,8 @@ export async function toggleLike(postId: string): Promise<void> {
 
 export async function toggleRepost(postId: string): Promise<void> {
   try {
-    await apiRequest('/api/app/feed-interact', {
-      method: 'POST',
+    await apiRequest('/api/app/feed', {
+      method: 'PUT',
       body: { post_id: postId, interaction_type: 'REPOST' }
     });
   } catch (error) {

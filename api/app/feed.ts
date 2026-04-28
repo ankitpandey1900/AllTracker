@@ -1,7 +1,7 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { getAuth } from "../_lib/auth/index.js";
 import { ensureProfileForUser } from "../_lib/data/profile-repo.js";
-import { fetchTransmissions, createTransmission, deleteTransmission, fetchComments, createComment, incrementViewsBulk, fetchUserPosts, fetchNotifications, getUnreadCount, markNotificationsRead, searchUsers } from "../_lib/data/feed-repo.js";
+import { fetchTransmissions, createTransmission, deleteTransmission, fetchComments, createComment, incrementViewsBulk, fetchUserPosts, fetchNotifications, getUnreadCount, markNotificationsRead, searchUsers, toggleInteraction } from "../_lib/data/feed-repo.js";
 import { headersFromNode, readJsonBody } from "../_lib/http/request.js";
 import { handleRouteError, sendJson, sendMethodNotAllowed } from "../_lib/http/response.js";
 
@@ -156,7 +156,27 @@ export default async function handler(
       return;
     }
 
-    sendMethodNotAllowed(res, ["GET", "POST", "DELETE", "PATCH"]);
+    // PUT = like/repost interactions
+    if (req.method === "PUT") {
+      if (!profile) {
+        sendJson(res, 401, { error: "Unauthorized." });
+        return;
+      }
+      const body = await readJsonBody<{ post_id: string; interaction_type: 'LIKE' | 'REPOST' }>(req);
+      if (!body?.post_id || !body?.interaction_type) {
+        sendJson(res, 400, { error: "post_id and interaction_type are required." });
+        return;
+      }
+      if (body.interaction_type !== 'LIKE' && body.interaction_type !== 'REPOST') {
+        sendJson(res, 400, { error: "Invalid interaction type." });
+        return;
+      }
+      const result = await toggleInteraction(profile.profileId, body.post_id, body.interaction_type);
+      sendJson(res, 200, result);
+      return;
+    }
+
+    sendMethodNotAllowed(res, ["GET", "POST", "DELETE", "PATCH", "PUT"]);
   } catch (error) {
     handleRouteError(res, error);
   }
