@@ -42,10 +42,13 @@ export class VanguardService {
     const scoreA = calculateCompetitiveXP(rival.total_hours, rival.current_streak || 0, rival.integrity_score || 0);
     const scoreB = calculateCompetitiveXP(me.total_hours, me.current_streak || 0, me.integrity_score || 0);
     
+    const hourGap = Number(((rival.total_hours || 0) - (me.total_hours || 0)).toFixed(1));
+    const pointGap = Math.round(scoreA - scoreB);
+
     return {
       handle: `@${rival.display_name}`,
-      gap: Number(((rival.total_hours || 0) - (me.total_hours || 0)).toFixed(1)),
-      gapPoints: Math.max(0, Math.round(scoreA - scoreB)),
+      gap: hourGap,
+      gapPoints: Math.max(0, pointGap),
       rank: myIndex, 
     };
   }

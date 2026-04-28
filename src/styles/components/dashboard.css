@@ -338,7 +338,7 @@
 
 .kpi-metrics-grid .card,
 #categoryCards > div {
-  min-height: 120px;
+  min-height: 140px;
   position: relative;
   overflow: visible; /* Allow glow/shadows to spill */
   text-align: center;
@@ -346,7 +346,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 24px 16px;
+  padding: 32px 20px;
   --accent-rgb: 103, 128, 193; 
 }
 
@@ -515,25 +515,48 @@ textarea:focus {
 
 .btn,
 .btn-auth-trigger {
-  border: 1px solid rgba(103, 125, 182, 0.3);
+  border: 1px solid rgba(103, 125, 182, 0.4);
   border-radius: 999px;
-  background: #0b1224;
+  background: rgba(11, 18, 36, 0.8);
   color: #e8efff;
-  padding: 6px 12px;
-  font-size: 0.72rem;
-  font-weight: 600;
+  padding: 8px 18px;
+  font-size: 0.78rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.btn:hover {
+  background: rgba(11, 18, 36, 1);
+  border-color: rgba(103, 125, 182, 0.8);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
 .btn-primary {
-  border: 1px solid rgba(104, 126, 193, 0.62);
-  background: linear-gradient(180deg, rgba(69, 90, 170, 0.7), rgba(39, 53, 111, 0.72));
+  border: 1px solid rgba(104, 126, 193, 0.8);
+  background: linear-gradient(180deg, #4f6ef7 0%, #3b59d9 100%);
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(59, 89, 217, 0.3);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(180deg, #607ef8 0%, #4665e8 100%);
+  box-shadow: 0 6px 20px rgba(59, 89, 217, 0.5);
+  border-color: #fff;
 }
 
 .btn-danger {
-  border: 1px solid rgba(222, 98, 119, 0.6);
-  background: linear-gradient(180deg, rgba(132, 41, 60, 0.68), rgba(95, 31, 44, 0.72));
+  border: 1px solid rgba(239, 68, 68, 0.6);
+  background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+  color: #fff;
+}
+
+.btn-danger:hover {
+  background: linear-gradient(180deg, #f87171 0%, #ef4444 100%);
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
 }
 
 .legend,

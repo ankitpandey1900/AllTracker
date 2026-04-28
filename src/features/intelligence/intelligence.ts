@@ -585,7 +585,7 @@ function streamResponse(
     query, tacticalBrief,
     (_chunk, accumulated) => {
       if (contentEl) {
-        const isAtBottom = chatOutput.scrollHeight - chatOutput.scrollTop - chatOutput.clientHeight < 50;
+        const isAtBottom = chatOutput.scrollHeight - chatOutput.scrollTop - chatOutput.clientHeight < 40;
         contentEl.innerHTML = formatMaamuText(accumulated) + '<span class="stream-cursor">▋</span>';
         if (isAtBottom) chatOutput.scrollTop = chatOutput.scrollHeight;
       }
@@ -632,7 +632,8 @@ function streamResponse(
 
       addDailyUsage(estimateTokens(query) + estimateTokens(fullResponse));
       renderUsageChip();
-      chatOutput.scrollTop = chatOutput.scrollHeight;
+      const isAtBottom = chatOutput.scrollHeight - chatOutput.scrollTop - chatOutput.clientHeight < 40;
+      if (isAtBottom) chatOutput.scrollTop = chatOutput.scrollHeight;
       activeStreamController = null;
       setStopButtonState(false);
       options.onFinish();

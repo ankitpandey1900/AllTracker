@@ -205,9 +205,19 @@ export function updateRivalryHUD(): void {
     hud.style.display = 'block';
     hud.style.border = '1px solid rgba(239, 68, 68, 0.3)';
     hud.style.background = 'rgba(239, 68, 68, 0.05)';
-    if (labelEl) { labelEl.style.color = '#ef4444'; labelEl.textContent = 'TARGET IDENTIFIED 🎯'; }
-    if (handleEl) { handleEl.style.color = '#ef4444'; handleEl.textContent = rival.handle; }
-    if (metaEl) metaEl.innerHTML = `RANK <span id="rivalRank">${rival.rank}</span> • <span id="rivalGap" style="color: #fca5a5; font-weight: 900;">-${rival.gapPoints} PTS (${rival.gap}H)</span> TO OVERTAKE`;
+    if (labelEl) { 
+      labelEl.style.color = '#ef4444'; 
+      labelEl.textContent = 'TARGET IDENTIFIED 🎯'; 
+    }
+    if (handleEl) { 
+      handleEl.style.color = '#ef4444'; 
+      handleEl.textContent = rival.handle; 
+    }
+    if (metaEl) {
+      const hourText = rival.gap > 0 ? `${rival.gap}h GAP` : `${Math.abs(rival.gap)}h LEAD`;
+      const pointText = rival.gapPoints > 0 ? `${rival.gapPoints} PTS TO OVERTAKE` : `POINTS DEFICIT`;
+      metaEl.innerHTML = `RANK ${rival.rank} • <span id="rivalGap" style="color: #fca5a5; font-weight: 900;">${pointText}</span> • <span style="opacity: 0.8;">${hourText}</span>`;
+    }
   } else {
     // 🏆 RANK #1 — Show who's chasing and by how much
     const sorted = [...(lbAllUsers || [])].sort((a, b) => {
