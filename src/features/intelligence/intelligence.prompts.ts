@@ -161,8 +161,13 @@ export function buildDeepContextJSON(data: {
   }));
 
   return JSON.stringify({
-    id: { h: "@" + data.username, th: data.totalHours.toFixed(1), r: data.rank, real_mins: realTotalMins },
-    bm: data.beastModeActive,
+    user: { 
+      handle: "@" + data.username, 
+      total_hours_grid: data.totalHours.toFixed(1), 
+      verified_mins_timer: realTotalMins,
+      rank: data.rank 
+    },
+    beast: data.beastModeActive,
     st: { 
       s: data.briefing.sustainabilityScore, 
       d: data.briefing.disciplineTrend, 

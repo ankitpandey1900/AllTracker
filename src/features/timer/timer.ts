@@ -280,6 +280,23 @@ export async function stopTimer(autoNote?: string): Promise<void> {
         saveSessionToDate(colIdx, totalHours, note, sessionEnd);
         appState.verifiedHours += totalHours;
       }
+
+      // 🛡️ VERIFIED LOG: Save to local settings for Maamu AI analysis
+      const startTimeStr = formatClockTime(sessionStart);
+      const endTimeStr = formatClockTime(sessionEnd);
+      const sessionLog = {
+        date: sessionStart.toISOString().split('T')[0],
+        category: appState.activeTimer.category || '0',
+        categoryName: appState.activeTimer.colName || 'General',
+        duration: totalHours,
+        timeRange: `${startTimeStr} - ${endTimeStr}`,
+        note: note
+      };
+      
+      const updatedLogs = [...(appState.settings.sessionLogs || []), sessionLog];
+      // Keep only last 200 logs to prevent storage bloating
+      appState.settings.sessionLogs = updatedLogs.slice(-200);
+      saveSettingsToStorage(appState.settings);
       
       saveTrackerDataToStorage(appState.trackerData);
 
@@ -502,7 +519,8 @@ export function resumeTimerIfNeeded(): void {
 
   // Case 2: Timer is running
   if (isRunning) {
-    if (startTime && (Date.now() - startTime) > 18000000) { stopTimer('[AUTO-SAFE] Recovered'); return; }
+    const currentCap = appState.activeTimer.overrunCapMs || 18000000;
+    if (startTime && (Date.now() - startTime) > currentCap) { stopTimer('[AUTO-SAFE] Recovered'); return; }
     startTimerInterval();
     updateTimerUI(true);
     updateTimerDisplay();

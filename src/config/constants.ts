@@ -57,16 +57,15 @@ export const CATEGORY_COLORS = [
 
 function getStreak(data: TrackerDay[]): number {
   let streak = 0;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const todayStr = new Date().toISOString().split('T')[0];
 
   for (let i = data.length - 1; i >= 0; i--) {
-    if (data[i].completed) {
+    const day = data[i];
+    if (day.completed || day.restDay) {
       streak++;
     } else {
-      const dayDate = new Date(data[i].date);
-      dayDate.setHours(0, 0, 0, 0);
-      if (dayDate >= today) continue;
+      // If it's today and not completed yet, don't break the streak
+      if (day.date >= todayStr) continue;
       break;
     }
   }
