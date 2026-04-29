@@ -744,15 +744,41 @@
     padding: 12px 10px !important;
   }
 
-  /* Leaderboard extreme shrinking */
-  .lb-handle {
-    font-size: 0.75rem;
-    max-width: 40%;
+  /* Leaderboard extreme shrinking (iPhone SE / Small Devices) */
+  .leaderboard-item.legacy-row {
+    padding: 10px 8px !important;
+    gap: 10px !important;
   }
 
-  .lb-avatar-wrapper {
-    width: 28px;
-    height: 28px;
+  .leaderboard-item.legacy-row .rank-num {
+    width: 18px !important;
+    font-size: 0.75rem !important;
+  }
+
+  .leaderboard-item.legacy-row .lb-avatar-wrapper {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+  }
+
+  .leaderboard-item.legacy-row .lb-avatar {
+    font-size: 1.4rem !important;
+  }
+
+  .leaderboard-item.legacy-row .lb-name {
+    font-size: 0.85rem !important;
+  }
+
+  .leaderboard-item.legacy-row .lb-hours-container {
+    min-width: 80px !important;
+  }
+
+  .leaderboard-item.legacy-row .lb-total-hours {
+    font-size: 1.1rem !important;
+  }
+
+  .leaderboard-item.legacy-row .lb-today-badge {
+    font-size: 0.6rem !important;
   }
 }
 

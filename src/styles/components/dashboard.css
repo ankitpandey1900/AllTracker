@@ -1580,7 +1580,158 @@ textarea:focus {
   top: 80px;
 }
 
+/* --- God-Tier Leaderboard Row Redesign --- */
+.leaderboard-item.legacy-row {
+  padding: 16px;
+  margin-bottom: 4px;
+  border-radius: 12px;
+  background: rgba(13, 17, 23, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  position: relative;
+  transition: all 0.2s ease;
+}
 
+.leaderboard-item.legacy-row:hover {
+  background: rgba(13, 17, 23, 0.7);
+  border-color: var(--rank-color);
+  transform: translateX(4px);
+}
 
+.lb-row-rank-num {
+  width: 32px;
+  font-family: 'Tektur', sans-serif;
+  font-weight: 900;
+  color: #475569;
+  font-size: 1.1rem;
+  text-align: center;
+  flex-shrink: 0;
+}
 
+.lb-row-avatar-group {
+  flex-shrink: 0;
+}
+
+.lb-avatar-wrapper {
+  position: relative;
+  width: 52px;
+  height: 52px;
+}
+
+.lb-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid #334155;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  background: #0f172a;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+.nation-emblem {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #0d1222;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.lb-row-main-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lb-row-identity {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lb-row-handle {
+  font-weight: 900;
+  color: #fff;
+  font-size: 1.05rem;
+  letter-spacing: 0.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lb-row-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lb-row-streak {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #fbbf24;
+  letter-spacing: 1px;
+}
+
+.lb-row-score-bar {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 99px;
+  width: 100%;
+  max-width: 120px;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.lb-row-score-fill {
+  height: 100%;
+  transition: width 0.5s ease;
+}
+
+.lb-row-telemetry {
+  text-align: right;
+  min-width: 110px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lb-row-total {
+  font-family: 'Tektur', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1;
+}
+
+.lb-row-today {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #10b981;
+  letter-spacing: 0.5px;
+}
+
+.lb-row-rank-score {
+  font-size: 0.8rem;
+  font-weight: 900;
+  color: #e2e8f0;
+  margin-top: 2px;
+}
+
+.score-label, .today-label {
+  font-size: 0.55rem;
+  color: #64748b;
+  font-weight: 800;
+  letter-spacing: 1px;
+  margin-left: 2px;
+}
 

@@ -356,38 +356,34 @@ export function renderUserRow(
   const delay = Math.min(localIndex * 0.05, 0.5);
 
   return `
-    <div class="leaderboard-item legacy-row ${isMe ? 'is-me' : ''}" style="--rank-color: ${rankColor}; animation-delay: ${delay}s; padding: 16px; margin-bottom: 2px; border-radius: 12px; background: rgba(13, 17, 23, 0.4); border: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 16px;">
+    <div class="leaderboard-item legacy-row ${isMe ? 'is-me' : ''}" style="--rank-color: ${rankColor}; animation-delay: ${delay}s;">
       
-      <!-- Rank Num -->
-      <div class="rank-num" style="width: 24px; font-family: 'Tektur'; font-weight: 900; color: #475569; font-size: 0.9rem;">${currentRank}</div>
+      <div class="lb-row-rank-num">${currentRank}</div>
 
-      <!-- Avatar Wrapper -->
-      <div class="lb-avatar-wrapper" style="position: relative; width: 48px; height: 48px; min-width: 48px;">
-        <div class="lb-avatar" style="width: 100%; height: 100%; border-radius: 50%; border: 2px solid ${rankColor}; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; background: #0f172a;">${avatar}</div>
-        <div class="nation-emblem" style="position: absolute; bottom: 0; right: 0; width: 18px; height: 18px; border: 2px solid #0d1222; border-radius: 50%; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.5);">${flagImg}</div>
-      </div>
-
-      <!-- Identity & Metadata -->
-      <div class="lb-info" style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px;">
-        <div class="lb-name" style="font-weight: 900; color: #fff; font-size: 1rem; letter-spacing: 0.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%;">@${escapeHtml(u.display_name)}</div>
-        <div style="display: flex; align-items: center; gap: 8px;">
-           <span style="font-size: 0.65rem; color: #64748b; font-weight: 700; text-transform: uppercase;">${statusLabel}</span>
-        </div>
-        <div style="display: flex; align-items: center; gap: 4px; margin-top: 2px;">
-           <span style="font-size: 0.75rem; font-weight: 900; color: #fff;">${rankScore.toLocaleString()}</span>
-           <span style="font-size: 0.6rem; color: #475569; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">RANK SCORE</span>
-        </div>
-        <div class="lb-xp-container" style="height: 3px; background: rgba(255,255,255,0.05); border-radius: 99px; width: 100px; margin-top: 6px; overflow: hidden;">
-           <div class="lb-xp-bar" style="height: 100%; width: ${Math.min(100, (u.total_hours % 10) * 10)}%; background: ${rankColor};"></div>
+      <div class="lb-row-avatar-group">
+        <div class="lb-avatar-wrapper">
+          <div class="lb-avatar" style="border-color: ${rankColor};">${avatar}</div>
+          <div class="nation-emblem">${flagImg}</div>
         </div>
       </div>
 
-      <!-- Time Telemetry -->
-      <div class="lb-hours-container" style="text-align: right; min-width: 100px;">
-        <div class="lb-total-hours" style="font-family: 'Tektur'; font-size: 1.4rem; font-weight: 900; color: #fff; line-height: 1;">${formatDuration(u.total_hours) || '0h'}</div>
-        <div class="lb-today-badge" style="font-size: 0.75rem; font-weight: 900; color: #10b981; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px;">
-           ${formatDuration(todayHoursDisplay) || '0H'} TODAY
+      <div class="lb-row-main-info">
+        <div class="lb-row-identity">
+          <span class="lb-row-handle">@${escapeHtml(u.display_name)}</span>
+          ${u.is_verified ? '<span class="lb-row-verified">✔</span>' : ''}
         </div>
+        <div class="lb-row-meta">
+          <span class="status-tag ${statusClass}">${statusLabel}</span>
+        </div>
+        <div class="lb-row-score-bar">
+          <div class="lb-row-score-fill" style="width: ${Math.min(100, (u.total_hours % 10) * 10)}%; background: ${rankColor};"></div>
+        </div>
+      </div>
+
+      <div class="lb-row-telemetry">
+        <div class="lb-row-total">${formatDuration(u.total_hours) || '0H'}</div>
+        <div class="lb-row-today">+${formatDuration(todayHoursDisplay) || '0H'} <span class="today-label">TODAY</span></div>
+        <div class="lb-row-rank-score">${rankScore.toLocaleString()} <span class="score-label">PTS</span></div>
       </div>
       
       ${renderHoverCard(u, isMe, isFocusing, todayHoursDisplay, streakCount)}
