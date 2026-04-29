@@ -26,26 +26,24 @@ export class QuotesManager {
     this.rotate();
 
     // Enable manual refresh on click
-    const statusEl = document.getElementById('heroStatusTitle');
-    if (statusEl) {
-      statusEl.style.cursor = 'pointer';
-      statusEl.title = 'Click for next wisdom | Double-click for previous';
+    const quoteEl = document.getElementById('currentQuoteText');
+    if (quoteEl) {
+      quoteEl.style.cursor = 'pointer';
+      quoteEl.title = 'Click for next wisdom | Double-click for previous';
       
-      statusEl.onclick = () => {
+      quoteEl.onclick = () => {
         if (this.clickTimer) {
           clearTimeout(this.clickTimer);
           this.clickTimer = null;
-          // This was a double click (already handled by ondblclick)
-          // But to be safe, we just let ondblclick handle it
         } else {
           this.clickTimer = setTimeout(() => {
             this.rotate();
             this.clickTimer = null;
-          }, 250); // Small delay to check for dblclick
+          }, 250);
         }
       };
 
-      statusEl.ondblclick = () => {
+      quoteEl.ondblclick = () => {
         if (this.clickTimer) {
           clearTimeout(this.clickTimer);
           this.clickTimer = null;
@@ -96,6 +94,14 @@ export class QuotesManager {
     else if (diff > 0) category = 'ahead-low';
     else category = 'steady';
 
+    // 🔱 STRATEGIC INJECTION: 15% chance to pick a Bhagavad Gita quote regardless of pace
+    if (Math.random() < 0.15) {
+      const gitaPool = QUOTES.filter(q => q.a.includes('Bhagavad Gita') || q.a.includes('Lord Krishna'));
+      if (gitaPool.length > 0) {
+        return gitaPool[Math.floor(Math.random() * gitaPool.length)];
+      }
+    }
+
     let pool: Quote[] = [];
 
     // Mapping logic as per proposed plan:
@@ -105,12 +111,13 @@ export class QuotesManager {
     if (category === 'behind') {
       pool = QUOTES.filter(q => q.category === 'behavior' || q.category === 'SAVAGE_WISDOM' || q.category === 'problem-solving');
     } else if (category === 'ahead-high') {
+      // High performers get Futurism, Spirituality (Gita), and Life Philosophy
       pool = QUOTES.filter(q => q.category === 'future' || q.category === 'spiritual' || q.category === 'life');
     } else if (category === 'ahead-low') {
       pool = QUOTES.filter(q => q.category === 'spiritual' || q.category === 'THE_CRAFT' || q.category === 'EXECUTION');
     } else {
-      // Steady
-      pool = QUOTES.filter(q => q.category === 'THE_CRAFT' || q.category === 'EXECUTION' || q.category === 'life');
+      // Steady - Craft, Execution, and Life
+      pool = QUOTES.filter(q => q.category === 'THE_CRAFT' || q.category === 'EXECUTION' || q.category === 'life' || q.category === 'spiritual');
     }
 
     if (pool.length === 0) pool = QUOTES; // Fallback
@@ -125,29 +132,28 @@ export class QuotesManager {
   }
 
   private updateHUD(): void {
-    const statusEl = document.getElementById('heroStatusTitle');
-    if (!statusEl || !this.currentQuote) return;
+    const quoteEl = document.getElementById('currentQuoteText');
+    if (!quoteEl || !this.currentQuote) return;
 
-    // We want a premium look. 
-    statusEl.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-    statusEl.style.opacity = '0';
-    statusEl.style.transform = 'translateY(-5px)';
+    quoteEl.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+    quoteEl.style.opacity = '0';
+    quoteEl.style.transform = 'translateY(-10px)';
 
     setTimeout(() => {
-      if (statusEl && this.currentQuote) {
+      if (quoteEl && this.currentQuote) {
         const authorRaw = this.currentQuote.a;
         const author = (authorRaw === 'Unknown' || authorRaw === 'Aap Ka Shubh Chintak' || !authorRaw) 
           ? 'All Tracker' 
           : authorRaw;
         
-        statusEl.innerHTML = `
-          <span style="color: #fff; font-weight: 500; font-family: 'Outfit', sans-serif; line-height: 1.4; display: block; font-style: italic;">"${this.currentQuote.t}"</span>
-          <span style="font-size: 0.75em; opacity: 0.4; display: block; margin-top: 6px; font-weight: 400;">— ${author}</span>
+        quoteEl.innerHTML = `
+          "${this.currentQuote.t}"
+          <span style="font-size: 0.35em; opacity: 0.35; display: block; margin-top: 12px; font-weight: 500; font-family: 'Outfit'; letter-spacing: 2px;">— ${author.toUpperCase()}</span>
         `;
-        statusEl.style.opacity = '1';
-        statusEl.style.transform = 'translateY(0)';
+        quoteEl.style.opacity = '1';
+        quoteEl.style.transform = 'translateY(0)';
       }
-    }, 500);
+    }, 400);
   }
 
   /** Expose current quote for manual refresh or initial render */

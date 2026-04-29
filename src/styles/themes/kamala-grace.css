@@ -13,8 +13,10 @@ html[data-theme="kamala-grace"] :root {
   --surface: rgba(26, 0, 51, 0.5);
   --surface-2: rgba(42, 0, 77, 0.7);
   --text-primary: #ffffff;
-  --text-secondary: #ffd700; /* Sacred Gold */
-  --text-muted: #ff3385; /* Kamal Pink */
+  --text-secondary: #ffd700;
+  /* Sacred Gold */
+  --text-muted: #ff3385;
+  /* Kamal Pink */
   --border: rgba(255, 215, 0, 0.2);
   --border-strong: #ffd700;
   --accent-blue: #ffcc00;
@@ -38,7 +40,7 @@ html[data-theme="kamala-grace"] :root {
 /* 🧘 THE ETERNAL COSMOS: Background */
 html[data-theme="kamala-grace"] body {
   background-color: #0d001a;
-  background-image: 
+  background-image:
     radial-gradient(1200px circle at var(--mouse-x) var(--mouse-y), rgba(255, 215, 0, 0.08), transparent 45%),
     radial-gradient(circle at 50% 50%, rgba(255, 51, 133, 0.05), transparent 75%);
   color: #ffffff;
@@ -49,7 +51,10 @@ html[data-theme="kamala-grace"] body {
 html[data-theme="kamala-grace"] body::before {
   content: "";
   position: fixed;
-  top: 50%; left: 50%; width: 180vw; height: 180vh;
+  top: 50%;
+  left: 50%;
+  width: 180vw;
+  height: 180vh;
   transform: translate(-50%, -50%);
   background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M50 5 L55 45 L95 50 L55 55 L50 95 L45 55 L5 50 L45 45 Z" fill="rgba(255,215,0,0.03)"/></svg>');
   background-size: 500px 500px;
@@ -59,8 +64,13 @@ html[data-theme="kamala-grace"] body::before {
 }
 
 @keyframes divine-rotation {
-  from { transform: translate(-50%, -50%) rotate(0deg); }
-  to { transform: translate(-50%, -50%) rotate(360deg); }
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
 }
 
 /* 👑 POLISHED HUD: Header */
@@ -137,5 +147,12 @@ html[data-theme="kamala-grace"] .mobile-nav {
   border-top: 2px solid #ffd700 !important;
 }
 
-html[data-theme="kamala-grace"] ::selection { background: #ff5eb1; color: white; }
-html[data-theme="kamala-grace"] ::-webkit-scrollbar-thumb { background: #ffd700; border-radius: 10px; }
+html[data-theme="kamala-grace"] ::selection {
+  background: #ff5eb1;
+  color: white;
+}
+
+html[data-theme="kamala-grace"] ::-webkit-scrollbar-thumb {
+  background: #ffd700;
+  border-radius: 10px;
+}

@@ -141,25 +141,40 @@ async function checkDailyBriefing(): Promise<void> {
 async function checkContextualNotifs(): Promise<void> {
   const now = new Date();
   const currentHour = now.getHours();
+  const currentMinute = now.getMinutes();
   const todayStr = now.toLocaleDateString('en-GB', { timeZone: 'Asia/Kolkata' });
   const storageKey = `sent_tactical_notif_${todayStr}`;
   
   const sentNotifs = JSON.parse(localStorage.getItem(storageKey) || '[]');
   
-  // Tactical Windows
-  let windowLabel: string | null = null;
-  if (currentHour >= 5 && currentHour < 12) windowLabel = 'morning';
-  else if (currentHour >= 12 && currentHour < 18) windowLabel = 'afternoon';
-  else windowLabel = 'evening';
+  // 🎯 DECA-PULSE SCHEDULE (10 Precision Pings)
+  const schedule = [
+    { id: 'ping_1',  h: 7,  m: 0,  label: 'Daily Briefing' },
+    { id: 'ping_2',  h: 9,  m: 0,  label: 'Momentum Start' },
+    { id: 'ping_3',  h: 11, m: 0,  label: 'Morning Check-in' },
+    { id: 'ping_4',  h: 13, m: 0,  label: 'Afternoon Mission' },
+    { id: 'ping_5',  h: 15, m: 0,  label: 'Wisdom Injection' },
+    { id: 'ping_6',  h: 17, m: 0,  label: 'Peer Pressure' },
+    { id: 'ping_7',  h: 19, m: 0,  label: 'Evening Roar' },
+    { id: 'ping_8',  h: 21, m: 0,  label: 'Last Chance' },
+    { id: 'ping_9',  h: 22, m: 30, label: 'Wrap-up' },
+    { id: 'ping_10', h: 23, m: 30, label: 'Final Integrity' }
+  ];
 
-  if (windowLabel && !sentNotifs.includes(windowLabel)) {
-    await sendDynamicAlert(windowLabel, currentHour);
-    sentNotifs.push(windowLabel);
+  // Find the current slot
+  const currentSlot = schedule.find(s => {
+    // Trigger if within the hour and past the minute
+    return s.h === currentHour && currentMinute >= s.m && currentMinute < s.m + 10;
+  });
+
+  if (currentSlot && !sentNotifs.includes(currentSlot.id)) {
+    await sendDynamicAlert(currentSlot.id, currentHour);
+    sentNotifs.push(currentSlot.id);
     localStorage.setItem(storageKey, JSON.stringify(sentNotifs));
   }
 }
 
-async function sendDynamicAlert(window: string, hour: number): Promise<void> {
+async function sendDynamicAlert(slotId: string, hour: number): Promise<void> {
   const today = new Date().toLocaleDateString('en-GB', { timeZone: 'Asia/Kolkata' });
   const todayData = appState.trackerData.find(d => {
     const dDate = new Date(d.date).toLocaleDateString('en-GB', { timeZone: 'Asia/Kolkata' });
@@ -168,6 +183,25 @@ async function sendDynamicAlert(window: string, hour: number): Promise<void> {
 
   const totalHours = todayData ? (todayData.studyHours || []).reduce((a, b) => a + (b || 0), 0) : 0;
   
+  // 🎯 STRATEGIC CATEGORY NUDGE: Detect neglected subjects
+  const categories = appState.settings.columns || [];
+  if (categories.length > 0 && Math.random() < 0.3) {
+    const last3Days = appState.trackerData.slice(-3);
+    const categoryStats = categories.map((cat, idx) => {
+      const hours = last3Days.reduce((sum, day) => sum + (day.studyHours[idx] || 0), 0);
+      return { name: cat.name, hours };
+    });
+
+    const neglected = categoryStats.find(c => c.hours === 0);
+    if (neglected) {
+      sendNotification(
+        "Missing in Action! 🔍",
+        `Bhai, "${neglected.name}" ko bhool gaye kya? 3 din se 0 progress hai. Aaj thoda dekh lo!`
+      );
+      return;
+    }
+  }
+
   // 🎲 Chance to swap to Wisdom/Projection Alert (40% chance if hours are low, or 20% otherwise)
   const wisdomChance = totalHours < 2 ? 0.4 : 0.2;
 

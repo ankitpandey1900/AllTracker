@@ -28,7 +28,7 @@ function createDefaultSettings(): Settings {
     groqApiKey: '',
     maamuModel: 'openai/gpt-oss-20b',
     theme: 'kaala',
-    timerStyle: 'ring',
+    timerStyle: 'block',
     ambientSound: 'none',
     ambientVolume: 0.5,
   };
@@ -40,7 +40,7 @@ export function applyThemeToDOM(themeName: string = 'kaala') {
 }
 
 /** Applies the timer style class to the body */
-export function applyTimerStyleToDOM(timerStyle: string = 'ring') {
+export function applyTimerStyleToDOM(timerStyle: string = 'block') {
   document.body.classList.remove('timer-style-ring', 'timer-style-block');
   document.body.classList.add(`timer-style-${timerStyle}`);
 }

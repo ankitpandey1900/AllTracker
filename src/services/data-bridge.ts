@@ -107,12 +107,19 @@ export async function loadTasksFromStorage(): Promise<any[]> { return loadLocal<
 export async function loadTimerStateFromStorage(): Promise<any | null> {
   const local = loadLocal<any>(STORAGE_KEYS.TIMER);
   if (isAuthenticated()) {
-    loadTimerStateCloud().then(cloud => {
-      if (cloud?.data && (cloud.data.isRunning || cloud.data.elapsedAcc > 0)) {
-        saveLocal(STORAGE_KEYS.TIMER, cloud.data);
-        updateLocalTimestamp(STORAGE_KEYS.TIMER, cloud.updatedAt || undefined);
+    try {
+      const cloud = await loadTimerStateCloud();
+      if (cloud?.data) {
+        // Only return cloud data if it's actually running or has progress
+        if (cloud.data.isRunning || cloud.data.elapsedAcc > 0 || !!cloud.data.activeBreak) {
+          saveLocal(STORAGE_KEYS.TIMER, cloud.data);
+          updateLocalTimestamp(STORAGE_KEYS.TIMER, cloud.updatedAt || undefined);
+          return cloud.data;
+        }
       }
-    }).catch(() => {});
+    } catch (err) {
+      log.error('Failed to load timer state from cloud', err);
+    }
   }
   return local;
 }

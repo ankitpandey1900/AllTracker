@@ -7,19 +7,27 @@
 
 
 html[data-theme="ayodhya"] :root {
-  --bg-primary: #fff5e1; /* Rich Creamy Stone */
+  --bg-primary: #fff5e1;
+  /* Rich Creamy Stone */
   --bg-secondary: #ffead0;
   --bg-tertiary: #fce1c1;
   --surface: #ffffff;
   --surface-2: #fcf8f0;
-  --text-primary: #3d1c02; /* Deep Wood/Earth */
-  --text-secondary: #8c4a00; /* Deep Saffron Text */
+  --text-primary: #3d1c02;
+  /* Deep Wood/Earth */
+  --text-secondary: #8c4a00;
+  /* Deep Saffron Text */
   --text-muted: #b58d6b;
-  --border: #ffd700; /* Gold */
-  --border-strong: #ff9933; /* Saffron */
-  --accent-blue: #ff9933; /* Saffron Primary */
-  --accent-purple: #ffd700; /* Gold Secondary */
-  --accent-cyan: #ff4500; /* Orange Red */
+  --border: #ffd700;
+  /* Gold */
+  --border-strong: #ff9933;
+  /* Saffron */
+  --accent-blue: #ff9933;
+  /* Saffron Primary */
+  --accent-purple: #ffd700;
+  /* Gold Secondary */
+  --accent-cyan: #ff4500;
+  /* Orange Red */
 
   /* Intelligence / Maamu Overrides */
   --maamu-bg: #fff5e1;
@@ -31,7 +39,8 @@ html[data-theme="ayodhya"] :root {
   --maamu-accent-soft: rgba(255, 153, 51, 0.1);
 
   /* Global Audit Points */
-  --header-bg: #ff9933; /* Saffron Header */
+  --header-bg: #ff9933;
+  /* Saffron Header */
   --nav-bg: #ffffff;
   --empty-state-bg: #fcf8f0;
 }
@@ -39,7 +48,7 @@ html[data-theme="ayodhya"] :root {
 /* 🏛️ THE ROYAL ABODE: Background */
 html[data-theme="ayodhya"] body {
   background: var(--bg-primary);
-  background-image: 
+  background-image:
     radial-gradient(circle at 100% 0%, rgba(255, 215, 0, 0.1) 0%, transparent 40%),
     radial-gradient(circle at 0% 100%, rgba(255, 69, 0, 0.1) 0%, transparent 40%);
   color: var(--text-primary);

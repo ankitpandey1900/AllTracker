@@ -12,6 +12,25 @@ export async function logStudySession(
   },
 ): Promise<void> {
   const pool = getPool();
+
+  // 🛡️ DEDUPLICATION GUARD: Prevent duplicate saves within a short window (e.g. multi-tab stop)
+  const recentCheck = await pool.query(
+    `
+      select id from study_sessions 
+      where user_id = $1::uuid 
+        and subject = $2 
+        and abs(duration - $3) < 0.001
+        and created_at > now() - interval '10 seconds'
+      limit 1
+    `,
+    [profile.profileId, payload.subject || "GENERAL", Number(payload.duration || 0)]
+  );
+
+  if (recentCheck.rows.length > 0) {
+    console.log(`[Log]: Duplicate session detected for user ${profile.profileId}. Skipping save.`);
+    return;
+  }
+
   const endAt = payload.endAt ? new Date(payload.endAt) : new Date();
   const startAt = payload.startAt
     ? new Date(payload.startAt)

@@ -16,7 +16,7 @@ export const shellView = `
         <button id="userManualBtn" class="btn" title="Open User Manual" aria-label="View documentation and user guide">User Manual</button>
         <button id="settingsBtn" class="btn" title="App Settings" aria-label="Configure display and sync settings">Settings</button>
       </div>
-      <button id="headerMoreBtn" class="btn btn-ghost show-mobile" style="padding: 8px; border-radius: 8px;" title="More Options" aria-label="Open mobile navigation menu">
+      <button id="headerMoreBtn" class="btn btn-ghost show-mobile" style="padding: 8px; border-radius: 4px;" title="More Options" aria-label="Open mobile navigation menu">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <circle cx="12" cy="12" r="1" />
           <circle cx="12" cy="5" r="1" />
@@ -32,6 +32,7 @@ export const shellView = `
   <main class="layout mx-auto">
     <nav class="tabs" role="tablist" aria-label="Main Navigation">
       <button class="nav-item active" data-target="dashboardPane" role="tab" aria-selected="true" title="View Dashboard" aria-label="Open study dashboard">Dashboard</button>
+      <button class="nav-item" data-target="worldStagePane" role="tab" aria-selected="false" title="View Global Leaderboard" aria-label="Open global leaderboard">World Stage</button>
       <button class="nav-item" data-target="routinePane" role="tab" aria-selected="false" title="View Routines" aria-label="Open routine habits tracker">Routine</button>
       <button class="nav-item" data-target="tasksPane" role="tab" aria-selected="false" title="View Tasks" aria-label="Open mission task board">Tasks</button>
       <button class="nav-item" data-target="feedPane" role="tab" aria-selected="false" title="View Feed" aria-label="Open arena feed">Feed</button>
@@ -72,6 +73,7 @@ export const shellView = `
 
     <!-- View Panes: Content is injected dynamically by ui-registry.ts -->
     <section id="dashboardPane" class="view-pane active" aria-label="Study Dashboard"></section>
+    <section id="worldStagePane" class="view-pane" aria-label="World Stage Leaderboard"></section>
     <section id="routinePane" class="view-pane" aria-label="Routine Tracker"></section>
     <section id="tasksPane" class="view-pane" aria-label="Task Missions"></section>
     <section id="feedPane" class="view-pane" aria-label="Arena Feed"></section>

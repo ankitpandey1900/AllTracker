@@ -178,7 +178,11 @@ export async function syncProfileBroadcast(focusStateChanged = false): Promise<v
   // If timer is running, add its progress to the broadcast immediately
   if (isFocusing && appState.activeTimer.startTime) {
     const elapsedMs = (Date.now() - appState.activeTimer.startTime) + appState.activeTimer.elapsedAcc;
-    const elapsedHrs = elapsedMs / (1000 * 60 * 60);
+    const currentCapMs = appState.activeTimer.overrunCapMs || 10800000; // 3 Hours (Consistent with timer logic)
+    
+    // 🛡️ CLAMP LIVE PROGRESS: Never broadcast more than the cap from an active timer
+    const clampedElapsedMs = Math.min(elapsedMs, currentCapMs);
+    const elapsedHrs = clampedElapsedMs / (1000 * 60 * 60);
     
     // 🛡️ MIDNIGHT SPLIT: For today_hours, only count time after 00:00:00 Local Device Time
     let todayElapsedHrs = elapsedHrs;
@@ -189,7 +193,7 @@ export async function syncProfileBroadcast(focusStateChanged = false): Promise<v
       if (start.getDate() !== now.getDate() || start.getMonth() !== now.getMonth() || start.getFullYear() !== now.getFullYear()) {
         const midnight = new Date(now);
         midnight.setHours(0, 0, 0, 0);
-        todayElapsedHrs = Math.max(0, (now.getTime() - midnight.getTime()) / 3600000);
+        todayElapsedHrs = Math.min(elapsedHrs, (now.getTime() - midnight.getTime()) / 3600000);
       }
     }
 

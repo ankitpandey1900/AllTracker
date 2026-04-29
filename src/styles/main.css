@@ -8,6 +8,7 @@
 @import './themes/ayodhya.css';
 @import './themes/kamala-grace.css';
 @import './themes/vajra-shakti.css';
+@import './themes/kaala.css';
 
 /* 3. Component Architecture */
 @import './components/base.css';

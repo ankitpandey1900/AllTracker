@@ -26,4 +26,5 @@ export interface ActiveTimer {
   overrunCapMs?: number;
   hasWarnedOverrun1?: boolean;
   hasWarnedOverrun2?: boolean;
+  lastUpdatedAt?: number;
 }

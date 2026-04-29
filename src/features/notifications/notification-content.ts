@@ -85,7 +85,18 @@ export function getWisdomNotification(): NotificationMessage {
     prefix = `On track. Expected finish: ${endStr}. `;
   }
 
-  const quote = pool[Math.floor(Math.random() * pool.length)];
+  const quote = (() => {
+    // 🔱 STRATEGIC INJECTION: 15% chance to pick a Bhagavad Gita quote regardless of pace
+    if (Math.random() < 0.15) {
+      const gitaPool = QUOTES.filter(q => q.a.includes('Bhagavad Gita') || q.a.includes('Lord Krishna'));
+      if (gitaPool.length > 0) {
+        title = "Sacred Wisdom 🔱";
+        return gitaPool[Math.floor(Math.random() * gitaPool.length)];
+      }
+    }
+    return pool[Math.floor(Math.random() * pool.length)];
+  })();
+
   const author = (quote.a === 'Unknown' || quote.a === 'Aap Ka Shubh Chintak' || !quote.a) ? 'All Tracker' : quote.a;
 
   return {

@@ -147,6 +147,9 @@ export async function subscribeToUserDataSync(
   let lastFingerprint = "";
   const intervalId = window.setInterval(async () => {
     if (!getCurrentUserId()) return;
+    // 🛡️ VISIBILITY GUARD: Only poll if the tab is active to avoid multi-tab noise
+    if (document.visibilityState !== 'visible') return;
+
     try {
       const snapshot = await Promise.all([
         loadTrackerDataCloud(),

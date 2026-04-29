@@ -2,7 +2,7 @@
 
 import { appState, getAllHourColumnLabels, getPhase, getColumnsForDay } from '@/state/app-state';
 import { NUMBER_FIELD_MAP } from '@/config/constants';
-import { formatDate, formatDuration, getLocalIsoDate } from '@/utils/date.utils';
+import { formatDate, formatDateCompact, formatDuration, getLocalIsoDate } from '@/utils/date.utils';
 import { showToast } from '@/utils/dom.utils';
 import { saveTrackerDataToStorage } from '@/services/data-bridge';
 import type { TrackerDay, StudyCategory } from '@/types/tracker.types';
@@ -86,13 +86,13 @@ export function generateTable(resetPagination = false): void {
   const theadRow = document.querySelector('#trackerTable thead tr');
   if (theadRow) {
     theadRow.innerHTML = `
-      <th>Day</th>
-      <th>Date</th>
-      ${labels.map((l) => `<th>${l} Hrs</th>`).join('')}
-      <th>Problems Solved</th>
-      <th>Topics</th>
-      <th>Project Work</th>
-      <th>Done</th>
+      <th><div class="th-content">Day</div></th>
+      <th><div class="th-content">Date</div></th>
+      ${labels.map((l) => `<th><div class="th-content" title="${l} Hrs">${l} Hrs</div></th>`).join('')}
+      <th><div class="th-content" title="Problems Solved">Problems Solved</div></th>
+      <th><div class="th-content" title="Topics">Topics</div></th>
+      <th><div class="th-content" title="Project Work">Project Work</div></th>
+      <th><div class="th-content">Done</div></th>
     `;
   }
 
@@ -116,7 +116,7 @@ export function generateTable(resetPagination = false): void {
           <span class="day-number">${day.day}</span>
           ${!editable ? '<span class="lock-icon" title="Locked by Iron-Gate Integrity Engine">🔒</span>' : ''}
         </td>
-        <td class="date-cell">${formatDate(new Date(day.date))}</td>
+        <td class="date-cell">${formatDateCompact(new Date(day.date))}</td>
         ${dayLabels.length > 0
         ? dayLabels.map((label: string, ci: number) => {
           const v = getHourAt(day, ci);

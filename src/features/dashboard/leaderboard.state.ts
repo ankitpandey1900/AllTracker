@@ -1,6 +1,6 @@
 import { GlobalProfile } from '@/types/profile.types';
 
-export const LB_PAGE_SIZE = 5;
+export const LB_PAGE_SIZE = 10;
 export let lbCurrentPage = 1;
 export let lbAllUsers: GlobalProfile[] = [];
 

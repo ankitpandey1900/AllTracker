@@ -10,6 +10,11 @@ export function formatDate(date: Date): string {
   return date.toLocaleDateString('en-GB', options);
 }
 
+/** Formats a Date as "26 Mar 2026" - Now always shows the year for clarity */
+export function formatDateCompact(date: Date): string {
+  return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
 /** Formats a Date as "DD/MM/YYYY" */
 export function formatDateDMY(date: Date): string {
   const d = String(date.getDate()).padStart(2, '0');

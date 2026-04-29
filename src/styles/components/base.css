@@ -101,7 +101,7 @@ h6,
 
 .empty-state {
   border: 1px dashed var(--border);
-  border-radius: 14px;
+  border-radius: 4px;
   padding: 20px;
   color: var(--text-secondary);
   text-align: center;

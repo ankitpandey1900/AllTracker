@@ -30,13 +30,14 @@ export async function initUI(): Promise<void> {
     log.info('Initializing UI Components...', '🛠️');
 
     // 1. Feature Containers (Target the sections created by Shell.ts)
-    const { dashboardView } = await import('@/features/dashboard/dashboard.ui.ts');
+    const { dashboardView, worldStageView } = await import('@/features/dashboard/dashboard.ui.ts');
     const { routineView } = await import('@/features/routines/routines.ui.ts');
     const { tasksView } = await import('@/features/tasks/tasks.ui.ts');
     const { intelligenceView } = await import('@/features/intelligence/intelligence.ui.ts');
     const { bookmarksView } = await import('@/features/bookmarks/bookmarks.ui.ts');
     
     injectHTML('dashboardPane', dashboardView);
+    injectHTML('worldStagePane', worldStageView);
     injectHTML('routinePane', routineView);
     injectHTML('tasksPane', tasksView);
     injectHTML('intelligencePane', intelligenceView);

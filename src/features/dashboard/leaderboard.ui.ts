@@ -1,7 +1,7 @@
 import { GlobalProfile } from '@/types/profile.types';
 import { escapeHtml } from '@/utils/security';
 import { getRankColor, getRankTitle } from '@/utils/rank.utils';
-import { getRankProgression, calculateCompetitiveXP } from '@/utils/calc.utils';
+import { getRankProgression, calculateCompetitiveXP } from '@/utils/calc.utils'; // calculateCompetitiveXP used in renderUserRow & renderPodium
 import { formatDuration } from '@/utils/date.utils';
 import { NATION_FLAGS } from '@/config/constants';
 import { openProfileModal } from '@/features/profile/profile.ui';
@@ -57,6 +57,61 @@ export function renderLbPage(
   requestAnimationFrame(() => {
     bindLbItemEvents();
   });
+
+  // 🎯 3. RIVALRY CARD: Find the user ranked just above the current user
+  const rivalryContainer = document.getElementById('rivalry-card-container');
+  if (!rivalryContainer) return;
+
+  const myIdx = allUsers.findIndex(u => u.display_name === myDisplayName);
+
+  // Hide card if user is not found or is already rank #1
+  if (!myDisplayName || myIdx <= 0) {
+    rivalryContainer.innerHTML = '';
+    return;
+  }
+
+  const rival = allUsers[myIdx - 1];
+  const myUser = allUsers[myIdx];
+
+  // Calculate hours gap to overtake rival
+  const hoursDiff = Math.max(0, rival.total_hours - myUser.total_hours);
+  const h = Math.floor(hoursDiff);
+  const m = Math.round((hoursDiff - h) * 60);
+  const diffLabel = hoursDiff < 0.01 ? 'EVEN' : (h > 0 ? `+${h}H ${m}M` : `+${m}M`);
+
+  const rivalName = escapeHtml(rival.display_name);
+  const rivalAvatar = rival.avatar || '👤';
+  const rivalRank = myIdx; // rival is 1 rank above = myIdx (0-based index of myUser)
+
+  rivalryContainer.innerHTML = `
+    <article class="rivalry-card" style="background: rgba(239, 68, 68, 0.03); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 4px; padding: 24px; margin-top: 0;">
+       <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+             <span style="font-size: 1.2rem;">🎯</span>
+             <h3 style="font-family: 'JetBrains Mono', monospace; font-weight: 900; letter-spacing: 2px; color: #ef4444; font-size: 0.75rem; margin: 0; text-transform: uppercase;">Target Acquired</h3>
+          </div>
+          <span style="font-size: 0.6rem; color: #94a3b8; font-weight: 800; background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 2px; font-family: 'JetBrains Mono', monospace;">RIVALRY</span>
+       </div>
+       
+       <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+          <div style="width: 48px; height: 48px; border-radius: 4px; border: 1px solid rgba(239, 68, 68, 0.5); background: #0b1121; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0;">
+             ${rivalAvatar}
+          </div>
+          <div style="min-width: 0;">
+             <div style="font-size: 0.65rem; color: #94a3b8; font-weight: 800; letter-spacing: 1px;">RANK #${rivalRank}</div>
+             <div style="font-family: 'Outfit'; font-weight: 800; color: #fff; font-size: 1.1rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">@${rivalName}</div>
+          </div>
+       </div>
+
+       <div style="background: rgba(15, 23, 42, 0.6); border-radius: 12px; padding: 12px; border: 1px solid rgba(255,255,255,0.05);">
+          <div style="font-size: 0.65rem; color: #94a3b8; font-weight: 700; margin-bottom: 4px;">OVERTAKE REQUIREMENT:</div>
+          <div style="display: flex; align-items: baseline; gap: 6px;">
+             <span style="font-family: 'Tektur'; font-weight: 900; color: #ef4444; font-size: 1.4rem;">${diffLabel}</span>
+             <span style="font-size: 0.65rem; color: #64748b; font-weight: 800;">OF FOCUS</span>
+          </div>
+       </div>
+    </article>
+  `;
 }
 
 /** Shared helper for status calculations */
@@ -289,54 +344,50 @@ export function renderUserRow(
 
   const { isFocusing, statusClass, statusLabel, todayHoursDisplay } = getUserStatus(u);
   
-  const level = Math.floor(u.total_hours / 10) + 1;
-  const xpPercent = Math.min(100, (u.total_hours % 10) * 10);
-  
   const rankTitle = getRankTitle(u.total_hours);
   const rankColor = getRankColor(rankTitle);
+  const currentRank = globalIndex + 1;
+  const rankScore = calculateCompetitiveXP(u.total_hours, u.current_streak || 0, u.integrity_score || 0);
+
   const streakMatch = (u.current_rank || '').match(/\[S:(\d+)\]/);
   const streakCount = u.current_streak !== undefined ? String(u.current_streak) : (streakMatch ? streakMatch[1] : '0');
-  const currentRank = globalIndex + 1;
-  
-  const worstSeen = climbData.worst[u.display_name] || currentRank;
-  const bestSeen = climbData.best[u.display_name] || currentRank;
-  const jumpDelta = worstSeen - currentRank;
-  const dropDelta = currentRank - bestSeen;
-  let trendHtml = '';
-  if (jumpDelta > 0) trendHtml = `<div class="rank-delta trend-up"><span>▲ ${jumpDelta}</span></div>`;
-  else if (dropDelta > 0) trendHtml = `<div class="rank-delta trend-down"><span>▼ ${dropDelta}</span></div>`;
-
-  const medalClasses = ['lb-medal-gold', 'lb-medal-silver', 'lb-medal-bronze'];
-  const customMedal = globalIndex < 3
-    ? `<span class="pilot-medal ${medalClasses[globalIndex]}">${globalIndex + 1}</span>`
-    : `${globalIndex + 1}`;
-
-  const age = u.dob ? `${calculateAge(u.dob)}Y • ` : '';
 
   const localIndex = globalIndex % LB_PAGE_SIZE;
   const delay = Math.min(localIndex * 0.05, 0.5);
 
   return `
-    <div class="leaderboard-item glass-row ${isMe ? 'is-me' : ''}" style="--rank-color: ${rankColor}; animation-delay: ${delay}s;">
-      <div class="rank-num">${customMedal}</div>
-      <div class="lb-avatar-wrapper">
-        <div class="lb-avatar" style="border-color: ${rankColor};">${avatar}</div>
-        <div class="nation-emblem">${flagImg}</div>
+    <div class="leaderboard-item legacy-row ${isMe ? 'is-me' : ''}" style="--rank-color: ${rankColor}; animation-delay: ${delay}s; padding: 16px; margin-bottom: 2px; border-radius: 12px; background: rgba(13, 17, 23, 0.4); border: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 16px;">
+      
+      <!-- Rank Num -->
+      <div class="rank-num" style="width: 24px; font-family: 'Tektur'; font-weight: 900; color: #475569; font-size: 0.9rem;">${currentRank}</div>
+
+      <!-- Avatar Wrapper -->
+      <div class="lb-avatar-wrapper" style="position: relative; width: 48px; height: 48px; min-width: 48px;">
+        <div class="lb-avatar" style="width: 100%; height: 100%; border-radius: 50%; border: 2px solid ${rankColor}; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; background: #0f172a;">${avatar}</div>
+        <div class="nation-emblem" style="position: absolute; bottom: 0; right: 0; width: 18px; height: 18px; border: 2px solid #0d1222; border-radius: 50%; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.5);">${flagImg}</div>
       </div>
-      <div class="lb-info">
-        <div class="lb-name">
-          <span class="lb-handle">@${escapeHtml(u.display_name)} ${(u as any).is_verified ? `
-            <svg class="lb-verified-badge" viewBox="0 0 24 24" fill="currentColor" style="width: 14px; height: 14px; color: #1d9bf0; margin-left: 4px; vertical-align: middle; display: inline-block;">
-              <path d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.97-.81-3.99s-2.6-1.27-3.99-.81c-.67-1.31-1.91-2.19-3.34-2.19s-2.67.88-3.34 2.19c-1.39-.46-2.97-.2-3.99.81s-1.27 2.6-.81 3.99c-1.31.67-2.19 1.91-2.19 3.34s.88 2.67 2.19 3.34c-.46 1.39-.2 2.97.81 3.99s2.6 1.27 3.99.81c.67 1.31 1.91 2.19 3.34 2.19s2.67-.88 3.34-2.19c1.39.46 2.97.2 3.99-.81s1.27-2.6.81-3.99c1.31-.67 2.19-1.91 2.19-3.34zm-11.71 4.2L6.8 12.46l1.41-1.42 2.26 2.26 4.8-5.23 1.47 1.35-6.2 6.78z"></path>
-            </svg>` : ''}</span>
-          <span class="status-tag ${statusClass}">${statusLabel}</span>
+
+      <!-- Identity & Metadata -->
+      <div class="lb-info" style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px;">
+        <div class="lb-name" style="font-weight: 900; color: #fff; font-size: 1rem; letter-spacing: 0.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%;">@${escapeHtml(u.display_name)}</div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+           <span style="font-size: 0.65rem; color: #64748b; font-weight: 700; text-transform: uppercase;">${statusLabel}</span>
         </div>
-        <div class="lb-meta">${(calculateCompetitiveXP(u.total_hours, u.current_streak || 0, u.integrity_score || 0)).toLocaleString()} <span style="font-size: 0.6rem; opacity: 0.6;">Rank Score</span></div>
-        <div class="lb-xp-container"><div class="lb-xp-bar" style="width: ${xpPercent}%; background: ${rankColor};"></div></div>
+        <div style="display: flex; align-items: center; gap: 4px; margin-top: 2px;">
+           <span style="font-size: 0.75rem; font-weight: 900; color: #fff;">${rankScore.toLocaleString()}</span>
+           <span style="font-size: 0.6rem; color: #475569; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">RANK SCORE</span>
+        </div>
+        <div class="lb-xp-container" style="height: 3px; background: rgba(255,255,255,0.05); border-radius: 99px; width: 100px; margin-top: 6px; overflow: hidden;">
+           <div class="lb-xp-bar" style="height: 100%; width: ${Math.min(100, (u.total_hours % 10) * 10)}%; background: ${rankColor};"></div>
+        </div>
       </div>
-      <div class="lb-hours-container">
-        <div class="lb-total-hours">${formatDuration(u.total_hours) || '0h'}</div>
-        <div class="lb-today-badge">${formatDuration(todayHoursDisplay) || '0h'} today${trendHtml}</div>
+
+      <!-- Time Telemetry -->
+      <div class="lb-hours-container" style="text-align: right; min-width: 100px;">
+        <div class="lb-total-hours" style="font-family: 'Tektur'; font-size: 1.4rem; font-weight: 900; color: #fff; line-height: 1;">${formatDuration(u.total_hours) || '0h'}</div>
+        <div class="lb-today-badge" style="font-size: 0.75rem; font-weight: 900; color: #10b981; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px;">
+           ${formatDuration(todayHoursDisplay) || '0H'} TODAY
+        </div>
       </div>
       
       ${renderHoverCard(u, isMe, isFocusing, todayHoursDisplay, streakCount)}

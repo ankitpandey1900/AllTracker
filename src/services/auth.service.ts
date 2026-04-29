@@ -253,7 +253,7 @@ export function updateHeaderProfileUI(): void {
         <div class="pulse-emerald" style="width:6px; height:6px; background:#10b981; border-radius:50%; margin-right:8px; box-shadow:0 0 8px #10b981;"></div>
         Live Ready
       </div>
-      <button class="btn btn-ghost" id="logoutBtn" style="height:32px; width:32px; display:flex; align-items:center; justify-content:center; border-radius:50%; border:1px solid rgba(239,68,68,0.3); background:rgba(239,68,68,0.05); color:#ef4444; cursor:pointer; transition:all 0.2s;">
+      <button class="btn btn-ghost" id="logoutBtn" title="LOGOUT MISSION" style="height:32px; width:32px; display:flex; align-items:center; justify-content:center; border-radius:4px; border:1px solid rgba(239,68,68,0.4); background:rgba(239,68,68,0.08); color:#ef4444; cursor:pointer; transition:all 0.2s;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       </button>
     </div>
@@ -282,7 +282,7 @@ function handleUserSignedOut(infoMessage?: string): void {
   const headerRight = document.getElementById("headerRight");
   if (headerRight) {
     headerRight.innerHTML = `
-      <button class="btn btn-primary glow-blue" id="authTriggerBtn" style="font-size:0.65rem; font-weight:800; letter-spacing:1px; padding:6px 14px; display:flex; align-items:center; justify-content:center; gap:6px; border-radius:6px; height:32px; background:#10b981; border:none; color:white;">
+      <button class="btn btn-primary" id="authTriggerBtn" style="font-size:0.65rem; font-weight:800; letter-spacing:1px; padding:6px 14px; display:flex; align-items:center; justify-content:center; gap:6px; border-radius:2px; height:32px; background:#fff; border:1px solid #fff; color:#000;">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
         <span class="btn-text">LOGIN</span>
       </button>

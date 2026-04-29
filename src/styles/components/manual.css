@@ -19,15 +19,12 @@
   height: 85vh !important;
   background: var(--docs-bg) !important;
   border: 1px solid var(--docs-border) !important;
-  box-shadow: 
-    0 0 80px rgba(0, 0, 0, 0.95),
-    0 0 30px var(--docs-accent-glow),
-    inset 0 0 100px rgba(108, 135, 255, 0.05) !important;
-  border-radius: 24px !important;
+  box-shadow: 0 20px 80px rgba(0, 0, 0, 0.95) !important;
+  border-radius: 4px !important;
   overflow: hidden !important;
   display: flex !important;
   flex-direction: column;
-  backdrop-filter: blur(25px) saturate(180%);
+  backdrop-filter: none !important;
   position: relative;
 }
 
@@ -36,7 +33,7 @@
   content: "";
   position: absolute;
   top: 0; left: 0; width: 100%; height: 100%;
-  background: radial-gradient(circle at center, rgba(108, 135, 255, 0.03), transparent 90%);
+  background: none !important;
   pointer-events: none;
   z-index: -1;
 }
@@ -47,8 +44,8 @@
 /* --- Header & Search --- */
 .docs-header {
   height: 90px;
-  background: rgba(15, 23, 42, 0.4);
-  border-bottom: 2px solid var(--docs-border);
+  background: #0b0f1a;
+  border-bottom: 1px solid var(--docs-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -62,35 +59,35 @@
   display: flex;
   align-items: center;
   gap: 15px;
-  font-family: 'Tektur', sans-serif;
+  font-family: 'JetBrains Mono', monospace;
   font-weight: 800;
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   color: #fff;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  text-shadow: 0 0 15px var(--docs-accent-glow);
 }
 
 .docs-version {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   background: var(--docs-accent);
   color: #000;
   padding: 2px 8px;
-  border-radius: 4px;
+  border-radius: 2px;
   vertical-align: middle;
   margin-left: 10px;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 /* 📡 Live Telemetry Bar */
 .docs-telemetry-bar {
   display: flex;
   gap: 25px;
-  background: rgba(0, 0, 0, 0.4);
+  background: #000;
   padding: 8px 20px;
-  border-radius: 12px;
+  border-radius: 2px;
   border: 1px solid var(--docs-border);
-  font-family: 'Fira Code', monospace;
-  font-size: 0.75rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
   letter-spacing: 0.1em;
 }
 
@@ -101,25 +98,17 @@
 }
 
 .tel-label {
-  color: #64748b;
+  color: #475569;
   font-weight: 700;
 }
 
 .tel-value {
   color: #fff;
   font-weight: 800;
-  text-shadow: 0 0 10px var(--docs-accent-glow);
 }
 
 .tel-value.pulse {
-  color: #22c55e;
-  animation: telemetry-pulse 2s infinite;
-}
-
-@keyframes telemetry-pulse {
-  0% { opacity: 0.6; }
-  50% { opacity: 1; text-shadow: 0 0 15px #22c55e; }
-  100% { opacity: 0.6; }
+  color: #10b981;
 }
 
 .docs-search-shell {
@@ -131,25 +120,20 @@
 
 .docs-search-input {
   width: 100%;
-  background: rgba(0, 0, 0, 0.4);
+  background: #000;
   border: 1px solid var(--docs-border);
   padding: 14px 20px 14px 50px;
-  border-radius: 16px;
+  border-radius: 4px;
   color: #fff;
-  font-family: 'Outfit', sans-serif;
-  font-size: 1rem;
-  transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
-  box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  transition: all 0.2s;
 }
 
 .docs-search-input:focus {
   outline: none;
-  background: rgba(108, 135, 255, 0.08);
   border-color: var(--docs-accent);
-  box-shadow: 
-    0 0 25px rgba(108, 135, 255, 0.3),
-    inset 0 2px 10px rgba(0,0,0,0.5);
-  padding-left: 60px;
+  box-shadow: none;
 }
 
 .docs-search-icon {

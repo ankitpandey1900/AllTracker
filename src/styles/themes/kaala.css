@@ -1,0 +1,207 @@
+/* =========================================================
+   THEME: KAALA (Vanta Black / Obsidian)
+   Visual System: Pure Black (#000), Cursor-Inspired
+   Aesthetic: Absolute Zero, Micro-Borders, Elite
+   ========================================================= */
+
+html[data-theme="kaala"] :root {
+  --bg-primary: #000000; 
+  --bg-secondary: #000000;
+  --bg-tertiary: #050505;
+  --surface: #000000;
+  --surface-2: #0a0a0a;
+  --text-primary: #ffffff; 
+  --text-secondary: #a1a1aa; 
+  --text-muted: #52525b; 
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.15);
+  --accent-blue: #ffffff;
+  --accent-purple: #ffffff;
+  --accent-cyan: #ffffff;
+
+  /* Intelligence / Maamu Overrides */
+  --maamu-bg: #000000;
+  --maamu-card: #000000;
+  --maamu-border: rgba(255, 255, 255, 0.1);
+  --maamu-text: #ffffff;
+  --maamu-text-muted: #a1a1aa;
+  --maamu-accent: #ffffff;
+  --maamu-accent-soft: rgba(255, 255, 255, 0.05);
+  --header-bg: #000000;
+  --nav-bg: #000000;
+  --empty-state-bg: #000000;
+
+  /* Typography Overrides */
+  --font-mono: 'JetBrains Mono', 'Geist Mono', 'Space Mono', monospace;
+}
+
+/* 🌌 KAALA BASE: Pure Black Obsidian with Grain */
+html[data-theme="kaala"] body {
+  background-color: #000000 !important;
+  background-image: none !important; 
+  color: #ffffff !important;
+  font-family: 'Space Grotesk', sans-serif !important;
+  position: relative;
+  overflow-x: hidden;
+}
+
+html[data-theme="kaala"] h1,
+html[data-theme="kaala"] h2,
+html[data-theme="kaala"] h3,
+html[data-theme="kaala"] h4,
+html[data-theme="kaala"] h5,
+html[data-theme="kaala"] .brand {
+  font-family: 'Bebas Neue', sans-serif !important;
+  letter-spacing: 2px !important;
+  font-weight: 400 !important;
+}
+
+/* 🎞️ THE "EXPENSIVE" NOISE OVERLAY */
+html[data-theme="kaala"] body::before {
+  content: "" !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  opacity: 0.03 !important;
+  pointer-events: none !important;
+  z-index: 9999 !important;
+  background-image: url("https://upload.wikimedia.org/wikipedia/commons/7/76/1k_Grain_Noise.png") !important;
+  display: block !important;
+}
+
+/* Elite Text Selection */
+html[data-theme="kaala"] ::selection {
+  background: #ffffff;
+  color: #000000;
+}
+
+/* 🧊 EXECUTIVE HUD: Header */
+html[data-theme="kaala"] .app-header {
+  background: #000000 !important;
+  backdrop-filter: none !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: none !important;
+}
+
+/* 🌫️ PURE BLACK CONTAINERS (Cursor Style) */
+html[data-theme="kaala"] .card,
+html[data-theme="kaala"] .hero,
+html[data-theme="kaala"] .metric-card,
+html[data-theme="kaala"] .feature-card,
+html[data-theme="kaala"] .leaderboard-item,
+html[data-theme="kaala"] .podium-node,
+html[data-theme="kaala"] .modal-content,
+html[data-theme="kaala"] .mission-status-card {
+  background: #000000 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  background-image: none !important;
+}
+
+/* ❄️ MONOSPACED METADATA (Tactical Precision) */
+html[data-theme="kaala"] .status-tag,
+html[data-theme="kaala"] .lb-hours-container,
+html[data-theme="kaala"] .podium-hours,
+html[data-theme="kaala"] .lb-today-badge,
+html[data-theme="kaala"] .stat-name,
+html[data-theme="kaala"] .meta,
+html[data-theme="kaala"] .label,
+html[data-theme="kaala"] .readout-key,
+html[data-theme="kaala"] .integrity-text {
+  font-family: var(--font-mono) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+}
+
+/* 🌑 LEADERBOARD PODIUM FIX: Alignment & Spacing */
+html[data-theme="kaala"] .podium-node {
+  justify-content: center !important;
+  text-align: center !important;
+}
+
+html[data-theme="kaala"] .podium-info {
+  align-items: center !important;
+}
+
+html[data-theme="kaala"] .status-tag {
+  align-self: center !important;
+  margin-bottom: 8px !important;
+}
+
+html[data-theme="kaala"] .podium-avatar-wrapper {
+  background: #000000 !important;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Progress Bars */
+html[data-theme="kaala"] .progress-bar-fill,
+html[data-theme="kaala"] .lb-xp-bar {
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+
+/* ❄️ TACTICAL BUTTONS */
+html[data-theme="kaala"] .btn,
+html[data-theme="kaala"] .btn-secondary {
+  background: #000000 !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 8px !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="kaala"] .btn:hover {
+  background: #0a0a0a !important;
+}
+
+html[data-theme="kaala"] .btn-primary,
+html[data-theme="kaala"] .btn.btn-primary,
+html[data-theme="kaala"] #startTimerBtn,
+html[data-theme="kaala"] #confirmStartTimerBtn,
+html[data-theme="kaala"] #mainMissionStartBtn,
+html[data-theme="kaala"] #applyDateSettings,
+html[data-theme="kaala"] #applyThemeBtn,
+html[data-theme="kaala"] #applyColumnSettings,
+html[data-theme="kaala"] #addCustomRangeBtn {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border-radius: 8px !important;
+  border: 1px solid #ffffff !important;
+}
+
+/* ⚡ SCANLINE SYNC TRANSITION */
+.view-glitch-sync {
+  animation: glitch-sync 0.3s steps(5) forwards;
+  overflow: hidden;
+}
+
+@keyframes glitch-sync {
+  0% { filter: contrast(1.2) brightness(1.5); transform: translateX(0); }
+  20% { transform: translateX(-2px); filter: hue-rotate(10deg); }
+  40% { transform: translateX(2px); opacity: 0.8; }
+  60% { transform: translateX(-1px); filter: contrast(2); }
+  100% { filter: none; transform: translateX(0); opacity: 1; }
+}
+
+/* Scrollbar Hardening */
+html[data-theme="kaala"] ::-webkit-scrollbar {
+  width: 6px;
+}
+
+html[data-theme="kaala"] ::-webkit-scrollbar-track {
+  background: #000000;
+}
+
+html[data-theme="kaala"] ::-webkit-scrollbar-thumb {
+  background: #222222;
+  border-radius: 10px;
+}
+
+html[data-theme="kaala"] ::-webkit-scrollbar-thumb:hover {
+  background: #333333;
+}
+
+
+

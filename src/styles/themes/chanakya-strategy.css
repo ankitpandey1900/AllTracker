@@ -8,12 +8,14 @@
 
 html[data-theme="chanakya-strategy"] :root {
   --bg-primary: #0d1117;
-  --bg-secondary: #010409; /* Deepened for higher contrast */
+  --bg-secondary: #010409;
+  /* Deepened for higher contrast */
   --bg-tertiary: #161b22;
   --surface: #0d1117;
   --surface-2: #161b22;
   --text-primary: #c9d1d9;
-  --text-secondary: #3fb950; /* Strategic Green prominence */
+  --text-secondary: #3fb950;
+  /* Strategic Green prominence */
   --text-muted: #6e7681;
   --border: #30363d;
   --border-strong: #8b949e;
@@ -27,7 +29,8 @@ html[data-theme="chanakya-strategy"] :root {
   --maamu-border: #30363d;
   --maamu-text: #c9d1d9;
   --maamu-text-muted: #8b949e;
-  --maamu-accent: #3fb950; /* Green prompt */
+  --maamu-accent: #3fb950;
+  /* Green prompt */
   --maamu-accent-soft: rgba(63, 185, 80, 0.1);
 
   /* Global Audit Points */
@@ -41,7 +44,7 @@ html[data-theme="chanakya-strategy"] body {
   color: var(--text-primary);
   font-family: 'Fira Code', 'Courier New', Courier, monospace !important;
   letter-spacing: -0.02em;
-  background-image: 
+  background-image:
     linear-gradient(rgba(63, 185, 80, 0.02) 1px, transparent 1px),
     linear-gradient(90deg, rgba(63, 185, 80, 0.02) 1px, transparent 1px);
   background-size: 50px 50px;
@@ -51,18 +54,19 @@ html[data-theme="chanakya-strategy"] body {
 html[data-theme="chanakya-strategy"] body::after {
   content: "";
   position: fixed;
-  top: 0; left: 0; 
-  width: 100vw; height: 100vh;
-  background: repeating-linear-gradient(
-    0deg,
-    rgba(0, 0, 0, 0.05),
-    rgba(0, 0, 0, 0.05) 1px,
-    transparent 1px,
-    transparent 2px
-  );
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: repeating-linear-gradient(0deg,
+      rgba(0, 0, 0, 0.05),
+      rgba(0, 0, 0, 0.05) 1px,
+      transparent 1px,
+      transparent 2px);
   pointer-events: none;
   z-index: 9999;
-  will-change: transform; /* GPU Hint */
+  will-change: transform;
+  /* GPU Hint */
 }
 
 /* Header & Nav */
@@ -109,8 +113,9 @@ html[data-theme="chanakya-strategy"] .leaderboard-item,
 html[data-theme="chanakya-strategy"] .history-item {
   background: var(--surface) !important;
   border: 1px solid var(--border) !important;
-  border-radius: 4px !important; /* Sharper for terminal feel */
-  box-shadow: inset 0 0 10px rgba(0,0,0,0.5) !important;
+  border-radius: 4px !important;
+  /* Sharper for terminal feel */
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5) !important;
 }
 
 html[data-theme="chanakya-strategy"] .metric-card {
@@ -151,7 +156,9 @@ html[data-theme="chanakya-strategy"] .time-display {
 }
 
 @keyframes blink {
-  50% { opacity: 0.8; }
+  50% {
+    opacity: 0.8;
+  }
 }
 
 /* Buttons */

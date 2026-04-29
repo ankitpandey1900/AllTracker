@@ -47,16 +47,25 @@ export function initTimerModules(): void {
       const localHasSession = appState.activeTimer.elapsedAcc > 0 || appState.activeTimer.isRunning || localOnBreak;
       const cloudHasSession = cloudState.elapsedAcc > 0 || cloudIsRunning || cloudOnBreak;
 
-      // Detect any meaningful state change
+      // Detect any meaningful state change + Timestamp check
+      const cloudLastUpdated = cloudState.lastUpdatedAt || 0;
+      const localLastUpdated = appState.activeTimer.lastUpdatedAt || 0;
+
+      if (cloudLastUpdated <= localLastUpdated && localLastUpdated !== 0) {
+        log.info(`📡 CLOUD SYNC: Ignored stale state (${cloudLastUpdated} <= ${localLastUpdated})`);
+        return;
+      }
+
       const stateChanged =
         cloudIsRunning !== localIsRunning ||
         cloudOnBreak   !== localOnBreak   ||
         (!localHasSession && cloudHasSession) ||
-        (localHasSession && !cloudHasSession);
+        (localHasSession && !cloudHasSession) ||
+        (Math.abs(cloudState.elapsedAcc - appState.activeTimer.elapsedAcc) > 60000); // 1m drift threshold
 
       if (!stateChanged) return;
 
-      log.info(`📡 CLOUD SYNC: Remote state → running=${cloudIsRunning}, break=${cloudOnBreak}`);
+      log.info(`📡 CLOUD SYNC: Applying state (t=${cloudLastUpdated}) → running=${cloudIsRunning}, break=${cloudOnBreak}`);
 
       // Stop any local interval first
       if (appState.timerInterval) clearInterval(appState.timerInterval);
@@ -93,6 +102,7 @@ let isStopping = false;
 let wakeLock: any = null; 
 
 function saveTimerState(): void {
+  appState.activeTimer.lastUpdatedAt = Date.now();
   saveTimerStateToStorage(appState.activeTimer);
 }
 
@@ -222,20 +232,37 @@ function startBreakInterval(): void {
   }, 1000);
 }
 
-export async function stopTimer(autoNote?: string): Promise<void> {
+export async function stopTimer(autoNote?: string, clampMs?: number): Promise<void> {
   if (isStopping) return;
+
+  // 🛡️ CROSS-TAB STOP LOCK: Prevent multiple tabs from finalizing the same session
+  const stopLockKey = 'all_tracker_stop_lock';
+  const stopLock = localStorage.getItem(stopLockKey);
+  if (stopLock && (Date.now() - parseInt(stopLock)) < 15000) {
+    log.info('🛡️ STOP LOCK: Another tab is already stopping the timer. Aborting this attempt.');
+    return;
+  }
+  localStorage.setItem(stopLockKey, Date.now().toString());
+
   // Allow stopping when on break (isRunning=false but elapsedAcc > 0 or activeBreak exists)
   const hasActiveSession = appState.activeTimer.isRunning ||
     appState.activeTimer.elapsedAcc > 0 ||
     !!appState.activeTimer.activeBreak;
-  if (!hasActiveSession) return;
+  if (!hasActiveSession) {
+    localStorage.removeItem(stopLockKey);
+    return;
+  }
   isStopping = true;
   if (appState.timerInterval) clearInterval(appState.timerInterval);
 
-  // Calculate total elapsed BEFORE modifying state
-  let totalElapsed = appState.activeTimer.elapsedAcc;
-  if (appState.activeTimer.isRunning && appState.activeTimer.startTime) {
-    totalElapsed += Date.now() - appState.activeTimer.startTime;
+  // Calculate total session time
+  const now = Date.now();
+  let totalElapsed = appState.activeTimer.elapsedAcc + (appState.activeTimer.startTime ? (now - appState.activeTimer.startTime) : 0);
+
+  // 🛡️ CLAMPING PROTOCOL: If a clamp is provided (e.g. recovery cap), don't exceed it
+  if (clampMs && totalElapsed > clampMs) {
+    log.warn(`🛡️ TIMER CAP: Clamping session from ${totalElapsed}ms to ${clampMs}ms`);
+    totalElapsed = clampMs;
   }
 
   // 🛰️ INSTANT CLOUD BROADCAST: Tell all other devices to stop NOW
@@ -305,19 +332,50 @@ export async function stopTimer(autoNote?: string): Promise<void> {
       
       showToast(autoNote ? "Auto-Safe: Session Saved" : `Saved: ${formatMsToTime(totalElapsed)}`, 'success');
     }
-  } catch (error) { log.error('Save Error:', error); } finally { isStopping = false; }
-  document.body.classList.remove('focus-mode', 'focus-minimized', 'is-focusing');
-  appState.activeTimer.elapsedAcc = 0; appState.activeTimer.startTime = null; appState.activeTimer.category = null;
-  appState.activeTimer.colName = ''; appState.activeTimer.sessionStartClock = null;
-  appState.activeTimer.activeBreak = null; appState.activeTimer.completedBreaks = [];
-  appState.activeTimer.overrunCapMs = undefined; appState.activeTimer.hasWarnedOverrun1 = false; appState.activeTimer.hasWarnedOverrun2 = false;
-  notificationService.stopAmbient();
-  import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast(true));
-  saveTimerState(); updateDashboard(); generateTable(); renderHeatmap(); renderPerformanceCurve();
-  const section = document.getElementById('activeTimerSection');
-  if (section) section.style.display = 'none';
-  document.getElementById('timerModal')?.classList.remove('active');
-  updateTimerUI(false); toggleFocusHUD(false); releaseWakeLock();
+  } catch (error) { 
+    log.error('Save Error:', error); 
+    showToast('Network error while saving session. Syncing later.', 'error');
+  } finally { 
+    isStopping = false; 
+    // CRITICAL: Clear state regardless of cloud success to prevent ghost loops
+    appState.activeTimer.elapsedAcc = 0; 
+    appState.activeTimer.startTime = null; 
+    appState.activeTimer.category = null;
+    appState.activeTimer.colName = ''; 
+    appState.activeTimer.sessionStartClock = null;
+    appState.activeTimer.activeBreak = null; 
+    appState.activeTimer.completedBreaks = [];
+    appState.activeTimer.lastUpdatedAt = Date.now(); // Mark as fresh stop
+    saveTimerState();
+
+    document.body.classList.remove('focus-mode', 'focus-minimized', 'is-focusing');
+    notificationService.stopAmbient();
+    updateTimerUI(false); 
+    toggleFocusHUD(false); 
+    releaseWakeLock();
+
+    // 🛡️ NON-BLOCKING UI REFRESH: Spread out heavy updates to avoid main-thread freeze
+    setTimeout(() => {
+      updateDashboard(); 
+      import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast(true));
+    }, 50);
+
+    setTimeout(() => {
+      generateTable(); 
+    }, 150);
+
+    setTimeout(() => {
+      renderHeatmap(); 
+      renderPerformanceCurve();
+    }, 300);
+
+    setTimeout(() => {
+      const section = document.getElementById('activeTimerSection');
+      if (section) section.style.display = 'none';
+      document.getElementById('timerModal')?.classList.remove('active');
+      localStorage.removeItem('all_tracker_stop_lock');
+    }, 500);
+  }
 }
 
 export async function terminateTimer(): Promise<void> {
@@ -329,15 +387,24 @@ export async function terminateTimer(): Promise<void> {
   const confirmed = await showTerminateConfirmModal();
   if (!confirmed) return;
   if (appState.timerInterval) clearInterval(appState.timerInterval);
-  appState.activeTimer.isRunning = false; appState.activeTimer.elapsedAcc = 0;
-  appState.activeTimer.startTime = null; appState.activeTimer.category = null;
-  appState.activeTimer.colName = ''; appState.activeTimer.activeBreak = null;
+  appState.activeTimer.isRunning = false; 
+  appState.activeTimer.elapsedAcc = 0;
+  appState.activeTimer.startTime = null; 
+  appState.activeTimer.category = null;
+  appState.activeTimer.colName = ''; 
+  appState.activeTimer.activeBreak = null;
+  appState.activeTimer.lastUpdatedAt = Date.now(); // Mark as terminated
+  
   saveTimerState(); // Notify other devices to clear HUD
-  notificationService.stopAmbient(); await clearTimerStateDB();
+  notificationService.stopAmbient(); 
+  await clearTimerStateDB();
+  
   document.body.classList.remove('focus-mode', 'focus-minimized', 'is-focusing');
   const section = document.getElementById('activeTimerSection');
   if (section) section.style.display = 'none';
-  updateTimerUI(false); toggleFocusHUD(false); releaseWakeLock();
+  updateTimerUI(false); 
+  toggleFocusHUD(false); 
+  releaseWakeLock();
   showToast('Session terminated.', 'error');
   import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast(true));
 }
@@ -519,8 +586,11 @@ export function resumeTimerIfNeeded(): void {
 
   // Case 2: Timer is running
   if (isRunning) {
-    const currentCap = appState.activeTimer.overrunCapMs || 18000000;
-    if (startTime && (Date.now() - startTime) > currentCap) { stopTimer('[AUTO-SAFE] Recovered'); return; }
+    const currentCap = appState.activeTimer.overrunCapMs || 10800000; // 3 Hours (Consistent with Overrun Guard)
+    if (startTime && (Date.now() - startTime) > currentCap) { 
+      stopTimer('[AUTO-SAFE] Recovered', currentCap); 
+      return; 
+    }
     startTimerInterval();
     updateTimerUI(true);
     updateTimerDisplay();

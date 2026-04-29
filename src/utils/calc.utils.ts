@@ -569,28 +569,28 @@ export function getDynamicStatusMessage(currentDay: number, completedDays: numbe
   }
 
   const taunts = [
-    "The clock is ticking. Get moving!",
-    "You're slipping behind. Pick up the pace!",
-    "Another day wasted? Do it fast!",
-    "Laziness is the enemy. Start now.",
-    "Is this your best? Prove it.",
-    "Your future self is disappointed. Fix it."
+    "The board is moving. You're standing still.",
+    "Data shows a consistency drop. Correct it.",
+    "The gap is widening. Why are you idle?",
+    "Every zero on the log is a step backward.",
+    "The leaderboard doesn't care about excuses.",
+    "Your potential is being wasted in idle mode."
   ];
 
   const steadyArr = [
-    "Staying consistent. Keep going.",
-    "Steady progress. Don't stop.",
-    "On track. Maintain the discipline.",
-    "The grind continues. Stay focused."
+    "Standard pace maintained. Keep the rhythm.",
+    "Consistency is the only path. Don't break.",
+    "Steady output. The rank will follow.",
+    "Grind confirmed. Stay on the objective."
   ];
 
   const appreciation = [
-    "Crushing it! Keep this energy.",
-    "Eternity awaits. You're ahead of schedule.",
-    "Legend in the making. Exceptional work!",
-    "Pure focus. Most people can't do this.",
-    "Ahead of the game. Keep leading.",
-    "God tier discipline. Unstoppable!"
+    "Exceptional momentum. You're out-pacing the field.",
+    "Elite discipline detected. Keep dominating.",
+    "You're making the leaderboard look easy.",
+    "Most operatives fail here. You're pushing through.",
+    "Total focus achieved. This is the gold standard.",
+    "Rank advancement imminent. Keep this heat."
   ];
 
   let msg: string;

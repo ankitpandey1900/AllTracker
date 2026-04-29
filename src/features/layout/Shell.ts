@@ -79,12 +79,15 @@ export class Shell {
     
     if (!targetPane) return;
 
-    // ⚡ INSTANT FEEDBACK: Show shimmer if the pane is currently empty or inactive
+    // ⚡ INSTANT FEEDBACK: Premium Scanline Sync
     if (!targetPane.classList.contains('active')) {
+      document.body.classList.add("view-glitch-sync");
       targetPane.classList.add("active", "shimmer-pane");
       
-      // Remove shimmer after a small tactical delay or after render
-      setTimeout(() => targetPane.classList.remove("shimmer-pane"), 400);
+      setTimeout(() => {
+        targetPane.classList.remove("shimmer-pane");
+        document.body.classList.remove("view-glitch-sync");
+      }, 400);
     }
 
     // Deactivate other panes
@@ -103,15 +106,17 @@ export class Shell {
   private updateMetadata(viewId: string): void {
     const titles: Record<string, string> = {
       'dashboardPane': 'Dashboard | All Tracker',
+      'worldStagePane': 'World Stage Arena | All Tracker',
       'routinePane': 'Habit Rituals | All Tracker',
       'tasksPane': 'Mission Control | All Tracker',
       'intelligencePane': 'Maamu AI | All Tracker',
       'bookmarksPane': 'Bookmark Vault | All Tracker',
       'feedPane': 'Arena Feed | All Tracker'
     };
-
+ 
     const descriptions: Record<string, string> = {
       'dashboardPane': 'Your elite study performance dashboard.',
+      'worldStagePane': 'Compete on the global study leaderboard.',
       'routinePane': 'Manage your DSA and daily coding rituals.',
       'tasksPane': 'Execute your mission-critical tasks.',
       'intelligencePane': 'Get AI-powered study briefings from Maamu AI.',
@@ -139,6 +144,7 @@ export class Shell {
     if (target === "tasksPane") import("@/features/tasks/tasks").then(m => m.renderTasks());
     if (target === "intelligencePane") import("@/features/intelligence/intelligence").then(m => m.renderIntelligenceBriefing());
     if (target === "routinePane") import("@/features/routines/routines").then(m => m.renderRoutine());
+    if (target === "worldStagePane") import("@/features/dashboard/leaderboard").then(m => m.initWorldStage());
     if (target === "feedPane") import("@/features/feed/feed.ui").then(m => m.renderFeedView(document.getElementById('feedPane')!));
   }
 

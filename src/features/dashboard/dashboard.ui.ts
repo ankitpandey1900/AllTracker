@@ -1,302 +1,310 @@
 /**
- * DASHBOARD COMPONENT (Unified V3)
+ * DASHBOARD COMPONENT (Unified V3.2 - Complete & Clean)
  * 
- * Layout Hierarchy:
- * - .kpi-metrics-grid: Core 3-column tactical grid (Responsive: 2 Col Tablet, 1 Col Mobile)
- *   Row 1: Study Rank, Sustainability, Estimated Finish
- *   Row 2: Avg / Day, Completion, Total Hours
- *   Row 3: Consistency, Best Streak, Current Streak
+ * Restores all core features (Heatmap, History, Categories) 
+ * while maintaining the high-clarity professional design.
  */
 export const dashboardView = `
       <div class="dashboard-arena-layout">
         <div class="dashboard-main-content">
-          <article class="hero card shadow-2xl" style="position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
-            <div class="hero-mesh-bg" style="position: absolute; inset: 0; background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.03) 1px, transparent 0); background-size: 24px 24px; pointer-events: none;"></div>
-            
-            <div class="row-between hero-top" style="position: relative; z-index: 2;">
-              <h2 id="heroStatusTitle" style="font-family: 'Tektur'; letter-spacing: 1px; font-weight: 800; text-transform: uppercase;">Initializing...</h2>
-              <div style="display:flex; gap:10px; align-items:center;">
-                <button id="shareQuoteBtn" class="hero-action-pill" title="Share Wisdom">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="margin-right: 6px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                  SHARE QUOTE
+          <!-- PRIMARY MISSION CONTROL -->
+          <article class="hero card" style="border: 1px solid rgba(99, 102, 241, 0.15); margin-bottom: 24px;">
+            <div class="row-between hero-top" style="margin-bottom: 20px;">
+              <h1 id="heroStatusTitle" style="font-family: 'Outfit'; font-size: 0.9rem; letter-spacing: 2px; color: #818cf8; font-weight: 800; text-transform: uppercase;">MISSION STATUS</h1>
+              <div style="display: flex; gap: 12px; align-items: center;">
+                <button id="shareQuoteBtn" class="btn-icon" title="Share Wisdom">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                 </button>
-                <button id="shareStatsBtn" class="hero-action-pill stats-pill" title="Share Stats">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="margin-right: 6px;"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                  STATS
+                <button id="shareStatsBtn" class="btn-icon" title="Share Performance">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
                 </button>
-                <div class="hero-day-chip">
-                  <div id="currentDay">DAY 0</div>
-                  <small>OF <span class="hero-total-days">-</span></small>
+                <div class="hero-day-chip" style="background: rgba(129, 140, 248, 0.1); padding: 6px 14px; border-radius: 99px; border: 1px solid rgba(129, 140, 248, 0.2);">
+                  <span id="currentDay" style="font-weight: 800; font-size: 0.8rem; color: #818cf8;">DAY 0</span>
                 </div>
               </div>
             </div>
-            <p class="hero-subtitle">
-              Day <span id="heroDayMirror">0</span> of
-              <span class="hero-total-days">-</span> •
-              <span id="heroStartDateMirror">Loading...</span>
-            </p>
-            <div id="heroRoutineNext" class="hero-routine-next" style="display: none;">
-              <span class="label">UP NEXT</span>
-              <span class="value" id="heroNextRoutineText">--</span>
-              <span class="time" id="heroNextRoutineTime">--</span>
+            
+            <div id="quoteDisplayArea" style="margin-bottom: 32px;">
+               <h2 id="currentQuoteText" style="font-family: 'Tektur'; font-size: clamp(1.8rem, 3.5vw, 2.8rem); line-height: 1.1; margin-bottom: 12px; text-transform: uppercase; font-weight: 900; color: #fff;">READY FOR DEPLOYMENT</h2>
+               <p class="hero-subtitle" style="color: #94a3b8; font-size: 1rem; opacity: 0.8;">
+                 Every hour logged is a step toward dominance.
+                 <span id="heroDayMirror" style="display: none;">0</span>
+               </p>
             </div>
-            <div class="hero-level-row">
-              <span id="levelBadge">LVL 0</span>
-              <div class="xp-track">
-                <div id="xpFill" class="xp-fill"></div>
+
+            <div class="hero-primary-actions" style="display: flex; gap: 16px; margin-bottom: 32px;">
+              <button id="mainMissionStartBtn" class="btn btn-primary" style="height: 52px; padding: 0 32px; font-size: 1rem; letter-spacing: 1px; font-weight: 800; display: flex; align-items: center; justify-content: center;">
+                INITIATE MISSION
+              </button>
+              <button id="jumpToTodayBtn" class="btn" style="height: 52px; padding: 0 24px; background: rgba(255,255,255,0.03); display: flex; align-items: center; justify-content: center;">
+                GO TO TODAY
+              </button>
+            </div>
+
+            <div class="hero-level-row" style="opacity: 0.9;">
+              <div class="row-between" style="margin-bottom: 6px;">
+                <span id="levelBadge" style="font-size: 0.7rem; font-weight: 800; color: #6366f1; letter-spacing: 1px;">XP RANK PROGRESSION</span>
+                <span id="heroStartDateMirror" style="font-size: 0.7rem; opacity: 0.5;">Started --</span>
+              </div>
+              <div class="xp-track" style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 99px; overflow: hidden; flex: 1;">
+                <div id="xpFill" class="xp-fill" style="height: 100%; background: linear-gradient(90deg, #6366f1, #8b5cf6); width: 0%;"></div>
               </div>
             </div>
           </article>
 
-          <div class="row-between section-heading show-mobile-only" style="display: none; margin-bottom: 10px;">
-            <h3>Key Performance Indicators</h3>
-            <button class="btn btn-ghost" id="toggleKpiBtn" style="padding: 4px 10px; font-size: 0.7rem;">Show</button>
+          <!-- UTILITY ACTION BAR -->
+          <div class="card utility-bar" style="display: flex; gap: 8px; overflow-x: auto; padding: 10px; margin-bottom: 24px; background: rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.03);">
+            <button id="historyBtn" class="btn btn-ghost" style="font-size: 0.75rem; flex: 1;">HISTORY</button>
+            <button id="heatmapViewBtn" class="btn btn-ghost" style="font-size: 0.75rem; flex: 1;">HEATMAP</button>
+            <button id="analyticsViewBtn" class="btn btn-ghost" style="font-size: 0.75rem; flex: 1;">ANALYTICS</button>
+            <button id="badgesViewBtn" class="btn btn-ghost" style="font-size: 0.75rem; flex: 1;">BADGES</button>
+            <button id="weeklyViewBtn" class="btn btn-ghost" style="font-size: 0.75rem; flex: 1;">WEEKLY</button>
+          </div>
+
+          <!-- KPI & CATEGORY DISCLOSURE -->
+          <div class="row-between section-heading" style="margin-bottom: 16px;">
+            <h3 style="font-size: 0.75rem; letter-spacing: 2px; color: #64748b;">MISSION TELEMETRY</h3>
+            <button class="btn btn-ghost" id="toggleKpiBtn" style="padding: 4px 12px; font-size: 0.7rem; color: #818cf8; font-weight: 700;">SHOW DETAILS</button>
           </div>
           
-            <div id="kpiContainer" class="mobile-collapsible">
-              <div class="kpi-metrics-grid items-stretch">
-                <!-- Row 1 -->
-                <article class="card rank-card momentum-card tactical-accent aura-focus" style="border: 1px solid rgba(59, 130, 246, 0.2); background: rgba(59, 130, 246, 0.05);">
-                  <div class="label" style="color: #60a5fa; font-weight: 800; letter-spacing: 2px;">RANK MOMENTUM</div>
-                  <div id="rankScoreDisplay" class="big" style="color: #60a5fa; font-size: 2.4rem; margin: 5px 0; font-family: 'Tektur';">0</div>
-                  <div class="meta" style="font-weight: 700; color: #94a3b8; font-size: 0.8rem; letter-spacing: 1px;">VERIFIED OPERATIVE</div>
-                </article>
-
-                <article class="card aura-optimal tactical-accent">
-                  <div class="label" style="letter-spacing: 2px; color: #22c55e;">SUSTAINABILITY</div>
-                  <div id="sustainabilityLabel" class="big" style="font-family: 'Tektur'; font-size: 2.2rem; color: #22c55e;">OPTIMAL</div>
-                  <div class="meta" id="sustainabilityDesc">Mission at peak efficiency.</div>
-                </article>
-
-                <article class="card compact tactical-accent aura-focus">
-                  <div class="label" style="letter-spacing: 2px;">ESTIMATED FINISH</div>
-                  <div class="big" id="estimatedFinishDate" style="font-family: 'Tektur'; font-size: 1.8rem;">-</div>
-                  <div class="meta" id="estimatedStartDate" style="font-size: 0.75rem; opacity: 0.6;">INCEPTION: --</div>
-                </article>
-
-                <!-- Row 2 -->
-                <article class="card tactical-accent">
-                  <div class="label" style="letter-spacing: 2px;">DAILY INTENSITY</div>
-                  <div class="big" id="avgHoursPerDay" style="font-family: 'Tektur'; font-size: 2.4rem;">0.0</div>
-                  <div class="meta">AVG HOURS / DAY</div>
-                </article>
-
-                <article class="card tactical-accent aura-elite">
-                  <div class="label" style="letter-spacing: 2px; color: #f59e0b;">COMPLETION</div>
-                  <div id="completionPercent" class="big" style="font-family: 'Tektur'; font-size: 2.4rem; color: #f59e0b;">0%</div>
-                  <div class="meta">
-                    <span id="completedDaysCount">0</span> / <span class="hero-total-days">-</span> DAYS
-                  </div>
-                </article>
-
-                <article class="card tactical-accent">
-                  <div class="label" style="letter-spacing: 2px;">TOTAL FOCUS</div>
-                  <div id="totalHours" class="big" style="font-family: 'Tektur'; font-size: 2.4rem;">0.0h</div>
-                  <div class="meta">
-                    <canvas id="velocitySparkline" width="100" height="20" style="width: 100px; height: 20px; opacity: 0.6; margin: 4px 0;"></canvas>
-                  </div>
-                </article>
-
-                <!-- Row 3 -->
-                <article class="card compact tactical-accent aura-caution">
-                  <div class="label" style="letter-spacing: 2px; color: #f59e0b;">ACTIVE STREAK</div>
-                  <div class="big" id="currentStreakStat" style="font-family: 'Tektur'; font-size: 2.4rem; color: #f59e0b;">0</div>
-                  <div class="meta">DAYS 🔥</div>
-                </article>
-
-                <article class="card compact tactical-accent">
-                  <div class="label" style="letter-spacing: 2px;">ELITE STREAK</div>
-                  <div class="big" id="bestStreakStat" style="font-family: 'Tektur'; font-size: 2.4rem;">0</div>
-                  <div class="meta">ALL-TIME PEAK</div>
-                </article>
+          <div id="kpiContainer" class="mobile-collapsible" style="display: none; margin-bottom: 24px;">
+            <div class="kpi-metrics-grid items-stretch" style="margin-bottom: 24px;">
+              <!-- ROW 1 -->
+              <article class="card">
+                <div class="label" style="color: #60a5fa;">RANK MOMENTUM</div>
+                <div id="rankScoreDisplay" class="big" style="color: #60a5fa;">0</div>
+                <div class="meta">VERIFIED OPERATIVE</div>
               </article>
-
-              <!-- Row 4: Rivalry & Intelligence -->
-              <article id="rivalHUD" class="card rival-card" style="display: none; border: 1px solid rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.05); overflow: hidden; position: relative;">
-                <div class="label" style="color: #ef4444; font-weight: 800; letter-spacing: 1px;">TARGET IDENTIFIED 🎯</div>
-                <div id="rivalHandle" class="big" style="color: #ef4444; font-size: 1.8rem; margin: 4px 0;">@--</div>
-                <div class="meta" style="margin-top: 2px; font-size: 0.75rem;">
-                  RANK <span id="rivalRank">--</span> • <span id="rivalGap" style="color: #fca5a5; font-weight: 900;">-0h</span> TO OVERTAKE
+              <article class="card">
+                <div class="label" style="color: #22c55e;">SUSTAINABILITY</div>
+                <div id="sustainabilityLabel" class="big" style="color: #22c55e;">OPTIMAL</div>
+                <div class="meta" id="sustainabilityDesc">Safe pace.</div>
+              </article>
+              <article class="card">
+                <div class="label">ESTIMATED FINISH</div>
+                <div class="big" id="estimatedFinishDate">-</div>
+                <div class="meta" id="estimatedStartDate">INCEPTION: --</div>
+              </article>
+              <article class="card">
+                <div class="label" style="color: #6366f1;">DAILY INTENSITY</div>
+                <div id="avgHoursPerDay" class="big" style="color: #6366f1;">0.0h</div>
+                <div class="meta">AVG HOURS / DAY</div>
+              </article>
+              
+              <!-- ROW 2 -->
+              <article class="card">
+                <div class="label" style="color: #f59e0b;">COMPLETION</div>
+                <div id="completionPercent" class="big" style="color: #f59e0b;">0%</div>
+                <div class="meta">
+                  <span id="completedDaysCount">0</span> / <span class="hero-total-days">-</span> DAYS
                 </div>
-                <div class="rival-hud-mesh" style="position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(239, 68, 68, 0.03) 2px, rgba(239, 68, 68, 0.03) 4px); pointer-events: none;"></div>
+              </article>
+              <article class="card">
+                <div class="label">TOTAL FOCUS</div>
+                <div id="totalHours" class="big">0.0h</div>
+                <div class="meta">
+                  <canvas id="velocitySparkline" width="100" height="20" style="width: 100px; height: 20px; opacity: 0.3;"></canvas>
+                </div>
+              </article>
+              <article class="card">
+                <div class="label" style="color: #f59e0b;">ACTIVE STREAK</div>
+                <div id="currentStreak" class="big" style="color: #f59e0b;">0</div>
+                <div class="meta">DAYS 🔥</div>
+                <span id="currentStreakStat" style="display: none;">0</span>
+              </article>
+              <article class="card">
+                <div class="label" style="color: #94a3b8;">ELITE STREAK</div>
+                <div id="bestStreakStat" class="big" style="color: #cbd5e1;">0</div>
+                <div class="meta">ALL-TIME PEAK</div>
+              </article>
+
+              <!-- FULL WIDTH RIVALRY ROW -->
+              <article class="card" id="rivalHUD" style="display: none; border-radius: 4px;">
+                <div class="label">TARGET IDENTIFIED 🎯</div>
+                <div id="rivalHandle" class="big" style="font-size: 1.8rem;">@USER</div>
+                <div class="meta">SYNCING...</div>
               </article>
             </div>
-          </div>
 
-          <div class="row-between section-heading">
-            <h3>Category Progress</h3>
-            <button class="btn btn-ghost show-mobile-only" id="toggleCategoryBtn" style="display: none; padding: 4px 10px; font-size: 0.7rem;">Show</button>
-          </div>
-          <div id="categoryCardsContainer" class="mobile-collapsible">
-            <div id="categoryCards" class="grid-top"></div>
-          </div>
-
-          <article class="card">
-            <div class="row-between section-heading">
-              <h3>Overall Progress</h3>
-              <span id="completionPercentMirror">0%</span>
+            <!-- Category Progress Restoration -->
+            <div class="row-between section-heading" style="margin-bottom: 12px;">
+              <h3 style="font-size: 0.7rem; letter-spacing: 1.5px; color: #64748b;">CATEGORY PROGRESS</h3>
             </div>
-            <div id="allocationBar" class="allocation-bar"></div>
-            <div id="allocationLegend" class="legend"></div>
-            <div class="allocation-scale">
-              <span>Day 1</span>
-              <span>Day <span class="hero-total-days">-</span></span>
+            <div id="categoryCardsContainer">
+              <div id="categoryCards" class="grid-top" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px;"></div>
+            </div>
+
+            <article class="card" style="margin-top: 24px; padding: 20px;">
+              <div class="row-between section-heading" style="margin-bottom: 10px;">
+                <h3 style="font-size: 0.75rem;">OVERALL ALLOCATION</h3>
+                <span id="completionPercentMirror" style="font-size: 0.75rem; color: #818cf8; font-weight: 800;">0%</span>
+              </div>
+              <div id="allocationBar" class="allocation-bar" style="height: 12px; background: rgba(255,255,255,0.03); border-radius: 0px; overflow: hidden; display: flex;"></div>
+              <div id="allocationLegend" class="legend" style="margin-top: 12px; display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px;"></div>
+            </article>
+          </div>
+
+          <!-- CORE LOG -->
+          <div class="row-between section-heading">
+            <h3 style="font-size: 0.8rem; letter-spacing: 2px; color: #64748b;">STUDY LOG</h3>
+          </div>
+          
+          <article class="card study-log-controls" style="margin-bottom: 12px; padding: 16px;">
+            <div class="row-between" style="gap: 12px; margin-bottom: 16px;">
+              <div class="search-shell" style="flex: 1;">
+                <input id="tableSearch" class="input search-input" placeholder="Search mission history..." style="background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05);" />
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <button id="importBtn" class="btn btn-ghost" style="font-size: 0.65rem;">IMPORT</button>
+                <button id="exportCsvBtn" class="btn btn-ghost" style="font-size: 0.65rem;">CSV</button>
+                <button id="exportAllDataBtn" class="btn btn-primary" style="font-size: 0.65rem; padding: 6px 12px;">EXPORT ALL</button>
+              </div>
+            </div>
+            <div style="display: flex; gap: 15px; font-size: 0.75rem; opacity: 0.7;">
+               <label class="row-center" style="gap: 6px; cursor: pointer;"><input id="filterWithHours" type="checkbox" /> With Hours</label>
+               <label class="row-center" style="gap: 6px; cursor: pointer;"><input id="filterCompleted" type="checkbox" /> Completed</label>
+               <button id="resetBtn" style="margin-left: auto; color: #ef4444; background: none; border: none; font-size: 0.65rem; cursor: pointer; letter-spacing: 1px;">SYSTEM RESET</button>
+            </div>
+          </article>
+
+          <article class="card table-card overflow-hidden" style="padding: 0;">
+            <div class="responsive-table-container">
+              <table id="trackerTable">
+                <thead>
+                  <tr>
+                    <th>Day</th>
+                    <th>Date</th>
+                    <th>Col 1</th>
+                    <th>Col 2</th>
+                    <th>Col 3</th>
+                    <th>Col 4</th>
+                    <th>Solved</th>
+                    <th>Topics</th>
+                    <th>Project</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+              </table>
             </div>
           </article>
         </div>
-
-        <aside class="dashboard-sidebar">
-          <!-- World Stage Card -->
-          <article class="card world-stage-card">
-            <div class="row-between section-heading" style="margin-bottom: 20px;">
-              <h3>World Stage</h3>
-              <span class="badge-live-pulse">LIVE</span>
-            </div>
-
-            <!-- 📡 GLOBAL TELEMETRY HUD: Premium Tactical Implementation -->
-            <div class="tactical-hud-card">
-              <div class="telem-grid-v2">
-                <div class="telem-node">
-                  <div class="telem-icon">👥</div>
-                  <div class="telem-content">
-                    <div class="telem-label">Total Members</div>
-                    <div id="telemetry-total-pilots" class="telem-value">--</div>
-                  </div>
-                </div>
-                <div class="telem-node">
-                  <div class="telem-icon status-amber">🔥</div>
-                  <div class="telem-content">
-                    <div class="telem-label status-amber">Focusing Now</div>
-                    <div id="telemetry-active-now" class="telem-value status-amber telem-pulse">--</div>
-                  </div>
-                </div>
-                <div class="telem-node">
-                  <div class="telem-icon status-blue">⚡</div>
-                  <div class="telem-content">
-                  <div class="telem-label status-blue">Global Hours Today</div>
-                    <div id="telemetry-global-hours" class="telem-value status-blue">--</div>
-                  </div>
-                </div>
-                <div class="telem-node">
-                  <div class="telem-icon status-gold">🏆</div>
-                  <div class="telem-content">
-                    <div class="telem-label status-gold">Platform Total Hours</div>
-                    <div id="telemetry-global-total" class="telem-value status-gold">--</div>
-                  </div>
-                </div>
-                <!-- 5th Node: Platform Milestone -->
-                <div class="telem-node">
-                  <div class="telem-icon" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2);">🛰️</div>
-                  <div class="telem-content">
-                    <div class="telem-label" style="color: #34d399;">Platform Milestone</div>
-                    <div id="milestone-percentage-text" class="telem-value" style="color: #34d399; text-shadow: 0 0 10px rgba(16,185,129,0.3);">--%</div>
-                  </div>
-                </div>
-                <!-- 6th Node: Next Target -->
-                <div class="telem-node">
-                  <div class="telem-icon" style="background: rgba(255, 255, 255, 0.05);">🏁</div>
-                  <div class="telem-content">
-                    <div class="telem-label">Next Target</div>
-                    <div id="milestone-next-target-text" class="telem-value" style="font-size: 1.1rem; opacity: 0.9;">--</div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 🌐 MILESTONE TIMELINE SECTION -->
-              <div class="hud-milestone-section" style="padding-top: 5px;">
-                <div class="milestone-timeline">
-                  <div id="milestone-tick-marks" class="milestone-ticks"></div>
-                  <div class="milestone-track">
-                    <div id="milestone-progress-bar" class="milestone-fill" style="width: 0%;"></div>
-                    <div id="milestone-timeline-nodes" class="milestone-nodes-layer"></div>
-                  </div>
-                  <div id="milestone-labels-row" class="milestone-labels"></div>
-                </div>
-
-                <div class="milestone-footer">
-                  <div class="milestone-chip">
-                    <span class="chip-label">GLOBAL AVG</span>
-                    <span class="chip-value" id="milestone-avg-hrs">--</span>
-                    <span class="chip-unit">hrs</span>
-                  </div>
-                  <div class="milestone-chip chip-mvp">
-                    <span class="chip-label">MVP</span>
-                    <span class="chip-value chip-gold" id="milestone-mvp-text">@--</span>
-                    <span class="chip-unit" id="milestone-mvp-share">(0%)</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div id="leaderboardPodium" class="leaderboard-podium" style="display: none;"></div>
-            <div id="leaderboardList" class="leaderboard-list">
-              <div class="leaderboard-placeholder">Connecting to World Stage...</div>
-            </div>
-            <div class="arena-footer" style="margin-top: auto; padding-top: 20px; text-align: center;">
-              <p style="font-size: 0.72rem; color: var(--text-secondary); opacity: 0.5;">
-                Live Real-time Sync (30s Fallback)
-              </p>
-            </div>
-          </article>
-        </aside>
       </div>
-
-      <div class="card study-log-controls">
-        <div class="study-log-top">
-          <div class="row-between section-heading">
-            <h3>Study Log</h3>
-            <div class="study-log-pills">
-              <label class="pill"><input id="filterWithHours" type="checkbox" /> With
-                Hours</label>
-              <label class="pill"><input id="filterCompleted" type="checkbox" />
-                Completed</label>
-            </div>
-          </div>
-          <div class="study-log-actions">
-            <button id="jumpToTodayBtn" class="btn">Go to Today</button>
-            <button id="historyBtn" class="btn">History</button>
-            <button id="heatmapViewBtn" class="btn">Heatmap</button>
-            <button id="analyticsViewBtn" class="btn">Analytics</button>
-            <button id="badgesViewBtn" class="btn">Badges</button>
-            <button id="weeklyViewBtn" class="btn">Weekly Summary</button>
-            <button id="exportAllDataBtn" class="btn btn-primary">
-              Export All
-            </button>
-            <button id="importBtn" class="btn">Import</button>
-            <button id="exportCsvBtn" class="btn">Export CSV</button>
-            <button id="resetBtn" class="btn btn-danger">Reset</button>
-          </div>
-        </div>
-        <div class="study-log-search-row">
-          <div class="search-shell">
-            <span class="search-icon">⌕</span>
-            <input id="tableSearch" class="input search-input"
-              placeholder="Search by day, date, topic, or project..." />
-          </div>
-        </div>
-      </div>
-
-      <article class="card table-card overflow-hidden study-log-table">
-        <div class="responsive-table-container">
-          <table id="trackerTable">
-            <thead>
-              <tr>
-                <th>Day</th>
-                <th>Date</th>
-                <th>Col 1</th>
-                <th>Col 2</th>
-                <th>Col 3</th>
-                <th>Col 4</th>
-                <th id="problemsSolvedHeader">Problems Solved</th>
-                <th>Topics</th>
-                <th>Project Work</th>
-                <th>Done</th>
-              </tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-          </table>
-        </div>
-      </article>
-
-
 `;
+
+export const worldStageView = `
+  <div class="world-stage-arena" style="width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 16px 80px 16px; box-sizing: border-box;">
+
+    <div class="arena-desktop-grid">
+      
+      <!-- MAIN COLUMN: Rankings -->
+      <div class="arena-main-col">
+
+        <!-- TITLE & LIVE BADGE -->
+        <h2 style="text-align: center; font-family: 'Tektur'; font-style: italic; font-weight: 900; letter-spacing: 3px; color: #fff; margin-bottom: 12px; font-size: 1.2rem; text-transform: uppercase;">WORLD STAGE</h2>
+        
+        <div style="display: flex; justify-content: center; margin-bottom: 24px;">
+           <span class="badge-live-pulse" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); padding: 4px 12px; border-radius: 99px; font-size: 0.65rem; font-weight: 900;">
+              <span style="display: inline-block; width: 6px; height: 6px; background: #ef4444; border-radius: 50%; margin-right: 6px; box-shadow: 0 0 8px #ef4444;"></span>
+              LIVE
+           </span>
+        </div>
+
+        <!-- LEADERBOARD PODIUM -->
+        <div id="leaderboardPodium" class="leaderboard-podium" style="display: none;"></div>
+
+        <!-- Leaderboard List -->
+        <div id="leaderboardList" class="leaderboard-list">
+            <!-- Rows will be injected here -->
+        </div>
+      </div>
+
+      <!-- SIDEBAR COLUMN: Intelligence & Telemetry -->
+      <div class="arena-sidebar-col">
+        <article class="card legacy-telemetry-card" style="background: rgba(13, 17, 23, 0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 32px; margin-bottom: 32px;">
+           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 32px;">
+              <!-- Col 1 -->
+              <div style="display: flex; flex-direction: column; gap: 24px;">
+                 <div class="tele-item" style="display: flex; align-items: center; gap: 16px;">
+                    <div style="width: 40px; height: 40px; font-size: 1.2rem; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; align-items: center; justify-content: center;">👥</div>
+                    <div>
+                       <div style="font-size: 0.65rem; color: #94a3b8; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">Total Members</div>
+                       <div id="telemetry-total-pilots" style="font-size: 1.3rem; font-weight: 900; color: #fff;">--</div>
+                    </div>
+                 </div>
+                 <div class="tele-item" style="display: flex; align-items: center; gap: 16px;">
+                    <div style="width: 40px; height: 40px; font-size: 1.2rem; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; align-items: center; justify-content: center;">⚡</div>
+                    <div>
+                       <div style="font-size: 0.65rem; color: #94a3b8; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">Global Hours Today</div>
+                       <div id="telemetry-global-hours" style="font-size: 1.3rem; font-weight: 900; color: #3b82f6;">--</div>
+                    </div>
+                 </div>
+                 <div class="tele-item" style="display: flex; align-items: center; gap: 16px;">
+                    <div style="width: 40px; height: 40px; font-size: 1.2rem; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; align-items: center; justify-content: center;">🛰️</div>
+                    <div>
+                       <div style="font-size: 0.65rem; color: #94a3b8; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">Platform Milestone</div>
+                       <div id="milestone-percentage-text" style="font-size: 1.3rem; font-weight: 900; color: #10b981;">0%</div>
+                    </div>
+                 </div>
+              </div>
+              <!-- Col 2 -->
+              <div style="display: flex; flex-direction: column; gap: 24px;">
+                 <div class="tele-item" style="display: flex; align-items: center; gap: 16px;">
+                    <div style="width: 40px; height: 40px; font-size: 1.2rem; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; align-items: center; justify-content: center;">🔥</div>
+                    <div>
+                       <div style="font-size: 0.65rem; color: #22d3ee; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">Focusing Now</div>
+                       <div id="telemetry-active-now" style="font-size: 1.3rem; font-weight: 900; color: #fff;">--</div>
+                    </div>
+                 </div>
+                 <div class="tele-item" style="display: flex; align-items: center; gap: 16px;">
+                    <div style="width: 40px; height: 40px; font-size: 1.2rem; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; align-items: center; justify-content: center;">🏆</div>
+                    <div>
+                       <div style="font-size: 0.65rem; color: #94a3b8; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">Platform Total Hours</div>
+                       <div id="telemetry-global-total" style="font-size: 1.3rem; font-weight: 900; color: #fbbf24;">--</div>
+                    </div>
+                 </div>
+                 <div class="tele-item" style="display: flex; align-items: center; gap: 16px;">
+                    <div style="width: 40px; height: 40px; font-size: 1.2rem; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; align-items: center; justify-content: center;">🏁</div>
+                    <div>
+                       <div style="font-size: 0.65rem; color: #94a3b8; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">Next Target</div>
+                       <div id="milestone-next-target-text" style="font-size: 1.3rem; font-weight: 900; color: #fff;">100 HRS</div>
+                    </div>
+                 </div>
+              </div>
+           </div>
+
+           <!-- Milestone Timeline -->
+           <div class="legacy-milestone-track" style="position: relative; height: 30px; margin: 32px 0 20px;">
+              <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 99px; width: 100%; position: absolute; top: 50%; transform: translateY(-50%);"></div>
+              <div id="milestone-progress-bar" style="height: 4px; background: linear-gradient(90deg, #10b981, #22d3ee); border-radius: 99px; width: 0%; position: absolute; top: 50%; transform: translateY(-50%); transition: width 1s ease;"></div>
+              
+              <div id="milestone-timeline-nodes" style="position: absolute; width: 100%; height: 100%; top: 0;">
+                 <!-- Dynamic Nodes: 0, 50, 100 -->
+              </div>
+              <div id="milestone-labels-row" style="position: absolute; width: 100%; top: 35px; display: flex; justify-content: space-between; font-size: 0.5rem; color: #64748b; font-weight: 800;">
+                 <!-- Dynamic Labels -->
+              </div>
+           </div>
+
+           <div style="display: flex; justify-content: space-around; margin-top: 40px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.05);">
+              <div style="background: rgba(255,255,255,0.03); padding: 4px 16px; border-radius: 99px; border: 1px solid rgba(255,255,255,0.05);">
+                 <span style="font-size: 0.6rem; color: #64748b; font-weight: 800; letter-spacing: 1px;">GLOBAL AVG</span>
+                 <span id="milestone-avg-hrs" style="font-size: 0.7rem; color: #fff; font-weight: 900; margin-left: 6px;">--</span>
+                 <span style="font-size: 0.55rem; color: #64748b; margin-left: 2px;">HRS</span>
+              </div>
+              <div style="background: rgba(251, 191, 36, 0.05); padding: 4px 16px; border-radius: 99px; border: 1px solid rgba(251, 191, 36, 0.1);">
+                 <span style="font-size: 0.6rem; color: #94a3b8; font-weight: 800; letter-spacing: 1px;">MVP</span>
+                 <span id="milestone-mvp-text" style="font-size: 0.7rem; color: #fbbf24; font-weight: 900; margin-left: 6px;">@--</span>
+                 <span id="milestone-mvp-share" style="font-size: 0.55rem; color: #94a3b8; margin-left: 2px;">(0%)</span>
+              </div>
+           </div>
+        </article>
+
+        <!-- NEW FEATURE: TARGET ACQUIRED (Rivalry System Placeholder) -->
+        <div id="rivalry-card-container"></div>
+
+      </div>
+    </div>
+  </div>
+`;
+

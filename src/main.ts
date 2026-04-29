@@ -17,6 +17,7 @@ import "./styles/themes/default.css";
 import "./styles/themes/chanakya-strategy.css";
 import "./styles/themes/ayodhya.css";
 import "./styles/themes/kamala-grace.css";
+import "./styles/themes/kaala.css";
 
 // 2. High-Level Orchestration
 import { igniteApp } from "./core/app-ignition";

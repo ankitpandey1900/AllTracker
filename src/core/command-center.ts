@@ -24,9 +24,12 @@ export function setupEventListeners(): void {
     const btn = document.getElementById("toggleKpiBtn");
     if (container && btn) {
       const isExpanded = container.classList.toggle("expanded");
-      btn.textContent = isExpanded ? "Hide" : "Show";
+      container.style.display = isExpanded ? "block" : "none";
+      btn.textContent = isExpanded ? "HIDE DETAILS" : "SHOW DETAILS";
     }
   });
+
+  bindClick("mainMissionStartBtn", openTimerModal);
 
   bindClick("toggleCategoryBtn", () => {
     const container = document.getElementById("categoryCardsContainer");

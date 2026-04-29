@@ -11,16 +11,8 @@
 }
 
 .dashboard-arena-layout {
-  display: grid;
-  grid-template-columns: 1fr 420px;
-  /* Refined balance: wider than original, smaller than 50% */
-  gap: 20px;
-  align-items: start;
-  
-  /* CRITICAL: Guarantee the top arena & sidebar renders ABOVE the Study Log 
-     so the World Stage hover cards can freely drop downwards without clipping. */
-  position: relative;
-  z-index: 100 !important;
+  display: block;
+  width: 100%;
 }
 
 @media (max-width: 1024px) {
@@ -55,13 +47,15 @@
   background: rgba(239, 68, 68, 0.1);
   color: #ef4444;
   padding: 2px 8px;
-  border-radius: 20px;
-  font-size: 0.65rem;
+  border-radius: 2px;
+  font-size: 0.6rem;
   font-weight: 800;
   letter-spacing: 0.05em;
   display: flex;
   align-items: center;
   gap: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  text-transform: uppercase;
 }
 
 .badge-live-pulse::before {
@@ -69,34 +63,27 @@
   width: 6px;
   height: 6px;
   background: #ef4444;
-  border-radius: 50%;
-  /* box-shadow: 0 0 8px #ef4444; DISABLED FOR STATIC UX */
-  /* animation: pulse-live 1.5s infinite; DISABLED FOR STATIC UX */
-}
-
-@keyframes pulse-live {
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-
-  50% {
-    transform: scale(1.5);
-    opacity: 0.5;
-  }
-
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
+  border-radius: 0;
 }
 
 .leaderboard-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
   margin-top: 8px;
-  overflow: visible !important; /* CRITICAL: Allow hover cards to pop out */
+  overflow: visible !important;
+}
+
+@media (max-width: 800px) {
+  .leaderboard-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Ensure the pinned identity anchor spans both columns at the bottom */
+.lb-anchor-divider, 
+.leaderboard-list > .leaderboard-item.is-me:last-child {
+  grid-column: 1 / -1;
 }
 
 .leaderboard-item {
@@ -104,74 +91,17 @@
   align-items: center;
   gap: 12px;
   padding: 8px 14px;
-  background: rgba(15, 23, 42, 0.4);
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  /* Only transition safe props - NOT z-index, NOT opacity (prevents dimming!) */
-  /* transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease; DISABLED FOR STATIC UX */
+  background: #0b1121;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   position: relative;
-
-  /* ðŸŽ¬ TACTICAL REVEAL: Smooth Entry when page renders */
-  /* animation: lb-row-reveal 0.45s cubic-bezier(0.23, 1, 0.32, 1) forwards; REMOVED FOR STATIC UX */
-  opacity: 1; /* Ensure visible without animation */
-  will-change: transform, opacity;
+  min-width: 0;
 }
-
-@keyframes lb-row-reveal {
-  0% {
-    opacity: 0;
-    transform: translate3d(0, 12px, 0) scale(0.99);
-  }
-  100% {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-}
-
-/* Staggered entry for premium feel (8 items per page) */
-.leaderboard-item:nth-child(1) { animation-delay: 0.02s; }
-.leaderboard-item:nth-child(2) { animation-delay: 0.04s; }
-.leaderboard-item:nth-child(3) { animation-delay: 0.06s; }
-.leaderboard-item:nth-child(4) { animation-delay: 0.08s; }
-.leaderboard-item:nth-child(5) { animation-delay: 0.10s; }
-.leaderboard-item:nth-child(6) { animation-delay: 0.12s; }
-.leaderboard-item:nth-child(7) { animation-delay: 0.14s; }
-.leaderboard-item:nth-child(8) { animation-delay: 0.16s; }
 
 @media (max-width: 600px) {
   .leaderboard-item {
     padding: 10px 12px;
     gap: 10px;
-  }
-}
-
-/* Hover effects ONLY for real pointer devices (mouse) â€” NOT touch screens */
-@media (hover: hover) and (pointer: fine) {
-  .leaderboard-item:hover {
-    background: rgba(30, 41, 59, 0.7);
-    border-color: rgba(16, 185, 129, 0.3);
-    transform: translateX(3px);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-  }
-
-  /* Guide the eye: Glow the avatar when row is hovered */
-  .leaderboard-item:hover .lb-avatar-wrapper {
-    transform: rotate(5deg) scale(1.05);
-    border-color: var(--rank-color, #10b981) !important;
-    box-shadow: 0 0 15px var(--rank-color, rgba(16, 185, 129, 0.4));
-  }
-}
-
-/* Touch devices: no hover effects, just a subtle active state when tapped */
-@media (hover: none) {
-  .leaderboard-item:active {
-    background: rgba(30, 41, 59, 0.5);
-    border-color: rgba(16, 185, 129, 0.2);
-  }
-  
-  .lb-avatar-wrapper:active {
-    transform: scale(0.95);
-    opacity: 0.85;
   }
 }
 
@@ -198,12 +128,12 @@
 .leaderboard-item.force-hud::before {
   content: '';
   position: fixed;
-  inset: -1000px; /* Force cover global viewport */
-  background: rgba(4, 7, 13, 0.88); /* Deep tactical dim */
-  z-index: 1999999; /* Just below the HUD card */
+  inset: -1000px;
+  background: rgba(4, 7, 13, 0.88);
+  z-index: 1999999;
   pointer-events: auto;
-  backdrop-filter: blur(8px) saturate(1.2); /* Premium immersion */
-  /* animation: lb-scrim-fade 0.3s ease-out forwards; DISABLED FOR STATIC UX */
+  backdrop-filter: blur(8px) saturate(1.2);
+  animation: lb-scrim-fade 0.3s ease-out forwards;
 }
 
 @keyframes lb-scrim-fade {
@@ -235,31 +165,6 @@
   overflow: visible;
 }
 
-.leaderboard-item.is-me::before {
-  content: '';
-  position: absolute;
-  top: -1px;
-  left: -1px;
-  right: -1px;
-  bottom: -1px;
-  background: linear-gradient(45deg, transparent, rgba(20, 184, 166, 0.3), transparent);
-  z-index: -1;
-  border-radius: 15px;
-  /* animation: my-glow-pulse 3s infinite; DISABLED FOR STATIC UX */
-}
-
-@keyframes my-glow-pulse {
-
-  0%,
-  100% {
-    opacity: 0.5;
-  }
-
-  50% {
-    opacity: 1;
-  }
-}
-
 .rank-num {
   font-family: 'Tektur', cursive;
   font-weight: 800;
@@ -271,7 +176,7 @@
   justify-content: center;
 }
 
-/* ðŸ… PREMIUM MEDAL ENGINE */
+/* 🏆 PREMIUM MEDAL ENGINE */
 .pilot-medal {
   display: flex;
   align-items: center;
@@ -286,23 +191,6 @@
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   position: relative;
   overflow: hidden;
-}
-
-.pilot-medal::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transform: rotate(45deg);
-  /* animation: lb-medal-shine 3s infinite; DISABLED FOR STATIC UX */
-}
-
-@keyframes lb-medal-shine {
-  0% { transform: translateX(-100%) rotate(45deg); }
-  20%, 100% { transform: translateX(100%) rotate(45deg); }
 }
 
 .lb-medal-gold {
@@ -2924,7 +2812,7 @@
   padding: 20px 10px 15px;
   flex: 1;
   min-width: 0;
-  max-width: 140px;
+  max-width: 220px;
   min-height: 240px; /* 📏 EXPANDED SYMMETRY */
   height: auto;
   text-align: center;
@@ -2939,7 +2827,7 @@
 
 .podium-gold {
   flex: 1.2;
-  max-width: 160px;
+  max-width: 260px;
   padding-bottom: 25px;
   height: 285px; /* 👑 EXPANDED GOLD */
   z-index: 3;
@@ -3048,22 +2936,7 @@
   /* animation: lb-row-entrance 0.5s cubic-bezier(0.19, 1, 0.22, 1) both; DISABLED FOR STATIC UX */
 }
 
-.glass-row:hover {
-  background: rgba(255, 255, 255, 0.05) !important;
-  transform: translateY(-2px);
-  border-color: rgba(255, 255, 255, 0.15) !important;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4) !important;
-}
-
-@keyframes lb-podium-entrance {
-  from { opacity: 0; filter: blur(4px); }
-  to { opacity: 1; filter: blur(0); }
-}
-
-@keyframes lb-row-entrance {
-  from { opacity: 0; transform: translateX(-20px); }
-  to { opacity: 1; transform: translateX(0); }
-}
+/* No hover states or entrance animations for a purely static UX */
 
 @media (max-width: 600px) {
   .leaderboard-podium {
@@ -3096,7 +2969,4 @@
     /* animation: verified-pulse 2s infinite ease-in-out; DISABLED FOR STATIC UX */
 }
 
-@keyframes verified-pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.8; transform: scale(1.15); }
-}
+    /* verified-pulse removed for purely static UX */
