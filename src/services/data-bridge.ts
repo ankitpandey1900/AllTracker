@@ -184,7 +184,7 @@ export async function performBackgroundSync(): Promise<void> {
     let changed = false;
 
     const check = (key: string, cloud: any, local: any, setter: Function) => {
-      if (cloud && (isDifferent(local, cloud.data) || isCloudNewer(key, cloud.updatedAt))) {
+      if (cloud && isCloudNewer(key, cloud.updatedAt)) {
         setter(cloud.data);
         updateLocalTimestamp(key, cloud.updatedAt || undefined);
         changed = true;

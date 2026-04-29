@@ -42,10 +42,7 @@ export async function igniteApp(): Promise<void> {
     await initUI();
     shell.setupTabNavigation();
 
-    // 2. Auth & Data Load (Identity-First)
-    await initSyncAuth();
-    setupHeaderScroll();
-
+    // 2. Load Local State (Zero-Latency)
     const [settings, trackerData, routines, history, bookmarks, savedTimer, tasks] = await Promise.all([
       loadSettingsFromStorage(),
       loadTrackerDataFromStorage(),
@@ -72,13 +69,12 @@ export async function igniteApp(): Promise<void> {
     appState.tasks = tasks;
     if (savedTimer) Object.assign(appState.activeTimer, savedTimer);
 
-    // 4. Primary Render (Critical Above the Fold)
-    await checkDailyRoutineReset();
+    // 4. Initial Render (Show user data IMMEDIATELY)
     generateTable();
     updateDashboard();
     renderRoutine();
     renderBookmarks();
-    
+
     // 5. User Input Activation
     setupEventListeners();
     setupTableSearch();
@@ -87,6 +83,15 @@ export async function igniteApp(): Promise<void> {
     setupBookmarkListeners();
     setupFocusListeners();
     startMissionPulse();
+
+    // 6. Background Verification
+    await checkDailyRoutineReset();
+
+    // 7. Background Auth & Sync (Non-blocking for UI)
+    initSyncAuth().catch(err => log.error("Background Auth Init Failed", err));
+    setupHeaderScroll();
+    
+    // 8. Background Feature Load
 
     // 6. Background Feature Load
     setTimeout(async () => {
