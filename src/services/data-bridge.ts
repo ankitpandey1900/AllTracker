@@ -18,7 +18,7 @@ import { appState, ensureTimelineIntegrity } from '@/state/app-state';
 import { 
   saveLocal, loadLocal, removeLocal, 
   saveSecuredSettings, loadSecuredSettings, 
-  updateLocalTimestamp 
+  updateLocalTimestamp, getLocalTimestamp
 } from './data.storage';
 import { isCloudNewer, isDifferent, isLocalEmpty } from './data.sync';
 
@@ -110,12 +110,24 @@ export async function loadTimerStateFromStorage(): Promise<any | null> {
     try {
       const cloud = await loadTimerStateCloud();
       if (cloud?.data) {
-        // Only return cloud data if it's actually running or has progress
+        // 🛡️ CONFLICT RESOLUTION: Only adopt cloud state if it is newer than our local record
+        const cloudTs = cloud.updatedAt ? new Date(cloud.updatedAt).getTime() : 0;
+        const localTs = getLocalTimestamp(STORAGE_KEYS.TIMER);
+
+        if (cloudTs <= localTs) {
+          log.info(`🛡️ TIMER SYNC: Ignored stale cloud state (${cloudTs} <= ${localTs})`);
+          return local;
+        }
+
+        // Cloud is newer: Sync it locally
+        saveLocal(STORAGE_KEYS.TIMER, cloud.data);
+        updateLocalTimestamp(STORAGE_KEYS.TIMER, cloud.updatedAt || undefined);
+
+        // Only return it for HUD display if it's actually active
         if (cloud.data.isRunning || cloud.data.elapsedAcc > 0 || !!cloud.data.activeBreak) {
-          saveLocal(STORAGE_KEYS.TIMER, cloud.data);
-          updateLocalTimestamp(STORAGE_KEYS.TIMER, cloud.updatedAt || undefined);
           return cloud.data;
         }
+        return cloud.data; // Return the idle state (will hide HUD)
       }
     } catch (err) {
       log.error('Failed to load timer state from cloud', err);
@@ -131,8 +143,10 @@ export async function saveTimerStateToStorage(state: any): Promise<void> {
 }
 
 export async function clearTimerStateDB(): Promise<void> {
-  removeLocal(STORAGE_KEYS.TIMER);
-  if (isAuthenticated()) saveTimerStateCloud({ isRunning: false, elapsedAcc: 0, startTime: null, category: null, colName: '', sessionStartClock: null }).catch(() => {});
+  const idleState = { isRunning: false, elapsedAcc: 0, startTime: null, category: null, colName: '', sessionStartClock: null, lastUpdatedAt: Date.now() };
+  saveLocal(STORAGE_KEYS.TIMER, idleState);
+  updateLocalTimestamp(STORAGE_KEYS.TIMER);
+  if (isAuthenticated()) saveTimerStateCloud(idleState).catch(() => {});
 }
 
 // --- Cloud Sync Orchestration ---
