@@ -67,9 +67,7 @@ function toRoutineItem(row: RoutineItemRow) {
     completed: row.completed === true,
     days: Array.isArray(row.days) ? row.days.map(Number) : [],
     streak: Number(row.streak || 0),
-    lastCompletedIso: row.last_completed_at
-      ? new Date(row.last_completed_at).toISOString().split("T")[0]
-      : "",
+    lastCompletedIso: (row as any).last_completed_date || "",
   };
 }
 
@@ -143,7 +141,7 @@ export async function readVault(
     case "routines": {
       const { rows } = await pool.query<RoutineItemRow>(
         `
-          select id, title, time, note, completed, days, streak, last_completed_at, created_at
+          select id, title, time, note, completed, days, streak, to_char(last_completed_at, 'YYYY-MM-DD') as last_completed_date, created_at
           from routines
           where user_id = $1
           order by created_at asc

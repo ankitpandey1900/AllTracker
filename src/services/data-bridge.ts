@@ -105,35 +105,7 @@ export async function loadTasksFromStorage(): Promise<any[]> { return loadLocal<
 
 // --- Timer (Pure Sync) ---
 export async function loadTimerStateFromStorage(): Promise<any | null> {
-  const local = loadLocal<any>(STORAGE_KEYS.TIMER);
-  if (isAuthenticated()) {
-    try {
-      const cloud = await loadTimerStateCloud();
-      if (cloud?.data) {
-        // 🛡️ CONFLICT RESOLUTION: Only adopt cloud state if it is newer than our local record
-        const cloudTs = cloud.updatedAt ? new Date(cloud.updatedAt).getTime() : 0;
-        const localTs = getLocalTimestamp(STORAGE_KEYS.TIMER);
-
-        if (cloudTs <= localTs) {
-          log.info(`🛡️ TIMER SYNC: Ignored stale cloud state (${cloudTs} <= ${localTs})`);
-          return local;
-        }
-
-        // Cloud is newer: Sync it locally
-        saveLocal(STORAGE_KEYS.TIMER, cloud.data);
-        updateLocalTimestamp(STORAGE_KEYS.TIMER, cloud.updatedAt || undefined);
-
-        // Only return it for HUD display if it's actually active
-        if (cloud.data.isRunning || cloud.data.elapsedAcc > 0 || !!cloud.data.activeBreak) {
-          return cloud.data;
-        }
-        return cloud.data; // Return the idle state (will hide HUD)
-      }
-    } catch (err) {
-      log.error('Failed to load timer state from cloud', err);
-    }
-  }
-  return local;
+  return loadLocal<any>(STORAGE_KEYS.TIMER);
 }
 
 export async function saveTimerStateToStorage(state: any): Promise<void> {
@@ -225,8 +197,18 @@ export async function performBackgroundSync(): Promise<void> {
     check(STORAGE_KEYS.TASKS, cloud[3], appState.tasks, (d: any) => { appState.tasks = d; saveLocal(STORAGE_KEYS.TASKS, d); });
     check(STORAGE_KEYS.ROUTINE_HISTORY, cloud[4], appState.routineHistory, (d: any) => { appState.routineHistory = d; saveLocal(STORAGE_KEYS.ROUTINE_HISTORY, d); });
     check(STORAGE_KEYS.BOOKMARKS, cloud[5], appState.bookmarks, (d: any) => { appState.bookmarks = d; saveLocal(STORAGE_KEYS.BOOKMARKS, d); });
-
-    // Timer sync is handled separately via the 'Live' subscription in timer.ts for instant HUD response.
+    
+    // 🛡️ HUD SYNC: Adopt cloud timer if newer
+    if (cloud[6]?.data) {
+      const cloudTs = cloud[6].updatedAt ? new Date(cloud[6].updatedAt).getTime() : 0;
+      const localTs = getLocalTimestamp(STORAGE_KEYS.TIMER);
+      if (cloudTs > localTs) {
+        Object.assign(appState.activeTimer, cloud[6].data);
+        saveLocal(STORAGE_KEYS.TIMER, cloud[6].data);
+        updateLocalTimestamp(STORAGE_KEYS.TIMER, cloud[6].updatedAt ?? undefined);
+        changed = true;
+      }
+    }
 
     if (changed) await refreshAppAfterSync();
   } catch (err) { /* silent */ }
