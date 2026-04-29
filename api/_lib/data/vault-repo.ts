@@ -285,33 +285,23 @@ export async function writeVault(
       }
       case "routines": {
         await client.query("delete from routines where user_id = $1", [profile.profileId]);
-        for (const item of data || []) {
+        if (data && Array.isArray(data) && data.length > 0) {
           await client.query(
             `
-              insert into routines (
-                id,
-                user_id,
-                title,
-                time,
-                note,
-                completed,
-                days,
-                streak,
-                last_completed_at
-              )
-              values ($1::uuid, $2::uuid, $3, $4, $5, $6, $7::integer[], $8, $9)
+              insert into routines (id, user_id, title, time, note, completed, days, streak, last_completed_at)
+              select 
+                (r->>'id')::uuid, 
+                $1::uuid, 
+                (r->>'title'), 
+                (r->>'time'), 
+                (r->>'note'), 
+                (r->>'completed')::boolean, 
+                case when r->'days' is not null then array(select jsonb_array_elements_text(r->'days')::integer) else '{0,1,2,3,4,5,6}'::integer[] end,
+                (r->>'streak')::integer,
+                case when r->>'lastCompletedIso' is not null and r->>'lastCompletedIso' <> '' then (r->>'lastCompletedIso' || 'T00:00:00.000Z')::timestamp else null end
+              from jsonb_array_elements($2::jsonb) as r
             `,
-            [
-              String(item.id),
-              profile.profileId,
-              item.title || "",
-              item.time || null,
-              item.note || "",
-              item.completed === true,
-              Array.isArray(item.days) ? item.days.map(Number) : [0, 1, 2, 3, 4, 5, 6],
-              Number(item.streak || 0),
-              item.lastCompletedIso ? `${item.lastCompletedIso}T00:00:00.000Z` : null,
-            ],
+            [profile.profileId, JSON.stringify(data)],
           );
         }
         await client.query("commit");
@@ -319,13 +309,18 @@ export async function writeVault(
       }
       case "history": {
         await client.query("delete from routine_history where user_id = $1", [profile.profileId]);
-        for (const [date, completedCount] of Object.entries(data || {})) {
+        if (data && typeof data === "object" && Object.keys(data).length > 0) {
           await client.query(
             `
               insert into routine_history (user_id, history_date, completed_count, updated_at)
-              values ($1::uuid, $2::date, $3, now())
+              select 
+                $1::uuid, 
+                key::date, 
+                value::integer, 
+                now()
+              from jsonb_each_text($2::jsonb)
             `,
-            [profile.profileId, date, Number(completedCount || 0)],
+            [profile.profileId, JSON.stringify(data)],
           );
         }
         await client.query("commit");
@@ -333,19 +328,19 @@ export async function writeVault(
       }
       case "bookmarks": {
         await client.query("delete from bookmarks where user_id = $1", [profile.profileId]);
-        for (const item of data || []) {
+        if (data && Array.isArray(data) && data.length > 0) {
           await client.query(
             `
               insert into bookmarks (id, user_id, title, url, category)
-              values ($1::uuid, $2::uuid, $3, $4, $5)
+              select 
+                (b->>'id')::uuid, 
+                $1::uuid, 
+                (b->>'title'), 
+                (b->>'url'), 
+                (b->>'category')
+              from jsonb_array_elements($2::jsonb) as b
             `,
-            [
-              String(item.id),
-              profile.profileId,
-              item.title || "",
-              item.url || "",
-              item.category || "Other",
-            ],
+            [profile.profileId, JSON.stringify(data)],
           );
         }
         await client.query("commit");
@@ -353,22 +348,22 @@ export async function writeVault(
       }
       case "tasks": {
         await client.query("delete from tasks where user_id = $1", [profile.profileId]);
-        for (const item of data || []) {
+        if (data && Array.isArray(data) && data.length > 0) {
           await client.query(
             `
               insert into tasks (id, user_id, text, completed, date, priority, created_at, completed_at)
-              values ($1::uuid, $2::uuid, $3, $4, $5::date, $6, $7, $8)
+              select 
+                (t->>'id')::uuid, 
+                $1::uuid, 
+                (t->>'text'), 
+                (t->>'completed')::boolean, 
+                (t->>'date')::date, 
+                (t->>'priority')::integer,
+                case when t->>'createdAt' is not null then (t->>'createdAt')::timestamp else now() end,
+                case when t->>'completedAt' is not null then (t->>'completedAt')::timestamp else null end
+              from jsonb_array_elements($2::jsonb) as t
             `,
-            [
-              String(item.id),
-              profile.profileId,
-              item.text || "",
-              item.completed === true,
-              item.date,
-              Number(item.priority || 2),
-              item.createdAt ? new Date(item.createdAt).toISOString() : new Date().toISOString(),
-              item.completedAt ? new Date(item.completedAt).toISOString() : null,
-            ],
+            [profile.profileId, JSON.stringify(data)],
           );
         }
         await client.query("commit");
