@@ -87,9 +87,22 @@ export async function igniteApp(): Promise<void> {
     // 6. Background Verification
     await checkDailyRoutineReset();
 
-    // 7. Background Auth & Sync (Non-blocking for UI)
-    initSyncAuth().catch(err => log.error("Background Auth Init Failed", err));
+    // 7. Tactical Sync Handshake (Wait briefly for cloud data to ensure freshness)
+    const loaderText = document.querySelector('.loader-text');
+    if (loaderText) loaderText.textContent = "SYNCING MISSION DATA...";
+
+    await Promise.race([
+      initSyncAuth(),
+      new Promise(resolve => setTimeout(resolve, 1500)) // Cap the wait at 1.5s
+    ]).catch(err => log.error("Auth Handshake Timed Out", err));
+
     setupHeaderScroll();
+
+    // 8. Final UI Refinement (Render again if cloud data arrived)
+    generateTable();
+    updateDashboard();
+    renderRoutine();
+    renderBookmarks();
     
     // 8. Background Feature Load
 
@@ -153,9 +166,9 @@ async function completeBootVisuals(): Promise<void> {
   if (!loader) return;
   const loaderText = document.querySelector('.loader-text');
   
-  setTimeout(() => { if (loaderText) loaderText.textContent = "Welcome back."; }, 300);
+  setTimeout(() => { if (loaderText) loaderText.textContent = "SYSTEMS SYNCHRONIZED."; }, 200);
   setTimeout(() => {
     loader.classList.add('hidden');
-    setTimeout(() => loader.remove(), 600);
-  }, 800);
+    setTimeout(() => loader.remove(), 800);
+  }, 1000);
 }
