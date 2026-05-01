@@ -22,44 +22,45 @@ export default async function handler(
     const profile = await ensureProfileForUser(session.user);
     const pool = getPool();
 
-    // GET /api/app/maamu — list all conversations with messages
+    // GET /api/app/maamu — list all conversations with messages (Optimized to avoid N+1)
     if (req.method === "GET") {
-      const { rows: convRows } = await pool.query(
+      const { rows } = await pool.query(
         `
-          select id, title, created_at, updated_at
-          from maamu_conversations
-          where user_id = $1
-          order by updated_at desc
-          limit 50
+          with recent_convs as (
+            select id, title, created_at, updated_at
+            from maamu_conversations
+            where user_id = $1
+            order by updated_at desc
+            limit 50
+          )
+          select 
+            rc.*,
+            (
+              select json_agg(msg)
+              from (
+                select id, role, content, created_at
+                from maamu_messages
+                where conversation_id = rc.id
+                order by created_at asc
+              ) msg
+            ) as messages
+          from recent_convs rc
         `,
         [profile.profileId],
       );
 
-      const conversations = await Promise.all(
-        convRows.map(async (conv: any) => {
-          const { rows: msgRows } = await pool.query(
-            `
-              select id, role, content, created_at
-              from maamu_messages
-              where conversation_id = $1
-              order by created_at asc
-            `,
-            [conv.id],
-          );
-          return {
-            id: conv.id,
-            title: conv.title,
-            createdAt: new Date(conv.created_at).getTime(),
-            lastActive: new Date(conv.updated_at).getTime(),
-            messages: msgRows.map((m: any) => ({
-              id: m.id,
-              role: m.role,
-              content: m.content,
-              timestamp: new Date(m.created_at).getTime(),
-            })),
-          };
-        }),
-      );
+      const conversations = rows.map((conv: any) => ({
+        id: conv.id,
+        title: conv.title,
+        createdAt: new Date(conv.created_at).getTime(),
+        lastActive: new Date(conv.updated_at).getTime(),
+        messages: (conv.messages || []).map((m: any) => ({
+          id: m.id,
+          role: m.role,
+          content: m.content,
+          timestamp: new Date(m.created_at).getTime(),
+        })),
+      }));
 
       sendJson(res, 200, conversations);
       return;

@@ -120,7 +120,11 @@ export function subscribeToRealtimeTelemetry(
   callback: (payload: any) => void,
 ): { unsubscribe: () => void } {
   let lastFingerprint = "";
+  // Increased interval to 60s — Global stats don't need sub-10s updates
   const intervalId = window.setInterval(async () => {
+    // 🛡️ VISIBILITY GUARD: Stop polling if tab is backgrounded
+    if (document.visibilityState !== 'visible') return;
+
     try {
       const [telemetry, leaderboard] = await Promise.all([
         fetchGlobalTelemetry(),
@@ -134,32 +138,42 @@ export function subscribeToRealtimeTelemetry(
     } catch (error) {
       log.error("Leaderboard polling failed", error);
     }
-  }, 6000);
+  }, 60000);
 
   return {
     unsubscribe: () => window.clearInterval(intervalId),
   };
 }
 
+export async function syncAllUserDataCloud(): Promise<Record<string, VaultResponse<any>> | null> {
+  if (!getCurrentUserId()) return null;
+  return apiRequest<Record<string, VaultResponse<any>>>("/api/app/vault/sync");
+}
+
 export async function subscribeToUserDataSync(
   callback: (payload: any) => void,
 ): Promise<{ unsubscribe: () => void }> {
   let lastFingerprint = "";
+  // Increased interval to 30s to save CPU and Edge Requests
   const intervalId = window.setInterval(async () => {
     if (!getCurrentUserId()) return;
-    // 🛡️ VISIBILITY GUARD: Only poll if the tab is active to avoid multi-tab noise
     if (document.visibilityState !== 'visible') return;
 
     try {
-      const snapshot = await Promise.all([
-        loadTrackerDataCloud(),
-        loadSettingsCloud(),
-        loadRoutinesCloud(),
-        loadRoutineHistoryCloud(),
-        loadBookmarksCloud(),
-        loadTasksCloud(),
-        loadTimerStateCloud(),
-      ]);
+      const snapshotMap = await syncAllUserDataCloud();
+      if (!snapshotMap) return;
+
+      // The order must match what performBackgroundSync expects or we handle the map
+      const snapshot = [
+        snapshotMap.tracker,
+        snapshotMap.settings,
+        snapshotMap.routines,
+        snapshotMap.history,
+        snapshotMap.bookmarks,
+        snapshotMap.tasks,
+        snapshotMap.timer,
+      ];
+
       const fingerprint = JSON.stringify(snapshot);
       if (fingerprint !== lastFingerprint) {
         lastFingerprint = fingerprint;
@@ -172,7 +186,7 @@ export async function subscribeToUserDataSync(
     } catch (error) {
       log.error("User data polling failed", error);
     }
-  }, 5000);
+  }, 30000);
 
   return {
     unsubscribe: () => window.clearInterval(intervalId),

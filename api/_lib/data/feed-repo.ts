@@ -246,17 +246,18 @@ export async function parseAndNotifyMentions(
   // Dedupe and cap at 5 mentions to prevent notification spam
   const usernames = [...new Set(mentions.map(m => m.slice(1).toLowerCase()))].slice(0, 5);
 
-  for (const username of usernames) {
-    try {
-      const { rows } = await pool.query(
-        `SELECT id FROM profiles WHERE LOWER(username) = $1`, [username]
-      );
-      if (rows.length > 0 && rows[0].id !== fromUserId) {
-        await createNotification(rows[0].id, fromUserId, type, postId, content.substring(0, 100));
+  try {
+    const { rows } = await pool.query(
+      `SELECT id FROM profiles WHERE LOWER(username) = ANY($1)`, [usernames]
+    );
+    
+    for (const row of rows) {
+      if (row.id !== fromUserId) {
+        await createNotification(row.id, fromUserId, type, postId, content.substring(0, 100));
       }
-    } catch {
-      // Skip failed notification silently
     }
+  } catch (error) {
+    // Skip failed notifications silently
   }
 }
 

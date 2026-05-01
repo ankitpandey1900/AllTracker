@@ -283,44 +283,49 @@ export async function checkDailyRoutineReset(): Promise<void> {
   const lastReset = await loadRoutineResetFromStorage();
   const isNewDay = lastReset !== today;
 
-  // 🛡️ CROSS-DEVICE GUARD: If any routine was touched today on another device,
-  // the reset has already effectively happened — don't re-process.
-  const alreadyTouchedToday = appState.routines.some(r => r.lastCompletedIso === today);
-
-  let needsSave = isNewDay;
+  let actuallyChanged = false;
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
   const yesterdayStr = getLocalIsoDate(yesterday);
   const yesterdayDay = yesterday.getDay();
 
-  // 🛡️ Integrity Check: One loop to handle both midnight resets and cloud-sync scrubs
+  // 🛡️ CROSS-DEVICE GUARD: If any routine was touched today on another device,
+  // the reset has already effectively happened — don't re-process streaks.
+  const alreadyTouchedToday = appState.routines.some(r => r.lastCompletedIso === today);
+
   appState.routines.forEach((item) => {
     // 1. Scrub stale cloud data (If it says 'Completed' but date is wrong)
     if (item.completed && item.lastCompletedIso !== today) {
       item.completed = false;
-      needsSave = true;
+      actuallyChanged = true;
     }
 
     // 2. Handle Streak Breaks + Fresh Start (Only on the first run of a new day)
     if (isNewDay && !alreadyTouchedToday) {
       const scheduledYesterday = !item.days || item.days.length === 0 || item.days.includes(yesterdayDay);
       if (scheduledYesterday && item.lastCompletedIso !== yesterdayStr && item.lastCompletedIso !== today) {
-        // Streak breaks only if NOT completed yesterday and NOT already done today (cross-device)
-        item.streak = 0;
+        if (item.streak !== 0) {
+          item.streak = 0;
+          actuallyChanged = true;
+        }
       }
 
-      // 🛡️ CROSS-DEVICE GUARD: Only reset completion if NOT already done today on another device
-      // Without this, opening the app on PC would wipe completions done on mobile today.
-      if (item.lastCompletedIso !== today) {
+      if (item.lastCompletedIso !== today && item.completed !== false) {
         item.completed = false;
+        actuallyChanged = true;
       }
     }
   });
 
-  if (needsSave) {
+  // Only save to cloud if something actually changed or it's a new day reset
+  if (actuallyChanged || isNewDay) {
     saveRoutinesToStorage(appState.routines);
     await saveRoutineResetToStorage(today);
-    updateDashboard(); 
-    renderRoutine();
+    
+    // Only refresh UI if something actually moved
+    if (actuallyChanged) {
+      updateDashboard(); 
+      renderRoutine();
+    }
   }
 }
