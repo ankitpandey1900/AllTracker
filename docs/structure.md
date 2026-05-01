@@ -9,9 +9,10 @@ This is the entire "DNA" of AllTracker. I’ve mapped out every single file so y
 ```text
 AllTracker/
 ├── api/                       # THE CLOUD (Vercel Serverless Backend)
-│   ├── app/                   # App-specific endpoints (Sessions, Tasks, Profile)
+│   ├── main.ts                # THE GATEWAY (Consolidated API Switchboard)
 │   ├── auth/                  # Better Auth OAuth endpoints
-│   └── _lib/                  # Shared backend logic and Database patterns
+│   ├── _routes/               # THE LOGIC (Implementation of all API paths)
+│   └── _lib/                  # THE FOUNDATION (DB, Auth, and HTTP patterns)
 ├── docs/                      # THE MANUALS (Where you are now)
 │   ├── engineering/           # Empty for now (Legacy)
 │   ├── development.md         # The Hacker's Blueprint
@@ -63,7 +64,8 @@ AllTracker/
 1.  **Pure TypeScript**: I skipped the heavy frameworks. We use Vanilla TS for near-zero memory footprint and total control over the DOM.
 2.  **Logic + UI Split**: In `src/features/`, you'll notice `feature.ts` handles the math/state, while `feature.ui.ts` handles the HTML. Never mix them.
 3.  **Local-First Sync**: We save to `localStorage` first (instant), then the **Data Bridge** pushes it to the cloud in the background.
-4.  **The Service Hierarchy**: 
+4.  **The API Gateway**: To bypass Vercel's 12-function limit, we use a single entry point (`api/main.ts`) that routes traffic to internal handlers in `api/_routes/`.
+5.  **The Service Hierarchy**: 
     - `api.service` = Low-level Fetch.
     - `vault.service` = Data Mapping.
     - `data-bridge` = Sync Orchestration.
