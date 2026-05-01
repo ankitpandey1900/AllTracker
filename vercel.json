@@ -3,6 +3,10 @@
     {
       "source": "/api/auth/(.*)",
       "destination": "/api/auth/[...auth]"
+    },
+    {
+      "source": "/api/app/(.*)",
+      "destination": "/api/main"
     }
   ],
   "redirects": [
