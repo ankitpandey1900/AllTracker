@@ -25,11 +25,8 @@ const apiMiddleware = () => ({
 
         if (path.startsWith('/api/auth/')) {
           filePath = resolve(__dirname, 'api/auth/[...auth].ts');
-        } else if (path.startsWith('/api/app/vault/')) {
-          const parts = path.split('/');
-          const name = parts[parts.length - 1];
-          filePath = resolve(__dirname, 'api/app/vault/[name].ts');
-          query.name = name;
+        } else if (path.startsWith('/api/app/')) {
+          filePath = resolve(__dirname, 'api/main.ts');
         } else {
           filePath = resolve(__dirname, `${path.slice(1)}.ts`);
         }

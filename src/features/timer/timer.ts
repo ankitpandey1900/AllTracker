@@ -56,6 +56,13 @@ export function initTimerModules(): void {
         return;
       }
 
+      // 🛡️ TERMINATION GUARD: If we just terminated locally, ignore all cloud states for a few seconds
+      const termLock = localStorage.getItem('timer_term_lock');
+      if (termLock && (Date.now() - parseInt(termLock)) < 8000) {
+        log.info('🛡️ CLOUD SYNC: Ignored (Termination Lock Active)');
+        return;
+      }
+
       const stateChanged =
         cloudIsRunning !== localIsRunning ||
         cloudOnBreak   !== localOnBreak   ||
@@ -345,7 +352,8 @@ export async function stopTimer(autoNote?: string, clampMs?: number): Promise<vo
     appState.activeTimer.sessionStartClock = null;
     appState.activeTimer.activeBreak = null; 
     appState.activeTimer.completedBreaks = [];
-    appState.activeTimer.lastUpdatedAt = Date.now(); // Mark as fresh stop
+    // 🛡️ TERMINATION LOCK: Ensure other tabs don't "restart" this session
+    localStorage.setItem('timer_term_lock', Date.now().toString());
     saveTimerState();
 
     document.body.classList.remove('focus-mode', 'focus-minimized', 'is-focusing');
@@ -385,7 +393,9 @@ export async function terminateTimer(): Promise<void> {
     !!appState.activeTimer.activeBreak;
   if (!hasActiveSession) return;
   const confirmed = await showTerminateConfirmModal();
-  if (!confirmed) return;
+  // 🛡️ TERMINATION LOCK: Prevent other tabs from "re-syncing" the session back to us
+  localStorage.setItem('timer_term_lock', Date.now().toString());
+  
   if (appState.timerInterval) clearInterval(appState.timerInterval);
   appState.activeTimer.isRunning = false; 
   appState.activeTimer.elapsedAcc = 0;
@@ -393,9 +403,9 @@ export async function terminateTimer(): Promise<void> {
   appState.activeTimer.category = null;
   appState.activeTimer.colName = ''; 
   appState.activeTimer.activeBreak = null;
-  appState.activeTimer.lastUpdatedAt = Date.now(); // Mark as terminated
+  appState.activeTimer.lastUpdatedAt = Date.now(); // Mark as fresh termination
   
-  saveTimerState(); // Notify other devices to clear HUD
+  saveTimerState(); // Notify other devices to clear HUD immediately
   notificationService.stopAmbient(); 
   await clearTimerStateDB();
   

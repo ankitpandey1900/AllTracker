@@ -134,13 +134,15 @@ export const dashboardView = `
               <div id="categoryCards" class="grid-top" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px;"></div>
             </div>
 
-            <article class="card" style="margin-top: 24px; padding: 20px;">
-              <div class="row-between section-heading" style="margin-bottom: 10px;">
-                <h3 style="font-size: 0.75rem;">OVERALL ALLOCATION</h3>
-                <span id="completionPercentMirror" style="font-size: 0.75rem; color: #818cf8; font-weight: 800;">0%</span>
+              <div class="mission-header-centered">
+                <h2 class="sub-heading-tactical">OVERALL ALLOCATION</h2>
+                <div class="mission-total-badge">
+                  <span class="mission-total-label">TOTAL MISSION</span>
+                  <span id="allocationTotal" class="mission-total-value">0%</span>
+                </div>
               </div>
-              <div id="allocationBar" class="allocation-bar" style="height: 12px; background: rgba(255,255,255,0.03); border-radius: 0px; overflow: hidden; display: flex;"></div>
-              <div id="allocationLegend" class="legend" style="margin-top: 12px; display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px;"></div>
+              <div id="allocationBar" class="allocation-bar"></div>
+              <div id="allocationLegend" class="legend-flex"></div>
             </article>
           </div>
 

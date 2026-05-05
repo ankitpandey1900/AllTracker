@@ -39,14 +39,18 @@ export const DEFAULT_COLUMNS = [
 
 /** Colors for the different study categories in the analytics */
 export const CATEGORY_COLORS = [
-  '#2dd4bf', // Teal (accent-teal)
-  '#60a5fa', // Blue (accent-blue)
-  '#818cf8', // Indigo (accent-purple)
-  '#fbbf24', // Amber (accent-gold)
-  '#f87171', // Red (accent-red)
-  '#22d3ee', // Cyan
-  '#c084fc', // Purple
-  '#f472b6', // Pink
+  '#2dd4bf', // Teal
+  '#f59e0b', // Amber
+  '#3b82f6', // Blue
+  '#ec4899', // Pink
+  '#ef4444', // Red
+  '#8b5cf6', // Violet
+  '#06b6d4', // Cyan
+  '#10b981', // Emerald
+  '#f97316', // Orange
+  '#84cc16', // Lime
+  '#d946ef', // Fuchsia
+  '#6366f1', // Indigo
 ];
 
 // --- Database Registry (Internal Metadata) ---

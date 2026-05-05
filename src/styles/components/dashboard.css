@@ -389,6 +389,30 @@
   --accent-rgb: 34, 211, 238;
 }
 
+.accent-pink {
+  --accent-rgb: 236, 72, 153;
+}
+
+.accent-emerald {
+  --accent-rgb: 16, 185, 129;
+}
+
+.accent-orange {
+  --accent-rgb: 249, 115, 22;
+}
+
+.accent-lime {
+  --accent-rgb: 132, 204, 22;
+}
+
+.accent-fuchsia {
+  --accent-rgb: 217, 70, 239;
+}
+
+.accent-indigo {
+  --accent-rgb: 99, 102, 241;
+}
+
 .rank-card {
   border-color: rgba(107, 126, 190, 0.55);
 }
@@ -441,57 +465,134 @@
   color: #8ea0c9;
 }
 
+/* --- Premium Allocation Bar --- */
 .allocation-bar {
-  height: 8px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
-  margin: 10px 0 8px;
+  height: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 99px;
+  margin: 12px 0 24px;
   overflow: hidden;
   display: flex;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.05);
 }
 
 .allocation-segment {
   height: 100%;
-  transition: width 0.4s ease;
+  position: relative;
+  transition: all 0.3s ease;
+  overflow: hidden;
 }
 
-.allocation-scale {
+.segment-shine {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  animation: shine 3s infinite linear;
+}
+
+.legend-flex {
   display: flex;
-  justify-content: space-between;
-  color: #7f90b8;
-  font-size: 0.95rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  padding: 0;
 }
 
-.legend-item {
+.legend-pill {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.8rem;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 6px 12px;
+  border-radius: 99px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.2s ease;
+}
+
+.legend-pill:hover {
+  background: rgba(var(--accent-rgb), 0.1);
+  border-color: rgba(var(--accent-rgb), 0.2);
+  transform: scale(1.02);
 }
 
 .legend-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  flex-shrink: 0;
+  box-shadow: 0 0 8px var(--accent);
 }
 
 .legend-label {
-  color: #9aaed4;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .legend-value {
-  color: #c5d5f0;
-  font-weight: 600;
-  margin-left: 2px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fff;
+  opacity: 0.9;
 }
 
-.legend {
+.legend-pct-pill {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 0.55rem;
+  font-weight: 900;
+  color: #818cf8;
+}
+
+/* --- Completion Badge --- */
+.mission-header-centered {
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 12px;
-  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 20px;
+}
+
+.sub-heading-tactical {
+  font-size: 0.65rem;
+  letter-spacing: 2px;
+  color: #64748b;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.mission-total-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mission-total-label {
+  font-size: 0.5rem;
+  font-weight: 900;
+  color: #475569;
+  letter-spacing: 2px;
+}
+
+.mission-total-value {
+  font-family: 'Tektur', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1;
+  text-shadow: 0 0 15px rgba(255,255,255,0.2);
 }
 
 .card {

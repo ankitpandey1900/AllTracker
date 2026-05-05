@@ -118,7 +118,23 @@ export async function clearTimerStateDB(): Promise<void> {
   const idleState = { isRunning: false, elapsedAcc: 0, startTime: null, category: null, colName: '', sessionStartClock: null, lastUpdatedAt: Date.now() };
   saveLocal(STORAGE_KEYS.TIMER, idleState);
   updateLocalTimestamp(STORAGE_KEYS.TIMER);
-  if (isAuthenticated()) saveTimerStateCloud(idleState).catch(() => {});
+  
+  if (isAuthenticated()) {
+    // 🛡️ PERSISTENT WIPE: Retry up to 3 times to ensure the cloud is cleaned
+    let attempts = 0;
+    const tryWipe = async () => {
+      try {
+        await saveTimerStateCloud(idleState);
+        log.info('🛰️ CLOUD WIPE: Timer state cleared successfully.');
+      } catch (err) {
+        if (attempts < 3) {
+          attempts++;
+          setTimeout(tryWipe, 2000 * attempts);
+        }
+      }
+    };
+    tryWipe();
+  }
 }
 
 // --- Cloud Sync Orchestration ---
@@ -147,6 +163,19 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
     sync(STORAGE_KEYS.ROUTINES, cloudRoutines, appState.routines, (d: any) => { appState.routines = d; saveLocal(STORAGE_KEYS.ROUTINES, d); }, saveRoutinesCloud);
     sync(STORAGE_KEYS.TASKS, cloudTasks, appState.tasks, (d: any) => { appState.tasks = d; saveLocal(STORAGE_KEYS.TASKS, d); }, saveTasksCloud);
     sync(STORAGE_KEYS.BOOKMARKS, cloudBookmarks, appState.bookmarks, (d: any) => { appState.bookmarks = d; saveLocal(STORAGE_KEYS.BOOKMARKS, d); }, saveBookmarksCloud);
+
+    // 🛡️ GHOST HUNTER: If cloud timer is >24h old and running, it's a ghost. Nuke it.
+    if (cloudTimer?.data?.isRunning && cloudTimer?.data?.startTime) {
+      const elapsed = Date.now() - cloudTimer.data.startTime;
+      if (elapsed > 86400000) { // 24 Hours
+        log.warn('👻 GHOST DETECTED: Nuking impossible cloud session.');
+        await clearTimerStateDB();
+      } else {
+        Object.assign(appState.activeTimer, cloudTimer.data);
+      }
+    } else if (cloudTimer?.data) {
+      Object.assign(appState.activeTimer, cloudTimer.data);
+    }
 
     // Profile Restore
     const profile = await loadUserProfileCloud();

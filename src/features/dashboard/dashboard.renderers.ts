@@ -112,7 +112,11 @@ export function renderSectorTokens(today: any): void {
     return formatDate(d);
   };
 
-  const accentClasses = ['accent-teal', 'accent-blue', 'accent-purple', 'accent-gold', 'accent-red', 'accent-cyan', 'accent-purple', 'accent-red'];
+  const accentClasses = [
+    'accent-teal', 'accent-blue', 'accent-purple', 'accent-gold', 'accent-red', 
+    'accent-cyan', 'accent-pink', 'accent-emerald', 'accent-orange', 'accent-lime',
+    'accent-fuchsia', 'accent-indigo'
+  ];
 
   const studyCats = currentCols.map((col, i) => {
     const total = totals.studyHours[i] || 0;
@@ -216,13 +220,22 @@ export function renderAllocationBar(): void {
     .map((v: number, i: number) => ({ name: labels[i] || `Col ${i + 1}`, value: v, color: CATEGORY_COLORS[i % CATEGORY_COLORS.length] }))
     .filter((s: { value: number }) => s.value > 0);
 
+  const completedDays = appState.trackerData.filter(d => d.completed).length;
+  const totalDays = appState.totalDays || 1;
+  const missionPct = Math.round((completedDays / totalDays) * 100);
+  
+  const totalDisplay = document.getElementById('allocationTotal');
+  if (totalDisplay) totalDisplay.textContent = `${missionPct}%`;
+
   if (segments.length === 0) {
-    const completedDays = appState.trackerData.filter(d => d.completed).length;
-    const totalDays = appState.totalDays || 1;
-    const pct = Math.round((completedDays / totalDays) * 100);
-    bar.innerHTML = `<div class="allocation-segment" style="width:${pct}%;background:linear-gradient(90deg,#6a8fff,#8b5cf6)" title="Overall: ${pct}% complete"></div>`;
+    bar.innerHTML = `<div class="allocation-segment" style="width:${missionPct}%;background:linear-gradient(90deg,#6a8fff,#8b5cf6)" title="Overall: ${missionPct}% complete"></div>`;
     const legend = document.getElementById('allocationLegend');
-    if (legend) legend.innerHTML = `<div class="legend-item"><span class="legend-dot" style="background:#6a8fff"></span><span class="legend-label">Overall Completion</span><span class="legend-value">${pct}%</span></div>`;
+    if (legend) legend.innerHTML = `
+      <div class="legend-pill" style="--accent: #6a8fff">
+        <span class="legend-dot" style="background:#6a8fff"></span>
+        <span class="legend-label">Overall Completion</span>
+        <span class="legend-value">${missionPct}%</span>
+      </div>`;
     return;
   }
 
@@ -240,20 +253,29 @@ export function renderAllocationBar(): void {
   bar.innerHTML = segments
     .map((s: { name: string; value: number; color: string }) => {
       const pct = ((s.value / allTimeTotal) * 100).toFixed(1);
-      return `<div class="allocation-segment" style="width:${pct}%;background:${s.color}" title="${s.name}: ${formatDuration(s.value)} (${pct}%)"></div>`;
+      return `
+        <div class="allocation-segment" 
+             style="width:${pct}%; background:${s.color};" 
+             title="${s.name}: ${formatDuration(s.value)} (${pct}%)">
+          <div class="segment-shine"></div>
+        </div>`;
     })
     .join('');
 
   const legend = document.getElementById('allocationLegend');
   if (legend) {
     legend.innerHTML = segments
-      .map((s: { name: string; value: number; color: string }) => `
-        <div class="legend-item">
-          <span class="legend-dot" style="background:${s.color}"></span>
-          <span class="legend-label">${s.name}</span>
-          <span class="legend-value">${formatDuration(s.value)}</span>
-        </div>
-      `)
+      .map((s: { name: string; value: number; color: string }) => {
+        const pct = Math.round((s.value / allTimeTotal) * 100);
+        return `
+          <div class="legend-pill" style="--accent: ${s.color}">
+            <span class="legend-dot" style="background:${s.color}"></span>
+            <span class="legend-label">${s.name}</span>
+            <span class="legend-value">${formatDuration(s.value)}</span>
+            <span class="legend-pct-pill">${pct}%</span>
+          </div>
+        `;
+      })
       .join('');
   }
 }
