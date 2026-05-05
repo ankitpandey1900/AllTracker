@@ -89,7 +89,7 @@ export async function igniteApp(): Promise<void> {
 
     // 7. Tactical Sync Handshake (Wait briefly for cloud data to ensure freshness)
     const loaderText = document.querySelector('.loader-text');
-    if (loaderText) loaderText.textContent = "SYNCING MISSION DATA...";
+    if (loaderText) loaderText.textContent = "Processing... Thoda time lagega";
 
     await Promise.race([
       initSyncAuth(),
