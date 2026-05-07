@@ -4,7 +4,7 @@ import { toggleFocusHUD } from "@/features/dashboard/dashboard";
 import { renderSessionHistory } from "@/features/dashboard/session-history";
 import { scrollToToday, setupKeyboardShortcuts, showWeeklySummary, handleReset } from "@/features/shortcuts/shortcuts";
 import { exportAllData, exportTrackerDataCSV } from "@/features/export/export";
-import { openSettingsModal, applyDateSettings, applyColumnSettings, addCustomRange } from "@/features/settings/settings";
+import { openSettingsModal, applyColumnSettings, addCustomRange } from "@/features/settings/settings";
 import { renderBadges } from "@/features/dashboard/badges";
 import { renderPerformanceCurve } from "@/features/routines/performance-chart";
 import { renderRadarStats } from "@/features/routines/radar-stats";
@@ -118,7 +118,6 @@ export function setupEventListeners(): void {
   bindClick("settingsBtn", openSettingsModal);
   bindClick("userManualBtn", () => document.getElementById("userManualModal")?.classList.add("active"));
   bindClick("closeUserManualModal", () => document.getElementById("userManualModal")?.classList.remove("active"));
-  bindClick("applyDateSettings", applyDateSettings);
   bindClick("applyColumnSettings", applyColumnSettings);
   bindClick("applyThemeBtn", () => {
     import('@/features/settings/settings').then(m => m.applyThemeSettings());

@@ -75,15 +75,32 @@ export function showWeeklySummary(): void {
   }
 
   const weekData = weeks.map((week, wi) => {
-    const cols = getColumnsForDay(week[0].day);
-    const completed = week.filter((d) => d.completed).length;
-    const totalHours = week.reduce((s, d) => s + (Array.isArray(d.studyHours) ? d.studyHours.reduce((x, n) => x + (n || 0), 0) : 0), 0);
-    const categoryTotals = cols.map((_, ci) => week.reduce((s, d) => s + (d.studyHours?.[ci] || 0), 0));
+    // Aggregation by NAME for phase-safety
+    const catMap = new Map<string, number>();
+    let completed = 0;
+    let totalHours = 0;
+
+    week.forEach(day => {
+      if (day.completed) completed++;
+      const dayCols = getColumnsForDay(day.day);
+      if (Array.isArray(day.studyHours)) {
+        day.studyHours.forEach((h, ci) => {
+          const name = dayCols[ci]?.name;
+          if (name && (h || 0) > 0) {
+            catMap.set(name, (catMap.get(name) || 0) + (h || 0));
+            totalHours += (h || 0);
+          }
+        });
+      }
+    });
     
-    return { week, wi, cols, completed, totalHours, categoryTotals };
+    // For the UI display, we use the columns from the FIRST day of that week
+    const displayCols = getColumnsForDay(week[0].day);
+    
+    return { week, wi, displayCols, catMap, completed, totalHours };
   });
 
-  content.innerHTML = weekData.map(({ week, wi, cols, completed, totalHours, categoryTotals }) => {
+  content.innerHTML = weekData.map(({ week, wi, displayCols, catMap, completed, totalHours }) => {
     const weeklyAvg = totalHours / 7;
 
     return `
@@ -106,12 +123,15 @@ export function showWeeklySummary(): void {
             <div class="weekly-label" style="color: #60a5fa;">Weekly Avg</div>
             <div class="weekly-value">${weeklyAvg.toFixed(1)}<span class="weekly-sub">h/d</span></div>
           </div>
-          ${cols.map((col, ci) => `
-            <div class="weekly-metric">
-              <div class="weekly-label">${col.name}</div>
-              <div class="weekly-value">${categoryTotals[ci].toFixed(1)}<span class="weekly-sub">h</span></div>
-            </div>
-          `).join('')}
+          ${displayCols.map((col) => {
+            const val = catMap.get(col.name) || 0;
+            return `
+              <div class="weekly-metric">
+                <div class="weekly-label">${col.name}</div>
+                <div class="weekly-value">${val.toFixed(1)}<span class="weekly-sub">h</span></div>
+              </div>
+            `;
+          }).join('')}
         </div>
       </section>
     `;

@@ -40,26 +40,7 @@ export const settingsModal = `
           </div>
         </div>
 
-        <div class="settings-section">
-          <div class="settings-card">
-            <div class="settings-card-header">
-              <h4>Date Range</h4>
-            </div>
-            <div class="range-grid">
-              <div class="settings-group">
-                <label>Start Date</label>
-                <input id="startDateInput" class="settings-input" type="date" />
-              </div>
-              <div class="settings-group">
-                <label>End Date</label>
-                <input id="endDateInput" class="settings-input" type="date" />
-              </div>
-            </div>
-            <button id="applyDateSettings" class="btn btn-primary w-full">
-              Apply Dates
-            </button>
-          </div>
-        </div>
+
 
         <div class="settings-section">
           <div class="row-between section-heading" style="margin-top: 10px">

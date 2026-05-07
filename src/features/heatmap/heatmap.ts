@@ -1,25 +1,28 @@
-/**
- * Handles the 'Frequency' (Heatmap) grid.
- * 
- * This draws the grid of squares that show how much you studied each day.
- */
-
 import { appState } from '@/state/app-state';
-import { formatDate } from '@/utils/date.utils';
+import { formatDate, getLocalIsoDate } from '@/utils/date.utils';
 import { setTxt } from '@/utils/dom.utils';
 
-// --- Work out the color level ---
+// --- Intensity Levels ---
 
 function getHeatmapLevel(hours: number): number {
   if (hours === 0) return 0;
-  if (hours < 2) return 1;
-  if (hours < 4) return 2;
+  if (hours < 1) return 1;
+  if (hours < 3) return 2;
   if (hours < 6) return 3;
-  if (hours < 8) return 4;
+  if (hours < 9) return 4;
   return 5;
 }
 
-// --- Draw the Grid ---
+// --- Interaction & Tooltips ---
+
+function createTooltip(cell: HTMLElement, dateStr: string, hours: number, isOutOfRange: boolean): void {
+  const title = isOutOfRange 
+    ? `${dateStr}: Outside active study range`
+    : `${dateStr}: ${hours.toFixed(1)} hours of focus`;
+  cell.setAttribute('title', title);
+}
+
+// --- UI Entry Points ---
 
 export function renderHeatmap(): void {
   const grid = document.getElementById('heatmapGrid');
@@ -35,79 +38,43 @@ export function renderHeatmapModal(): void {
   renderAdvancedHeatmap(grid, labels, 'modal');
 }
 
-function localYMD(d: Date): string {
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
-
-function renderMonthLabels(container: HTMLElement, year: number): void {
-  container.innerHTML = '';
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  
-  // To align, we check which week each month starts in
-  const startDate = new Date(year, 0, 1);
-  const firstDayOffset = startDate.getDay(); // 0-6 spacers
-
-  months.forEach((name, i) => {
-    const monthFirst = new Date(year, i, 1);
-    // Rough week calculation for alignment
-    const dayOfYear = Math.floor((monthFirst.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-    const weekIndex = Math.floor((dayOfYear + firstDayOffset) / 7);
-    
-    const span = document.createElement('span');
-    span.className = 'month-label';
-    span.innerText = name;
-    // Align based on week column (12px cell + 3px gap)
-    span.style.left = `${weekIndex * 15}px`; 
-    container.appendChild(span);
-  });
-}
+// --- Core Rendering Engine ---
 
 function renderAdvancedHeatmap(grid: HTMLElement, labels: HTMLElement, mode: 'dashboard' | 'modal' | 'none'): void {
   grid.innerHTML = '';
-  if (appState.trackerData.length === 0) return;
+  if (!appState.trackerData || appState.trackerData.length === 0) return;
 
-  // 1. Map the data by date for quick access
-  const dataMap = new Map<string, number>();
-  let totalStudyDays = 0;
-  let totalHours = 0;
-  let bestDay = { day: 0, hours: 0, date: '' };
-
-  const firstDateObj = new Date(appState.trackerData[0].date);
-  const lastDateObj = new Date(appState.trackerData[appState.trackerData.length - 1].date);
-  const firstRangeKey = localYMD(firstDateObj);
-  const lastRangeKey = localYMD(lastDateObj);
-
-  appState.trackerData.forEach((dayData) => {
-    const totalDayHours = Array.isArray(dayData.studyHours) ? dayData.studyHours.reduce((s, n) => s + (n || 0), 0) : 0;
-    const key = localYMD(new Date(dayData.date));
-    dataMap.set(key, totalDayHours);
-
-    if (totalDayHours > 0) {
-      totalStudyDays++;
-      totalHours += totalDayHours;
-      if (totalDayHours > bestDay.hours) {
-        bestDay = { day: dayData.day, hours: totalDayHours, date: dayData.date };
-      }
-    }
-  });
-
-  // 2. Identify Year and Range
+  // 1. Determine Selected Year
   const yearSelect = document.getElementById('heatmapYearSelect') as HTMLSelectElement;
-  let yearStart = firstDateObj.getFullYear();
+  let viewYear = new Date().getFullYear();
   if (yearSelect && yearSelect.value) {
-    yearStart = parseInt(yearSelect.value, 10);
+    viewYear = parseInt(yearSelect.value, 10);
   }
 
-  renderMonthLabels(labels, yearStart);
+  // 2. Pivot Data for Quick Access
+  const dataMap = new Map<string, number>();
+  appState.trackerData.forEach(d => {
+    const total = Array.isArray(d.studyHours) ? d.studyHours.reduce((s, n) => s + (n || 0), 0) : 0;
+    dataMap.set(d.date.split('T')[0], total);
+  });
 
-  const startDate = new Date(yearStart, 0, 1);
-  const endDate = new Date(yearStart, 11, 31);
+  // 3. Define the Global Sprint Bounds (for dimming out-of-range cells)
+  const firstDataDate = appState.trackerData[0].date.split('T')[0];
+  const lastDataDate = appState.trackerData[appState.trackerData.length - 1].date.split('T')[0];
 
-  // 3. Build Full Year Grid
-  // Add leading spacers for the first week to align Jan 1st with its day of week
+  // 4. Year-Specific Statistics Accumulators
+  let yearStudyDays = 0;
+  let yearTotalHours = 0;
+  let yearBestDay = { hours: 0, date: '' };
+
+  // 5. Month Label Alignment
+  renderMonthLabels(labels, viewYear);
+
+  // 6. Build the Grid (GitHub-style Column-First layout)
+  const startDate = new Date(viewYear, 0, 1);
+  const endDate = new Date(viewYear, 11, 31);
+
+  // Pre-fill spacers for the first week
   const firstDayOfWeek = startDate.getDay(); // 0=Sun, 1=Mon...
   for (let i = 0; i < firstDayOfWeek; i++) {
     const spacer = document.createElement('div');
@@ -118,42 +85,64 @@ function renderAdvancedHeatmap(grid: HTMLElement, labels: HTMLElement, mode: 'da
 
   const current = new Date(startDate);
   while (current <= endDate) {
-    const dateKey = localYMD(current);
+    const dateKey = getLocalIsoDate(current);
     const hours = dataMap.get(dateKey) || 0;
     const level = getHeatmapLevel(hours);
     
+    // Accumulate year-specific stats
+    if (hours > 0) {
+      yearStudyDays++;
+      yearTotalHours += hours;
+      if (hours > yearBestDay.hours) {
+        yearBestDay = { hours, date: dateKey };
+      }
+    }
+
     const cell = document.createElement('div');
     cell.className = 'heatmap-cell';
+    cell.setAttribute('data-level', String(level));
     
-    // Improved out-of-range logic:
-    // We only dim if the year matches a tracked year but the date is before/after the sprint.
-    // If the year is completely untracked, we show it as a clean empty grid.
-    const hasDataInThisYear = (firstDateObj.getFullYear() === yearStart || lastDateObj.getFullYear() === yearStart);
-    const isOutOfRange = hasDataInThisYear && (dateKey < firstRangeKey || dateKey > lastRangeKey);
-
+    // Range Detection
+    const isOutOfRange = dateKey < firstDataDate || dateKey > lastDataDate;
     if (isOutOfRange) cell.classList.add('out-of-range');
     
-    cell.setAttribute('data-level', String(level));
-    const title = isOutOfRange 
-      ? `${formatDate(current)}: Outside active study range`
-      : `${formatDate(current)}: ${hours.toFixed(1)} hours`;
-    cell.setAttribute('title', title);
-    
+    createTooltip(cell, formatDate(current), hours, isOutOfRange);
     grid.appendChild(cell);
+
     current.setDate(current.getDate() + 1);
   }
 
-  // 4. Update Stats (only if updateStats is requested)
+  // 7. Update Statistics Footer (Year-Pivot Mode)
   if (mode !== 'none') {
-    const avgHours = totalStudyDays > 0 ? (totalHours / totalStudyDays).toFixed(1) : '0';
+    const avgHours = yearStudyDays > 0 ? (yearTotalHours / yearStudyDays).toFixed(1) : '0';
     const prefix = mode === 'modal' ? 'heatmapModal' : 'heatmap';
     
-    setTxt(`${prefix}StudyDays`, totalStudyDays);
+    setTxt(`${prefix}StudyDays`, yearStudyDays);
     setTxt(`${prefix}AvgHours`, avgHours);
     
     const bestDayEl = document.getElementById(`${prefix}BestDay`);
     if (bestDayEl) {
-      bestDayEl.innerText = bestDay.hours > 0 ? `${formatDate(new Date(bestDay.date))} (${bestDay.hours.toFixed(1)}h)` : '-';
+      bestDayEl.innerText = yearBestDay.hours > 0 ? `${formatDate(new Date(yearBestDay.date))} (${yearBestDay.hours.toFixed(1)}h)` : '-';
     }
   }
+}
+
+function renderMonthLabels(container: HTMLElement, year: number): void {
+  container.innerHTML = '';
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const startDate = new Date(year, 0, 1);
+  const firstDayOffset = startDate.getDay();
+
+  months.forEach((name, i) => {
+    const monthFirst = new Date(year, i, 1);
+    const dayOfYear = Math.floor((monthFirst.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    const weekIndex = Math.floor((dayOfYear + firstDayOffset) / 7);
+    
+    const span = document.createElement('span');
+    span.className = 'month-label';
+    span.innerText = name;
+    // Align based on CSS column width (12px cell + 3px gap)
+    span.style.left = `${weekIndex * 15}px`; 
+    container.appendChild(span);
+  });
 }

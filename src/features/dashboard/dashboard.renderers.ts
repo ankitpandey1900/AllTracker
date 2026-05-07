@@ -1,4 +1,4 @@
-import { appState } from '@/state/app-state';
+import { appState, getColumnsForDay } from '@/state/app-state';
 import { CATEGORY_COLORS } from '@/config/constants';
 import { formatDuration, formatDate } from '@/utils/date.utils';
 import { getRecentVelocity } from '@/utils/calc.utils';
@@ -84,21 +84,28 @@ export function renderSectorTokens(today: any): void {
   const container = document.getElementById('categoryCards');
   if (!container) return;
 
-  const currentCols = appState.settings.columns || [];
-  const totals = appState.trackerData.reduce(
-    (acc, d) => {
-      if (Array.isArray(d.studyHours)) {
-        d.studyHours.forEach((v, i) => {
-          acc.studyHours[i] = (acc.studyHours[i] || 0) + (v || 0);
-        });
-      }
-      acc.problems += (d.problemsSolved || 0);
-      return acc;
-    },
-    { studyHours: [] as number[], problems: 0 },
-  );
+  // 🛰️ DYNAMIC PHASE SYNC: Aggregate by category NAME, not INDEX
+  const categoryTotals = new Map<string, number>();
+  let totalProblems = 0;
 
+  appState.trackerData.forEach(d => {
+    // Get the column names for THIS specific day
+    const dayCols = getColumnsForDay(d.day);
+    if (Array.isArray(d.studyHours)) {
+      d.studyHours.forEach((v, i) => {
+        const colName = dayCols[i]?.name;
+        if (colName && (v || 0) > 0) {
+          categoryTotals.set(colName, (categoryTotals.get(colName) || 0) + (v || 0));
+        }
+      });
+    }
+    totalProblems += (d.problemsSolved || 0);
+  });
+
+  // For the UI, we show the columns active TODAY
+  const todayCols = getColumnsForDay(today.day);
   const daysElapsed = Math.max(1, today.day);
+
   const estimateTargetDate = (total: number, target: number): string => {
     if (target <= 0) return '-';
     if (total >= target) return 'Done';
@@ -118,8 +125,8 @@ export function renderSectorTokens(today: any): void {
     'accent-fuchsia', 'accent-indigo'
   ];
 
-  const studyCats = currentCols.map((col, i) => {
-    const total = totals.studyHours[i] || 0;
+  const studyCats = todayCols.map((col, i) => {
+    const total = categoryTotals.get(col.name) || 0;
     const target = col.target || 0;
     return {
       label: col.name,
@@ -136,7 +143,7 @@ export function renderSectorTokens(today: any): void {
     ...studyCats,
     {
       label: 'Problems Solved',
-      value: totals.problems,
+      value: totalProblems,
       target: 0,
       accent: 'accent-red',
       hexColor: '#f87171',
@@ -201,24 +208,27 @@ export function renderAllocationBar(): void {
   const bar = document.getElementById('allocationBar');
   if (!bar) return;
 
-  const currentCols = appState.settings.columns || [];
-  const labels = currentCols.map(c => c.name);
+  const categoryMap = new Map<string, number>();
 
-  const values = appState.trackerData.reduce(
-    (acc, d) => {
-      if (Array.isArray(d.studyHours)) {
-        d.studyHours.forEach((v, i) => {
-          acc[i] = (acc[i] || 0) + (v || 0);
-        });
-      }
-      return acc;
-    },
-    [] as number[]
-  );
+  appState.trackerData.forEach(d => {
+    const dayCols = getColumnsForDay(d.day);
+    if (Array.isArray(d.studyHours)) {
+      d.studyHours.forEach((v, i) => {
+        const colName = dayCols[i]?.name;
+        if (colName && (v || 0) > 0) {
+          categoryMap.set(colName, (categoryMap.get(colName) || 0) + (v || 0));
+        }
+      });
+    }
+  });
 
-  let segments = values
-    .map((v: number, i: number) => ({ name: labels[i] || `Col ${i + 1}`, value: v, color: CATEGORY_COLORS[i % CATEGORY_COLORS.length] }))
-    .filter((s: { value: number }) => s.value > 0);
+  let segments = Array.from(categoryMap.entries())
+    .map(([name, value], i) => ({ 
+      name, 
+      value, 
+      color: CATEGORY_COLORS[i % CATEGORY_COLORS.length] 
+    }))
+    .filter(s => s.value > 0);
 
   const completedDays = appState.trackerData.filter(d => d.completed).length;
   const totalDays = appState.totalDays || 1;

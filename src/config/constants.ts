@@ -28,8 +28,8 @@ export const STORAGE_KEYS = {
 
 // --- Default Dates ---
 
-export const DEFAULT_START_DATE = new Date();
-export const DEFAULT_END_DATE = new Date(new Date().getFullYear(), 11, 31); // End of the current year
+export const DEFAULT_START_DATE = new Date(new Date().getFullYear(), 0, 1); // Jan 1st
+export const DEFAULT_END_DATE = new Date(new Date().getFullYear(), 11, 31); // Dec 31st
 
 // --- Default Study Groups ---
 

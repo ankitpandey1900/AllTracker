@@ -5,7 +5,7 @@
  * study categories, and changing themes.
  */
 
-import { appState, calculateDates, initializeData } from '@/state/app-state';
+import { appState, calculateDates, initializeData, syncTrackerTimelineWithSettings } from '@/state/app-state';
 import { showToast } from '@/utils/dom.utils';
 import { saveSettingsToStorage, saveTrackerDataToStorage } from '@/services/data-bridge';
 import { generateTable } from '@/features/tracker/tracker';
@@ -18,8 +18,8 @@ export function openSettingsModal(): void {
   const s = appState.settings;
   const modal = document.getElementById('settingsModal');
 
-  (document.getElementById('startDateInput') as HTMLInputElement).value = s.startDate;
-  (document.getElementById('endDateInput') as HTMLInputElement).value = s.endDate;
+  // Global date range is now derived from phases
+
   
   const themeInput = document.getElementById('themeSelectInput') as HTMLSelectElement;
   if (themeInput) { themeInput.value = s.theme || 'default'; }
@@ -33,40 +33,8 @@ export function openSettingsModal(): void {
 
 // --- Date Settings ---
 
-export function applyDateSettings(): void {
-  const startDate = (document.getElementById('startDateInput') as HTMLInputElement).value;
-  const endDate = (document.getElementById('endDateInput') as HTMLInputElement).value;
+// Note: applyDateSettings removed as dates are now driven by Study Phases (Custom Ranges)
 
-  if (!startDate || !endDate) { showToast('Please select both start and end dates.', 'error'); return; }
-  if (new Date(startDate) >= new Date(endDate)) { showToast('End date must be after start date.', 'error'); return; }
-
-  appState.settings.startDate = startDate;
-  appState.settings.endDate = endDate;
-  
-  saveSettingsToStorage(appState.settings);
-  calculateDates();
-
-  const oldData = [...appState.trackerData];
-  appState.trackerData = initializeData();
-
-  const newStart = new Date(appState.settings.startDate);
-  oldData.forEach((oldDay) => {
-    const oldDate = new Date(oldDay.date);
-    if (oldDate >= newStart && oldDate <= new Date(appState.settings.endDate)) {
-      const dayIndex = Math.floor((oldDate.getTime() - newStart.getTime()) / (1000 * 60 * 60 * 24));
-      if (dayIndex >= 0 && dayIndex < appState.trackerData.length) {
-        appState.trackerData[dayIndex] = { ...appState.trackerData[dayIndex], ...oldDay, day: dayIndex + 1 };
-      }
-    }
-  });
-
-  saveTrackerDataToStorage(appState.trackerData);
-  generateTable();
-  updateDashboard();
-  renderHeatmap();
-  renderPerformanceCurve();
-  showToast('Dates updated successfully!', 'success');
-}
 
 // --- Category Settings ---
 
@@ -74,8 +42,9 @@ export function applyColumnSettings(): void {
   appState.settings.customRanges = [];
 
   document.querySelectorAll('.custom-range-item').forEach((item) => {
-    const startDay = parseInt((item.querySelector('.range-start') as HTMLInputElement).value);
-    const endDay = parseInt((item.querySelector('.range-end') as HTMLInputElement).value);
+    const startDate = (item.querySelector('.range-start') as HTMLInputElement).value;
+    const endDate = (item.querySelector('.range-end') as HTMLInputElement).value;
+    const name = (item.querySelector('.range-name') as HTMLInputElement)?.value || '';
     
     // Custom range category definitions
     const rangeCols: StudyCategory[] = [];
@@ -85,27 +54,52 @@ export function applyColumnSettings(): void {
       if (name) rangeCols.push({ name, target });
     });
 
-    if (startDay && endDay && startDay <= endDay) {
+    if (startDate && endDate && new Date(startDate) <= new Date(endDate)) {
       appState.settings.customRanges.push({
-        startDay,
-        endDay,
+        startDate,
+        endDate,
+        name,
         columns: rangeCols
       });
     }
   });
 
-  if (appState.settings.customRanges.length === 0) {
-    showToast('Please add at least one Study Phase (Custom Range) with categorized columns.', 'warning');
-  } else {
-    // For internal backward compatibility, update the global "columns" to match the first range
+  // If no ranges, we ensure at least one default exists or we use global
+  if (appState.settings.customRanges.length > 0) {
     appState.settings.columns = [...appState.settings.customRanges[0].columns];
   }
 
-  saveSettingsToStorage(appState.settings);
-  saveTrackerDataToStorage(appState.trackerData);
-  generateTable();
-  updateDashboard();
-  showToast('Range settings applied successfully!', 'success');
+  // ⚡ TACTICAL UI BREATHER: Give the UI a moment to show a loading state before heavy sync
+  const btn = document.getElementById('applyColumnSettings') as HTMLButtonElement;
+  const originalText = btn?.textContent || 'Apply All Changes';
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Synchronizing...';
+  }
+
+  setTimeout(() => {
+    try {
+      saveSettingsToStorage(appState.settings);
+      syncTrackerTimelineWithSettings();
+      saveTrackerDataToStorage(appState.trackerData);
+      
+      generateTable();
+      updateDashboard();
+      renderHeatmap();
+      renderPerformanceCurve();
+      
+      showToast('Settings & Timeline synchronized successfully!', 'success');
+      document.getElementById('settingsModal')?.classList.remove('active');
+    } catch (err) {
+      console.error("Sync Failure:", err);
+      showToast('Sync failed. Check console for details.', 'error');
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = originalText;
+      }
+    }
+  }, 100);
 }
 
 // --- Theme Settings ---
@@ -152,17 +146,18 @@ function addCustomRangeToDOM(range: Partial<CustomRange>, index: number): void {
   div.style.marginBottom = '20px';
   div.innerHTML = `
     <div class="settings-card-header">
-      <h4>Custom Range ${index + 1}</h4>
+      <h4>Study Phase ${index + 1}</h4>
+      <input type="text" class="settings-input range-name" value="${range.name || ''}" placeholder="Phase Name (Optional)" style="font-size: 0.7rem; width: 150px; margin-left: 10px;">
       <button class="btn-remove-item" title="Remove Range">×</button>
     </div>
     <div class="range-grid">
       <div class="settings-group">
-        <label>From Day:</label>
-        <input type="number" class="settings-input range-start" min="1" value="${range.startDay || ''}" placeholder="e.g., 100">
+        <label>Start Date:</label>
+        <input type="date" class="settings-input range-start" value="${range.startDate || ''}">
       </div>
       <div class="settings-group">
-        <label>To Day:</label>
-        <input type="number" class="settings-input range-end" min="1" value="${range.endDay || ''}" placeholder="e.g., 150">
+        <label>End Date:</label>
+        <input type="date" class="settings-input range-end" value="${range.endDate || ''}">
       </div>
     </div>
     <div class="range-overrides-heading" style="margin-top:10px; font-size:0.8rem; color:var(--text-secondary);">Category Overrides (Optional)</div>

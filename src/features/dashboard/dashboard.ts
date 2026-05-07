@@ -74,12 +74,18 @@ function findTodayIndex(): number {
 
 // --- Main UI Refresh ---
 
-export function updateDashboard(): void {
-  const data = appState.trackerData;
-  if (!data || data.length === 0) return;
+let isUpdatingDashboard = false;
 
-  // 🛡️ LOCAL DAY SYNC: Ensure we are showing the absolute current day
-  ensureTimelineIntegrity();
+export function updateDashboard(): void {
+  if (isUpdatingDashboard) return;
+  isUpdatingDashboard = true;
+
+  try {
+    const data = appState.trackerData;
+    if (!data || data.length === 0) return;
+
+    // 🛡️ LOCAL DAY SYNC: Ensure we are showing the absolute current day
+    ensureTimelineIntegrity();
 
   // 🎙️ Dynamic Wisdom Rotation (User-Centric)
   QuotesManager.getInstance().startRotation();
@@ -185,8 +191,11 @@ export function updateDashboard(): void {
   // Initialize Interactive Parallax
   initInteractiveParallax();
 
-  // 🛡️ VANGUARD: Gamification & Engagement
-  updateRivalryHUD();
+    // 🛡️ VANGUARD: Gamification & Engagement
+    updateRivalryHUD();
+  } finally {
+    isUpdatingDashboard = false;
+  }
 }
 
 /** ⚔️ RIVALRY HUD: Identifies the operative ranked exactly +1 above the user */

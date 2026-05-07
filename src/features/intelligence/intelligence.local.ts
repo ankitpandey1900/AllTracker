@@ -1,5 +1,5 @@
 import { appState } from '@/state/app-state';
-import { formatDuration } from '@/utils/date.utils';
+import { formatDuration, getLocalIsoDate } from '@/utils/date.utils';
 import { getCurrentUserLeaderboardContext } from '@/features/dashboard/leaderboard';
 import { getTacticalBriefing } from './intelligence.service';
 
@@ -37,8 +37,8 @@ export function getLocalDataContextReply(query: string): string | null {
     return hrs > best.hrs ? { day: d.day, hrs } : best;
   }, { day: 0, hrs: -1 });
   
-  const todayDay = appState.trackerData.length ? appState.trackerData[appState.trackerData.length - 1].day : 1;
-  const activeRange = (appState.settings.customRanges || []).find(r => todayDay >= r.startDay && todayDay <= r.endDay);
+  const todayStr = getLocalIsoDate();
+  const activeRange = (appState.settings.customRanges || []).find(r => todayStr >= r.startDate && todayStr <= r.endDate);
   const activeCategories = (activeRange?.columns?.length ? activeRange.columns : appState.settings.columns || []);
 
   if (/(leaderboard|rank|standing|position)/.test(q)) {

@@ -132,11 +132,30 @@ export const appState = new Proxy(rawState, {
 
 /** Works out the total days and phase splits based on start/end dates */
 export function calculateDates(): void {
+  const ranges = appState.settings.customRanges;
+  
+  // If we have custom ranges, they drive the start/end dates
+  if (ranges && ranges.length > 0) {
+    const allStarts = ranges.map(r => r.startDate).filter(Boolean).sort();
+    const allEnds = ranges.map(r => r.endDate).filter(Boolean).sort();
+    
+    if (allStarts.length > 0) {
+      appState.settings.startDate = allStarts[0];
+    }
+    if (allEnds.length > 0) {
+      appState.settings.endDate = allEnds[allEnds.length - 1];
+    }
+  }
+
   let sDate = new Date(appState.settings.startDate);
   let eDate = new Date(appState.settings.endDate);
 
-  if (isNaN(sDate.getTime())) sDate = new Date(DEFAULT_START_DATE);
-  if (isNaN(eDate.getTime())) eDate = new Date(DEFAULT_END_DATE);
+  // Validation: Guard against 'Invalid Date' objects
+  if (isNaN(sDate.getTime()) || sDate.getFullYear() < 2000) sDate = new Date(DEFAULT_START_DATE);
+  if (isNaN(eDate.getTime()) || eDate.getFullYear() < 2000) eDate = new Date(DEFAULT_END_DATE);
+
+  // Safety: Prevent impossible ranges
+  if (eDate < sDate) eDate = new Date(sDate.getTime() + 86400000);
 
   appState.startDate = sDate;
   appState.endDate = eDate;
@@ -211,19 +230,45 @@ export function migrateDataFormat(): void {
     modified = true;
   }
 
+  // 5. Migrate Custom Ranges from Day Number to Date
+  if (s.customRanges && s.customRanges.length > 0) {
+    s.customRanges.forEach((range: any) => {
+      if ('startDay' in range && !range.startDate) {
+        // Use the global start date as the anchor for old day numbers
+        const baseDate = new Date(appState.settings.startDate || DEFAULT_START_DATE);
+        
+        const sDate = new Date(baseDate);
+        sDate.setDate(baseDate.getDate() + (range.startDay - 1));
+        range.startDate = getLocalIsoDate(sDate);
+        
+        const eDate = new Date(baseDate);
+        eDate.setDate(baseDate.getDate() + (range.endDay - 1));
+        range.endDate = getLocalIsoDate(eDate);
+        
+        delete range.startDay;
+        delete range.endDay;
+        modified = true;
+      }
+    });
+  }
+
   if (modified) {
     console.log('Data migration to new Theme System and Range Management completed.');
   }
 }
 
-/** Returns the study categories for a given day (custom range overrides first) */
+/** Returns the study categories for a given day index */
 export function getColumnsForDay(day: number): StudyCategory[] {
+  const dayData = appState.trackerData[day - 1];
+  if (!dayData) return appState.settings.columns || [];
+
+  const dateStr = dayData.date;
   for (const range of appState.settings.customRanges) {
-    if (day >= range.startDay && day <= range.endDay) {
+    if (dateStr >= range.startDate && dateStr <= range.endDate) {
       return Array.isArray(range.columns) ? range.columns : [];
     }
   }
-  return []; // No range, no categories.
+  return appState.settings.columns || [];
 }
 
 /** Returns full hour column labels */
@@ -240,10 +285,18 @@ function generateDates(): Date[] {
   const currentDate = new Date(appState.startDate);
   const endDate = new Date(appState.endDate);
 
-  while (currentDate <= endDate) {
+  // 🛡️ INFINITE LOOP PROTECTION: Cap timeline at 10 years (3653 days)
+  let safetyCounter = 0;
+  while (currentDate <= endDate && safetyCounter < 3653) {
     dates.push(new Date(currentDate));
     currentDate.setDate(currentDate.getDate() + 1);
+    safetyCounter++;
   }
+  
+  if (safetyCounter >= 3653) {
+    console.error("[Infinite Loop Prevention]: Timeline generation capped at 10 years. Check your End Date settings.");
+  }
+  
   return dates;
 }
 
@@ -260,6 +313,28 @@ export function initializeData(): TrackerDay[] {
     project: '',
     completed: false,
   }));
+}
+
+/** Synchronizes the trackerData array with the current settings start/end dates, preserving data */
+export function syncTrackerTimelineWithSettings(): void {
+  const oldData = [...appState.trackerData];
+  calculateDates();
+  const newData = initializeData(); 
+  
+  const newStart = appState.startDate;
+  const newEnd = appState.endDate;
+
+  oldData.forEach((oldDay) => {
+    const oldDate = new Date(oldDay.date);
+    if (oldDate >= newStart && oldDate <= newEnd) {
+      const dayIndex = Math.floor((oldDate.getTime() - newStart.getTime()) / (1000 * 60 * 60 * 24));
+      if (dayIndex >= 0 && dayIndex < newData.length) {
+        newData[dayIndex] = { ...newData[dayIndex], ...oldDay, day: dayIndex + 1 };
+      }
+    }
+  });
+
+  appState.trackerData = newData;
 }
 
 /** 

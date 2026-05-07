@@ -31,10 +31,12 @@ export interface StudyCategory {
 
 /** A date-range override for column names and targets */
 export interface CustomRange {
-  startDay: number;
-  endDay: number;
+  startDate: string;
+  endDate: string;
   /** Overridden categories for this range. */
   columns: StudyCategory[];
+  /** Optional name for the phase (e.g. 'Phase 1: Basics') */
+  name?: string;
 }
 
 // --- Timer Logs ---
