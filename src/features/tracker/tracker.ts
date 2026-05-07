@@ -60,7 +60,7 @@ export function generateTable(resetPagination = false): void {
       let matches = true;
 
       if (currentSearchTerm) {
-        const dayMatch = dayData.day.toString().includes(currentSearchTerm);
+        const dayMatch = dayData.day.toString().includes(currentSearchTerm) || `d-${dayData.day}`.includes(currentSearchTerm);
         const dateMatch = formatDate(new Date(dayData.date)).toLowerCase().includes(currentSearchTerm);
         const topicsMatch = (dayData.topics || '').toLowerCase().includes(currentSearchTerm);
         const projectMatch = (dayData.project || '').toLowerCase().includes(currentSearchTerm);
@@ -86,8 +86,7 @@ export function generateTable(resetPagination = false): void {
   const theadRow = document.querySelector('#trackerTable thead tr');
   if (theadRow) {
     theadRow.innerHTML = `
-      <th><div class="th-content">Day</div></th>
-      <th><div class="th-content">Date</div></th>
+      <th><div class="th-content">Timeline</div></th>
       ${labels.map((l) => `<th><div class="th-content" title="${l} Hrs">${l} Hrs</div></th>`).join('')}
       <th><div class="th-content" title="Problems Solved">Problems Solved</div></th>
       <th><div class="th-content" title="Topics">Topics</div></th>
@@ -112,11 +111,11 @@ export function generateTable(resetPagination = false): void {
 
     html += `
       <tr class="${rowClass}" data-day="${day.originalIdx}">
-        <td class="day-cell">
-          <span class="day-number">${day.day}</span>
-          ${!editable ? '<span class="lock-icon" title="Locked by Iron-Gate Integrity Engine">🔒</span>' : ''}
+        <td class="timeline-cell">
+          <div class="day-num">D-${day.day}</div>
+          <div class="date-sub">${formatDateCompact(new Date(day.date))}</div>
+          ${!editable ? '<span class="lock-sub">🔒</span>' : ''}
         </td>
-        <td class="date-cell">${formatDateCompact(new Date(day.date))}</td>
         ${dayLabels.length > 0
         ? dayLabels.map((label: string, ci: number) => {
           const v = getHourAt(day, ci);

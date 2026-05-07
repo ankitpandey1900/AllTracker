@@ -27,8 +27,10 @@ export function openSharePreview(imageDataUrl: string, title: string = 'SHARE YO
   const customTrigger = document.getElementById('customBriefingTrigger');
   const customContainer = document.getElementById('customTextContainer');
   
-  // Custom Quote specific controls
-  if (customTrigger) customTrigger.style.display = _currentType === 'quote' ? 'block' : 'none';
+  // Quote-specific controls (shuffle + custom)
+  const shuffleTrigger = document.getElementById('shuffleQuoteBtn');
+  if (customTrigger) customTrigger.style.display = _currentType === 'quote' ? 'flex' : 'none';
+  if (shuffleTrigger) shuffleTrigger.style.display = _currentType === 'quote' ? 'flex' : 'none';
   if (customContainer) customContainer.style.display = 'none';
 
   // 1. Inject Image
@@ -40,9 +42,21 @@ export function openSharePreview(imageDataUrl: string, title: string = 'SHARE YO
   const downloadBtn = document.getElementById('downloadShareBtn');
   const copyBtn = document.getElementById('copyShareBtn');
   
-  // Custom Text UI
   const customInput = document.getElementById('customBriefingInput') as HTMLTextAreaElement;
   const applyBtn = document.getElementById('applyCustomTextBtn');
+  const shuffleBtn = document.getElementById('shuffleQuoteBtn');
+
+  if (shuffleBtn) {
+    shuffleBtn.onclick = async () => {
+      const loader = document.getElementById('shareLoadingOverlay');
+      if (loader) loader.style.display = 'flex';
+      try {
+        await generateQuoteShareCard();
+      } finally {
+        if (loader) loader.style.display = 'none';
+      }
+    };
+  }
 
   if (customTrigger) {
     customTrigger.onclick = () => {
@@ -57,7 +71,6 @@ export function openSharePreview(imageDataUrl: string, title: string = 'SHARE YO
       if (loader) loader.style.display = 'flex';
       
       try {
-        // Regenerate card with custom text
         await generateQuoteShareCard('default', text);
       } finally {
         if (loader) loader.style.display = 'none';
@@ -74,7 +87,44 @@ export function openSharePreview(imageDataUrl: string, title: string = 'SHARE YO
   if (downloadBtn) downloadBtn.onclick = triggerDownload;
   if (copyBtn) copyBtn.onclick = handleCopyToClipboard;
 
-  // 3. Show Modal
+  // 3. Theme Preset Logic
+  const themeBtns = document.querySelectorAll('.theme-preset-btn');
+  themeBtns.forEach(btn => {
+    (btn as HTMLElement).onclick = async (e) => {
+      const target = e.currentTarget as HTMLElement;
+      const themeKey = target.getAttribute('data-theme') || 'midnight';
+      
+      // Update UI active state
+      themeBtns.forEach(b => {
+        const thumb = b.querySelector('.theme-preset-thumb') as HTMLElement;
+        const check = b.querySelector('.theme-active-check') as HTMLElement;
+        const name = b.querySelector('.theme-preset-name') as HTMLElement;
+        if (thumb) thumb.style.border = '1px solid rgba(255,255,255,0.08)';
+        if (check) check.style.display = 'none';
+        if (name) name.style.color = '#4a4e5a';
+      });
+
+      const thumb = target.querySelector('.theme-preset-thumb') as HTMLElement;
+      const check = target.querySelector('.theme-active-check') as HTMLElement;
+      const name = target.querySelector('.theme-preset-name') as HTMLElement;
+      if (thumb) thumb.style.border = '2px solid rgba(200,169,110,0.5)';
+      if (check) check.style.display = 'flex';
+      if (name) name.style.color = '#e8e0d4';
+
+      // Regenerate card with new theme
+      const text = customInput?.value;
+      const loader = document.getElementById('shareLoadingOverlay');
+      if (loader) loader.style.display = 'flex';
+      
+      try {
+        await generateQuoteShareCard(themeKey, text);
+      } finally {
+        if (loader) loader.style.display = 'none';
+      }
+    };
+  });
+
+  // 4. Show Modal
   modal.style.display = 'flex';
   modal.classList.add('active');
 }
