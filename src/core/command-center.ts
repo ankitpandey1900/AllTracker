@@ -65,7 +65,7 @@ export function setupEventListeners(): void {
     });
   }
 
-  bindClick("mobileNavStartTimerBtn", openTimerModal);
+
 
   bindClick("timerPauseBtn", () => {
     if (appState.activeTimer.isRunning) {

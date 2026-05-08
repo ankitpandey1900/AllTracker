@@ -146,6 +146,7 @@ export class Shell {
     if (target === "routinePane") import("@/features/routines/routines").then(m => m.renderRoutine());
     if (target === "worldStagePane") import("@/features/dashboard/leaderboard").then(m => m.initWorldStage());
     if (target === "feedPane") import("@/features/feed/feed.ui").then(m => m.renderFeedView(document.getElementById('feedPane')!));
+    if (target === "bookmarksPane") import("@/features/bookmarks/bookmarks").then(m => m.renderBookmarks());
   }
 
   private setupMobileMenu(): void {

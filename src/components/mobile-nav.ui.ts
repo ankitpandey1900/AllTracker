@@ -22,14 +22,7 @@ export const mobileNav = `
       <span>Habits</span>
     </button>
     
-    <div class="mobile-nav-fab-container">
-      <button id="mobileNavStartTimerBtn" class="mobile-fab">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-          <polygon points="6 3 20 12 6 21 6 3"/>
-        </svg>
-      </button>
-    </div>
-
+    
     <button class="mobile-nav-item" data-target="tasksPane">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 2v20"/><path d="m4.93 4.93 14.14 14.14"/><path d="M2 12h20"/><path d="m19.07 4.93-14.14 14.14"/>
@@ -47,6 +40,12 @@ export const mobileNav = `
         <path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>
       </svg>
       <span>Maamu</span>
+    </button>
+    <button class="mobile-nav-item" data-target="bookmarksPane">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+      </svg>
+      <span>Bookmarks</span>
     </button>
   </nav>
 `;
