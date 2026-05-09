@@ -53,13 +53,18 @@ export function calculateStreak(trackerData: TrackerDay[]): number {
     // Skip future days
     if (dayDate > today) continue;
 
-    if (day.completed) {
+    // 🔥 HARD STREAK: 2+ Hours required to count as a streak day
+    const dailyTotal = (day.studyHours || []).reduce((s, h) => s + (h || 0), 0);
+    const isQualifyingDay = dailyTotal >= 2;
+
+    if (isQualifyingDay) {
       streak++;
     } else if (day.restDay) {
       // Rest Day: Freeze streak (don't break, but don't increment)
       continue;
     } else {
-      // If we are looking at precisely "Today", don't break yet if it's not done
+      // If we are looking at precisely "Today", don't break yet if 2hr target not met
+      // (Operative is still on the mission)
       if (dayDate.getTime() === today.getTime()) continue;
       break;
     }
@@ -78,7 +83,10 @@ export function calculateBestStreak(trackerData: TrackerDay[]): number {
   let running = 0;
 
   for (const day of trackerData) {
-    if (day.completed) {
+    const dailyTotal = (day.studyHours || []).reduce((s, h) => s + (h || 0), 0);
+    const isQualifyingDay = dailyTotal >= 2;
+
+    if (isQualifyingDay) {
       running++;
       if (running > maxStreak) maxStreak = running;
     } else if (day.restDay) {

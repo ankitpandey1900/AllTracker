@@ -178,7 +178,9 @@ export function renderHoverCard(
   todayHoursDisplay: number,
   streakCount: string
 ): string {
-  const verifiedTick = u.is_verified ? `
+  // 🔥 ELITE VERIFICATION: 10+ Day Streak AND 3+ Hr/Day Average
+  const isVerified = (u.current_streak || 0) >= 10 && (u.total_hours >= (u.current_streak || 0) * 3);
+  const verifiedTick = isVerified ? `
     <svg class="lb-verified-badge" viewBox="0 0 24 24" fill="currentColor" style="width: 14px; height: 14px; color: #1d9bf0; margin-left: 4px; vertical-align: middle;">
       <path d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.97-.81-3.99s-2.6-1.27-3.99-.81c-.67-1.31-1.91-2.19-3.34-2.19s-2.67.88-3.34 2.19c-1.39-.46-2.97-.2-3.99.81s-1.27 2.6-.81 3.99c-1.31.67-2.19 1.91-2.19 3.34s.88 2.67 2.19 3.34c-.46 1.39-.2 2.97.81 3.99s2.6 1.27 3.99.81c.67 1.31 1.91 2.19 3.34 2.19s2.67-.88 3.34-2.19c1.39.46 2.97.2 3.99-.81s1.27-2.6.81-3.99c1.31-.67 2.19-1.91 2.19-3.34zm-11.71 4.2L6.8 12.46l1.41-1.42 2.26 2.26 4.8-5.23 1.47 1.35-6.2 6.78z"></path>
     </svg>` : '';
@@ -282,7 +284,9 @@ export function renderPodium(
     const isoCode = NATION_FLAGS[u.nation] || 'un';
     const flagImg = `<img src="https://flagcdn.com/w40/${isoCode}.png" alt="${u.nation}" style="width: 14px; height: 10px; border-radius: 2px; margin-left: 6px; vertical-align: middle;">`;
 
-    const verifiedTick = u.is_verified ? `
+    // 🔥 ELITE VERIFICATION: 10+ Day Streak AND 3+ Hr/Day Average
+    const isVerified = (u.current_streak || 0) >= 10 && (u.total_hours >= (u.current_streak || 0) * 3);
+    const verifiedTick = isVerified ? `
       <svg class="lb-verified-badge" viewBox="0 0 24 24" fill="currentColor" style="width: 12px; height: 12px; color: #1d9bf0; margin-left: 4px; vertical-align: middle;">
         <path d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.97-.81-3.99s-2.6-1.27-3.99-.81c-.67-1.31-1.91-2.19-3.34-2.19s-2.67.88-3.34 2.19c-1.39-.46-2.97-.2-3.99.81s-1.27 2.6-.81 3.99c-1.31.67-2.19 1.91-2.19 3.34s.88 2.67 2.19 3.34c-.46 1.39-.2 2.97.81 3.99s2.6 1.27 3.99.81c.67 1.31 1.91 2.19 3.34 2.19s2.67-.88 3.34-2.19c1.39.46 2.97.2 3.99-.81s1.27-2.6.81-3.99c1.31-.67 2.19-1.91 2.19-3.34zm-11.71 4.2L6.8 12.46l1.41-1.42 2.26 2.26 4.8-5.23 1.47 1.35-6.2 6.78z"></path>
       </svg>` : '';
@@ -370,7 +374,7 @@ export function renderUserRow(
       <div class="lb-row-main-info">
         <div class="lb-row-identity">
           <span class="lb-row-handle">@${escapeHtml(u.display_name)}</span>
-          ${u.is_verified ? '<span class="lb-row-verified">✔</span>' : ''}
+          ${((u.current_streak || 0) >= 10 && u.total_hours >= (u.current_streak || 0) * 3) ? '<span class="lb-row-verified">✔</span>' : ''}
         </div>
         <div class="lb-row-meta">
           <span class="status-tag ${statusClass}">${statusLabel}</span>

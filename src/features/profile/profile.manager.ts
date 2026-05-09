@@ -238,7 +238,7 @@ export async function syncProfileBroadcast(focusStateChanged = false): Promise<v
     email: (profile as any).email,
     User_name: profile.realName,
     integrity_score: verificationScore,
-    is_verified: verificationScore > 75,
+    is_verified: streak >= 10 && totalHours >= (streak * 3),
     competitive_score: calculateCompetitiveXP(totalHours, streak, verificationScore),
     current_streak: streak
   };
