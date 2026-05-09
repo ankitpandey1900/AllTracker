@@ -262,12 +262,21 @@ export function getColumnsForDay(day: number): StudyCategory[] {
   const dayData = appState.trackerData[day - 1];
   if (!dayData) return appState.settings.columns || [];
 
-  const dateStr = dayData.date;
-  for (const range of appState.settings.customRanges) {
-    if (dateStr >= range.startDate && dateStr <= range.endDate) {
-      return Array.isArray(range.columns) ? range.columns : [];
+  // Strip time component to ensure '2026-05-08T00:00' correctly matches '2026-05-08'
+  const dateStr = dayData.date.split('T')[0];
+  const hasCustomRanges = appState.settings.customRanges && appState.settings.customRanges.length > 0;
+
+  if (hasCustomRanges) {
+    for (const range of appState.settings.customRanges) {
+      if (dateStr >= range.startDate && dateStr <= range.endDate) {
+        return Array.isArray(range.columns) ? range.columns : [];
+      }
     }
+    // Strict phase enforcement: If custom ranges are used, dates outside of them get NO columns.
+    return [];
   }
+
+  // Fallback for users not using custom ranges
   return appState.settings.columns || [];
 }
 
@@ -357,13 +366,17 @@ export function ensureTimelineIntegrity(): void {
   const targetDate = new Date(today);
   targetDate.setDate(today.getDate() + 1);
 
-  if (lastDate < targetDate) {
-    console.log(`[Integrity]: Timeline check at ${new Date().toLocaleTimeString()}. Provisioning new cycle...`);
+  // RESPECT THE USER'S END DATE: Do not auto-extend past the configured End Date or Phase End
+  const configuredEnd = new Date(appState.settings.endDate);
+  const finalTargetDate = targetDate > configuredEnd ? configuredEnd : targetDate;
+
+  if (lastDate < finalTargetDate) {
+    console.log(`[Integrity]: Timeline check at ${new Date().toLocaleTimeString()}. Provisioning new cycle up to ${getLocalIsoDate(finalTargetDate)}...`);
     const missingDays: TrackerDay[] = [];
     let current = new Date(lastDate);
     current.setDate(current.getDate() + 1);
 
-    while (current <= targetDate) {
+    while (current <= finalTargetDate) {
       const colCount = (appState.settings.columns || []).length;
       missingDays.push({
         day: data.length + missingDays.length + 1,
@@ -379,15 +392,8 @@ export function ensureTimelineIntegrity(): void {
 
     appState.trackerData = [...data, ...missingDays];
     
-    // Auto-update the End Date in settings if we exceeded the plan
-    const currentEnd = new Date(appState.settings.endDate);
-    if (targetDate > currentEnd) {
-      appState.settings.endDate = getLocalIsoDate(targetDate);
-    }
-    
     calculateDates();
     import('@/services/data-bridge').then(m => m.saveTrackerDataToStorage(appState.trackerData));
-    import('@/services/data-bridge').then(m => m.saveSettingsToStorage(appState.settings));
   }
 }
 

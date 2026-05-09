@@ -127,8 +127,12 @@ export const dashboardView = `
             </div>
 
             <!-- Category Progress Restoration -->
-            <div class="row-between section-heading" style="margin-bottom: 12px;">
-              <h3 style="font-size: 0.7rem; letter-spacing: 1.5px; color: #64748b;">CATEGORY PROGRESS</h3>
+            <div class="row-between section-heading" style="margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+              <h3 style="font-size: 0.7rem; letter-spacing: 1.5px; color: #64748b; margin: 0;">CATEGORY PROGRESS</h3>
+              <select id="phaseFilter" style="background: rgba(13, 22, 45, 0.6); border: 1px solid rgba(108, 135, 255, 0.2); color: #8e9fc6; font-size: 0.6rem; padding: 4px 12px; border-radius: 4px; cursor: pointer; text-transform: uppercase; outline: none; transition: border-color 0.2s;">
+                <option value="current">Current Phase</option>
+                <option value="overall">Overall</option>
+              </select>
             </div>
             <div id="categoryCardsContainer">
               <div id="categoryCards" class="grid-top" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px;"></div>
@@ -290,7 +294,7 @@ export const worldStageView = `
 
            <div style="display: flex; justify-content: space-around; margin-top: 40px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.05);">
               <div style="background: rgba(255,255,255,0.03); padding: 4px 16px; border-radius: 99px; border: 1px solid rgba(255,255,255,0.05);">
-                 <span style="font-size: 0.6rem; color: #64748b; font-weight: 800; letter-spacing: 1px;">GLOBAL AVG</span>
+                 <span style="font-size: 0.6rem; color: #64748b; font-weight: 800; letter-spacing: 1px;">DAILY AVG</span>
                  <span id="milestone-avg-hrs" style="font-size: 0.7rem; color: #fff; font-weight: 900; margin-left: 6px;">--</span>
                  <span style="font-size: 0.55rem; color: #64748b; margin-left: 2px;">HRS</span>
               </div>

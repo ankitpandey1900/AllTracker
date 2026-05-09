@@ -166,6 +166,32 @@ export function updateDashboard(): void {
   if (finishEl) finishEl.innerHTML = `${estimatedFinish}${finishArrow}`;
 
   // --- Delegate Rendering to Sub-Modules ---
+  const phaseFilter = document.getElementById('phaseFilter') as HTMLSelectElement;
+  if (phaseFilter) {
+    // 1. Preserve current selection if it exists
+    const currentVal = phaseFilter.value;
+    
+    // 2. Clear and Re-populate
+    phaseFilter.innerHTML = `
+      <option value="current" ${currentVal === 'current' ? 'selected' : ''}>Current Phase</option>
+      <option value="overall" ${currentVal === 'overall' ? 'selected' : ''}>Overall</option>
+      ${appState.settings.customRanges.map((r, i) => `
+        <option value="${i}" ${currentVal === i.toString() ? 'selected' : ''}>${r.name || `Study Phase ${i + 1}`}</option>
+      `).join('')}
+    `;
+
+    // 3. Add listener once
+    if (!(phaseFilter as any).hasListener) {
+      phaseFilter.addEventListener('change', () => {
+        const todayIdx = findTodayIndex();
+        const t = todayIdx >= 0 ? appState.trackerData[todayIdx] : today;
+        renderSectorTokens(t);
+        renderAllocationBar();
+      });
+      (phaseFilter as any).hasListener = true;
+    }
+  }
+
   renderSectorTokens(today);
   renderAllocationBar();
   renderStudyAnalytics();

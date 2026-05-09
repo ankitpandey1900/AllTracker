@@ -7,6 +7,7 @@
 
 import { appState, calculateDates, initializeData, syncTrackerTimelineWithSettings } from '@/state/app-state';
 import { showToast } from '@/utils/dom.utils';
+import { getLocalIsoDate } from '@/utils/date.utils';
 import { saveSettingsToStorage, saveTrackerDataToStorage } from '@/services/data-bridge';
 import { generateTable } from '@/features/tracker/tracker';
 import { updateDashboard } from '@/features/dashboard/dashboard';
@@ -141,29 +142,55 @@ function addCustomRangeToDOM(range: Partial<CustomRange>, index: number): void {
   const list = document.getElementById('customRangesList');
   if (!list) return;
 
+  const todayStr = getLocalIsoDate();
+  const isCompleted = range.endDate && range.endDate < todayStr;
+
   const div = document.createElement('div');
   div.className = 'custom-range-item settings-card';
   div.style.marginBottom = '20px';
   div.innerHTML = `
-    <div class="settings-card-header">
-      <h4>Study Phase ${index + 1}</h4>
-      <input type="text" class="settings-input range-name" value="${range.name || ''}" placeholder="Phase Name (Optional)" style="font-size: 0.7rem; width: 150px; margin-left: 10px;">
-      <button class="btn-remove-item" title="Remove Range">×</button>
-    </div>
-    <div class="range-grid">
-      <div class="settings-group">
-        <label>Start Date:</label>
-        <input type="date" class="settings-input range-start" value="${range.startDate || ''}">
+    <div class="settings-card-header phase-header-toggle" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; user-select: none;">
+      <div style="display: flex; align-items: center;">
+        <h4 style="margin: 0;">Study Phase ${index + 1}</h4>
+        ${isCompleted ? '<span style="color: #ef4444; font-size: 0.6rem; margin-left: 8px; font-weight: bold; border: 1px solid #ef4444; padding: 2px 6px; border-radius: 4px;">FINISHED</span>' : ''}
+        <input type="text" class="settings-input range-name" value="${range.name || ''}" placeholder="Phase Name" style="font-size: 0.7rem; width: 150px; margin-left: 15px;" onclick="event.stopPropagation()">
       </div>
-      <div class="settings-group">
-        <label>End Date:</label>
-        <input type="date" class="settings-input range-end" value="${range.endDate || ''}">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <span class="toggle-icon" style="font-size: 0.8rem; color: #8e9fc6; transition: transform 0.2s;">
+          ${isCompleted ? '▼' : '▲'}
+        </span>
+        <button class="btn-remove-item" title="Remove Range" onclick="event.stopPropagation()" style="position: static;">×</button>
       </div>
     </div>
-    <div class="range-overrides-heading" style="margin-top:10px; font-size:0.8rem; color:var(--text-secondary);">Category Overrides (Optional)</div>
-    <div class="range-categories-wrap" style="display:flex; flex-direction:column; gap:8px; margin-top:8px;"></div>
-    <button class="btn add-range-cat" type="button" style="margin-top:10px; font-size:0.7rem; padding:4px 8px;">+ Add Override</button>
+    <div class="phase-body" style="display: ${isCompleted ? 'none' : 'block'}; margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
+      <div class="range-grid">
+        <div class="settings-group">
+          <label>Start Date:</label>
+          <input type="date" class="settings-input range-start" value="${range.startDate || ''}">
+        </div>
+        <div class="settings-group">
+          <label>End Date:</label>
+          <input type="date" class="settings-input range-end" value="${range.endDate || ''}">
+        </div>
+      </div>
+      <div class="range-overrides-heading" style="margin-top:10px; font-size:0.8rem; color:var(--text-secondary);">Category Overrides (Optional)</div>
+      <div class="range-categories-wrap" style="display:flex; flex-direction:column; gap:8px; margin-top:8px;"></div>
+      <button class="btn add-range-cat" type="button" style="margin-top:10px; font-size:0.7rem; padding:4px 8px;">+ Add Override</button>
+    </div>
   `;
+
+  // Toggle Logic
+  div.querySelector('.phase-header-toggle')?.addEventListener('click', () => {
+    const body = div.querySelector('.phase-body') as HTMLElement;
+    const icon = div.querySelector('.toggle-icon') as HTMLElement;
+    if (body.style.display === 'none') {
+      body.style.display = 'block';
+      icon.textContent = '▲';
+    } else {
+      body.style.display = 'none';
+      icon.textContent = '▼';
+    }
+  });
 
   const wrap = div.querySelector('.range-categories-wrap') as HTMLElement;
   const columns = range.columns || [];

@@ -81,13 +81,19 @@ export function generateTable(resetPagination = false): void {
   const totalToShow = currentPage * PAGE_SIZE;
   const paginatedData = filteredData.slice(0, totalToShow);
 
-  const labels = getAllHourColumnLabels(1);
+  // Dynamically set headers based on the newest row visible in the table
+  const topDayIndex = paginatedData.length > 0 ? paginatedData[0].day : 1;
+  const topLabels = getAllHourColumnLabels(topDayIndex);
 
   const theadRow = document.querySelector('#trackerTable thead tr');
   if (theadRow) {
     theadRow.innerHTML = `
       <th><div class="th-content">Timeline</div></th>
-      ${labels.map((l) => `<th><div class="th-content" title="${l} Hrs">${l} Hrs</div></th>`).join('')}
+      <th style="min-width: ${topLabels.length * 80}px;">
+        <div class="hours-flex-header" style="display: flex; gap: 8px; width: 100%;">
+          ${topLabels.map((l) => `<div style="flex: 1 1 0; min-width: 0; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${l} Hrs">${l}</div>`).join('')}
+        </div>
+      </th>
       <th><div class="th-content" title="Problems Solved">Problems Solved</div></th>
       <th><div class="th-content" title="Topics">Topics</div></th>
       <th><div class="th-content" title="Project Work">Project Work</div></th>
@@ -97,11 +103,30 @@ export function generateTable(resetPagination = false): void {
 
   // Build rows
   let html = '';
-  paginatedData.forEach((day) => {
+  let currentLabelsStr = topLabels.join(',');
+
+  paginatedData.forEach((day, index) => {
     const phase = getPhase(day.day);
     const isToday = day.date.split('T')[0] === getLocalIsoDate(today);
     const editable = isRowEditable(day.date);
     const dayLabels = getAllHourColumnLabels(day.day);
+    const dayLabelsStr = dayLabels.join(',');
+
+    // Inject a sub-header if the category structure changed
+    if (dayLabelsStr !== currentLabelsStr) {
+      currentLabelsStr = dayLabelsStr;
+      html += `
+        <tr class="phase-sub-header" style="background: rgba(13, 22, 45, 0.6); border-top: 1px solid rgba(108, 135, 255, 0.2); border-bottom: 1px solid rgba(108, 135, 255, 0.2);">
+          <th style="padding: 12px 6px; font-size: 0.6rem; color: #6c87ff; text-align: center;">Previous Phase</th>
+          <th style="padding: 12px 6px; min-width: ${dayLabels.length * 80}px;">
+            <div class="hours-flex-header" style="display: flex; gap: 8px; width: 100%;">
+              ${dayLabels.map((l) => `<div style="flex: 1 1 0; min-width: 0; text-align: center; font-size: 0.65rem; color: #8e9fc6; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${l} Hrs">${l}</div>`).join('')}
+            </div>
+          </th>
+          <th colspan="4"></th>
+        </tr>
+      `;
+    }
 
     let rowClass = phase;
     if (day.completed) rowClass += ' completed';
@@ -116,20 +141,22 @@ export function generateTable(resetPagination = false): void {
           <div class="date-sub">${formatDateCompact(new Date(day.date))}</div>
           ${!editable ? '<span class="lock-sub">🔒</span>' : ''}
         </td>
-        ${dayLabels.length > 0
-        ? dayLabels.map((label: string, ci: number) => {
-          const v = getHourAt(day, ci);
-          const displayVal = formatDuration(v);
-          return `
-            <td>
-              <div class="hour-cell-wrapper">
-                <input type="number" class="cell-input hour-input" data-col="${ci}" value="${v}" min="0" max="24" step="any" placeholder="0.0" ${!editable ? 'disabled' : ''}>
-                <span class="duration-hint">${displayVal}</span>
-              </div>
-            </td>`;
-        }).join('')
-        : `<td colspan="1" class="no-cat-warning">No Categories Defined (Check Settings)</td>`
-      }
+        <td style="padding: 4px 6px;">
+          <div class="hours-flex-row" style="display: flex; gap: 8px; width: 100%;">
+            ${dayLabels.length > 0
+            ? dayLabels.map((label: string, ci: number) => {
+              const v = getHourAt(day, ci);
+              const displayVal = formatDuration(v);
+              return `
+                <div class="hour-cell-wrapper" style="flex: 1 1 0; min-width: 0;">
+                  <input type="number" class="cell-input hour-input" data-col="${ci}" value="${v}" min="0" max="24" step="any" placeholder="0.0" ${!editable ? 'disabled' : ''} style="width: 100%;">
+                  <span class="duration-hint">${displayVal}</span>
+                </div>`;
+            }).join('')
+            : `<div class="no-cat-warning" style="flex: 1 1 0; text-align: center; color: #ef4444; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 800;">No Phase Defined</div>`
+          }
+          </div>
+        </td>
         <td><input type="number" class="cell-input topics-solved" value="${day.problemsSolved}" min="0" step="1" ${!editable ? 'disabled' : ''}></td>
         <td>
           <div class="topics-cell">
@@ -158,7 +185,7 @@ export function generateTable(resetPagination = false): void {
 
   // Load More Button
   if (totalToShow < filteredData.length) {
-    const colCount = labels.length + 6;
+    const colCount = 6;
     html += `
       <tr class="load-more-row">
         <td colspan="${colCount}" style="text-align: center; padding: 20px;">
@@ -169,9 +196,9 @@ export function generateTable(resetPagination = false): void {
   }
 
   if (filteredData.length === 0) {
-    const colCount = labels.length + 6;
-    const msg = (currentSearchTerm || currentFilterCompleted || currentFilterWithHours) 
-      ? 'No matching logs found for your search criteria.' 
+    const colCount = 6;
+    const msg = (currentSearchTerm || currentFilterCompleted || currentFilterWithHours)
+      ? 'No matching logs found for your search criteria.'
       : 'No tracker data found. Your daily combat log will appear here.';
     html = `<tr><td colspan="${colCount}" style="text-align: center; padding: 40px; color: var(--text-secondary); font-style: italic;">${msg}</td></tr>`;
   }
@@ -179,7 +206,7 @@ export function generateTable(resetPagination = false): void {
   requestAnimationFrame(() => {
     tbody.innerHTML = html;
     attachInputListeners();
-    
+
     document.getElementById('loadMoreTrackerBtn')?.addEventListener('click', () => {
       currentPage++;
       generateTable();
@@ -240,7 +267,7 @@ function handleNumberInput(e: Event): void {
   if (colIdxStr !== null) {
     const colIdx = parseInt(colIdxStr);
     const newVal = parseFloat(input.value) || 0;
-    
+
     // Day only has 24h - block anything impossible
     const otherHours = (day.studyHours || []).reduce((s, h, i) => s + (i === colIdx ? 0 : (h || 0)), 0);
 
@@ -251,14 +278,14 @@ function handleNumberInput(e: Event): void {
     }
 
     setHourAt(day, colIdx, newVal);
-    
+
     // Update the UI hint immediately
     const hint = input.nextElementSibling as HTMLElement;
     if (hint) hint.textContent = formatDuration(newVal);
 
     saveTrackerDataToStorage(appState.trackerData);
     syncProfileBroadcast();
-    
+
     // Sync dashboard metrics
     import('@/features/dashboard/dashboard').then(m => m.updateDashboard());
     return;
@@ -369,14 +396,14 @@ export function setupTableSearch(): void {
       generateTable(true);
     });
   }
-  
+
   if (filterCompleted) {
     filterCompleted.addEventListener('change', () => {
       currentFilterCompleted = filterCompleted.checked;
       generateTable(true);
     });
   }
-  
+
   if (filterWithHours) {
     filterWithHours.addEventListener('change', () => {
       currentFilterWithHours = filterWithHours.checked;
@@ -417,14 +444,14 @@ export async function adjustTrackerDataForSessionDelta(
   if (colIdx === -1) return;
 
   const currentVal = getHourAt(day, colIdx);
-  
+
   let newVal: number;
   if (typeof absoluteHours === 'number') {
     newVal = Math.max(currentVal, absoluteHours);
   } else {
     newVal = Math.max(0, currentVal + deltaHours);
   }
-  
+
   if (newVal === currentVal) return;
 
   setHourAt(day, colIdx, newVal);
@@ -434,7 +461,7 @@ export async function adjustTrackerDataForSessionDelta(
   day.completed = totalHours >= totalTarget && totalHours > 0;
 
   await saveTrackerDataToStorage(data);
-  
+
   if (!silent) {
     syncProfileBroadcast();
   }

@@ -185,10 +185,12 @@ export async function refreshLeaderboard(): Promise<void> {
       }).join('');
     }
 
-    // Global Average
+    // Today's Platform Average (Active Users Only)
     const avgEl = document.getElementById('milestone-avg-hrs');
-    if (avgEl && telemetry.total_pilots > 0) {
-      const avg = totalPlatform / telemetry.total_pilots;
+    if (avgEl) {
+      // Logic: Total hours logged today / Number of pilots who were active today
+      // This is Option B: It reflects the actual effort of the studying community.
+      const avg = telemetry.active_now > 0 ? (telemetry.global_hours_today / telemetry.active_now) : 0;
       avgEl.textContent = avg.toFixed(1);
     }
   }
