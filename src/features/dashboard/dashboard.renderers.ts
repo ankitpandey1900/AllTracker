@@ -13,7 +13,7 @@ function sanitize(str: string): string {
 function getCategoryColor(name: string, targetRange?: any): { color: string, accent: string } {
   const accentClasses = [
     'accent-teal', 'accent-blue', 'accent-purple', 'accent-gold', 'accent-red', 
-    'accent-cyan', 'accent-pink', 'accent-emerald', 'accent-orange', 'accent-lime',
+    'accent-cyan', 'accent-pink', 'accent-purple', 'accent-orange', 'accent-lime',
     'accent-fuchsia', 'accent-indigo'
   ];
 
@@ -235,7 +235,7 @@ export function renderSectorTokens(today: any): void {
 
   const accentClasses = [
     'accent-teal', 'accent-blue', 'accent-purple', 'accent-gold', 'accent-red', 
-    'accent-cyan', 'accent-pink', 'accent-emerald', 'accent-orange', 'accent-lime',
+    'accent-cyan', 'accent-pink', 'accent-purple', 'accent-orange', 'accent-lime',
     'accent-fuchsia', 'accent-indigo'
   ];
 

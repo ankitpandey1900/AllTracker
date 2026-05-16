@@ -2,10 +2,8 @@
   display: none;
   position: fixed;
   inset: 0;
-  z-index: 200; /* Ensure it sits above all dashboard layers */
-  background: rgba(4, 7, 13, 0.65);
-  backdrop-filter: blur(12px) saturate(160%);
-  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  z-index: 200;
+  background: var(--surface);
   align-items: center;
   justify-content: center;
   padding: 20px;
@@ -17,23 +15,17 @@
 }
 
 .modal.active::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at center, rgba(16, 185, 129, 0.05) 0%, transparent 70%);
-  pointer-events: none;
-  animation: bg-pulse-soft 4s infinite alternate;
+  display: none;
 }
 
 .modal-content {
   width: min(480px, 100%);
   max-height: 90vh;
   overflow: auto;
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(13, 17, 23, 0.72);
-  backdrop-filter: blur(14px) saturate(180%);
-  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-secondary);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
   animation: all-tracker-pop-in 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
 }
@@ -41,14 +33,12 @@
 @keyframes all-tracker-pop-in {
   from {
     opacity: 0;
-    transform: scale(0.94) translateY(20px);
-    filter: blur(10px);
+    transform: scale(0.98) translateY(10px);
   }
 
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
-    filter: blur(0);
   }
 }
 
@@ -66,7 +56,7 @@
   justify-content: center;
   align-items: center;
   padding: 14px 16px;
-  border-bottom: 1px solid rgba(102, 124, 181, 0.22);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   position: relative;
 }
 
@@ -76,8 +66,7 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   font-weight: 800;
-  color: #fff;
-  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2));
+  color: var(--text-primary);
 }
 
 .modal-body {
@@ -111,9 +100,9 @@
 }
 
 .weekly-card {
-  border: 1px solid rgba(102, 124, 181, 0.22);
-  border-radius: 16px;
-  background: rgba(7, 11, 22, 0.7);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: transparent;
   padding: 14px;
 }
 
@@ -147,9 +136,9 @@
 }
 
 .weekly-metric {
-  border: 1px solid rgba(102, 124, 181, 0.18);
-  border-radius: 14px;
-  background: rgba(6, 10, 20, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  background: var(--bg-primary);
   padding: 10px 12px;
 }
 
@@ -200,11 +189,10 @@
 .toast {
   min-width: 320px;
   padding: 14px 18px;
-  border-radius: 14px;
-  border: 1px solid rgba(118, 142, 204, 0.45);
-  background: rgba(14, 22, 40, 0.95);
-  backdrop-filter: blur(8px);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: transparent;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   gap: 14px;
@@ -242,7 +230,7 @@
 }
 
 .toast-close:hover {
-  color: #fff;
+  color: var(--text-primary);
   transform: scale(1.1);
 }
 
@@ -305,19 +293,15 @@
 
 /* Reflection Modal V3 Premium */
 .gradient-text {
-  background: linear-gradient(135deg, #fff, #818cf8, #22d3ee);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--text-primary);
   font-weight: 700;
   letter-spacing: 0.1em;
 }
 
 #sessionNoteModal .modal-content {
-  box-shadow: 0 0 50px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(106, 134, 255, 0.1);
-  border-color: rgba(106, 134, 255, 0.3);
-  backdrop-filter: blur(15px);
-  background: rgba(10, 16, 30, 0.95);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+  border-color: rgba(255, 255, 255, 0.1);
+  background: transparent;
 }
 
 .reflection-sub {
@@ -329,88 +313,54 @@
 }
 
 .reflection-textarea {
-  background: rgba(8, 13, 24, 0.6) !important;
-  border: 1px solid rgba(102, 124, 181, 0.25) !important;
-  color: #fff !important;
+  background: #000000 !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
   padding: 18px !important;
-  border-radius: 16px !important;
+  border-radius: 12px !important;
   resize: none !important;
   min-height: 140px !important;
   font-size: 0.98rem !important;
   line-height: 1.5 !important;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  transition: border-color 0.2s ease !important;
 }
 
 .reflection-textarea:focus {
-  border-color: var(--accent-blue) !important;
-  background: rgba(10, 20, 40, 0.7) !important;
-  box-shadow: 0 0 25px rgba(108, 135, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  background: #000000 !important;
+  box-shadow: none !important;
 }
 
 .glow-blue {
-  background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3) !important;
-  color: #fff !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.8) !important;
+  color: #000000 !important;
   text-transform: uppercase !important;
   letter-spacing: 0.15em !important;
-  font-weight: 900 !important;
+  font-weight: 800 !important;
   font-size: 0.75rem !important;
   padding: 14px !important;
-  border-radius: 12px !important;
+  border-radius: 8px !important;
   position: relative;
-  overflow: hidden;
+  transition: all 0.2s ease;
 }
 
-.glow-blue::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-  transform: rotate(45deg);
-  animation: button-shimmer 3s infinite;
-}
-
-@keyframes button-shimmer {
-  0% {
-    transform: translateX(-100%) rotate(45deg);
-  }
-
-  100% {
-    transform: translateX(100%) rotate(45deg);
-  }
+.glow-blue:hover {
+  background: #f4f4f5 !important;
 }
 
 .data-stream-active {
   display: flex !important;
   align-items: center !important;
   gap: 6px;
-  background: rgba(16, 185, 129, 0.1) !important;
-  border: 1px solid rgba(16, 185, 129, 0.2) !important;
+  background: rgba(139, 92, 246, 0.1) !important;
+  border: 1px solid rgba(139, 92, 246, 0.2) !important;
   padding: 4px 10px !important;
   border-radius: 20px !important;
-  color: #10b981 !important;
+  color: #8b5cf6 !important;
   font-size: 0.65rem !important;
-  font-weight: 800 !important;
+  font-weight: 700 !important;
   letter-spacing: 0.1em !important;
-  animation: data-pulse 2s infinite ease-in-out;
-}
-
-@keyframes data-pulse {
-
-  0%,
-  100% {
-    opacity: 0.8;
-    box-shadow: 0 0 5px rgba(16, 185, 129, 0.1);
-  }
-
-  50% {
-    opacity: 1;
-    box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
-  }
 }
 
 /* Benefit Card Refinement */
@@ -444,8 +394,7 @@
 
 .glow-blue:hover {
   transform: translateY(-2px);
-  box-shadow: 0 15px 30px rgba(37, 99, 235, 0.4) !important;
-  filter: brightness(1.1);
+  filter: none;
 }
 
 .btn-ghost {
@@ -459,30 +408,16 @@
   border-color: rgba(255, 255, 255, 0.2) !important;
 }
 
-/* Pulse pencil animation */
-#sessionNoteModal .modal-header svg {
-  animation: pencil-pulse 2s infinite ease-in-out;
-}
 
 @keyframes pencil-pulse {
-
-  0%,
-  100% {
-    filter: drop-shadow(0 0 2px var(--accent-blue));
-    transform: scale(1);
-  }
-
-  50% {
-    filter: drop-shadow(0 0 8px var(--accent-blue));
-    transform: scale(1.1);
-  }
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
 }
 
 .notif-active {
   background: rgba(42, 199, 160, 0.15) !important;
   color: #2ac7a0 !important;
   border: 1px solid rgba(42, 199, 160, 0.4) !important;
-  box-shadow: 0 0 20px rgba(42, 199, 160, 0.25) !important;
 }
 
 /* --- Routine Day Selector --- */
@@ -493,7 +428,7 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.03);
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -514,14 +449,13 @@
 }
 
 .day-chip:has(input:checked) {
-  background: #2563eb;
-  /* Blue-600 */
-  border-color: #2563eb;
-  box-shadow: 0 0 15px rgba(37, 99, 235, 0.3);
+  background: #7c3aed;
+  /* Purple-600 */
+  border-color: #7c3aed;
 }
 
 .day-chip:has(input:checked) span {
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .day-chip:hover:not(:has(input:checked)) {
@@ -538,7 +472,6 @@
   background: #f59e0b;
   /* Amber-500 */
   border-color: #f59e0b;
-  box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
 }
 
 /* --- Tactical Identity Portal V2 --- */
@@ -554,10 +487,7 @@
 .holographic-fill {
   height: 100%;
   width: 0;
-  background: linear-gradient(90deg, #10b981, #34d399, #10b981);
-  background-size: 200% 100%;
-  animation: holo-shimmer 2s linear infinite;
-  box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+  background: var(--bg-secondary);
 }
 
 @keyframes holo-shimmer {
@@ -568,17 +498,12 @@
 .passport-status-active {
   font-family: 'Tektur', sans-serif;
   text-transform: uppercase;
-  color: #10b981;
+  color: #8b5cf6;
   letter-spacing: 2px;
   font-weight: 800;
-  text-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
-  animation: text-pulse-glow 2s infinite ease-in-out;
 }
 
-@keyframes text-pulse-glow {
-  0%, 100% { opacity: 0.8; text-shadow: 0 0 8px rgba(16, 185, 129, 0.3); }
-  50% { opacity: 1; text-shadow: 0 0 16px rgba(16, 185, 129, 0.6); }
-}
+/* animation removed */
 
 .vault-swap-container {
   display: grid;
@@ -617,8 +542,7 @@
 .loader-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(3, 6, 17, 0.85);
-  backdrop-filter: blur(8px) saturate(180%);
+  background: var(--surface);
 }
 
 .loader-content {
@@ -639,29 +563,26 @@
 .spinner-ring {
   position: absolute;
   inset: 0;
-  border: 2px solid rgba(16, 185, 129, 0.1);
-  border-top: 2px solid #10b981;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-top: 2px solid #ffffff;
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
 }
 
 .spinner-core {
   position: absolute;
   inset: 15px;
-  background: #10b981;
+  background: #ffffff;
   border-radius: 50%;
   opacity: 0.2;
-  animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 
 .loader-message-v3 {
   font-family: 'Tektur', sans-serif;
   font-size: 1rem;
-  color: #fff;
+  color: var(--text-primary);
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
 }
 
 .loader-subtext {
@@ -717,7 +638,7 @@
 
 .history-details-container {
     display: none;
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--surface);
     overflow: hidden;
 }
 

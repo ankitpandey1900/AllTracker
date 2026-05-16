@@ -25,13 +25,13 @@
 .filter-pill:hover {
   background: rgba(30, 41, 74, 0.8);
   border-color: rgba(106, 134, 255, 0.5);
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .filter-pill.active {
   background: var(--accent-blue);
   border-color: var(--accent-blue);
-  color: #fff;
+  color: var(--text-primary);
   box-shadow: 0 0 15px rgba(106, 134, 255, 0.35);
 }
 
@@ -49,7 +49,7 @@
   font-size: 0.88rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #fff;
+  color: var(--text-primary);
   font-weight: 600;
   font-family: 'Tektur', sans-serif;
   opacity: 0.8;
@@ -99,7 +99,7 @@
   background: linear-gradient(135deg, rgba(106, 134, 255, 0.2), rgba(106, 134, 255, 0.05));
   border: 1px solid rgba(106, 134, 255, 0.3);
   flex-shrink: 0;
-  color: #fff;
+  color: var(--text-primary);
   font-family: 'Tektur', sans-serif;
   font-weight: 700;
   font-size: 1.1rem;
@@ -113,7 +113,7 @@
 }
 
 .bookmark-title {
-  color: #fff;
+  color: var(--text-primary);
   font-weight: 600;
   font-size: 0.94rem;
   font-family: 'Tektur', sans-serif;
@@ -156,11 +156,11 @@
 .btn-edit-bookmark:hover {
   background: rgba(106, 134, 255, 0.2);
   border-color: rgba(106, 134, 255, 0.4);
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .btn-delete-bookmark:hover {
   background: rgba(239, 68, 68, 0.2);
   border-color: rgba(239, 68, 68, 0.4);
-  color: #fff;
+  color: var(--text-primary);
 }

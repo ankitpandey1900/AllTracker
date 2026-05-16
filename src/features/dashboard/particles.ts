@@ -55,7 +55,7 @@ function resizeCanvas(): void {
 function createParticles(): void {
   particles = [];
   const theme = appState.settings.theme;
-  const count = theme === 'vajra-shakti' ? 60 : 40; // More intense for power arena
+  const count = theme === 'quantum-purple' ? 60 : 40; // More intense for power arena
 
   for (let i = 0; i < count; i++) {
     particles.push(resetParticle({} as Particle));
@@ -64,7 +64,7 @@ function createParticles(): void {
 
 function resetParticle(p: Particle): Particle {
   const theme = appState.settings.theme;
-  const isShakti = theme === 'vajra-shakti';
+  const isShakti = theme === 'quantum-purple';
   
   p.x = Math.random() * (canvas?.width || 1000);
   p.y = isShakti ? (canvas?.height || 1000) + 10 : -10; // Shakti rises, Himavat falls
@@ -85,7 +85,7 @@ function startAnimation(): void {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     const theme = appState.settings.theme;
-    const isShakti = theme === 'vajra-shakti';
+    const isShakti = theme === 'quantum-purple';
     const color = isShakti ? '251, 191, 36' : '108, 135, 255'; // Amber vs Blue
 
     particles.forEach(p => {

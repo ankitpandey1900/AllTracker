@@ -46,7 +46,7 @@ export const CATEGORY_COLORS = [
   '#ef4444', // Red
   '#8b5cf6', // Violet
   '#06b6d4', // Cyan
-  '#10b981', // Emerald
+  '#8b5cf6', // purple
   '#f97316', // Orange
   '#84cc16', // Lime
   '#d946ef', // Fuchsia

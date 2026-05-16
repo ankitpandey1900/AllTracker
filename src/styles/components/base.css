@@ -1,35 +1,35 @@
 :root {
-  --bg-primary: #030611;
-  --bg-secondary: #070c1b;
-  --bg-tertiary: #0a1121;
-  --surface: #090f1f;
-  --surface-2: #070d1a;
-  --text-primary: #f2f6ff;
-  --text-secondary: #8b9cc4;
-  --text-muted: #6f80a9;
-  --border: rgba(99, 118, 169, 0.28);
-  --border-strong: rgba(115, 133, 184, 0.42);
+  --bg-primary: #000000;
+  --bg-secondary: #09090b;
+  --bg-tertiary: #18181b;
+  --surface: transparent;
+  --surface-2: #18181b;
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+  --border: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.2);
   --success: #2ac7a0;
   --danger: #ef4444;
   --warning: #f59e0b;
-  --info: #5b7dff;
-  --accent-blue: #6a86ff;
-  --accent-purple: #8b5cf6;
-  --accent-cyan: #22d3ee;
+  --info: #8b5cf6;
+  --accent-blue: #7c3aed;
+  --accent-purple: #a855f7;
+  --accent-cyan: #c084fc;
   --phase-1: #2ad3ae;
-  --phase-2: #617fff;
-  --phase-3: #9b63eb;
-  --zen-accent: #6a86ff;
-  --zen-text-muted: #8b9cc4;
-  --etn-accent: #6a86ff;
-  --etn-secondary: #8b5cf6;
+  --phase-2: #7c3aed;
+  --phase-3: #a855f7;
+  --zen-accent: #7c3aed;
+  --zen-text-muted: #a494c9;
+  --etn-accent: #7c3aed;
+  --etn-secondary: #a855f7;
   --etn-success: #2ac7a0;
-  --etn-text-muted: #8b9cc4;
+  --etn-text-muted: #a494c9;
 
-  /* Theme Defaults (Kaala) */
-  --scrollbar-bg: #071022;
-  --scrollbar-thumb: linear-gradient(180deg, #314f95, #4e6fe2);
-  --empty-state-bg: rgba(8, 13, 26, 0.7);
+  /* Theme Defaults */
+  --scrollbar-bg: #000000;
+  --scrollbar-thumb: #27272a;
+  --empty-state-bg: rgba(24, 24, 27, 0.7);
 }
 
 * {
@@ -45,10 +45,7 @@ body {
 body {
   font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
   color: var(--text-primary);
-  background:
-    radial-gradient(1200px 420px at 20% -8%, rgba(106, 134, 255, 0.12), transparent 45%),
-    radial-gradient(900px 340px at 84% -8%, rgba(139, 92, 246, 0.1), transparent 45%),
-    var(--bg-primary);
+  background: var(--bg-primary);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
@@ -63,7 +60,7 @@ h6,
 .label-caps {
   font-family: 'Tektur', sans-serif;
   margin: 0;
-  color: #fff; /* Pure white for headers */
+  color: var(--text-primary); /* Pure white for headers */
 }
 
 .label {
@@ -80,7 +77,7 @@ h6,
   margin-top: 2px;
   font-size: clamp(1.8rem, 3vw, 2.8rem);
   font-weight: 800;
-  color: #fff;
+  color: var(--text-primary);
   line-height: 1;
   letter-spacing: -0.02em;
   filter: drop-shadow(0 0 12px rgba(255,255,255,0.1));

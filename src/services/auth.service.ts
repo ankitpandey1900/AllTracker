@@ -249,8 +249,8 @@ export function updateHeaderProfileUI(): void {
         <div class="pilot-hud-avatar">${avatar}</div>
         <span>${handle}</span>
       </div>
-      <div id="syncStatus" class="data-stream-active" style="display:flex; align-items:center; background:rgba(16,185,129,0.05); border:1px solid rgba(16,185,129,0.3); padding:5px 14px; border-radius:30px; font-size:0.65rem; font-weight:900; color:#10b981; letter-spacing:1px; text-transform:uppercase;">
-        <div class="pulse-emerald" style="width:6px; height:6px; background:#10b981; border-radius:50%; margin-right:8px; box-shadow:0 0 8px #10b981;"></div>
+      <div id="syncStatus" class="data-stream-active" style="display:flex; align-items:center; background:rgba(16,185,129,0.05); border:1px solid rgba(16,185,129,0.3); padding:5px 14px; border-radius:30px; font-size:0.65rem; font-weight:900; color:#8b5cf6; letter-spacing:1px; text-transform:uppercase;">
+        <div class="pulse-purple" style="width:6px; height:6px; background:#8b5cf6; border-radius:50%; margin-right:8px; box-shadow:0 0 8px #8b5cf6;"></div>
         Live Ready
       </div>
       <button class="btn btn-ghost" id="logoutBtn" title="LOGOUT MISSION" style="height:32px; width:32px; display:flex; align-items:center; justify-content:center; border-radius:4px; border:1px solid rgba(239,68,68,0.4); background:rgba(239,68,68,0.08); color:#ef4444; cursor:pointer; transition:all 0.2s;">

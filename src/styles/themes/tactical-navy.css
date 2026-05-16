@@ -6,7 +6,7 @@
 
 
 
-html[data-theme="chanakya-strategy"] :root {
+html[data-theme="tactical-navy"] :root {
   --bg-primary: #0d1117;
   --bg-secondary: #010409;
   /* Deepened for higher contrast */
@@ -39,7 +39,7 @@ html[data-theme="chanakya-strategy"] :root {
   --empty-state-bg: #0d1117;
 }
 
-html[data-theme="chanakya-strategy"] body {
+html[data-theme="tactical-navy"] body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   font-family: 'Fira Code', 'Courier New', Courier, monospace !important;
@@ -51,7 +51,7 @@ html[data-theme="chanakya-strategy"] body {
 }
 
 /* 📠 CREATIVE: SCANLINES EFFECT (GPU OPTIMIZED) */
-html[data-theme="chanakya-strategy"] body::after {
+html[data-theme="tactical-navy"] body::after {
   content: "";
   position: fixed;
   top: 0;
@@ -70,47 +70,39 @@ html[data-theme="chanakya-strategy"] body::after {
 }
 
 /* Header & Nav */
-html[data-theme="chanakya-strategy"] .app-header {
+html[data-theme="tactical-navy"] .app-header {
   background: var(--header-bg) !important;
   border-bottom: 2px solid var(--accent-cyan) !important;
   box-shadow: 0 0 20px rgba(63, 185, 80, 0.1) !important;
 }
 
-html[data-theme="chanakya-strategy"] .app-header .brand {
+html[data-theme="tactical-navy"] .app-header .brand {
   color: var(--text-primary) !important;
   font-weight: 500;
 }
 
-/* 📜 CREATIVE: THE CHANAKYA PROMPT */
-html[data-theme="chanakya-strategy"] .app-header::before {
-  content: ">_ chan_strat";
-  color: var(--accent-cyan);
-  margin-right: 15px;
-  font-weight: bold;
-  font-size: 0.8rem;
-  opacity: 0.8;
-}
+/* decorative prompt removed */
 
-html[data-theme="chanakya-strategy"] .nav-item {
+html[data-theme="tactical-navy"] .nav-item {
   color: var(--text-secondary) !important;
   border-radius: 4px;
   font-size: 0.85rem;
   transition: all 0.2s;
 }
 
-html[data-theme="chanakya-strategy"] .nav-item.active {
+html[data-theme="tactical-navy"] .nav-item.active {
   background: rgba(63, 185, 80, 0.1) !important;
   color: var(--accent-cyan) !important;
   border-bottom: 2px solid var(--accent-cyan) !important;
 }
 
 /* Cards & Surfaces */
-html[data-theme="chanakya-strategy"] .card,
-html[data-theme="chanakya-strategy"] .hero,
-html[data-theme="chanakya-strategy"] .metric-card,
-html[data-theme="chanakya-strategy"] .feature-card,
-html[data-theme="chanakya-strategy"] .leaderboard-item,
-html[data-theme="chanakya-strategy"] .history-item {
+html[data-theme="tactical-navy"] .card,
+html[data-theme="tactical-navy"] .hero,
+html[data-theme="tactical-navy"] .metric-card,
+html[data-theme="tactical-navy"] .feature-card,
+html[data-theme="tactical-navy"] .leaderboard-item,
+html[data-theme="tactical-navy"] .history-item {
   background: var(--surface) !important;
   border: 1px solid var(--border) !important;
   border-radius: 4px !important;
@@ -118,23 +110,29 @@ html[data-theme="chanakya-strategy"] .history-item {
   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5) !important;
 }
 
-html[data-theme="chanakya-strategy"] .metric-card {
+html[data-theme="tactical-navy"] .modal-content {
+  background: #0d1117 !important;
+  border: 1px solid #30363d !important;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.8), 0 0 20px rgba(63, 185, 80, 0.05) !important;
+}
+
+html[data-theme="tactical-navy"] .metric-card {
   border-left: 4px solid var(--accent-cyan) !important;
 }
 
-html[data-theme="chanakya-strategy"] .card:hover {
+html[data-theme="tactical-navy"] .card:hover {
   border-color: var(--accent-cyan) !important;
   box-shadow: 0 0 15px rgba(63, 185, 80, 0.05) !important;
 }
 
 /* 🟩 CREATIVE: PULSING METRICS */
-html[data-theme="chanakya-strategy"] .stat-value {
+html[data-theme="tactical-navy"] .stat-value {
   color: var(--accent-cyan) !important;
   text-shadow: 0 0 10px rgba(63, 185, 80, 0.3);
 }
 
 /* Empty States */
-html[data-theme="chanakya-strategy"] .empty-state::before {
+html[data-theme="tactical-navy"] .empty-state::before {
   content: "404: Not Found.\A $ chanakya --initialize";
   white-space: pre-wrap;
   color: var(--accent-cyan);
@@ -144,13 +142,13 @@ html[data-theme="chanakya-strategy"] .empty-state::before {
 }
 
 /* Timer Focus HUB */
-html[data-theme="chanakya-strategy"] .focus-core {
+html[data-theme="tactical-navy"] .focus-core {
   background: var(--bg-tertiary) !important;
   border: 4px solid var(--accent-cyan) !important;
   box-shadow: 0 0 40px rgba(63, 185, 80, 0.1) !important;
 }
 
-html[data-theme="chanakya-strategy"] .time-display {
+html[data-theme="tactical-navy"] .time-display {
   color: var(--accent-cyan) !important;
   animation: blink 2s infinite step-end;
 }
@@ -162,7 +160,7 @@ html[data-theme="chanakya-strategy"] .time-display {
 }
 
 /* Buttons */
-html[data-theme="chanakya-strategy"] .btn {
+html[data-theme="tactical-navy"] .btn {
   background: var(--bg-tertiary) !important;
   color: var(--text-primary) !important;
   border: 1px solid var(--border) !important;
@@ -170,24 +168,24 @@ html[data-theme="chanakya-strategy"] .btn {
   text-transform: lowercase;
 }
 
-html[data-theme="chanakya-strategy"] .btn-primary {
+html[data-theme="tactical-navy"] .btn-primary {
   background: #238636 !important;
   border-color: rgba(240, 246, 252, 0.1) !important;
   color: white !important;
 }
 
-html[data-theme="chanakya-strategy"] .btn-primary:hover {
+html[data-theme="tactical-navy"] .btn-primary:hover {
   background: #2ea043 !important;
   box-shadow: 0 0 20px rgba(46, 160, 67, 0.4) !important;
 }
 
-html[data-theme="chanakya-strategy"] .modern-table th {
+html[data-theme="tactical-navy"] .modern-table th {
   background: var(--bg-secondary) !important;
   border-bottom: 1px solid var(--accent-cyan) !important;
   color: var(--accent-cyan) !important;
 }
 
-html[data-theme="chanakya-strategy"] .mobile-nav {
+html[data-theme="tactical-navy"] .mobile-nav {
   background: var(--bg-secondary) !important;
   border-top: 2px solid var(--accent-cyan) !important;
 }

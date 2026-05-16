@@ -496,7 +496,7 @@ function injectDailyBriefing(chatOutput: HTMLElement): void {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
   const name = getUserDisplayName();
-  const getColor = (v: number) => v > 75 ? '#10b981' : v > 45 ? '#f59e0b' : '#ef4444';
+  const getColor = (v: number) => v > 75 ? '#8b5cf6' : v > 45 ? '#f59e0b' : '#ef4444';
 
   const el = document.createElement('div');
   el.className = 'daily-briefing-banner';

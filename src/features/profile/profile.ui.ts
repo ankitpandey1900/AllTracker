@@ -139,7 +139,7 @@ function hydrateStatsTab(totalHours: number): void {
   const trustEl = document.getElementById('dossierTrustScore');
   if (trustEl) {
     trustEl.textContent = `${verifiedScore}%`;
-    trustEl.style.color = verifiedScore > 75 ? '#10b981' : (verifiedScore > 40 ? '#fbbf24' : '#ef4444');
+    trustEl.style.color = verifiedScore > 75 ? '#8b5cf6' : (verifiedScore > 40 ? '#fbbf24' : '#ef4444');
   }
 
   const streakEl = document.getElementById('dossierCurrentStreak');
@@ -330,7 +330,7 @@ function hydrateIdentityFields(): void {
   const dossierTrust = document.getElementById("dossierTrustScore");
   if (dossierTrust) {
     dossierTrust.textContent = `${verifiedScore}%`;
-    dossierTrust.style.color = verifiedScore > 75 ? '#10b981' : (verifiedScore > 40 ? '#fbbf24' : '#ef4444');
+    dossierTrust.style.color = verifiedScore > 75 ? '#8b5cf6' : (verifiedScore > 40 ? '#fbbf24' : '#ef4444');
   }
 
   const hInput = document.getElementById("profileNameInput") as HTMLInputElement;

@@ -189,7 +189,7 @@ export const shareModal = `
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:20px;">
         <button id="copyShareBtn" style="
           padding:14px 0; font-weight:600; display:flex;align-items:center;justify-content:center;gap:8px;
-          font-size:0.78rem; background:rgba(255,255,255,0.03);
+          font-size:0.78rem; background: var(--bg-tertiary);
           border:1px solid rgba(255,255,255,0.07); border-radius:14px;
           color:#7a7e8a; cursor:pointer; font-family:'Outfit',sans-serif;
           transition:all 0.2s;
@@ -203,7 +203,7 @@ export const shareModal = `
         <button id="downloadShareBtn" style="
           padding:14px 0; font-weight:700; display:flex;align-items:center;justify-content:center;gap:8px;
           font-size:0.78rem; background:linear-gradient(135deg,#b8860b,#c9a23a);
-          border:none; border-radius:14px; color:#fff; cursor:pointer;
+          border:none; border-radius:14px; color: var(--text-primary); cursor:pointer;
           font-family:'Outfit',sans-serif;
           box-shadow:0 6px 20px rgba(184,134,11,0.25); transition:all 0.2s;
         ">
@@ -215,7 +215,7 @@ export const shareModal = `
         </button>
         <button id="shareNativeBtn" style="
           padding:14px 0; font-weight:600; display:flex;align-items:center;justify-content:center;gap:8px;
-          font-size:0.78rem; background:rgba(255,255,255,0.03);
+          font-size:0.78rem; background: var(--bg-tertiary);
           border:1px solid rgba(255,255,255,0.07); border-radius:14px;
           color:#7a7e8a; cursor:pointer; font-family:'Outfit',sans-serif;
           transition:all 0.2s;

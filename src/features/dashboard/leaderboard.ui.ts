@@ -84,27 +84,27 @@ export function renderLbPage(
   const rivalRank = myIdx; // rival is 1 rank above = myIdx (0-based index of myUser)
 
   rivalryContainer.innerHTML = `
-    <article class="rivalry-card" style="background: rgba(239, 68, 68, 0.03); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 4px; padding: 24px; margin-top: 0;">
+    <article class="rivalry-card" style="border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 4px; padding: 24px; margin-top: 0;">
        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
           <div style="display: flex; align-items: center; gap: 8px;">
              <span style="font-size: 1.2rem;">🎯</span>
              <h3 style="font-family: 'JetBrains Mono', monospace; font-weight: 900; letter-spacing: 2px; color: #ef4444; font-size: 0.75rem; margin: 0; text-transform: uppercase;">Target Acquired</h3>
           </div>
-          <span style="font-size: 0.6rem; color: #94a3b8; font-weight: 800; background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 2px; font-family: 'JetBrains Mono', monospace;">RIVALRY</span>
+          <span style="font-size: 0.6rem; color: var(--text-secondary); font-weight: 800; background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 2px; font-family: 'JetBrains Mono', monospace;">RIVALRY</span>
        </div>
        
        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
-          <div style="width: 48px; height: 48px; border-radius: 4px; border: 1px solid rgba(239, 68, 68, 0.5); background: #0b1121; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0;">
+          <div style="width: 48px; height: 48px; border-radius: 4px; border: 1px solid rgba(239, 68, 68, 0.5); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0;">
              ${rivalAvatar}
           </div>
           <div style="min-width: 0;">
-             <div style="font-size: 0.65rem; color: #94a3b8; font-weight: 800; letter-spacing: 1px;">RANK #${rivalRank}</div>
-             <div style="font-family: 'Outfit'; font-weight: 800; color: #fff; font-size: 1.1rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">@${rivalName}</div>
+             <div style="font-size: 0.65rem; color: var(--text-secondary); font-weight: 800; letter-spacing: 1px;">RANK #${rivalRank}</div>
+             <div style="font-family: 'Outfit'; font-weight: 800; color: var(--text-primary); font-size: 1.1rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">@${rivalName}</div>
           </div>
        </div>
 
-       <div style="background: rgba(15, 23, 42, 0.6); border-radius: 12px; padding: 12px; border: 1px solid rgba(255,255,255,0.05);">
-          <div style="font-size: 0.65rem; color: #94a3b8; font-weight: 700; margin-bottom: 4px;">OVERTAKE REQUIREMENT:</div>
+       <div style="border-radius: 12px; padding: 12px; border: 1px solid rgba(255,255,255,0.05);">
+          <div style="font-size: 0.65rem; color: var(--text-secondary); font-weight: 700; margin-bottom: 4px;">OVERTAKE REQUIREMENT:</div>
           <div style="display: flex; align-items: baseline; gap: 6px;">
              <span style="font-family: 'Tektur'; font-weight: 900; color: #ef4444; font-size: 1.4rem;">${diffLabel}</span>
              <span style="font-size: 0.65rem; color: #64748b; font-weight: 800;">OF FOCUS</span>
@@ -227,8 +227,8 @@ export function renderHoverCard(
         <div class="lb-telemetry-readout">
           <div class="readout-row">
             <span class="readout-key">STATUS</span>
-            <span class="readout-val" style="color: ${isFocusing ? '#ef4444' : (u.is_online ? '#10b981' : '#64748b')};">
-              <span class="lb-pulse-dot" style="background: ${isFocusing ? '#ef4444' : (u.is_online ? '#10b981' : '#64748b')};"></span>
+            <span class="readout-val" style="color: ${isFocusing ? '#ef4444' : (u.is_online ? '#8b5cf6' : '#64748b')};">
+              <span class="lb-pulse-dot" style="background: ${isFocusing ? '#ef4444' : (u.is_online ? '#8b5cf6' : '#64748b')};"></span>
               ${isFocusing ? 'ACTIVE' : (u.is_online ? 'ONLINE' : 'OFFLINE')}
             </span>
           </div>
@@ -316,14 +316,14 @@ export function renderPodium(
             <div style="font-size: 1.2rem; color: #fbbf24; font-weight: 900; letter-spacing: 1px; line-height: 1;">
               ${(calculateCompetitiveXP(u.total_hours, u.current_streak || 0, u.integrity_score || 0)).toLocaleString()}
             </div>
-            <div style="font-size: 0.55rem; color: #94a3b8; font-weight: 800; letter-spacing: 2px; margin-top: 4px; opacity: 0.7;">RANK SCORE</div>
+            <div style="font-size: 0.55rem; color: var(--text-secondary); font-weight: 800; letter-spacing: 2px; margin-top: 4px; opacity: 0.7;">RANK SCORE</div>
           </div>
 
-          <div class="podium-today" style="display: flex; flex-direction: column; align-items: center; padding: 6px 10px; background: rgba(34, 197, 94, 0.05); border-radius: 8px; border: 1px solid rgba(34, 197, 94, 0.1); width: 90%; max-width: 120px;">
-            <div style="color: #22c55e; font-size: 0.75rem; font-weight: 800; white-space: nowrap;">
+          <div class="podium-today" style="display: flex; flex-direction: column; align-items: center; padding: 6px 10px; background: var(--accent-light); border-radius: 8px; border: 1px solid var(--accent-border); width: 90%; max-width: 120px;">
+            <div style="color: var(--accent-blue); font-size: 0.75rem; font-weight: 800; white-space: nowrap;">
               ${formatDuration(todayHoursDisplay) || '0h'} <span style="font-size: 0.55rem; opacity: 0.8;">TODAY</span>
             </div>
-            <div style="color: #94a3b8; font-size: 0.6rem; font-weight: 600; margin-top: 1px; opacity: 0.8; white-space: nowrap;">
+            <div style="color: var(--text-secondary); font-size: 0.6rem; font-weight: 600; margin-top: 1px; opacity: 0.8; white-space: nowrap;">
               ${formatDuration(u.total_hours) || '0h'} <span style="font-size: 0.5rem; opacity: 0.6;">TOTAL</span>
             </div>
           </div>

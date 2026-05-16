@@ -17,20 +17,20 @@ export const settingsModal = `
             <div class="settings-group" style="margin-top: 10px;">
               <label>Select Visual Theme</label>
               <div class="row" style="gap: 10px; align-items: stretch; margin-bottom: 12px;">
-                <select id="themeSelectInput" class="settings-input" style="background:#0f172a; flex: 1;">
-                  <option value="default">Kaala (Himalayan Pro)</option>
-                  <option value="kaala">Kaala (Obsidian / Vanta)</option>
-                  <option value="chanakya-strategy">Chanakya Strategy (Technical)</option>
-                  <option value="ayodhya">Ayodhya (Divine Order)</option>
-                  <option value="kamala-grace">Kamala's Grace (Prosperity)</option>
-                  <option value="vajra-shakti">Vajra Shakti (Divine Stadium)</option>
+                <select id="themeSelectInput" class="settings-input" style="flex: 1;">
+                  <option value="stealth-midnight">Stealth Midnight (Default)</option>
+                  <option value="obsidian-glass">Obsidian Glass</option>
+                  <option value="tactical-navy">Tactical Navy</option>
+                  <option value="solar-gold">Solar Gold</option>
+                  <option value="pristine-white">Pristine White (Light Mode)</option>
+                  <option value="quantum-purple">Quantum Purple</option>
                 </select>
               </div>
               <label>Focus Timer Design</label>
               <div class="row" style="gap: 10px; align-items: stretch;">
-                <select id="timerStyleSelectInput" class="settings-input" style="background:#0f172a; flex: 1;">
-                  <option value="block">Neon Block (Digital)</option>
-                  <option value="ring">Zen Ring (Classic)</option>
+                <select id="timerStyleSelectInput" class="settings-input" style="flex: 1;">
+                  <option value="block">Digital</option>
+                  <option value="ring">Classic</option>
                 </select>
                 <button id="applyThemeBtn" class="btn btn-primary" style="white-space: nowrap; padding: 0 20px;">
                   Apply

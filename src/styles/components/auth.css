@@ -9,7 +9,7 @@
     overflow-y: auto;
     max-height: 80vh;
     scrollbar-width: thin;
-    scrollbar-color: rgba(16, 185, 129, 0.4) transparent;
+    scrollbar-color: rgba(139, 92, 246, 0.4) transparent;
 }
 
 /* Tactical Scrollbar */
@@ -22,12 +22,12 @@
 }
 
 .auth-views-container::-webkit-scrollbar-thumb {
-    background: rgba(16, 185, 129, 0.3);
+    background: rgba(139, 92, 246, 0.3);
     border-radius: 10px;
 }
 
 .auth-views-container::-webkit-scrollbar-thumb:hover {
-    background: rgba(16, 185, 129, 0.6);
+    background: rgba(139, 92, 246, 0.6);
 }
 
 .auth-view {
@@ -68,8 +68,8 @@
     background-color: #cbd5e1; transition: .4s; border-radius: 1px;
 }
 
-input:checked + .slider { background-color: #10b981; }
-input:checked + .slider:before { transform: translateX(20px); background-color: #fff; }
+input:checked + .slider { background-color: var(--bg-secondary); }
+input:checked + .slider:before { transform: translateX(20px); background-color: var(--text-primary); }
 
 .auth-view .settings-group label {
     font-size: 0.65rem;

@@ -1,10 +1,10 @@
 /* =========================================================
-   THEME: KAALA (Vanta Black / Obsidian)
+   THEME: STEALTH MIDNIGHT (Elite Dark Mode / Obsidian)
    Visual System: Pure Black (#000), Cursor-Inspired
    Aesthetic: Absolute Zero, Micro-Borders, Elite
    ========================================================= */
 
-html[data-theme="kaala"] :root {
+html[data-theme="stealth-midnight"] :root {
   --bg-primary: #000000; 
   --bg-secondary: #000000;
   --bg-tertiary: #050505;
@@ -36,7 +36,7 @@ html[data-theme="kaala"] :root {
 }
 
 /* 🌌 KAALA BASE: Pure Black Obsidian with Grain */
-html[data-theme="kaala"] body {
+html[data-theme="stealth-midnight"] body {
   background-color: #000000 !important;
   background-image: none !important; 
   color: #ffffff !important;
@@ -45,19 +45,19 @@ html[data-theme="kaala"] body {
   overflow-x: hidden;
 }
 
-html[data-theme="kaala"] h1,
-html[data-theme="kaala"] h2,
-html[data-theme="kaala"] h3,
-html[data-theme="kaala"] h4,
-html[data-theme="kaala"] h5,
-html[data-theme="kaala"] .brand {
+html[data-theme="stealth-midnight"] h1,
+html[data-theme="stealth-midnight"] h2,
+html[data-theme="stealth-midnight"] h3,
+html[data-theme="stealth-midnight"] h4,
+html[data-theme="stealth-midnight"] h5,
+html[data-theme="stealth-midnight"] .brand {
   font-family: 'Bebas Neue', sans-serif !important;
   letter-spacing: 2px !important;
   font-weight: 400 !important;
 }
 
 /* 🎞️ THE "EXPENSIVE" NOISE OVERLAY */
-html[data-theme="kaala"] body::before {
+html[data-theme="stealth-midnight"] body::before {
   content: "" !important;
   position: fixed !important;
   top: 0 !important;
@@ -72,13 +72,13 @@ html[data-theme="kaala"] body::before {
 }
 
 /* Elite Text Selection */
-html[data-theme="kaala"] ::selection {
+html[data-theme="stealth-midnight"] ::selection {
   background: #ffffff;
   color: #000000;
 }
 
 /* 🧊 EXECUTIVE HUD: Header */
-html[data-theme="kaala"] .app-header {
+html[data-theme="stealth-midnight"] .app-header {
   background: #000000 !important;
   backdrop-filter: none !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -86,14 +86,14 @@ html[data-theme="kaala"] .app-header {
 }
 
 /* 🌫️ PURE BLACK CONTAINERS (Cursor Style) */
-html[data-theme="kaala"] .card,
-html[data-theme="kaala"] .hero,
-html[data-theme="kaala"] .metric-card,
-html[data-theme="kaala"] .feature-card,
-html[data-theme="kaala"] .leaderboard-item,
-html[data-theme="kaala"] .podium-node,
-html[data-theme="kaala"] .modal-content,
-html[data-theme="kaala"] .mission-status-card {
+html[data-theme="stealth-midnight"] .card,
+html[data-theme="stealth-midnight"] .hero,
+html[data-theme="stealth-midnight"] .metric-card,
+html[data-theme="stealth-midnight"] .feature-card,
+html[data-theme="stealth-midnight"] .leaderboard-item,
+html[data-theme="stealth-midnight"] .podium-node,
+html[data-theme="stealth-midnight"] .modal-content,
+html[data-theme="stealth-midnight"] .mission-status-card {
   background: #000000 !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
   border-radius: 8px !important;
@@ -102,69 +102,75 @@ html[data-theme="kaala"] .mission-status-card {
 }
 
 /* ❄️ MONOSPACED METADATA (Tactical Precision) */
-html[data-theme="kaala"] .status-tag,
-html[data-theme="kaala"] .lb-hours-container,
-html[data-theme="kaala"] .podium-hours,
-html[data-theme="kaala"] .lb-today-badge,
-html[data-theme="kaala"] .stat-name,
-html[data-theme="kaala"] .meta,
-html[data-theme="kaala"] .label,
-html[data-theme="kaala"] .readout-key,
-html[data-theme="kaala"] .integrity-text {
+html[data-theme="stealth-midnight"] .status-tag,
+html[data-theme="stealth-midnight"] .lb-hours-container,
+html[data-theme="stealth-midnight"] .podium-hours,
+html[data-theme="stealth-midnight"] .lb-today-badge,
+html[data-theme="stealth-midnight"] .stat-name,
+html[data-theme="stealth-midnight"] .meta,
+html[data-theme="stealth-midnight"] .label,
+html[data-theme="stealth-midnight"] .readout-key,
+html[data-theme="stealth-midnight"] .integrity-text {
   font-family: var(--font-mono) !important;
   text-transform: uppercase !important;
   letter-spacing: 0.1em !important;
 }
 
 /* 🌑 LEADERBOARD PODIUM FIX: Alignment & Spacing */
-html[data-theme="kaala"] .podium-node {
+html[data-theme="stealth-midnight"] .podium-node {
   justify-content: center !important;
   text-align: center !important;
 }
 
-html[data-theme="kaala"] .podium-info {
+html[data-theme="stealth-midnight"] .podium-info {
   align-items: center !important;
 }
 
-html[data-theme="kaala"] .status-tag {
+html[data-theme="stealth-midnight"] .status-tag {
   align-self: center !important;
   margin-bottom: 8px !important;
 }
 
-html[data-theme="kaala"] .podium-avatar-wrapper {
+html[data-theme="stealth-midnight"] .podium-avatar-wrapper {
   background: #000000 !important;
   box-shadow: 0 0 20px rgba(255, 255, 255, 0.05) !important;
 }
 
 /* Progress Bars */
-html[data-theme="kaala"] .progress-bar-fill,
-html[data-theme="kaala"] .lb-xp-bar {
+html[data-theme="stealth-midnight"] .progress-bar-fill,
+html[data-theme="stealth-midnight"] .lb-xp-bar {
   background: #ffffff !important;
   box-shadow: none !important;
 }
 
 /* ❄️ TACTICAL BUTTONS */
-html[data-theme="kaala"] .btn,
-html[data-theme="kaala"] .btn-secondary {
+html[data-theme="stealth-midnight"] .btn,
+html[data-theme="stealth-midnight"] .btn-secondary {
   background: #000000 !important;
   border: 1px solid rgba(255, 255, 255, 0.2) !important;
   border-radius: 8px !important;
   color: #ffffff !important;
 }
 
-html[data-theme="kaala"] .btn:hover {
+html[data-theme="stealth-midnight"] .modal-content {
+  background: #000000 !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 1) !important;
+}
+
+html[data-theme="stealth-midnight"] .btn:hover {
   background: #0a0a0a !important;
 }
 
-html[data-theme="kaala"] .btn-primary,
-html[data-theme="kaala"] .btn.btn-primary,
-html[data-theme="kaala"] #startTimerBtn,
-html[data-theme="kaala"] #confirmStartTimerBtn,
-html[data-theme="kaala"] #mainMissionStartBtn,
-html[data-theme="kaala"] #applyDateSettings,
-html[data-theme="kaala"] #applyThemeBtn,
-html[data-theme="kaala"] #applyColumnSettings,
-html[data-theme="kaala"] #addCustomRangeBtn {
+html[data-theme="stealth-midnight"] .btn-primary,
+html[data-theme="stealth-midnight"] .btn.btn-primary,
+html[data-theme="stealth-midnight"] #startTimerBtn,
+html[data-theme="stealth-midnight"] #confirmStartTimerBtn,
+html[data-theme="stealth-midnight"] #mainMissionStartBtn,
+html[data-theme="stealth-midnight"] #applyDateSettings,
+html[data-theme="stealth-midnight"] #applyThemeBtn,
+html[data-theme="stealth-midnight"] #applyColumnSettings,
+html[data-theme="stealth-midnight"] #addCustomRangeBtn {
   background: #ffffff !important;
   color: #000000 !important;
   border-radius: 8px !important;
@@ -186,20 +192,20 @@ html[data-theme="kaala"] #addCustomRangeBtn {
 }
 
 /* Scrollbar Hardening */
-html[data-theme="kaala"] ::-webkit-scrollbar {
+html[data-theme="stealth-midnight"] ::-webkit-scrollbar {
   width: 6px;
 }
 
-html[data-theme="kaala"] ::-webkit-scrollbar-track {
-  background: #000000;
+html[data-theme="stealth-midnight"] ::-webkit-scrollbar-track {
+  background: var(--bg-primary);
 }
 
-html[data-theme="kaala"] ::-webkit-scrollbar-thumb {
+html[data-theme="stealth-midnight"] ::-webkit-scrollbar-thumb {
   background: #222222;
   border-radius: 10px;
 }
 
-html[data-theme="kaala"] ::-webkit-scrollbar-thumb:hover {
+html[data-theme="stealth-midnight"] ::-webkit-scrollbar-thumb:hover {
   background: #333333;
 }
 

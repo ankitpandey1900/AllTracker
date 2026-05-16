@@ -20,7 +20,7 @@
   <meta property="og:title" content="All Tracker | Study Tracker & Global Leaderboard" />
   <meta property="og:description"
     content="Track your study hours, beat DSA goals, climb the global leaderboard, and get AI mentoring — All Tracker is the ultimate productivity app for students and developers." />
-  <meta property="og:image" content="https://www.alltracker.online/logo.png" />
+  <meta property="og:image" content="https://www.alltracker.online/logo%20new%20all.png" />
   <meta property="og:image:type" content="image/png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
@@ -33,7 +33,7 @@
   <meta name="twitter:title" content="All Tracker | Study Tracker & Global Leaderboard" />
   <meta name="twitter:description"
     content="Track your study hours, beat DSA goals, climb the global leaderboard, and get AI mentoring — All Tracker is the ultimate productivity app for students and developers." />
-  <meta name="twitter:image" content="https://www.alltracker.online/logo.png" />
+  <meta name="twitter:image" content="https://www.alltracker.online/logo%20new%20all.png" />
 
   <script type="application/ld+json">
   [
@@ -62,7 +62,7 @@
         "Competitive Exam Preparation Tracker",
         "Task Mission Board"
       ],
-      "screenshot": "https://www.alltracker.online/logo.png",
+      "screenshot": "https://www.alltracker.online/logo%20new%20all.png",
       "offers": {
         "@type": "Offer",
         "price": "0",
@@ -114,13 +114,12 @@
   </script>
 
   <link rel="manifest" href="/manifest.json" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
-  <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
-  <link rel="shortcut icon" href="/favicon-48x48.png" type="image/png" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" href="/crop%20logo.png" />
+  <link rel="shortcut icon" href="/crop%20logo.png" type="image/png" />
+  <link rel="apple-touch-icon" href="/crop%20logo.png" />
 
   <!-- ⚡ Core Web Vitals: Preload critical assets for LCP -->
-  <link rel="preload" href="/logo.png" as="image" type="image/png" fetchpriority="high" />
+  <link rel="preload" href="/logo%20new%20all.png" as="image" type="image/png" fetchpriority="high" />
 
   <!-- 🔗 DNS Prefetch: Speed up third-party connections -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -147,7 +146,7 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      background: #030611;
+      background: #000000;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -168,15 +167,17 @@
     }
 
     .loader-logo {
-      width: 80px;
-      height: 80px;
+      width: auto;
+      height: 180px;
+      max-width: 80vw;
+      object-fit: contain;
       margin-bottom: 24px;
-      filter: drop-shadow(0 0 15px rgba(106, 134, 255, 0.4));
+      filter: none;
     }
 
     .loader-text {
-      color: #8b9cc4;
-      font-size: 0.85rem;
+      color: #a494c9;
+      font-size: 1.25rem;
       letter-spacing: 2px;
       text-transform: uppercase;
       font-family: 'Tektur', sans-serif;
@@ -184,9 +185,9 @@
     }
 
     .loader-progress {
-      width: 120px;
+      width: 200px;
       height: 2px;
-      background: rgba(106, 134, 255, 0.1);
+      background: rgba(124, 58, 237, 0.1);
       margin: 20px auto 0;
       border-radius: 4px;
       position: relative;
@@ -199,7 +200,7 @@
       left: 0;
       width: 40%;
       height: 100%;
-      background: #6a86ff;
+      background: #7c3aed;
       border-radius: 4px;
       animation: progress-slide 1.5s ease-in-out infinite;
     }
@@ -224,7 +225,7 @@
   <!-- 🚀 Initial Sync Loader -->
   <div id="app-bootstrap-loader">
     <div class="loader-content">
-      <img src="/logo.png" class="loader-logo" alt="All Tracker">
+      <img src="/logo%20new%20all.png" class="loader-logo" alt="All Tracker">
       <div class="loader-text">Processing… thoda time lagega</div>
       <div class="loader-progress">
         <div class="loader-progress-bar"></div>

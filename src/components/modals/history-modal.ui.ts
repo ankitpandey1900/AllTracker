@@ -133,7 +133,7 @@ export const historyModal = `
     }
     #clearHistoryFilter:hover {
       background: rgba(255,255,255,0.1);
-      color: #fff;
+      color: var(--text-primary);
     }
 
     /* ════════════════════════════════════════════════
@@ -157,7 +157,7 @@ export const historyModal = `
     .sh-stat-val {
       font-size: 0.88rem;
       font-weight: 800;
-      color: #fff;
+      color: var(--text-primary);
       font-variant-numeric: tabular-nums;
     }
     .sh-stat-lbl {
@@ -253,7 +253,7 @@ export const historyModal = `
     }
     .sh-date-row.open .sh-chevron { transform: rotate(90deg); background: rgba(96,165,250,0.2); }
     .sh-date-stack { display: flex; flex-direction: column; gap: 1px; }
-    .sh-date-primary { font-size: 0.88rem; font-weight: 800; color: #fff; }
+    .sh-date-primary { font-size: 0.88rem; font-weight: 800; color: var(--text-primary); }
     .sh-date-secondary { font-size: 0.6rem; color: rgba(255,255,255,0.32); font-weight: 600; }
     .sh-date-sessions-label {
       font-size: 0.62rem; font-weight: 700;
@@ -352,9 +352,9 @@ export const historyModal = `
       line-height: 1;
     }
     .sh-btn-edit { color: #a5b4fc; }
-    .sh-btn-edit:hover { background: rgba(99,102,241,0.2); border-color: rgba(99,102,241,0.4); color: #fff; }
+    .sh-btn-edit:hover { background: rgba(99,102,241,0.2); border-color: rgba(99,102,241,0.4); color: var(--text-primary); }
     .sh-btn-delete { color: #f87171; }
-    .sh-btn-delete:hover { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.4); color: #fff; }
+    .sh-btn-delete:hover { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.4); color: var(--text-primary); }
 
     /* Empty state */
     .sh-empty {

@@ -7,8 +7,7 @@
 export const shellView = `
   <header id="appHeader" class="app-header backdrop-blur-md">
     <div class="brand-group">
-      <img src="/logo.png" alt="All Tracker Logo: High-Performance Study Management" class="app-logo" title="All Tracker — Home">
-      <div class="brand" role="heading" aria-level="2">ALL TRACKER</div>
+      <img src="/logo%20new%20all.png" alt="All Tracker Logo: High-Performance Study Management" class="app-logo" title="All Tracker — Home">
     </div>
     <div class="header-actions">
       <button id="startTimerBtn" class="btn btn-primary" title="Start Focus Timer" aria-label="Start study focus timer">Start Timer</button>

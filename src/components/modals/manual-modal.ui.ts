@@ -283,7 +283,7 @@ export const manualModal = `
               <p>Mission Control is your daily task manager. Add objectives for the day, prioritize them, and track your clearance rate in real-time.</p>
 
               <h3 class="docs-h3">Daily Clearance Bar</h3>
-              <p>The progress bar at the top of Mission Control shows your <strong>Daily Clearance %</strong> — the percentage of today's tasks you have completed. It turns <span style="color:#10b981;font-weight:700;">green</span> when you hit 100%.</p>
+              <p>The progress bar at the top of Mission Control shows your <strong>Daily Clearance %</strong> — the percentage of today's tasks you have completed. It turns <span style="color:#8b5cf6;font-weight:700;">green</span> when you hit 100%.</p>
 
               <div class="docs-callout docs-callout-info">
                 <div class="docs-callout-title">📌 Note on Future Tasks</div>
@@ -297,7 +297,7 @@ export const manualModal = `
                     <tr><th>BADGE</th><th>LEVEL</th><th>USE WHEN</th></tr>
                   </thead>
                   <tbody>
-                    <tr><td style="color:#34d399;font-weight:700;">L</td><td>Low</td><td>Nice-to-do, no deadline pressure.</td></tr>
+                    <tr><td style="color:#a78bfa;font-weight:700;">L</td><td>Low</td><td>Nice-to-do, no deadline pressure.</td></tr>
                     <tr><td style="color:#fbbf24;font-weight:700;">M</td><td>Medium</td><td>Standard tasks with moderate importance.</td></tr>
                     <tr><td style="color:#f87171;font-weight:700;">H</td><td>High</td><td>Critical objectives — shown first in your queue.</td></tr>
                   </tbody>
@@ -509,7 +509,7 @@ export const manualModal = `
                   <tbody>
                     <tr><td><strong>Mission Dates</strong></td><td>Set your study start date and target exam/goal date. This drives the deadline countdown and streak calendar.</td></tr>
                     <tr><td><strong>Subject Columns</strong></td><td>Define your study subjects (e.g., DSA, Python, Projects) and set target hours for each.</td></tr>
-                    <tr><td><strong>Theme</strong></td><td>Switch between visual themes: Default, Kaala (dark), and others.</td></tr>
+                    <tr><td><strong>Theme</strong></td><td>Switch between visual themes: Stealth Midnight (Default), Obsidian Glass, and others.</td></tr>
                     <tr><td><strong>Timer Style</strong></td><td>Choose between Ring (circular) or Block (digital) timer display.</td></tr>
                     <tr><td><strong>Beast Mode</strong></td><td>Toggles Maamu AI between aggressive coaching and analytical strategy mode.</td></tr>
                     <tr><td><strong>AI API Key</strong></td><td>Add your personal Groq API key for unlimited AI Mentor access.</td></tr>

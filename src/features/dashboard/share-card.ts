@@ -61,7 +61,7 @@ export async function generateShareCard(): Promise<void> {
     
     let color = '#27272a'; // Default (not studied)
     if (dayData) {
-      if (dayData.completed) color = '#10b981';
+      if (dayData.completed) color = '#8b5cf6';
       else if (dayData.restDay) color = '#6366f1';
     }
     heatmapDotsArr.push(`<div style="width: 12px; height: 12px; border-radius: 3px; background: ${color}; border: 1px solid rgba(255,255,255,0.05);"></div>`);
@@ -118,7 +118,7 @@ export async function generateShareCard(): Promise<void> {
         </div>
         <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 20px; border-radius: 16px;">
           <div style="font-size: 0.65rem; font-weight: 800; color: #a1a1aa; letter-spacing: 2px; margin-bottom: 8px;">RANK SCORE</div>
-          <div style="font-family: 'Tektur'; font-size: 1.8rem; font-weight: 900; color: #10b981;">${rankScore.toLocaleString()}</div>
+          <div style="font-family: 'Tektur'; font-size: 1.8rem; font-weight: 900; color: #8b5cf6;">${rankScore.toLocaleString()}</div>
         </div>
       </div>
     </div>

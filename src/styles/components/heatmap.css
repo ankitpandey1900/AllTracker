@@ -20,7 +20,7 @@
   width: 12px;
   height: 12px;
   border-radius: 2px;
-  background: #0d162d;
+  background: var(--bg-primary);
   border: 1px solid rgba(255, 255, 255, 0.03);
   transition: all 0.2s ease;
 }
@@ -38,7 +38,7 @@
 }
 
 .heatmap-cell[data-level="1"] {
-  background: #1f3f8f;
+  background: var(--bg-secondary);
 }
 
 .heatmap-cell[data-level="2"] {
@@ -66,7 +66,7 @@
   background-position: right 12px center;
   border: 1px solid rgba(108, 135, 255, 0.2);
   border-radius: 20px;
-  color: #fff;
+  color: var(--text-primary);
   font-family: 'Tektur', sans-serif;
   font-size: 0.85rem;
   font-weight: 500;
@@ -93,8 +93,8 @@
 
 /* Fix for native option styling in some browsers */
 #heatmapYearSelect option {
-  background-color: #0f172a;
-  color: #fff;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
   padding: 10px;
 }
 
@@ -182,7 +182,7 @@
 }
 
 .kpi-card.highlight .value {
-  color: #fff;
+  color: var(--text-primary);
   text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
 }
 
@@ -196,7 +196,7 @@
 }
 
 .heatmap-grid-area {
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--surface);
   border-radius: 20px;
   padding: 32px;
   border: 1px solid rgba(255, 255, 255, 0.05);

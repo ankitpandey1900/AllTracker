@@ -108,7 +108,7 @@ export function applyColumnSettings(): void {
 export function applyThemeSettings(): void {
   const themeInput = document.getElementById('themeSelectInput') as HTMLSelectElement;
   if (themeInput) {
-    appState.settings.theme = themeInput.value as 'kaala' | 'default' | 'chanakya-strategy' | 'ayodhya' | 'kamala-grace' | 'vajra-shakti';
+    appState.settings.theme = themeInput.value as 'stealth-midnight' | 'obsidian-glass' | 'tactical-navy' | 'solar-gold' | 'pristine-white' | 'quantum-purple';
     import('@/state/app-state').then(m => m.applyThemeToDOM(appState.settings.theme));
   }
 

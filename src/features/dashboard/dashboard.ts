@@ -140,7 +140,7 @@ export function updateDashboard(): void {
 
   const sustain = calculateSustainability(data);
   const sustainArrow = sustain.trend === 'up'
-    ? '<span style="color: #22c55e; margin-left: 5px;">↑</span>'
+    ? '<span style="color: #8b5cf6; margin-left: 5px;">↑</span>'
     : sustain.trend === 'down'
       ? '<span style="color: #ef4444; margin-left: 5px;">↓</span>'
       : '';
@@ -158,7 +158,7 @@ export function updateDashboard(): void {
   // --- Mission Telemetry ---
   const { date: estimatedFinish, trend: finishTrend } = calculateEstimatedFinishWithTrend(today.day, completedDays);
   const finishArrow = finishTrend === 'up'
-    ? '<span style="color: #22c55e; margin-left: 5px;">↑</span>'
+    ? '<span style="color: #8b5cf6; margin-left: 5px;">↑</span>'
     : finishTrend === 'down'
       ? '<span style="color: #ef4444; margin-left: 5px;">↓</span>'
       : '';

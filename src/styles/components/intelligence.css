@@ -3,8 +3,8 @@
   --maamu-bg: #09090b;
   --maamu-card: rgba(255, 255, 255, 0.03);
   --maamu-border: rgba(255, 255, 255, 0.08);
-  --maamu-accent: #10b981;
-  --maamu-accent-soft: rgba(16, 185, 129, 0.1);
+  --maamu-accent: #8b5cf6;
+  --maamu-accent-soft: rgba(139, 92, 246, 0.1);
   --maamu-text: #ffffff;
   --maamu-text-muted: #a1a1aa;
 }
@@ -72,7 +72,7 @@
   font-family: 'JetBrains Mono', monospace;
   font-size: 1.4rem;
   font-weight: 900;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .bar-bg {
@@ -135,17 +135,17 @@
   display: flex;
   gap: 10px;
   padding: 20px;
-  background: rgba(0, 0, 0, 0.2);
+  background: transparent;
   border-top: 1px solid var(--maamu-border);
 }
 
 .chat-input-wrap input {
   flex: 1;
-  background: #111;
+  background: transparent;
   border: 1px solid var(--maamu-border);
   padding: 12px 18px;
   border-radius: 10px;
-  color: #fff;
+  color: var(--text-primary);
   font-family: 'Outfit', sans-serif;
   font-size: 0.9rem;
   outline: none;
@@ -181,7 +181,7 @@
 .chat-line.mentor {
   align-self: flex-start;
   background: rgba(255, 255, 255, 0.05);
-  color: #fff;
+  color: var(--text-primary);
   border-bottom-left-radius: 2px;
 }
 
@@ -234,7 +234,7 @@
   border: 1px solid var(--maamu-border);
   padding: 8px 12px;
   border-radius: 6px;
-  color: #fff;
+  color: var(--text-primary);
   font-size: 0.8rem;
   margin-bottom: 10px;
 }
@@ -242,7 +242,7 @@
 .btn-micro {
   width: 100%;
   background: rgba(255, 255, 255, 0.05);
-  color: #fff;
+  color: var(--text-primary);
   border: 1px solid var(--maamu-border);
   padding: 8px;
   border-radius: 6px;
@@ -278,7 +278,7 @@
 .guide-title {
   font-size: 0.75rem;
   font-weight: 800;
-  color: #fff;
+  color: var(--text-primary);
   margin-bottom: 5px;
 }
 
@@ -447,13 +447,13 @@
 
 .vulnerability-card p {
   font-size: 0.75rem;
-  color: #fff;
+  color: var(--text-primary);
   margin-top: 5px;
 }
 
 /* --- Code & Technical Formatting --- */
 .code-block-wrapper {
-  background: #0d1117;
+  background: var(--bg-primary);
   /* GitHub Dark style */
   border: 1px solid var(--maamu-border);
   border-radius: 10px;

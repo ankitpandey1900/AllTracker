@@ -80,7 +80,7 @@ export interface Settings {
   sessionLogs: SessionLog[];
   groqApiKey?: string;
   maamuModel?: string;
-  theme?: 'kaala' | 'default' | 'chanakya-strategy' | 'ayodhya' | 'kamala-grace' | 'vajra-shakti';
+  theme?: 'stealth-midnight' | 'obsidian-glass' | 'tactical-navy' | 'solar-gold' | 'pristine-white' | 'quantum-purple';
   timerStyle?: 'ring' | 'block';
   sessionGoal?: string;           // Target hours for current phase
   ambientSound?: 'none' | 'interstellar';

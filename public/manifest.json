@@ -25,19 +25,19 @@
   ],
   "icons": [
     {
-      "src": "/icon-192.png",
+      "src": "/crop%20logo.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icon-512.png",
+      "src": "/crop%20logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icon-512.png",
+      "src": "/crop%20logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

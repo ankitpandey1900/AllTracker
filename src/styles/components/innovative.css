@@ -7,10 +7,7 @@
 
 .focus-hud.active {
   pointer-events: auto;
-  background:
-    radial-gradient(circle at 20% 20%, rgba(106, 134, 255, 0.16), transparent 35%),
-    radial-gradient(circle at 80% 10%, rgba(139, 92, 246, 0.17), transparent 35%),
-    rgba(4, 8, 16, 0.92);
+  background: transparent;
 }
 
 .view-pane {
@@ -52,9 +49,8 @@
   text-align: center;
   padding: 24px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
-  background: #080c18;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+  border-radius: 12px;
+  background: transparent;
   position: relative;
   user-select: none;
 }
@@ -228,7 +224,7 @@
   font-weight: 300;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.03em;
-  color: #ffffff;
+  color: var(--text-primary);
   line-height: 1;
 }
 
@@ -258,7 +254,7 @@
   gap: 12px;
   justify-content: center;
   align-items: center;
-  background: rgba(0, 0, 0, 0.4);
+  background: transparent;
   padding: 12px;
   border-radius: 4px;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -328,9 +324,9 @@ body.focus-minimized .session-goal-row {
 }
 
 .sync-live {
-  color: #60a5fa;
-  /* Electric Blue */
-  filter: drop-shadow(0 0 8px rgba(96, 165, 250, 0.4));
+  color: #a78bfa;
+  /* Purple */
+  filter: drop-shadow(0 0 8px rgba(124, 58, 237, 0.4));
   animation: sync-float 3s infinite ease-in-out;
 }
 
@@ -448,7 +444,7 @@ body.timer-style-block .timer-display {
   font-size: clamp(8rem, 20vw, 16rem);
   font-weight: 500;
   letter-spacing: -2px;
-  color: #ffffff;
+  color: var(--text-primary);
   line-height: 1;
   text-shadow: 0 0 10px rgba(255, 255, 255, 0.15);
   /* Normalized */
@@ -634,4 +630,4 @@ body.focus-minimized.timer-style-block #activeTimerSection:hover {
   .session-goal-row input {
     width: 50px !important;
   }
-}
+}

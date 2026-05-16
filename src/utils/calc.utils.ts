@@ -465,7 +465,7 @@ export function calculateSustainability(trackerData: TrackerDay[]): {
 
   // Industry-Standard Status Logic
   let label = 'OPTIMAL';
-  let color = '#22c55e';
+  let color = '#8b5cf6';
   let description = 'Sustainable pace maintained.';
 
   if (sep.score < 40) {

@@ -65,7 +65,7 @@ export const authModal = `
 
     /* Glassmorphism Buttons matching the dark sci-fi aesthetic */
     .auth-provider-google, .auth-provider-github {
-      background: rgba(255, 255, 255, 0.03);
+      background: var(--bg-tertiary);
       color: #f1f5f9;
       border: 1px solid rgba(255, 255, 255, 0.08);
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
@@ -82,7 +82,7 @@ export const authModal = `
       position: absolute;
       right: 24px;
       top: 24px;
-      background: rgba(255, 255, 255, 0.03);
+      background: var(--bg-tertiary);
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 50%;
       width: 34px;
@@ -99,7 +99,7 @@ export const authModal = `
     
     .modal-close-new:hover {
       background: rgba(255, 255, 255, 0.1);
-      color: #fff;
+      color: var(--text-primary);
       transform: scale(1.05) rotate(90deg);
     }
   </style>

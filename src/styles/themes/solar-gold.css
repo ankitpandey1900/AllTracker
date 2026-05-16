@@ -1,0 +1,140 @@
+/* =========================================================
+   THEME: GOLD (The Executive Suite)
+   Visual System: Obsidian Black, Burnished Gold, Sandstone
+   Aesthetic: High-End Corporate, Minimalist, Luxury
+   ========================================================= */
+
+html[data-theme="solar-gold"] :root {
+  --bg-primary: #000000;
+  --bg-secondary: #09090b;
+  --bg-tertiary: #18181b;
+  --surface: #000000;
+  --surface-2: #09090b;
+  --text-primary: #ffffff;
+  --text-secondary: #c5a059; /* Executive Gold */
+  --text-muted: #71717a;
+  --border: rgba(197, 160, 89, 0.2);
+  --border-strong: rgba(197, 160, 89, 0.4);
+  --accent-blue: #c5a059;
+  --accent-purple: #c5a059;
+  --accent-cyan: #c5a059;
+
+  /* Intelligence / Maamu Overrides */
+  --maamu-bg: #000000;
+  --maamu-card: #09090b;
+  --maamu-border: rgba(197, 160, 89, 0.2);
+  --maamu-text: #ffffff;
+  --maamu-text-muted: #a1a1aa;
+  --maamu-accent: #c5a059;
+  --maamu-accent-soft: rgba(197, 160, 89, 0.1);
+
+  /* Global Audit Points */
+  --header-bg: #000000;
+  --nav-bg: #000000;
+  --empty-state-bg: #09090b;
+}
+
+/* 🏛️ EXECUTIVE BASE: Deep Obsidian */
+html[data-theme="solar-gold"] body {
+  background: #000000 !important;
+  background-image: none !important;
+  color: #ffffff !important;
+  font-family: 'Outfit', sans-serif !important;
+}
+
+/* 🌅 EXECUTIVE HUD: Header */
+html[data-theme="solar-gold"] .app-header {
+  background: #000000 !important;
+  border-bottom: 1px solid var(--border-strong) !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="solar-gold"] .app-header .brand {
+  color: #c5a059 !important;
+  font-weight: 800;
+  text-shadow: none !important;
+}
+
+/* 🏅 LUXURY ARCHITECTURE: Cards */
+html[data-theme="solar-gold"] .card,
+html[data-theme="solar-gold"] .hero,
+html[data-theme="solar-gold"] .metric-card,
+html[data-theme="solar-gold"] .feature-card,
+html[data-theme="solar-gold"] .profile-passport-card,
+html[data-theme="solar-gold"] .leaderboard-item {
+  background: #09090b !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  transition: all 0.2s ease;
+}
+
+html[data-theme="solar-gold"] .modal-content {
+  background: #000000 !important;
+  border: 1px solid var(--border-strong) !important;
+  box-shadow: 0 0 50px rgba(197, 160, 89, 0.1) !important;
+}
+html[data-theme="solar-gold"] .card:hover {
+  border-color: var(--border-strong) !important;
+  background: #18181b !important;
+  transform: none !important;
+}
+
+/* 🥇 PRECISION METRICS */
+html[data-theme="solar-gold"] .stat-value {
+  color: #c5a059 !important;
+  font-weight: 800 !important;
+  text-shadow: none !important;
+}
+
+html[data-theme="solar-gold"] .focus-core {
+  background: #000000 !important;
+  border: 1px solid #c5a059 !important;
+  box-shadow: none !important;
+}
+
+/* 🚩 EXECUTIVE COMMANDS: Buttons */
+html[data-theme="solar-gold"] .btn-primary {
+  background: #c5a059 !important;
+  color: #000000 !important;
+  border: 1px solid #c5a059 !important;
+  border-radius: 6px !important;
+  font-weight: 800;
+  box-shadow: none !important;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+html[data-theme="solar-gold"] .btn-primary:hover {
+  background: #d4b87d !important;
+  border-color: #d4b87d !important;
+  transform: none !important;
+}
+
+html[data-theme="solar-gold"] .settings-input {
+  background: #000000 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+  border-radius: 4px !important;
+}
+
+html[data-theme="solar-gold"] .settings-input:focus {
+  border-color: #c5a059 !important;
+}
+
+html[data-theme="solar-gold"] .mobile-nav {
+  background: #000000 !important;
+  border-top: 1px solid var(--border-strong) !important;
+}
+
+html[data-theme="solar-gold"] .nav-item.active {
+  color: #c5a059 !important;
+  background: rgba(197, 160, 89, 0.05) !important;
+}
+
+html[data-theme="solar-gold"] .modern-table th {
+  background: #09090b !important;
+  color: #c5a059 !important;
+  border-bottom: 1px solid var(--border) !important;
+  font-weight: 800;
+}

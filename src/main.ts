@@ -13,11 +13,12 @@ import "./styles/components/manual.css";
 import "./styles/components/canvas.css";
 import "./styles/components/feed.css";
 import "./styles/features/maamu.css";
-import "./styles/themes/default.css";
-import "./styles/themes/chanakya-strategy.css";
-import "./styles/themes/ayodhya.css";
-import "./styles/themes/kamala-grace.css";
-import "./styles/themes/kaala.css";
+import "./styles/themes/obsidian-glass.css";
+import "./styles/themes/tactical-navy.css";
+import "./styles/themes/solar-gold.css";
+import "./styles/themes/pristine-white.css";
+import "./styles/themes/stealth-midnight.css";
+import "./styles/themes/quantum-purple.css";
 
 // 2. High-Level Orchestration
 import { igniteApp } from "./core/app-ignition";

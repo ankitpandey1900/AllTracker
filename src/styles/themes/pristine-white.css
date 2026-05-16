@@ -1,0 +1,828 @@
+/* =========================================================
+   THEME: PRISTINE WHITE (Professional Light Mode)
+   Visual System: High-Contrast White, Emerald Accents, Slate UI
+   Aesthetic: Clean, Minimalist, Data-Focused
+   ========================================================= */
+
+/* 1. Global Variable Overrides */
+html[data-theme="pristine-white"] {
+  --bg-primary: #ffffff !important;
+  --bg-secondary: #f8fafc !important;
+  --bg-tertiary: #f1f5f9 !important;
+  --surface: #ffffff !important;
+  --surface-2: #f1f5f9 !important;
+  
+  --text-primary: #0f172a !important;    /* Slate 900 */
+  --text-secondary: #334155 !important;  /* Slate 700 */
+  --text-muted: #64748b !important;     /* Slate 500 */
+  
+  --border: rgba(0, 0, 0, 0.1) !important;
+  --border-strong: rgba(0, 0, 0, 0.2) !important;
+  
+  --accent-blue: #7c3aed !important;
+  --accent-purple: #8b5cf6 !important;
+  --accent-cyan: #a78bfa !important;
+  --bg-deep: #ffffff !important;
+}
+
+/* 2. Body & Layout Lockdown */
+html[data-theme="pristine-white"] body,
+html[data-theme="pristine-white"] #app-particles,
+html[data-theme="pristine-white"] .view-pane {
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+  background-image: none !important;
+  color: #0f172a !important;
+}
+
+/* 3. Header Visibility (The "First Principle" Fix) */
+html[data-theme="pristine-white"] .app-header {
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;
+}
+
+html[data-theme="pristine-white"] .app-header * {
+  color: #0f172a !important;
+}
+
+html[data-theme="pristine-white"] .app-header .btn-primary,
+html[data-theme="pristine-white"] .app-header .btn-primary * {
+  color: #ffffff !important;
+}
+
+/* 4. Logo Strategy: Glass Logo for White Theme */
+html[data-theme="pristine-white"] .app-logo {
+  content: url("/glass%20logo.png") !important;
+  filter: none !important;
+  background: transparent !important;
+}
+
+/* 4.5. Component Visibility Overrides */
+html[data-theme="pristine-white"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --border: rgba(0, 0, 0, 0.08);
+  --accent-blue: #8b5cf6; /* Matching Logo Purple */
+  --accent-light: rgba(139, 92, 246, 0.05);
+  --accent-border: rgba(139, 92, 246, 0.1);
+  --empty-state-bg: #f8fafc !important; /* Fixed "Black Stuff" in empty boxes */
+}
+
+/* 5. Navigation & Button Fixes (No Black Hovers) */
+html[data-theme="pristine-white"] .btn:hover,
+html[data-theme="pristine-white"] button:hover,
+html[data-theme="pristine-white"] .nav-item:hover,
+html[data-theme="pristine-white"] .btn-icon:hover {
+  background: rgba(0, 0, 0, 0.04) !important;
+  color: #0f172a !important;
+  border-color: rgba(0, 0, 0, 0.15) !important;
+}
+
+html[data-theme="pristine-white"] .btn-primary:hover {
+  background: #8b5cf6 !important;
+  color: #ffffff !important;
+}
+
+/* 6. Feed & Bookmarks & Routine & Tasks (Image 12, 13, 17, 24, 25, 28, 29 Fixes) */
+html[data-theme="pristine-white"] .feed-container,
+html[data-theme="pristine-white"] .feed-header,
+html[data-theme="pristine-white"] .transmission-box,
+html[data-theme="pristine-white"] .transmission-card,
+html[data-theme="pristine-white"] .bookmarks-container,
+html[data-theme="pristine-white"] .vault-empty-state,
+html[data-theme="pristine-white"] .empty-state-card,
+html[data-theme="pristine-white"] .feed-header-left,
+html[data-theme="pristine-white"] .feed-main-content,
+html[data-theme="pristine-white"] .empty-state,
+html[data-theme="pristine-white"] .routine-empty-state,
+html[data-theme="pristine-white"] .no-missions-container,
+html[data-theme="pristine-white"] .skeleton-card,
+html[data-theme="pristine-white"] .daily-clearance-bar,
+html[data-theme="pristine-white"] .prompt-shortcuts,
+html[data-theme="pristine-white"] .maamu-chat-input-area,
+html[data-theme="pristine-white"] .heatmap-scroll-area,
+html[data-theme="pristine-white"] .bookmark-card,
+html[data-theme="pristine-white"] .task-item,
+html[data-theme="pristine-white"] .routine-item,
+html[data-theme="pristine-white"] .mission-item,
+html[data-theme="pristine-white"] .heatmap-container {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+html[data-theme="pristine-white"] .vault-empty-state,
+html[data-theme="pristine-white"] .empty-state,
+html[data-theme="pristine-white"] .routine-empty-state,
+html[data-theme="pristine-white"] .no-missions-container {
+  background: #f8fafc !important;
+  border: 1px dashed rgba(0, 0, 0, 0.1) !important;
+}
+
+html[data-theme="pristine-white"] .skeleton-avatar,
+html[data-theme="pristine-white"] .skeleton-line {
+  background: linear-gradient(90deg, #f1f5f9 25%, #f8fafc 50%, #f1f5f9 75%) !important;
+}
+
+html[data-theme="pristine-white"] .trans-body,
+html[data-theme="pristine-white"] .feed-header h2,
+html[data-theme="pristine-white"] .vault-title {
+  color: #0f172a !important;
+}
+
+html[data-theme="pristine-white"] .feed-login-prompt {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+}
+
+/* 7. World Stage Avatars & Points (Image 11, 14, 16, 18, 31 Fixes) */
+html[data-theme="pristine-white"] .lb-row-rank-score,
+html[data-theme="pristine-white"] .lb-row-total,
+html[data-theme="pristine-white"] .lb-row-handle,
+html[data-theme="pristine-white"] .podium-handle span,
+html[data-theme="pristine-white"] .lb-name,
+html[data-theme="pristine-white"] .status-tag {
+  color: #0f172a !important;
+}
+
+html[data-theme="pristine-white"] .lb-avatar,
+html[data-theme="pristine-white"] .podium-avatar-wrapper,
+html[data-theme="pristine-white"] .trans-avatar,
+html[data-theme="pristine-white"] #trackerTable tr,
+html[data-theme="pristine-white"] #trackerTable td {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+html[data-theme="pristine-white"] #trackerTable tr:nth-child(even) {
+  background: #f8fafc !important;
+}
+
+html[data-theme="pristine-white"] .score-label,
+html[data-theme="pristine-white"] .today-label,
+html[data-theme="pristine-white"] .status-tag {
+  color: #64748b !important;
+  opacity: 0.8 !important;
+  font-weight: 700 !important;
+}
+
+html[data-theme="pristine-white"] .hero-day-chip {
+  background: #f1f5f9 !important;
+  border: 1px solid rgba(0,0,0,0.05) !important;
+}
+
+/* 8. Profile Modal Redesign (Image 15 Fix) */
+html[data-theme="pristine-white"] .profile-modal,
+html[data-theme="pristine-white"] .profile-modal-content {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1) !important;
+}
+
+html[data-theme="pristine-white"] .profile-modal-name,
+html[data-theme="pristine-white"] .profile-modal-handle,
+html[data-theme="pristine-white"] .profile-modal-rank,
+html[data-theme="pristine-white"] .profile-post-text {
+  color: #0f172a !important;
+}
+
+html[data-theme="pristine-white"] .profile-modal-avatar {
+  background: #f1f5f9 !important;
+  border-color: var(--accent-blue) !important;
+}
+
+html[data-theme="pristine-white"] .profile-post-item {
+  background: #f8fafc !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+
+/* 9. Tabs & Sub-Navigation Cleanup (Image 33 Fix) */
+html[data-theme="pristine-white"] .tabs {
+  background: #f1f5f9 !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  border-radius: 12px !important;
+  padding: 6px !important;
+  display: flex !important;
+  gap: 4px !important;
+}
+
+html[data-theme="pristine-white"] .nav-item {
+  color: #64748b !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.05em !important;
+  font-family: 'Outfit', sans-serif !important;
+  transition: all 0.2s ease !important;
+}
+
+html[data-theme="pristine-white"] .nav-item.active {
+  background: #ffffff !important;
+  color: #8b5cf6 !important; /* Premium Purple Accent */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05) !important;
+  border-radius: 8px !important;
+}
+
+/* 20. Typography & Heading Overhaul (Image 33 Fix) */
+html[data-theme="pristine-white"] .sub-heading-tactical,
+html[data-theme="pristine-white"] .section-title,
+html[data-theme="pristine-white"] .hud-title,
+html[data-theme="pristine-white"] .sidebar-header,
+html[data-theme="pristine-white"] h2,
+html[data-theme="pristine-white"] h3 {
+  color: #0f172a !important;
+  font-family: 'Tektur', sans-serif !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+}
+
+html[data-theme="pristine-white"] #missionTelemetryHeader,
+html[data-theme="pristine-white"] .mission-header-centered h2,
+html[data-theme="pristine-white"] .study-log-header {
+  color: #1e293b !important;
+  font-size: 0.85rem !important;
+  opacity: 1 !important;
+  margin-bottom: 16px !important;
+}
+
+html[data-theme="pristine-white"] .btn-show-details,
+html[data-theme="pristine-white"] button.show-details-btn {
+  background: #ffffff !important;
+  color: #8b5cf6 !important;
+  border: 1px solid rgba(139, 92, 246, 0.3) !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  border-radius: 12px !important;
+  padding: 10px 24px !important;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.08) !important;
+}
+
+/* 21. Total Brand Synchronization (Replacing Green with Logo Purple) */
+html[data-theme="pristine-white"] {
+  --accent-green: #8b5cf6 !important; /* Force Purple override */
+}
+
+html[data-theme="pristine-white"] .btn-primary,
+html[data-theme="pristine-white"] .btn-show-details:hover,
+html[data-theme="pristine-white"] .filter-pill.active,
+html[data-theme="pristine-white"] .check-box.checked,
+html[data-theme="pristine-white"] #startTimerBtn,
+html[data-theme="pristine-white"] .btn-add-task,
+html[data-theme="pristine-white"] .btn-add-bookmark {
+  background: #8b5cf6 !important;
+  color: #ffffff !important;
+  border-color: #8b5cf6 !important;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2) !important;
+}
+
+html[data-theme="pristine-white"] .maamu-chip,
+html[data-theme="pristine-white"] .pill-data,
+html[data-theme="pristine-white"] .status-chip-green {
+  background: rgba(139, 92, 246, 0.1) !important;
+  color: #8b5cf6 !important;
+  border: 1px solid rgba(139, 92, 246, 0.2) !important;
+}
+
+html[data-theme="pristine-white"] .hud-fill.cleared,
+html[data-theme="pristine-white"] .hud-percent.cleared {
+  background: #8b5cf6 !important;
+  color: #8b5cf6 !important;
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.4) !important;
+}
+
+/* Specific button in Image 37 & 36 Fix */
+html[data-theme="pristine-white"] #startTimerBtn,
+html[data-theme="pristine-white"] .add-bookmark-btn,
+html[data-theme="pristine-white"] .add-task-btn {
+  background: #8b5cf6 !important;
+  font-family: 'Tektur', sans-serif !important;
+  font-weight: 800 !important;
+  letter-spacing: 1px !important;
+}
+
+/* 22. Maamu Bottom Bar Fix (Image 34 Fix) */
+html[data-theme="pristine-white"] .maamu-chat-input-area .pill-data[style*="background: #8b5cf6"],
+html[data-theme="pristine-white"] .maamu-chat-input-area .pill-data {
+  background: rgba(139, 92, 246, 0.1) !important;
+  color: #8b5cf6 !important;
+  border-color: rgba(139, 92, 246, 0.2) !important;
+}
+
+/* 23. Priority Control & Filter Pill Sanitization (Image 38, 41 Fix) */
+html[data-theme="pristine-white"] .priority-segmented-control {
+  background: #f1f5f9 !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+html[data-theme="pristine-white"] .priority-btn {
+  color: #64748b !important;
+}
+
+html[data-theme="pristine-white"] .filter-pill {
+  background: #f1f5f9 !important;
+  color: #64748b !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+html[data-theme="pristine-white"] .filter-pill:hover {
+  background: #e2e8f0 !important;
+  color: #1e293b !important;
+}
+
+/* 24. Final Green Purge: Login & Settings (Image 40, 41 Fix) */
+html[data-theme="pristine-white"] .btn-login,
+html[data-theme="pristine-white"] #loginBtn,
+html[data-theme="pristine-white"] #applyThemeBtn,
+html[data-theme="pristine-white"] #addPhaseBtn,
+html[data-theme="pristine-white"] .btn-apply,
+html[data-theme="pristine-white"] .btn-success,
+html[data-theme="pristine-white"] button[style*="background: #8b5cf6"],
+html[data-theme="pristine-white"] button[style*="background-color: #8b5cf6"] {
+  background: #8b5cf6 !important;
+  color: #ffffff !important;
+  border-color: #8b5cf6 !important;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2) !important;
+}
+
+/* 25. Universal Dark Residual Neutralization (The "Black Stuff" Killer) */
+html[data-theme="pristine-white"] .priority-segmented-control,
+html[data-theme="pristine-white"] .priority-btn:hover,
+html[data-theme="pristine-white"] .heatmap-scroll-area,
+html[data-theme="pristine-white"] .heatmap-container,
+html[data-theme="pristine-white"] .leaderboard-podium,
+html[data-theme="pristine-white"] .leaderboard-card,
+html[data-theme="pristine-white"] .podium-status-tag,
+html[data-theme="pristine-white"] .empty-state-modern,
+html[data-theme="pristine-white"] .vault-empty-state,
+html[data-theme="pristine-white"] .card,
+html[data-theme="pristine-white"] .article,
+html[data-theme="pristine-white"] .hover-subject-container,
+html[data-theme="pristine-white"] .hover-stat-box,
+html[data-theme="pristine-white"] .lb-hud-close,
+html[data-theme="pristine-white"] .mini-metric,
+html[data-theme="pristine-white"] .tactical-glass-box,
+html[data-theme="pristine-white"] [style*="rgba(15, 23, 42"],
+html[data-theme="pristine-white"] [style*="rgba(13, 18, 32"] {
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  color: #0f172a !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04) !important;
+}
+
+html[data-theme="pristine-white"] .lb-telemetry-readout {
+  background: transparent !important;
+}
+
+html[data-theme="pristine-white"] .stat-val,
+html[data-theme="pristine-white"] .readout-val {
+  color: #1e293b !important;
+}
+
+html[data-theme="pristine-white"] .stat-name,
+html[data-theme="pristine-white"] .readout-key,
+html[data-theme="pristine-white"] .focus-label {
+  color: #64748b !important;
+  opacity: 1 !important;
+}
+
+/* Priority Button States in Light Mode */
+html[data-theme="pristine-white"] .priority-btn[data-priority="1"]:not(.active) { color: #64748b !important; }
+html[data-theme="pristine-white"] .priority-btn[data-priority="2"]:not(.active) { color: #64748b !important; }
+html[data-theme="pristine-white"] .priority-btn[data-priority="3"]:not(.active) { color: #64748b !important; }
+
+/* Podium Status Alignment Correction */
+html[data-theme="pristine-white"] .podium-status-tag {
+  background: #f1f5f9 !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  color: #64748b !important;
+  font-weight: 700 !important;
+  box-shadow: none !important;
+}
+
+/* 27. Mobile Responsive Stabilization (Image 43 Fix) */
+html[data-theme="pristine-white"] .mobile-menu-overlay {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1) !important;
+}
+
+html[data-theme="pristine-white"] .mobile-menu-overlay .btn {
+  background: #f1f5f9 !important;
+  color: #1e293b !important;
+  border-color: rgba(0, 0, 0, 0.05) !important;
+  font-weight: 700 !important;
+}
+
+html[data-theme="pristine-white"] .mobile-nav {
+  background: #ffffff !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.05) !important;
+}
+
+html[data-theme="pristine-white"] .mobile-nav-item {
+  color: #64748b !important;
+}
+
+html[data-theme="pristine-white"] .mobile-nav-item svg {
+  color: #94a3b8 !important;
+}
+
+html[data-theme="pristine-white"] .mobile-nav-item.active {
+  color: #8b5cf6 !important;
+}
+
+html[data-theme="pristine-white"] .mobile-nav-item.active svg {
+  color: #8b5cf6 !important;
+  filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.3)) !important;
+}
+
+html[data-theme="pristine-white"] .mobile-nav-item.active::after {
+  background: #8b5cf6 !important;
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.4) !important;
+}
+
+/* 28. Mobile Layout Gap Elimination (Image 44 Fix) */
+@media (max-width: 768px) {
+  html[data-theme="pristine-white"] .layout {
+    padding-top: 4px !important;
+    margin-top: 0 !important;
+  }
+
+  html[data-theme="pristine-white"] .tabs {
+    display: none !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  html[data-theme="pristine-white"] #drawSection {
+    height: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    display: none !important;
+  }
+
+  html[data-theme="pristine-white"] .hero {
+    margin-top: 0 !important;
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+  }
+
+  /* Fix for the huge header gap */
+  html[data-theme="pristine-white"] .app-header {
+    margin-bottom: 0 !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.02) !important;
+  }
+}
+/* 29. Maamu Intelligence Hub Stabilization (Image 45 Fix) */
+html[data-theme="pristine-white"] .maamu-input-zone,
+html[data-theme="pristine-white"] .maamu-input-box,
+html[data-theme="pristine-white"] .maamu-textarea,
+html[data-theme="pristine-white"] .maamu-template-header,
+html[data-theme="pristine-white"] .maamu-status-chips {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #1e293b !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+
+html[data-theme="pristine-white"] .maamu-textarea {
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  color: #0f172a !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02) !important;
+}
+
+html[data-theme="pristine-white"] .maamu-template-cat-btn,
+html[data-theme="pristine-white"] .maamu-template-btn,
+html[data-theme="pristine-white"] .status-chip {
+  background: #f8fafc !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  color: #475569 !important;
+  font-weight: 600 !important;
+}
+
+html[data-theme="pristine-white"] .maamu-template-cat-btn.active {
+  background: #8b5cf6 !important;
+  color: #ffffff !important;
+  border-color: #8b5cf6 !important;
+}
+
+html[data-theme="pristine-white"] .maamu-template-btn:hover {
+  background: #f1f5f9 !important;
+  border-color: #8b5cf6 !important;
+}
+
+html[data-theme="pristine-white"] .status-chip {
+  background: #f1f5f9 !important;
+  color: #64748b !important;
+  border-radius: 4px !important;
+}
+
+html[data-theme="pristine-white"] .maamu-textarea::placeholder {
+  color: #94a3b8 !important;
+  opacity: 0.7 !important;
+}
+
+html[data-theme="pristine-white"] .maamu-send-btn {
+  background: #8b5cf6 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="pristine-white"] .tracker-table th,
+html[data-theme="pristine-white"] #trackerTable th {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+html[data-theme="pristine-white"] .timeline-col,
+html[data-theme="pristine-white"] td:first-child {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+  font-weight: 700 !important;
+}
+
+html[data-theme="pristine-white"] .topics-input,
+html[data-theme="pristine-white"] .project-input,
+html[data-theme="pristine-white"] .problems-input,
+html[data-theme="pristine-white"] .table-input {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+/* 11. Heatmap Fixes (Image 21 Fix) */
+html[data-theme="pristine-white"] .heatmap-container,
+html[data-theme="pristine-white"] .heatmap-scroll-area {
+  background: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+html[data-theme="pristine-white"] .heatmap-month-label,
+html[data-theme="pristine-white"] .heatmap-legend text {
+  fill: #64748b !important;
+  color: #64748b !important;
+  font-weight: 600 !important;
+}
+
+/* 12. Auth & Analytics Visibility (Image 19, 22 Fix) */
+html[data-theme="pristine-white"] .auth-title,
+html[data-theme="pristine-white"] .auth-label,
+html[data-theme="pristine-white"] .analytics-label,
+html[data-theme="pristine-white"] .total-solved-count {
+  color: #0f172a !important;
+}
+
+html[data-theme="pristine-white"] .auth-input {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+html[data-theme="pristine-white"] .overall-allocation-text {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+}
+
+/* 13. Maamu (AI Mission Control) & Intelligence Fixes (Image 23, 30 Fixes) */
+html[data-theme="pristine-white"] {
+  --maamu-bg: #ffffff !important;
+  --maamu-card: #f8fafc !important;
+  --maamu-border: rgba(0, 0, 0, 0.08) !important;
+  --maamu-text: #0f172a !important;
+  --maamu-text-muted: #475569 !important;
+}
+
+html[data-theme="pristine-white"] .maamu-container,
+html[data-theme="pristine-white"] .maamu-sidebar,
+html[data-theme="pristine-white"] .prompt-shortcuts,
+html[data-theme="pristine-white"] .chat-input-wrapper,
+html[data-theme="pristine-white"] .mentor-v2-container,
+html[data-theme="pristine-white"] .mentor-main-chat,
+html[data-theme="pristine-white"] .sidebar-section,
+html[data-theme="pristine-white"] .prompt-shortcuts-bar {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* 14. Task List & Progress HUD Fixes (Image 25, 29 Fixes) */
+html[data-theme="pristine-white"] .mission-clearance-hud {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04) !important;
+}
+
+html[data-theme="pristine-white"] .hud-track {
+  background: #f1f5f9 !important;
+  border-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+html[data-theme="pristine-white"] .hud-percent {
+  color: #0f172a !important;
+  text-shadow: none !important;
+}
+
+/* 15. Empty State & Skeleton Fixes (Image 24, 28 Fixes) */
+html[data-theme="pristine-white"] .empty-state-modern,
+html[data-theme="pristine-white"] .vault-empty-state,
+html[data-theme="pristine-white"] .empty-state-card {
+  background: #f8fafc !important;
+  border: 1px dashed rgba(0, 0, 0, 0.1) !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="pristine-white"] .empty-state-title {
+  color: #0f172a !important;
+}
+
+html[data-theme="pristine-white"] .empty-state-text {
+  color: #475569 !important;
+}
+
+html[data-theme="pristine-white"] .empty-state-icon {
+  color: #8b5cf6 !important;
+}
+
+/* 15. Podium Alignment (Image 27 Fix) */
+html[data-theme="pristine-white"] .status-tag {
+  text-align: center !important;
+  width: 100% !important;
+  display: block !important;
+  margin-top: 4px !important;
+}
+
+html[data-theme="pristine-white"] .podium-today {
+  border-radius: 12px !important;
+  padding: 8px !important;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.08) !important;
+  border: 1px solid rgba(139, 92, 246, 0.15) !important;
+}
+
+/* 16. Authentication Modal Lockdown (Image 19, 26 Fix) */
+html[data-theme="pristine-white"] .auth-modal-shell {
+  background: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 40px 60px -15px rgba(0, 0, 0, 0.15) !important;
+  backdrop-filter: none !important;
+}
+
+html[data-theme="pristine-white"] .auth-modal-title {
+  background: none !important;
+  -webkit-text-fill-color: #0f172a !important;
+  color: #0f172a !important;
+  font-weight: 900 !important;
+}
+
+html[data-theme="pristine-white"] .auth-provider-copy {
+  color: #475569 !important;
+}
+
+html[data-theme="pristine-white"] .auth-provider-btn {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+html[data-theme="pristine-white"] .auth-provider-btn:hover {
+  background: #f1f5f9 !important;
+  border-color: rgba(0, 0, 0, 0.2) !important;
+}
+
+html[data-theme="pristine-white"] .modal-close-new {
+  background: #f1f5f9 !important;
+  color: #64748b !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+html[data-theme="pristine-white"] .auth-modal-header {
+  background: transparent !important;
+  border-bottom: none !important;
+}
+
+/* 16. Global Structural Sanitization (Scrollbars & Tooltips) */
+html[data-theme="pristine-white"] ::-webkit-scrollbar {
+  width: 8px !important;
+  height: 8px !important;
+}
+
+html[data-theme="pristine-white"] ::-webkit-scrollbar-track {
+  background: #f8fafc !important;
+}
+
+html[data-theme="pristine-white"] ::-webkit-scrollbar-thumb {
+  background: #e2e8f0 !important;
+  border-radius: 10px !important;
+  border: 2px solid #f8fafc !important;
+}
+
+html[data-theme="pristine-white"] ::-webkit-scrollbar-thumb:hover {
+  background: #cbd5e1 !important;
+}
+
+html[data-theme="pristine-white"] .tooltip,
+html[data-theme="pristine-white"] .dropdown-content,
+html[data-theme="pristine-white"] .select-dropdown,
+html[data-theme="pristine-white"] .toast {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* 17. Modal & Dialog Polish */
+html[data-theme="pristine-white"] .modal-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+  background: #f8fafc !important;
+}
+
+html[data-theme="pristine-white"] .modal-header h2 {
+  color: #0f172a !important;
+}
+
+html[data-theme="pristine-white"] .modal-body h3 {
+  color: #475569 !important;
+}
+
+/* 18. HUD & Active Timer Fixes */
+html[data-theme="pristine-white"] #activeTimerSection,
+html[data-theme="pristine-white"] .hud-container,
+html[data-theme="pristine-white"] .hud-card {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  color: #0f172a !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.05) !important;
+}
+
+html[data-theme="pristine-white"] .volume-slider-wrap {
+  background: #f1f5f9 !important;
+}
+
+/* 19. Form Elements (Inputs/Selects) */
+html[data-theme="pristine-white"] input,
+html[data-theme="pristine-white"] select,
+html[data-theme="pristine-white"] textarea {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+html[data-theme="pristine-white"] input:focus {
+  border-color: var(--accent-blue) !important;
+  box-shadow: 0 0 0 2px var(--accent-light) !important;
+}
+
+/* 6. Cards & Containers */
+html[data-theme="pristine-white"] .card,
+html[data-theme="pristine-white"] .metric-card,
+html[data-theme="pristine-white"] .leaderboard-item {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02) !important;
+}
+
+/* 7. Modal Visibility Lockdown (CRITICAL) */
+html[data-theme="pristine-white"] .modal-content {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1) !important;
+}
+
+html[data-theme="pristine-white"] .modal-body {
+  color: #334155 !important;
+}
+
+html[data-theme="pristine-white"] .settings-input,
+html[data-theme="pristine-white"] select,
+html[data-theme="pristine-white"] input[type="text"],
+html[data-theme="pristine-white"] input[type="number"] {
+  background: #f8fafc !important;
+  border: 1px solid rgba(0, 0, 0, 0.2) !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="pristine-white"] .btn-primary {
+  background: #8b5cf6 !important;
+  color: #ffffff !important;
+}
+
+/* 8. Intelligence (Maamu AI) */
+html[data-theme="pristine-white"] .mentor-main-chat {
+  background: #ffffff !important;
+}
+
+html[data-theme="pristine-white"] .chat-line.mentor {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}

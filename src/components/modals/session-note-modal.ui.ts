@@ -23,7 +23,7 @@ export const sessionNoteModal = `
             Secure Reflection
           </button>
           <button id="skipSessionNoteBtn" class="btn btn-ghost"
-            style="flex: 1; border: 1px solid rgba(255,255,255,0.1); color: #94a3b8;">
+            style="flex: 1; border: 1px solid rgba(255,255,255,0.1); color: var(--text-secondary);">
             Skip
           </button>
         </div>

@@ -487,9 +487,9 @@
 .session-dot {
   width: 8px;
   height: 8px;
-  background: #10b981;
+  background: var(--bg-secondary);
   border-radius: 50%;
-  box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+  box-shadow: 0 0 8px rgba(139, 92, 246, 0.6);
   animation: pulse-dot 2s infinite;
 }
 
@@ -715,7 +715,7 @@
 
 /* Code blocks inside messages */
 .code-block-wrapper {
-  background: #0d1117;
+  background: var(--bg-primary);
   border-radius: 12px;
   overflow: hidden;
   margin: 12px 0;
@@ -914,9 +914,9 @@
 }
 
 .data-chip {
-  background: rgba(16, 185, 129, 0.08);
+  background: rgba(139, 92, 246, 0.08);
   color: #6ee7b7;
-  border: 1px solid rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(139, 92, 246, 0.15);
 }
 
 .beast-chip {
@@ -1104,7 +1104,7 @@
   position: absolute;
   inset: 0;
   z-index: 100;
-  background: rgba(0, 0, 0, 0.6);
+  background: var(--surface);
   backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
@@ -1121,7 +1121,7 @@
 }
 
 .maamu-dialog {
-  background: #0d1117;
+  background: var(--bg-primary);
   border: 1px solid rgba(99, 102, 241, 0.25);
   border-radius: 20px;
   padding: 28px;

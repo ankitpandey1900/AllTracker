@@ -27,7 +27,7 @@ function createDefaultSettings(): Settings {
     sessionLogs: [],
     groqApiKey: '',
     maamuModel: 'openai/gpt-oss-20b',
-    theme: 'kaala',
+    theme: 'stealth-midnight',
     timerStyle: 'block',
     ambientSound: 'none',
     ambientVolume: 0.5,
@@ -35,7 +35,7 @@ function createDefaultSettings(): Settings {
 }
 
 /** Applies the theme class to the HTML tag */
-export function applyThemeToDOM(themeName: string = 'kaala') {
+export function applyThemeToDOM(themeName: string = 'stealth-midnight') {
   document.documentElement.setAttribute('data-theme', themeName);
 }
 
@@ -220,13 +220,20 @@ export function migrateDataFormat(): void {
     // but clear them after confirm
   }
 
-  // 4. Migrate Theme IDs
-  if (s.theme === 'midnight') {
-    s.theme = 'kaala';
-    modified = true;
-  }
-  if (s.theme === 'himavat') {
-    s.theme = 'default';
+  // 4. Migrate Theme IDs to Professional Names
+  const themeMap: Record<string, string> = {
+    'kaala': 'stealth-midnight',
+    'midnight': 'stealth-midnight',
+    'default': 'obsidian-glass',
+    'himavat': 'obsidian-glass',
+    'chanakya-strategy': 'tactical-navy',
+    'ayodhya': 'solar-gold',
+    'kamala-grace': 'pristine-white',
+    'vajra-shakti': 'quantum-purple'
+  };
+
+  if (s.theme && themeMap[s.theme]) {
+    s.theme = themeMap[s.theme];
     modified = true;
   }
 
