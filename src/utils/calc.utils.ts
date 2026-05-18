@@ -201,6 +201,12 @@ export function calculateSummaryStats(trackerData: TrackerDay[]): {
     
     if (day.completed) {
       completedDays++;
+    }
+    
+    // 🔥 HARD STREAK: 2+ Hours required to count as a streak day
+    const isQualifyingDay = dayTotal >= 2;
+    
+    if (isQualifyingDay) {
       running++;
       if (running > maxStreak) maxStreak = running;
     } else if (day.restDay) {

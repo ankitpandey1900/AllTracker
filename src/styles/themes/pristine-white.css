@@ -23,6 +23,9 @@ html[data-theme="pristine-white"] {
   --accent-purple: #8b5cf6 !important;
   --accent-cyan: #a78bfa !important;
   --bg-deep: #ffffff !important;
+  --accent-light: rgba(139, 92, 246, 0.05) !important;
+  --accent-border: rgba(139, 92, 246, 0.1) !important;
+  --empty-state-bg: #f8fafc !important;
 }
 
 /* 2. Body & Layout Lockdown */
@@ -35,7 +38,7 @@ html[data-theme="pristine-white"] .view-pane {
   color: #0f172a !important;
 }
 
-/* 3. Header Visibility (The "First Principle" Fix) */
+/* 3. Header Visibility */
 html[data-theme="pristine-white"] .app-header {
   background-color: #ffffff !important;
   background: #ffffff !important;
@@ -59,22 +62,18 @@ html[data-theme="pristine-white"] .app-logo {
   background: transparent !important;
 }
 
-/* 4.5. Component Visibility Overrides */
-html[data-theme="pristine-white"] {
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8fafc;
-  --bg-tertiary: #f1f5f9;
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #64748b;
-  --border: rgba(0, 0, 0, 0.08);
-  --accent-blue: #8b5cf6; /* Matching Logo Purple */
-  --accent-light: rgba(139, 92, 246, 0.05);
-  --accent-border: rgba(139, 92, 246, 0.1);
-  --empty-state-bg: #f8fafc !important; /* Fixed "Black Stuff" in empty boxes */
+
+/* 5. Navigation & Button Styles */
+html[data-theme="pristine-white"] .btn,
+html[data-theme="pristine-white"] .btn-ghost {
+  background: #ffffff !important;
+  color: #334155 !important;
+  border-color: rgba(0, 0, 0, 0.15) !important;
 }
 
-/* 5. Navigation & Button Fixes (No Black Hovers) */
+html[data-theme="pristine-white"] .btn-ghost {
+  background: #f8fafc !important;
+}
 html[data-theme="pristine-white"] .btn:hover,
 html[data-theme="pristine-white"] button:hover,
 html[data-theme="pristine-white"] .nav-item:hover,
@@ -89,7 +88,7 @@ html[data-theme="pristine-white"] .btn-primary:hover {
   color: #ffffff !important;
 }
 
-/* 6. Feed & Bookmarks & Routine & Tasks (Image 12, 13, 17, 24, 25, 28, 29 Fixes) */
+/* 6. Feed & Bookmarks & Routine & Tasks */
 html[data-theme="pristine-white"] .feed-container,
 html[data-theme="pristine-white"] .feed-header,
 html[data-theme="pristine-white"] .transmission-box,
@@ -141,13 +140,25 @@ html[data-theme="pristine-white"] .feed-login-prompt {
   color: #475569 !important;
 }
 
-/* 7. World Stage Avatars & Points (Image 11, 14, 16, 18, 31 Fixes) */
+html[data-theme="pristine-white"] .pilot-hud-pill {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+}
+
+html[data-theme="pristine-white"] .pilot-hud-pill:hover {
+  background: #ffffff !important;
+  border-color: #8b5cf6 !important;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15) !important;
+}
+
+/* 7. World Stage Avatars & Points */
 html[data-theme="pristine-white"] .lb-row-rank-score,
 html[data-theme="pristine-white"] .lb-row-total,
 html[data-theme="pristine-white"] .lb-row-handle,
 html[data-theme="pristine-white"] .podium-handle span,
-html[data-theme="pristine-white"] .lb-name,
-html[data-theme="pristine-white"] .status-tag {
+html[data-theme="pristine-white"] .lb-name {
   color: #0f172a !important;
 }
 
@@ -156,13 +167,15 @@ html[data-theme="pristine-white"] .podium-avatar-wrapper,
 html[data-theme="pristine-white"] .trans-avatar,
 html[data-theme="pristine-white"] #trackerTable tr,
 html[data-theme="pristine-white"] #trackerTable td {
-  background: #ffffff !important;
+  --row-bg: #ffffff;
+  background: var(--row-bg) !important;
   color: #0f172a !important;
   border-color: rgba(0, 0, 0, 0.05) !important;
 }
 
-html[data-theme="pristine-white"] #trackerTable tr:nth-child(even) {
-  background: #f8fafc !important;
+html[data-theme="pristine-white"] #trackerTable tr:nth-child(even) td {
+  --row-bg: #f8fafc;
+  background: var(--row-bg) !important;
 }
 
 html[data-theme="pristine-white"] .score-label,
@@ -173,12 +186,26 @@ html[data-theme="pristine-white"] .status-tag {
   font-weight: 700 !important;
 }
 
+html[data-theme="pristine-white"] .status-tag.online {
+  color: #10b981 !important;
+  background: rgba(16, 185, 129, 0.1) !important;
+  border: 1px solid rgba(16, 185, 129, 0.2) !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="pristine-white"] .status-tag.focusing {
+  color: #ef4444 !important;
+  background: rgba(239, 68, 68, 0.1) !important;
+  border: 1px solid rgba(239, 68, 68, 0.2) !important;
+  opacity: 1 !important;
+}
+
 html[data-theme="pristine-white"] .hero-day-chip {
   background: #f1f5f9 !important;
   border: 1px solid rgba(0,0,0,0.05) !important;
 }
 
-/* 8. Profile Modal Redesign (Image 15 Fix) */
+/* 8. Profile Modal Redesign */
 html[data-theme="pristine-white"] .profile-modal,
 html[data-theme="pristine-white"] .profile-modal-content {
   background: #ffffff !important;
@@ -204,7 +231,7 @@ html[data-theme="pristine-white"] .profile-post-item {
   border: 1px solid rgba(0, 0, 0, 0.05) !important;
 }
 
-/* 9. Tabs & Sub-Navigation Cleanup (Image 33 Fix) */
+/* 9. Tabs & Sub-Navigation Cleanup */
 html[data-theme="pristine-white"] .tabs {
   background: #f1f5f9 !important;
   border: 1px solid rgba(0, 0, 0, 0.1) !important;
@@ -229,18 +256,25 @@ html[data-theme="pristine-white"] .nav-item.active {
   border-radius: 8px !important;
 }
 
-/* 20. Typography & Heading Overhaul (Image 33 Fix) */
+/* 20. Typography & Heading Overhaul */
 html[data-theme="pristine-white"] .sub-heading-tactical,
 html[data-theme="pristine-white"] .section-title,
 html[data-theme="pristine-white"] .hud-title,
 html[data-theme="pristine-white"] .sidebar-header,
-html[data-theme="pristine-white"] h2,
+html[data-theme="pristine-white"] h2:not(#shareModalTitle),
 html[data-theme="pristine-white"] h3 {
   color: #0f172a !important;
   font-family: 'Tektur', sans-serif !important;
   font-weight: 800 !important;
   letter-spacing: 0.12em !important;
   text-transform: uppercase !important;
+}
+
+html[data-theme="pristine-white"] #shareModalTitle {
+  color: #f0ede8 !important;
+  font-family: 'Outfit', sans-serif !important;
+  text-transform: none !important;
+  letter-spacing: 0.2px !important;
 }
 
 html[data-theme="pristine-white"] #missionTelemetryHeader,
@@ -265,7 +299,7 @@ html[data-theme="pristine-white"] button.show-details-btn {
   box-shadow: 0 4px 12px rgba(139, 92, 246, 0.08) !important;
 }
 
-/* 21. Total Brand Synchronization (Replacing Green with Logo Purple) */
+/* 21. Total Brand Synchronization */
 html[data-theme="pristine-white"] {
   --accent-green: #8b5cf6 !important; /* Force Purple override */
 }
@@ -298,7 +332,7 @@ html[data-theme="pristine-white"] .hud-percent.cleared {
   box-shadow: 0 0 12px rgba(139, 92, 246, 0.4) !important;
 }
 
-/* Specific button in Image 37 & 36 Fix */
+/* Specific primary buttons */
 html[data-theme="pristine-white"] #startTimerBtn,
 html[data-theme="pristine-white"] .add-bookmark-btn,
 html[data-theme="pristine-white"] .add-task-btn {
@@ -308,7 +342,7 @@ html[data-theme="pristine-white"] .add-task-btn {
   letter-spacing: 1px !important;
 }
 
-/* 22. Maamu Bottom Bar Fix (Image 34 Fix) */
+/* 22. Maamu Bottom Bar Styling */
 html[data-theme="pristine-white"] .maamu-chat-input-area .pill-data[style*="background: #8b5cf6"],
 html[data-theme="pristine-white"] .maamu-chat-input-area .pill-data {
   background: rgba(139, 92, 246, 0.1) !important;
@@ -316,7 +350,7 @@ html[data-theme="pristine-white"] .maamu-chat-input-area .pill-data {
   border-color: rgba(139, 92, 246, 0.2) !important;
 }
 
-/* 23. Priority Control & Filter Pill Sanitization (Image 38, 41 Fix) */
+/* 23. Priority Control & Filter Pill Styling */
 html[data-theme="pristine-white"] .priority-segmented-control {
   background: #f1f5f9 !important;
   border-color: rgba(0, 0, 0, 0.1) !important;
@@ -337,7 +371,7 @@ html[data-theme="pristine-white"] .filter-pill:hover {
   color: #1e293b !important;
 }
 
-/* 24. Final Green Purge: Login & Settings (Image 40, 41 Fix) */
+/* 24. Final Green Purge: Login & Settings */
 html[data-theme="pristine-white"] .btn-login,
 html[data-theme="pristine-white"] #loginBtn,
 html[data-theme="pristine-white"] #applyThemeBtn,
@@ -352,7 +386,7 @@ html[data-theme="pristine-white"] button[style*="background-color: #8b5cf6"] {
   box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2) !important;
 }
 
-/* 25. Universal Dark Residual Neutralization (The "Black Stuff" Killer) */
+/* 25. Universal Dark Residual Neutralization */
 html[data-theme="pristine-white"] .priority-segmented-control,
 html[data-theme="pristine-white"] .priority-btn:hover,
 html[data-theme="pristine-white"] .heatmap-scroll-area,
@@ -399,16 +433,7 @@ html[data-theme="pristine-white"] .priority-btn[data-priority="1"]:not(.active) 
 html[data-theme="pristine-white"] .priority-btn[data-priority="2"]:not(.active) { color: #64748b !important; }
 html[data-theme="pristine-white"] .priority-btn[data-priority="3"]:not(.active) { color: #64748b !important; }
 
-/* Podium Status Alignment Correction */
-html[data-theme="pristine-white"] .podium-status-tag {
-  background: #f1f5f9 !important;
-  border: 1px solid rgba(0, 0, 0, 0.05) !important;
-  color: #64748b !important;
-  font-weight: 700 !important;
-  box-shadow: none !important;
-}
-
-/* 27. Mobile Responsive Stabilization (Image 43 Fix) */
+/* 27. Mobile Responsive Stabilization */
 html[data-theme="pristine-white"] .mobile-menu-overlay {
   background: rgba(255, 255, 255, 0.98) !important;
   border-color: rgba(0, 0, 0, 0.1) !important;
@@ -450,7 +475,7 @@ html[data-theme="pristine-white"] .mobile-nav-item.active::after {
   box-shadow: 0 0 10px rgba(139, 92, 246, 0.4) !important;
 }
 
-/* 28. Mobile Layout Gap Elimination (Image 44 Fix) */
+/* 28. Mobile Layout Gap Elimination */
 @media (max-width: 768px) {
   html[data-theme="pristine-white"] .layout {
     padding-top: 4px !important;
@@ -478,13 +503,13 @@ html[data-theme="pristine-white"] .mobile-nav-item.active::after {
     border-top-right-radius: 0 !important;
   }
 
-  /* Fix for the huge header gap */
+  /* Header gap layout correction */
   html[data-theme="pristine-white"] .app-header {
     margin-bottom: 0 !important;
     box-shadow: 0 2px 10px rgba(0,0,0,0.02) !important;
   }
 }
-/* 29. Maamu Intelligence Hub Stabilization (Image 45 Fix) */
+/* 29. Maamu Intelligence Hub Stabilization */
 html[data-theme="pristine-white"] .maamu-input-zone,
 html[data-theme="pristine-white"] .maamu-input-box,
 html[data-theme="pristine-white"] .maamu-textarea,
@@ -561,21 +586,73 @@ html[data-theme="pristine-white"] .table-input {
   border: 1px solid rgba(0, 0, 0, 0.1) !important;
 }
 
-/* 11. Heatmap Fixes (Image 21 Fix) */
+/* 11. Heatmap Styling */
 html[data-theme="pristine-white"] .heatmap-container,
-html[data-theme="pristine-white"] .heatmap-scroll-area {
+html[data-theme="pristine-white"] .heatmap-scroll-area,
+html[data-theme="pristine-white"] .heatmap-grid-area {
   background: #ffffff !important;
-  border-color: rgba(0, 0, 0, 0.05) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02) !important;
 }
 
-html[data-theme="pristine-white"] .heatmap-month-label,
-html[data-theme="pristine-white"] .heatmap-legend text {
-  fill: #64748b !important;
-  color: #64748b !important;
+html[data-theme="pristine-white"] .month-label,
+html[data-theme="pristine-white"] .heatmap-footer,
+html[data-theme="pristine-white"] .legend-content,
+html[data-theme="pristine-white"] .kpi-card .label {
+  fill: #475569 !important;
+  color: #475569 !important;
   font-weight: 600 !important;
+  text-shadow: none !important;
 }
 
-/* 12. Auth & Analytics Visibility (Image 19, 22 Fix) */
+html[data-theme="pristine-white"] .kpi-card .value {
+  color: #d97706 !important; /* Dark Amber/Gold */
+  text-shadow: none !important;
+}
+
+html[data-theme="pristine-white"] .kpi-card {
+  background: #f8fafc !important;
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+}
+
+html[data-theme="pristine-white"] .kpi-card::before {
+  background: linear-gradient(90deg, transparent, rgba(217, 119, 6, 0.2), transparent) !important;
+}
+
+html[data-theme="pristine-white"] .legend-content {
+  background: #f8fafc !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
+}
+
+/* Warm Orange GitHub-Style Legible Contrib Grid for Pristine White */
+html[data-theme="pristine-white"] .heatmap-cell[data-level="0"] {
+  background-color: #f1f5f9 !important; /* Soft gray cell */
+  border: 1px solid rgba(0, 0, 0, 0.03) !important;
+}
+
+html[data-theme="pristine-white"] .heatmap-cell[data-level="1"] {
+  background-color: #fed7aa !important; /* Soft orange/amber 200 */
+}
+
+html[data-theme="pristine-white"] .heatmap-cell[data-level="2"] {
+  background-color: #fdba74 !important; /* Soft orange/amber 300 */
+}
+
+html[data-theme="pristine-white"] .heatmap-cell[data-level="3"] {
+  background-color: #f97316 !important; /* Rich orange 500 */
+}
+
+html[data-theme="pristine-white"] .heatmap-cell[data-level="4"] {
+  background-color: #ea580c !important; /* Deep orange 600 */
+}
+
+html[data-theme="pristine-white"] .heatmap-cell[data-level="5"] {
+  background-color: #c2410c !important; /* Burned orange 700 */
+  box-shadow: 0 0 8px rgba(194, 65, 12, 0.2) !important;
+}
+
+/* 12. Auth & Analytics Visibility */
 html[data-theme="pristine-white"] .auth-title,
 html[data-theme="pristine-white"] .auth-label,
 html[data-theme="pristine-white"] .analytics-label,
@@ -594,7 +671,7 @@ html[data-theme="pristine-white"] .overall-allocation-text {
   font-weight: 800 !important;
 }
 
-/* 13. Maamu (AI Mission Control) & Intelligence Fixes (Image 23, 30 Fixes) */
+/* 13. Maamu (AI Mission Control) & Intelligence */
 html[data-theme="pristine-white"] {
   --maamu-bg: #ffffff !important;
   --maamu-card: #f8fafc !important;
@@ -616,7 +693,7 @@ html[data-theme="pristine-white"] .prompt-shortcuts-bar {
   border-color: rgba(0, 0, 0, 0.08) !important;
 }
 
-/* 14. Task List & Progress HUD Fixes (Image 25, 29 Fixes) */
+/* 14. Task List & Progress HUD Styling */
 html[data-theme="pristine-white"] .mission-clearance-hud {
   background: #ffffff !important;
   border: 1px solid rgba(0, 0, 0, 0.08) !important;
@@ -633,7 +710,7 @@ html[data-theme="pristine-white"] .hud-percent {
   text-shadow: none !important;
 }
 
-/* 15. Empty State & Skeleton Fixes (Image 24, 28 Fixes) */
+/* 15. Empty State & Skeleton UI */
 html[data-theme="pristine-white"] .empty-state-modern,
 html[data-theme="pristine-white"] .vault-empty-state,
 html[data-theme="pristine-white"] .empty-state-card {
@@ -654,7 +731,7 @@ html[data-theme="pristine-white"] .empty-state-icon {
   color: #8b5cf6 !important;
 }
 
-/* 15. Podium Alignment (Image 27 Fix) */
+/* 15. Podium Alignment */
 html[data-theme="pristine-white"] .status-tag {
   text-align: center !important;
   width: 100% !important;
@@ -669,7 +746,7 @@ html[data-theme="pristine-white"] .podium-today {
   border: 1px solid rgba(139, 92, 246, 0.15) !important;
 }
 
-/* 16. Authentication Modal Lockdown (Image 19, 26 Fix) */
+/* 16. Authentication Modal Settings */
 html[data-theme="pristine-white"] .auth-modal-shell {
   background: #ffffff !important;
   border-color: rgba(0, 0, 0, 0.08) !important;
@@ -754,7 +831,7 @@ html[data-theme="pristine-white"] .modal-body h3 {
   color: #475569 !important;
 }
 
-/* 18. HUD & Active Timer Fixes */
+/* 18. HUD & Active Timer Styling */
 html[data-theme="pristine-white"] #activeTimerSection,
 html[data-theme="pristine-white"] .hud-container,
 html[data-theme="pristine-white"] .hud-card {
@@ -764,8 +841,180 @@ html[data-theme="pristine-white"] .hud-card {
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.05) !important;
 }
 
+html[data-theme="pristine-white"] body:not(.focus-minimized) .focus-hud.active {
+  background: rgba(255, 255, 255, 0.98) !important;
+  backdrop-filter: blur(20px) !important;
+}
+
+/* Cyber LCD Block Timer Style Hardening */
+html[data-theme="pristine-white"] body.timer-style-block .glass-block-content {
+  background: linear-gradient(#ffffff, #ffffff) padding-box,
+    linear-gradient(120deg, #8b5cf6, #a78bfa, #c084fc, #8b5cf6) border-box !important;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.04) !important;
+  border: 2px solid transparent !important;
+}
+
+html[data-theme="pristine-white"] body.timer-style-block .glass-block-content::before,
+html[data-theme="pristine-white"] body.timer-style-block .glass-block-content::after {
+  background: rgba(0, 0, 0, 0.05) !important;
+  border-top: 10px solid rgba(0, 0, 0, 0.15) !important;
+  border-bottom: 10px solid rgba(0, 0, 0, 0.15) !important;
+}
+
+html[data-theme="pristine-white"] #timerSubject {
+  color: #8b5cf6 !important;
+  text-shadow: none !important;
+}
+
+html[data-theme="pristine-white"] .timer-display {
+  color: #0f172a !important;
+  text-shadow: none !important;
+}
+
+html[data-theme="pristine-white"] .progress-ring__bg {
+  stroke: rgba(0, 0, 0, 0.08) !important;
+}
+
+html[data-theme="pristine-white"] .session-goal-row {
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Premium Toast Notifications */
+html[data-theme="pristine-white"] .toast {
+  background: #ffffff !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Checkbox & Row Actions Hardening */
+html[data-theme="pristine-white"] .action-cell {
+  background: #ffffff !important;
+  border-left: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: -8px 0 12px -6px rgba(0, 0, 0, 0.08) !important;
+}
+
+html[data-theme="pristine-white"] th.action-cell {
+  background: #f8fafc !important;
+  border-left: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: -8px 0 12px -6px rgba(0, 0, 0, 0.08) !important;
+}
+
+html[data-theme="pristine-white"] tr:hover .action-cell {
+  background: #f1f5f9 !important;
+}
+
+html[data-theme="pristine-white"] tr.completed .action-cell {
+  background: #ecfdf5 !important;
+}
+
+html[data-theme="pristine-white"] tr.rest-day .action-cell {
+  background: #f0f9ff !important;
+}
+
+html[data-theme="pristine-white"] tr.locked-row .action-cell {
+  background: #f8fafc !important;
+}
+
+html[data-theme="pristine-white"] .checkmark {
+  background: #f8fafc !important;
+  border: 2px solid #cbd5e1 !important;
+}
+
+html[data-theme="pristine-white"] .checkbox-container:hover .checkmark {
+  border-color: #8b5cf6 !important;
+  background: #f1f5f9 !important;
+}
+
+html[data-theme="pristine-white"] .completed-check:checked ~ .checkmark {
+  background: #10b981 !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2) !important;
+}
+
+html[data-theme="pristine-white"] .btn-rest-day {
+  background: #f1f5f9 !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #64748b !important;
+}
+
+html[data-theme="pristine-white"] .btn-rest-day:hover {
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="pristine-white"] .btn-rest-day.active {
+  background: #e0f2fe !important;
+  color: #0284c7 !important;
+  border-color: #bae6fd !important;
+  box-shadow: 0 4px 15px rgba(14, 165, 233, 0.15) !important;
+}
+
+html[data-theme="pristine-white"] .rest-day-badge {
+  background: #e0f2fe !important;
+  color: #0284c7 !important;
+  border-color: #bae6fd !important;
+  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.1) !important;
+}
+
+/* Premium Frosty Rest Day Row */
+html[data-theme="pristine-white"] tr.rest-day {
+  background: rgba(14, 165, 233, 0.04) !important;
+  border-left: 3px solid #0ea5e9 !important;
+}
+
+html[data-theme="pristine-white"] tr.rest-day td {
+  color: #64748b !important;
+}
+
+/* Hour Cell Box Design Hardening for Pristine White */
+html[data-theme="pristine-white"] .hour-cell-wrapper {
+  background: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+html[data-theme="pristine-white"] .hour-cell-wrapper:focus-within {
+  border-color: var(--accent-blue) !important;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1) !important;
+}
+
+html[data-theme="pristine-white"] .duration-hint {
+  color: #7c3aed !important;
+}
+
+html[data-theme="pristine-white"] .toast.success {
+  border: 1.5px solid rgba(16, 185, 129, 0.3) !important;
+}
+
+html[data-theme="pristine-white"] .toast.error {
+  border: 1.5px solid rgba(239, 68, 68, 0.3) !important;
+}
+
+html[data-theme="pristine-white"] .toast.warning {
+  border: 1.5px solid rgba(245, 158, 11, 0.3) !important;
+}
+
+html[data-theme="pristine-white"] .toast.info {
+  border: 1.5px solid rgba(59, 130, 246, 0.3) !important;
+}
+
+html[data-theme="pristine-white"] .toast-message {
+  color: #0f172a !important;
+}
+
+html[data-theme="pristine-white"] .toast-close {
+  color: #64748b !important;
+}
+
+html[data-theme="pristine-white"] .toast-close:hover {
+  color: #0f172a !important;
+}
+
 html[data-theme="pristine-white"] .volume-slider-wrap {
   background: #f1f5f9 !important;
+}
+
+html[data-theme="pristine-white"] .hud-volume-slider {
+  background: rgba(0, 0, 0, 0.1) !important;
 }
 
 /* 19. Form Elements (Inputs/Selects) */
@@ -777,9 +1026,24 @@ html[data-theme="pristine-white"] textarea {
   border-color: rgba(0, 0, 0, 0.1) !important;
 }
 
-html[data-theme="pristine-white"] input:focus {
+html[data-theme="pristine-white"] input:focus,
+html[data-theme="pristine-white"] select:focus,
+html[data-theme="pristine-white"] textarea:focus {
   border-color: var(--accent-blue) !important;
-  box-shadow: 0 0 0 2px var(--accent-light) !important;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1) !important;
+}
+
+/* Locked Rows in Light Mode */
+html[data-theme="pristine-white"] tr.locked-row td,
+html[data-theme="pristine-white"] tr.locked-row:hover td {
+  --row-bg: #f8fafc;
+  background: var(--row-bg) !important;
+}
+
+html[data-theme="pristine-white"] tr.locked-row .cell-input {
+  background: #f1f5f9 !important;
+  border-color: rgba(0, 0, 0, 0.05) !important;
+  color: #94a3b8 !important;
 }
 
 /* 6. Cards & Containers */
@@ -826,3 +1090,350 @@ html[data-theme="pristine-white"] .chat-line.mentor {
   background: #f1f5f9 !important;
   color: #0f172a !important;
 }
+
+/* 26. Category Progress & KPI Hardening */
+html[data-theme="pristine-white"] .category-progress-card .label-caps,
+html[data-theme="pristine-white"] .category-progress-card .category-progress-meta,
+html[data-theme="pristine-white"] .category-progress-card .category-progress-eta,
+html[data-theme="pristine-white"] .sub-heading-tactical {
+  color: #64748b !important;
+}
+
+html[data-theme="pristine-white"] .category-progress-card .metric-value,
+html[data-theme="pristine-white"] .mission-total-value {
+  color: #0f172a !important;
+  text-shadow: none !important;
+}
+
+html[data-theme="pristine-white"] .mission-total-label {
+  color: #334155 !important;
+}
+
+html[data-theme="pristine-white"] .category-progress-track {
+  background: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* 27. History Modal Light Mode Hardening */
+html[data-theme="pristine-white"] #historyModal .modal-content.wide {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.1) !important;
+}
+html[data-theme="pristine-white"] #historyModal .modal-header {
+  background: #f8fafc !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+html[data-theme="pristine-white"] #historyModal .modal-header h2 {
+  color: #0f172a !important;
+}
+html[data-theme="pristine-white"] #historyModal .modal-close {
+  background: rgba(0, 0, 0, 0.04) !important;
+  color: #64748b !important;
+  border-color: transparent !important;
+}
+html[data-theme="pristine-white"] .sh-filter-bar {
+  background: #ffffff !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+html[data-theme="pristine-white"] .sh-filter-bar label,
+html[data-theme="pristine-white"] .sh-filter-sep {
+  color: #64748b !important;
+}
+html[data-theme="pristine-white"] .sh-filter-bar input[type="date"] {
+  background: #f1f5f9 !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  color: #0f172a !important;
+  color-scheme: light !important;
+}
+html[data-theme="pristine-white"] #clearHistoryFilter {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+html[data-theme="pristine-white"] #sh-stats-bar {
+  background: #f8fafc !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+html[data-theme="pristine-white"] .sh-stat-lbl {
+  color: #64748b !important;
+}
+html[data-theme="pristine-white"] .sh-stat-div {
+  background: rgba(0, 0, 0, 0.08) !important;
+}
+html[data-theme="pristine-white"] .sh-col-header {
+  background: #f8fafc !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+html[data-theme="pristine-white"] .sh-col-header .sh-row > div {
+  color: #64748b !important;
+}
+html[data-theme="pristine-white"] .sh-date-row {
+  background: #ffffff !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.04) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04) !important;
+}
+html[data-theme="pristine-white"] .sh-date-row:hover {
+  background: #f1f5f9 !important;
+}
+html[data-theme="pristine-white"] .sh-date-secondary,
+html[data-theme="pristine-white"] .sh-date-sessions-label {
+  color: #64748b !important;
+}
+html[data-theme="pristine-white"] .sh-subject-row {
+  background: #f8fafc !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04) !important;
+  border-left: 3px solid rgba(0, 0, 0, 0.04) !important;
+}
+html[data-theme="pristine-white"] .sh-session-row {
+  background: #ffffff !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04) !important;
+}
+html[data-theme="pristine-white"] .sh-session-row:hover {
+  background: #f1f5f9 !important;
+}
+html[data-theme="pristine-white"] .sh-session-row.alt {
+  background: #f8fafc !important;
+}
+html[data-theme="pristine-white"] .sh-session-num {
+  color: #475569 !important;
+}
+html[data-theme="pristine-white"] .sh-time {
+  color: #475569 !important;
+}
+html[data-theme="pristine-white"] .sh-dur-bar {
+  background: rgba(0, 0, 0, 0.08) !important;
+}
+html[data-theme="pristine-white"] .sh-note {
+  color: #475569 !important;
+  border-left: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+html[data-theme="pristine-white"] .sh-note.empty {
+  color: rgba(0, 0, 0, 0.2) !important;
+}
+html[data-theme="pristine-white"] .sh-empty {
+  color: #64748b !important;
+}
+
+/* 28. Share Modal Light Mode Hardening */
+html[data-theme="pristine-white"] #shareModalContent {
+  background: #ffffff !important;
+  border: 1px solid rgba(0,0,0,0.08) !important;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.1) !important;
+}
+html[data-theme="pristine-white"] #shareModalContent > div:first-child {
+  background: rgba(255,255,255,0.95) !important;
+  border-bottom: 1px solid rgba(0,0,0,0.08) !important;
+}
+html[data-theme="pristine-white"] #shareModalTitle {
+  color: #0f172a !important;
+}
+html[data-theme="pristine-white"] #shareModalContent p {
+  color: #64748b !important;
+}
+html[data-theme="pristine-white"] #closeSharePreviewBtn {
+  background: rgba(0,0,0,0.04) !important;
+  border: 1px solid rgba(0,0,0,0.08) !important;
+  color: #475569 !important;
+}
+html[data-theme="pristine-white"] #shareImageContainer {
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1) !important;
+  border: 1px solid rgba(0,0,0,0.08) !important;
+}
+html[data-theme="pristine-white"] #shuffleQuoteBtn,
+html[data-theme="pristine-white"] #customBriefingTrigger {
+  background: #f1f5f9 !important;
+  border-color: rgba(0,0,0,0.08) !important;
+  color: #0f172a !important;
+}
+html[data-theme="pristine-white"] #customBriefingInput {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: rgba(0,0,0,0.15) !important;
+}
+html[data-theme="pristine-white"] #applyCustomTextBtn {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: rgba(0,0,0,0.15) !important;
+}
+
+/* 29. Social Profile Card (Twitter-Style Modal) Hardening */
+html[data-theme="pristine-white"] .social-profile-card {
+  background: #ffffff !important;
+  border: 1px solid rgba(0,0,0,0.08) !important;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.15) !important;
+}
+
+html[data-theme="pristine-white"] .social-header {
+  background: #f8fafc !important;
+  border-bottom: 1px solid rgba(0,0,0,0.06) !important;
+}
+
+html[data-theme="pristine-white"] .profile-avatar-box {
+  background: #ffffff !important;
+  border-color: #94a3b8 !important;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.05) !important;
+}
+
+html[data-theme="pristine-white"] .status-beacon {
+  border-color: #ffffff !important;
+}
+
+html[data-theme="pristine-white"] .social-full-name {
+  color: #0f172a !important;
+}
+
+html[data-theme="pristine-white"] .nation-badge {
+  border-color: rgba(0,0,0,0.1) !important;
+  color: #64748b !important;
+}
+
+html[data-theme="pristine-white"] .social-handle {
+  color: #8b5cf6 !important;
+}
+
+html[data-theme="pristine-white"] .rank-tag {
+  color: #b45309 !important; /* Premium amber for readability */
+}
+
+html[data-theme="pristine-white"] .social-close-btn {
+  color: #94a3b8 !important;
+}
+html[data-theme="pristine-white"] .social-close-btn:hover {
+  color: #0f172a !important;
+}
+
+html[data-theme="pristine-white"] .social-stats-bar {
+  background: #f8fafc !important;
+  border-color: rgba(0,0,0,0.06) !important;
+}
+
+html[data-theme="pristine-white"] .stat-value {
+  color: #0f172a !important;
+}
+
+html[data-theme="pristine-white"] .stat-unit {
+  color: #64748b !important;
+}
+
+html[data-theme="pristine-white"] .stat-label {
+  color: #64748b !important;
+}
+
+html[data-theme="pristine-white"] .stat-divider {
+  background: rgba(0,0,0,0.06) !important;
+}
+
+html[data-theme="pristine-white"] .profile-tab-bar {
+  border-bottom-color: rgba(0,0,0,0.06) !important;
+}
+
+html[data-theme="pristine-white"] .profile-tab {
+  color: #64748b !important;
+}
+html[data-theme="pristine-white"] .profile-tab:hover {
+  color: #0f172a !important;
+  background: rgba(0,0,0,0.02) !important;
+}
+html[data-theme="pristine-white"] .profile-tab.active {
+  color: #0f172a !important;
+}
+html[data-theme="pristine-white"] .profile-tab.active::after {
+  background: #8b5cf6 !important; /* Theme purple matching active bar */
+}
+
+html[data-theme="pristine-white"] .profile-dossier {
+  background: #f8fafc !important;
+  border-color: rgba(0,0,0,0.05) !important;
+}
+
+html[data-theme="pristine-white"] .dossier-title {
+  color: #8b5cf6 !important;
+}
+
+html[data-theme="pristine-white"] .dossier-row {
+  border-bottom-color: rgba(0,0,0,0.04) !important;
+}
+
+html[data-theme="pristine-white"] .dossier-label {
+  color: #64748b !important;
+}
+
+html[data-theme="pristine-white"] .dossier-value {
+  color: #0f172a !important;
+}
+
+html[data-theme="pristine-white"] .profile-stat-card {
+  background: #f8fafc !important;
+  border-color: rgba(0,0,0,0.05) !important;
+}
+
+html[data-theme="pristine-white"] .psc-label {
+  color: #64748b !important;
+}
+
+html[data-theme="pristine-white"] .psc-value {
+  color: #0f172a !important;
+}
+
+html[data-theme="pristine-white"] .profile-feed-card {
+  border-bottom-color: rgba(0,0,0,0.06) !important;
+}
+
+html[data-theme="pristine-white"] .pfc-content {
+  color: #0f172a !important;
+}
+
+html[data-theme="pristine-white"] .pfc-action-btn:hover {
+  background: rgba(0,0,0,0.04) !important;
+  color: #0f172a !important;
+}
+
+/* Edit Mode Hardening */
+html[data-theme="pristine-white"] .social-edit-header {
+  border-bottom-color: rgba(0,0,0,0.06) !important;
+}
+
+html[data-theme="pristine-white"] .social-edit-title {
+  color: #0f172a !important;
+}
+
+html[data-theme="pristine-white"] .social-cancel-btn {
+  color: #64748b !important;
+}
+html[data-theme="pristine-white"] .social-cancel-btn:hover {
+  color: #0f172a !important;
+}
+
+html[data-theme="pristine-white"] .social-input-label {
+  color: #475569 !important;
+}
+
+html[data-theme="pristine-white"] .social-input {
+  background: #ffffff !important;
+  border-color: rgba(0,0,0,0.15) !important;
+  color: #0f172a !important;
+}
+html[data-theme="pristine-white"] .social-input:focus {
+  border-color: #8b5cf6 !important;
+}
+
+html[data-theme="pristine-white"] .social-toggle-group {
+  background: #f8fafc !important;
+  border-color: rgba(0,0,0,0.05) !important;
+}
+
+html[data-theme="pristine-white"] .toggle-title {
+  color: #0f172a !important;
+}
+html[data-theme="pristine-white"] .toggle-sub {
+  color: #64748b !important;
+}
+
+html[data-theme="pristine-white"] .social-save-btn {
+  background: #8b5cf6 !important;
+  color: #ffffff !important;
+}
+html[data-theme="pristine-white"] .social-save-btn:hover {
+  background: #7c3aed !important;
+}
+

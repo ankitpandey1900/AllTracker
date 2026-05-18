@@ -310,7 +310,7 @@ function hydrateIdentityFields(): void {
     if (!el) return;
     if (val) {
       el.textContent = val;
-      el.style.color = '#f8fafc';
+      el.style.color = 'var(--text-primary)';
       el.style.fontStyle = 'normal';
       el.style.opacity = '1';
     } else {

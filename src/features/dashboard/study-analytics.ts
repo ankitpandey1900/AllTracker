@@ -62,6 +62,8 @@ async function renderStudyTrendChart(): Promise<void> {
   const existingTrend = chartLibrary.Chart.getChart(canvas);
   if (existingTrend) existingTrend.destroy();
 
+  const isWhiteTheme = document.documentElement.getAttribute('data-theme') === 'pristine-white';
+
   const hoursGradient = ctx.createLinearGradient(0, 0, 0, 400);
   hoursGradient.addColorStop(0, 'rgba(108, 135, 255, 0.3)');
   hoursGradient.addColorStop(1, 'rgba(108, 135, 255, 0.01)');
@@ -113,18 +115,20 @@ async function renderStudyTrendChart(): Promise<void> {
           position: 'top',
           align: 'end',
           labels: {
-            color: '#94a3b8',
+            color: isWhiteTheme ? '#475569' : '#94a3b8',
             font: { family: 'Outfit', size: 11 },
             usePointStyle: true,
             padding: 20
           }
         },
         tooltip: {
-          backgroundColor: 'rgba(10, 15, 30, 0.95)',
+          backgroundColor: isWhiteTheme ? 'rgba(255, 255, 255, 0.98)' : 'rgba(10, 15, 30, 0.95)',
           titleFont: { family: 'Tektur', size: 13 },
           bodyFont: { family: 'Outfit', size: 12 },
+          titleColor: isWhiteTheme ? '#0f172a' : '#fff',
+          bodyColor: isWhiteTheme ? '#0f172a' : '#fff',
           padding: 12,
-          borderColor: 'rgba(108, 135, 255, 0.2)',
+          borderColor: isWhiteTheme ? 'rgba(0, 0, 0, 0.08)' : 'rgba(108, 135, 255, 0.2)',
           borderWidth: 1,
           displayColors: true
         }
@@ -137,8 +141,8 @@ async function renderStudyTrendChart(): Promise<void> {
           beginAtZero: true,
           suggestedMax: 8,
           title: { display: true, text: 'Hours', color: '#6c87ff', font: { size: 10, family: 'Tektur' } },
-          ticks: { color: '#64748b' },
-          grid: { color: 'rgba(255, 255, 255, 0.03)' }
+          ticks: { color: isWhiteTheme ? '#475569' : '#64748b' },
+          grid: { color: isWhiteTheme ? 'rgba(0, 0, 0, 0.04)' : 'rgba(255, 255, 255, 0.03)' }
         },
         yProblems: {
           type: 'linear',
@@ -147,11 +151,11 @@ async function renderStudyTrendChart(): Promise<void> {
           beginAtZero: true,
           suggestedMax: 5,
           title: { display: true, text: 'Problems', color: '#e74c3c', font: { size: 10, family: 'Tektur' } },
-          ticks: { color: '#64748b', stepSize: 1 },
+          ticks: { color: isWhiteTheme ? '#475569' : '#64748b', stepSize: 1 },
           grid: { display: false }
         },
         x: {
-          ticks: { color: '#64748b', font: { size: 10 }, maxRotation: 45 },
+          ticks: { color: isWhiteTheme ? '#475569' : '#64748b', font: { size: 10 }, maxRotation: 45 },
           grid: { display: false }
         }
       },
@@ -201,6 +205,8 @@ async function renderSubjectRadarChart(): Promise<void> {
   const existingRadar = chartLibrary.Chart.getChart(canvas);
   if (existingRadar) existingRadar.destroy();
 
+  const isWhiteTheme = document.documentElement.getAttribute('data-theme') === 'pristine-white';
+
   subjectRadarChartInstance = new chartLibrary.Chart(ctx, {
     type: 'radar',
     data: {
@@ -208,7 +214,7 @@ async function renderSubjectRadarChart(): Promise<void> {
       datasets: [{
         label: 'Total Hours',
         data: totals,
-        backgroundColor: 'rgba(37, 189, 132, 0.2)',
+        backgroundColor: isWhiteTheme ? 'rgba(37, 189, 132, 0.15)' : 'rgba(37, 189, 132, 0.2)',
         borderColor: '#25bd84',
         borderWidth: 2,
         pointBackgroundColor: '#25bd84',
@@ -220,14 +226,24 @@ async function renderSubjectRadarChart(): Promise<void> {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      layout: {
+        padding: {
+          left: 32,
+          right: 32,
+          top: 16,
+          bottom: 16
+        }
+      },
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: 'rgba(10, 15, 30, 0.95)',
+          backgroundColor: isWhiteTheme ? 'rgba(255, 255, 255, 0.98)' : 'rgba(10, 15, 30, 0.95)',
           titleFont: { family: 'Tektur', size: 13 },
           bodyFont: { family: 'Outfit', size: 12 },
+          titleColor: isWhiteTheme ? '#0f172a' : '#fff',
+          bodyColor: isWhiteTheme ? '#0f172a' : '#fff',
           padding: 12,
-          borderColor: 'rgba(37, 189, 132, 0.2)',
+          borderColor: isWhiteTheme ? 'rgba(0, 0, 0, 0.08)' : 'rgba(37, 189, 132, 0.2)',
           borderWidth: 1,
           callbacks: {
             label: (context: any) => ` ${context.parsed.r.toFixed(1)} hrs`
@@ -236,10 +252,10 @@ async function renderSubjectRadarChart(): Promise<void> {
       },
       scales: {
         r: {
-          angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
-          grid: { color: 'rgba(255, 255, 255, 0.1)' },
+          angleLines: { color: isWhiteTheme ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.1)' },
+          grid: { color: isWhiteTheme ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.1)' },
           pointLabels: {
-            color: '#94a3b8',
+            color: isWhiteTheme ? '#475569' : '#94a3b8',
             font: { family: 'Tektur', size: 10 }
           },
           ticks: {

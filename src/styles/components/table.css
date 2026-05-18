@@ -109,39 +109,61 @@ th {
   transform: rotate(45deg) scale(1);
 }
 
-/* Freeze first two columns for coder-dash feel */
+/* First column styling */
 #trackerTable th:nth-child(1),
 #trackerTable td:nth-child(1) {
-  position: sticky;
-  left: 0;
-  z-index: 5;
-  background: rgba(8, 13, 25, 1) !important;
-  width: 90px;
-  min-width: 90px;
+  width: 80px;
+  min-width: 80px;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-#trackerTable th:nth-child(1) { width: 90px; }
-
-#trackerTable th:nth-child(7) {
-  width: 110px;
+/* problems solved column */
+#trackerTable th:nth-child(3),
+#trackerTable td:nth-child(3) {
+  width: 75px;
+  min-width: 75px;
 }
 
-/* problems */
-#trackerTable th:nth-child(10) {
-  width: 90px;
+/* topics column */
+#trackerTable th:nth-child(4),
+#trackerTable td:nth-child(4) {
+  min-width: 140px;
 }
 
-/* done */
+/* project work column */
+#trackerTable th:nth-child(5),
+#trackerTable td:nth-child(5) {
+  min-width: 140px;
+  padding-right: 16px; /* Safe padding gap before Done column */
+}
+
+/* done / action-cell column */
+.action-cell {
+  width: 100px;
+  min-width: 100px;
+  padding-right: 20px !important;
+}
 
 /* Row rhythm & Modern Polish */
+#trackerTable tbody tr {
+  --action-overlay: transparent;
+}
+
 #trackerTable tbody tr:nth-child(even) td:not(:nth-child(1)):not(:nth-child(2)) {
   background: rgba(255, 255, 255, 0.015);
+}
+
+#trackerTable tbody tr:nth-child(even) {
+  --action-overlay: rgba(255, 255, 255, 0.015);
 }
 
 #trackerTable tbody tr:hover td:not(:nth-child(1)):not(:nth-child(2)) {
   background: rgba(99, 102, 241, 0.08) !important;
   border-bottom-color: rgba(99, 102, 241, 0.3);
+}
+
+#trackerTable tbody tr:hover {
+  --action-overlay: rgba(99, 102, 241, 0.08);
 }
 
 #trackerTable tbody tr:hover {
@@ -169,9 +191,21 @@ tr.completed {
 }
 
 tr.rest-day {
-  opacity: 0.6;
-  filter: grayscale(0.5);
-  background: rgba(148, 163, 184, 0.05);
+  background: rgba(34, 211, 238, 0.04) !important;
+  border-left: 3px solid #22d3ee !important;
+  opacity: 0.85;
+}
+
+tr.rest-day td {
+  color: #94a3b8;
+}
+
+tr.rest-day .duration-hint {
+  color: #38bdf8 !important;
+}
+
+tr.rest-day .cell-input {
+  opacity: 0.7;
 }
 
 tr.hidden {
@@ -201,6 +235,17 @@ tr.hidden {
   display: flex;
   align-items: center;
   height: 32px;
+  border: 1px solid rgba(99, 121, 177, 0.3);
+  border-radius: 8px;
+  background: var(--bg-primary);
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.hour-cell-wrapper:focus-within {
+  border-color: rgba(124, 58, 237, 0.5);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
 }
 
 .hour-input {
@@ -212,6 +257,14 @@ tr.hidden {
   z-index: 2;
   cursor: pointer;
   transition: opacity 0.2s;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 4px 8px;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  outline: none !important;
 }
 
 .hour-input:focus {
@@ -267,7 +320,8 @@ input[type="number"] {
 .topics-input,
 .project-input {
   min-height: 36px;
-  min-width: 200px;
+  width: 100% !important;
+  box-sizing: border-box;
   background: transparent;
   border-color: transparent;
   color: #cbd5e1;
@@ -329,6 +383,11 @@ tr.locked-row {
   filter: grayscale(0.5);
   cursor: not-allowed !important;
   background: rgba(15, 23, 42, 0.4) !important;
+  --action-overlay: rgba(15, 23, 42, 0.4);
+}
+
+tr.locked-row:hover {
+  --action-overlay: rgba(15, 23, 42, 0.4);
 }
 
 tr.locked-row:hover td {
@@ -344,9 +403,9 @@ tr.locked-row .cell-input {
 }
 
 tr.locked-row .checkmark {
-  background: rgba(15, 23, 42, 0.6);
-  border-color: rgba(105, 128, 184, 0.1);
+  opacity: 0.3;
   cursor: not-allowed;
+  pointer-events: none;
 }
 
 .timeline-cell {
@@ -391,7 +450,8 @@ tr.locked-row .checkmark {
   display: flex;
   align-items: center;
   gap: 12px;
-  justify-content: center;
+  justify-content: flex-end;
+  width: 100%;
 }
 
 /* Priority Badges V2 */
@@ -438,15 +498,22 @@ tr.locked-row .checkmark {
 
 .btn-rest-day {
   background: transparent;
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  border: 1px solid rgba(148, 163, 184, 0.25);
   color: #94a3b8;
-  padding: 4px;
-  border-radius: 6px;
+  padding: 2px 6px;
+  height: 18px;
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 3px;
+  margin-top: 4px;
 }
 
 .btn-rest-day:hover {
@@ -475,33 +542,58 @@ tr.locked-row .checkmark {
   }
 }
 
+.responsive-table-container {
+  overflow-x: auto;
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 20px;
+  position: relative;
+  border-radius: 12px;
+}
+
+.action-cell {
+  position: sticky;
+  right: 0;
+  z-index: 3;
+  background: #0f172a !important; /* solid default dark row background */
+  border-left: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: -8px 0 12px -6px rgba(0, 0, 0, 0.5) !important;
+}
+
+tr:hover .action-cell {
+  background: #1e293b !important; /* solid hover */
+}
+
+tr.completed .action-cell {
+  background: #132530 !important; /* solid completed dark cyan blend */
+}
+
+tr.rest-day .action-cell {
+  background: #132530 !important; /* solid rest-day dark cyan blend */
+}
+
+tr.locked-row .action-cell {
+  background: #0b111e !important; /* solid locked */
+}
+
+th.action-cell {
+  position: sticky;
+  right: 0;
+  z-index: 4;
+  background: #080d19 !important; /* solid dark header */
+  border-left: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: -8px 0 12px -6px rgba(0, 0, 0, 0.5) !important;
+}
+
 /* 📱 PROFESSIONAL TABLE RECONSTRUCTION */
-@media (max-width: 600px) {
+@media (max-width: 1024px) {
   .responsive-table-container {
-    overflow-x: auto;
-    width: 100%;
-    -webkit-overflow-scrolling: touch;
-    margin-bottom: 20px;
-    position: relative;
-    border-radius: 12px;
     background: var(--surface);
   }
 
-  /* The 'Glow-Edge' Hint: Consistent with Heatmap */
-  .responsive-table-container::after {
-    content: '';
-    position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: 30px;
-    background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.5));
-    pointer-events: none;
-    z-index: 10;
-  }
 
   table {
-    min-width: 700px;
+    min-width: 900px;
     /* Force tactical density */
   }
 
@@ -511,29 +603,37 @@ tr.locked-row .checkmark {
     font-size: 0.75rem;
   }
 
-  /* Heroic Duration Column */
-  td:nth-child(4),
-  th:nth-child(4) {
-    color: var(--accent-gold);
-    font-weight: 700;
-    background: rgba(240, 162, 61, 0.03);
-  }
-
-  /* Tactical Truncation for Topics */
-  .history-table td:nth-child(3) {
-    max-width: 150px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  /* Release sticky headers on small screens to avoid UI glitches */
+  /* Release sticky headers on small/medium screens to avoid UI overlap glitches */
   #trackerTable th:nth-child(1),
-  #trackerTable td:nth-child(1),
-  #trackerTable th:nth-child(2),
-  #trackerTable td:nth-child(2) {
+  #trackerTable td:nth-child(1) {
     position: static !important;
-    background: transparent !important;
-    border-right: none !important;
+    background: inherit !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
   }
+}
+
+.rest-day-badge {
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.25), rgba(7, 12, 24, 0.6));
+  color: #22d3ee;
+  border: 1px solid rgba(34, 211, 238, 0.45);
+  padding: 2px 6px;
+  height: 18px;
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  margin-top: 4px;
+  box-shadow: 0 0 8px rgba(34, 211, 238, 0.15);
+}
+
+tr.locked-row .completed-check:checked ~ .checkmark {
+  opacity: 1 !important;
 }
