@@ -1,6 +1,6 @@
 import { appState } from '@/state/app-state';
 import { showToast } from '@/utils/dom.utils';
-import { getDeedMessage, getPeerPressureMessage, getDailyBriefingMessage, getWisdomNotification } from './notification-content';
+import { getDeedMessage, getPeerPressureMessage, getDailyBriefingMessage, getWisdomNotification, getRoastNotification } from './notification-content';
 import { fetchLeaderboard } from '@/services/vault.service';
 
 /**
@@ -208,6 +208,14 @@ async function sendDynamicAlert(slotId: string, hour: number): Promise<void> {
   if (Math.random() < wisdomChance) {
     const wisdom = getWisdomNotification();
     sendNotification(wisdom.title, wisdom.body);
+    return;
+  }
+
+  // 🌶️ Roast Injection (Zomato-style engagement): frequent when low output
+  const roastChance = totalHours < 1 ? 0.7 : totalHours < 2.5 ? 0.45 : 0.15;
+  if (Math.random() < roastChance) {
+    const roast = getRoastNotification(totalHours);
+    sendNotification(roast.title, roast.body);
     return;
   }
 

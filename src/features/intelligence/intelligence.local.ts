@@ -13,11 +13,11 @@ import { getTacticalBriefing } from './intelligence.service';
 export function getLocalSmallTalkReply(query: string, username: string): string | null {
   const q = query.trim().toLowerCase();
   if (!q) return null;
-  if (/^(hi|hello|hey|yo)$/.test(q)) return `Oh, look who decided to show up. 👋 ${username}, unless you're here to log 4+ hours, why are we talking? Go study. 💀`;
-  if (/^(thanks|thank you|thx)$/.test(q)) return `Don't thank me. Thank your past self for actually working. Now keep that momentum before you lose it. 🚀`;
-  if (/^(ok|okay)$/.test(q)) return `Less 'okay', more focus. The clock is ticking. ⏰`;
-  if (/^(bye|good night)$/.test(q)) return `Finally. Recover your brain cells and don't be a potato tomorrow. 🔋🤡`;
-  if (/^(good morning|good evening|kaise ho|kya haal)$/.test(q)) return `Systems are active. My status is 'Savage'. Your status is 'Currently Wasting Time'. What's the mission? 🧠🛠️`;
+  if (/^(hi|hello|hey|yo)$/.test(q)) return `Aagaye boss? 👀 ${username}, agar 4+ hours ka plan nahi hai toh ye greeting attendance mein count nahi hogi.`;
+  if (/^(thanks|thank you|thx)$/.test(q)) return `Thanks baad mein. Pehle tracker mein output dikhao. 📉➡️📈`;
+  if (/^(ok|okay)$/.test(q)) return `Less "ok", more execution. Timer on karo. ⏰`;
+  if (/^(bye|good night)$/.test(q)) return `Good night. Kal excuses nahi, sirf sessions. 💀`;
+  if (/^(good morning|good evening|kaise ho|kya haal)$/.test(q)) return `System online. Aapka discipline offline lag raha hai. Mission bolo. 🧠`;
   return null;
 }
 

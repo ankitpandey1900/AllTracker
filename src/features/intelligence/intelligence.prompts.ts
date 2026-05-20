@@ -5,59 +5,59 @@
  */
 
 export function generateMentorAdvice(taskHealth: any, sustainability: number, trend: number, momentum: number, vulnerableDay: string | null, neglectedTopic: string | null): { message: string; persona: string } {
-  const p = 'MAAMU (PEAK ROAST MODE) 🤡🔥';
+  const p = 'MAAMU (Professional Strategy Coach)';
 
   if (sustainability < 55) {
     return {
       persona: p,
-      message: `Bhai, your brain is currently a fried pakoda. 🍳🧠 Sustainability sirf ${sustainability}% hai. Itna burnout mat kar ki kal uth hi na paye. 💀 Go to sleep or your next session will have the IQ of a brick. 🧱🔌`
+      message: `Sustainability is currently ${sustainability}%. Your workload may not be recoverable at this pace. Prioritize sleep, reduce intensity for the next session, and focus on consistency over volume.`
     };
   }
   
   if (taskHealth.status === 'CRITICAL' || taskHealth.debtScore > 70) {
     return {
       persona: p,
-      message: `System Alert: Your Task Debt is ${taskHealth.debtScore}%. Backlog dekh ke rona aa raha hai. 📂📉 Motivation videos band kar aur kaam shuru kar. 🤡 Motivation is for losers; discipline is for legends. Clean the mess now! 🧹🔥`
+      message: `Task debt is elevated at ${taskHealth.debtScore}%. Clear overdue items first, then execute today’s priorities in order of impact.`
     };
   }
   
   if (trend < 45) {
     return {
       persona: p,
-      message: `14-day consistency: ${trend}%. Bhai, padhai kar rahe ho ya lottery khel rahe ho? 📉📉 One day you're Einstein, the next day you're a pure potato. 🥔 Discipline laao life mein, warna sirf sapne hi reh jayenge. 🎯💀`
+      message: `14-day discipline is ${trend}%, which indicates unstable execution. A fixed daily minimum and end-of-day review will improve reliability.`
     };
   }
   
   if (momentum < -15) {
     return {
       persona: p,
-      message: `Momentum is at ${momentum}%. You're basically moonwalking away from success. 🕺💩 Agle mahine regret track karne ka plan hai kya? Wake up! ⏰🚨 Time pass mat kar.`
+      message: `Momentum is ${momentum}%, indicating a downward trend. Adjust your next 7 days with smaller but non-negotiable study blocks to reverse drift quickly.`
     };
   }
   
   if (sustainability > 88 && trend > 88 && momentum > 20) {
     return {
       persona: p,
-      message: `Wait, stats actually decent hain? 🤨 Momentum up, consistency high... Kaunsa nasha kar rahe ho? 🚀🔥 Zyada khush mat ho, ek "chilling session" aur tum wapas zero pe aa jaoge. Keep the pressure on! 😤🛠️`
+      message: `Performance indicators are strong: sustainability, discipline, and momentum are all healthy. Maintain your current routine and increase difficulty gradually to avoid regression.`
     };
   }
   if (neglectedTopic) {
     return {
       persona: p,
-      message: `System Alert: You are completely ignoring '${neglectedTopic}'. 🚨 Sirf wahi padhoge jo aasan lagta hai? If you don't face your weak points, you will fail. Start studying it today. 💀`
+      message: `Coverage gap detected in '${neglectedTopic}'. Allocate a focused block this week to restore balanced progress across subjects.`
     };
   }
 
   if (vulnerableDay) {
     return {
       persona: p,
-      message: `Pattern Detected: You always slack off on ${vulnerableDay}s. 📉 Calendar dekh ke aalas aata hai kya? Break the pattern this week, or stay mediocre forever. ⏰🤡`
+      message: `Pattern detected: consistency drops on ${vulnerableDay}s. Schedule a shorter, guaranteed session on that day to protect your weekly rhythm.`
     };
   }
   
   return {
     persona: p,
-    message: `Operational Stability... barely. 📉 Bare minimum karke hero mat bano. ${momentum > 0 ? 'Momentum thoda up hai, par 3-hour reel session se celebration mat karna. 📱🤡' : 'Overthinking band kar aur output dikha. 🧠💩'} Potential ki koi value nahi hai, sirf result matter karta hai. 🌍🔨`
+    message: `System performance is stable. ${momentum > 0 ? 'Momentum is improving; keep your process steady.' : 'Focus on measurable output and avoid plan-only days.'} Consistent execution remains the priority.`
   };
 }
 
@@ -66,12 +66,12 @@ export function generateActionPlan(tasks: any[], neglected: string | null, peakH
   const today = new Date().toISOString().split('T')[0];
   const backlogTasks = tasks.filter(t => !t.completed && t.date < today).sort((a,b) => b.priority - a.priority);
   if (backlogTasks.length > 0) {
-    plan.push({ task: `Clear Backlog Item: ${backlogTasks[0].text}`, reason: 'Reducing task debt is priority one.', priority: 'HIGH' });
+    plan.push({ task: `Clear overdue task: ${backlogTasks[0].text}`, reason: 'Reducing overdue debt prevents rollover and improves execution quality.', priority: 'HIGH' });
   }
   if (neglected) {
-    plan.push({ task: `Restore focus on ${neglected}`, reason: `Deficit detected. Target this during your ${peakHourStr} peak.`, priority: 'MED' });
+    plan.push({ task: `Restore focus on ${neglected}`, reason: `Coverage deficit detected. Schedule this during your ${peakHourStr} peak window.`, priority: 'MED' });
   }
-  plan.push({ task: 'Discipline Reset', reason: 'Verify remaining daily routine items to protect your 14-day trend.', priority: 'LOW' });
+  plan.push({ task: 'Daily consistency check', reason: 'Review remaining routine items and close at least one high-value objective today.', priority: 'LOW' });
   return plan.slice(0, 3);
 }
 
@@ -149,10 +149,17 @@ export function buildDeepContextJSON(data: {
   // 3. Total hours from real sessions (source of truth)
   const realTotalMins = (data.sessionLogs || []).reduce((s: number, l: any) => s + Math.round((l.duration || 0) * 60), 0);
 
-  // 4. Capped Backlog with Priorities (Top 10 only)
+  // 4. Pending vs overdue task split (Top 10 each)
   const priorityMap: Record<number, string> = { 1: 'L', 2: 'M', 3: 'H' };
+  const pendingCount = data.tasks.filter(t => !t.completed).length;
+  const overdueCount = data.tasks.filter(t => !t.completed && t.date < todayStr).length;
   const pendingTasks = data.tasks
     .filter(t => !t.completed)
+    .sort((a, b) => (b.priority || 1) - (a.priority || 1))
+    .slice(0, 10)
+    .map(t => `[${priorityMap[t.priority as number] || 'M'}] ${t.text}`);
+  const overdueTasks = data.tasks
+    .filter(t => !t.completed && t.date < todayStr)
     .sort((a, b) => (b.priority || 1) - (a.priority || 1))
     .slice(0, 10)
     .map(t => `[${priorityMap[t.priority as number] || 'M'}] ${t.text}`);
@@ -169,6 +176,9 @@ export function buildDeepContextJSON(data: {
       handle: "@" + data.username, 
       total_hours_grid: data.totalHours.toFixed(1), 
       verified_mins_timer: realTotalMins,
+      verified_hours_timer: (realTotalMins / 60).toFixed(2),
+      timer_logs_count: (data.sessionLogs || []).length,
+      timer_data_available: realTotalMins > 0,
       rank: data.rank 
     },
     beast: data.beastModeActive,
@@ -182,7 +192,12 @@ export function buildDeepContextJSON(data: {
       weekly_old: weeklySummaries 
     },
     sessions_30d: sessions30d,
-    back: pendingTasks,
+    tasks: {
+      pending_count: pendingCount,
+      overdue_count: overdueCount,
+      pending_top: pendingTasks,
+      overdue_top: overdueTasks
+    },
     rout: routinesContext,
     lb: data.leaderboard,
     tmr: data.activeTimer

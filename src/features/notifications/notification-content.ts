@@ -37,6 +37,14 @@ const ROAST_MESSAGES: NotificationMessage[] = [
   { title: "Aaram haram hai! 🚫", body: "Itna aaram? Lagta hai Ambani ki agli shortlist mein aapka naam hai." },
 ];
 
+const SOFT_ROAST_MESSAGES: NotificationMessage[] = [
+  { title: "Warm-up chal raha hai kya? 🫠", body: "Progress hui hai, but speed dekh ke lag raha hai buffering pe ho. Ek solid session aur maaro." },
+  { title: "Half clutch, half chill? 🤏", body: "Thoda padh ke khush mat ho. Rank tab badhegi jab consistency full power pe hogi." },
+  { title: "Bas itna hi? 📉", body: "Aaj ka output dekh ke lag raha hai trailer aaya, picture abhi baaki hai." },
+  { title: "Focus ki EMI bhar rahe ho? 💳", body: "Chhote-chhote sessions se sirf guilt kam hota hai, growth nahi. Ek deep block lagao." },
+  { title: "Target ko teaser diya hai 🎬", body: "Ab full movie chalao. Next 60 mins no-distraction mode." },
+];
+
 const KING_MESSAGES: NotificationMessage[] = [
   { title: "Raja Ji, aap toh cha gaye! 🔥", body: "Mast padhai chal rahi hai. Maintain the streak, Soldier!" },
   { title: "Khatarnaak Momentum! 🚀", body: "Itne hours? Lagta hai aaj koi nahi rok sakta aapko. King feel!" },
@@ -110,8 +118,14 @@ export function getDeedMessage(hours: number, hourOfDay: number): NotificationMe
     if (hourOfDay >= 20) return getRandom(LAST_CHANCE_MESSAGES);
     return getRandom(ROAST_MESSAGES);
   }
+  if (hours < 1.5) return getRandom(SOFT_ROAST_MESSAGES);
   if (hours >= 4) return getRandom(KING_MESSAGES);
   return getRandom(MOTIVATE_MESSAGES);
+}
+
+export function getRoastNotification(hours: number): NotificationMessage {
+  if (hours <= 0) return getRandom(ROAST_MESSAGES);
+  return getRandom(SOFT_ROAST_MESSAGES);
 }
 
 export function getPeerPressureMessage(topUser: string, focusingUser: string | undefined, myName: string): NotificationMessage {
