@@ -120,12 +120,12 @@ export async function clearTimerStateDB(): Promise<void> {
   updateLocalTimestamp(STORAGE_KEYS.TIMER);
   
   if (isAuthenticated()) {
-    // 🛡️ PERSISTENT WIPE: Retry up to 3 times to ensure the cloud is cleaned
+    // Retry up to 3 times to ensure the cloud is cleaned
     let attempts = 0;
     const tryWipe = async () => {
       try {
         await saveTimerStateCloud(idleState);
-        log.info('🛰️ CLOUD WIPE: Timer state cleared successfully.');
+        log.info('Cloud Wipe: Timer state cleared successfully.');
       } catch (err) {
         if (attempts < 3) {
           attempts++;
@@ -164,11 +164,11 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
     sync(STORAGE_KEYS.TASKS, cloudTasks, appState.tasks, (d: any) => { appState.tasks = d; saveLocal(STORAGE_KEYS.TASKS, d); }, saveTasksCloud);
     sync(STORAGE_KEYS.BOOKMARKS, cloudBookmarks, appState.bookmarks, (d: any) => { appState.bookmarks = d; saveLocal(STORAGE_KEYS.BOOKMARKS, d); }, saveBookmarksCloud);
 
-    // 🛡️ GHOST HUNTER: If cloud timer is >24h old and running, it's a ghost. Nuke it.
+    // If cloud timer is >24h old and running, it's a ghost session. Clear it.
     if (cloudTimer?.data?.isRunning && cloudTimer?.data?.startTime) {
       const elapsed = Date.now() - cloudTimer.data.startTime;
       if (elapsed > 86400000) { // 24 Hours
-        log.warn('👻 GHOST DETECTED: Nuking impossible cloud session.');
+        log.warn('Ghost session detected: Clearing impossible cloud session.');
         await clearTimerStateDB();
       } else {
         Object.assign(appState.activeTimer, cloudTimer.data);
@@ -188,7 +188,7 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
     await refreshAppAfterSync();
     updateSyncStatus('synced');
 
-    // 🛡️ FINAL INTEGRITY CHECK: Re-verify sessions vs tracker after sync
+    // Re-verify sessions vs tracker after sync
     import('@/features/profile/profile.manager').then(m => {
       m.checkProfileIdentity();
     });
@@ -227,7 +227,7 @@ export async function performBackgroundSync(): Promise<void> {
     check(STORAGE_KEYS.ROUTINE_HISTORY, cloud[4], appState.routineHistory, (d: any) => { appState.routineHistory = d; saveLocal(STORAGE_KEYS.ROUTINE_HISTORY, d); });
     check(STORAGE_KEYS.BOOKMARKS, cloud[5], appState.bookmarks, (d: any) => { appState.bookmarks = d; saveLocal(STORAGE_KEYS.BOOKMARKS, d); });
     
-    // 🛡️ HUD SYNC: Adopt cloud timer if newer
+    // Adopt cloud timer if newer
     if (cloud[6]?.data) {
       const cloudTs = cloud[6].updatedAt ? new Date(cloud[6].updatedAt).getTime() : 0;
       const localTs = getLocalTimestamp(STORAGE_KEYS.TIMER);

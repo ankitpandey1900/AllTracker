@@ -3,14 +3,14 @@ import { getPool } from "../db/pool.js";
 export async function fetchLeaderboard() {
   const pool = getPool();
 
-  // 🛡️ SELF-HEALING: Reset stale today_hours at exactly 12:00 AM IST
+  // Reset stale today_hours at exactly 12:00 AM IST
   await pool.query(`
     update profiles 
     set today_hours = 0 
     where (last_active + interval '5 hours 30 minutes')::date < (now() + interval '5 hours 30 minutes')::date
   `);
 
-  // 👻 GHOST FOCUS FIX: Auto-clear is_focusing if last_active > 10 minutes ago
+  // Auto-clear is_focusing if last_active > 10 minutes ago
   await pool.query(`
     update profiles 
     set is_focusing = false, focus_subject = null
@@ -18,10 +18,12 @@ export async function fetchLeaderboard() {
       and last_active < now() - interval '10 minutes'
   `);
 
+  // Data minimization: Only select fields needed for the public leaderboard.
+  // Sensitive PII (email, phone_number, dob, internal ID) is NEVER sent to the client.
+  // Age is computed server-side from dob so the raw date is never exposed.
   const { rows } = await pool.query(
     `
       select
-        p.id,
         p.username,
         p.full_name,
         p.avatar,
@@ -37,43 +39,52 @@ export async function fetchLeaderboard() {
         p.focus_subject,
         p.last_active,
         p.dob,
-        p.phone_number,
-        p.is_public,
         p.is_focus_public,
         p.integrity_score,
         p.competitive_score,
         p.current_streak,
-        u.email,
         (p.last_active > now() - interval '60 seconds') as is_online
       from profiles p
-      join "user" u on u.id = p.auth_user_id
+      where p.is_public is not false
       order by p.competitive_score desc, p.total_hours desc, p.updated_at desc nulls last
       limit 1000
     `,
   );
 
-  return rows.map((row: any) => ({
-    sync_id: row.id,
-    display_name: row.username,
-    User_name: row.full_name || "",
-    dob: row.dob ? (typeof row.dob === 'string' ? row.dob.split('T')[0] : new Date(row.dob).toISOString().split('T')[0]) : "",
-    nation: row.nation || "Global",
-    total_hours: Number(row.total_hours || 0),
-    today_hours: Number(row.today_hours || 0),
-    current_rank: row.rank || "IRON",
-    is_focusing_now: row.is_focusing === true,
-    last_active: row.last_active || new Date().toISOString(),
-    avatar: row.avatar || "👤",
-    current_focus_subject: row.focus_subject || null,
-    phone_number: row.phone_number || "",
-    is_public: row.is_public !== false,
-    is_focus_public: row.is_focus_public !== false,
-    email: row.email,
-    is_online: row.is_online === true,
-    integrity_score: Number(row.integrity_score || 0),
-    competitive_score: Number(row.competitive_score || 0),
-    current_streak: Number(row.current_streak || 0),
-  }));
+  return rows.map((row: any) => {
+    // Compute age server-side — raw DOB never leaves the server
+    let age: number | null = null;
+    if (row.dob) {
+      try {
+        const birth = new Date(row.dob);
+        if (!isNaN(birth.getTime())) {
+          const today = new Date();
+          age = today.getFullYear() - birth.getFullYear();
+          const m = today.getMonth() - birth.getMonth();
+          if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+        }
+      } catch { /* skip invalid dates */ }
+    }
+
+    return {
+      display_name: row.username,
+      User_name: row.full_name || "",
+      age,
+      nation: row.nation || "Global",
+      total_hours: Number(row.total_hours || 0),
+      today_hours: Number(row.today_hours || 0),
+      current_rank: row.rank || "IRON",
+      is_focusing_now: row.is_focusing === true,
+      last_active: row.last_active || new Date().toISOString(),
+      avatar: row.avatar || "👤",
+      current_focus_subject: row.focus_subject || null,
+      is_focus_public: row.is_focus_public !== false,
+      is_online: row.is_online === true,
+      integrity_score: Number(row.integrity_score || 0),
+      competitive_score: Number(row.competitive_score || 0),
+      current_streak: Number(row.current_streak || 0),
+    };
+  });
 }
 
 export async function fetchTelemetry() {
@@ -86,7 +97,7 @@ export async function fetchTelemetry() {
     where ((last_active AT TIME ZONE 'UTC') AT TIME ZONE 'Asia/Kolkata')::date < ((now() AT TIME ZONE 'UTC') AT TIME ZONE 'Asia/Kolkata')::date
   `);
 
-  // 👻 GHOST FOCUS FIX: Auto-clear is_focusing if last_active > 10 minutes ago
+  // Auto-clear is_focusing if last_active > 10 minutes ago
   await pool.query(`
     update profiles 
     set is_focusing = false, focus_subject = null

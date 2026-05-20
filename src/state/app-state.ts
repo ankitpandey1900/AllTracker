@@ -96,7 +96,7 @@ const rawState = {
   /** Timer interval reference */
   timerInterval: null as ReturnType<typeof setInterval> | null,
 
-  /** 🛰️ CLOUD-SYNCHRONIZED STATS (Source of Truth) */
+  /** Cloud-synchronized stats (Source of Truth) */
   verifiedTotalHours: 0,
   verifiedRankScore: 0,
 
@@ -301,7 +301,7 @@ function generateDates(): Date[] {
   const currentDate = new Date(appState.startDate);
   const endDate = new Date(appState.endDate);
 
-  // 🛡️ INFINITE LOOP PROTECTION: Cap timeline at 10 years (3653 days)
+  // Cap timeline at 10 years (3653 days) to prevent infinite loops
   let safetyCounter = 0;
   while (currentDate <= endDate && safetyCounter < 3653) {
     dates.push(new Date(currentDate));
@@ -354,7 +354,7 @@ export function syncTrackerTimelineWithSettings(): void {
 }
 
 /** 
- * 🛡️ Infinite Timeline Protocol
+ * Infinite Timeline Logic
  * Ensures 'Today' always exists in the tracker data.
  * If the user hasn't opened the app in days, it auto-fills the gaps.
  */

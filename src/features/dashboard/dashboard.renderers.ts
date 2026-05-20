@@ -3,7 +3,7 @@ import { CATEGORY_COLORS } from '@/config/constants';
 import { formatDuration, formatDate, getLocalIsoDate } from '@/utils/date.utils';
 import { getRecentVelocity } from '@/utils/calc.utils';
 
-/** 🛡️ SECURITY: Prevents XSS by sanitizing user-provided strings */
+/** Security: Prevents XSS by sanitizing user-provided strings */
 function sanitize(str: string): string {
   const div = document.createElement('div');
   div.textContent = str;
@@ -136,7 +136,7 @@ export function renderSectorTokens(today: any): void {
 
   const filterValue = filterEl ? filterEl.value : 'current';
   
-  // 🛰️ DYNAMIC PHASE SYNC: Aggregate by category NAME, not INDEX
+  // Dynamic Phase Sync: Aggregate by category NAME, not INDEX
   const categoryTotals = new Map<string, number>();
   let totalProblems = 0;
   let relevantData = appState.trackerData;

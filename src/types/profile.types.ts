@@ -15,10 +15,17 @@ export interface UserProfile {
 }
 
 export interface GlobalProfile {
-  sync_id: string; // Private
+  // 🛡️ PII fields — only present in authenticated own-profile context, NEVER in public leaderboard
+  sync_id?: string;
+  dob?: string;
+  phone_number?: string;
+  email?: string;
+  is_public?: boolean;
+
+  // Public fields — safe for leaderboard display
   display_name: string;
   User_name?: string;
-  dob: string;
+  age?: number | null; // Server-computed from DOB (raw DOB never exposed)
   nation: string;
   total_hours: number;
   today_hours: number;
@@ -27,10 +34,7 @@ export interface GlobalProfile {
   last_active: string; // ISO String
   avatar?: string;
   current_focus_subject?: string | null;
-  phone_number?: string;
-  is_public: boolean;
   is_focus_public: boolean;
-  email?: string;
   is_online: boolean; // true if last_active within 60s (set by server)
   integrity_score?: number;
   is_verified?: boolean;

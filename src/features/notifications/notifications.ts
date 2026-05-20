@@ -78,10 +78,12 @@ function syncNotificationUI(): void {
 }
 
 function setupStrategicAlerts(): void {
-  // 1. Tactical Window checks (3 times a day)
+  // 1. Tactical Window checks (10 times a day via DECA-PULSE)
+  // Interval must be shorter than the 10-minute window to guarantee it fires even if throttled
   setInterval(() => {
+    checkDailyBriefing();
     checkContextualNotifs();
-  }, 1000 * 60 * 30); // 30 min pulse
+  }, 1000 * 60 * 5); // 5 min pulse
 
   // 2. 'Active Chaser' check (Periodic competitive taunts)
   setInterval(() => {
@@ -96,10 +98,9 @@ function setupStrategicAlerts(): void {
   }, 10000);
 }
 
-let lastChaserNotifAt = 0;
-
 async function checkActiveChaser(): Promise<void> {
-  // Rate limit: Max one chaser notif every 3 hours
+  // Rate limit: Max one chaser notif every 3 hours. Store in localStorage to survive tab reloads.
+  const lastChaserNotifAt = parseInt(localStorage.getItem('last_chaser_notif_at') || '0', 10);
   if (Date.now() - lastChaserNotifAt < 1000 * 60 * 60 * 3) return;
 
   const isUserFocusing = appState.activeTimer.isRunning;
@@ -118,7 +119,7 @@ async function checkActiveChaser(): Promise<void> {
       // If someone is actively studying, THEY are the chaser
       const { title, body } = getPeerPressureMessage(topUser.display_name, otherFocusing.display_name, myName || '');
       sendNotification(title, body);
-      lastChaserNotifAt = Date.now();
+      localStorage.setItem('last_chaser_notif_at', Date.now().toString());
     }
   } catch (e) { /* ignore */ }
 }
@@ -267,8 +268,9 @@ function checkRoutineTimers(): void {
     const routineTimeInMinutes = hours * 60 + minutes;
     const diff = routineTimeInMinutes - currentTimeInMinutes;
 
-    // Trigger exactly 15 minutes before
-    if (diff === 15) {
+    // Trigger if within the 15-minute warning window
+    // (Uses > 0 and <= 15 instead of === 15 to handle browser throttling intervals)
+    if (diff > 0 && diff <= 15) {
       const key = `${todayStr}-${item.id}`;
       if (!notifiedRoutineIds.has(key)) {
         sendNotification(

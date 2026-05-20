@@ -24,7 +24,7 @@ import { UserProfile, StudySession } from '@/types/profile.types';
 // Tracks the last time the user did something in the app
 export let lastInteractionAt = Date.now();
 
-// 🛡️ BROADCAST CACHE: Prevents redundant network calls if data is unchanged
+// Cache to prevent redundant broadcast network calls
 let lastBroadcastPayload: string | null = null;
 
 /** 
@@ -41,7 +41,7 @@ export async function checkProfileIdentity(): Promise<void> {
   // 1. Check local profile first
   let profile: UserProfile | null = profileSaved ? JSON.parse(profileSaved) : null;
 
-  // 2. SELF-HEALING SYNC: Detect missing cloud data and RECOVER it
+  // 2. Data Sync: Detect missing cloud data and reconcile
   // We perform a brief delay to ensure local data is fully parsed
   setTimeout(async () => {
     const cloudProfile = await loadUserProfileCloud();
@@ -63,19 +63,19 @@ export async function checkProfileIdentity(): Promise<void> {
       localStorage.setItem('tracker_username', updatedProfile.displayName);
       log.success(`IDENTITY HYDRATED: @${updatedProfile.displayName} aligned with cloud.`);
 
-      // 🛡️ IDENTITY GUARD: Final check for completeness
+      // Final check for profile completeness
       checkAndNotifyIncompleteProfile(updatedProfile);
       
-      // 🔥 BROADCAST AFTER HYDRATION: Sync metrics with the now-correct identity
+      // Sync metrics after identity hydration
       await syncProfileBroadcast();
 
-      // 🛡️ SELF-HEAL: Reconcile tracker with sessions if lagging
+      // Reconcile tracker with cloud sessions if out of sync
       fetchMySessionsCloud().then(sessions => {
         if (sessions) selfHealTrackerFromSessions(sessions);
       });
     } else if (profileSaved) {
-      // 🚨 RECOVERY MODE: Local profile exists but Cloud is empty (Data loss recovery)
-      console.warn("🛡️ RECOVERY: Cloud profile missing. Re-broadcasting local identity...");
+      // Data loss recovery: Broadcast local identity when cloud is empty
+      console.warn("Recovery: Cloud profile missing. Re-broadcasting local identity...");
       if (profile) {
         checkAndNotifyIncompleteProfile(profile);
         await syncProfileBroadcast();
@@ -93,7 +93,7 @@ export async function checkProfileIdentity(): Promise<void> {
   }
 }
 
-/** 🚀 WORLD STAGE BROADCAST: Sync local stats to the global leaderboard */
+/** Broadcast local stats to the global leaderboard */
 export async function syncProfileBroadcast(focusStateChanged = false): Promise<void> {
   const syncId = getCurrentUserId();
   if (!syncId) return;
@@ -103,7 +103,7 @@ export async function syncProfileBroadcast(focusStateChanged = false): Promise<v
 
   const profile = JSON.parse(saved) as UserProfile;
 
-  // ⚡ FAST PATH: If focus state just changed (start/stop/break), broadcast IMMEDIATELY
+  // Broadcast immediately on focus state change (start/stop/break)
   // without waiting for the slow cloud sessions fetch. This ensures the leaderboard
   // updates within milliseconds, not seconds.
   if (focusStateChanged) {
@@ -119,7 +119,7 @@ export async function syncProfileBroadcast(focusStateChanged = false): Promise<v
       current_focus_subject: isFocusingNow ? (appState.activeTimer.colName || 'ACTIVE MISSION') : null,
     };
     broadcastGlobalStats(fastPayload).catch(() => {});
-    // ⚡ INSTANT UI: Refresh leaderboard immediately so the actor sees the change
+    // Refresh leaderboard UI immediately
     import('@/features/dashboard/leaderboard').then(m => m.refreshLeaderboard());
   }
 
@@ -128,10 +128,10 @@ export async function syncProfileBroadcast(focusStateChanged = false): Promise<v
   let totalHours = trackerTotal;
   let todayHours = calculateTodayStudyHours(appState.trackerData);
   
-  // 🛡️ PERFECT SYNC: Hybrid Verification (Local + Cloud)
+  // Hybrid Verification (Local + Cloud)
   let sessionTotal = appState.verifiedHours;
 
-  // 🛡️ CRITICAL SYNC: Fetch cloud sessions BEFORE broadcasting to ensure integrity isn't 0
+  // Fetch cloud sessions before broadcasting to ensure integrity score accuracy
   try {
     const cloudSessions = await fetchMySessionsCloud();
     const cloudTotal = (cloudSessions || []).reduce((sum, s) => sum + (s.duration || 0), 0);
@@ -160,18 +160,18 @@ export async function syncProfileBroadcast(focusStateChanged = false): Promise<v
     log.error('Cloud session reconciliation failed', err);
   }
 
-  // 🛡️ HUMAN LIMIT GUARD: Prevent impossible study counts (Max 20h/day)
+  // Prevent impossible study counts (Max 20h/day)
   if (todayHours > 20) {
-    log.warn(`INTEGRITY ALERT: ${todayHours.toFixed(1)}h/day exceeds human limits. Clipping to 20h.`);
+    log.warn(`Data Validation: ${todayHours.toFixed(1)}h/day exceeds limits. Clipping to 20h.`);
     todayHours = 20;
   }
 
   // Capture isFocusing AFTER the async fetch to get current state
   const isFocusing = appState.activeTimer.isRunning;
   
-  // 🛡️ ZERO-BROADCAST GUARD: Prevent broadcasting a '0% Integrity' drop if we expect data.
+  // Prevent broadcasting an integrity drop if waiting for session data
   if (trackerTotal > 1 && sessionTotal === 0 && !isFocusing) {
-    log.info("SYNC GUARD: Deferring broadcast to prevent false Integrity drop (Waiting for sessions).");
+    log.info("Sync Guard: Deferring broadcast to prevent false Integrity drop (Waiting for sessions).");
     return;
   }
   
@@ -180,11 +180,11 @@ export async function syncProfileBroadcast(focusStateChanged = false): Promise<v
     const elapsedMs = (Date.now() - appState.activeTimer.startTime) + appState.activeTimer.elapsedAcc;
     const currentCapMs = appState.activeTimer.overrunCapMs || 10800000; // 3 Hours (Consistent with timer logic)
     
-    // 🛡️ CLAMP LIVE PROGRESS: Never broadcast more than the cap from an active timer
+    // Ensure active timer broadcast doesn't exceed the configured cap
     const clampedElapsedMs = Math.min(elapsedMs, currentCapMs);
     const elapsedHrs = clampedElapsedMs / (1000 * 60 * 60);
     
-    // 🛡️ MIDNIGHT SPLIT: For today_hours, only count time after 00:00:00 Local Device Time
+    // For today_hours, only count time after midnight local time
     let todayElapsedHrs = elapsedHrs;
     if (appState.activeTimer.sessionStartClock) {
       const start = new Date(appState.activeTimer.sessionStartClock);
@@ -193,7 +193,13 @@ export async function syncProfileBroadcast(focusStateChanged = false): Promise<v
       if (start.getDate() !== now.getDate() || start.getMonth() !== now.getMonth() || start.getFullYear() !== now.getFullYear()) {
         const midnight = new Date(now);
         midnight.setHours(0, 0, 0, 0);
-        todayElapsedHrs = Math.min(elapsedHrs, (now.getTime() - midnight.getTime()) / 3600000);
+        const clockBefore = midnight.getTime() - start.getTime();
+        const clockAfter = now.getTime() - midnight.getTime();
+        const totalClock = clockBefore + clockAfter;
+        if (totalClock > 0) {
+          const ratio = elapsedHrs / (totalClock / 3600000);
+          todayElapsedHrs = (clockAfter / 3600000) * ratio;
+        }
       }
     }
 
@@ -205,12 +211,12 @@ export async function syncProfileBroadcast(focusStateChanged = false): Promise<v
   // Recalculate verification score with live hours included
   const verificationScore = calculateVerificationScore(sessionTotal, trackerTotal);
 
-  // 🛡️ CONTINUITY GUARD: Prevent time regression during focus sessions
+  // Prevent time regression during focus sessions
   if (lastBroadcastPayload) {
     const prev = JSON.parse(lastBroadcastPayload);
     if (prev.display_name === profile.displayName) {
       if (todayHours < prev.today_hours && isFocusing) {
-        log.warn("SYNC GUARD: Prevented today_hours regression.");
+        log.warn("Sync Guard: Prevented today_hours regression.");
         todayHours = prev.today_hours;
       }
       if (totalHours < prev.total_hours && isFocusing) {
@@ -243,10 +249,10 @@ export async function syncProfileBroadcast(focusStateChanged = false): Promise<v
     current_streak: streak
   };
 
-  // 🔥 PERSISTENT BROADCAST: Full stats update
+  // Persist full broadcast stats
   lastBroadcastPayload = JSON.stringify(payload);
 
-  // 🛰️ MASTER STATE SYNC
+  // Sync master state variables
   appState.verifiedTotalHours = payload.total_hours;
   appState.verifiedRankScore = payload.competitive_score;
   
@@ -362,7 +368,7 @@ export function updateLastInteraction(): void {
   lastInteractionAt = Date.now();
 }
 
-/** 🛡️ SELF-HEALING: Fills the tracker table with missing cloud session data */
+/** Reconstruct tracker table from cloud session data */
 async function selfHealTrackerFromSessions(sessions: StudySession[]): Promise<void> {
   const { adjustTrackerDataForSessionDelta } = await import('@/features/tracker/tracker');
   // Group sessions by day and subject to avoid redundant saves
@@ -386,10 +392,10 @@ async function selfHealTrackerFromSessions(sessions: StudySession[]): Promise<vo
     }
   }
 
-  // 🔥 FINAL SYNC: Update the World Stage once after reconstruction
+  // Broadcast update after reconstruction
   await syncProfileBroadcast();
 
-  // 🔥 UI REFRESH: Ensure the dashboard reflects the restored timeline
+  // Refresh UI after reconstruction
   const { generateTable } = await import('@/features/tracker/tracker');
   const { updateDashboard } = await import('@/features/dashboard/dashboard');
   generateTable();

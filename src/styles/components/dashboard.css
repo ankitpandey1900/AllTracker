@@ -642,6 +642,12 @@ textarea {
   transition: border-color 0.2s ease;
 }
 
+select option {
+  background: #111116; /* Fallback dark background */
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
 .input:focus,
 select:focus,
 textarea:focus {
@@ -1599,7 +1605,7 @@ textarea:focus {
 
 @media (max-width: 1199px) {
   .arena-main-col { order: 2; }
-  .arena-sidebar-col { order: 1; margin-bottom: -16px; }
+  .arena-sidebar-col { order: 1; margin-bottom: 24px; }
 }
 
 @media (min-width: 1200px) {

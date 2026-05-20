@@ -122,7 +122,7 @@ export function subscribeToRealtimeTelemetry(
   let lastFingerprint = "";
   // Increased interval to 60s — Global stats don't need sub-10s updates
   const intervalId = window.setInterval(async () => {
-    // 🛡️ VISIBILITY GUARD: Stop polling if tab is backgrounded
+    // Stop polling if tab is backgrounded
     if (document.visibilityState !== 'visible') return;
 
     try {
@@ -211,7 +211,7 @@ export async function logStudySessionCloud(
   note?: string,
 ): Promise<void> {
   if (!getCurrentUserId()) {
-    // 🛡️ OFFLINE FALLBACK: Save to local history if not logged in
+    // Fallback: Save to local history if not logged in
     const localSaved = localStorage.getItem('all_tracker_history');
     const localLogs: StudySession[] = localSaved ? JSON.parse(localSaved) : [];
     localLogs.push({
@@ -238,7 +238,7 @@ export async function logStudySessionCloud(
     },
   });
 
-  // 🛰️ Refresh local data once saved
+  // Refresh local data once saved
   if (response) {
     hydrateSessionCache();
   }

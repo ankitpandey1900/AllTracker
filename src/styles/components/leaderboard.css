@@ -1947,8 +1947,9 @@
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 20px;
-  padding: 20px;
+  padding: 16px 10px;
   margin-bottom: 30px;
+  gap: 8px;
 }
 
 .stat-item {
@@ -1961,11 +1962,12 @@
   justify-content: center;
   gap: 4px;
   margin-bottom: 6px;
+  white-space: nowrap;
 }
 
 .stat-value {
   font-family: 'Outfit', sans-serif;
-  font-size: 1.8rem;
+  font-size: clamp(1.1rem, 3.5vw, 1.5rem);
   font-weight: 900;
   color: var(--text-primary);
   line-height: 1;
@@ -1981,10 +1983,11 @@
 
 .stat-label {
   font-family: 'Tektur', sans-serif;
-  font-size: 0.55rem;
+  font-size: clamp(0.45rem, 1.5vw, 0.55rem);
   color: #64748b;
   font-weight: 900;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
 }
 
 .stat-divider {

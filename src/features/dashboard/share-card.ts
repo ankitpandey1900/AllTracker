@@ -20,7 +20,7 @@ export async function generateShareCard(): Promise<void> {
 
   const localTotal = calculateTotalStudyHours(appState.trackerData);
   
-  // 🛰️ UNIFIED DATA SOURCE: Mirror the Dashboard/Leaderboard's logic
+  // Unified data source: Mirror the Dashboard/Leaderboard's logic
   const totalHours = Math.max(localTotal, appState.verifiedTotalHours);
   const rank = getRank(totalHours);
   const xpData = calculateXP(totalHours);

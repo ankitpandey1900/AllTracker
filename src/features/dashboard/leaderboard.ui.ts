@@ -83,9 +83,21 @@ export function renderLbPage(
   const rivalAvatar = rival.avatar || '👤';
   const rivalRank = myIdx; // rival is 1 rank above = myIdx (0-based index of myUser)
 
+  const status = getUserStatus(rival);
+  let rivalStatusHTML = '';
+  if (status.isFocusing) {
+    rivalStatusHTML = `<div style="position: absolute; bottom: -4px; right: -4px; width: 14px; height: 14px; border-radius: 50%; background: #8b5cf6; border: 2px solid #0d1222; box-shadow: 0 0 8px #8b5cf6;" title="Focusing Now"></div>`;
+  } else if (status.isOnline) {
+    rivalStatusHTML = `<div style="position: absolute; bottom: -4px; right: -4px; width: 14px; height: 14px; border-radius: 50%; background: #10b981; border: 2px solid #0d1222;" title="Online"></div>`;
+  }
+
+  const combinedHours = (myUser.total_hours || 0) + (rival.total_hours || 0);
+  const myPct = combinedHours > 0 ? ((myUser.total_hours || 0) / combinedHours) * 100 : 50;
+  const rivalPct = combinedHours > 0 ? ((rival.total_hours || 0) / combinedHours) * 100 : 50;
+
   rivalryContainer.innerHTML = `
-    <article class="rivalry-card" style="border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 4px; padding: 24px; margin-top: 0;">
-       <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+    <article class="rivalry-card" style="border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 4px; padding: 24px; margin-top: 0; background: linear-gradient(180deg, rgba(239,68,68,0.02) 0%, transparent 100%);">
+       <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
           <div style="display: flex; align-items: center; gap: 8px;">
              <span style="font-size: 1.2rem;">🎯</span>
              <h3 style="font-family: 'JetBrains Mono', monospace; font-weight: 900; letter-spacing: 2px; color: #ef4444; font-size: 0.75rem; margin: 0; text-transform: uppercase;">Target Acquired</h3>
@@ -93,21 +105,41 @@ export function renderLbPage(
           <span style="font-size: 0.6rem; color: var(--text-secondary); font-weight: 800; background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 2px; font-family: 'JetBrains Mono', monospace;">RIVALRY</span>
        </div>
        
-       <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
-          <div style="width: 48px; height: 48px; border-radius: 4px; border: 1px solid rgba(239, 68, 68, 0.5); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0;">
-             ${rivalAvatar}
+       <div style="display: flex; align-items: flex-start; gap: 16px; margin-bottom: 24px;">
+          <div style="position: relative; flex-shrink: 0;">
+            <div style="width: 52px; height: 52px; border-radius: 4px; border: 1px solid rgba(239, 68, 68, 0.5); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; background: rgba(0,0,0,0.2);">
+               ${rivalAvatar}
+            </div>
+            ${rivalStatusHTML}
           </div>
-          <div style="min-width: 0;">
-             <div style="font-size: 0.65rem; color: var(--text-secondary); font-weight: 800; letter-spacing: 1px;">RANK #${rivalRank}</div>
-             <div style="font-family: 'Outfit'; font-weight: 800; color: var(--text-primary); font-size: 1.1rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">@${rivalName}</div>
+          <div style="flex: 1; min-width: 0;">
+             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+               <div style="font-size: 0.65rem; color: var(--text-secondary); font-weight: 800; letter-spacing: 1px;">RANK #${rivalRank}</div>
+               <div style="font-size: 0.6rem; color: #f59e0b; font-weight: 800;">🔥 ${rival.current_streak || 0} DAY STREAK</div>
+             </div>
+             <div style="font-family: 'Outfit'; font-weight: 800; color: var(--text-primary); font-size: 1.1rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 8px;">@${rivalName}</div>
+             
+             <div style="display: flex; gap: 12px; font-size: 0.65rem; color: var(--text-muted); font-weight: 600;">
+               <div>TOTAL: <span style="color: var(--text-primary); font-weight: 800;">${(rival.total_hours || 0).toFixed(1)}H</span></div>
+               <div>TODAY: <span style="color: var(--text-primary); font-weight: 800;">${(rival.today_hours || 0).toFixed(1)}H</span></div>
+             </div>
           </div>
        </div>
 
-       <div style="border-radius: 12px; padding: 12px; border: 1px solid rgba(255,255,255,0.05);">
-          <div style="font-size: 0.65rem; color: var(--text-secondary); font-weight: 700; margin-bottom: 4px;">OVERTAKE REQUIREMENT:</div>
+       <div style="border-radius: 12px; padding: 16px; border: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.2);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div style="font-size: 0.65rem; color: var(--text-secondary); font-weight: 700;">OVERTAKE REQUIREMENT</div>
+            <div style="font-size: 0.6rem; color: #ef4444; font-weight: 700; opacity: 0.8; font-style: italic;">${status.isFocusing ? 'RIVAL IS FOCUSING!' : 'CLOSING IN'}</div>
+          </div>
           <div style="display: flex; align-items: baseline; gap: 6px;">
-             <span style="font-family: 'Tektur'; font-weight: 900; color: #ef4444; font-size: 1.4rem;">${diffLabel}</span>
+             <span style="font-family: 'Tektur'; font-weight: 900; color: #ef4444; font-size: 1.5rem; letter-spacing: 1px;">${diffLabel}</span>
              <span style="font-size: 0.65rem; color: #64748b; font-weight: 800;">OF FOCUS</span>
+          </div>
+          
+          <div style="margin-top: 14px; height: 6px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; display: flex; position: relative;">
+            <div style="height: 100%; background: #3b82f6; width: ${myPct}%; transition: width 0.5s ease;"></div>
+            <div style="height: 100%; background: #ef4444; width: ${rivalPct}%; transition: width 0.5s ease;"></div>
+            <div style="position: absolute; left: ${myPct}%; top: -2px; bottom: -2px; width: 2px; background: #fff; z-index: 2;"></div>
           </div>
        </div>
     </article>
@@ -128,7 +160,7 @@ export function getUserStatus(u: GlobalProfile): {
 
   const isOnline = u.is_online === true;
 
-  // 🛡️ Focus check:
+  // Focus check:
   // - Must be within the 10-minute activity window (matches telemetry count)
   // - Must respect is_focus_public privacy setting
   // - Using 10min window (not strict isOnline 60s) so heartbeat delay doesn't break it
@@ -160,7 +192,7 @@ export function getUserStatus(u: GlobalProfile): {
   }
 
   const now = new Date();
-  // 🛡️ TIMEZONE INTEGRITY: The backend resets today_hours at Midnight IST (Asia/Kolkata).
+  // Timezone Integrity: The backend resets today_hours at Midnight IST (Asia/Kolkata).
   // The frontend MUST evaluate "today" based on IST, otherwise international users will see 
   // their hours incorrectly zeroed out when their local clock crosses midnight.
   const fmtLocal = (d: Date) => d.toLocaleDateString('en-GB', { timeZone: 'Asia/Kolkata' });
@@ -185,7 +217,7 @@ export function renderHoverCard(
       <path d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.97-.81-3.99s-2.6-1.27-3.99-.81c-.67-1.31-1.91-2.19-3.34-2.19s-2.67.88-3.34 2.19c-1.39-.46-2.97-.2-3.99.81s-1.27 2.6-.81 3.99c-1.31.67-2.19 1.91-2.19 3.34s.88 2.67 2.19 3.34c-.46 1.39-.2 2.97.81 3.99s2.6 1.27 3.99.81c.67 1.31 1.91 2.19 3.34 2.19s2.67-.88 3.34-2.19c1.39.46 2.97.2 3.99-.81s1.27-2.6.81-3.99c1.31-.67 2.19-1.91 2.19-3.34zm-11.71 4.2L6.8 12.46l1.41-1.42 2.26 2.26 4.8-5.23 1.47 1.35-6.2 6.78z"></path>
     </svg>` : '';
 
-  const age = u.dob ? `${calculateAge(u.dob)}Y • ` : '';
+  const age = u.age ? `${u.age}Y • ` : '';
   const rankTitle = getRankTitle(u.total_hours);
   const rankColor = getRankColor(rankTitle);
   const avatar = u.avatar || `👤`;

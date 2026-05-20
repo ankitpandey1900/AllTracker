@@ -32,7 +32,7 @@ export function initTimerModules(): void {
   // Initial Check
   SyncIndicator.update(window.navigator.onLine ? 'synced' : 'offline');
 
-  // 📡 Mission-Critical Timer Sync: Full Cross-Device Integration
+  // Synchronize timer state across devices
   import('@/services/vault.service').then(({ subscribeToUserDataSync }) => {
     subscribeToUserDataSync((payload) => {
       // payload.new.data is [trackerData, settings, routines, history, bookmarks, tasks, timerState]
@@ -56,10 +56,10 @@ export function initTimerModules(): void {
         return;
       }
 
-      // 🛡️ TERMINATION GUARD: If we just terminated locally, ignore all cloud states for a few seconds
+      // Prevent sync if the user recently terminated the session locally
       const termLock = localStorage.getItem('timer_term_lock');
       if (termLock && (Date.now() - parseInt(termLock)) < 8000) {
-        log.info('🛡️ CLOUD SYNC: Ignored (Termination Lock Active)');
+        log.info('Cloud Sync: Ignored (Termination Lock Active)');
         return;
       }
 
@@ -72,7 +72,7 @@ export function initTimerModules(): void {
 
       if (!stateChanged) return;
 
-      log.info(`📡 CLOUD SYNC: Applying state (t=${cloudLastUpdated}) → running=${cloudIsRunning}, break=${cloudOnBreak}`);
+      log.info(`Cloud Sync: Applying state (t=${cloudLastUpdated}) → running=${cloudIsRunning}, break=${cloudOnBreak}`);
 
       // Stop any local interval first
       if (appState.timerInterval) clearInterval(appState.timerInterval);
@@ -230,7 +230,7 @@ function startBreakInterval(): void {
         saveTimerState();
       }
     }
-    // 🛡️ Throttled cloud save: every 30s during break (same as study interval)
+    // Throttle cloud saves to every 30s during breaks to prevent write conflicts
     // Prevents write-war between devices where both save every second
     if (breakTick % 30 === 0) {
       saveTimerState();
@@ -242,11 +242,11 @@ function startBreakInterval(): void {
 export async function stopTimer(autoNote?: string, clampMs?: number): Promise<void> {
   if (isStopping) return;
 
-  // 🛡️ CROSS-TAB STOP LOCK: Prevent multiple tabs from finalizing the same session
+  // Prevent multiple tabs from finalizing the same session concurrently
   const stopLockKey = 'all_tracker_stop_lock';
   const stopLock = localStorage.getItem(stopLockKey);
   if (stopLock && (Date.now() - parseInt(stopLock)) < 15000) {
-    log.info('🛡️ STOP LOCK: Another tab is already stopping the timer. Aborting this attempt.');
+    log.info('Stop Lock: Another tab is currently stopping the timer. Aborting attempt.');
     return;
   }
   localStorage.setItem(stopLockKey, Date.now().toString());
@@ -266,13 +266,14 @@ export async function stopTimer(autoNote?: string, clampMs?: number): Promise<vo
   const now = Date.now();
   let totalElapsed = appState.activeTimer.elapsedAcc + (appState.activeTimer.startTime ? (now - appState.activeTimer.startTime) : 0);
 
-  // 🛡️ CLAMPING PROTOCOL: If a clamp is provided (e.g. recovery cap), don't exceed it
-  if (clampMs && totalElapsed > clampMs) {
-    log.warn(`🛡️ TIMER CAP: Clamping session from ${totalElapsed}ms to ${clampMs}ms`);
-    totalElapsed = clampMs;
+  // Enforce session caps to handle suspended-tab scenarios (e.g., waking device from sleep)
+  const enforceCap = clampMs || appState.activeTimer.overrunCapMs || 10800000;
+  if (totalElapsed > enforceCap) {
+    log.warn(`Timer Cap: Clamping session from ${totalElapsed}ms to ${enforceCap}ms`);
+    totalElapsed = enforceCap;
   }
 
-  // 🛰️ INSTANT CLOUD BROADCAST: Tell all other devices to stop NOW
+  // Broadcast stop event to other active devices
   appState.activeTimer.isRunning = false;
   appState.activeTimer.startTime = null;
   appState.activeTimer.elapsedAcc = totalElapsed; // Freeze accumulated value
@@ -302,11 +303,16 @@ export async function stopTimer(autoNote?: string, clampMs?: number): Promise<vo
       const sessionStart = appState.activeTimer.sessionStartClock ? new Date(appState.activeTimer.sessionStartClock) : new Date();
       const sessionEnd = new Date();
       
-      // 🛡️ LOCAL SPLIT: For immediate UI feedback on the dashboard table
+      // Split sessions that cross midnight for local UI tables
       if (sessionStart.getDate() !== sessionEnd.getDate()) {
         const midnight = new Date(sessionEnd); midnight.setHours(0,0,0,0);
-        const hoursBefore = (midnight.getTime() - sessionStart.getTime()) / 3600000;
-        const hoursAfter = (sessionEnd.getTime() - midnight.getTime()) / 3600000;
+        const clockBefore = midnight.getTime() - sessionStart.getTime();
+        const clockAfter = sessionEnd.getTime() - midnight.getTime();
+        const totalClock = clockBefore + clockAfter;
+        const ratio = totalClock > 0 ? (totalHours * 3600000) / totalClock : 1;
+        
+        const hoursBefore = (clockBefore * ratio) / 3600000;
+        const hoursAfter = (clockAfter * ratio) / 3600000;
         saveSessionToDate(colIdx, hoursBefore, note, sessionStart);
         saveSessionToDate(colIdx, hoursAfter, note, sessionEnd);
         appState.verifiedHours += (hoursBefore + hoursAfter);
@@ -315,7 +321,7 @@ export async function stopTimer(autoNote?: string, clampMs?: number): Promise<vo
         appState.verifiedHours += totalHours;
       }
 
-      // 🛡️ VERIFIED LOG: Save to local settings for Maamu AI analysis
+      // Store session history in settings for analysis
       const startTimeStr = formatClockTime(sessionStart);
       const endTimeStr = formatClockTime(sessionEnd);
       const sessionLog = {
@@ -334,7 +340,7 @@ export async function stopTimer(autoNote?: string, clampMs?: number): Promise<vo
       
       saveTrackerDataToStorage(appState.trackerData);
 
-      // 🛰️ CLOUD SYNC: Send ONE raw request. The backend will handle splitting for history/leaderboard.
+      // Persist the complete session to the backend
       await logStudySessionCloud(totalHours, appState.activeTimer.colName || 'GENERAL', sessionStart, note);
       
       showToast(autoNote ? "Auto-Safe: Session Saved" : `Saved: ${formatMsToTime(totalElapsed)}`, 'success');
@@ -352,7 +358,7 @@ export async function stopTimer(autoNote?: string, clampMs?: number): Promise<vo
     appState.activeTimer.sessionStartClock = null;
     appState.activeTimer.activeBreak = null; 
     appState.activeTimer.completedBreaks = [];
-    // 🛡️ TERMINATION LOCK: Ensure other tabs don't "restart" this session
+    // Prevent other tabs from inadvertently restarting this session
     localStorage.setItem('timer_term_lock', Date.now().toString());
     saveTimerState();
 
@@ -362,7 +368,7 @@ export async function stopTimer(autoNote?: string, clampMs?: number): Promise<vo
     toggleFocusHUD(false); 
     releaseWakeLock();
 
-    // 🛡️ NON-BLOCKING UI REFRESH: Spread out heavy updates to avoid main-thread freeze
+    // Stagger heavy UI renders to avoid blocking the main thread
     setTimeout(() => {
       updateDashboard(); 
       import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast(true));
@@ -393,7 +399,7 @@ export async function terminateTimer(): Promise<void> {
     !!appState.activeTimer.activeBreak;
   if (!hasActiveSession) return;
   const confirmed = await showTerminateConfirmModal();
-  // 🛡️ TERMINATION LOCK: Prevent other tabs from "re-syncing" the session back to us
+  // Prevent other tabs from resyncing the active session data after termination
   localStorage.setItem('timer_term_lock', Date.now().toString());
   
   if (appState.timerInterval) clearInterval(appState.timerInterval);
@@ -484,7 +490,7 @@ function startTimerInterval(): void {
       const extendBtn = document.getElementById('timerExtendBtn');
       if (remainingMs <= 10 * 60 * 1000 && remainingMs > 0) { if (extendBtn) extendBtn.style.display = 'block'; }
       else if (extendBtn) extendBtn.style.display = 'none';
-      if (totalElapsedMs > currentCapMs) { stopTimer('[AUTO-SAFE] Overrun Guard'); return; }
+      if (totalElapsedMs > currentCapMs) { stopTimer('[AUTO-SAFE] Overrun Guard', currentCapMs); return; }
       if (elapsedSec % 30 === 0) {
         saveTimerState(); import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast());
         if (!wakeLock) requestWakeLock();
@@ -597,7 +603,8 @@ export function resumeTimerIfNeeded(): void {
   // Case 2: Timer is running
   if (isRunning) {
     const currentCap = appState.activeTimer.overrunCapMs || 10800000; // 3 Hours (Consistent with Overrun Guard)
-    if (startTime && (Date.now() - startTime) > currentCap) { 
+    const totalElapsedMs = elapsedAcc + (startTime ? (Date.now() - startTime) : 0);
+    if (totalElapsedMs > currentCap) { 
       stopTimer('[AUTO-SAFE] Recovered', currentCap); 
       return; 
     }

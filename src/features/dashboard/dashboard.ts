@@ -84,7 +84,7 @@ export function updateDashboard(): void {
     const data = appState.trackerData;
     if (!data || data.length === 0) return;
 
-    // 🛡️ LOCAL DAY SYNC: Ensure we are showing the absolute current day
+    // Local day sync: Ensure we are showing the absolute current day
     ensureTimelineIntegrity();
 
   // 🎙️ Dynamic Wisdom Rotation (User-Centric)
@@ -107,7 +107,7 @@ export function updateDashboard(): void {
   const streak = calculateStreak(data);
   const completionRate = completedDays > 0 ? (completedDays / (appState.totalDays || 1)) * 100 : 0;
 
-  // 🛰️ UNIFIED DATA SOURCE: Mirror the Leaderboard's logic
+  // Unified data source: Mirror the Leaderboard's logic
   // We use the MAX of local table data or cloud-verified data.
   const totalHours = Math.max(localTotal, appState.verifiedTotalHours);
   const rankScore = Math.max(calculateCompetitiveXP(totalHours, streak, calculateVerificationScore(appState.verifiedHours, localTotal)), appState.verifiedRankScore);
@@ -217,7 +217,7 @@ export function updateDashboard(): void {
   // Initialize Interactive Parallax
   initInteractiveParallax();
 
-    // 🛡️ VANGUARD: Gamification & Engagement
+    // Vanguard: Gamification & Engagement
     updateRivalryHUD();
   } finally {
     isUpdatingDashboard = false;

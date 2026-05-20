@@ -58,7 +58,7 @@ async function renderStudyTrendChart(): Promise<void> {
     chartLibrary.Chart.register(...chartLibrary.registerables);
   }
 
-  // 🛡️ RESOURCE GUARD: Safely destroy existing chart to prevent canvas reuse errors
+  // Resource Guard: Safely destroy existing chart to prevent canvas reuse errors
   const existingTrend = chartLibrary.Chart.getChart(canvas);
   if (existingTrend) existingTrend.destroy();
 
@@ -201,7 +201,7 @@ async function renderSubjectRadarChart(): Promise<void> {
     chartLibrary.Chart.register(...chartLibrary.registerables);
   }
 
-  // 🛡️ RESOURCE GUARD: Safely destroy existing chart to prevent canvas reuse errors
+  // Resource Guard: Safely destroy existing chart to prevent canvas reuse errors
   const existingRadar = chartLibrary.Chart.getChart(canvas);
   if (existingRadar) existingRadar.destroy();
 

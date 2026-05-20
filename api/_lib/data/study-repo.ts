@@ -13,7 +13,7 @@ export async function logStudySession(
 ): Promise<void> {
   const pool = getPool();
 
-  // 🛡️ DEDUPLICATION GUARD: Prevent duplicate saves within a short window (e.g. multi-tab stop)
+  // Prevent duplicate saves within a short window (e.g. multi-tab stop)
   const recentCheck = await pool.query(
     `
       select id from study_sessions 
@@ -36,7 +36,7 @@ export async function logStudySession(
     ? new Date(payload.startAt)
     : new Date(endAt.getTime() - payload.duration * 60 * 60 * 1000);
 
-  // 🛡️ PROFESSIONAL MIDNIGHT SPLIT (IST)
+  // Split sessions crossing midnight (IST)
   // IST is UTC+5:30. Midnight IST (00:00) is 18:30 UTC of the previous calendar day.
   
   const getIstDateStr = (d: Date) => {
@@ -57,8 +57,16 @@ export async function logStudySession(
     const midnightMsIst = Math.floor(endMsIst / (24 * 60 * 60 * 1000)) * (24 * 60 * 60 * 1000);
     const midnightUtc = new Date(midnightMsIst - istOffset);
 
-    const beforeMs = midnightUtc.getTime() - startAt.getTime();
-    const afterMs = endAt.getTime() - midnightUtc.getTime();
+    const clockBeforeMs = midnightUtc.getTime() - startAt.getTime();
+    const clockAfterMs = endAt.getTime() - midnightUtc.getTime();
+    const totalClockMs = clockBeforeMs + clockAfterMs;
+
+    // Distribute actual focused duration proportionally based on clock boundaries
+    const actualDurationMs = payload.duration * 3600000;
+    const ratio = totalClockMs > 0 ? actualDurationMs / totalClockMs : 1;
+    
+    const beforeMs = clockBeforeMs * ratio;
+    const afterMs = clockAfterMs * ratio;
     
     if (beforeMs > 0 && afterMs > 0) {
       const notePart1 = (payload.note || "").includes("(Part") ? payload.note : (payload.note || "") + " (Part 1/2)";
