@@ -185,13 +185,11 @@ export async function refreshLeaderboard(): Promise<void> {
       }).join('');
     }
 
-    // Today's Platform Average (Active Users Only)
+    // Today's Platform Average (Users who actually studied today)
+    // NOTE: Calculated after user fetch below. Placeholder update here.
     const avgEl = document.getElementById('milestone-avg-hrs');
-    if (avgEl) {
-      // Logic: Total hours logged today / Number of pilots who were active today
-      // This is Option B: It reflects the actual effort of the studying community.
-      const avg = telemetry.active_now > 0 ? (telemetry.global_hours_today / telemetry.active_now) : 0;
-      avgEl.textContent = avg.toFixed(1);
+    if (avgEl && telemetry.active_now === 0 && telemetry.global_hours_today === 0) {
+      avgEl.textContent = '0.0';
     }
   }
 
@@ -228,5 +226,15 @@ export async function refreshLeaderboard(): Promise<void> {
       mvpPctEl.textContent = `(${pct.toFixed(1)}%)`;
     }
   }
-}
 
+  // ✅ CORRECTED: Daily Avg = total today_hours across users who actually studied today
+  // Uses the same IST-aware getUserStatus check (not active_now which is "right now" live count)
+  const avgEl = document.getElementById('milestone-avg-hrs');
+  if (avgEl && users.length > 0) {
+    const { getUserStatus } = await import('./leaderboard.ui');
+    const studiedToday = users.filter(u => getUserStatus(u).todayHoursDisplay > 0);
+    const totalTodayHrs = studiedToday.reduce((sum, u) => sum + getUserStatus(u).todayHoursDisplay, 0);
+    const avg = studiedToday.length > 0 ? totalTodayHrs / studiedToday.length : 0;
+    avgEl.textContent = avg.toFixed(1);
+  }
+}
