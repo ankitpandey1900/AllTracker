@@ -1,6 +1,6 @@
 <div align="center">
-  <img src="./public/logo.png" width="120" height="120" style="border-radius: 24px; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);" alt="All Tracker Logo">
-  <h1> AllTracker 🚀</h1>
+  <img src="./public/logo.png" width="260" height="260" style="border-radius: 30px; box-shadow: 0 14px 40px rgba(0, 0, 0, 0.25);" alt="All Tracker Logo">
+  <h1> AllTracker </h1>
   <p><strong>The High-Performance Mission Control for the Grind.</strong></p>
 
   <p>
