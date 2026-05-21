@@ -82,6 +82,7 @@ export interface Settings {
   maamuModel?: string;
   theme?: 'stealth-midnight' | 'obsidian-glass' | 'tactical-navy' | 'solar-gold' | 'pristine-white' | 'quantum-purple';
   timerStyle?: 'ring' | 'block';
+  timerFont?: 'fira' | 'digital' | 'tektur' | 'inter' | 'monoton' | 'blackops' | 'silkscreen' | 'bungee';
   sessionGoal?: string;           // Target hours for current phase
   ambientSound?: 'none' | 'interstellar';
   ambientVolume?: number;         // 0 to 1

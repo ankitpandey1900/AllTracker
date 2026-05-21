@@ -1,4 +1,4 @@
-import { appState, calculateDates, initializeData, applyThemeToDOM, applyTimerStyleToDOM, ensureTimelineIntegrity, migrateDataFormat } from "@/state/app-state";
+import { appState, calculateDates, initializeData, applyThemeToDOM, applyTimerStyleToDOM, applyTimerFontToDOM, ensureTimelineIntegrity, migrateDataFormat } from "@/state/app-state";
 import { log } from "@/utils/logger.utils";
 import {
   loadTrackerDataFromStorage,
@@ -57,6 +57,7 @@ export async function igniteApp(): Promise<void> {
     if (settings) appState.settings = { ...appState.settings, ...settings };
     applyThemeToDOM(appState.settings.theme);
     applyTimerStyleToDOM(appState.settings.timerStyle);
+    applyTimerFontToDOM(appState.settings.timerFont);
     migrateDataFormat();
 
     appState.trackerData = (trackerData && trackerData.length > 0) ? trackerData : initializeData();

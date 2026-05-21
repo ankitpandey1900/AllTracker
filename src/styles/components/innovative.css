@@ -48,11 +48,12 @@
   margin: 40px auto;
   text-align: center;
   padding: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 12px;
-  background: transparent;
+  background: #000000;
   position: relative;
   user-select: none;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
 }
 
 .hud-top-bar {
@@ -372,8 +373,14 @@ body.timer-style-ring .glass-block-content {
 }
 
 body.timer-style-block #activeTimerSection {
-  width: 96vw;
-  max-width: 1600px;
+  width: 98vw;
+  max-width: 1800px;
+  min-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin: 3vh auto;
+  container-type: inline-size;
 }
 
 body.timer-style-block .ring-wrap {
@@ -381,7 +388,11 @@ body.timer-style-block .ring-wrap {
 }
 
 body.timer-style-block .timer-circle-container {
-  margin: 20px auto 30px;
+  flex: 1;
+  margin: 20px auto;
+  width: 100%;
+  display: flex;
+  align-items: center;
 }
 
 body.timer-style-block .timer-center-content {
@@ -403,16 +414,18 @@ body.timer-style-block .neon-glow-bg {
 body.timer-style-block .glass-block-content {
   position: relative;
   z-index: 1;
+  width: 100%;
   background: linear-gradient(#080a0f, #080a0f) padding-box,
     linear-gradient(120deg, #00f2fe, #4facfe, #f093fb, #f5576c, #00f2fe) border-box;
   background-size: 200% 200%;
   border: 2px solid transparent;
-  border-radius: 4px;
-  padding: 50px 20px;
+  border-radius: 12px;
+  padding: 8vh 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), inset 0 0 40px rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.9), inset 0 0 50px rgba(0, 0, 0, 0.6);
   animation: cyber-border-flow 6s linear infinite;
 }
 
@@ -438,22 +451,111 @@ body.timer-style-block .glass-block-content::after {
   right: 20px;
 }
 
-body.timer-style-block .timer-display {
-  font-family: 'Fira Code', 'Courier New', monospace;
-  /* Tech LCD Font */
-  font-size: clamp(8rem, 20vw, 16rem);
-  font-weight: 500;
+/* --- SPECIFIC FONT SIZING TO FILL HORIZONTAL SPACE --- */
+
+/* --- SPECIFIC FONT SIZING & VARIABLES TO FILL HORIZONTAL SPACE --- */
+
+/* Fira Code (Hacker) - Standard Monospace */
+body.timer-font-fira {
+  --timer-font: 'Fira Code', 'Courier New', monospace;
+}
+body.timer-style-block.timer-font-fira .timer-display {
+  font-size: clamp(8rem, 19cqw, 40rem);
+  letter-spacing: -6px;
+}
+
+/* Orbitron (Digital) - Very Wide */
+body.timer-font-digital {
+  --timer-font: 'Orbitron', 'Digital-7', monospace;
+}
+body.timer-style-block.timer-font-digital .timer-display {
+  font-size: clamp(8rem, 16cqw, 40rem);
   letter-spacing: -2px;
+}
+
+/* Tektur (Sci-Fi) - Narrower / Taller */
+body.timer-font-tektur {
+  --timer-font: 'Tektur', 'Space Grotesk', sans-serif;
+}
+body.timer-style-block.timer-font-tektur .timer-display {
+  font-size: clamp(8rem, 23cqw, 45rem);
+  letter-spacing: -4px;
+}
+
+/* Inter (Apple-Style) - Compact Proportional */
+body.timer-font-inter {
+  --timer-font: 'Inter', 'SF Pro Display', sans-serif;
+}
+body.timer-style-block.timer-font-inter .timer-display {
+  font-size: clamp(8rem, 23cqw, 45rem);
+  font-weight: 600;
+  letter-spacing: -8px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Monoton (Neon Racing) - Very Wide Multi-line */
+body.timer-font-monoton {
+  --timer-font: 'Monoton', sans-serif;
+}
+body.timer-style-block.timer-font-monoton .timer-display {
+  font-size: clamp(8rem, 16cqw, 40rem);
+  letter-spacing: 2px;
+  font-weight: 400;
+}
+
+/* Black Ops One (Tactical Stencil) - Heavy Block */
+body.timer-font-blackops {
+  --timer-font: 'Black Ops One', sans-serif;
+}
+body.timer-style-block.timer-font-blackops .timer-display {
+  font-size: clamp(8rem, 17cqw, 40rem);
+  letter-spacing: -2px;
+  font-weight: 400;
+}
+
+/* Silkscreen (Retro Pixel) - Very Wide Blocky */
+body.timer-font-silkscreen {
+  --timer-font: 'Silkscreen', monospace;
+}
+body.timer-style-block.timer-font-silkscreen .timer-display {
+  font-size: clamp(8rem, 16.5cqw, 40rem);
+  letter-spacing: -4px;
+  font-weight: 400;
+}
+
+/* Bungee Shade (Massive 3D) - Very Tall and Extruded */
+body.timer-font-bungee {
+  --timer-font: 'Bungee Shade', sans-serif;
+}
+body.timer-style-block.timer-font-bungee .timer-display {
+  font-size: clamp(8rem, 16.5cqw, 40rem);
+  letter-spacing: -2px;
+  font-weight: 400;
+}
+
+/* Apply the custom font to EVERYTHING in the block timer */
+body.timer-style-block .timer-display,
+body.timer-style-block .control-row .btn,
+body.timer-style-block #timerSubject,
+body.timer-style-block .session-goal-row,
+body.timer-style-block .session-goal-row input,
+body.timer-style-block .hud-status span,
+body.timer-style-block #ambientSoundLabel,
+body.timer-style-block .timer-task-text {
+  font-family: var(--timer-font) !important;
+}
+
+body.timer-style-block .timer-display {
+  font-weight: 500;
   color: var(--text-primary);
   line-height: 1;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.15);
-  /* Normalized */
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
   margin: 0;
   padding: 0;
+  white-space: nowrap;
 }
 
 body.timer-style-block #timerSubject {
-  font-family: 'Fira Code', monospace;
   font-weight: 700;
   font-size: 1.1rem;
   letter-spacing: 8px;
@@ -461,6 +563,72 @@ body.timer-style-block #timerSubject {
   color: #4facfe;
   text-shadow: 0 0 10px rgba(79, 172, 254, 0.5);
   opacity: 1;
+}
+
+body.timer-style-block .control-row {
+  margin-top: 30px;
+  gap: 24px;
+}
+
+/* Premium Professional Buttons for Block Layout */
+body.timer-style-block .control-row .btn {
+  padding: 16px 36px !important;
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.5px !important;
+  border-radius: 6px !important;
+  min-width: 160px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  color: #fff !important;
+  text-transform: uppercase;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+  outline: none !important;
+}
+
+body.timer-style-block .control-row .btn:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  transform: translateY(-2px) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+body.timer-style-block .control-row .btn:active {
+  transform: translateY(0) !important;
+}
+
+/* Specific overrides for button roles */
+body.timer-style-block .control-row #timerStopBtn {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: none !important;
+}
+
+body.timer-style-block .control-row #timerStopBtn:hover {
+  background: #e2e8f0 !important;
+  box-shadow: 0 6px 15px rgba(255, 255, 255, 0.1) !important;
+}
+
+body.timer-style-block .control-row #timerTerminateBtn {
+  color: #ef4444 !important;
+  border-color: rgba(239, 68, 68, 0.2) !important;
+}
+body.timer-style-block .control-row #timerTerminateBtn:hover {
+  background: rgba(239, 68, 68, 0.1) !important;
+  border-color: rgba(239, 68, 68, 0.4) !important;
+}
+
+body.timer-style-block .session-goal-row {
+  margin-top: 30px;
+  padding: 16px 24px;
+  font-size: 1.1rem;
+}
+
+body.timer-style-block .session-goal-row input {
+  font-size: 1.2rem;
+  padding: 8px 12px;
+  width: 90px;
 }
 
 @keyframes ticker {

@@ -28,6 +28,9 @@ export function openSettingsModal(): void {
   const timerStyleInput = document.getElementById('timerStyleSelectInput') as HTMLSelectElement;
   if (timerStyleInput) { timerStyleInput.value = s.timerStyle || 'ring'; }
 
+  const timerFontInput = document.getElementById('timerFontSelectInput') as HTMLSelectElement;
+  if (timerFontInput) { timerFontInput.value = s.timerFont || 'fira'; }
+
   renderCustomRanges();
   modal?.classList.add('active');
 }
@@ -117,6 +120,12 @@ export function applyThemeSettings(): void {
     appState.settings.timerStyle = timerStyleInput.value as 'ring' | 'block';
     document.body.classList.remove('timer-style-ring', 'timer-style-block');
     document.body.classList.add(`timer-style-${appState.settings.timerStyle}`);
+  }
+
+  const timerFontInput = document.getElementById('timerFontSelectInput') as HTMLSelectElement;
+  if (timerFontInput) {
+    appState.settings.timerFont = timerFontInput.value as 'fira' | 'digital' | 'tektur' | 'inter' | 'monoton' | 'blackops' | 'silkscreen' | 'bungee';
+    import('@/state/app-state').then(m => m.applyTimerFontToDOM(appState.settings.timerFont));
   }
 
   saveSettingsToStorage(appState.settings);

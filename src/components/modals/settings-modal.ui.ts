@@ -26,12 +26,27 @@ export const settingsModal = `
                   <option value="quantum-purple">Quantum Purple</option>
                 </select>
               </div>
-              <label>Focus Timer Design</label>
-              <div class="row" style="gap: 10px; align-items: stretch;">
+              <div style="display: flex; gap: 12px; align-items: center;">
+                <label for="timerStyleSelectInput" style="color: var(--text-muted); font-size: 0.85rem; font-weight: 700; width: 120px;">Timer Layout</label>
                 <select id="timerStyleSelectInput" class="settings-input" style="flex: 1;">
-                  <option value="block">Digital</option>
-                  <option value="ring">Classic</option>
+                  <option value="block">Neon Block (Recommended)</option>
+                  <option value="ring">Cyber Ring (Classic)</option>
                 </select>
+              </div>
+              <div style="display: flex; gap: 12px; align-items: center; margin-top: 12px;">
+                <label for="timerFontSelectInput" style="color: var(--text-muted); font-size: 0.85rem; font-weight: 700; width: 120px;">Timer Font</label>
+                <select id="timerFontSelectInput" class="settings-input" style="flex: 1;">
+                  <option value="fira">Fira Code (Hacker)</option>
+                  <option value="digital">Orbitron (Digital)</option>
+                  <option value="tektur">Tektur (Sci-Fi)</option>
+                  <option value="inter">Inter (Apple-Style)</option>
+                  <option value="monoton">Monoton (Neon Racing)</option>
+                  <option value="blackops">Black Ops (Tactical Stencil)</option>
+                  <option value="silkscreen">Silkscreen (Retro Pixel)</option>
+                  <option value="bungee">Bungee (Massive 3D)</option>
+                </select>
+              </div>
+              <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
                 <button id="applyThemeBtn" class="btn btn-primary" style="white-space: nowrap; padding: 0 20px;">
                   Apply
                 </button>

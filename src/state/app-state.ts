@@ -29,6 +29,7 @@ function createDefaultSettings(): Settings {
     maamuModel: 'openai/gpt-oss-20b',
     theme: 'stealth-midnight',
     timerStyle: 'block',
+    timerFont: 'fira',
     ambientSound: 'none',
     ambientVolume: 0.5,
   };
@@ -43,6 +44,12 @@ export function applyThemeToDOM(themeName: string = 'stealth-midnight') {
 export function applyTimerStyleToDOM(timerStyle: string = 'block') {
   document.body.classList.remove('timer-style-ring', 'timer-style-block');
   document.body.classList.add(`timer-style-${timerStyle}`);
+}
+
+/** Applies the timer font class to the body */
+export function applyTimerFontToDOM(timerFont: string = 'fira') {
+  document.body.classList.remove('timer-font-fira', 'timer-font-digital', 'timer-font-tektur', 'timer-font-inter', 'timer-font-monoton', 'timer-font-blackops', 'timer-font-silkscreen', 'timer-font-bungee');
+  document.body.classList.add(`timer-font-${timerFont}`);
 }
 
 function createDefaultTimer(): ActiveTimer {
