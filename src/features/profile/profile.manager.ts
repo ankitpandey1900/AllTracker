@@ -19,6 +19,7 @@ import {
   calculateCompetitiveXP 
 } from '@/utils/calc.utils';
 import { getRankTitle } from '@/utils/rank.utils';
+import { getLocalIsoDate } from '@/utils/date.utils';
 import { UserProfile, StudySession } from '@/types/profile.types';
 
 // Tracks the last time the user did something in the app
@@ -26,6 +27,7 @@ export let lastInteractionAt = Date.now();
 
 // Cache to prevent redundant broadcast network calls
 let lastBroadcastPayload: string | null = null;
+let lastBroadcastDate: string | null = null;
 
 /** 
  * Silent Hydration: Checks if a profile exists and syncs it.
@@ -141,8 +143,8 @@ export async function syncProfileBroadcast(focusStateChanged = false): Promise<v
     sessionTotal = appState.verifiedHours;
 
     if (cloudSessions && cloudSessions.length > 0) {
-      // Calculate cloud today (matching local YYYY-MM-DD)
-      const todayStr = new Date().toISOString().split('T')[0];
+      // Calculate cloud today (matching local YYYY-MM-DD, IST timezone)
+      const todayStr = getLocalIsoDate();
       const cloudToday = cloudSessions.reduce((sum, s) => {
         const sDate = s.log_date || (s.end_at || '').split('T')[0];
         return sDate === todayStr ? sum + (s.duration || 0) : sum;
@@ -211,7 +213,15 @@ export async function syncProfileBroadcast(focusStateChanged = false): Promise<v
   // Recalculate verification score with live hours included
   const verificationScore = calculateVerificationScore(sessionTotal, trackerTotal);
 
-  // Prevent time regression during focus sessions
+  // Prevent time regression during focus sessions (within the SAME day only)
+  const currentDateStr = getLocalIsoDate();
+  if (lastBroadcastDate && lastBroadcastDate !== currentDateStr) {
+    // Midnight crossed: Reset the cache so yesterday's hours don't carry over
+    lastBroadcastPayload = null;
+    lastBroadcastDate = null;
+    log.info("Midnight Reset: Cleared broadcast cache for new day.");
+  }
+  
   if (lastBroadcastPayload) {
     const prev = JSON.parse(lastBroadcastPayload);
     if (prev.display_name === profile.displayName) {
@@ -251,6 +261,7 @@ export async function syncProfileBroadcast(focusStateChanged = false): Promise<v
 
   // Persist full broadcast stats
   lastBroadcastPayload = JSON.stringify(payload);
+  lastBroadcastDate = currentDateStr;
 
   // Sync master state variables
   appState.verifiedTotalHours = payload.total_hours;
