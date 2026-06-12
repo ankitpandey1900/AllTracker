@@ -1,4 +1,3 @@
-import html2canvas from 'html2canvas';
 import { appState } from '@/state/app-state';
 import { openSharePreview } from '@/features/dashboard/share-preview';
 import { QuotesManager } from '@/features/dashboard/quotes.manager';
@@ -191,6 +190,7 @@ export async function generateQuoteShareCard(themeKey?: string, customText?: str
     try {
       // Wait for font rendering
       await new Promise(r => setTimeout(r, 500));
+      const html2canvas = (await import('html2canvas')).default;
       const canvas = await html2canvas(target, {
         backgroundColor: null,
         scale: 2.5,

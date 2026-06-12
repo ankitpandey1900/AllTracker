@@ -1,4 +1,3 @@
-import html2canvas from 'html2canvas';
 import { appState } from '@/state/app-state';
 import { getRank } from '@/features/dashboard/dashboard';
 import { openSharePreview } from '@/features/dashboard/share-preview';
@@ -128,6 +127,7 @@ export async function generateShareCard(): Promise<void> {
   if (captureTarget) {
     try {
       await new Promise(res => setTimeout(res, 100));
+      const html2canvas = (await import('html2canvas')).default;
       const canvas = await html2canvas(captureTarget, {
         backgroundColor: null,
         scale: 2,
