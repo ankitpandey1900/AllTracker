@@ -70,4 +70,10 @@ export default defineConfig({
     extensions: ['.ts', '.js', '.json'],
   },
   publicDir: 'public',
+  build: {
+    // SECURITY: Explicitly disable sourcemaps so raw TypeScript code is never exposed in production DevTools
+    sourcemap: false,
+    // Minify output to make it unreadable
+    minify: 'esbuild'
+  }
 });

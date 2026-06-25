@@ -28,6 +28,7 @@ export let lastInteractionAt = Date.now();
 // Cache to prevent redundant broadcast network calls
 let lastBroadcastPayload: string | null = null;
 let lastBroadcastDate: string | null = null;
+let lastBroadcastTimeMs: number = 0;
 
 /** 
  * Silent Hydration: Checks if a profile exists and syncs it.
@@ -114,13 +115,15 @@ export async function syncProfileBroadcast(focusStateChanged = false): Promise<v
       display_name: profile.displayName,
       is_focus_public: profile.isFocusPublic !== false,
       is_public: profile.isPublic !== false,
-      // Pass current cached values for other fields so they're not zeroed out
       ...(lastBroadcastPayload ? JSON.parse(lastBroadcastPayload) : {}),
       // Override focus fields with current values
       is_focusing_now: isFocusingNow,
       current_focus_subject: isFocusingNow ? (appState.activeTimer.colName || 'ACTIVE MISSION') : null,
     };
-    broadcastGlobalStats(fastPayload).catch(() => {});
+    if (Date.now() - lastBroadcastTimeMs > 30000) {
+      lastBroadcastTimeMs = Date.now();
+      broadcastGlobalStats(fastPayload).catch(() => {});
+    }
     // Refresh leaderboard UI immediately
     import('@/features/dashboard/leaderboard').then(m => m.refreshLeaderboard());
   }
@@ -269,9 +272,16 @@ export async function syncProfileBroadcast(focusStateChanged = false): Promise<v
   appState.verifiedRankScore = payload.competitive_score;
   
   try {
-    await broadcastGlobalStats(payload);
-  } catch (err) {
-    console.error('Broadcast failed:', err);
+    if (Date.now() - lastBroadcastTimeMs > 30000) {
+      lastBroadcastTimeMs = Date.now();
+      await broadcastGlobalStats(payload);
+    }
+  } catch (err: any) {
+    if (err?.message?.includes("Too many requests")) {
+      log.info("Broadcast throttled by server rate limit.");
+    } else {
+      console.error('Broadcast failed:', err);
+    }
   }
 
   // Automatically refresh the UI to show the new stats
