@@ -352,7 +352,7 @@ export function renderPodium(
           </div>
 
           <div class="podium-today" style="display: flex; flex-direction: column; align-items: center; padding: 6px 10px; background: var(--accent-light); border-radius: 8px; border: 1px solid var(--accent-border); width: 90%; max-width: 120px;">
-            <div style="color: var(--accent-blue); font-size: 0.75rem; font-weight: 800; white-space: nowrap;">
+            <div style="color: #10b981; font-size: 0.75rem; font-weight: 800; white-space: nowrap;">
               ${formatDuration(todayHoursDisplay) || '0h'} <span style="font-size: 0.55rem; opacity: 0.8;">TODAY</span>
             </div>
             <div style="color: var(--text-secondary); font-size: 0.6rem; font-weight: 600; margin-top: 1px; opacity: 0.8; white-space: nowrap;">

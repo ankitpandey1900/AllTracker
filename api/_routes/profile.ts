@@ -48,6 +48,17 @@ export default async function handler(
       return;
     }
 
+    // 🔒 SECURITY: Validate username format (alphanumeric, dashes, underscores only; 3-30 chars)
+    const username = body.username.trim();
+    if (username.length < 3 || username.length > 30) {
+      sendJson(res, 400, { error: "Username must be between 3 and 30 characters" });
+      return;
+    }
+    if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+      sendJson(res, 400, { error: "Username can only contain letters, numbers, hyphens, and underscores" });
+      return;
+    }
+
     const updated = await updateProfileIdentity(profile, {
       username: body.username.trim(),
       fullName: body.fullName?.trim() || profile.fullName,

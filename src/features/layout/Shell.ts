@@ -105,13 +105,13 @@ export class Shell {
 
   private updateMetadata(viewId: string): void {
     const titles: Record<string, string> = {
-      'dashboardPane': 'Dashboard | All Tracker',
-      'worldStagePane': 'World Stage Arena | All Tracker',
-      'routinePane': 'Habit Rituals | All Tracker',
-      'tasksPane': 'Mission Control | All Tracker',
-      'intelligencePane': 'Maamu AI | All Tracker',
-      'bookmarksPane': 'Bookmark Vault | All Tracker',
-      'feedPane': 'Arena Feed | All Tracker'
+      'dashboardPane': 'Dashboard | ALL TRACKER',
+      'worldStagePane': 'World Stage Arena | ALL TRACKER',
+      'routinePane': 'Habit Rituals | ALL TRACKER',
+      'tasksPane': 'Mission Control | ALL TRACKER',
+      'intelligencePane': 'Maamu AI | ALL TRACKER',
+      'bookmarksPane': 'Bookmark Vault | ALL TRACKER',
+      'feedPane': 'Arena Feed | ALL TRACKER'
     };
  
     const descriptions: Record<string, string> = {

@@ -203,6 +203,13 @@ export function resumeFromBreak(): void {
 
 export function pauseTimer(): void { startBreak('Paused'); }
 
+export function extendTimer(extraMs: number): void {
+  appState.activeTimer.overrunCapMs = (appState.activeTimer.overrunCapMs || (3 * 60 * 60 * 1000)) + extraMs;
+  document.getElementById('timerExtendModal')?.classList.remove('active');
+  resumeFromBreak();
+  import('@/utils/dom.utils').then(m => m.showToast(`Timer extended by ${extraMs / 60000} mins`, 'success'));
+}
+
 function startBreakInterval(): void {
   if (appState.timerInterval) clearInterval(appState.timerInterval);
   let breakTick = 0;
@@ -490,7 +497,12 @@ function startTimerInterval(): void {
       const extendBtn = document.getElementById('timerExtendBtn');
       if (remainingMs <= 10 * 60 * 1000 && remainingMs > 0) { if (extendBtn) extendBtn.style.display = 'block'; }
       else if (extendBtn) extendBtn.style.display = 'none';
-      if (totalElapsedMs > currentCapMs) { stopTimer('[AUTO-SAFE] Overrun Guard', currentCapMs); return; }
+      if (totalElapsedMs > currentCapMs) { 
+        pauseTimer();
+        import('@/services/notification.service').then(m => m.notificationService.sendAlert('Mission Paused', 'Session limit reached. Click to extend if you are still focusing!'));
+        document.getElementById('timerExtendModal')?.classList.add('active');
+        return; 
+      }
       if (elapsedSec % 30 === 0) {
         saveTimerState(); import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast());
         if (!wakeLock) requestWakeLock();
@@ -515,7 +527,7 @@ function updateTimerDisplay(): void {
     if (display) display.textContent = timeStr;
     if (subjectLabel) subjectLabel.textContent = 'DEEP FOCUS';
     if (appState.activeTimer.isRunning) { toggleFocusHUD(true, appState.activeTimer.colName || 'STUDYING', timeStr); document.title = `[${timeStr}]`; }
-    else { document.title = 'All Tracker'; updateSessionProgress(Math.floor(totalMs / 1000)); }
+    else { document.title = 'ALL TRACKER'; updateSessionProgress(Math.floor(totalMs / 1000)); }
   }
 }
 

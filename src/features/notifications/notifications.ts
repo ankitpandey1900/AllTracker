@@ -296,12 +296,17 @@ function checkAndNotify(): void {
 }
 
 async function sendNotification(title: string, body: string): Promise<void> {
+  const profileRaw = localStorage.getItem('secure_local_profile');
+  const myName = profileRaw ? JSON.parse(profileRaw).displayName : 'Operative';
+  const finalTitle = title.replace(/Operative/g, myName);
+  const finalBody = body.replace(/Operative/g, myName);
+
   if (Notification.permission === "granted") {
     const options = {
-      body,
+      body: finalBody,
       icon: "/logo%20new%20all.png",
       badge: "/logo%20new%20all.png",
-      tag: title.includes("Mission") ? "routine-alert" : "study-reminder",
+      tag: finalTitle.includes("Mission") ? "routine-alert" : "study-reminder",
       renotify: true
     };
 

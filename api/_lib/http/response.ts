@@ -5,6 +5,9 @@ function applyDefaultHeaders(res: ServerResponse): void {
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
   res.setHeader("Cache-Control", "no-store");
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  res.setHeader("X-XSS-Protection", "1; mode=block");
 }
 
 export function sendJson(
@@ -45,7 +48,10 @@ export function handleRouteError(
     return;
   }
 
-  const message =
-    error instanceof Error ? error.message : "Unexpected server error";
+  // Do not leak internal error details to clients in production
+  const isDev = process.env.NODE_ENV !== "production";
+  const message = isDev && error instanceof Error
+    ? error.message
+    : "An unexpected error occurred. Please try again.";
   sendJson(res, 500, { error: message, code: "INTERNAL_SERVER_ERROR" });
 }

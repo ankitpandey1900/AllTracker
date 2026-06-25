@@ -34,6 +34,7 @@
   image-rendering: -webkit-optimize-contrast;
   transform: scale(1.35);
   transform-origin: left center;
+  margin-right: 60px; /* Accounts for the scaled width overflow so buttons don't overlap */
 }
 
 .brand-group:hover .app-logo {
@@ -1640,6 +1641,13 @@ textarea:focus {
   transition: all 0.2s ease;
 }
 
+@media (max-width: 1024px) {
+  .leaderboard-item.legacy-row {
+    padding: 12px;
+    gap: 12px;
+  }
+}
+
 .leaderboard-item.legacy-row:hover {
   background: transparent;
   border-color: rgba(255, 255, 255, 0.2);
@@ -1761,7 +1769,7 @@ textarea:focus {
 .lb-row-today {
   font-size: 0.75rem;
   font-weight: 800;
-  color: #8b5cf6;
+  color: #10b981;
   letter-spacing: 0.5px;
 }
 

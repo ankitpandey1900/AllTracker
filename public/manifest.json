@@ -1,7 +1,7 @@
 {
   "id": "/",
-  "name": "All Tracker",
-  "short_name": "All Tracker",
+  "name": "ALL TRACKER",
+  "short_name": "ALL TRACKER",
   "description": "The ultimate study tracker for students & developers. Log DSA hours, track coding routines, compete on a global leaderboard, and get AI mentoring. Free, PWA-ready.",
   "start_url": "/",
   "display": "standalone",

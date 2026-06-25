@@ -128,6 +128,20 @@ export function setupEventListeners(): void {
 
   // Modals
   bindClick("closeTimerModal", () => document.getElementById("timerModal")?.classList.remove("active"));
+  
+  // Timer Extension Modal
+  bindClick("extend30MinBtn", () => {
+    import('@/features/timer/timer').then(m => m.extendTimer(30 * 60 * 1000));
+  });
+  bindClick("extend60MinBtn", () => {
+    import('@/features/timer/timer').then(m => m.extendTimer(60 * 60 * 1000));
+  });
+  bindClick("extendEndSessionBtn", () => {
+    document.getElementById("timerExtendModal")?.classList.remove("active");
+    stopTimer();
+    toggleFocusHUD(false);
+  });
+
   bindClick("weeklyViewBtn", showWeeklySummary);
   bindClick("closeWeeklyModal", () => document.getElementById("weeklyModal")?.classList.remove("active"));
   bindClick("closeHeatmapModal", () => document.getElementById("heatmapModal")?.classList.remove("active"));

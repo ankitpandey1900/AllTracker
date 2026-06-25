@@ -71,6 +71,19 @@ export default async function handler(
       return;
     }
 
+    // 🔒 SECURITY: Validate duration is a sane number (max 24h = 24 hours)
+    const duration = Number(body.duration ?? 0);
+    if (isNaN(duration) || duration < 0 || duration > 24) {
+      sendJson(res, 400, { error: "duration must be between 0 and 24 hours" });
+      return;
+    }
+
+    // 🔒 SECURITY: Validate subject length to prevent DB bloat
+    if (typeof body.subject !== "string" || body.subject.trim().length > 100) {
+      sendJson(res, 400, { error: "subject must be a string under 100 characters" });
+      return;
+    }
+
     await logStudySession(profile, body);
     sendJson(res, 201, { ok: true });
   } catch (error) {
