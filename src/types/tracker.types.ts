@@ -86,6 +86,7 @@ export interface Settings {
   sessionGoal?: string;           // Target hours for current phase
   ambientSound?: 'none' | 'interstellar';
   ambientVolume?: number;         // 0 to 1
+  timezone?: string;              // IANA timezone e.g. 'Asia/Kolkata' (defaults to IST)
 }
 
 // --- Badges ---

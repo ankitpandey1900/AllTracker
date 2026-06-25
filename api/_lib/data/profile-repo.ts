@@ -355,6 +355,11 @@ export async function broadcastProfileStats(
       ? payload.display_name.trim()
       : profile.username;
 
+  // Extract timezone from payload (sent by frontend), default to Asia/Kolkata
+  const tz = (typeof payload.timezone === 'string' && payload.timezone.trim())
+    ? payload.timezone.trim()
+    : 'Asia/Kolkata';
+
   await pool.query(
     `
       update profiles
@@ -365,16 +370,21 @@ export async function broadcastProfileStats(
         nation = $5,
         rank = $6,
         total_hours = $7,
-        today_hours = $8,
-        is_focusing = $9,
-        focus_subject = $10,
-        dob = $11,
-        phone_number = $12,
-        is_public = $13,
-        is_focus_public = $14,
-        integrity_score = $15,
-        competitive_score = $16,
-        current_streak = $17,
+        today_hours = (
+          select coalesce(sum(duration), 0)
+          from study_sessions
+          where user_id = $1::uuid
+            and (start_time AT TIME ZONE 'UTC' AT TIME ZONE $17)::date = (now() AT TIME ZONE $17)::date
+        ),
+        is_focusing = $8,
+        focus_subject = $9,
+        dob = $10,
+        phone_number = $11,
+        is_public = $12,
+        is_focus_public = $13,
+        integrity_score = $14,
+        competitive_score = $15,
+        current_streak = $16,
         last_active = now(),
         updated_at = now()
       where id = $1
@@ -395,17 +405,6 @@ export async function broadcastProfileStats(
         ? payload.current_rank
         : profile.rank,
       Number(payload.total_hours || profile.totalHours || 0),
-      Number((() => {
-        const providedHours = Number(payload.today_hours || 0);
-        // 🛡️ IST MIDNIGHT RESET PROTOCOL
-        const nDate = new Date().toLocaleDateString('en-GB', { timeZone: 'Asia/Kolkata' });
-        if (profile.lastActive) {
-          const lDate = new Date(profile.lastActive).toLocaleDateString('en-GB', { timeZone: 'Asia/Kolkata' });
-          // If the last activity was on a different IST day, reset hours unless currently focusing
-          if (lDate !== nDate && payload.is_focusing_now !== true) return 0;
-        }
-        return providedHours;
-      })()),
       payload.is_focusing_now === true,
       typeof payload.current_focus_subject === "string"
         ? payload.current_focus_subject
@@ -423,6 +422,7 @@ export async function broadcastProfileStats(
       Number(payload.integrity_score || 0),
       Number(payload.competitive_score || 0),
       Number(payload.current_streak || 0),
+      tz,
     ],
   );
 }

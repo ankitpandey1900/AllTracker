@@ -256,7 +256,8 @@ export async function syncProfileBroadcast(focusStateChanged = false): Promise<v
     integrity_score: verificationScore,
     is_verified: streak >= 10 && totalHours >= (streak * 3),
     competitive_score: calculateCompetitiveXP(totalHours, streak, verificationScore),
-    current_streak: streak
+    current_streak: streak,
+    timezone: appState.settings.timezone || 'Asia/Kolkata',
   };
 
   // Persist full broadcast stats

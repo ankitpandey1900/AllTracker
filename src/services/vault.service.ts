@@ -204,11 +204,14 @@ export async function broadcastGlobalStats(
   });
 }
 
+const OFFLINE_QUEUE_KEY = 'all_tracker_offline_session_queue';
+
 export async function logStudySessionCloud(
   duration: number,
   subject: string,
   startTime?: Date,
   note?: string,
+  endTime?: Date,
 ): Promise<void> {
   if (!getCurrentUserId()) {
     // Fallback: Save to local history if not logged in
@@ -220,7 +223,7 @@ export async function logStudySessionCloud(
       duration,
       subject,
       start_at: startTime?.toISOString() || new Date().toISOString(),
-      end_at: new Date().toISOString(),
+      end_at: endTime?.toISOString() || new Date().toISOString(),
       note: note || '',
       log_date: getLocalIsoDate(startTime || new Date())
     });
@@ -228,19 +231,67 @@ export async function logStudySessionCloud(
     return;
   }
 
-  const response = await apiRequest<any>("/api/app/study-sessions", {
-    method: "POST",
-    body: {
-      duration,
-      subject,
-      startAt: startTime?.toISOString(),
-      note,
-    },
-  });
+  const payload = {
+    duration,
+    subject,
+    startAt: startTime?.toISOString(),
+    endAt: endTime?.toISOString() || new Date().toISOString(),
+    note,
+    timezone: (await import('@/state/app-state')).appState.settings.timezone || 'Asia/Kolkata',
+  };
 
-  // Refresh local data once saved
-  if (response) {
+  try {
+    const response = await apiRequest<any>("/api/app/study-sessions", {
+      method: "POST",
+      body: payload,
+    });
+
+    // Refresh local data once saved
+    if (response) {
+      hydrateSessionCache();
+    }
+  } catch (err) {
+    // Network/server failure — queue for retry so the session is never lost
+    log.warn(`Session save failed, queuing for offline retry: ${err}`);
+    const queue: Array<typeof payload> = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
+    queue.push(payload);
+    localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
+  }
+}
+
+/**
+ * Drains any sessions that failed to save and retries them.
+ * Called during background sync so queued sessions are never permanently lost.
+ */
+export async function drainOfflineSessionQueue(): Promise<void> {
+  if (!getCurrentUserId()) return;
+  const raw = localStorage.getItem(OFFLINE_QUEUE_KEY);
+  if (!raw) return;
+
+  const queue: any[] = JSON.parse(raw);
+  if (queue.length === 0) return;
+
+  log.info(`[Offline Queue] Draining ${queue.length} queued session(s)...`);
+  const remaining: any[] = [];
+
+  for (const payload of queue) {
+    try {
+      await apiRequest<any>("/api/app/study-sessions", {
+        method: "POST",
+        body: payload,
+      });
+    } catch {
+      remaining.push(payload); // Still failing — keep in queue
+    }
+  }
+
+  if (remaining.length === 0) {
+    localStorage.removeItem(OFFLINE_QUEUE_KEY);
+    log.info('[Offline Queue] All queued sessions saved successfully.');
     hydrateSessionCache();
+  } else {
+    localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(remaining));
+    log.warn(`[Offline Queue] ${remaining.length} session(s) still pending.`);
   }
 }
 

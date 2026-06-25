@@ -13,6 +13,7 @@ import {
   loadUserProfileCloud,
   updateSyncStatus,
   subscribeToUserDataSync,
+  drainOfflineSessionQueue,
 } from '@/services/vault.service';
 import { appState, ensureTimelineIntegrity } from '@/state/app-state';
 import { 
@@ -201,6 +202,9 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
 export async function performBackgroundSync(): Promise<void> {
   if (!isAuthenticated()) return;
   try {
+    // Drain any queued offline sessions first
+    await drainOfflineSessionQueue();
+
     const cloud = await Promise.all([
       loadTrackerDataCloud(), 
       loadSettingsCloud(), 

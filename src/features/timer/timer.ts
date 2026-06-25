@@ -341,7 +341,7 @@ export async function stopTimer(autoNote?: string, clampMs?: number): Promise<vo
       saveTrackerDataToStorage(appState.trackerData);
 
       // Persist the complete session to the backend
-      await logStudySessionCloud(totalHours, appState.activeTimer.colName || 'GENERAL', sessionStart, note);
+      await logStudySessionCloud(totalHours, appState.activeTimer.colName || 'GENERAL', sessionStart, note, sessionEnd);
       
       showToast(autoNote ? "Auto-Safe: Session Saved" : `Saved: ${formatMsToTime(totalElapsed)}`, 'success');
     }

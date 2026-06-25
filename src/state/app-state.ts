@@ -32,6 +32,7 @@ function createDefaultSettings(): Settings {
     timerFont: 'fira',
     ambientSound: 'none',
     ambientVolume: 0.5,
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Kolkata',
   };
 }
 

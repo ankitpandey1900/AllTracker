@@ -22,7 +22,10 @@ export default async function handler(
     const profile = await ensureProfileForUser(session.user);
 
     if (req.method === "GET") {
-      const rows = await fetchStudySessions(profile);
+      // Extract timezone from query string if provided
+      const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
+      const timezone = url.searchParams.get('timezone') || undefined;
+      const rows = await fetchStudySessions(profile, timezone);
       sendJson(res, 200, rows);
       return;
     }
@@ -60,6 +63,7 @@ export default async function handler(
       startAt?: string;
       endAt?: string;
       note?: string;
+      timezone?: string;
     }>(req);
 
     if (!body?.subject) {
@@ -73,3 +77,4 @@ export default async function handler(
     handleRouteError(res, error);
   }
 }
+
