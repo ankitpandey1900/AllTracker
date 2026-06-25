@@ -1,7 +1,7 @@
 {
   "id": "/",
-  "name": "ALL TRACKER",
-  "short_name": "ALL TRACKER",
+  "name": "All Tracker",
+  "short_name": "All Tracker",
   "description": "The ultimate study tracker for students & developers. Log DSA hours, track coding routines, compete on a global leaderboard, and get AI mentoring. Free, PWA-ready.",
   "start_url": "/",
   "display": "standalone",
@@ -10,7 +10,11 @@
   "orientation": "portrait-primary",
   "scope": "/",
   "lang": "en-IN",
-  "categories": ["productivity", "education", "utilities"],
+  "categories": [
+    "productivity",
+    "education",
+    "utilities"
+  ],
   "shortcuts": [
     {
       "name": "Open Dashboard",
@@ -25,28 +29,22 @@
   ],
   "icons": [
     {
-      "src": "/icon-192.png?v=2",
+      "src": "/icon-192.png?v=5",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icon-512.png?v=2",
+      "src": "/icon-512.png?v=5",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icon-512.png?v=2",
+      "src": "/icon-512.png?v=5",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
-    },
-    {
-      "src": "/icon-96.png",
-      "sizes": "96x96",
-      "type": "image/png",
-      "purpose": "any"
     }
   ]
 }

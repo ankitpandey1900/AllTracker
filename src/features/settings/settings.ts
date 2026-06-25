@@ -73,7 +73,7 @@ export function applyColumnSettings(): void {
     appState.settings.columns = [...appState.settings.customRanges[0].columns];
   }
 
-  // ⚡ TACTICAL UI BREATHER: Give the UI a moment to show a loading state before heavy sync
+  // ⚡ TACTICAL UI BREATHER: Split heavy work across multiple frames so the browser stays responsive
   const btn = document.getElementById('applyColumnSettings') as HTMLButtonElement;
   const originalText = btn?.textContent || 'Apply All Changes';
   if (btn) {
@@ -81,29 +81,45 @@ export function applyColumnSettings(): void {
     btn.textContent = 'Synchronizing...';
   }
 
+  // Step 1: Save settings + sync timeline (frame 1)
   setTimeout(() => {
     try {
       saveSettingsToStorage(appState.settings);
       syncTrackerTimelineWithSettings();
       saveTrackerDataToStorage(appState.trackerData);
-      
-      generateTable();
-      updateDashboard();
-      renderHeatmap();
-      renderPerformanceCurve();
-      
-      showToast('Settings & Timeline synchronized successfully!', 'success');
-      document.getElementById('settingsModal')?.classList.remove('active');
     } catch (err) {
-      console.error("Sync Failure:", err);
-      showToast('Sync failed. Check console for details.', 'error');
-    } finally {
-      if (btn) {
-        btn.disabled = false;
-        btn.textContent = originalText;
-      }
+      console.error("Sync Failure (Step 1):", err);
     }
-  }, 100);
+
+    // Step 2: Regenerate table (frame 2)
+    setTimeout(() => {
+      try {
+        generateTable();
+      } catch (err) {
+        console.error("Sync Failure (Step 2):", err);
+      }
+
+      // Step 3: Update dashboard + charts (frame 3)
+      setTimeout(() => {
+        try {
+          updateDashboard();
+          renderHeatmap();
+          renderPerformanceCurve();
+
+          showToast('Settings & Timeline synchronized successfully!', 'success');
+          document.getElementById('settingsModal')?.classList.remove('active');
+        } catch (err) {
+          console.error("Sync Failure (Step 3):", err);
+          showToast('Sync failed. Check console for details.', 'error');
+        } finally {
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = originalText;
+          }
+        }
+      }, 80);
+    }, 80);
+  }, 60);
 }
 
 // --- Theme Settings ---

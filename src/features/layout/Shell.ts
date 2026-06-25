@@ -31,6 +31,8 @@ export class Shell {
 
     mountPoint.innerHTML = shellView;
     this.setupEventListeners();
+    // ⚡ Eagerly pre-cache all feature modules in the background so tab clicks are instant
+    this.preloadAllModules();
     log.info('Shell Hub Initialized.', '🐚');
   }
 
@@ -96,9 +98,6 @@ export class Shell {
     // 🛰️ DYNAMIC HYDRATION: Trigger feature logic
     this.triggerFeatureRender(viewId);
 
-    // 🔗 PREFETCH NEXT TARGETS: Smart preloading of likely next modules
-    this.prefetchModules(viewId);
-
     // 📡 SEO SYNC: Update tab title and metadata
     this.updateMetadata(viewId);
   }
@@ -138,6 +137,20 @@ export class Shell {
       import("@/features/tasks/tasks");
       import("@/features/routines/routines");
     }
+  }
+
+  // ⚡ PRE-LOADED MODULE CACHE: All features are loaded eagerly on first shell init
+  // This prevents the lazy-load delay when switching tabs for the first time
+  private preloadAllModules(): void {
+    // Fire all imports in parallel — browser caches them, subsequent calls are instant
+    Promise.allSettled([
+      import("@/features/tasks/tasks"),
+      import("@/features/routines/routines"),
+      import("@/features/intelligence/intelligence"),
+      import("@/features/dashboard/leaderboard"),
+      import("@/features/feed/feed.ui"),
+      import("@/features/bookmarks/bookmarks"),
+    ]).then(() => log.info('All feature modules pre-cached.', '⚡'));
   }
 
   private triggerFeatureRender(target: string): void {

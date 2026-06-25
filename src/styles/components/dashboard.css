@@ -7,6 +7,7 @@
   justify-content: space-between;
   gap: 16px;
   padding: 12px 28px;
+  min-height: 120px;
   border-bottom: 1px solid rgba(124, 58, 237, 0.06);
   background: transparent;
 }
@@ -19,22 +20,20 @@
 }
 
 .app-logo {
-  height: 80px;
+  height: 100px;
   width: auto;
-  max-width: none;
-  max-height: none;
+  max-width: 600px;
   flex-shrink: 0;
   object-fit: contain;
   border-radius: 0;
   border: none;
   outline: none;
   background: transparent;
-  filter: brightness(1.1) contrast(1.05);
-  transition: opacity 0.3s ease;
+  filter: none;
+  transition: opacity 0.3s ease, filter 0.3s ease;
   image-rendering: -webkit-optimize-contrast;
-  transform: scale(1.35);
-  transform-origin: left center;
-  margin-right: 60px; /* Accounts for the scaled width overflow so buttons don't overlap */
+  pointer-events: none;
+  /* Safety: logo never blocks nav clicks */
 }
 
 .brand-group:hover .app-logo {
@@ -355,7 +354,8 @@
   font-size: 2.2rem;
   line-height: 1.1;
   margin-bottom: 6px;
-  text-shadow: none; /* NO GLOW */
+  text-shadow: none;
+  /* NO GLOW */
   opacity: 1;
 }
 
@@ -481,8 +481,8 @@
   margin: 12px 0 24px;
   overflow: hidden;
   display: flex;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
-  border: 1px solid rgba(255,255,255,0.05);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .allocation-segment {
@@ -498,12 +498,10 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.1),
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.1),
+      transparent);
   /* animation removed for professional look */
 }
 
@@ -600,7 +598,7 @@
   font-weight: 900;
   color: var(--text-primary);
   line-height: 1;
-  text-shadow: 0 0 15px rgba(255,255,255,0.2);
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
 }
 
 .card {
@@ -644,7 +642,8 @@ textarea {
 }
 
 select option {
-  background: #111116; /* Fallback dark background */
+  background: #111116;
+  /* Fallback dark background */
   background: var(--bg-primary);
   color: var(--text-primary);
 }
@@ -1605,13 +1604,20 @@ textarea:focus {
 }
 
 @media (max-width: 1199px) {
-  .arena-main-col { order: 2; }
-  .arena-sidebar-col { order: 1; margin-bottom: 24px; }
+  .arena-main-col {
+    order: 2;
+  }
+
+  .arena-sidebar-col {
+    order: 1;
+    margin-bottom: 24px;
+  }
 }
 
 @media (min-width: 1200px) {
   .arena-desktop-grid {
-    grid-template-columns: minmax(0, 1fr) minmax(320px, 380px); /* Flexible Sidebar */
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 380px);
+    /* Flexible Sidebar */
     align-items: start;
   }
 }
@@ -1695,7 +1701,7 @@ textarea:focus {
   border: 2px solid #0d1222;
   border-radius: 50%;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .lb-row-main-info {
@@ -1780,11 +1786,11 @@ textarea:focus {
   margin-top: 2px;
 }
 
-.score-label, .today-label {
+.score-label,
+.today-label {
   font-size: 0.55rem;
   color: #64748b;
   font-weight: 800;
   letter-spacing: 1px;
   margin-left: 2px;
 }
-

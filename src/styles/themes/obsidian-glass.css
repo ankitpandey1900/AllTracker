@@ -160,8 +160,6 @@ html[data-theme="obsidian-glass"] .app-header .brand {
 }
 
 html[data-theme="obsidian-glass"] .app-logo {
-  content: url("/glass logo.png") !important;
-  mix-blend-mode: screen; /* 🛡️ Force transparency for logo with black background */
   filter: brightness(1.2) contrast(1.1);
 }
 

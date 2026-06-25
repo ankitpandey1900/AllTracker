@@ -147,7 +147,18 @@ export function handleReset(): void {
     localStorage.removeItem('programmingTrackerData');
     appState.trackerData = initializeData();
     saveTrackerDataToStorage(appState.trackerData);
-    generateTable(); updateDashboard(); renderHeatmap(); renderPerformanceCurve();
-    showToast('All data has been reset.', 'success');
+
+    // Split heavy renders across frames to keep the page responsive
+    setTimeout(() => {
+      generateTable();
+      setTimeout(() => {
+        updateDashboard();
+        renderHeatmap();
+        setTimeout(() => {
+          renderPerformanceCurve();
+          showToast('All data has been reset.', 'success');
+        }, 60);
+      }, 60);
+    }, 60);
   }
 }

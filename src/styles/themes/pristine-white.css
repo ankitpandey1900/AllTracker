@@ -55,11 +55,11 @@ html[data-theme="pristine-white"] .app-header .btn-primary * {
   color: #ffffff !important;
 }
 
-/* 4. Logo Strategy: Glass Logo for White Theme */
+/* 4. Logo Strategy: All themes use the same app-logo.png */
 html[data-theme="pristine-white"] .app-logo {
-  content: url("/glass%20logo.png") !important;
   filter: none !important;
   background: transparent !important;
+  mix-blend-mode: multiply; /* Makes dark bg transparent on white */
 }
 
 
