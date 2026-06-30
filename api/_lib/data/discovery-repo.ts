@@ -7,7 +7,7 @@ export async function fetchLeaderboard() {
   await pool.query(`
     update profiles 
     set today_hours = 0 
-    where (last_active + interval '5 hours 30 minutes')::date < (now() + interval '5 hours 30 minutes')::date
+    where (last_active AT TIME ZONE 'Asia/Kolkata')::date < (now() AT TIME ZONE 'Asia/Kolkata')::date
   `);
 
   // Auto-clear is_focusing if last_active > 10 minutes ago
@@ -31,7 +31,7 @@ export async function fetchLeaderboard() {
         p.rank,
         p.total_hours,
         case 
-          when (p.last_active + interval '5 hours 30 minutes')::date = (now() + interval '5 hours 30 minutes')::date 
+          when (p.last_active AT TIME ZONE 'Asia/Kolkata')::date = (now() AT TIME ZONE 'Asia/Kolkata')::date 
           then p.today_hours 
           else 0 
         end as today_hours,
@@ -94,7 +94,7 @@ export async function fetchTelemetry() {
   await pool.query(`
     update profiles 
     set today_hours = 0 
-    where ((last_active AT TIME ZONE 'UTC') AT TIME ZONE 'Asia/Kolkata')::date < ((now() AT TIME ZONE 'UTC') AT TIME ZONE 'Asia/Kolkata')::date
+    where (last_active AT TIME ZONE 'Asia/Kolkata')::date < (now() AT TIME ZONE 'Asia/Kolkata')::date
   `);
 
   // Auto-clear is_focusing if last_active > 10 minutes ago
@@ -124,7 +124,7 @@ export async function fetchTelemetry() {
     `
       select
         coalesce(sum(total_hours), 0) as total_platform_hours,
-        coalesce(sum(case when ((last_active AT TIME ZONE 'UTC') AT TIME ZONE 'Asia/Kolkata')::date = ((now() AT TIME ZONE 'UTC') AT TIME ZONE 'Asia/Kolkata')::date then today_hours else 0 end), 0) as global_hours_today
+        coalesce(sum(case when (last_active AT TIME ZONE 'Asia/Kolkata')::date = (now() AT TIME ZONE 'Asia/Kolkata')::date then today_hours else 0 end), 0) as global_hours_today
       from profiles
     `,
   );
@@ -159,7 +159,7 @@ export async function fetchTelemetry() {
           updated_at
         )
         values (
-        ((now() AT TIME ZONE 'UTC') AT TIME ZONE 'Asia/Kolkata')::date,
+        (now() AT TIME ZONE 'Asia/Kolkata')::date,
           $1, $2, $3, $4, $5, $6,
           now(), now()
         )

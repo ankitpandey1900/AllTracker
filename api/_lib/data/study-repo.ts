@@ -182,7 +182,7 @@ export async function fetchStudySessions(profile: AuthenticatedProfile, timezone
         note,
         start_time,
         end_time,
-        to_char((start_time AT TIME ZONE 'UTC' AT TIME ZONE $2)::date, 'YYYY-MM-DD') as log_date
+        to_char((start_time AT TIME ZONE $2)::date, 'YYYY-MM-DD') as log_date
       from study_sessions
       where user_id = $1::uuid
       order by end_time desc
@@ -263,7 +263,7 @@ export async function reconcileProfileHours(profileId: string, timezone?: string
           select coalesce(sum(duration), 0)
           from study_sessions
           where user_id = $1::uuid
-            and (start_time AT TIME ZONE 'UTC' AT TIME ZONE $2)::date = (now() AT TIME ZONE $2)::date
+            and (start_time AT TIME ZONE $2)::date = (now() AT TIME ZONE $2)::date
         ),
         updated_at = now()
       where id = $1::uuid

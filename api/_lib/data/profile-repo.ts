@@ -374,7 +374,7 @@ export async function broadcastProfileStats(
           select coalesce(sum(duration), 0)
           from study_sessions
           where user_id = $1::uuid
-            and (start_time AT TIME ZONE 'UTC' AT TIME ZONE $17)::date = (now() AT TIME ZONE $17)::date
+            and (start_time AT TIME ZONE $17)::date = (now() AT TIME ZONE $17)::date
         ),
         is_focusing = $8,
         focus_subject = $9,
