@@ -80,5 +80,13 @@ export const shellView = `
     <section id="bookmarksPane" class="view-pane" aria-label="Bookmarks Vault"></section>
   </main>
 
+  <footer class="app-footer" style="text-align: center; padding: 2rem 1rem; color: #6b7280; font-size: 0.85rem; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 2rem;">
+    <div style="display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 0.5rem;">
+      <a href="/privacy.html" style="color: #818cf8; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#a5b4fc'" onmouseout="this.style.color='#818cf8'">Privacy Policy</a>
+      <a href="/terms.html" style="color: #818cf8; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#a5b4fc'" onmouseout="this.style.color='#818cf8'">Terms &amp; Conditions</a>
+    </div>
+    <p>&copy; ${new Date().getFullYear()} All Tracker. All rights reserved.</p>
+  </footer>
+
   <div id="modal-root"></div>
 `;

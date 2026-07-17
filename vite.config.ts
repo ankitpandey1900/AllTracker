@@ -74,6 +74,13 @@ export default defineConfig({
     // SECURITY: Explicitly disable sourcemaps so raw TypeScript code is never exposed in production DevTools
     sourcemap: false,
     // Minify output to make it unreadable
-    minify: 'esbuild'
+    minify: 'esbuild',
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'index.html'),
+        privacy: resolve(__dirname, 'privacy.html'),
+        terms: resolve(__dirname, 'terms.html')
+      }
+    }
   }
 });
