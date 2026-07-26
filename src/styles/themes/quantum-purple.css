@@ -387,7 +387,7 @@ html[data-theme="quantum-purple"] body::before {
 html[data-theme="quantum-purple"] main::before {
   content: "";
   position: fixed;
-  top: 0; left: 0; width: 100vw; height: 100vh;
+  top: 0; left: 0; width: calc(100vw + 1200px); height: calc(100vh + 1200px);
   background-image: 
     radial-gradient(circle, #ffffff 1.2px, transparent 1.2px),
     radial-gradient(circle, #ffffff 1.8px, transparent 1.8px),
@@ -398,10 +398,16 @@ html[data-theme="quantum-purple"] main::before {
   pointer-events: none;
   z-index: 10;
   opacity: 0.2; /* Slightly subtler for the arena */
-  will-change: transform, background-position;
+  will-change: transform;
 }
 
 @keyframes arena-drift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-1200px, -1200px, 0);
+  }
 }
 
 /* 🎫 ARENA PASSPORT: Pilot Manifest Overhaul */

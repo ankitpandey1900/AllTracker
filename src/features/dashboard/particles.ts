@@ -80,7 +80,16 @@ function resetParticle(p: Particle): Particle {
 function startAnimation(): void {
   if (animationId) cancelAnimationFrame(animationId);
   
-  function frame() {
+  let lastFrameTime = 0;
+  const fpsInterval = 1000 / 30; // Cap at 30 FPS to reduce GPU heat
+  
+  function frame(timestamp: number) {
+    animationId = requestAnimationFrame(frame);
+    
+    const elapsed = timestamp - lastFrameTime;
+    if (elapsed < fpsInterval) return;
+    lastFrameTime = timestamp - (elapsed % fpsInterval);
+
     if (!ctx || !canvas) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -109,8 +118,6 @@ function startAnimation(): void {
         if (p.y > canvas!.height + 10 || p.x < -10 || p.x > canvas!.width + 10) resetParticle(p);
       }
     });
-
-    animationId = requestAnimationFrame(frame);
   }
 
   animationId = requestAnimationFrame(frame);
