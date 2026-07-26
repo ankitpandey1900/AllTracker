@@ -28,6 +28,7 @@ function createDefaultSettings(): Settings {
     groqApiKey: '',
     maamuModel: 'openai/gpt-oss-20b',
     theme: 'stealth-midnight',
+    accentColor: '#3b82f6', // Default blue accent
     timerStyle: 'block',
     timerFont: 'fira',
     ambientSound: 'none',
@@ -39,6 +40,15 @@ function createDefaultSettings(): Settings {
 /** Applies the theme class to the HTML tag */
 export function applyThemeToDOM(themeName: string = 'stealth-midnight') {
   document.documentElement.setAttribute('data-theme', themeName);
+}
+
+/** Applies the accent color dynamically */
+export function applyAccentColorToDOM(color: string) {
+  if (!color) return;
+  document.documentElement.style.setProperty('--accent-blue', color);
+  document.documentElement.style.setProperty('--zen-accent', color);
+  document.documentElement.style.setProperty('--etn-accent', color);
+  document.documentElement.style.setProperty('--accent-purple', color);
 }
 
 /** Applies the timer style class to the body */

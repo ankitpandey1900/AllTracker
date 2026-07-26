@@ -1,7 +1,7 @@
 import { STORAGE_KEYS } from '@/config/constants';
 import { obfuscate, deobfuscate } from '@/utils/security';
 import { getCurrentUserId } from '@/services/auth.service';
-import { applyThemeToDOM, applyTimerStyleToDOM, applyTimerFontToDOM } from '@/state/app-state';
+import { applyThemeToDOM, applyTimerStyleToDOM, applyTimerFontToDOM, applyAccentColorToDOM } from '@/state/app-state';
 
 /**
  * DATA STORAGE ENGINE
@@ -43,6 +43,7 @@ export function loadSecuredSettings(): any | null {
   
   if (settings.theme) {
     applyThemeToDOM(settings.theme);
+    if (settings.accentColor) applyAccentColorToDOM(settings.accentColor);
     applyTimerStyleToDOM(settings.timerStyle);
     applyTimerFontToDOM(settings.timerFont);
   }

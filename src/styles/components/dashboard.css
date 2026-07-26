@@ -157,7 +157,7 @@
   padding: 40px 32px;
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 24px;
+  border-radius: 12px;
 }
 
 .btn-icon {
@@ -225,7 +225,7 @@
   font-size: 0.95rem;
   font-weight: 600;
   color: var(--text-primary);
-  font-family: 'Tektur', sans-serif;
+  font-family: 'Outfit', sans-serif;
 }
 
 .hero-routine-next .time {
@@ -349,7 +349,7 @@
 }
 
 .kpi-metrics-grid .big {
-  font-family: 'Tektur', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-weight: 900;
   font-size: 2.2rem;
   line-height: 1.1;
@@ -593,7 +593,7 @@
 }
 
 .mission-total-value {
-  font-family: 'Tektur', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 1.8rem;
   font-weight: 900;
   color: var(--text-primary);
@@ -1509,11 +1509,11 @@ textarea:focus {
 }
 
 .category-progress-card.accent-purple .category-progress-fillline {
-  background: linear-gradient(90deg, #8b5cf6, #b28cff);
+  background: var(--accent-purple);
 }
 
 .category-progress-card.accent-purple {
-  border-bottom-color: #8b5cf6;
+  border-bottom-color: var(--accent-purple);
 }
 
 .category-progress-card.accent-gold .category-progress-fillline {
@@ -1662,7 +1662,7 @@ textarea:focus {
 
 .lb-row-rank-num {
   width: 32px;
-  font-family: 'Tektur', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-weight: 900;
   color: #475569;
   font-size: 1.1rem;
@@ -1765,7 +1765,7 @@ textarea:focus {
 }
 
 .lb-row-total {
-  font-family: 'Tektur', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 1.5rem;
   font-weight: 900;
   color: var(--text-primary);

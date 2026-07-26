@@ -105,7 +105,7 @@ export function renderTasks(): void {
   historyList.innerHTML = renderTaskList(historyTasks.slice(0, 20)); // Limit history to last 20 items
 
   // Attach dynamic listeners
-  document.querySelectorAll('.task-item [data-id]').forEach(el => {
+  document.querySelectorAll('.mc-task-item [data-id]').forEach(el => {
     el.addEventListener('click', handleTaskAction);
   });
 }
@@ -125,20 +125,26 @@ function renderTaskList(tasks: StudyTask[]): string {
   }
 
   return tasks.map(task => {
-    const priorityClass = task.priority === 3 ? 'priority-high' : (task.priority === 2 ? 'priority-med' : 'priority-low');
-    const priorityLabel = task.priority === 3 ? 'High' : (task.priority === 2 ? 'Med' : 'Low');
-
+    const priorityClass = task.priority === 3 ? 'high-pri' : (task.priority === 2 ? 'med-pri' : 'low-pri');
+    
     return `
-      <div class="task-item ${task.completed ? 'completed' : ''}" data-task-id="${task.id}">
-        <div class="task-check" data-id="${task.id}" data-action="toggle">
-          <div class="check-box ${task.completed ? 'checked' : ''}"></div>
+      <div class="mc-task-item ${task.completed ? 'completed' : ''} ${priorityClass}" data-task-id="${task.id}">
+        <div class="mc-task-check" data-id="${task.id}" data-action="toggle">
+          <div class="mc-check-ring ${task.completed ? 'checked' : ''}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
         </div>
-        <div class="task-label-group">
-          <span class="priority-badge ${priorityClass}">${priorityLabel}</span>
-          <div class="task-label">${task.text}</div>
+        <div class="mc-task-content">
+          <div class="mc-task-label">${task.text}</div>
         </div>
-        <button class="btn-task-delete" data-id="${task.id}" data-action="delete" title="Delete">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+        <div class="mc-task-meta">
+          <span class="mc-task-priority-badge">${task.priority === 3 ? 'HIGH' : (task.priority === 2 ? 'MED' : 'LOW')}</span>
+          <span class="mc-task-date">${new Date(task.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+        </div>
+        <button class="mc-task-delete" data-id="${task.id}" data-action="delete" title="Delete Mission">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
         </button>
       </div>
     `;
@@ -151,7 +157,7 @@ function setupTaskListeners(): void {
   const addBtn = document.getElementById('addTaskBtn');
   const input = document.getElementById('newTaskInput') as HTMLInputElement;
   const selector = document.getElementById('taskPrioritySelector');
-  const buttons = selector?.querySelectorAll('.priority-btn');
+  const buttons = selector?.querySelectorAll('.priority-toggle');
 
   let activePriority: 1 | 2 | 3 = 2; // Default to Med
 

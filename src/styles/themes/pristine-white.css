@@ -264,7 +264,7 @@ html[data-theme="pristine-white"] .sidebar-header,
 html[data-theme="pristine-white"] h2:not(#shareModalTitle),
 html[data-theme="pristine-white"] h3 {
   color: #0f172a !important;
-  font-family: 'Tektur', sans-serif !important;
+  font-family: 'Outfit', sans-serif;
   font-weight: 800 !important;
   letter-spacing: 0.12em !important;
   text-transform: uppercase !important;
@@ -337,7 +337,7 @@ html[data-theme="pristine-white"] #startTimerBtn,
 html[data-theme="pristine-white"] .add-bookmark-btn,
 html[data-theme="pristine-white"] .add-task-btn {
   background: #8b5cf6 !important;
-  font-family: 'Tektur', sans-serif !important;
+  font-family: 'Outfit', sans-serif;
   font-weight: 800 !important;
   letter-spacing: 1px !important;
 }

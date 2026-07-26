@@ -19,17 +19,15 @@ export function openSettingsModal(): void {
   const s = appState.settings;
   const modal = document.getElementById('settingsModal');
 
-  // Global date range is now derived from phases
-
-  
   const themeInput = document.getElementById('themeSelectInput') as HTMLSelectElement;
-  if (themeInput) { themeInput.value = s.theme || 'default'; }
-
   const timerStyleInput = document.getElementById('timerStyleSelectInput') as HTMLSelectElement;
-  if (timerStyleInput) { timerStyleInput.value = s.timerStyle || 'ring'; }
-
   const timerFontInput = document.getElementById('timerFontSelectInput') as HTMLSelectElement;
-  if (timerFontInput) { timerFontInput.value = s.timerFont || 'fira'; }
+  const accentColorInput = document.getElementById('accentColorInput') as HTMLInputElement;
+
+  if (themeInput) themeInput.value = s.theme || 'stealth-midnight';
+  if (timerStyleInput) timerStyleInput.value = s.timerStyle || 'block';
+  if (timerFontInput) timerFontInput.value = s.timerFont || 'fira';
+  if (accentColorInput) accentColorInput.value = s.accentColor || '#3b82f6';
 
   renderCustomRanges();
   modal?.classList.add('active');
@@ -142,6 +140,12 @@ export function applyThemeSettings(): void {
   if (timerFontInput) {
     appState.settings.timerFont = timerFontInput.value as 'fira' | 'digital' | 'tektur' | 'inter' | 'monoton' | 'blackops' | 'silkscreen' | 'bungee';
     import('@/state/app-state').then(m => m.applyTimerFontToDOM(appState.settings.timerFont));
+  }
+
+  const accentColorInput = document.getElementById('accentColorInput') as HTMLInputElement;
+  if (accentColorInput) {
+    appState.settings.accentColor = accentColorInput.value;
+    import('@/state/app-state').then(m => m.applyAccentColorToDOM(appState.settings.accentColor!));
   }
 
   saveSettingsToStorage(appState.settings);

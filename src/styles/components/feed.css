@@ -593,7 +593,7 @@
   flex: 1;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
+  border-radius: 12px;
   color: #f8fafc;
   padding: 8px 14px;
   font-size: 0.85rem;
@@ -614,7 +614,7 @@
   background: rgba(56, 189, 248, 0.1);
   border: 1px solid rgba(56, 189, 248, 0.3);
   color: #38bdf8;
-  border-radius: 20px;
+  border-radius: 12px;
   padding: 8px 16px;
   font-size: 0.78rem;
   font-weight: 700;
@@ -654,7 +654,7 @@
 .profile-modal {
   background: rgba(10, 14, 28, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
+  border-radius: 12px;
   width: 90%;
   max-width: 500px;
   max-height: 80vh;
@@ -722,7 +722,7 @@
 .profile-modal-name {
   font-size: 1.2rem;
   font-weight: 800;
-  font-family: 'Tektur', sans-serif;
+  font-family: 'Outfit', sans-serif;
 }
 
 .profile-modal-handle {
@@ -735,7 +735,7 @@
   font-weight: 700;
   letter-spacing: 1px;
   text-transform: uppercase;
-  font-family: 'Tektur', sans-serif;
+  font-family: 'Outfit', sans-serif;
 }
 
 .profile-modal-divider {
@@ -751,7 +751,7 @@
   letter-spacing: 1.5px;
   text-transform: uppercase;
   margin-bottom: 12px;
-  font-family: 'Tektur', sans-serif;
+  font-family: 'Outfit', sans-serif;
 }
 
 .profile-modal-posts {

@@ -58,13 +58,13 @@ h5,
 h6,
 .brand,
 .label-caps {
-  font-family: 'Tektur', sans-serif;
+  font-family: 'Outfit', sans-serif;
   margin: 0;
   color: var(--text-primary); /* Pure white for headers */
 }
 
 .label {
-  font-family: 'Tektur', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 0.68rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;

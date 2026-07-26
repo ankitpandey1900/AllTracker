@@ -166,7 +166,7 @@
 }
 
 .rank-num {
-  font-family: 'Tektur', cursive;
+  font-family: 'Outfit', sans-serif;
   font-weight: 800;
   font-size: 0.9rem;
   width: 24px;
@@ -337,9 +337,9 @@
 
 .lb-xp-bar {
   height: 100%;
-  background: linear-gradient(90deg, #8b5cf6, #a78bfa);
+  background: var(--accent-purple);
   border-radius: 4px;
-  box-shadow: 0 0 8px rgba(139, 92, 246, 0.4);
+  box-shadow: 0 0 8px var(--accent-purple);
   /* transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); DISABLED FOR STATIC UX */
 }
 
@@ -443,7 +443,7 @@
 }
 
 .lb-total-hours {
-  font-family: 'Tektur', cursive;
+  font-family: 'Outfit', sans-serif;
   color: var(--text-primary);
   font-weight: 800;
   font-size: 1.15rem;
@@ -576,7 +576,7 @@
 
 .passport-handle {
   display: block;
-  font-family: 'Tektur', cursive;
+  font-family: 'Outfit', sans-serif;
   color: var(--text-primary);
   font-weight: 700;
   font-size: 1.1rem;
@@ -857,7 +857,7 @@
   background: var(--bg-primary); 
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-top: 4px solid var(--hover-color, #8b5cf6);
-  border-radius: 20px;
+  border-radius: 12px;
   padding: 24px 20px 52px;
   box-shadow:
     0 40px 100px rgba(0, 0, 0, 0.98),
@@ -1115,7 +1115,7 @@
 }
 
 .stat-val {
-  font-family: 'Tektur', cursive;
+  font-family: 'Outfit', sans-serif;
   font-size: 0.95rem;
   font-weight: 800;
   color: var(--text-primary);
@@ -1196,7 +1196,7 @@
   font-size: 0.75rem;
 }
 .readout-key {
-  font-family: 'Tektur', sans-serif;
+  font-family: 'Outfit', sans-serif;
   color: #64748b;
   font-weight: 700;
   letter-spacing: 0.5px;
@@ -1251,7 +1251,7 @@
 }
 
 .hud-rank-label {
-  font-family: 'Tektur', cursive;
+  font-family: 'Outfit', sans-serif;
   font-size: 0.6rem;
   font-weight: 800;
   color: var(--hover-color);
@@ -1374,7 +1374,7 @@
   font-weight: 800;
   color: #f8fafc;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-  font-family: 'Tektur', cursive;
+  font-family: 'Outfit', sans-serif;
   max-width: 180px;
 }
 
@@ -1461,7 +1461,7 @@
   border: 1px solid rgba(255, 255, 255, 0.06);
   cursor: pointer;
   transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.1s;
-  font-family: 'Tektur', cursive;
+  font-family: 'Outfit', sans-serif;
   line-height: 1;
 }
 
@@ -1559,7 +1559,7 @@
   font-weight: 800;
   opacity: 0.6;
   text-transform: uppercase;
-  font-family: 'Tektur', sans-serif;
+  font-family: 'Outfit', sans-serif;
 }
 
 .lb-anchor-divider::before,
@@ -1616,7 +1616,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-family: 'Tektur', cursive;
+  font-family: 'Outfit', sans-serif;
   font-size: 0.6rem;
   color: var(--hover-color);
   letter-spacing: 0.1em;
@@ -1662,7 +1662,7 @@
   backdrop-filter: blur(12px) saturate(180%);
   -webkit-backdrop-filter: blur(12px) saturate(180%);
   border: 1px solid var(--border);
-  border-radius: 20px;
+  border-radius: 12px;
   overflow: hidden;
   padding: 16px;
   margin-bottom: 25px;
@@ -1720,7 +1720,7 @@
 }
 
 .telem-label {
-  font-family: 'Tektur', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 0.58rem;
   font-weight: 700;
   color: var(--text-muted);
@@ -1879,7 +1879,7 @@
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 4px;
   font-size: 0.6rem;
-  font-family: 'Tektur', sans-serif;
+  font-family: 'Outfit', sans-serif;
   color: #94a3b8;
   font-weight: 900;
   text-transform: uppercase;
@@ -1900,7 +1900,7 @@
 }
 
 .rank-tag {
-  font-family: 'Tektur', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 0.6rem;
   color: #fbbf24;
   font-weight: 900;
@@ -1948,7 +1948,7 @@
   align-items: center;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 20px;
+  border-radius: 12px;
   padding: 16px 10px;
   margin-bottom: 30px;
   gap: 8px;
@@ -1977,14 +1977,14 @@
 }
 
 .stat-unit {
-  font-family: 'Tektur', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 0.7rem;
   font-weight: 800;
   color: #94a3b8;
 }
 
 .stat-label {
-  font-family: 'Tektur', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: clamp(0.45rem, 1.5vw, 0.55rem);
   color: #64748b;
   font-weight: 900;
@@ -2000,14 +2000,14 @@
 
 .profile-dossier {
   background: var(--surface);
-  border-radius: 20px;
+  border-radius: 12px;
   padding: 24px;
   border: 1px solid rgba(255, 255, 255, 0.03);
   margin-bottom: 30px;
 }
 
 .dossier-title {
-  font-family: 'Tektur', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 0.65rem;
   color: #8b5cf6;
   font-weight: 900;
@@ -2241,8 +2241,8 @@
 }
 
 .psc-label {
-  font-family: 'Tektur', sans-serif;
-  font-size: 0.6rem;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.65rem;
   color: #64748b;
   letter-spacing: 1.5px;
   font-weight: 700;
@@ -2258,7 +2258,15 @@
 
 .profile-social-actions {
   display: flex;
+  flex-direction: column;
   gap: 12px;
+  margin-top: 20px;
+}
+
+.profile-action-row {
+  display: flex;
+  gap: 12px;
+  width: 100%;
 }
 
 .social-btn {
@@ -2314,6 +2322,18 @@
   transform: translateY(-2px);
 }
 
+.social-btn.btn-danger-ghost {
+  background: transparent;
+  color: #ef4444;
+  border: 1px solid transparent;
+  opacity: 0.8;
+}
+
+.social-btn.btn-danger-ghost:hover {
+  background: rgba(239, 68, 68, 0.1);
+  opacity: 1;
+}
+
 /* âš’ï¸ SOCIAL EDITOR STYLES */
 .social-edit-header {
   padding: 30px;
@@ -2324,7 +2344,7 @@
 }
 
 .social-edit-title {
-  font-family: 'Tektur', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 1rem;
   color: var(--text-primary);
   margin: 0;
@@ -2336,7 +2356,7 @@
   color: #94a3b8;
   padding: 6px 14px;
   border-radius: 8px;
-  font-family: 'Tektur', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 0.6rem;
   cursor: pointer;
   transition: all 0.2s;
@@ -2359,7 +2379,7 @@
   gap: 20px;
   padding: 16px;
   background: rgba(255, 255, 255, 0.03);
-  border-radius: 20px;
+  border-radius: 12px;
   border: 1px dashed rgba(255, 255, 255, 0.1);
   cursor: pointer;
   transition: all 0.2s;
@@ -2383,7 +2403,7 @@
 }
 
 .avatar-edit-label {
-  font-family: 'Tektur', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 0.7rem;
   color: #8b5cf6;
   font-weight: 900;
@@ -2392,7 +2412,7 @@
 
 .social-input-label {
   display: block;
-  font-family: 'Tektur', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 0.6rem;
   color: #64748b;
   font-weight: 900;
@@ -2442,7 +2462,7 @@
 }
 
 .toggle-title {
-  font-family: 'Tektur', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 0.75rem;
   font-weight: 900;
   color: var(--text-primary);
@@ -2457,23 +2477,24 @@
 
 .social-save-btn {
   width: 100%;
-  padding: 20px;
-  background: var(--bg-secondary);
-  color: var(--text-primary);
+  padding: 16px;
+  background: var(--accent-blue, #3b82f6);
+  color: #ffffff;
   border: none;
-  border-radius: 18px;
-  font-family: 'Tektur', sans-serif;
-  font-weight: 900;
-  font-size: 0.85rem;
-  letter-spacing: 2px;
+  border-radius: 12px;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 1px;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: all 0.2s ease;
   margin-bottom: 10px;
 }
 
 .social-save-btn:hover {
-  transform: scale(1.02);
-  box-shadow: 0 15px 40px rgba(139, 92, 246, 0.4);
+  transform: translateY(-2px);
+  background: #2563eb;
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
 }
 
 .avatar-social-grid {
@@ -2526,7 +2547,7 @@
   color: #f59e0b;
   text-decoration: underline;
   font-weight: 800;
-  font-family: 'Tektur', sans-serif;
+  font-family: 'Outfit', sans-serif;
   margin-top: 8px;
   cursor: pointer;
   opacity: 0.6;
@@ -2557,7 +2578,7 @@
   font-size: 1.2rem;
   font-weight: 900;
   color: var(--success);
-  font-family: 'Tektur', sans-serif;
+  font-family: 'Outfit', sans-serif;
   text-shadow: 0 0 12px rgba(139, 92, 246, 0.5);
   line-height: 1;
   margin-top: 2px;
@@ -2612,8 +2633,8 @@
 
 .milestone-fill {
   height: 100%;
-  background: linear-gradient(90deg, #7c3aed, #8b5cf6, #a78bfa);
-  box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+  background: var(--accent-purple);
+  box-shadow: 0 0 15px var(--accent-purple);
   border-radius: 6px;
   transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
@@ -2722,7 +2743,7 @@
   position: absolute;
   top: 4px;
   transform: translateX(-50%);
-  font-family: 'Tektur', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 0.45rem !important;
   color: var(--text-secondary);
   font-weight: 700;
@@ -2762,7 +2783,7 @@
   gap: 4px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
+  border-radius: 12px;
   padding: 4px 10px;
   font-family: 'Inter', sans-serif;
   min-width: 0;
@@ -2929,7 +2950,7 @@
 }
 
 .podium-hours {
-  font-family: 'Tektur', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 0.85rem;
   color: var(--rank-color);
   font-weight: 700;

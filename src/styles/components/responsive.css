@@ -535,7 +535,7 @@
   .hero {
     padding: 20px var(--mobile-gutter) !important;
     text-align: left;
-    border-radius: 20px;
+    border-radius: 12px;
     background: linear-gradient(135deg, rgba(37, 99, 235, 0.15) 0%, rgba(8, 13, 24, 0) 100%);
   }
 

@@ -283,7 +283,7 @@ tr.hidden {
   font-weight: 800;
   color: #a78bfa; /* Premium purple */
   pointer-events: none;
-  font-family: 'Tektur', sans-serif;
+  font-family: 'Outfit', sans-serif;
   text-transform: uppercase;
   z-index: 1;
   transition: opacity 0.2s;
@@ -422,7 +422,7 @@ tr.locked-row .checkmark {
   font-size: 0.85rem;
   font-weight: 900;
   color: var(--text-primary);
-  font-family: 'Tektur', sans-serif;
+  font-family: 'Outfit', sans-serif;
   letter-spacing: -0.5px;
 }
 
@@ -459,7 +459,7 @@ tr.locked-row .checkmark {
   font-size: 0.72rem;
   font-weight: 700;
   padding: 2px 8px;
-  border-radius: 20px;
+  border-radius: 12px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   display: inline-flex;

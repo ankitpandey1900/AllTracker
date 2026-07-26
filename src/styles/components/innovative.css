@@ -40,7 +40,9 @@
 }
 
 @keyframes shimmer {
-  100% { left: 100%; }
+  100% {
+    left: 100%;
+  }
 }
 
 #activeTimerSection {
@@ -170,18 +172,43 @@
   animation: eq-bounce 0.6s ease-in-out infinite alternate;
 }
 
-.eq-bar:nth-child(1) { height: 3px; animation-duration: 0.4s; }
-.eq-bar:nth-child(2) { height: 7px; animation-duration: 0.7s; }
-.eq-bar:nth-child(3) { height: 4px; animation-duration: 0.5s; }
+.eq-bar:nth-child(1) {
+  height: 3px;
+  animation-duration: 0.4s;
+}
+
+.eq-bar:nth-child(2) {
+  height: 7px;
+  animation-duration: 0.7s;
+}
+
+.eq-bar:nth-child(3) {
+  height: 4px;
+  animation-duration: 0.5s;
+}
 
 @keyframes eq-bounce {
-  from { transform: scaleY(1); opacity: 0.6; }
-  to { transform: scaleY(2.5); opacity: 1; }
+  from {
+    transform: scaleY(1);
+    opacity: 0.6;
+  }
+
+  to {
+    transform: scaleY(2.5);
+    opacity: 1;
+  }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .timer-circle-container {
@@ -459,6 +486,7 @@ body.timer-style-block .glass-block-content::after {
 body.timer-font-fira {
   --timer-font: 'Fira Code', 'Courier New', monospace;
 }
+
 body.timer-style-block.timer-font-fira .timer-display {
   font-size: clamp(8rem, 19cqw, 40rem);
   letter-spacing: -6px;
@@ -468,6 +496,7 @@ body.timer-style-block.timer-font-fira .timer-display {
 body.timer-font-digital {
   --timer-font: 'Orbitron', 'Digital-7', monospace;
 }
+
 body.timer-style-block.timer-font-digital .timer-display {
   font-size: clamp(8rem, 16cqw, 40rem);
   letter-spacing: -2px;
@@ -477,6 +506,7 @@ body.timer-style-block.timer-font-digital .timer-display {
 body.timer-font-tektur {
   --timer-font: 'Tektur', 'Space Grotesk', sans-serif;
 }
+
 body.timer-style-block.timer-font-tektur .timer-display {
   font-size: clamp(8rem, 23cqw, 45rem);
   letter-spacing: -4px;
@@ -486,6 +516,7 @@ body.timer-style-block.timer-font-tektur .timer-display {
 body.timer-font-inter {
   --timer-font: 'Inter', 'SF Pro Display', sans-serif;
 }
+
 body.timer-style-block.timer-font-inter .timer-display {
   font-size: clamp(8rem, 23cqw, 45rem);
   font-weight: 600;
@@ -497,6 +528,7 @@ body.timer-style-block.timer-font-inter .timer-display {
 body.timer-font-monoton {
   --timer-font: 'Monoton', sans-serif;
 }
+
 body.timer-style-block.timer-font-monoton .timer-display {
   font-size: clamp(8rem, 16cqw, 40rem);
   letter-spacing: 2px;
@@ -507,6 +539,7 @@ body.timer-style-block.timer-font-monoton .timer-display {
 body.timer-font-blackops {
   --timer-font: 'Black Ops One', sans-serif;
 }
+
 body.timer-style-block.timer-font-blackops .timer-display {
   font-size: clamp(8rem, 17cqw, 40rem);
   letter-spacing: -2px;
@@ -517,6 +550,7 @@ body.timer-style-block.timer-font-blackops .timer-display {
 body.timer-font-silkscreen {
   --timer-font: 'Silkscreen', monospace;
 }
+
 body.timer-style-block.timer-font-silkscreen .timer-display {
   font-size: clamp(8rem, 16.5cqw, 40rem);
   letter-spacing: -4px;
@@ -527,6 +561,7 @@ body.timer-style-block.timer-font-silkscreen .timer-display {
 body.timer-font-bungee {
   --timer-font: 'Bungee Shade', sans-serif;
 }
+
 body.timer-style-block.timer-font-bungee .timer-display {
   font-size: clamp(8rem, 16.5cqw, 40rem);
   letter-spacing: -2px;
@@ -614,6 +649,7 @@ body.timer-style-block .control-row #timerTerminateBtn {
   color: #ef4444 !important;
   border-color: rgba(239, 68, 68, 0.2) !important;
 }
+
 body.timer-style-block .control-row #timerTerminateBtn:hover {
   background: rgba(239, 68, 68, 0.1) !important;
   border-color: rgba(239, 68, 68, 0.4) !important;
@@ -632,8 +668,13 @@ body.timer-style-block .session-goal-row input {
 }
 
 @keyframes ticker {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-100%); }
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-100%);
+  }
 }
 
 .hud-ticker:hover {
@@ -660,9 +701,17 @@ body.timer-style-block .session-goal-row input {
 }
 
 @keyframes mesh-fade {
-  0%, 100% { opacity: 0.2; }
-  50% { opacity: 0.5; }
+
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
 }
+
 @keyframes cyber-border-flow {
   0% {
     background-position: 0% 50%;
@@ -706,7 +755,8 @@ body.focus-minimized.timer-style-block #activeTimerSection:hover {
 
   /* Reduce status label on mobile */
   .hud-status span {
-    display: none !important; /* Force hide */
+    display: none !important;
+    /* Force hide */
   }
 
   /* Audio Controls Compact */
@@ -724,9 +774,10 @@ body.focus-minimized.timer-style-block #activeTimerSection:hover {
   }
 
   #ambientSoundLabel {
-    display: none !important; /* Force hide */
+    display: none !important;
+    /* Force hide */
   }
-  
+
   #ambientSoundMeta {
     margin-bottom: 0 !important;
   }
@@ -763,10 +814,11 @@ body.focus-minimized.timer-style-block #activeTimerSection:hover {
     padding: 30px 10px;
     border-radius: 16px;
   }
-  
+
   body.timer-style-block .glass-block-content::before,
   body.timer-style-block .glass-block-content::after {
-    display: none !important; /* Hide side ticks on small mobile to save space */
+    display: none !important;
+    /* Hide side ticks on small mobile to save space */
   }
 
   /* Controls Compact */
@@ -794,7 +846,7 @@ body.focus-minimized.timer-style-block #activeTimerSection:hover {
     margin-top: 16px;
     font-size: 0.8rem;
   }
-  
+
   .session-goal-row input {
     width: 50px !important;
   }

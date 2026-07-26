@@ -47,7 +47,7 @@ export const dashboardView = `
                 <span id="heroStartDateMirror" style="font-size: 0.7rem; opacity: 0.5;">Started --</span>
               </div>
               <div class="xp-track" style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 99px; overflow: hidden; flex: 1;">
-                <div id="xpFill" class="xp-fill" style="height: 100%; background: linear-gradient(90deg, #6366f1, #8b5cf6); width: 0%;"></div>
+                <div id="xpFill" class="xp-fill" style="height: 100%; background: var(--accent-purple); width: 0%;"></div>
               </div>
             </div>
           </article>
@@ -282,7 +282,7 @@ export const worldStageView = `
            <!-- Milestone Timeline -->
            <div class="legacy-milestone-track" style="position: relative; height: 30px; margin: 32px 0 20px;">
               <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 99px; width: 100%; position: absolute; top: 50%; transform: translateY(-50%);"></div>
-              <div id="milestone-progress-bar" style="height: 4px; background: linear-gradient(90deg, #8b5cf6, #22d3ee); border-radius: 99px; width: 0%; position: absolute; top: 50%; transform: translateY(-50%); transition: width 1s ease;"></div>
+              <div id="milestone-progress-bar" style="height: 4px; background: var(--accent-purple); border-radius: 99px; width: 0%; position: absolute; top: 50%; transform: translateY(-50%); transition: width 1s ease;"></div>
               
               <div id="milestone-timeline-nodes" style="position: absolute; width: 100%; height: 100%; top: 0;">
                  <!-- Dynamic Nodes: 0, 50, 100 -->

@@ -496,7 +496,7 @@
 }
 
 .passport-status-active {
-  font-family: 'Tektur', sans-serif;
+  font-family: 'Outfit', sans-serif;
   text-transform: uppercase;
   color: #8b5cf6;
   letter-spacing: 2px;
@@ -578,7 +578,7 @@
 }
 
 .loader-message-v3 {
-  font-family: 'Tektur', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 1rem;
   color: var(--text-primary);
   letter-spacing: 0.15em;

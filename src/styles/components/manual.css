@@ -348,7 +348,7 @@
 }
 
 .docs-h1 {
-  font-family: 'Tektur', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: clamp(3rem, 5vw, 4.5rem);
   font-weight: 900;
   color: var(--text-primary);
@@ -403,7 +403,7 @@
 }
 
 .docs-h2 {
-  font-family: 'Tektur', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 2.4rem;
   color: var(--text-primary);
   margin-bottom: 40px;
@@ -457,7 +457,7 @@
 .docs-feature-card {
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 24px;
+  border-radius: 12px;
   padding: 40px;
   transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
   position: relative;
@@ -520,7 +520,7 @@
 /* --- Components --- */
 .docs-callout {
   padding: 35px 40px;
-  border-radius: 20px;
+  border-radius: 12px;
   margin: 40px 0;
   border: 1px solid transparent;
   position: relative;
@@ -567,7 +567,7 @@
   padding: 35px;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 24px;
+  border-radius: 12px;
   transition: all 0.4s;
 }
 
@@ -589,12 +589,12 @@
   font-size: 1.2rem;
   font-weight: 900;
   flex-shrink: 0;
-  font-family: 'Tektur', sans-serif;
+  font-family: 'Outfit', sans-serif;
   box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
 
 .docs-table-wrap {
-  border-radius: 20px;
+  border-radius: 12px;
   border: 2px solid var(--docs-border);
   margin: 40px 0;
   background: rgba(0,0,0,0.4);
@@ -609,7 +609,7 @@
 .docs-table th {
   background: rgba(108, 135, 255, 0.1);
   color: var(--text-primary);
-  font-family: 'Tektur', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 0.9rem;
   font-weight: 800;
   letter-spacing: 0.1em;
