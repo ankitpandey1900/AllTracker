@@ -138,7 +138,6 @@ export async function igniteApp(): Promise<void> {
       initManualLogic();
       initNotifications();
       initIntegrityService();
-      initAtmosphericProtocol();
       
       await initWorldStage();
       await checkProfileIdentity();

@@ -174,10 +174,8 @@ export class Shell {
       });
 
       document.addEventListener("click", (e) => {
-        if (window.innerWidth <= 768) {
-          if (desktopActions && !desktopActions.contains(e.target as Node)) {
-            desktopActions.classList.remove("mobile-menu-overlay");
-          }
+        if (desktopActions && !desktopActions.contains(e.target as Node)) {
+          desktopActions.classList.remove("mobile-menu-overlay");
         }
       });
     }

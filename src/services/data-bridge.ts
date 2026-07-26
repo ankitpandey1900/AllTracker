@@ -116,7 +116,7 @@ export async function saveTimerStateToStorage(state: any): Promise<void> {
 }
 
 export async function clearTimerStateDB(): Promise<void> {
-  const idleState = { isRunning: false, elapsedAcc: 0, startTime: null, category: null, colName: '', sessionStartClock: null, lastUpdatedAt: Date.now() };
+  const idleState = { isRunning: false, elapsedAcc: 0, startTime: null, category: null, colName: '', sessionStartClock: null, activeBreak: null, completedBreaks: [], lastUpdatedAt: Date.now() };
   saveLocal(STORAGE_KEYS.TIMER, idleState);
   updateLocalTimestamp(STORAGE_KEYS.TIMER);
   
@@ -134,7 +134,7 @@ export async function clearTimerStateDB(): Promise<void> {
         }
       }
     };
-    tryWipe();
+    await tryWipe();
   }
 }
 

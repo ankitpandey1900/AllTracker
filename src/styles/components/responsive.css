@@ -171,7 +171,14 @@
   font-size: 1rem;
 }
 
+.header-desktop-actions:not(.mobile-menu-overlay) {
+  display: none !important;
+}
+
 @media (max-width: 768px) {
+  .header-nav-tabs {
+    display: none !important;
+  }
 
   /* Absolute Nuclear Flexbox Overflow Fix */
   * {
@@ -266,9 +273,7 @@
     background: transparent;
   }
 
-  .header-desktop-actions:not(.mobile-menu-overlay) {
-    display: none !important;
-  }
+
 
   .tabs {
     display: none !important;

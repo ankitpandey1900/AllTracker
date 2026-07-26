@@ -3,6 +3,7 @@ import { appState } from "@/state/app-state";
 import { calculateTodayStudyHours, calculateTotalStudyHours, getRankProgression, calculateVerificationScore, calculateStreak, calculateBestStreak } from "@/utils/calc.utils";
 import type { UserProfile } from "@/types/profile.types";
 import { saveProfileData } from "./profile.manager";
+import { handleSignOut } from "@/services/auth.service";
 
 const AVATARS = [
   "🦇", "🕷️", "⚡", "🦸‍♂️", "🦹‍♂️", "🚀",
@@ -88,6 +89,10 @@ function bindActions(): void {
 
   document.getElementById("closeProfileModal")?.addEventListener("click", closeModal);
   document.getElementById("closeProfileModalAlt")?.addEventListener("click", closeModal);
+  document.getElementById("profileSignOutBtn")?.addEventListener("click", () => {
+    closeModal();
+    void handleSignOut();
+  });
   document.getElementById("switchToEditProfileBtn")?.addEventListener("click", () => {
     passportPane?.classList.add("hidden");
     editPane?.classList.remove("hidden");

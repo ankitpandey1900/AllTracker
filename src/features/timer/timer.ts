@@ -77,6 +77,10 @@ export function initTimerModules(): void {
       // Stop any local interval first
       if (appState.timerInterval) clearInterval(appState.timerInterval);
 
+      // Force-clear nullables if missing from cloudState to prevent sticky local state
+      if (!cloudState.activeBreak) appState.activeTimer.activeBreak = null;
+      if (!cloudState.startTime) appState.activeTimer.startTime = null;
+
       // Apply cloud state fully
       Object.assign(appState.activeTimer, cloudState);
 
@@ -89,6 +93,7 @@ export function initTimerModules(): void {
       } else if (cloudOnBreak) {
         // Remote device is on break — show break HUD
         updateTimerUI(true);
+        toggleFocusHUD(true, `BREAK: ${appState.activeTimer.activeBreak?.reason || 'REST'}`, '--:--:--');
         startBreakInterval();
         document.body.classList.remove('is-focusing');
       } else if (!cloudHasSession) {
@@ -418,7 +423,6 @@ export async function terminateTimer(): Promise<void> {
   appState.activeTimer.activeBreak = null;
   appState.activeTimer.lastUpdatedAt = Date.now(); // Mark as fresh termination
   
-  saveTimerState(); // Notify other devices to clear HUD immediately
   notificationService.stopAmbient(); 
   await clearTimerStateDB();
   
@@ -631,6 +635,7 @@ export function resumeTimerIfNeeded(): void {
   // Case 3: On break (isRunning=false but activeBreak is set)
   if (activeBreak) {
     updateTimerUI(true);
+    toggleFocusHUD(true, `BREAK: ${activeBreak.reason}`, '--:--:--');
     startBreakInterval();
     updateTimerDisplay();
     document.body.classList.remove('is-focusing');

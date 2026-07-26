@@ -6,47 +6,64 @@
 
 export const shellView = `
   <header id="appHeader" class="app-header backdrop-blur-md">
-    <div class="brand-group">
+    <div class="brand-group" style="flex-shrink: 0; display: flex; align-items: center; gap: 24px;">
       <img src="/app-logo.png" alt="All Tracker Logo: High-Performance Study Management" class="app-logo" title="All Tracker — Home">
+      
+      <!-- Navigation Tabs next to Logo -->
+      <nav class="header-nav-tabs" role="tablist" style="display: flex; gap: 8px;">
+        <button class="nav-item active" data-target="dashboardPane" role="tab" aria-selected="true" title="View Dashboard" aria-label="Open study dashboard">Dashboard</button>
+        <button class="nav-item" data-target="worldStagePane" role="tab" aria-selected="false" title="View Global Leaderboard" aria-label="Open global leaderboard">World Stage</button>
+      </nav>
     </div>
-    <div class="header-actions">
-      <button id="startTimerBtn" class="btn btn-primary" title="Start Focus Timer" aria-label="Start study focus timer">Start Timer</button>
-      <div id="headerDesktopActions" class="header-desktop-actions" style="display: flex; gap: 8px;">
+
+    <!-- Pushes the right actions all the way to the right -->
+    <div style="flex: 1;"></div>
+
+    <div class="header-actions" style="flex-shrink: 0; display: flex; align-items: center; justify-content: flex-end; gap: 12px; white-space: nowrap;">
+      
+      <!-- Canvas toggle (Tool) -->
+      <button id="excalidrawToggle" class="btn btn-ghost hide-mobile" style="display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 8px; font-weight: 500;" title="Toggle Canvas" aria-label="Open or close sketching canvas">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+        </svg>
+        Canvas
+      </button>
+
+      <div class="header-divider" style="width: 1px; height: 24px; background: rgba(255,255,255,0.15); border-radius: 1px; margin: 0 4px;"></div>
+
+      <!-- Core Action -->
+      <button id="startTimerBtn" class="btn btn-primary" style="padding: 8px 20px; border-radius: 8px; font-weight: 600; letter-spacing: 0.5px;" title="Start Focus Timer" aria-label="Start study focus timer">Start Timer</button>
+      
+      <div id="headerDesktopActions" class="header-desktop-actions">
+        <button class="btn nav-item" data-target="routinePane" title="View Routines" aria-label="Open routine habits tracker">Routine</button>
+        <button class="btn nav-item" data-target="tasksPane" title="View Tasks" aria-label="Open mission task board">Tasks</button>
         <button class="btn nav-item" data-target="feedPane" title="Arena Feed" aria-label="Open arena feed">Feed</button>
         <button class="btn nav-item" data-target="intelligencePane" title="Ask Maamu AI" aria-label="Open Maamu AI">Maamu</button>
         <button class="btn nav-item" data-target="bookmarksPane" title="View Bookmarks" aria-label="Open bookmarks">Bookmarks</button>
         <button id="userManualBtn" class="btn" title="Open User Manual" aria-label="View documentation and user guide">User Manual</button>
         <button id="settingsBtn" class="btn" title="App Settings" aria-label="Configure display and sync settings">Settings</button>
       </div>
-      <button id="headerMoreBtn" class="btn btn-ghost show-mobile" style="padding: 8px; border-radius: 4px;" title="More Options" aria-label="Open mobile navigation menu">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <circle cx="12" cy="12" r="1" />
-          <circle cx="12" cy="5" r="1" />
-          <circle cx="12" cy="19" r="1" />
+
+      <!-- Overflow Menu (3-dots) -->
+      <button id="headerMoreBtn" class="btn btn-ghost" style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; padding: 0; border-radius: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);" title="More Options" aria-label="Open mobile navigation menu">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="12" cy="12" r="1.5" />
+          <circle cx="12" cy="5" r="1.5" />
+          <circle cx="12" cy="19" r="1.5" />
         </svg>
       </button>
-      <div id="headerRight">
+
+      <div class="header-divider" style="width: 1px; height: 24px; background: rgba(255,255,255,0.15); border-radius: 1px; margin: 0 4px;"></div>
+
+      <!-- Auth State -->
+      <div id="headerRight" style="display: flex; align-items: center;">
         <!-- Auth state is handled dynamically by auth.service.ts -->
       </div>
     </div>
   </header>
 
   <main class="layout mx-auto">
-    <nav class="tabs" role="tablist" aria-label="Main Navigation">
-      <button class="nav-item active" data-target="dashboardPane" role="tab" aria-selected="true" title="View Dashboard" aria-label="Open study dashboard">Dashboard</button>
-      <button class="nav-item" data-target="worldStagePane" role="tab" aria-selected="false" title="View Global Leaderboard" aria-label="Open global leaderboard">World Stage</button>
-      <button class="nav-item" data-target="routinePane" role="tab" aria-selected="false" title="View Routines" aria-label="Open routine habits tracker">Routine</button>
-      <button class="nav-item" data-target="tasksPane" role="tab" aria-selected="false" title="View Tasks" aria-label="Open mission task board">Tasks</button>
-      <button class="nav-item" data-target="feedPane" role="tab" aria-selected="false" title="View Feed" aria-label="Open arena feed">Feed</button>
-      <button class="nav-item" data-target="intelligencePane" role="tab" aria-selected="false" title="Ask Maamu AI" aria-label="Open Maamu AI study mentor">Maamu</button>
-      <button class="nav-item" data-target="bookmarksPane" role="tab" aria-selected="false" title="View Bookmarks" aria-label="Open resource bookmark vault">Bookmarks</button>
-      <button id="excalidrawToggle" class="nav-item" style="margin-left: auto; display: flex; align-items: center; gap: 6px;" title="Toggle Canvas" aria-label="Open or close sketching canvas">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-        </svg>
-        Canvas
-      </button>
-    </nav>
+    <!-- Main layout now begins directly with content panes, no extra tab row needed -->
 
     <!-- Canvas Hub Section -->
     <div id="drawSection" style="display: none; height: calc(100vh - 200px); min-height: 600px;">

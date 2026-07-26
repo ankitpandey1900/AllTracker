@@ -249,23 +249,13 @@ export function updateHeaderProfileUI(): void {
         <div class="pilot-hud-avatar">${avatar}</div>
         <span>${handle}</span>
       </div>
-      <div id="syncStatus" class="data-stream-active" style="display:flex; align-items:center; background:rgba(16,185,129,0.05); border:1px solid rgba(16,185,129,0.3); padding:5px 14px; border-radius:30px; font-size:0.65rem; font-weight:900; color:#8b5cf6; letter-spacing:1px; text-transform:uppercase;">
-        <div class="pulse-purple" style="width:6px; height:6px; background:#8b5cf6; border-radius:50%; margin-right:8px; box-shadow:0 0 8px #8b5cf6;"></div>
-        Live Ready
-      </div>
-      <button class="btn btn-ghost" id="logoutBtn" title="LOGOUT MISSION" style="height:32px; width:32px; display:flex; align-items:center; justify-content:center; border-radius:4px; border:1px solid rgba(239,68,68,0.4); background:rgba(239,68,68,0.08); color:#ef4444; cursor:pointer; transition:all 0.2s;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-      </button>
     </div>
   `;
 
-  document.getElementById("logoutBtn")?.addEventListener("click", () => {
-    void handleSignOut();
-  });
   rebindAliasTrigger();
 }
 
-async function handleSignOut(): Promise<void> {
+export async function handleSignOut(): Promise<void> {
   try {
     await authClient.signOut();
   } finally {
