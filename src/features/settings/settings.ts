@@ -202,9 +202,9 @@ function addCustomRangeToDOM(range: Partial<CustomRange>, index: number): void {
           <input type="date" class="settings-input range-end" value="${range.endDate || ''}">
         </div>
       </div>
-      <div class="range-overrides-heading" style="margin-top:10px; font-size:0.8rem; color:var(--text-secondary);">Category Overrides (Optional)</div>
+      <div class="range-overrides-heading" style="margin-top:10px; font-size:0.8rem; color:var(--text-secondary);">Specific Category Goals</div>
       <div class="range-categories-wrap" style="display:flex; flex-direction:column; gap:8px; margin-top:8px;"></div>
-      <button class="btn add-range-cat" type="button" style="margin-top:10px; font-size:0.7rem; padding:4px 8px;">+ Add Override</button>
+      <button class="btn add-range-cat" type="button" style="margin-top:10px; font-size:0.7rem; padding:4px 8px;">+ Add Category Goal</button>
     </div>
   `;
 
