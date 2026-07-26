@@ -12,6 +12,9 @@ export const shellView = `
     <div class="header-actions">
       <button id="startTimerBtn" class="btn btn-primary" title="Start Focus Timer" aria-label="Start study focus timer">Start Timer</button>
       <div id="headerDesktopActions" class="header-desktop-actions" style="display: flex; gap: 8px;">
+        <button class="btn nav-item" data-target="feedPane" title="Arena Feed" aria-label="Open arena feed">Feed</button>
+        <button class="btn nav-item" data-target="intelligencePane" title="Ask Maamu AI" aria-label="Open Maamu AI">Maamu</button>
+        <button class="btn nav-item" data-target="bookmarksPane" title="View Bookmarks" aria-label="Open bookmarks">Bookmarks</button>
         <button id="userManualBtn" class="btn" title="Open User Manual" aria-label="View documentation and user guide">User Manual</button>
         <button id="settingsBtn" class="btn" title="App Settings" aria-label="Configure display and sync settings">Settings</button>
       </div>
