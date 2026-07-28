@@ -6,20 +6,21 @@
 
 export const shellView = `
   <header id="appHeader" class="app-header backdrop-blur-md">
-    <div class="brand-group" style="flex-shrink: 0; display: flex; align-items: center; gap: 24px;">
+    <div class="brand-group" style="flex-shrink: 0; display: flex; align-items: center; gap: 32px;">
       <img src="/app-logo.png" alt="All Tracker Logo: High-Performance Study Management" class="app-logo" title="All Tracker — Home">
       
       <!-- Navigation Tabs next to Logo -->
-      <nav class="header-nav-tabs" role="tablist" style="display: flex; gap: 8px;">
+      <nav class="header-nav-tabs" role="tablist" style="display: flex; gap: 12px;">
         <button class="nav-item active" data-target="dashboardPane" role="tab" aria-selected="true" title="View Dashboard" aria-label="Open study dashboard">Dashboard</button>
         <button class="nav-item" data-target="worldStagePane" role="tab" aria-selected="false" title="View Global Leaderboard" aria-label="Open global leaderboard">World Stage</button>
+        <button class="nav-item" data-target="tasksPane" role="tab" aria-selected="false" title="View Tasks" aria-label="Open mission task board">Tasks</button>
       </nav>
     </div>
 
     <!-- Pushes the right actions all the way to the right -->
     <div style="flex: 1;"></div>
 
-    <div class="header-actions" style="flex-shrink: 0; display: flex; align-items: center; justify-content: flex-end; gap: 12px; white-space: nowrap;">
+    <div class="header-actions" style="flex-shrink: 0; display: flex; align-items: center; justify-content: flex-end; gap: 16px; white-space: nowrap;">
       
       <!-- Canvas toggle (Tool) -->
       <button id="excalidrawToggle" class="btn btn-ghost hide-mobile" style="display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 8px; font-weight: 500;" title="Toggle Canvas" aria-label="Open or close sketching canvas">
@@ -29,14 +30,13 @@ export const shellView = `
         Canvas
       </button>
 
-      <div class="header-divider" style="width: 1px; height: 24px; background: rgba(255,255,255,0.15); border-radius: 1px; margin: 0 4px;"></div>
+      <div class="header-divider" style="width: 1px; height: 24px; background: rgba(255,255,255,0.15); border-radius: 1px; margin: 0 8px;"></div>
 
       <!-- Core Action -->
-      <button id="startTimerBtn" class="btn btn-primary" style="padding: 8px 20px; border-radius: 8px; font-weight: 600; letter-spacing: 0.5px;" title="Start Focus Timer" aria-label="Start study focus timer">Start Timer</button>
+      <button id="startTimerBtn" class="btn btn-primary" style="padding: 8px 24px; border-radius: 8px; font-weight: 600; letter-spacing: 0.5px;" title="Start Focus Timer" aria-label="Start study focus timer">Start Timer</button>
       
       <div id="headerDesktopActions" class="header-desktop-actions">
         <button class="btn nav-item" data-target="routinePane" title="View Routines" aria-label="Open routine habits tracker">Routine</button>
-        <button class="btn nav-item" data-target="tasksPane" title="View Tasks" aria-label="Open mission task board">Tasks</button>
         <button class="btn nav-item" data-target="feedPane" title="Arena Feed" aria-label="Open arena feed">Feed</button>
         <button class="btn nav-item" data-target="intelligencePane" title="Ask Maamu AI" aria-label="Open Maamu AI">Maamu</button>
         <button class="btn nav-item" data-target="bookmarksPane" title="View Bookmarks" aria-label="Open bookmarks">Bookmarks</button>
@@ -53,7 +53,7 @@ export const shellView = `
         </svg>
       </button>
 
-      <div class="header-divider" style="width: 1px; height: 24px; background: rgba(255,255,255,0.15); border-radius: 1px; margin: 0 4px;"></div>
+      <div class="header-divider" style="width: 1px; height: 24px; background: rgba(255,255,255,0.15); border-radius: 1px; margin: 0 8px;"></div>
 
       <!-- Auth State -->
       <div id="headerRight" style="display: flex; align-items: center;">
