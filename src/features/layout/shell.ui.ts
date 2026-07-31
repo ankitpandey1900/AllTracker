@@ -20,7 +20,7 @@ export const shellView = `
     <!-- Pushes the right actions all the way to the right -->
     <div style="flex: 1;"></div>
 
-    <div class="header-actions" style="flex-shrink: 0; display: flex; align-items: center; justify-content: flex-end; gap: 16px; white-space: nowrap;">
+    <div class="header-actions" style="flex-shrink: 1; min-width: 0; display: flex; align-items: center; justify-content: flex-end; gap: 16px; white-space: nowrap;">
       
       <!-- Canvas toggle (Tool) -->
       <button id="excalidrawToggle" class="btn btn-ghost hide-mobile" style="display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 8px; font-weight: 500;" title="Toggle Canvas" aria-label="Open or close sketching canvas">
@@ -56,7 +56,7 @@ export const shellView = `
       <div class="header-divider" style="width: 1px; height: 24px; background: rgba(255,255,255,0.15); border-radius: 1px; margin: 0 8px;"></div>
 
       <!-- Auth State -->
-      <div id="headerRight" style="display: flex; align-items: center;">
+      <div id="headerRight" style="display: flex; align-items: center; flex-shrink: 1; min-width: 0;">
         <!-- Auth state is handled dynamically by auth.service.ts -->
       </div>
     </div>

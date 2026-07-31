@@ -266,7 +266,7 @@ export const worldStageView = `
                     <div style="width: 40px; height: 40px; font-size: 1.2rem; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; align-items: center; justify-content: center;">🏆</div>
                     <div>
                        <div style="font-size: 0.65rem; color: var(--text-secondary); font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">Platform Total Hours</div>
-                       <div id="telemetry-global-total" style="font-size: 1.3rem; font-weight: 900; color: #fbbf24;">--</div>
+                       <div id="telemetry-global-total" style="font-size: 1.3rem; font-weight: 900; color: #fbbf24; white-space: nowrap;">--</div>
                     </div>
                  </div>
                  <div class="tele-item" style="display: flex; align-items: center; gap: 16px;">

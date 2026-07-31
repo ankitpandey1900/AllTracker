@@ -8,7 +8,7 @@ import { handleRouteError, sendJson, sendMethodNotAllowed } from "../_lib/http/r
 // 🔒 SECURITY: Simple in-memory rate limiter for broadcast endpoint
 // Prevents a single user from flooding the leaderboard update API
 const broadcastRateMap = new Map<string, number>();
-const BROADCAST_MIN_INTERVAL_MS = 30_000; // 30 seconds minimum between broadcasts
+const BROADCAST_MIN_INTERVAL_MS = 5_000; // 5 seconds minimum to allow state changes (start/stop/break) while preventing pure floods
 
 export default async function handler(
   req: IncomingMessage,

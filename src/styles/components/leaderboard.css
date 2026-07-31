@@ -1375,7 +1375,15 @@
   color: #f8fafc;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
   font-family: 'Outfit', sans-serif;
-  max-width: 180px;
+  max-width: 220px;
+}
+
+.pilot-hud-pill span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 @media (max-width: 500px) {

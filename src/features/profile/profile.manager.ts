@@ -98,6 +98,14 @@ export async function checkProfileIdentity(): Promise<void> {
 
 /** Broadcast local stats to the global leaderboard */
 export async function syncProfileBroadcast(focusStateChanged = false): Promise<void> {
+  // 1. Ensure cross-tab timer state is synced BEFORE any calculations
+  try {
+    const storedTimer = JSON.parse(localStorage.getItem('programmingTrackerTimer') || '{}');
+    if (storedTimer && (storedTimer.isRunning !== appState.activeTimer.isRunning || storedTimer.elapsedAcc > appState.activeTimer.elapsedAcc)) {
+      Object.assign(appState.activeTimer, storedTimer);
+    }
+  } catch (e) {}
+
   const syncId = getCurrentUserId();
   if (!syncId) return;
 
@@ -106,27 +114,8 @@ export async function syncProfileBroadcast(focusStateChanged = false): Promise<v
 
   const profile = JSON.parse(saved) as UserProfile;
 
-  // Broadcast immediately on focus state change (start/stop/break)
-  // without waiting for the slow cloud sessions fetch. This ensures the leaderboard
-  // updates within milliseconds, not seconds.
-  if (focusStateChanged) {
-    const isFocusingNow = appState.activeTimer.isRunning;
-    const fastPayload = {
-      display_name: profile.displayName,
-      is_focus_public: profile.isFocusPublic !== false,
-      is_public: profile.isPublic !== false,
-      ...(lastBroadcastPayload ? JSON.parse(lastBroadcastPayload) : {}),
-      // Override focus fields with current values
-      is_focusing_now: isFocusingNow,
-      current_focus_subject: isFocusingNow ? (appState.activeTimer.colName || 'ACTIVE MISSION') : null,
-    };
-    if (Date.now() - lastBroadcastTimeMs > 30000) {
-      lastBroadcastTimeMs = Date.now();
-      broadcastGlobalStats(fastPayload).catch(() => {});
-    }
-    // Refresh leaderboard UI immediately
-    import('@/features/dashboard/leaderboard').then(m => m.refreshLeaderboard());
-  }
+  // Fast-tracking focus state changes is no longer handled by a separate payload.
+  // Instead, the full payload broadcast will bypass the 30-second rate limit.
 
   // Calculate stats from appState using centralized engine
   const trackerTotal = calculateTotalStudyHours(appState.trackerData);
@@ -135,10 +124,12 @@ export async function syncProfileBroadcast(focusStateChanged = false): Promise<v
   
   // Hybrid Verification (Local + Cloud)
   let sessionTotal = appState.verifiedHours;
+  let cloudFetchSucceeded = false;
 
   // Fetch cloud sessions before broadcasting to ensure integrity score accuracy
   try {
     const cloudSessions = await fetchMySessionsCloud();
+    cloudFetchSucceeded = true;
     const cloudTotal = (cloudSessions || []).reduce((sum, s) => sum + (s.duration || 0), 0);
     
     // Update local buffer immediately
@@ -175,15 +166,19 @@ export async function syncProfileBroadcast(focusStateChanged = false): Promise<v
   const isFocusing = appState.activeTimer.isRunning;
   
   // Prevent broadcasting an integrity drop if waiting for session data
-  if (trackerTotal > 1 && sessionTotal === 0 && !isFocusing) {
+  if (trackerTotal > 1 && sessionTotal === 0 && !isFocusing && !cloudFetchSucceeded) {
     log.info("Sync Guard: Deferring broadcast to prevent false Integrity drop (Waiting for sessions).");
     return;
   }
   
-  // If timer is running, add its progress to the broadcast immediately
-  if (isFocusing && appState.activeTimer.startTime) {
-    const elapsedMs = (Date.now() - appState.activeTimer.startTime) + appState.activeTimer.elapsedAcc;
-    const currentCapMs = appState.activeTimer.overrunCapMs || 10800000; // 3 Hours (Consistent with timer logic)
+  // Add any unsaved timer progress to the broadcast immediately (including when on break)
+  const hasActiveSession = appState.activeTimer.isRunning || appState.activeTimer.elapsedAcc > 0;
+  if (hasActiveSession) {
+    let elapsedMs = appState.activeTimer.elapsedAcc || 0;
+    if (appState.activeTimer.isRunning && appState.activeTimer.startTime) {
+      elapsedMs += (Date.now() - appState.activeTimer.startTime);
+    }
+    const currentCapMs = appState.activeTimer.overrunCapMs || 10800000; // 3 Hours
     
     // Ensure active timer broadcast doesn't exceed the configured cap
     const clampedElapsedMs = Math.min(elapsedMs, currentCapMs);
@@ -228,11 +223,11 @@ export async function syncProfileBroadcast(focusStateChanged = false): Promise<v
   if (lastBroadcastPayload) {
     const prev = JSON.parse(lastBroadcastPayload);
     if (prev.display_name === profile.displayName) {
-      if (todayHours < prev.today_hours && isFocusing) {
+      if (todayHours < prev.today_hours) {
         log.warn("Sync Guard: Prevented today_hours regression.");
         todayHours = prev.today_hours;
       }
-      if (totalHours < prev.total_hours && isFocusing) {
+      if (totalHours < prev.total_hours) {
         totalHours = prev.total_hours;
       }
     }
@@ -272,9 +267,13 @@ export async function syncProfileBroadcast(focusStateChanged = false): Promise<v
   appState.verifiedRankScore = payload.competitive_score;
   
   try {
-    if (Date.now() - lastBroadcastTimeMs > 30000) {
+    if (focusStateChanged || Date.now() - lastBroadcastTimeMs > 30000) {
       lastBroadcastTimeMs = Date.now();
       await broadcastGlobalStats(payload);
+      
+      if (focusStateChanged) {
+        import('@/features/dashboard/leaderboard').then(m => m.refreshLeaderboard());
+      }
     }
   } catch (err: any) {
     if (err?.message?.includes("Too many requests")) {

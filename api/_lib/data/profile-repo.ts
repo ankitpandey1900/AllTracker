@@ -370,12 +370,7 @@ export async function broadcastProfileStats(
         nation = $5,
         rank = $6,
         total_hours = $7,
-        today_hours = (
-          select coalesce(sum(duration), 0)
-          from study_sessions
-          where user_id = $1::uuid
-            and (start_time AT TIME ZONE $17)::date = (now() AT TIME ZONE $17)::date
-        ),
+        today_hours = $17,
         is_focusing = $8,
         focus_subject = $9,
         dob = $10,
@@ -422,7 +417,7 @@ export async function broadcastProfileStats(
       Number(payload.integrity_score || 0),
       Number(payload.competitive_score || 0),
       Number(payload.current_streak || 0),
-      tz,
+      Number(payload.today_hours || profile.todayHours || 0),
     ],
   );
 }
