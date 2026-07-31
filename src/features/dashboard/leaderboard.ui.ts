@@ -365,14 +365,16 @@ export function renderPodium(
 
     const delay = globalIndex * 0.15; // Staggered animation
     
-    // Positioning and overlap logic
-    let overlapStyle = 'z-index: 1;';
+    // Positioning and overlap logic (CSS handles mobile responsiveness)
+    let overlapClass = '';
+    let zIndexStyle = 'z-index: 1;';
     if (globalIndex === 0) {
-      overlapStyle = 'z-index: 10; transform: scale(1.05); box-shadow: 0 10px 40px rgba(0,0,0,0.6);'; // Gold sits on top and is larger
+      overlapClass = 'podium-center-overlap';
+      zIndexStyle = 'z-index: 10;';
     } else if (globalIndex === 1) {
-      overlapStyle = 'z-index: 1; margin-right: -24px; transform: scale(0.95); opacity: 0.9;'; // Silver tucks under left of Gold
+      overlapClass = 'podium-side-overlap podium-left';
     } else if (globalIndex === 2) {
-      overlapStyle = 'z-index: 1; margin-left: -24px; transform: scale(0.95); opacity: 0.9;'; // Bronze tucks under right of Gold
+      overlapClass = 'podium-side-overlap podium-right';
     }
     
     const { isFocusing, statusClass, statusLabel, todayHoursDisplay } = getUserStatus(u);
@@ -383,7 +385,7 @@ export function renderPodium(
       : `${globalIndex + 1}`;
 
     return `
-      <div class="podium-node leaderboard-item ${medalClass} ${isMe ? 'is-me' : ''}" style="border: 1px solid #1f1f1f; animation-delay: ${delay}s; ${overlapStyle}">
+      <div class="podium-node leaderboard-item ${medalClass} ${overlapClass} ${isMe ? 'is-me' : ''}" style="border: 1px solid #1f1f1f; animation-delay: ${delay}s; ${zIndexStyle}">
         <div class="podium-rank" style="background: ${medalColor}; color: #000; font-family: 'Tektur', sans-serif; display: flex; align-items: center; justify-content: center;">${rankLabel}</div>
         <div class="podium-avatar-wrapper" style="border: 2px solid ${medalColor}; background: #121212; box-shadow: none;">
           <div class="podium-avatar">${avatar}</div>

@@ -3025,3 +3025,16 @@
 
 
 @keyframes pulseGlow { 0% { opacity: 0.5; } 100% { opacity: 1; box-shadow: 0 0 6px #3b82f6; } }
+
+/* Podium Overlap Classes */
+.podium-center-overlap { transform: scale(1.05) translateY(-20px); box-shadow: 0 10px 40px rgba(0,0,0,0.6); background: var(--surface) !important; }
+.podium-side-overlap { transform: scale(0.95); opacity: 0.9; background: var(--surface) !important; }
+.podium-left { margin-right: -24px; }
+.podium-right { margin-left: -24px; }
+@media (max-width: 768px) {
+  .podium-center-overlap { transform: translateY(-10px); box-shadow: none; }
+  .podium-side-overlap { transform: scale(1); opacity: 1; }
+  .podium-left { margin-right: -10px; }
+  .podium-right { margin-left: -10px; }
+  .podium-handle span { max-width: 50px; }
+}
