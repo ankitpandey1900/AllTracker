@@ -232,21 +232,21 @@ export const worldStageView = `
               <!-- Col 1 -->
               <div style="display: flex; flex-direction: column; gap: 24px;">
                  <div class="tele-item" style="display: flex; align-items: center; gap: 16px;">
-                    <div style="width: 40px; height: 40px; font-size: 1.2rem; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; align-items: center; justify-content: center;">👥</div>
+                    <div style="width: 40px; height: 40px; background: rgba(167,139,250,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(167,139,250,0.2);"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
                     <div>
                        <div style="font-size: 0.65rem; color: var(--text-secondary); font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">Total Members</div>
                        <div id="telemetry-total-pilots" style="font-size: 1.3rem; font-weight: 900; color: var(--text-primary);">--</div>
                     </div>
                  </div>
                  <div class="tele-item" style="display: flex; align-items: center; gap: 16px;">
-                    <div style="width: 40px; height: 40px; font-size: 1.2rem; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; align-items: center; justify-content: center;">⚡</div>
+                    <div style="width: 40px; height: 40px; background: rgba(96,165,250,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(96,165,250,0.2);"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
                     <div>
                        <div style="font-size: 0.65rem; color: var(--text-secondary); font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">Global Hours Today</div>
                        <div id="telemetry-global-hours" style="font-size: 1.3rem; font-weight: 900; color: #3b82f6;">--</div>
                     </div>
                  </div>
                  <div class="tele-item" style="display: flex; align-items: center; gap: 16px;">
-                    <div style="width: 40px; height: 40px; font-size: 1.2rem; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; align-items: center; justify-content: center;">🛰️</div>
+                    <div style="width: 40px; height: 40px; background: rgba(192,132,252,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(192,132,252,0.2);"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg></div>
                     <div>
                        <div style="font-size: 0.65rem; color: var(--text-secondary); font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">Platform Milestone</div>
                        <div id="milestone-percentage-text" style="font-size: 1.3rem; font-weight: 900; color: #8b5cf6;">0%</div>
@@ -256,21 +256,21 @@ export const worldStageView = `
               <!-- Col 2 -->
               <div style="display: flex; flex-direction: column; gap: 24px;">
                  <div class="tele-item" style="display: flex; align-items: center; gap: 16px;">
-                    <div style="width: 40px; height: 40px; font-size: 1.2rem; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; align-items: center; justify-content: center;">🔥</div>
+                    <div style="width: 40px; height: 40px; background: rgba(248,113,113,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(248,113,113,0.2);"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></div>
                     <div>
                        <div style="font-size: 0.65rem; color: #22d3ee; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">Focusing Now</div>
                        <div id="telemetry-active-now" style="font-size: 1.3rem; font-weight: 900; color: var(--text-primary);">--</div>
                     </div>
                  </div>
                  <div class="tele-item" style="display: flex; align-items: center; gap: 16px;">
-                    <div style="width: 40px; height: 40px; font-size: 1.2rem; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; align-items: center; justify-content: center;">🏆</div>
+                    <div style="width: 40px; height: 40px; background: rgba(251,191,36,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(251,191,36,0.2);"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></div>
                     <div>
                        <div style="font-size: 0.65rem; color: var(--text-secondary); font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">Platform Total Hours</div>
                        <div id="telemetry-global-total" style="font-size: 1.3rem; font-weight: 900; color: #fbbf24; white-space: nowrap;">--</div>
                     </div>
                  </div>
                  <div class="tele-item" style="display: flex; align-items: center; gap: 16px;">
-                    <div style="width: 40px; height: 40px; font-size: 1.2rem; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; align-items: center; justify-content: center;">🏁</div>
+                    <div style="width: 40px; height: 40px; background: rgba(226,232,240,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(226,232,240,0.1);"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e2e8f0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg></div>
                     <div>
                        <div style="font-size: 0.65rem; color: var(--text-secondary); font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">Next Target</div>
                        <div id="milestone-next-target-text" style="font-size: 1.3rem; font-weight: 900; color: var(--text-primary);">100 HRS</div>

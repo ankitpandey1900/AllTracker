@@ -12,6 +12,7 @@ import {
 } from './leaderboard.state';
 import { refreshLeaderboard } from './leaderboard';
 import { bindLbItemEvents } from '@/features/dashboard/leaderboard.events';
+import { appState } from '@/state/app-state';
 
 /** Renders only the players on the current page */
 export function renderLbPage(
@@ -91,55 +92,88 @@ export function renderLbPage(
     rivalStatusHTML = `<div style="position: absolute; bottom: -4px; right: -4px; width: 14px; height: 14px; border-radius: 50%; background: #10b981; border: 2px solid #0d1222;" title="Online"></div>`;
   }
 
+  // Dynamic Taunt Logic
+  let tauntText = 'CLOSING IN';
+  let tauntColor = '#10b981'; // Green
+  
+  if (status.isFocusing) {
+    tauntText = 'RIVAL IS FOCUSING';
+    tauntColor = '#ef4444'; // Red
+  } else if (hoursDiff > 10) {
+    tauntText = 'LONG WAY TO GO';
+    tauntColor = '#71717a'; // Gray
+  } else if (hoursDiff < 2 && hoursDiff > 0.2) {
+    tauntText = 'CATCHING UP';
+    tauntColor = '#f59e0b'; // Orange
+  } else if (hoursDiff <= 0.2) {
+    tauntText = 'VERY CLOSE';
+    tauntColor = '#ef4444'; // Red
+  }
+
+  // Live ETA logic if user is currently running a timer
+  const isMeFocusing = appState.activeTimer.isRunning;
+  let etaHtml = '';
+  if (isMeFocusing && hoursDiff > 0) {
+    etaHtml = `<div style="font-size: 0.65rem; color: #3b82f6; font-weight: 800; font-family: 'JetBrains Mono', monospace; display: flex; align-items: center; gap: 6px;"><span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#3b82f6; animation: pulseGlow 1.5s infinite;"></span> ACTIVE PURSUIT</div>`;
+  }
+
   const combinedHours = (myUser.total_hours || 0) + (rival.total_hours || 0);
   const myPct = combinedHours > 0 ? ((myUser.total_hours || 0) / combinedHours) * 100 : 50;
   const rivalPct = combinedHours > 0 ? ((rival.total_hours || 0) / combinedHours) * 100 : 50;
 
   rivalryContainer.innerHTML = `
-    <article class="rivalry-card" style="border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 4px; padding: 24px; margin-top: 0; background: linear-gradient(180deg, rgba(239,68,68,0.02) 0%, transparent 100%);">
-       <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+    <article class="rivalry-card" style="border-radius: 4px; padding: 24px; margin-top: 0; background: #0a0a0a; border: 1px solid #1f1f1f; display: flex; flex-direction: column; gap: 24px;">
+       <div style="display: flex; align-items: center; justify-content: space-between;">
           <div style="display: flex; align-items: center; gap: 8px;">
-             <span style="font-size: 1.2rem;">🎯</span>
-             <h3 style="font-family: 'JetBrains Mono', monospace; font-weight: 900; letter-spacing: 2px; color: #ef4444; font-size: 0.75rem; margin: 0; text-transform: uppercase;">Target Acquired</h3>
+             <span style="display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: rgba(239, 68, 68, 0.1); border-radius: 6px; box-shadow: 0 0 10px rgba(239, 68, 68, 0.2);">
+               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>
+             </span>
+             <h3 style="font-family: 'JetBrains Mono', monospace; font-weight: 800; letter-spacing: 2px; color: #ef4444; font-size: 0.75rem; margin: 0; text-transform: uppercase;">Target Acquired</h3>
           </div>
-          <span style="font-size: 0.6rem; color: var(--text-secondary); font-weight: 800; background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 2px; font-family: 'JetBrains Mono', monospace;">RIVALRY</span>
+          <span style="font-size: 0.6rem; color: #a1a1aa; font-weight: 800; background: #18181b; border: 1px solid #27272a; padding: 4px 8px; border-radius: 2px; font-family: 'JetBrains Mono', monospace; letter-spacing: 1px;">RIVALRY</span>
        </div>
        
-       <div style="display: flex; align-items: flex-start; gap: 16px; margin-bottom: 24px;">
+       <div style="display: flex; align-items: flex-start; gap: 16px;">
           <div style="position: relative; flex-shrink: 0;">
-            <div style="width: 52px; height: 52px; border-radius: 4px; border: 1px solid rgba(239, 68, 68, 0.5); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; background: rgba(0,0,0,0.2);">
+            <div style="width: 52px; height: 52px; border-radius: 4px; border: 1px solid #27272a; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; background: #121212;">
                ${rivalAvatar}
             </div>
             ${rivalStatusHTML}
           </div>
-          <div style="flex: 1; min-width: 0;">
-             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
-               <div style="font-size: 0.65rem; color: var(--text-secondary); font-weight: 800; letter-spacing: 1px;">RANK #${rivalRank}</div>
-               <div style="font-size: 0.6rem; color: #f59e0b; font-weight: 800;">🔥 ${rival.current_streak || 0} DAY STREAK</div>
+          <div style="flex: 1; min-width: 0; padding-top: 2px;">
+             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+               <div style="font-size: 0.65rem; color: #71717a; font-weight: 700; letter-spacing: 1px;">RANK #${rivalRank}</div>
+               <div style="font-size: 0.65rem; color: #f59e0b; font-weight: 800; display: flex; align-items: center; gap: 4px;">
+                 <span>🔥</span> ${rival.current_streak || 0} DAY STREAK
+               </div>
              </div>
-             <div style="font-family: 'Outfit'; font-weight: 800; color: var(--text-primary); font-size: 1.1rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 8px;">@${rivalName}</div>
+             <div style="font-family: 'Outfit', sans-serif; font-weight: 700; color: #e4e4e7; font-size: 1.15rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 12px;">@${rivalName}</div>
              
-             <div style="display: flex; gap: 12px; font-size: 0.65rem; color: var(--text-muted); font-weight: 600;">
-               <div>TOTAL: <span style="color: var(--text-primary); font-weight: 800;">${(rival.total_hours || 0).toFixed(1)}H</span></div>
-               <div>TODAY: <span style="color: var(--text-primary); font-weight: 800;">${(rival.today_hours || 0).toFixed(1)}H</span></div>
+             <div style="display: flex; gap: 16px; font-size: 0.65rem; color: #71717a; font-weight: 600;">
+               <div style="display: flex; align-items: baseline; gap: 6px;">TOTAL: <span style="color: #e4e4e7; font-weight: 800; font-size: 0.75rem;">${(rival.total_hours || 0).toFixed(1)}H</span></div>
+               <div style="display: flex; align-items: baseline; gap: 6px;">TODAY: <span style="color: #e4e4e7; font-weight: 800; font-size: 0.75rem;">${(rival.today_hours || 0).toFixed(1)}H</span></div>
              </div>
           </div>
        </div>
 
-       <div style="border-radius: 12px; padding: 16px; border: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.2);">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-            <div style="font-size: 0.65rem; color: var(--text-secondary); font-weight: 700;">OVERTAKE REQUIREMENT</div>
-            <div style="font-size: 0.6rem; color: #ef4444; font-weight: 700; opacity: 0.8; font-style: italic;">${status.isFocusing ? 'RIVAL IS FOCUSING!' : 'CLOSING IN'}</div>
+       <div style="border-radius: 4px; padding: 16px 20px; background: #121212; border: 1px solid #1f1f1f;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <div style="font-size: 0.65rem; color: #71717a; font-weight: 700; letter-spacing: 1px;">OVERTAKE REQUIREMENT</div>
+            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+              <div style="font-size: 0.65rem; color: ${tauntColor}; font-weight: 800; font-style: italic;">
+                ${tauntText}
+              </div>
+              ${etaHtml}
+            </div>
           </div>
-          <div style="display: flex; align-items: baseline; gap: 6px;">
-             <span style="font-family: 'Tektur'; font-weight: 900; color: #ef4444; font-size: 1.5rem; letter-spacing: 1px;">${diffLabel}</span>
-             <span style="font-size: 0.65rem; color: #64748b; font-weight: 800;">OF FOCUS</span>
+          <div style="display: flex; align-items: baseline; gap: 8px;">
+             <span style="font-family: 'Tektur', sans-serif; font-weight: 800; color: #ef4444; font-size: 1.5rem; letter-spacing: 1px;">${diffLabel}</span>
+             <span style="font-size: 0.65rem; color: #71717a; font-weight: 700; letter-spacing: 1px;">OF FOCUS</span>
           </div>
           
-          <div style="margin-top: 14px; height: 6px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; display: flex; position: relative;">
+          <div style="margin-top: 16px; height: 6px; background: #1f1f1f; border-radius: 2px; overflow: hidden; display: flex;">
             <div style="height: 100%; background: #3b82f6; width: ${myPct}%; transition: width 0.5s ease;"></div>
             <div style="height: 100%; background: #ef4444; width: ${rivalPct}%; transition: width 0.5s ease;"></div>
-            <div style="position: absolute; left: ${myPct}%; top: -2px; bottom: -2px; width: 2px; background: #fff; z-index: 2;"></div>
           </div>
        </div>
     </article>
@@ -298,7 +332,7 @@ export function renderPodium(
   myDisplayName: string | null
 ): string {
   if (topUsers.length < 3) return '';
-  // Reorder for podium display: [Silver (2nd), Gold (1st), Bronze (3rd)]
+  // Order for leaderboard display: Olympic style [Silver (2nd), Gold (1st), Bronze (3rd)]
   const displayOrder = [topUsers[1], topUsers[0], topUsers[2]];
   const positions = [1, 0, 2];
 
@@ -323,19 +357,36 @@ export function renderPodium(
         <path d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.97-.81-3.99s-2.6-1.27-3.99-.81c-.67-1.31-1.91-2.19-3.34-2.19s-2.67.88-3.34 2.19c-1.39-.46-2.97-.2-3.99.81s-1.27 2.6-.81 3.99c-1.31.67-2.19 1.91-2.19 3.34s.88 2.67 2.19 3.34c-.46 1.39-.2 2.97.81 3.99s2.6 1.27 3.99.81c.67 1.31 1.91 2.19 3.34 2.19s2.67-.88 3.34-2.19c1.39.46 2.97.2 3.99-.81s1.27-2.6.81-3.99c1.31-.67 2.19-1.91 2.19-3.34zm-11.71 4.2L6.8 12.46l1.41-1.42 2.26 2.26 4.8-5.23 1.47 1.35-6.2 6.78z"></path>
       </svg>` : '';
     
+    const medalColors = ['#fbbf24', '#cbd5e1', '#b45309']; // Gold, Silver, Bronze
+    const medalColor = medalColors[globalIndex];
+    
     const medalClasses = ['podium-gold', 'podium-silver', 'podium-bronze'];
     const medalClass = medalClasses[globalIndex];
+
     const delay = globalIndex * 0.15; // Staggered animation
     
+    // Positioning and overlap logic
+    let overlapStyle = 'z-index: 1;';
+    if (globalIndex === 0) {
+      overlapStyle = 'z-index: 10; transform: scale(1.05); box-shadow: 0 10px 40px rgba(0,0,0,0.6);'; // Gold sits on top and is larger
+    } else if (globalIndex === 1) {
+      overlapStyle = 'z-index: 1; margin-right: -24px; transform: scale(0.95); opacity: 0.9;'; // Silver tucks under left of Gold
+    } else if (globalIndex === 2) {
+      overlapStyle = 'z-index: 1; margin-left: -24px; transform: scale(0.95); opacity: 0.9;'; // Bronze tucks under right of Gold
+    }
+    
     const { isFocusing, statusClass, statusLabel, todayHoursDisplay } = getUserStatus(u);
-    const statusPulse = isFocusing ? `<div class="podium-pulse" style="background: #ef4444;"></div>` : '';
+    const statusDotColor = isFocusing ? '#ef4444' : (statusClass === 'status-online' ? '#10b981' : '#71717a');
+
+    const rankLabel = globalIndex === 0 
+      ? `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="#000"><path d="M2 22h20v-2H2v2zm2-4h16l1-10-5 3-4-7-4 7-5-3 1 10z"/></svg>`
+      : `${globalIndex + 1}`;
 
     return `
-      <div class="podium-node leaderboard-item ${medalClass} ${isMe ? 'is-me' : ''}" style="--rank-color: ${rankColor}; animation-delay: ${delay}s;">
-        <div class="podium-rank">${globalIndex + 1}</div>
-        <div class="podium-avatar-wrapper" style="border-color: ${rankColor};">
+      <div class="podium-node leaderboard-item ${medalClass} ${isMe ? 'is-me' : ''}" style="border: 1px solid #1f1f1f; animation-delay: ${delay}s; ${overlapStyle}">
+        <div class="podium-rank" style="background: ${medalColor}; color: #000; font-family: 'Tektur', sans-serif; display: flex; align-items: center; justify-content: center;">${rankLabel}</div>
+        <div class="podium-avatar-wrapper" style="border: 2px solid ${medalColor}; background: #121212; box-shadow: none;">
           <div class="podium-avatar">${avatar}</div>
-          ${statusPulse}
         </div>
         <div class="podium-info">
           <div class="podium-handle" style="display: flex; align-items: center; justify-content: center; gap: 4px; width: 100%;">
@@ -343,15 +394,18 @@ export function renderPodium(
             ${flagImg} 
             ${verifiedTick}
           </div>
-          <div class="status-tag ${statusClass}" style="margin-bottom: 2px;">${statusLabel}</div>
+          <div style="display: flex; align-items: center; justify-content: center; gap: 4px; margin-bottom: 8px; margin-top: 2px;">
+            <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: ${statusDotColor};"></span>
+            <span style="font-size: 0.55rem; color: ${statusDotColor}; font-weight: 800; letter-spacing: 1px;">${statusLabel.toUpperCase()}</span>
+          </div>
           <div class="podium-hours" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 8px;">
-            <div style="font-size: 1.2rem; color: #fbbf24; font-weight: 900; letter-spacing: 1px; line-height: 1;">
+            <div style="font-family: 'Tektur', sans-serif; font-size: 1.25rem; color: ${medalColor}; font-weight: 800; letter-spacing: 1px; line-height: 1;">
               ${(calculateCompetitiveXP(u.total_hours, u.current_streak || 0, u.integrity_score || 0)).toLocaleString()}
             </div>
             <div style="font-size: 0.55rem; color: var(--text-secondary); font-weight: 800; letter-spacing: 2px; margin-top: 4px; opacity: 0.7;">RANK SCORE</div>
           </div>
 
-          <div class="podium-today" style="display: flex; flex-direction: column; align-items: center; padding: 6px 10px; background: var(--accent-light); border-radius: 8px; border: 1px solid var(--accent-border); width: 90%; max-width: 120px;">
+          <div class="podium-today" style="display: flex; flex-direction: column; align-items: center; padding: 6px 10px; background: transparent; border-radius: 4px; border: 1px solid #27272a; width: 90%; max-width: 120px;">
             <div style="color: #10b981; font-size: 0.75rem; font-weight: 800; white-space: nowrap;">
               ${formatDuration(todayHoursDisplay) || '0h'} <span style="font-size: 0.55rem; opacity: 0.8;">TODAY</span>
             </div>
