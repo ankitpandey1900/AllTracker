@@ -64,18 +64,18 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       else if (daysInactive >= 60) timeText = "a long time";
       else if (daysInactive > 7) timeText = `${daysInactive} days`;
 
-      // Brutal roasts
-      let roast = "Did you discover grass or something?";
+      // Brutal Hinglish roasts
+      let roast = "Bhai, zinda hai ya nikal gaya?";
       if (user.current_streak === 0) {
-        roast = "Your streak is literally 0. You have the discipline of a toddler in a candy store. Why even have an account if you're going to quit this easily?";
+        roast = "Your streak is 0. Literally 0. Ek din ki consistency nahi banti tujhse aur sapne bade bade dekh raha hai? Aukaat mein reh aur padhai karle chup chaap. A potato has better future prospects than you right now.";
       } else if (user.total_hours < 10) {
-        roast = `You've tracked ${user.total_hours} hours total. That's not a grind, that's a rounding error. Are you even trying or are you just pretending to be productive?`;
+        roast = `Total ${user.total_hours} ghante padha hai abhi tak. Bhai, itna time toh main bathroom mein baith ke barbaad kar deta hoon. Isse zyada toh log PUBG mein nikal dete hain. Delete maar account, tere bas ki nahi hai.`;
       } else if (user.rank === 'IRON') {
-        roast = "Still stuck in IRON rank? We thought you were taking a break, but maybe you're just genuinely terrible at focusing. Embarrassing.";
+        roast = "Abey tu abhi tak IRON rank pe hi sarr raha hai? Noobs bhi isse zyada tezi se rank up karte hain. Tujhse na ho payega. Go back to watching reels, wahi teri aukaat hai.";
       } else if (user.integrity_score < 50) {
-        roast = `With an integrity score of ${user.integrity_score}, you're basically just lying to yourself at this point. Absolutely pathetic.`;
+        roast = `Integrity score of ${user.integrity_score}? Khud ko dhoka dena band kar bsdk. You're lying to the tracker and lying to yourself. You think we can't see you cheating your way through? Absolute clown behavior.`;
       } else {
-        roast = `You have ${user.total_hours} hours under your belt. You were actually doing good, but then you folded like a cheap lawn chair. What happened?`;
+        roast = `You have ${user.total_hours} hours logged. Theek thaak padh raha tha, fir kya hua? Hawa nikal gayi? Ya bandi ne kaat diya? Wapas aa ja chup chaap pehle se hi time bohot waste kar chuka hai tu.`;
       }
 
       const emailContent = `
