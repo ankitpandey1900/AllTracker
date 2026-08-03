@@ -2,7 +2,7 @@
   "name": "all-tracker",
   "version": "4.3.0",
   "engines": {
-    "node": ">=20"
+    "node": "20.x"
   },
   "description": "The official All Tracker — A high-performance, gamified study and focus dashboard for the modern developer.",
   "type": "module",
