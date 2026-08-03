@@ -14,6 +14,7 @@ import studySessions from "./_routes/study-sessions.js";
 import telemetry from "./_routes/telemetry.js";
 import vaultName from "./_routes/vault/[name].js";
 import vaultSync from "./_routes/vault/sync.js";
+import cronReengagement from "./_routes/cron-reengagement.js";
 
 export default async function handler(
   req: IncomingMessage & { query?: Record<string, string | string[]> },
@@ -35,6 +36,7 @@ export default async function handler(
     if (path === "/study-sessions") return studySessions(req, res);
     if (path === "/telemetry") return telemetry(req, res);
     if (path === "/vault/sync") return vaultSync(req, res);
+    if (path === "/cron/reengagement") return cronReengagement(req, res);
     
     // Dynamic vault path: /api/app/vault/:name
     if (path.startsWith("/vault/")) {
