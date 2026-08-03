@@ -159,7 +159,6 @@ export class Shell {
     if (target === "intelligencePane") import("@/features/intelligence/intelligence").then(m => m.renderIntelligenceBriefing());
     if (target === "routinePane") import("@/features/routines/routines").then(m => m.renderRoutine());
     if (target === "worldStagePane") import("@/features/dashboard/leaderboard").then(m => m.initWorldStage());
-    if (target === "roadmapPane") import("@/features/roadmap/roadmap.ui").then(m => m.renderRoadmap());
     if (target === "feedPane") import("@/features/feed/feed.ui").then(m => m.renderFeedView(document.getElementById('feedPane')!));
     if (target === "bookmarksPane") import("@/features/bookmarks/bookmarks").then(m => m.renderBookmarks());
   }
