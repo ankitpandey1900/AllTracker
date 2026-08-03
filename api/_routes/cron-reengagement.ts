@@ -31,13 +31,20 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   const pool = getPool();
   
   try {
-    // 3. Query for inactive users (inactive for 7 days, and haven't been emailed yet)
+    // 3. Query for strict inactivity (haven't actually logged a study session in 7 days)
     const query = `
-      SELECT p.id as profile_id, p.username, u.email, COALESCE(p.last_active, p.created_at) as last_active,
+      SELECT p.id as profile_id, p.username, u.email, 
+             COALESCE(
+               (SELECT MAX(start_time) FROM public.study_sessions WHERE user_id = p.id),
+               p.created_at
+             ) as last_active,
              p.rank, p.total_hours, p.current_streak, p.integrity_score
       FROM public.profiles p
       JOIN public.user u ON p.auth_user_id = u.id
-      WHERE COALESCE(p.last_active, p.created_at) < NOW() - INTERVAL '7 days'
+      WHERE COALESCE(
+              (SELECT MAX(start_time) FROM public.study_sessions WHERE user_id = p.id), 
+              p.created_at
+            ) < NOW() - INTERVAL '7 days'
       AND p.last_reengagement_sent_at IS NULL
       LIMIT 100;
     `;
@@ -57,18 +64,18 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       else if (daysInactive >= 60) timeText = "a long time";
       else if (daysInactive > 7) timeText = `${daysInactive} days`;
 
-      // Generate a brutal but funny roast based on their stats
+      // Brutal roasts
       let roast = "Did you discover grass or something?";
       if (user.current_streak === 0) {
-        roast = "Your streak is currently 0. A potato literally has more momentum than you right now.";
+        roast = "Your streak is literally 0. You have the discipline of a toddler in a candy store. Why even have an account if you're going to quit this easily?";
       } else if (user.total_hours < 10) {
-        roast = `You've only tracked ${user.total_hours} hours. Are you even trying, or is this just a hobby for you?`;
+        roast = `You've tracked ${user.total_hours} hours total. That's not a grind, that's a rounding error. Are you even trying or are you just pretending to be productive?`;
       } else if (user.rank === 'IRON') {
-        roast = "Still stuck in IRON rank? We thought you were taking a break, but maybe you're just avoiding the grind.";
+        roast = "Still stuck in IRON rank? We thought you were taking a break, but maybe you're just genuinely terrible at focusing. Embarrassing.";
       } else if (user.integrity_score < 50) {
-        roast = `With an integrity score of ${user.integrity_score}, we're honestly not surprised you vanished.`;
+        roast = `With an integrity score of ${user.integrity_score}, you're basically just lying to yourself at this point. Absolutely pathetic.`;
       } else {
-        roast = `You've got ${user.total_hours} hours under your belt. You were actually doing good... what happened?`;
+        roast = `You have ${user.total_hours} hours under your belt. You were actually doing good, but then you folded like a cheap lawn chair. What happened?`;
       }
 
       const emailContent = `
