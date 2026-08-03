@@ -13,6 +13,7 @@ import "./styles/components/manual.css";
 import "./styles/components/canvas.css";
 import "./styles/components/feed.css";
 import "./styles/features/maamu.css";
+import "./styles/components/roadmap.css";
 import "./styles/themes/obsidian-glass.css";
 import "./styles/themes/tactical-navy.css";
 import "./styles/themes/solar-gold.css";

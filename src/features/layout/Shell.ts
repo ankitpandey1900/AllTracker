@@ -9,8 +9,8 @@ import { log } from '@/utils/logger.utils';
  */
 export class Shell {
   private static instance: Shell;
-  
-  private constructor() {}
+
+  private constructor() { }
 
   public static getInstance(): Shell {
     if (!Shell.instance) {
@@ -44,14 +44,14 @@ export class Shell {
 
   public setupTabNavigation(): void {
     const navItems = document.querySelectorAll(".nav-item[data-target], .mobile-nav-item[data-target]");
-    
+
     // Clear old listeners by cloning (to prevent double-bindings if called twice)
     navItems.forEach((item) => {
       const newItem = item.cloneNode(true) as HTMLElement;
       if (item.parentNode) {
         item.parentNode.replaceChild(newItem, item);
       }
-      
+
       newItem.addEventListener("click", () => {
         const target = newItem.getAttribute("data-target");
         if (!target) return;
@@ -78,14 +78,14 @@ export class Shell {
 
     const panes = document.querySelectorAll('.view-pane');
     const targetPane = document.getElementById(viewId);
-    
+
     if (!targetPane) return;
 
     // ⚡ INSTANT FEEDBACK: Premium Scanline Sync
     if (!targetPane.classList.contains('active')) {
       document.body.classList.add("view-glitch-sync");
       targetPane.classList.add("active", "shimmer-pane");
-      
+
       setTimeout(() => {
         targetPane.classList.remove("shimmer-pane");
         document.body.classList.remove("view-glitch-sync");
@@ -106,13 +106,14 @@ export class Shell {
     const titles: Record<string, string> = {
       'dashboardPane': 'Dashboard | ALL TRACKER',
       'worldStagePane': 'World Stage Arena | ALL TRACKER',
-      'routinePane': 'Habit Rituals | ALL TRACKER',
+      'roadmapPane': 'Strategy Roadmap | ALL TRACKER',
+      'routinePane': 'Routine Tracker | ALL TRACKER',
       'tasksPane': 'Mission Control | ALL TRACKER',
       'intelligencePane': 'Maamu AI | ALL TRACKER',
       'bookmarksPane': 'Bookmark Vault | ALL TRACKER',
       'feedPane': 'Arena Feed | ALL TRACKER'
     };
- 
+
     const descriptions: Record<string, string> = {
       'dashboardPane': 'Your elite study performance dashboard.',
       'worldStagePane': 'Compete on the global study leaderboard.',
@@ -124,7 +125,7 @@ export class Shell {
     };
 
     if (titles[viewId]) document.title = titles[viewId];
-    
+
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc && descriptions[viewId]) {
       metaDesc.setAttribute('content', `${descriptions[viewId]} Built for peak performance.`);
@@ -158,6 +159,7 @@ export class Shell {
     if (target === "intelligencePane") import("@/features/intelligence/intelligence").then(m => m.renderIntelligenceBriefing());
     if (target === "routinePane") import("@/features/routines/routines").then(m => m.renderRoutine());
     if (target === "worldStagePane") import("@/features/dashboard/leaderboard").then(m => m.initWorldStage());
+    if (target === "roadmapPane") import("@/features/roadmap/roadmap.ui").then(m => m.renderRoadmap());
     if (target === "feedPane") import("@/features/feed/feed.ui").then(m => m.renderFeedView(document.getElementById('feedPane')!));
     if (target === "bookmarksPane") import("@/features/bookmarks/bookmarks").then(m => m.renderBookmarks());
   }
@@ -165,7 +167,7 @@ export class Shell {
   private setupMobileMenu(): void {
     const moreBtn = document.getElementById("headerMoreBtn");
     const desktopActions = document.getElementById("headerDesktopActions");
-    
+
     if (moreBtn && desktopActions) {
       moreBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -191,7 +193,7 @@ export class Shell {
     const getCanvasUrl = (tool: 'tldraw' | 'excalidraw') => {
       const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       const theme = isDark ? 'dark' : 'light';
-      
+
       if (tool === 'excalidraw') {
         return `https://excalidraw.com?theme=${theme}`;
       }
@@ -202,7 +204,7 @@ export class Shell {
 
     const setTool = (tool: 'tldraw' | 'excalidraw') => {
       if (!frameContainer) return;
-      
+
       // Update Buttons
       tldrawBtn?.classList.toggle('active', tool === 'tldraw');
       excalidrawBtn?.classList.toggle('active', tool === 'excalidraw');
@@ -214,7 +216,7 @@ export class Shell {
     canvasToggle?.addEventListener("click", () => {
       if (!drawSection) return;
       const isHidden = drawSection.style.display === "none" || drawSection.style.display === "";
-      
+
       if (isHidden) {
         if (frameContainer && !frameContainer.querySelector('iframe')) {
           setTool('tldraw'); // Default as requested
@@ -231,7 +233,7 @@ export class Shell {
     });
 
     let currentTool: 'tldraw' | 'excalidraw' = 'tldraw';
-    
+
     tldrawBtn?.addEventListener('click', () => {
       currentTool = 'tldraw';
       setTool('tldraw');
@@ -270,11 +272,11 @@ export class Shell {
 
       document.addEventListener('mousemove', (e) => {
         if (!isDragging) return;
-        
+
         // Calculate new height based on mouse position relative to drawSection top
         const rect = drawSection.getBoundingClientRect();
         const newHeight = e.clientY - rect.top;
-        
+
         if (newHeight > 300 && newHeight < (window.innerHeight - 100)) {
           drawSection.style.height = `${newHeight}px`;
         }
