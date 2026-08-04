@@ -26,7 +26,7 @@ export default async function handler(
       return;
     }
 
-    const body = await readJsonBody<{ profile_id: string }>(req);
+    const body = await readJsonBody<{ profile_id: string; custom_message?: string }>(req);
     if (!body || !body.profile_id) {
       sendJson(res, 400, { error: "Missing profile_id" });
       return;

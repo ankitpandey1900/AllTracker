@@ -7,6 +7,10 @@
   ],
   "rewrites": [
     {
+      "source": "/ankit",
+      "destination": "/src/admin/ankit.html"
+    },
+    {
       "source": "/api/auth/(.*)",
       "destination": "/api/auth/[...auth]"
     },

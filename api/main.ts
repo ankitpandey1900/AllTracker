@@ -16,6 +16,10 @@ import vaultName from "./_routes/vault/[name].js";
 import vaultSync from "./_routes/vault/sync.js";
 import cronReengagement from "./_routes/cron-reengagement.js";
 
+// Admin / Ankit routes
+import adminUsers from "./_routes/admin/users.js";
+import adminSendRoast from "./_routes/admin/send-roast.js";
+
 export default async function handler(
   req: IncomingMessage & { query?: Record<string, string | string[]> },
   res: ServerResponse,
@@ -37,6 +41,10 @@ export default async function handler(
     if (path === "/telemetry") return telemetry(req, res);
     if (path === "/vault/sync") return vaultSync(req, res);
     if (path === "/cron/reengagement") return cronReengagement(req, res);
+    
+    // Ankit Admin Routes
+    if (path === "/ankit/users") return adminUsers(req, res);
+    if (path === "/ankit/send-roast") return adminSendRoast(req, res);
     
     // Dynamic vault path: /api/app/vault/:name
     if (path.startsWith("/vault/")) {

@@ -37,6 +37,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
                (SELECT MAX(start_time) FROM public.study_sessions WHERE user_id = p.id),
                p.created_at
              ) as last_active,
+             (SELECT COALESCE(SUM(duration), 0) FROM public.study_sessions WHERE user_id = p.id AND start_time >= NOW() - INTERVAL '7 days') as last_7_days_hours,
              p.rank, p.total_hours, p.current_streak, p.integrity_score
       FROM public.profiles p
       JOIN public.user u ON p.auth_user_id = u.id
@@ -58,6 +59,10 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     const batchEmails = inactiveUsers.map((user) => {
       const daysInactive = Math.floor((Date.now() - new Date(user.last_active).getTime()) / (1000 * 60 * 60 * 24));
       
+      const roundedTotalHrs = Number(user.total_hours || 0).toFixed(1);
+      const rounded7DayHrs = Number(user.last_7_days_hours || 0).toFixed(1);
+      const rankDisplay = user.rank ? user.rank.split(' ')[0] : 'Unranked';
+      
       let timeText = "a week";
       if (daysInactive >= 30 && daysInactive < 60) timeText = "over a month";
       else if (daysInactive >= 60) timeText = "a long time";
@@ -68,13 +73,13 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       if (user.current_streak === 0) {
         roast = "Your streak is 0. Literally 0. Ek din ki consistency nahi banti tujhse aur sapne bade bade dekh raha hai? Aukaat mein reh aur padhai karle chup chaap. A potato has better future prospects than you right now.";
       } else if (user.total_hours < 10) {
-        roast = `Total ${user.total_hours} ghante padha hai abhi tak. Bhai, itna time toh main bathroom mein baith ke barbaad kar deta hoon. Isse zyada toh log PUBG mein nikal dete hain. Delete maar account, tere bas ki nahi hai.`;
-      } else if (user.rank === 'IRON') {
+        roast = `Total ${roundedTotalHrs} ghante padha hai abhi tak. Bhai, itna time toh main bathroom mein baith ke barbaad kar deta hoon. Isse zyada toh log PUBG mein nikal dete hain. Delete maar account, tere bas ki nahi hai.`;
+      } else if (user.rank && user.rank.includes('IRON')) {
         roast = "Abey tu abhi tak IRON rank pe hi sarr raha hai? Noobs bhi isse zyada tezi se rank up karte hain. Tujhse na ho payega. Go back to watching reels, wahi teri aukaat hai.";
       } else if (user.integrity_score < 50) {
         roast = `Integrity score of ${user.integrity_score}? Khud ko dhoka dena band kar bsdk. You're lying to the tracker and lying to yourself. You think we can't see you cheating your way through? Absolute clown behavior.`;
       } else {
-        roast = `You have ${user.total_hours} hours logged. Theek thaak padh raha tha, fir kya hua? Hawa nikal gayi? Ya bandi ne kaat diya? Wapas aa ja chup chaap pehle se hi time bohot waste kar chuka hai tu.`;
+        roast = `You have ${roundedTotalHrs} hours logged. Theek thaak padh raha tha, fir kya hua? Hawa nikal gayi? Ya bandi ne kaat diya? Wapas aa ja chup chaap pehle se hi time bohot waste kar chuka hai tu.`;
       }
 
       const emailContent = `
@@ -90,9 +95,10 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
           
           <p>
             <strong>Dekh apni halat ek baar:</strong><br/>
-            Rank: ${user.rank || 'Unranked'} (Sharam kar)<br/>
+            Rank: ${rankDisplay} (Sharam kar)<br/>
             Streak: ${user.current_streak || 0} (Waah, kya consistency hai)<br/>
-            Total Focus: ${user.total_hours || 0} hrs (Mera ek din ka screen time isse zyada hai)
+            Last 7 Days: ${rounded7DayHrs} hrs (Sharam se doob mar)<br/>
+            Total Focus: ${roundedTotalHrs} hrs (Mera ek din ka screen time isse zyada hai)
           </p>
 
           <p>Abhi ke abhi wapas ja aur timer chalu kar: <a href="https://www.alltracker.online">https://www.alltracker.online</a></p>
