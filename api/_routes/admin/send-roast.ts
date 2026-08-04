@@ -26,7 +26,7 @@ export default async function handler(
       return;
     }
 
-    const body = await readJsonBody<{ profile_id: string; custom_message?: string }>(req);
+    const body = await readJsonBody<{ profile_id: string; custom_message?: string; custom_subject?: string }>(req);
     if (!body || !body.profile_id) {
       sendJson(res, 400, { error: "Missing profile_id" });
       return;
@@ -39,7 +39,7 @@ export default async function handler(
     }
 
     const pool = getPool();
-    const { profile_id, custom_message } = body;
+    const { profile_id, custom_message, custom_subject } = body;
     if (!profile_id) {
       sendJson(res, 400, { error: "Missing profile_id" });
       return;
@@ -81,6 +81,7 @@ export default async function handler(
     else timeText = `${Math.max(0, daysInactive)} days (even though it hasn't been a full week)`;
 
     let mainBodyContent = "";
+    let dynamicSubject = "";
 
     if (custom_message && custom_message.trim().length > 0) {
       mainBodyContent = `
@@ -91,14 +92,19 @@ export default async function handler(
       let roast = "";
       if (user.current_streak === 0) {
         roast = "Streak: 0. Ek din bhi lagatar padhai nahi ho rahi tujhse? Instagram band kar aur thoda focus kar le, varna aukaat wahi reh jayegi.";
+        dynamicSubject = `Reality Check: Your streak is 0, ${user.username}. Time to focus.`;
       } else if (user.total_hours < 10) {
         roast = `Sirf ${roundedTotalHrs} hrs total? Itna time toh log bathroom me reels scroll karte hue nikal dete hain. Padhna shuru kar bhai, tera future dark lag raha hai.`;
+        dynamicSubject = `Reality Check: Only ${roundedTotalHrs} hours logged? Serious ho ja, ${user.username}.`;
       } else if (user.rank && user.rank.includes('IRON')) {
         roast = "Abhi tak IRON rank pe hi atak raha tu? Tujhse zyada grind toh bgmi ke noobs karte hain. Chup chaap level up kar le.";
+        dynamicSubject = `Reality Check: Still stuck in Iron Rank, ${user.username}?`;
       } else if (user.integrity_score < 50) {
         roast = `Integrity score: ${user.integrity_score}. Khud se jhoot bolna band kar bhai. We both know you're faking those study sessions. Literal clown behavior 🤡`;
+        dynamicSubject = `Reality Check: Stop faking your focus time, ${user.username}.`;
       } else {
         roast = `Total ${roundedTotalHrs} hrs karke achanak ruk kyu gaya? Motivation khatam ya breakup ho gaya? Wapas aa ja beta, bohot time waste kar chuka hai tu.`;
+        dynamicSubject = `Reality Check: Why did you stop tracking, ${user.username}?`;
       }
 
       mainBodyContent = `
@@ -209,8 +215,8 @@ export default async function handler(
     `;
 
     const emailSubject = (custom_message && custom_message.trim().length > 0) 
-      ? `Update from All Tracker` 
-      : `Reality Check: ${user.username}, you're slipping.`;
+      ? (custom_subject && custom_subject.trim().length > 0 ? custom_subject : `Update from All Tracker`) 
+      : dynamicSubject;
 
     const resend = new Resend(resendApiKey);
     const sendResult = await resend.emails.send({
