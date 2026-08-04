@@ -5,21 +5,19 @@ import { Resend } from "resend";
 
 export default async function handler(req: IncomingMessage, res: ServerResponse): Promise<void> {
   // 1. Verify Vercel Cron Secret (Security)
-  // If hitting this endpoint manually, you must pass ?cron_secret=... or use the Auth header
   const authHeader = req.headers.authorization;
   const expectedAuth = `Bearer ${process.env.CRON_SECRET}`;
   
   const url = new URL(req.url || "/", `http://${req.headers.host}`);
   const cronSecretQuery = url.searchParams.get("cron_secret");
 
-  // TEMPORARILY DISABLED SECURITY FOR LIVE TESTING
-  // if (
-  //   process.env.CRON_SECRET && 
-  //   authHeader !== expectedAuth && 
-  //   cronSecretQuery !== process.env.CRON_SECRET
-  // ) {
-  //   return sendJson(res, 401, { error: "Unauthorized cron request." });
-  // }
+  if (
+    process.env.CRON_SECRET && 
+    authHeader !== expectedAuth && 
+    cronSecretQuery !== process.env.CRON_SECRET
+  ) {
+    return sendJson(res, 401, { error: "Unauthorized cron request." });
+  }
 
   // 2. Initialize Resend
   const resendApiKey = process.env.RESEND_API_KEY;
@@ -32,7 +30,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   const pool = getPool();
   
   try {
-    // 3. Query for strict inactivity (haven't actually logged a study session in 12 hours)
+    // 3. Query for strict inactivity (haven't actually logged a study session in 7 days)
     const query = `
       SELECT p.id as profile_id, p.username, u.email, 
              COALESCE(
@@ -45,7 +43,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       WHERE COALESCE(
               (SELECT MAX(start_time) FROM public.study_sessions WHERE user_id = p.id), 
               p.created_at
-            ) < NOW() - INTERVAL '12 hours'
+            ) < NOW() - INTERVAL '7 days'
       AND p.last_reengagement_sent_at IS NULL
       LIMIT 100;
     `;
@@ -56,8 +54,8 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       return sendJson(res, 200, { message: "No inactive users to re-engage today." });
     }
 
-    // 4. Send emails
-    const emailPromises = inactiveUsers.map((user) => {
+    // 4. Send emails using Batch API to avoid rate limits
+    const batchEmails = inactiveUsers.map((user) => {
       const daysInactive = Math.floor((Date.now() - new Date(user.last_active).getTime()) / (1000 * 60 * 60 * 24));
       
       let timeText = "a week";
@@ -82,7 +80,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       const emailContent = `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #1a1a1a;">
           <div style="text-align: center; margin-bottom: 24px;">
-            <img src="https://www.alltracker.online/icons/icon-192x192.png" alt="All Tracker Logo" width="64" height="64" style="border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <img src="https://www.alltracker.online/icon-192.png" alt="All Tracker Logo" width="64" height="64" style="border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
           </div>
           
           <h2 style="color: #09090b;">Hey ${user.username}, the Arena misses you.</h2>
@@ -106,25 +104,24 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
         </div>
       `;
 
-      return resend.emails.send({
+      return {
         from: 'All Tracker <noreply@alltracker.online>',
         to: [user.email],
         subject: "Where have you been, champion?",
         html: emailContent,
-      });
+      };
     });
 
-    const results = await Promise.allSettled(emailPromises);
+    const result = await resend.batch.send(batchEmails);
     
     // Check for successes to update DB
     const successProfileIds: string[] = [];
-    results.forEach((result, index) => {
-      if (result.status === 'fulfilled' && !result.value.error) {
-        successProfileIds.push(inactiveUsers[index].profile_id);
-      } else {
-        console.error(`Failed to send email to ${inactiveUsers[index].email}:`, result);
-      }
-    });
+    if (result.data) {
+      // If the batch succeeds, we assume all emails were queued successfully by Resend
+      successProfileIds.push(...inactiveUsers.map(u => u.profile_id));
+    } else {
+      console.error("Batch send error:", result.error);
+    }
 
     // 5. Update DB to mark emails as sent
     if (successProfileIds.length > 0) {
@@ -137,8 +134,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     }
 
     return sendJson(res, 200, { 
-      message: `Processed ${inactiveUsers.length} users. Successfully sent ${successProfileIds.length} emails.`,
-      successIds: successProfileIds
+      message: `Processed ${inactiveUsers.length} users. Successfully sent ${successProfileIds.length} emails.`
     });
 
   } catch (error) {
