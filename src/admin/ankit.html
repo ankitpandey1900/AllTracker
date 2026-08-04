@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jaldi wahan se hato</title>
+  <style>
+    :root {
+      --bg: #09090b;
+      --card: #18181b;
+      --border: #27272a;
+      --text: #f4f4f5;
+      --muted: #a1a1aa;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --danger: #ef4444;
+      --danger-hover: #dc2626;
+      --gold: #fbbf24;
+      --silver: #94a3b8;
+      --bronze: #b45309;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Loader */
+    .loader {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-size: 1.25rem;
+      color: var(--muted);
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .5; }
+    }
+
+    /* Buttons */
+    .btn {
+      background: var(--border);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+    }
+    .btn:hover:not(:disabled) {
+      background: rgba(255,255,255,0.1);
+    }
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .btn-nuke {
+      background: var(--danger);
+      color: white;
+      border: none;
+      box-shadow: 0 4px 14px 0 rgba(239, 68, 68, 0.39);
+    }
+    .btn-nuke:hover:not(:disabled) {
+      background: var(--danger-hover);
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      border: none;
+      box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39);
+    }
+    .btn-primary:hover:not(:disabled) {
+      background: var(--primary-hover);
+    }
+
+    /* Cards & Grids */
+    .stat-card {
+      background: var(--card);
+      padding: 1.5rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      transition: transform 0.2s;
+    }
+    .stat-card:hover {
+      transform: translateY(-2px);
+    }
+    .stat-label {
+      color: var(--muted);
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+    .stat-value {
+      font-size: 2.25rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.025em;
+    }
+
+    /* Table */
+    .table-container {
+      background: var(--card);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      overflow-x: auto;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+    th, td {
+      padding: 1rem 1.5rem;
+      text-align: left;
+    }
+    th {
+      background: rgba(255,255,255,0.02);
+      color: var(--muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border);
+      font-weight: 600;
+    }
+    td {
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      font-size: 0.875rem;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    tr:hover td {
+      background: rgba(255,255,255,0.02);
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 50;
+    }
+    .modal {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+    }
+    .modal h3 {
+      margin-top: 0;
+      font-size: 1.25rem;
+    }
+    textarea {
+      width: 100%;
+      background: #000;
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 1rem;
+      min-height: 120px;
+      margin: 1rem 0;
+      font-family: inherit;
+      resize: vertical;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+  </style>
+</head>
+<body>
+
+  <div id="status" class="loader">Verifying Admin Access...</div>
+  
+  <div id="admin-ui" class="container" style="display: none;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem;">
+      <h1 style="margin: 0; font-size: 2rem; letter-spacing: -0.025em; background: linear-gradient(to right, #fff, #a1a1aa); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">Ankit Dashboard</h1>
+      <button id="nuke-btn" class="btn btn-nuke">🔥 Nuke: Send All Pending Roasts</button>
+    </div>
+
+    <!-- Stats Grid -->
+    <div id="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+      <div class="stat-card">
+        <div class="stat-label">Total Users</div>
+        <div id="stat-users" class="stat-value">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Active Sessions (30m)</div>
+        <div id="stat-sessions" class="stat-value" style="color: #10b981;">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Global Focus Time</div>
+        <div id="stat-total-hrs" class="stat-value">0 hrs</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Today's Focus Time</div>
+        <div id="stat-today-hrs" class="stat-value" style="color: #3b82f6;">0 hrs</div>
+      </div>
+    </div>
+
+    <!-- Leaderboard -->
+    <div class="stat-card" style="margin-bottom: 3rem; padding: 2rem;">
+      <h2 style="margin: 0 0 1.5rem 0; color: var(--gold); font-size: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+        🏆 Top 3 Grinders
+      </h2>
+      <div id="leaderboard" style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+        <!-- Top 3 injected here -->
+      </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="table-container">
+      <table id="user-table">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Rank & Streak</th>
+            <th>Focus Time</th>
+            <th>Last Active</th>
+            <th>Joined</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="user-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Custom Email Modal -->
+  <div id="email-modal" class="modal-overlay">
+    <div class="modal">
+      <h3>Send Targeted Roast</h3>
+      <p style="color: var(--muted); font-size: 0.875rem; margin-top: 0.5rem;">
+        Leave blank to send the brutal auto-generated AI Maamu roast based on their stats. Or type a custom message below to send directly.
+      </p>
+      <textarea id="custom-msg-input" placeholder="Enter custom message..."></textarea>
+      <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+        <button id="modal-cancel-btn" class="btn">Cancel</button>
+        <button id="modal-send-btn" class="btn btn-primary">Send Email</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/admin/ankit.ts"></script>
+</body>
+</html>
