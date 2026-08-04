@@ -104,7 +104,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
         </p>
       `;
 
-      const rankScoreValue = Math.floor((roundedTotalHrs * 1.8) + ((user.current_streak || 0) * 1.5) + ((user.integrity_score || 0) * 0.1));
+      const rankScoreValue = Math.floor(((user.total_hours || 0) * 1.8) + ((user.current_streak || 0) * 1.5) + ((user.integrity_score || 0) * 0.1));
 
       const emailContent = `
       <!DOCTYPE html>
