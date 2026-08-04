@@ -79,28 +79,29 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
       const emailContent = `
         <div style="font-family: Arial, sans-serif; font-size: 15px; color: #111111; line-height: 1.5;">
-          <p>Hey ${user.username},</p>
+          <p>Ae ${user.username}, idhar aa...</p>
           
-          <p>It's been ${timeText} since you last logged into All Tracker.</p>
+          <p>Kya chal raha hai tere life mein? It's been ${timeText} since you opened All Tracker. Padhai likhai chhod di kya?</p>
           
           <p>${roast}</p>
 
-          <p>We know it's tough to stay consistent, but your goals aren't going to achieve themselves. If you are actually serious about this, log back in and get to work.</p>
+          <p>Tere ko kya lagta hai, aisi laziness ke saath tu apna goal achieve karega? (ಠ_ಠ)<br/>
+          Auto chalane ki naubat aa jayegi beta agar yahi halat rahi toh. Baad mein mat bolna Maamu ne warning nahi di thi.</p>
           
           <p>
-            <strong>Your stats before you vanished:</strong><br/>
-            Rank: ${user.rank || 'Unranked'}<br/>
-            Streak: ${user.current_streak || 0}<br/>
-            Total Focus: ${user.total_hours || 0} hrs
+            <strong>Dekh apni halat ek baar:</strong><br/>
+            Rank: ${user.rank || 'Unranked'} (Sharam kar)<br/>
+            Streak: ${user.current_streak || 0} (Waah, kya consistency hai)<br/>
+            Total Focus: ${user.total_hours || 0} hrs (Mera ek din ka screen time isse zyada hai)
           </p>
 
-          <p>Return to the Arena: <a href="https://www.alltracker.online">https://www.alltracker.online</a></p>
+          <p>Abhi ke abhi wapas ja aur timer chalu kar: <a href="https://www.alltracker.online">https://www.alltracker.online</a></p>
 
-          <p>Don't prove me right.</p>
+          <p>No excuses. Padhai kar chup chaap.</p>
           
           <p>
-            - Maamu<br/>
-            <span style="font-size: 12px; color: #666666;">All Tracker Team</span>
+            - Tera Maamu<br/>
+            <span style="font-size: 12px; color: #666666;">(Admin of Reality Checks)</span>
           </p>
         </div>
       `;
