@@ -151,10 +151,18 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
     const force = forceCloudPull || isLocalEmpty(appState.trackerData);
 
     const sync = (key: string, cloud: any, local: any, setter: Function, cloudSaver: Function) => {
-      if (cloud && (force || isDifferent(local, cloud.data) || isCloudNewer(key, cloud.updatedAt))) {
+      const isNewer = isCloudNewer(key, cloud?.updatedAt);
+      const isDiff = cloud && isDifferent(local, cloud.data);
+      
+      if (force || (cloud && isNewer)) {
+        // Cloud is newer or forced pull: Overwrite local
         setter(cloud.data, false);
         updateLocalTimestamp(key, cloud.updatedAt || undefined);
-      } else if (!isLocalEmpty(local)) {
+      } else if (isDiff && !isLocalEmpty(local)) {
+        // Local is newer and different: Push local to cloud
+        cloudSaver(local);
+      } else if (!cloud && !isLocalEmpty(local)) {
+        // Cloud is empty but local has data: Push to cloud
         cloudSaver(local);
       }
     };
