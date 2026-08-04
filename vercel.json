@@ -1,7 +1,7 @@
 {
   "crons": [
     {
-      "path": "/api/cron/reengagement",
+      "path": "/api/app/cron/reengagement",
       "schedule": "30 6 * * *"
     }
   ],
