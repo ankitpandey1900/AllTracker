@@ -143,15 +143,20 @@ if (cancelBtn && modal && input) {
 
 if (sendBtn && modal && input) {
   sendBtn.addEventListener("click", async () => {
+    const input = document.getElementById("custom-msg-input") as HTMLTextAreaElement;
+    const subjectInput = document.getElementById("custom-subject-input") as HTMLInputElement;
+    const customMessage = input ? input.value : "";
+    const customSubject = subjectInput ? subjectInput.value : "";
+    
     if (!currentTargetProfileId || !currentTargetBtn) return;
     
-    const customMessage = input.value;
     const profileId = currentTargetProfileId;
     const btn = currentTargetBtn;
 
     // Close modal
     modal.style.display = "none";
-    input.value = "";
+    if (input) input.value = "";
+    if (subjectInput) subjectInput.value = "";
     currentTargetProfileId = null;
     currentTargetBtn = null;
 
@@ -164,7 +169,7 @@ if (sendBtn && modal && input) {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ profile_id: profileId, custom_message: customMessage })
+        body: JSON.stringify({ profile_id: profileId, custom_message: customMessage, custom_subject: customSubject })
       });
 
       if (response.ok) {
