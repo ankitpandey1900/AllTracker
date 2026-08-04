@@ -84,8 +84,8 @@ export default async function handler(
 
     if (custom_message && custom_message.trim().length > 0) {
       mainBodyContent = `
-        <p style="font-size: 18px; font-weight: bold; margin-top: 0;">Hi ${user.username},</p>
-        <p>${custom_message.replace(/\n/g, '<br/>')}</p>
+        <h2 style="font-size: 20px; font-weight: 700; color: #111827; margin-top: 0; margin-bottom: 24px;">Hi ${user.username},</h2>
+        <p style="font-size: 16px; line-height: 1.6; color: #374151; margin-bottom: 24px;">${custom_message.replace(/\n/g, '<br/>')}</p>
       `;
     } else {
       let roast = "";
@@ -94,7 +94,7 @@ export default async function handler(
       } else if (user.total_hours < 10) {
         roast = `Sirf ${roundedTotalHrs} hrs total? Itna time toh log bathroom me reels scroll karte hue nikal dete hain. Padhna shuru kar bhai, tera future dark lag raha hai.`;
       } else if (user.rank && user.rank.includes('IRON')) {
-        roast = "Abhi tak IRON rank pe hi atak raha hai tu? Tujhse zyada grind toh bgmi ke noobs karte hain. Chup chaap level up kar le.";
+        roast = "Abhi tak IRON rank pe hi atak raha tu? Tujhse zyada grind toh bgmi ke noobs karte hain. Chup chaap level up kar le.";
       } else if (user.integrity_score < 50) {
         roast = `Integrity score: ${user.integrity_score}. Khud se jhoot bolna band kar bhai. We both know you're faking those study sessions. Literal clown behavior 🤡`;
       } else {
@@ -102,75 +102,110 @@ export default async function handler(
       }
 
       mainBodyContent = `
-        <p style="font-size: 18px; font-weight: bold; margin-top: 0;">Ae ${user.username}, idhar aa...</p>
+        <h2 style="font-size: 20px; font-weight: 700; color: #111827; margin-top: 0; margin-bottom: 16px;">Ae ${user.username}, idhar aa...</h2>
         
-        <p>It's been <strong>${timeText}</strong> since you last tracked a session. Padhai likhai bilkul chhod di kya?</p>
+        <p style="font-size: 16px; line-height: 1.6; color: #374151; margin-bottom: 24px;">
+          It's been <strong>${timeText}</strong> since you last tracked a session. Padhai likhai bilkul chhod di kya?
+        </p>
         
-        <div style="background-color: #fee2e2; border-left: 4px solid #ef4444; padding: 15px; margin: 20px 0; border-radius: 0 8px 8px 0;">
-          <p style="margin: 0; color: #991b1b; font-weight: 500;">${roast}</p>
+        <div style="background-color: #fee2e2; border-left: 4px solid #ef4444; padding: 16px 20px; margin: 24px 0; border-radius: 4px;">
+          <p style="margin: 0; color: #991b1b; font-size: 15px; font-weight: 500; line-height: 1.5;">${roast}</p>
         </div>
 
-        <p>Aisi laziness se tera goal kabhi achieve nahi hone wala. Baad mein mat bolna Maamu ne reality check nahi diya tha. (ಠ_ಠ)</p>
+        <p style="font-size: 16px; line-height: 1.6; color: #374151; margin-bottom: 8px;">
+          Aisi laziness se tera goal kabhi achieve nahi hone wala. Baad mein mat bolna Maamu ne reality check nahi diya tha. (ಠ_ಠ)
+        </p>
       `;
     }
 
     const emailContent = `
-      <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9f9f9; padding: 20px;">
-        <div style="background-color: #ffffff; border: 1px solid #eaeaea; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-          
-          <!-- Header with Logo -->
-          <div style="background-color: #09090b; padding: 30px 20px; text-align: center; border-bottom: 3px solid #ef4444;">
-            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -1px;">ALL TRACKER</h1>
-            <p style="color: #a1a1aa; margin: 5px 0 0 0; font-size: 14px; text-transform: uppercase; letter-spacing: 2px;">Reality Check</p>
-          </div>
-          
-          <!-- Body -->
-          <div style="padding: 30px; color: #111111; line-height: 1.6; font-size: 16px;">
-            ${mainBodyContent}
-            
-            <!-- Stats Box -->
-            <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 25px 0;">
-              <h3 style="margin: 0 0 15px 0; color: #334155; font-size: 16px; text-transform: uppercase; letter-spacing: 1px;">Dekh Apni Halat:</h3>
-              <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 15px;">
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </head>
+      <body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f3f4f6; padding: 40px 20px;">
+          <tr>
+            <td align="center">
+              <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
+                
+                <!-- Premium Header -->
                 <tr>
-                  <td style="padding: 8px 0; color: #64748b; font-weight: 500;">Rank:</td>
-                  <td style="padding: 8px 0; color: #0f172a; font-weight: bold; text-align: right;">${rankDisplay}</td>
+                  <td style="background-color: #000000; padding: 40px 0; text-align: center;">
+                    <img src="https://www.alltracker.online/icon-192.png" alt="All Tracker Logo" width="64" height="64" style="display: block; margin: 0 auto 16px auto; border-radius: 12px;">
+                    <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px;">ALL TRACKER</h1>
+                    <p style="color: #9ca3af; margin: 8px 0 0 0; font-size: 13px; text-transform: uppercase; letter-spacing: 2px; font-weight: 600;">Reality Check</p>
+                  </td>
                 </tr>
+                
+                <!-- Main Content Area -->
                 <tr>
-                  <td style="padding: 8px 0; color: #64748b; font-weight: 500; border-top: 1px solid #e2e8f0;">Streak:</td>
-                  <td style="padding: 8px 0; color: #d97706; font-weight: bold; text-align: right; border-top: 1px solid #e2e8f0;">${user.current_streak || 0} 🔥</td>
+                  <td style="padding: 40px 40px 20px 40px;">
+                    ${mainBodyContent}
+                  </td>
                 </tr>
+
+                <!-- Elegantly Styled Stats Box -->
                 <tr>
-                  <td style="padding: 8px 0; color: #64748b; font-weight: 500; border-top: 1px solid #e2e8f0;">Last 7 Days:</td>
-                  <td style="padding: 8px 0; color: #0f172a; font-weight: bold; text-align: right; border-top: 1px solid #e2e8f0;">${rounded7DayHrs} hrs</td>
+                  <td style="padding: 0 40px 30px 40px;">
+                    <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 24px;">
+                      <h3 style="margin: 0 0 16px 0; color: #0f172a; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Performance Report</h3>
+                      <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 15px;">
+                        <tr>
+                          <td style="padding: 10px 0; color: #64748b; font-weight: 500;">Current Rank</td>
+                          <td style="padding: 10px 0; color: #0f172a; font-weight: 700; text-align: right;">${rankDisplay}</td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 10px 0; color: #64748b; font-weight: 500; border-top: 1px solid #e2e8f0;">Active Streak</td>
+                          <td style="padding: 10px 0; color: #d97706; font-weight: 700; text-align: right; border-top: 1px solid #e2e8f0;">${user.current_streak || 0} 🔥</td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 10px 0; color: #64748b; font-weight: 500; border-top: 1px solid #e2e8f0;">Past 7 Days</td>
+                          <td style="padding: 10px 0; color: #0f172a; font-weight: 700; text-align: right; border-top: 1px solid #e2e8f0;">${rounded7DayHrs} hrs</td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 10px 0; color: #64748b; font-weight: 500; border-top: 1px solid #e2e8f0;">Total Focus Time</td>
+                          <td style="padding: 10px 0; color: #0f172a; font-weight: 700; text-align: right; border-top: 1px solid #e2e8f0;">${roundedTotalHrs} hrs</td>
+                        </tr>
+                      </table>
+                    </div>
+                  </td>
                 </tr>
+
+                <!-- Call to Action -->
                 <tr>
-                  <td style="padding: 8px 0; color: #64748b; font-weight: 500; border-top: 1px solid #e2e8f0;">Total Focus:</td>
-                  <td style="padding: 8px 0; color: #0f172a; font-weight: bold; text-align: right; border-top: 1px solid #e2e8f0;">${roundedTotalHrs} hrs</td>
+                  <td style="padding: 10px 40px 40px 40px; text-align: center;">
+                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                      <tr>
+                        <td align="center">
+                          <a href="https://www.alltracker.online" style="display: inline-block; background-color: #ef4444; color: #ffffff; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 16px; box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.3);">Start Focus Timer Now</a>
+                        </td>
+                      </tr>
+                    </table>
+                    <p style="margin: 24px 0 0 0; color: #6b7280; font-size: 14px; font-style: italic;">No more excuses.</p>
+                  </td>
+                </tr>
+                
+                <!-- Premium Footer -->
+                <tr>
+                  <td style="background-color: #f8fafc; padding: 32px 40px; text-align: center; border-top: 1px solid #e2e8f0;">
+                    <p style="margin: 0 0 8px 0; color: #475569; font-size: 14px; font-weight: 600;">
+                      The All Tracker Accountability System
+                    </p>
+                    <p style="margin: 0; color: #94a3b8; font-size: 12px; line-height: 1.5;">
+                      You are receiving this reality check because you created an account.<br>
+                      If you're giving up, you can manually delete your account in settings.
+                    </p>
+                  </td>
                 </tr>
               </table>
-            </div>
-
-            <div style="text-align: center; margin: 35px 0 15px 0;">
-              <a href="https://www.alltracker.online" style="background-color: #000000; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; display: inline-block;">Start Focus Timer Now</a>
-            </div>
-
-            <p style="text-align: center; color: #666666; font-size: 14px;">No excuses. Padhai kar chup chaap.</p>
-            
-          </div>
-          
-          <!-- Footer -->
-          <div style="background-color: #f1f5f9; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0;">
-            <p style="margin: 0; color: #64748b; font-size: 13px;">
-              <strong>Your strict accountability partner</strong><br/>
-              (Auto-generated reminder based on inactivity)
-            </p>
-            <p style="margin: 10px 0 0 0; color: #94a3b8; font-size: 11px;">
-              You are receiving this because you signed up for All Tracker.<br/>To stop receiving these, you must manually delete your account.
-            </p>
-          </div>
-        </div>
-      </div>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
     `;
 
     const resend = new Resend(resendApiKey);
