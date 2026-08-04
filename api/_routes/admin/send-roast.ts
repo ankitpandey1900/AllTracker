@@ -72,31 +72,22 @@ export default async function handler(
     const rounded7DayHrs = Number(user.last_7_days_hours || 0).toFixed(1);
     const rankDisplay = user.rank ? user.rank.split(' ')[0] : 'Unranked';
 
-    let emailContent = "";
+    const lastActiveDate = user.last_active ? new Date(user.last_active).getTime() : Date.now();
+    const daysInactive = Math.floor((Date.now() - lastActiveDate) / (1000 * 60 * 60 * 24));
+    let timeText = "a week";
+    if (daysInactive >= 30 && daysInactive < 60) timeText = "over a month";
+    else if (daysInactive >= 60) timeText = "a long time";
+    else if (daysInactive > 7) timeText = `${daysInactive} days`;
+    else timeText = `${Math.max(0, daysInactive)} days (even though it hasn't been a full week)`;
+
+    let mainBodyContent = "";
 
     if (custom_message && custom_message.trim().length > 0) {
-      emailContent = `
-        <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #eaeaea; border-radius: 8px; overflow: hidden;">
-          <div style="background-color: #000000; padding: 20px; text-align: center;">
-            <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: -0.5px;">All Tracker</h1>
-          </div>
-          <div style="padding: 30px; color: #333333; line-height: 1.6; font-size: 16px;">
-            <p>Hi ${user.username},</p>
-            <p>${custom_message.replace(/\n/g, '<br/>')}</p>
-            <br/>
-            <p style="margin-bottom: 0;">Regards,<br/><strong>The All Tracker Team</strong></p>
-          </div>
-        </div>
+      mainBodyContent = `
+        <p style="font-size: 18px; font-weight: bold; margin-top: 0;">Hi ${user.username},</p>
+        <p>${custom_message.replace(/\n/g, '<br/>')}</p>
       `;
     } else {
-      const lastActiveDate = user.last_active ? new Date(user.last_active).getTime() : Date.now();
-      const daysInactive = Math.floor((Date.now() - lastActiveDate) / (1000 * 60 * 60 * 24));
-      let timeText = "a week";
-      if (daysInactive >= 30 && daysInactive < 60) timeText = "over a month";
-      else if (daysInactive >= 60) timeText = "a long time";
-      else if (daysInactive > 7) timeText = `${daysInactive} days`;
-      else timeText = `${Math.max(0, daysInactive)} days (even though it hasn't been a full week)`;
-
       let roast = "";
       if (user.current_streak === 0) {
         roast = "Streak: 0. Ek din bhi lagatar padhai nahi ho rahi tujhse? Instagram band kar aur thoda focus kar le, varna aukaat wahi reh jayegi.";
@@ -110,73 +101,77 @@ export default async function handler(
         roast = `Total ${roundedTotalHrs} hrs karke achanak ruk kyu gaya? Motivation khatam ya breakup ho gaya? Wapas aa ja beta, bohot time waste kar chuka hai tu.`;
       }
 
-      emailContent = `
-        <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9f9f9; padding: 20px;">
-          <div style="background-color: #ffffff; border: 1px solid #eaeaea; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-            
-            <!-- Header with Logo -->
-            <div style="background-color: #09090b; padding: 30px 20px; text-align: center; border-bottom: 3px solid #ef4444;">
-              <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -1px;">ALL TRACKER</h1>
-              <p style="color: #a1a1aa; margin: 5px 0 0 0; font-size: 14px; text-transform: uppercase; letter-spacing: 2px;">Reality Check</p>
-            </div>
-            
-            <!-- Body -->
-            <div style="padding: 30px; color: #111111; line-height: 1.6; font-size: 16px;">
-              <p style="font-size: 18px; font-weight: bold; margin-top: 0;">Ae ${user.username}, idhar aa...</p>
-              
-              <p>It's been <strong>${timeText}</strong> since you last tracked a session. Padhai likhai bilkul chhod di kya?</p>
-              
-              <div style="background-color: #fee2e2; border-left: 4px solid #ef4444; padding: 15px; margin: 20px 0; border-radius: 0 8px 8px 0;">
-                <p style="margin: 0; color: #991b1b; font-weight: 500;">${roast}</p>
-              </div>
-
-              <p>Aisi laziness se tera goal kabhi achieve nahi hone wala. Baad mein mat bolna Maamu ne reality check nahi diya tha. (ಠ_ಠ)</p>
-              
-              <!-- Stats Box -->
-              <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 25px 0;">
-                <h3 style="margin: 0 0 15px 0; color: #334155; font-size: 16px; text-transform: uppercase; letter-spacing: 1px;">Dekh Apni Halat:</h3>
-                <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 15px;">
-                  <tr>
-                    <td style="padding: 8px 0; color: #64748b; font-weight: 500;">Rank:</td>
-                    <td style="padding: 8px 0; color: #0f172a; font-weight: bold; text-align: right;">${rankDisplay}</td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 8px 0; color: #64748b; font-weight: 500; border-top: 1px solid #e2e8f0;">Streak:</td>
-                    <td style="padding: 8px 0; color: #d97706; font-weight: bold; text-align: right; border-top: 1px solid #e2e8f0;">${user.current_streak || 0} 🔥</td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 8px 0; color: #64748b; font-weight: 500; border-top: 1px solid #e2e8f0;">Last 7 Days:</td>
-                    <td style="padding: 8px 0; color: #0f172a; font-weight: bold; text-align: right; border-top: 1px solid #e2e8f0;">${rounded7DayHrs} hrs</td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 8px 0; color: #64748b; font-weight: 500; border-top: 1px solid #e2e8f0;">Total Focus:</td>
-                    <td style="padding: 8px 0; color: #0f172a; font-weight: bold; text-align: right; border-top: 1px solid #e2e8f0;">${roundedTotalHrs} hrs</td>
-                  </tr>
-                </table>
-              </div>
-
-              <div style="text-align: center; margin: 35px 0 15px 0;">
-                <a href="https://www.alltracker.online" style="background-color: #000000; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; display: inline-block;">Start Focus Timer Now</a>
-              </div>
-
-              <p style="text-align: center; color: #666666; font-size: 14px;">No excuses. Padhai kar chup chaap.</p>
-              
-            </div>
-            
-            <!-- Footer -->
-            <div style="background-color: #f1f5f9; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0;">
-              <p style="margin: 0; color: #64748b; font-size: 13px;">
-                <strong>Your strict accountability partner</strong><br/>
-                (Auto-generated reminder based on inactivity)
-              </p>
-              <p style="margin: 10px 0 0 0; color: #94a3b8; font-size: 11px;">
-                You are receiving this because you signed up for All Tracker.<br/>To stop receiving these, you must manually delete your account.
-              </p>
-            </div>
-          </div>
+      mainBodyContent = `
+        <p style="font-size: 18px; font-weight: bold; margin-top: 0;">Ae ${user.username}, idhar aa...</p>
+        
+        <p>It's been <strong>${timeText}</strong> since you last tracked a session. Padhai likhai bilkul chhod di kya?</p>
+        
+        <div style="background-color: #fee2e2; border-left: 4px solid #ef4444; padding: 15px; margin: 20px 0; border-radius: 0 8px 8px 0;">
+          <p style="margin: 0; color: #991b1b; font-weight: 500;">${roast}</p>
         </div>
+
+        <p>Aisi laziness se tera goal kabhi achieve nahi hone wala. Baad mein mat bolna Maamu ne reality check nahi diya tha. (ಠ_ಠ)</p>
       `;
     }
+
+    const emailContent = `
+      <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9f9f9; padding: 20px;">
+        <div style="background-color: #ffffff; border: 1px solid #eaeaea; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+          
+          <!-- Header with Logo -->
+          <div style="background-color: #09090b; padding: 30px 20px; text-align: center; border-bottom: 3px solid #ef4444;">
+            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -1px;">ALL TRACKER</h1>
+            <p style="color: #a1a1aa; margin: 5px 0 0 0; font-size: 14px; text-transform: uppercase; letter-spacing: 2px;">Reality Check</p>
+          </div>
+          
+          <!-- Body -->
+          <div style="padding: 30px; color: #111111; line-height: 1.6; font-size: 16px;">
+            ${mainBodyContent}
+            
+            <!-- Stats Box -->
+            <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 25px 0;">
+              <h3 style="margin: 0 0 15px 0; color: #334155; font-size: 16px; text-transform: uppercase; letter-spacing: 1px;">Dekh Apni Halat:</h3>
+              <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 15px;">
+                <tr>
+                  <td style="padding: 8px 0; color: #64748b; font-weight: 500;">Rank:</td>
+                  <td style="padding: 8px 0; color: #0f172a; font-weight: bold; text-align: right;">${rankDisplay}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #64748b; font-weight: 500; border-top: 1px solid #e2e8f0;">Streak:</td>
+                  <td style="padding: 8px 0; color: #d97706; font-weight: bold; text-align: right; border-top: 1px solid #e2e8f0;">${user.current_streak || 0} 🔥</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #64748b; font-weight: 500; border-top: 1px solid #e2e8f0;">Last 7 Days:</td>
+                  <td style="padding: 8px 0; color: #0f172a; font-weight: bold; text-align: right; border-top: 1px solid #e2e8f0;">${rounded7DayHrs} hrs</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #64748b; font-weight: 500; border-top: 1px solid #e2e8f0;">Total Focus:</td>
+                  <td style="padding: 8px 0; color: #0f172a; font-weight: bold; text-align: right; border-top: 1px solid #e2e8f0;">${roundedTotalHrs} hrs</td>
+                </tr>
+              </table>
+            </div>
+
+            <div style="text-align: center; margin: 35px 0 15px 0;">
+              <a href="https://www.alltracker.online" style="background-color: #000000; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; display: inline-block;">Start Focus Timer Now</a>
+            </div>
+
+            <p style="text-align: center; color: #666666; font-size: 14px;">No excuses. Padhai kar chup chaap.</p>
+            
+          </div>
+          
+          <!-- Footer -->
+          <div style="background-color: #f1f5f9; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0;">
+            <p style="margin: 0; color: #64748b; font-size: 13px;">
+              <strong>Your strict accountability partner</strong><br/>
+              (Auto-generated reminder based on inactivity)
+            </p>
+            <p style="margin: 10px 0 0 0; color: #94a3b8; font-size: 11px;">
+              You are receiving this because you signed up for All Tracker.<br/>To stop receiving these, you must manually delete your account.
+            </p>
+          </div>
+        </div>
+      </div>
+    `;
 
     const resend = new Resend(resendApiKey);
     const sendResult = await resend.emails.send({
