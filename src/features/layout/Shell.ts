@@ -106,7 +106,6 @@ export class Shell {
     const titles: Record<string, string> = {
       'dashboardPane': 'Dashboard | ALL TRACKER',
       'worldStagePane': 'World Stage Arena | ALL TRACKER',
-      'roadmapPane': 'Strategy Roadmap | ALL TRACKER',
       'routinePane': 'Routine Tracker | ALL TRACKER',
       'tasksPane': 'Mission Control | ALL TRACKER',
       'intelligencePane': 'Maamu AI | ALL TRACKER',
