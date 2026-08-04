@@ -78,36 +78,37 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       }
 
       const emailContent = `
-        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #1a1a1a;">
-          <div style="text-align: center; margin-bottom: 24px;">
-            <img src="https://www.alltracker.online/icon-192.png" alt="All Tracker Logo" width="64" height="64" style="border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-          </div>
+        <div style="font-family: Arial, sans-serif; font-size: 15px; color: #111111; line-height: 1.5;">
+          <p>Hey ${user.username},</p>
           
-          <h2 style="color: #09090b;">Hey ${user.username}, the Arena misses you.</h2>
           <p>It's been ${timeText} since you last logged into All Tracker.</p>
           
-          <div style="background-color: #f4f4f5; border-left: 4px solid #71717a; padding: 16px; margin: 24px 0; border-radius: 4px;">
-            <p style="margin: 0; font-style: italic; color: #3f3f46;">
-              "<strong>${roast}</strong>"
-            </p>
-          </div>
+          <p>${roast}</p>
 
-          <p>We know it's tough to stay consistent, but your goals aren't going to achieve themselves.</p>
+          <p>We know it's tough to stay consistent, but your goals aren't going to achieve themselves. If you are actually serious about this, log back in and get to work.</p>
           
-          <p><strong>Your Current Stats:</strong><br/>
-          🏆 Rank: ${user.rank || 'Unranked'}<br/>
-          🔥 Streak: ${user.current_streak || 0}<br/>
-          ⏱️ Total Focus: ${user.total_hours || 0} hrs</p>
+          <p>
+            <strong>Your stats before you vanished:</strong><br/>
+            Rank: ${user.rank || 'Unranked'}<br/>
+            Streak: ${user.current_streak || 0}<br/>
+            Total Focus: ${user.total_hours || 0} hrs
+          </p>
 
-          <a href="https://www.alltracker.online" style="display: inline-block; padding: 12px 24px; background-color: #09090b; color: #ffffff; text-decoration: none; border-radius: 6px; margin-top: 24px; font-weight: bold;">Return to the Arena</a>
-          <p style="font-size: 12px; color: #71717a; margin-top: 48px;">- Maamu & The All Tracker Team</p>
+          <p>Return to the Arena: <a href="https://www.alltracker.online">https://www.alltracker.online</a></p>
+
+          <p>Don't prove me right.</p>
+          
+          <p>
+            - Maamu<br/>
+            <span style="font-size: 12px; color: #666666;">All Tracker Team</span>
+          </p>
         </div>
       `;
 
       return {
-        from: 'All Tracker <noreply@alltracker.online>',
+        from: 'Maamu @ All Tracker <maamu@alltracker.online>',
         to: [user.email],
-        subject: "Where have you been, champion?",
+        subject: `${user.username}, you're slipping.`,
         html: emailContent,
       };
     });
