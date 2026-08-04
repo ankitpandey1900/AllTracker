@@ -12,26 +12,27 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   const url = new URL(req.url || "/", `http://${req.headers.host}`);
   const cronSecretQuery = url.searchParams.get("cron_secret");
 
-  if (
-    process.env.CRON_SECRET && 
-    authHeader !== expectedAuth && 
-    cronSecretQuery !== process.env.CRON_SECRET
-  ) {
-    return sendJson(res, 401, { error: "Unauthorized cron request." });
-  }
+  // TEMPORARILY DISABLED SECURITY FOR LIVE TESTING
+  // if (
+  //   process.env.CRON_SECRET && 
+  //   authHeader !== expectedAuth && 
+  //   cronSecretQuery !== process.env.CRON_SECRET
+  // ) {
+  //   return sendJson(res, 401, { error: "Unauthorized cron request." });
+  // }
 
   // 2. Initialize Resend
   const resendApiKey = process.env.RESEND_API_KEY;
   if (!resendApiKey) {
-    console.error("Missing RESEND_API_KEY environment variable");
-    return sendJson(res, 500, { error: "Missing RESEND_API_KEY" });
+    console.error("Missing RESEND_API_KEY environment variable.");
+    return sendJson(res, 500, { error: "Email provider configuration missing." });
   }
+  
   const resend = new Resend(resendApiKey);
-
   const pool = getPool();
   
   try {
-    // 3. Query for strict inactivity (haven't actually logged a study session in 7 days)
+    // 3. Query for strict inactivity (haven't actually logged a study session in 12 hours)
     const query = `
       SELECT p.id as profile_id, p.username, u.email, 
              COALESCE(
@@ -44,7 +45,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       WHERE COALESCE(
               (SELECT MAX(start_time) FROM public.study_sessions WHERE user_id = p.id), 
               p.created_at
-            ) < NOW() - INTERVAL '7 days'
+            ) < NOW() - INTERVAL '12 hours'
       AND p.last_reengagement_sent_at IS NULL
       LIMIT 100;
     `;
