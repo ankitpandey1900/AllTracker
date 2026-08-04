@@ -208,11 +208,15 @@ export default async function handler(
       </html>
     `;
 
+    const emailSubject = (custom_message && custom_message.trim().length > 0) 
+      ? `Update from All Tracker` 
+      : `Reality Check: ${user.username}, you're slipping.`;
+
     const resend = new Resend(resendApiKey);
     const sendResult = await resend.emails.send({
       from: 'Maamu @ All Tracker <maamu@alltracker.online>',
       to: [email],
-      subject: `${user.username}, you're slipping.`,
+      subject: emailSubject,
       html: emailContent,
     });
 

@@ -191,7 +191,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       return {
         from: 'Maamu @ All Tracker <maamu@alltracker.online>',
         to: [user.email],
-        subject: `${user.username}, you're slipping.`,
+        subject: `Reality Check: ${user.username}, you're slipping.`,
         html: emailContent,
       };
     });
