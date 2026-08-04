@@ -92,19 +92,19 @@ export default async function handler(
       let roast = "";
       if (user.current_streak === 0) {
         roast = "Streak: 0. Ek din bhi lagatar padhai nahi ho rahi tujhse? Instagram band kar aur thoda focus kar le, varna aukaat wahi reh jayegi.";
-        dynamicSubject = `Reality Check: Your streak is 0, ${user.username}. Time to focus.`;
+        dynamicSubject = `bruh, your streak is literally 0 🤡 time to lock in`;
       } else if (user.total_hours < 10) {
         roast = `Sirf ${roundedTotalHrs} hrs total? Itna time toh log bathroom me reels scroll karte hue nikal dete hain. Padhna shuru kar bhai, tera future dark lag raha hai.`;
-        dynamicSubject = `Reality Check: Only ${roundedTotalHrs} hours logged? Serious ho ja, ${user.username}.`;
+        dynamicSubject = `you're slacking bestie 😔 only ${roundedTotalHrs} hours?`;
       } else if (user.rank && user.rank.includes('IRON')) {
         roast = "Abhi tak IRON rank pe hi atak raha tu? Tujhse zyada grind toh bgmi ke noobs karte hain. Chup chaap level up kar le.";
-        dynamicSubject = `Reality Check: Still stuck in Iron Rank, ${user.username}?`;
+        dynamicSubject = `still stuck in iron rank? embarrassing 💀`;
       } else if (user.integrity_score < 50) {
         roast = `Integrity score: ${user.integrity_score}. Khud se jhoot bolna band kar bhai. We both know you're faking those study sessions. Literal clown behavior 🤡`;
-        dynamicSubject = `Reality Check: Stop faking your focus time, ${user.username}.`;
+        dynamicSubject = `we see you faking those hours 👀 stop playing`;
       } else {
         roast = `Total ${roundedTotalHrs} hrs karke achanak ruk kyu gaya? Motivation khatam ya breakup ho gaya? Wapas aa ja beta, bohot time waste kar chuka hai tu.`;
-        dynamicSubject = `Reality Check: Why did you stop tracking, ${user.username}?`;
+        dynamicSubject = `u alive? missing u on the leaderboard 🏆`;
       }
 
       mainBodyContent = `
@@ -123,6 +123,8 @@ export default async function handler(
         </p>
       `;
     }
+
+    const rankScoreValue = Math.floor((roundedTotalHrs * 1.8) + ((user.current_streak || 0) * 1.5) + ((user.integrity_score || 0) * 0.1));
 
     const emailContent = `
       <!DOCTYPE html>
@@ -151,7 +153,7 @@ export default async function handler(
                 <!-- Logo Header -->
                 <tr>
                   <td style="padding-bottom: 40px;">
-                    <img src="https://www.alltracker.online/icon-192.png" alt="All Tracker" width="48" height="48" style="display: block; border-radius: 10px;">
+                    <img src="https://www.alltracker.online/icon-192.png" alt="All Tracker" width="72" height="72" style="display: block; border-radius: 16px;">
                   </td>
                 </tr>
                 
@@ -170,6 +172,10 @@ export default async function handler(
                       <tr>
                         <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; color: #4b5563;" class="divider stats-label">Rank</td>
                         <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; font-weight: 600; text-align: right; color: #111827;" class="divider">${rankDisplay}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; color: #4b5563;" class="divider stats-label">Rank Score</td>
+                        <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; font-weight: 800; text-align: right; color: #d97706;" class="divider">${rankScoreValue}</td>
                       </tr>
                       <tr>
                         <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; color: #4b5563;" class="divider stats-label">Active Streak</td>
