@@ -141,9 +141,11 @@ export function getChatSessions(): ChatSession[] { return maamuSessions; }
 export function getActiveSession(): ChatSession | null { return maamuSessions.find(s => s.id === maamuActiveId) || maamuSessions[0] || null; }
 
 export async function createNewSession(title: string = 'New Chat'): Promise<string> {
-  const created = await createMaamuSession(title);
-  if (!created) return '';
-  const session: ChatSession = { id: created.id, title: created.title, messages: [], createdAt: created.createdAt, lastActive: created.lastActive };
+  const created = await createMaamuSession(title).catch(() => null);
+  const id = created ? created.id : crypto.randomUUID();
+  const createdAt = created ? created.createdAt : new Date().toISOString();
+  const lastActive = created ? created.lastActive : new Date().toISOString();
+  const session: ChatSession = { id, title: created ? created.title : title, messages: [], createdAt, lastActive };
   maamuSessions.unshift(session);
   maamuActiveId = session.id;
   return session.id;
