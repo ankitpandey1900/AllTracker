@@ -29,12 +29,22 @@ export default async function handler(
     }
 
     const result = streamText({
-      model: google("gemini-2.5-flash"),
+      model: google("gemini-1.5-pro"),
       messages: body.messages,
       temperature: 0.7
     });
-
-    result.pipeTextStreamToResponse(res);
+    
+    // In Node.js ServerResponse, we must handle errors gracefully
+    result.pipeTextStreamToResponse(res).catch((err: any) => {
+      console.error('Pipe Error:', err);
+      if (!res.headersSent) {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: err.message }));
+      } else {
+        res.end();
+      }
+    });
+    
   } catch (error: any) {
     console.error("AI Chat Error:", error);
     if (!res.headersSent) {
