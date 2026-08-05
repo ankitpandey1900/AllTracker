@@ -782,10 +782,7 @@ function setupListeners(): boolean {
 
   // ── New Mission Dialog ──
   renderModelOptions();
-  bindModelSelect(document.getElementById('maamuModelSelectInline') as HTMLSelectElement | null);
   bindModelSelect(document.getElementById('maamuModelSelectBottom') as HTMLSelectElement | null);
-  bindSessionQuickAccess();
-  renderUsageChip();
   document.getElementById('maamuSessionSearch')?.addEventListener('input', () => renderSessionsList());
   document.querySelectorAll('.maamu-template-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -819,13 +816,6 @@ function setupListeners(): boolean {
   });
   refreshTemplateUI();
   document.getElementById('maamuExportMdBtn')?.addEventListener('click', exportActiveConversationMarkdown);
-  document.getElementById('toggleCompactView')?.addEventListener('click', () => {
-    setCompactMode(!getEffectiveCompactMode());
-  });
-  const mobileCompactMedia = window.matchMedia(MOBILE_COMPACT_MEDIA);
-  mobileCompactMedia.addEventListener?.('change', () => {
-    if (!hasUserCompactPreference()) setCompactMode(getEffectiveCompactMode());
-  });
   document.getElementById('toggleTemplatesBtn')?.addEventListener('click', () => {
     setTemplatesCollapsed(!areTemplatesCollapsed());
   });
@@ -977,11 +967,9 @@ function setupListeners(): boolean {
     const sb = document.getElementById('maamuSidebar');
     const tog = document.getElementById('toggleMaamuSidebar');
     if (!sb || !tog) return;
-    if (window.innerWidth <= 1024) {
-      if (sb.classList.contains('active') && !sb.contains(e.target as Node) && !tog.contains(e.target as Node)) {
-        sb.classList.remove('active');
-      }
-    }    
+    if (sb.classList.contains('active') && !sb.contains(e.target as Node) && !tog.contains(e.target as Node)) {
+      sb.classList.remove('active');
+    }
   });
 
   window.addEventListener('all-tracker-identity-sync', async () => {
