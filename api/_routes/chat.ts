@@ -28,9 +28,13 @@ export default async function handler(
       return;
     }
 
+    const systemMessage = body.messages.find((m: any) => m.role === 'system')?.content;
+    const coreMessages = body.messages.filter((m: any) => m.role !== 'system');
+
     const result = streamText({
       model: google("gemini-1.5-pro"),
-      messages: body.messages,
+      system: systemMessage,
+      messages: coreMessages,
       temperature: 0.7
     });
     
