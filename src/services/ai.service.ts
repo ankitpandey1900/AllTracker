@@ -118,7 +118,10 @@ export async function getMaamuResponseStream(
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ messages }),
+      body: JSON.stringify({ 
+        messages,
+        model: (window as any).appState?.settings?.maamuModel || 'gemini-1.5-flash-latest'
+      }),
       signal: options?.signal
     });
 

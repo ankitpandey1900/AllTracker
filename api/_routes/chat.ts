@@ -30,9 +30,10 @@ export default async function handler(
 
     const systemMessage = body.messages.find((m: any) => m.role === 'system')?.content;
     const coreMessages = body.messages.filter((m: any) => m.role !== 'system');
+    const requestedModel = (body as any).model || "gemini-1.5-flash-latest";
 
     const result = streamText({
-      model: google("gemini-1.5-pro"),
+      model: google(requestedModel),
       system: systemMessage,
       messages: coreMessages,
       temperature: 0.7
