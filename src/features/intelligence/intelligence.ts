@@ -581,7 +581,8 @@ function streamResponse(
   activeStreamController = new AbortController();
   setStopButtonState(true);
   getMaamuResponseStream(
-    query, tacticalBrief,
+    query, 
+    tacticalBrief,
     (_chunk: string, accumulated: string) => {
       if (contentEl) {
         const isAtBottom = chatOutput.scrollHeight - chatOutput.scrollTop - chatOutput.clientHeight < 40;
