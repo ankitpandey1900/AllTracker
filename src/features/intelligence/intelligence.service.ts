@@ -122,45 +122,72 @@ function formatHour(h: number): string {
 }
 
 // ─── Session Management ──────────────────────────────────
+const MAAMU_STORAGE_KEY = 'maamu_local_sessions';
 let maamuSessions: ChatSession[] = [];
 let maamuActiveId: string = '';
 
+try {
+  const cached = localStorage.getItem(MAAMU_STORAGE_KEY);
+  if (cached) {
+    maamuSessions = JSON.parse(cached);
+    if (maamuSessions.length > 0) maamuActiveId = maamuSessions[0].id;
+  }
+} catch (e) {
+  console.warn("Failed to load maamu sessions from local storage", e);
+}
+
+export function saveSessionsLocally() {
+  try {
+    localStorage.setItem(MAAMU_STORAGE_KEY, JSON.stringify(maamuSessions));
+  } catch (e) {
+    console.warn("Failed to save maamu sessions to local storage", e);
+  }
+}
+
 export async function loadMaamuSessionsIntoState(): Promise<void> {
   const sessions = await loadMaamuSessions();
-  maamuSessions = sessions.map((s: any) => ({
-    id: s.id,
-    title: s.title,
-    messages: s.messages || [],
-    createdAt: s.createdAt,
-    lastActive: s.lastActive,
-  }));
-  if (!maamuActiveId && maamuSessions.length > 0) maamuActiveId = maamuSessions[0].id;
+  if (sessions && sessions.length > 0) {
+    maamuSessions = sessions.map((s: any) => ({
+      id: s.id,
+      title: s.title,
+      messages: s.messages || [],
+      createdAt: s.createdAt,
+      lastActive: s.lastActive,
+      pinned: s.pinned,
+    }));
+    if (!maamuActiveId && maamuSessions.length > 0) maamuActiveId = maamuSessions[0].id;
+    saveSessionsLocally();
+  }
 }
 
 export function getChatSessions(): ChatSession[] { return maamuSessions; }
 export function getActiveSession(): ChatSession | null { return maamuSessions.find(s => s.id === maamuActiveId) || maamuSessions[0] || null; }
 
-export async function createNewSession(title: string = 'New Chat'): Promise<string> {
+export async function createNewSession(title: string = 'New Chat'): Promise<string | null> {
   const created = await createMaamuSession(title).catch(() => null);
-  const id = created ? created.id : crypto.randomUUID();
-  const createdAt = created ? created.createdAt : new Date().toISOString();
-  const lastActive = created ? created.lastActive : new Date().toISOString();
-  const session: ChatSession = { id, title: created ? created.title : title, messages: [], createdAt, lastActive };
+  if (!created) {
+    import('@/utils/dom.utils').then(({ showToast }) => showToast("Failed to start new mission. Network unstable.", "error"));
+    return null;
+  }
+  const session: ChatSession = { id: created.id, title: created.title, messages: [], createdAt: created.createdAt, lastActive: created.lastActive };
   maamuSessions.unshift(session);
   maamuActiveId = session.id;
+  saveSessionsLocally();
   return session.id;
 }
 
 export async function deleteSession(id: string): Promise<void> {
-  await deleteMaamuSession(id);
+  await deleteMaamuSession(id).catch(err => console.error('Maamu delete API failed:', err));
   maamuSessions = maamuSessions.filter(s => s.id !== id);
   if (maamuActiveId === id) maamuActiveId = maamuSessions[0]?.id || '';
+  saveSessionsLocally();
 }
 
 export function switchSession(id: string): void {
   maamuActiveId = id;
   const session = getActiveSession();
   if (session) session.lastActive = Date.now();
+  saveSessionsLocally();
 }
 
 export async function persistMessage(conversationId: string, role: 'user' | 'assistant' | 'system', content: string): Promise<void> {
@@ -168,6 +195,7 @@ export async function persistMessage(conversationId: string, role: 'user' | 'ass
   if (session) {
     session.messages.push({ role, content, timestamp: Date.now() });
     session.lastActive = Date.now();
+    saveSessionsLocally();
   }
   addMaamuMessage(conversationId, role, content).catch(err => console.error('Maamu persist failed:', err));
 }

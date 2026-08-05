@@ -121,7 +121,7 @@ export async function getMaamuResponseStream(
       },
       body: JSON.stringify({ 
         messages,
-        model: (window as any).appState?.settings?.maamuModel || 'gemini-1.5-flash-latest'
+        model: (window as any).appState?.settings?.maamuModel || DEFAULT_MAAMU_MODEL
       }),
       signal: options?.signal
     });

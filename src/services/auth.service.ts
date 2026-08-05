@@ -112,7 +112,7 @@ async function hydrateSessionState(): Promise<void> {
 
   updateHeaderProfileUI();
   dispatchIdentitySync(localProfile);
-  await syncDataOnLogin(true);
+  await syncDataOnLogin();
 }
 
 export function initSyncAuth(): Promise<void> {

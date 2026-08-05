@@ -22,11 +22,13 @@ export function openSettingsModal(): void {
   const themeInput = document.getElementById('themeSelectInput') as HTMLSelectElement;
   const timerStyleInput = document.getElementById('timerStyleSelectInput') as HTMLSelectElement;
   const timerFontInput = document.getElementById('timerFontSelectInput') as HTMLSelectElement;
+  const uiFontInput = document.getElementById('uiFontSelectInput') as HTMLSelectElement;
   const accentColorInput = document.getElementById('accentColorInput') as HTMLInputElement;
 
   if (themeInput) themeInput.value = s.theme || 'stealth-midnight';
   if (timerStyleInput) timerStyleInput.value = s.timerStyle || 'block';
   if (timerFontInput) timerFontInput.value = s.timerFont || 'fira';
+  if (uiFontInput) uiFontInput.value = s.uiFont || 'default';
   if (accentColorInput) accentColorInput.value = s.accentColor || '#3b82f6';
 
   renderCustomRanges();
@@ -140,6 +142,12 @@ export function applyThemeSettings(): void {
   if (timerFontInput) {
     appState.settings.timerFont = timerFontInput.value as 'fira' | 'digital' | 'tektur' | 'inter' | 'monoton' | 'blackops' | 'silkscreen' | 'bungee';
     import('@/state/app-state').then(m => m.applyTimerFontToDOM(appState.settings.timerFont));
+  }
+
+  const uiFontInput = document.getElementById('uiFontSelectInput') as HTMLSelectElement;
+  if (uiFontInput) {
+    appState.settings.uiFont = uiFontInput.value;
+    import('@/state/app-state').then(m => m.applyUiFontToDOM(appState.settings.uiFont));
   }
 
   const accentColorInput = document.getElementById('accentColorInput') as HTMLInputElement;

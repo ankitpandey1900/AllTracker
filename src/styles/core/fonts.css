@@ -11,6 +11,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Bungee+Shade&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&display=swap');
 
 /**
  * Centralized Font Imports
@@ -19,3 +23,15 @@
  * precede any other CSS rules. We centralize them here to avoid 
  * ordering violations in dynamic themes.
  */
+
+/**
+ * UI Font Classes
+ */
+body.ui-font-default * { font-family: inherit; }
+body.ui-font-inter * { font-family: 'Inter', sans-serif !important; }
+body.ui-font-poppins * { font-family: 'Poppins', sans-serif !important; }
+body.ui-font-montserrat * { font-family: 'Montserrat', sans-serif !important; }
+body.ui-font-jakarta * { font-family: 'Plus Jakarta Sans', sans-serif !important; }
+body.ui-font-quicksand * { font-family: 'Quicksand', sans-serif !important; }
+body.ui-font-syne * { font-family: 'Syne', sans-serif !important; }
+body.ui-font-fira * { font-family: 'Fira Code', monospace !important; }

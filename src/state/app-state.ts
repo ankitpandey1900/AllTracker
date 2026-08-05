@@ -31,6 +31,7 @@ function createDefaultSettings(): Settings {
     accentColor: '#3b82f6', // Default blue accent
     timerStyle: 'block',
     timerFont: 'fira',
+    uiFont: 'default',
     ambientSound: 'none',
     ambientVolume: 0.5,
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Kolkata',
@@ -61,6 +62,12 @@ export function applyTimerStyleToDOM(timerStyle: string = 'block') {
 export function applyTimerFontToDOM(timerFont: string = 'fira') {
   document.body.classList.remove('timer-font-fira', 'timer-font-digital', 'timer-font-tektur', 'timer-font-inter', 'timer-font-monoton', 'timer-font-blackops', 'timer-font-silkscreen', 'timer-font-bungee');
   document.body.classList.add(`timer-font-${timerFont}`);
+}
+
+/** Applies the UI text font class to the body */
+export function applyUiFontToDOM(uiFont: string = 'default') {
+  document.body.classList.remove('ui-font-default', 'ui-font-inter', 'ui-font-poppins', 'ui-font-montserrat', 'ui-font-jakarta', 'ui-font-quicksand', 'ui-font-syne', 'ui-font-fira');
+  document.body.classList.add(`ui-font-${uiFont}`);
 }
 
 function createDefaultTimer(): ActiveTimer {

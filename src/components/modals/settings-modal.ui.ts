@@ -50,6 +50,19 @@ export const settingsModal = `
                   <option value="bungee">Bungee (Massive 3D)</option>
                 </select>
               </div>
+              <div style="display: flex; gap: 12px; align-items: center; margin-top: 12px;">
+                <label for="uiFontSelectInput" style="color: var(--text-muted); font-size: 0.85rem; font-weight: 700; width: 120px;">UI Text Font</label>
+                <select id="uiFontSelectInput" class="settings-input" style="flex: 1;">
+                  <option value="default">Theme Default</option>
+                  <option value="inter">Inter (Clean & Professional)</option>
+                  <option value="poppins">Poppins (Modern Geometric)</option>
+                  <option value="montserrat">Montserrat (Bold & Wide)</option>
+                  <option value="jakarta">Plus Jakarta (Premium Tech)</option>
+                  <option value="quicksand">Quicksand (Soft & Rounded)</option>
+                  <option value="syne">Syne (Avant-Garde)</option>
+                  <option value="fira">Fira Code (Hacker Monospace)</option>
+                </select>
+              </div>
               <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
                 <button id="applyThemeBtn" class="btn btn-primary" style="white-space: nowrap; padding: 0 20px;">
                   Apply

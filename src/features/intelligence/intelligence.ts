@@ -21,8 +21,8 @@ import { getMaamuResponseStream, generateSessionTitle, MAAMU_MODELS, normalizeMa
 import { appState } from '@/state/app-state';
 import { saveSettingsToStorage } from '@/services/data-bridge';
 import { getCurrentUserLeaderboardContext } from '@/features/dashboard/leaderboard';
-import { notificationService } from '@/services/notification.service';
 import { formatDuration } from '@/utils/date.utils';
+import { showToast } from '@/utils/dom.utils';
 import { 
   intelligenceView, 
   buildMessageHTML, 
@@ -447,14 +447,17 @@ function renderSessionsList(): void {
 
 function renderActiveChat(): void {
   const chatOutput = document.getElementById('maamuChatOutput');
+  const inputZone = document.querySelector('.maamu-input-zone') as HTMLElement;
   if (!chatOutput) return;
   const session = getActiveSession();
   
   if (!session) {
     if (!getCurrentUserId()) {
       chatOutput.innerHTML = buildIdentityRequiredScreen();
+      if (inputZone) inputZone.style.display = 'none';
     } else {
       chatOutput.innerHTML = buildWelcomeScreen();
+      if (inputZone) inputZone.style.display = 'block';
       chatOutput.querySelectorAll('.quick-prompt').forEach(btn => {
         btn.addEventListener('click', () => {
           const input = document.getElementById('maamuQueryInput') as HTMLTextAreaElement;
@@ -468,6 +471,9 @@ function renderActiveChat(): void {
 
   const msgs = session.messages.filter(m => m.role !== 'system');
   if (msgs.length > 0 && !areTemplatesCollapsed()) setTemplatesCollapsed(true);
+  
+  if (inputZone) inputZone.style.display = 'block';
+
   if (msgs.length === 0) {
     chatOutput.innerHTML = buildWelcomeScreen();
     chatOutput.querySelectorAll('.quick-prompt').forEach(btn => {
@@ -840,7 +846,16 @@ function setupListeners(): boolean {
       if (isSending) return;
       
       if (isDailyBudgetExceeded()) {
-        alert('Daily free limit reached (5/5). Please try again tomorrow to preserve the free tier limits.');
+        const errorMsg = 'SYSTEM ALERT: Daily API limit reached (5/5). Free tier resources depleted. Recharge cycle initiates at midnight.';
+        const chatOutput = document.getElementById('maamuChatOutput');
+        let session = getActiveSession();
+        if (session && chatOutput) {
+          import('./intelligence.service').then(({ persistMessage }) => persistMessage(session!.id, 'system', errorMsg));
+          chatOutput.insertAdjacentHTML('beforeend', buildMessageHTML('system', errorMsg, session.messages.length, '', ''));
+          chatOutput.scrollTop = chatOutput.scrollHeight;
+        } else {
+          showToast('Daily limit reached. Try again tomorrow.', 'error');
+        }
         return;
       }
 

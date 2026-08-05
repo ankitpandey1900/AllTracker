@@ -1,4 +1,4 @@
-import { appState, calculateDates, initializeData, applyThemeToDOM, applyTimerStyleToDOM, applyTimerFontToDOM, applyAccentColorToDOM, ensureTimelineIntegrity, migrateDataFormat } from "@/state/app-state";
+import { appState, calculateDates, initializeData, applyThemeToDOM, applyTimerStyleToDOM, applyTimerFontToDOM, applyUiFontToDOM, applyAccentColorToDOM, ensureTimelineIntegrity, migrateDataFormat } from "@/state/app-state";
 import { log } from "@/utils/logger.utils";
 import {
   loadTrackerDataFromStorage,
@@ -59,6 +59,7 @@ export async function igniteApp(): Promise<void> {
     if (appState.settings.accentColor) applyAccentColorToDOM(appState.settings.accentColor);
     applyTimerStyleToDOM(appState.settings.timerStyle);
     applyTimerFontToDOM(appState.settings.timerFont);
+    applyUiFontToDOM(appState.settings.uiFont);
     migrateDataFormat();
 
     appState.trackerData = (trackerData && trackerData.length > 0) ? trackerData : initializeData();

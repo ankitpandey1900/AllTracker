@@ -84,6 +84,7 @@ export interface Settings {
   accentColor?: string;
   timerStyle?: 'ring' | 'block';
   timerFont?: 'fira' | 'digital' | 'tektur' | 'inter' | 'monoton' | 'blackops' | 'silkscreen' | 'bungee';
+  uiFont?: string;
   sessionGoal?: string;           // Target hours for current phase
   ambientSound?: 'none' | 'interstellar';
   ambientVolume?: number;         // 0 to 1
