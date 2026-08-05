@@ -5,7 +5,8 @@ import type { ChatSession } from '@/types/tracker.types';
 const AI_API_URL = '/api/app/chat';
 
 export const MAAMU_MODELS = [
-  { id: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash (Fast & Brutal)' },
+  { id: 'gemini-3.5-flash', label: 'Gemini 3.5 Flash (Fast)' },
+  { id: 'gemini-3.1-pro-preview', label: 'Gemini 3.1 Pro (Heavy)' }
 ];
 export const DEFAULT_MAAMU_MODEL = MAAMU_MODELS[0].id;
 

@@ -30,7 +30,7 @@ export default async function handler(
 
     const systemMessage = body.messages.find((m: any) => m.role === 'system')?.content;
     const coreMessages = body.messages.filter((m: any) => m.role !== 'system');
-    const requestedModel = (body as any).model || "gemini-1.5-flash-latest";
+    const requestedModel = (body as any).model || "gemini-3.5-flash";
 
     const result = streamText({
       model: google(requestedModel),
