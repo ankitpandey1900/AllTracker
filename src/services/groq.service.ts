@@ -3,7 +3,7 @@ import { MentorMessage } from '@/types/tracker.types';
 import { getActiveSession, getChatSessions, persistMessage } from '@/features/intelligence/intelligence.service';
 import type { ChatSession } from '@/types/tracker.types';
 
-const GROQ_API_URL = '/api/app/groq-relay';
+const GROQ_API_URL = '/api/app/m-relay';
 
 export const MAAMU_MODELS = [
   { id: 'openai/gpt-oss-20b', label: 'GPT OSS 20B (Fast)' },
