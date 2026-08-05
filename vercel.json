@@ -11,7 +11,7 @@
       "destination": "/src/admin/ankit.html"
     },
     {
-      "source": "/api/llm/groq",
+      "source": "/api/relay/m",
       "destination": "https://api.groq.com/openai/v1/chat/completions"
     },
     {
