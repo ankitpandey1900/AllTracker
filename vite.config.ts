@@ -14,6 +14,7 @@ const apiMiddleware = () => ({
 
     server.middlewares.use(async (req: any, res: any, next: any) => {
       if (!req.url.startsWith('/api/')) return next();
+      if (req.url.startsWith('/api/llm/groq')) return next(); // Let Vite proxy handle this
 
       try {
         const url = new URL(req.url, `http://${req.headers.host}`);
@@ -60,6 +61,15 @@ const apiMiddleware = () => ({
 });
 
 export default defineConfig({
+  server: {
+    proxy: {
+      '/api/llm/groq': {
+        target: 'https://api.groq.com/openai/v1/chat/completions',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/llm\/groq/, '')
+      }
+    }
+  },
   plugins: [tailwindcss(), apiMiddleware()],
   resolve: {
     alias: {

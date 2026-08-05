@@ -11,6 +11,10 @@
       "destination": "/src/admin/ankit.html"
     },
     {
+      "source": "/api/llm/groq",
+      "destination": "https://api.groq.com/openai/v1/chat/completions"
+    },
+    {
       "source": "/api/auth/(.*)",
       "destination": "/api/auth/[...auth]"
     },

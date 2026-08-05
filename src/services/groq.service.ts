@@ -3,7 +3,7 @@ import { MentorMessage } from '@/types/tracker.types';
 import { getActiveSession, getChatSessions, persistMessage } from '@/features/intelligence/intelligence.service';
 import type { ChatSession } from '@/types/tracker.types';
 
-const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+const GROQ_API_URL = '/api/llm/groq';
 
 export const MAAMU_MODELS = [
   { id: 'openai/gpt-oss-20b', label: 'GPT OSS 20B (Fast)' },
@@ -167,7 +167,7 @@ export async function getMaamuResponseStream(
     const requestWithModel = async (model: string) => {
       try {
         const cleanKey = String(apiKey || '').trim().replace(/[\r\n\t]/g, '');
-        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        const response = await fetch(GROQ_API_URL, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${cleanKey}`,
