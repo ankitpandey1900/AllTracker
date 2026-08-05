@@ -174,11 +174,13 @@ export async function getMaamuResponseStream(
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            model,
-            messages,
-            temperature: 0.6,
-            max_tokens: 2048,
-            stream: true
+            encodedPayload: btoa(unescape(encodeURIComponent(JSON.stringify({
+              model,
+              messages,
+              temperature: 0.6,
+              max_tokens: 2048,
+              stream: true
+            }))))
           })
         });
 

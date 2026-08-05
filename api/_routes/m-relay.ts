@@ -22,7 +22,16 @@ export default async function handler(
     for await (const chunk of req) {
       bodyChunks.push(chunk);
     }
-    const rawBody = Buffer.concat(bodyChunks);
+    let rawBody = Buffer.concat(bodyChunks);
+    
+    try {
+      const parsed = JSON.parse(rawBody.toString('utf8'));
+      if (parsed.encodedPayload) {
+        rawBody = Buffer.from(parsed.encodedPayload, 'base64');
+      }
+    } catch (e) {
+      // Not JSON or no encodedPayload, proceed as raw
+    }
 
     const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
