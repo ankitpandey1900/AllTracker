@@ -680,16 +680,16 @@ function renderSidebarMetrics(): void {
       <div class="sidebar-api-section">
         <div class="sm-label">AI MODEL</div>
         <select id="maamuModelSelect" class="api-key-input"></select>
-        <div class="sm-label">GROQ API KEY</div>
+        <div class="sm-label">GEMINI API KEY</div>
         <form onsubmit="return false;" style="margin:0; padding:0;">
           <input type="text" name="username" style="display:none;" autocomplete="username" value="maamu-ai-key">
-          <input type="password" id="maamuApiKeyInput" class="api-key-input" value="${appState.settings.groqApiKey || ''}" placeholder="gsk_..." autocomplete="new-password">
+          <input type="password" id="maamuApiKeyInput" class="api-key-input" value="${appState.settings.groqApiKey || ''}" placeholder="AI Studio Key (AIzaSy...)" autocomplete="new-password">
         </form>
         <div class="row" style="gap: 8px;">
           <button type="button" id="saveMaamuApiKey" class="save-api-btn" style="flex: 1;">Save Key</button>
           <button type="button" id="resetMaamuApiKey" class="save-api-btn" style="flex: 1; background: rgba(239,68,68,0.1); color: #ef4444; border: 1px solid rgba(239,68,68,0.3);">Reset</button>
         </div>
-        <a href="https://console.groq.com" target="_blank" class="api-link">Get your free key →</a>
+        <a href="https://aistudio.google.com/app/apikey" target="_blank" class="api-link">Get your free key →</a>
       </div>
     `;
     document.getElementById('saveMaamuApiKey')?.addEventListener('click', () => {
