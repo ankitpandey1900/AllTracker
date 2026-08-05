@@ -104,18 +104,6 @@ export async function getMaamuResponseStream(
   onError: (err: string) => void,
   options?: { sessionId?: string; signal?: AbortSignal }
 ): Promise<void> {
-  const appState = (window as any).getAppState?.() || (window as any).appState;
-  if (!appState) {
-    onError('Application state not found');
-    return;
-  }
-
-  const apiKey = appState.settings.groqApiKey; // We repurpose this field for Gemini temporarily, or user sets it
-  if (!apiKey) {
-    onError('API Key Missing: Configure your Gemini API Key in the sidebar settings.');
-    return;
-  }
-
   saveToMentorHistory('user', userQuery, options?.sessionId);
 
   const messages = buildMessages(userQuery, tacticalBrief, {
@@ -125,11 +113,9 @@ export async function getMaamuResponseStream(
   });
 
   try {
-    const cleanKey = String(apiKey || '').trim().replace(/[\r\n\t]/g, '');
     const response = await fetch(AI_API_URL, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${cleanKey}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ messages }),
@@ -180,13 +166,9 @@ export async function getMaamuResponseStream(
 
 export async function generateSessionTitle(query: string): Promise<string> {
   try {
-    const appState = (window as any).getAppState?.() || (window as any).appState;
-    const apiKey = appState?.settings?.groqApiKey || '';
-    const cleanKey = String(apiKey).trim().replace(/[\r\n\t]/g, '');
     const res = await fetch(AI_API_URL, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${cleanKey}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ 

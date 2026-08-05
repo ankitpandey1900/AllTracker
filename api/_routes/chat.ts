@@ -13,14 +13,13 @@ export default async function handler(
       return;
     }
 
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
-      res.writeHead(401).end(JSON.stringify({ error: "Missing authorization header" }));
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      res.writeHead(500).end(JSON.stringify({ error: "Server Configuration Error: GEMINI_API_KEY is missing." }));
       return;
     }
     
-    const apiKey = authHeader.replace("Bearer ", "").trim();
-    const google = createGoogleGenerativeAI({ apiKey });
+    const google = createGoogleGenerativeAI({ apiKey: apiKey.trim() });
 
     const body = await readJsonBody<{ messages: any[] }>(req);
 
