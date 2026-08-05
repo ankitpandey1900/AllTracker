@@ -221,6 +221,7 @@ export function renderIntelligenceBriefing(): void {
   // Inject shell if missing, then bind listeners once.
   if (!document.getElementById('maamuGptContainer')) {
     container.innerHTML = intelligenceView;
+    listenersBound = false;
   }
   if (!listenersBound) {
     listenersBound = setupListeners();
