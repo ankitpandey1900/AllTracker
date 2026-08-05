@@ -668,16 +668,22 @@
 
 .msg-content h1,
 .msg-content h2,
-.msg-content h3 {
+.msg-content h3,
+.msg-content h4,
+.msg-content h5,
+.msg-content h6 {
   margin: 12px 0 8px;
   line-height: 1.35;
   font-weight: 800;
   color: #e2e8f0;
 }
 
-.msg-content h1 { font-size: 1.02rem; }
-.msg-content h2 { font-size: 0.96rem; }
-.msg-content h3 { font-size: 0.9rem; }
+.msg-content h1 { font-size: 1.15rem; }
+.msg-content h2 { font-size: 1.05rem; }
+.msg-content h3 { font-size: 0.98rem; }
+.msg-content h4 { font-size: 0.92rem; }
+.msg-content h5 { font-size: 0.88rem; font-weight: 700; color: #cbd5e1; }
+.msg-content h6 { font-size: 0.85rem; font-weight: 600; color: #94a3b8; }
 
 .msg-content ul,
 .msg-content ol {

@@ -63,6 +63,9 @@ export function formatMaamuText(text: string): string {
   const inlines: string[] = [];
   html = html.replace(/`([^`]+)`/g, (_m, c) => { const id = `__IC_${inlines.length}__`; inlines.push(`<code class="inline-code">${escapeHtml(c)}</code>`); return id; });
   html = escapeHtml(html)
+    .replace(/^######\s+(.*)$/gm, '<h6>$1</h6>')
+    .replace(/^#####\s+(.*)$/gm, '<h5>$1</h5>')
+    .replace(/^####\s+(.*)$/gm, '<h4>$1</h4>')
     .replace(/^###\s+(.*)$/gm, '<h3>$1</h3>')
     .replace(/^##\s+(.*)$/gm, '<h2>$1</h2>')
     .replace(/^#\s+(.*)$/gm, '<h1>$1</h1>')
@@ -150,18 +153,12 @@ export const intelligenceView = `
           </div>
         </div>
         <div class="chat-header-right">
-          <button id="toggleCompactView" class="maamu-compact-toggle-btn" title="Toggle compact view">Compact</button>
           <div class="beast-toggle-group">
-            <span class="beast-label">Model</span>
-            <select id="maamuModelSelectInline" class="api-key-input" style="margin:0; min-width: 210px; padding: 6px 10px;">
-            </select>
-          </div>
-          <div class="beast-toggle-group">
-            <span class="beast-label">Beast Mode</span>
             <label class="tactical-switch" title="Activates harsh, no-mercy coaching">
               <input type="checkbox" id="beastModeToggle">
               <span class="tactical-slider"></span>
             </label>
+            <span class="beast-label" style="margin-left: 8px;">Beast Mode</span>
           </div>
         </div>
       </div>
@@ -194,26 +191,24 @@ export const intelligenceView = `
           <button class="maamu-template-btn" data-template-id="my-7day-sprint" data-template-category="web" data-template="I want to sprint hard this week. Based on my current momentum, task debt, and category gaps — design a 7-day aggressive study sprint. Give me daily targets, which tasks to kill first, and a daily check-in format I can follow."><span class="tpl-star-btn" title="Toggle favorite">☆</span><span>7-Day Sprint</span></button>
           <button class="maamu-template-btn" data-template-id="my-next-best-action" data-template-category="web" data-template="Given everything you know about my tracker data right now — what is the single highest-impact action I should do in the next 2 hours? Give me one clear answer with the exact reason why."><span class="tpl-star-btn" title="Toggle favorite">☆</span><span>Next Best Action</span></button>
         </div>
-        <div class="maamu-input-box">
-          <div class="user-avatar-chip" id="maamuUserAvatarChip">👤</div>
+        <div class="maamu-input-box" style="margin-top: 12px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
           <textarea id="maamuQueryInput" class="maamu-textarea"
-            placeholder="Ask Maamu anything — Hinglish, code, strategy..." rows="1" spellcheck="false"></textarea>
-          <button id="stopMaamuQuery" class="maamu-stop-btn" title="Stop generation" style="display:none">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
-          </button>
-          <button id="sendMaamuQuery" class="maamu-send-btn" title="Send (Enter / Ctrl+Enter)">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-          </button>
-        </div>
-        <div class="maamu-status-chips">
-          <span class="status-chip data-chip">📊 30-day data</span>
-          <span class="status-chip model-chip" id="maamuUsageChip">🧮 100% left</span>
-          <span class="status-chip beast-chip" id="beastChipStatus" style="display:none">🔥 Beast Mode</span>
-          <span class="status-chip profile-chip" id="maamuProfileChip">👤 You</span>
-          <select id="maamuSessionSelectBottom" class="maamu-model-inline-select" title="Past chats"></select>
-          <button id="maamuDeleteSessionBtn" class="maamu-session-delete-inline-btn" title="Delete selected chat">Delete Chat</button>
-          <button id="maamuExportMdBtn" class="maamu-session-delete-inline-btn" title="Export active chat as markdown">Export .md</button>
-          <select id="maamuModelSelectBottom" class="maamu-model-inline-select" title="Select model"></select>
+            placeholder="Ask Maamu anything..." rows="1" spellcheck="false" style="padding-top: 14px; padding-bottom: 14px; border-radius: 12px;"></textarea>
+          
+          <div class="maamu-input-actions" style="display: flex; align-items: center; justify-content: space-between; padding: 4px 12px 10px 12px;">
+            <div class="maamu-input-left" style="display: flex; gap: 8px;">
+              <button id="maamuExportMdBtn" class="maamu-session-delete-inline-btn" title="Export as MD" style="background: transparent; border: none; font-size: 0.8rem;">Export</button>
+            </div>
+            
+            <div class="maamu-input-right" style="display: flex; gap: 8px;">
+              <button id="stopMaamuQuery" class="maamu-stop-btn" title="Stop generation" style="display:none">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+              </button>
+              <button id="sendMaamuQuery" class="maamu-send-btn" title="Send (Enter / Ctrl+Enter)" style="border-radius: 50%; padding: 8px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

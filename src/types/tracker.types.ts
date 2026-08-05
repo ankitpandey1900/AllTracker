@@ -88,6 +88,7 @@ export interface Settings {
   ambientSound?: 'none' | 'interstellar';
   ambientVolume?: number;         // 0 to 1
   timezone?: string;              // IANA timezone e.g. 'Asia/Kolkata' (defaults to IST)
+  maamuUsage?: { date: string; count: number }; // Daily free tier usage
 }
 
 // --- Badges ---

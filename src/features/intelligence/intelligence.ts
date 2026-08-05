@@ -161,31 +161,28 @@ function estimateTokens(text: string): number {
   return Math.max(1, Math.ceil((text || '').length / 4));
 }
 
-const DAILY_TOKEN_BUDGET = 10000;
+const DAILY_PROMPT_BUDGET = 5;
 
 function getUsageStorageKey(): string {
   const day = new Date().toISOString().split('T')[0];
-  return `maamu_usage_${day}`;
+  return `maamu_prompts_${day}`;
 }
 
-function addDailyUsage(tokens: number): void {
+function incrementDailyUsage(): void {
   const key = getUsageStorageKey();
   const current = parseInt(localStorage.getItem(key) || '0', 10) || 0;
-  localStorage.setItem(key, String(current + Math.max(0, tokens)));
+  localStorage.setItem(key, String(current + 1));
 }
 
 function getDailyUsage(): number {
   return parseInt(localStorage.getItem(getUsageStorageKey()) || '0', 10) || 0;
 }
 
-function renderUsageChip(): void {
-  const chip = document.getElementById('maamuUsageChip');
-  if (!chip) return;
-  const used = getDailyUsage();
-  const remainingPct = Math.max(0, Math.round(((DAILY_TOKEN_BUDGET - used) / DAILY_TOKEN_BUDGET) * 100));
-  chip.textContent = `🧮 ${remainingPct}% left`;
-  chip.setAttribute('title', `${Math.max(0, DAILY_TOKEN_BUDGET - used)} / ${DAILY_TOKEN_BUDGET} est. tokens remaining today`);
+function isDailyBudgetExceeded(): boolean {
+  return getDailyUsage() >= DAILY_PROMPT_BUDGET;
 }
+
+function renderUsageChip(): void {}
 
 function exportActiveConversationMarkdown(): void {
   const session = getActiveSession();
@@ -631,8 +628,7 @@ function streamResponse(
         saveSettingsToStorage(appState.settings);
       }
 
-      addDailyUsage(estimateTokens(query) + estimateTokens(fullResponse));
-      renderUsageChip();
+      incrementDailyUsage();
       const isAtBottom = chatOutput.scrollHeight - chatOutput.scrollTop - chatOutput.clientHeight < 40;
       if (isAtBottom) chatOutput.scrollTop = chatOutput.scrollHeight;
       activeStreamController = null;
@@ -678,10 +674,6 @@ function renderSidebarMetrics(): void {
           ${quickItems || '<div class="session-preview">No chat history yet</div>'}
         </div>
       </div>
-      <div class="sidebar-api-section">
-        <div class="sm-label">AI MODEL</div>
-        <select id="maamuModelSelect" class="api-key-input"></select>
-      </div>
     `;
     footer.querySelectorAll('.maamu-footer-session').forEach(el => {
       el.addEventListener('click', (e) => {
@@ -706,22 +698,12 @@ function renderSidebarMetrics(): void {
         renderSidebarMetrics();
       });
     });
-    renderModelOptions();
-    bindModelSelect(document.getElementById('maamuModelSelect') as HTMLSelectElement | null);
   } else {
     footer.innerHTML = `
       <div class="sidebar-metrics">
         <div class="sm-label">RECENT CONVERSATIONS</div>
         <div class="maamu-footer-history">
           ${quickItems || '<div class="session-preview">No chat history yet</div>'}
-        </div>
-      </div>
-      <div class="sidebar-api-section auth-locked">
-        <div class="sm-label">AI MISSION CONTROL</div>
-        <div class="auth-required-note">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15V17M12 7V13M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke-linecap="round"/></svg>
-          <strong>Identity Required</strong>
-          <p>Login to your Mission Profile to activate your private AI Strategist.</p>
         </div>
       </div>
     `;
@@ -781,8 +763,6 @@ function setupListeners(): boolean {
   };
 
   // ── New Mission Dialog ──
-  renderModelOptions();
-  bindModelSelect(document.getElementById('maamuModelSelectBottom') as HTMLSelectElement | null);
   document.getElementById('maamuSessionSearch')?.addEventListener('input', () => renderSessionsList());
   document.querySelectorAll('.maamu-template-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -858,6 +838,12 @@ function setupListeners(): boolean {
 
     const handleSend = async (overrideQuery?: string) => {
       if (isSending) return;
+      
+      if (isDailyBudgetExceeded()) {
+        alert('Daily free limit reached (5/5). Please try again tomorrow to preserve the free tier limits.');
+        return;
+      }
+
       const query = (overrideQuery ?? input.value).trim();
       if (!query) return;
       const localReply = getLocalSmallTalkReply(query, getUserDisplayName()) || getLocalDataContextReply(query);
@@ -910,10 +896,9 @@ function setupListeners(): boolean {
         persistMessage(lockedSessionId, 'user', query);
         persistMessage(lockedSessionId, 'assistant', localReply);
       });
-      addDailyUsage(estimateTokens(query) + estimateTokens(localReply));
+      incrementDailyUsage();
       renderSessionsList();
       renderSidebarMetrics();
-      renderUsageChip();
       isSending = false;
       updateSendButtonState();
       input.focus();
