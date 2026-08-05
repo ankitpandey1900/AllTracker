@@ -154,7 +154,7 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
       const isNewer = isCloudNewer(key, cloud?.updatedAt);
       const isDiff = cloud && isDifferent(local, cloud.data);
       
-      if (force || (cloud && isNewer)) {
+      if (cloud && (force || isNewer)) {
         // Cloud is newer or forced pull: Overwrite local
         setter(cloud.data, false);
         updateLocalTimestamp(key, cloud.updatedAt || undefined);
