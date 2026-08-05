@@ -1,4 +1,4 @@
-const CACHE_NAME = 'alltracker-cache-v2.0.0'; // V2.0.0: Tactical Alerts & Audio Unification Update
+const CACHE_NAME = 'alltracker-cache-v2.0.1'; // V2.0.1: Force cache clear for MAAMU stealth update
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
