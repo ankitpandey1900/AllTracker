@@ -15,6 +15,7 @@ import telemetry from "./_routes/telemetry.js";
 import vaultName from "./_routes/vault/[name].js";
 import vaultSync from "./_routes/vault/sync.js";
 import cronReengagement from "./_routes/cron-reengagement.js";
+import groqRelay from "./_routes/groq-relay.js";
 
 // Admin / Ankit routes
 import adminUsers from "./_routes/admin/users.js";
@@ -41,6 +42,7 @@ export default async function handler(
     if (path === "/telemetry") return telemetry(req, res);
     if (path === "/vault/sync") return vaultSync(req, res);
     if (path === "/cron/reengagement") return cronReengagement(req, res);
+    if (path === "/groq-relay") return groqRelay(req, res);
     
     // Ankit Admin Routes
     if (path === "/ankit/users") return adminUsers(req, res);
