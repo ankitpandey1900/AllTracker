@@ -12,7 +12,10 @@ export default async function handler(
       return;
     }
 
-    const leaderboard = await fetchLeaderboard();
+    const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
+    const timeframe = url.searchParams.get('timeframe') || 'weekly';
+
+    const leaderboard = await fetchLeaderboard(timeframe);
     sendJson(res, 200, leaderboard);
   } catch (error) {
     handleRouteError(res, error);

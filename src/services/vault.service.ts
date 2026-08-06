@@ -355,8 +355,8 @@ export async function fetchMySessionsCloud(): Promise<StudySession[]> {
   return apiRequest<StudySession[]>("/api/app/study-sessions");
 }
 
-export async function fetchLeaderboard(): Promise<GlobalProfile[]> {
-  return apiRequest<GlobalProfile[]>("/api/app/leaderboard");
+export async function fetchLeaderboard(timeframe: string = 'weekly'): Promise<GlobalProfile[]> {
+  return apiRequest<GlobalProfile[]>(`/api/app/leaderboard?timeframe=${timeframe}`);
 }
 
 export async function loadUserProfileCloud(): Promise<GlobalProfile | null> {

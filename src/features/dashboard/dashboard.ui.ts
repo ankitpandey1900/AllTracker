@@ -207,13 +207,20 @@ export const worldStageView = `
       <div class="arena-main-col">
 
         <!-- TITLE & LIVE BADGE -->
-        <h2 style="text-align: center; font-family: 'Tektur'; font-style: italic; font-weight: 900; letter-spacing: 3px; color: var(--text-primary); margin-bottom: 12px; font-size: 1.2rem; text-transform: uppercase;">WORLD STAGE</h2>
+        <h2 class="lb-font-special" style="text-align: center; font-style: italic; font-weight: 900; letter-spacing: 3px; color: var(--text-primary); margin-bottom: 12px; font-size: 1.2rem; text-transform: uppercase;">WORLD STAGE</h2>
         
-        <div style="display: flex; justify-content: center; margin-bottom: 24px;">
+        <div style="display: flex; justify-content: center; margin-bottom: 24px; flex-direction: column; align-items: center; gap: 16px;">
            <span class="badge-live-pulse" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); padding: 4px 12px; border-radius: 99px; font-size: 0.65rem; font-weight: 900;">
               <span style="display: inline-block; width: 6px; height: 6px; background: #ef4444; border-radius: 50%; margin-right: 6px; box-shadow: 0 0 8px #ef4444;"></span>
               LIVE
            </span>
+
+           <div class="lb-timeframe-selector">
+             <button class="lb-timeframe-tab" data-timeframe="today">TODAY</button>
+             <button class="lb-timeframe-tab active" data-timeframe="weekly">7 DAYS</button>
+             <button class="lb-timeframe-tab" data-timeframe="monthly">30 DAYS</button>
+             <button class="lb-timeframe-tab" data-timeframe="all-time">ALL-TIME</button>
+           </div>
         </div>
 
         <!-- LEADERBOARD PODIUM -->
@@ -232,21 +239,21 @@ export const worldStageView = `
               <!-- Col 1 -->
               <div style="display: flex; flex-direction: column; gap: 24px;">
                  <div class="tele-item" style="display: flex; align-items: center; gap: 16px;">
-                    <div style="width: 40px; height: 40px; background: rgba(167,139,250,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(167,139,250,0.2);"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+                    <div style="width: 40px; height: 40px; background: rgba(167,139,250,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center;"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
                     <div>
                        <div style="font-size: 0.65rem; color: var(--text-secondary); font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">Total Members</div>
                        <div id="telemetry-total-pilots" style="font-size: 1.3rem; font-weight: 900; color: var(--text-primary);">--</div>
                     </div>
                  </div>
                  <div class="tele-item" style="display: flex; align-items: center; gap: 16px;">
-                    <div style="width: 40px; height: 40px; background: rgba(96,165,250,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(96,165,250,0.2);"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+                    <div style="width: 40px; height: 40px; background: rgba(96,165,250,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center;"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
                     <div>
                        <div style="font-size: 0.65rem; color: var(--text-secondary); font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">Global Hours Today</div>
                        <div id="telemetry-global-hours" style="font-size: 1.3rem; font-weight: 900; color: #3b82f6;">--</div>
                     </div>
                  </div>
                  <div class="tele-item" style="display: flex; align-items: center; gap: 16px;">
-                    <div style="width: 40px; height: 40px; background: rgba(192,132,252,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(192,132,252,0.2);"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg></div>
+                    <div style="width: 40px; height: 40px; background: rgba(192,132,252,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center;"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg></div>
                     <div>
                        <div style="font-size: 0.65rem; color: var(--text-secondary); font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">Platform Milestone</div>
                        <div id="milestone-percentage-text" style="font-size: 1.3rem; font-weight: 900; color: #8b5cf6;">0%</div>
@@ -256,21 +263,21 @@ export const worldStageView = `
               <!-- Col 2 -->
               <div style="display: flex; flex-direction: column; gap: 24px;">
                  <div class="tele-item" style="display: flex; align-items: center; gap: 16px;">
-                    <div style="width: 40px; height: 40px; background: rgba(248,113,113,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(248,113,113,0.2);"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></div>
+                    <div style="width: 40px; height: 40px; background: rgba(248,113,113,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center;"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></div>
                     <div>
                        <div style="font-size: 0.65rem; color: #22d3ee; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">Focusing Now</div>
                        <div id="telemetry-active-now" style="font-size: 1.3rem; font-weight: 900; color: var(--text-primary);">--</div>
                     </div>
                  </div>
                  <div class="tele-item" style="display: flex; align-items: center; gap: 16px;">
-                    <div style="width: 40px; height: 40px; background: rgba(251,191,36,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(251,191,36,0.2);"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></div>
+                    <div style="width: 40px; height: 40px; background: rgba(251,191,36,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center;"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></div>
                     <div>
                        <div style="font-size: 0.65rem; color: var(--text-secondary); font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">Platform Total Hours</div>
                        <div id="telemetry-global-total" style="font-size: 1.3rem; font-weight: 900; color: #fbbf24; white-space: nowrap;">--</div>
                     </div>
                  </div>
                  <div class="tele-item" style="display: flex; align-items: center; gap: 16px;">
-                    <div style="width: 40px; height: 40px; background: rgba(226,232,240,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(226,232,240,0.1);"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e2e8f0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg></div>
+                    <div style="width: 40px; height: 40px; background: rgba(226,232,240,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center;"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e2e8f0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg></div>
                     <div>
                        <div style="font-size: 0.65rem; color: var(--text-secondary); font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">Next Target</div>
                        <div id="milestone-next-target-text" style="font-size: 1.3rem; font-weight: 900; color: var(--text-primary);">100 HRS</div>
@@ -292,18 +299,34 @@ export const worldStageView = `
               </div>
            </div>
 
-           <div style="display: flex; justify-content: space-around; margin-top: 40px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.05);">
-              <div style="background: rgba(255,255,255,0.03); padding: 4px 16px; border-radius: 99px; border: 1px solid rgba(255,255,255,0.05);">
-                 <span style="font-size: 0.6rem; color: var(--text-muted); font-weight: 800; letter-spacing: 1px;">DAILY AVG</span>
-                 <span id="milestone-avg-hrs" style="font-size: 0.7rem; color: var(--text-primary); font-weight: 900; margin-left: 6px;">--</span>
-                 <span style="font-size: 0.55rem; color: var(--text-muted); margin-left: 2px;">HRS</span>
-              </div>
-              <div style="background: rgba(251, 191, 36, 0.05); padding: 4px 16px; border-radius: 99px; border: 1px solid rgba(251, 191, 36, 0.1);">
-                 <span style="font-size: 0.6rem; color: var(--text-secondary); font-weight: 800; letter-spacing: 1px;">MVP</span>
-                 <span id="milestone-mvp-text" style="font-size: 0.7rem; color: #fbbf24; font-weight: 900; margin-left: 6px;">@--</span>
-                 <span id="milestone-mvp-share" style="font-size: 0.55rem; color: var(--text-secondary); margin-left: 2px;">(0%)</span>
-              </div>
-           </div>
+            <div style="display: flex; justify-content: space-between; gap: 16px; margin-top: 40px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.05);">
+               <!-- Daily Average Widget -->
+               <div style="flex: 1; display: flex; flex-direction: column; background: rgba(255,255,255,0.02); padding: 16px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); position: relative; overflow: hidden; box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);">
+                  <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted);"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+                     <span style="font-size: 0.65rem; color: var(--text-muted); font-weight: 800; letter-spacing: 1px;">DAILY AVG</span>
+                  </div>
+                  <div style="display: flex; align-items: baseline; gap: 4px;">
+                     <span id="milestone-avg-hrs" style="font-size: 1.4rem; color: var(--text-primary); font-weight: 900; font-family: var(--font-heading, inherit);">--</span>
+                     <span style="font-size: 0.7rem; color: var(--text-secondary); font-weight: 700;">HRS/DAY</span>
+                  </div>
+               </div>
+               
+               <!-- MVP Widget -->
+               <div style="flex: 1; display: flex; flex-direction: column; background: linear-gradient(135deg, rgba(251, 191, 36, 0.08) 0%, rgba(251, 191, 36, 0.02) 100%); padding: 16px; border-radius: 16px; border: 1px solid rgba(251, 191, 36, 0.15); position: relative; overflow: hidden; box-shadow: inset 0 1px 0 rgba(251, 191, 36, 0.1);">
+                  <div style="position: absolute; top: -10px; right: -10px; opacity: 0.05; pointer-events: none;">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px; position: relative;">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                     <span style="font-size: 0.65rem; color: #fbbf24; font-weight: 800; letter-spacing: 1px;">MVP</span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 6px; position: relative; width: 100%;">
+                     <span id="milestone-mvp-text" style="font-size: 1.1rem; color: #fbbf24; font-weight: 900; font-family: var(--font-heading, inherit); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0;">@--</span>
+                     <span id="milestone-mvp-share" style="background: rgba(251, 191, 36, 0.15); padding: 2px 6px; border-radius: 6px; font-size: 0.6rem; color: #fbbf24; font-weight: 800; flex-shrink: 0;">0%</span>
+                  </div>
+               </div>
+            </div>
         </article>
 
         <!-- NEW FEATURE: TARGET ACQUIRED (Rivalry System Placeholder) -->

@@ -12,10 +12,11 @@ import { syncProfileBroadcast, updateLastInteraction, lastInteractionAt } from '
 
 import { 
   lbCurrentPage, 
-  LB_PAGE_SIZE, 
   lbAllUsers, 
   setLbCurrentPage, 
-  setLbAllUsers 
+  setLbAllUsers,
+  lbTimeframe,
+  setLbTimeframe
 } from './leaderboard.state';
 
 // --- Sub-Module Imports ---
@@ -59,9 +60,29 @@ export async function initWorldStage(): Promise<void> {
   window.addEventListener('all-tracker-identity-sync', () => {
     refreshLeaderboard();
   });
-  
   // Listen for global clicks to dismiss HUDs
   window.addEventListener('click', handleGlobalHudDismiss);
+  
+  // Setup Timeframe selector
+  setupTimeframeSelector();
+}
+
+function setupTimeframeSelector() {
+  const tabs = document.querySelectorAll('.lb-timeframe-tab');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', (e) => {
+      const target = e.currentTarget as HTMLElement;
+      const timeframe = target.dataset.timeframe as 'today' | 'weekly' | 'monthly' | 'all-time';
+      if (!timeframe || timeframe === lbTimeframe) return;
+      
+      tabs.forEach(t => t.classList.remove('active'));
+      target.classList.add('active');
+      
+      setLbTimeframe(timeframe);
+      setLbCurrentPage(1); // Reset to page 1 on timeframe change
+      refreshLeaderboard();
+    });
+  });
 }
 
 export function initActivityTracking(): void {
@@ -102,8 +123,10 @@ export function getCurrentUserLeaderboardContext(): {
   if (!myDisplayName) return null;
 
   const sorted = [...lbAllUsers].sort((a, b) => {
-    const scoreA = calculateCompetitiveXP(a.total_hours, a.current_streak || 0, a.integrity_score || 0);
-    const scoreB = calculateCompetitiveXP(b.total_hours, b.current_streak || 0, b.integrity_score || 0);
+    const hoursA = lbTimeframe === 'all-time' ? a.total_hours : (a.timeframe_hours ?? a.total_hours);
+    const hoursB = lbTimeframe === 'all-time' ? b.total_hours : (b.timeframe_hours ?? b.total_hours);
+    const scoreA = calculateCompetitiveXP(hoursA, a.current_streak || 0, a.integrity_score || 0);
+    const scoreB = calculateCompetitiveXP(hoursB, b.current_streak || 0, b.integrity_score || 0);
     return scoreB - scoreA;
   });
   const myIndex = sorted.findIndex(u => u.display_name === myDisplayName);
@@ -111,8 +134,8 @@ export function getCurrentUserLeaderboardContext(): {
 
   const me = sorted[myIndex];
   const top = sorted[0];
-  const myHours = me.total_hours || 0;
-  const topHours = top.total_hours || 0;
+  const myHours = lbTimeframe === 'all-time' ? me.total_hours : (me.timeframe_hours ?? me.total_hours);
+  const topHours = lbTimeframe === 'all-time' ? top.total_hours : (top.timeframe_hours ?? top.total_hours);
 
   return {
     position: myIndex + 1,
@@ -193,14 +216,16 @@ export async function refreshLeaderboard(): Promise<void> {
     }
   }
 
-  let users = await fetchLeaderboard();
+  let users = await fetchLeaderboard(lbTimeframe);
   
   const profileData = getSecureLocalProfileString();
   const myDisplayName = profileData ? JSON.parse(profileData).displayName : null;
 
   users = users.sort((a, b) => {
-    const scoreA = calculateCompetitiveXP(a.total_hours, a.current_streak || 0, a.integrity_score || 0);
-    const scoreB = calculateCompetitiveXP(b.total_hours, b.current_streak || 0, b.integrity_score || 0);
+    const hoursA = lbTimeframe === 'all-time' ? a.total_hours : (a.timeframe_hours ?? a.total_hours);
+    const hoursB = lbTimeframe === 'all-time' ? b.total_hours : (b.timeframe_hours ?? b.total_hours);
+    const scoreA = calculateCompetitiveXP(hoursA, a.current_streak || 0, a.integrity_score || 0);
+    const scoreB = calculateCompetitiveXP(hoursB, b.current_streak || 0, b.integrity_score || 0);
     return scoreB - scoreA;
   });
   setLbAllUsers(users);

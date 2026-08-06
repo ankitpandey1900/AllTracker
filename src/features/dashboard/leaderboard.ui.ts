@@ -8,7 +8,8 @@ import { openProfileModal } from '@/features/profile/profile.ui';
 import { 
   lbCurrentPage, 
   LB_PAGE_SIZE, 
-  setLbCurrentPage 
+  setLbCurrentPage,
+  lbTimeframe
 } from './leaderboard.state';
 import { refreshLeaderboard } from './leaderboard';
 import { bindLbItemEvents } from '@/features/dashboard/leaderboard.events';
@@ -75,7 +76,9 @@ export function renderLbPage(
   const myUser = allUsers[myIdx];
 
   // Calculate hours gap to overtake rival
-  const hoursDiff = Math.max(0, rival.total_hours - myUser.total_hours);
+  const myHours = lbTimeframe === 'all-time' ? (myUser.total_hours || 0) : (myUser.timeframe_hours ?? myUser.total_hours);
+  const rivalHours = lbTimeframe === 'all-time' ? (rival.total_hours || 0) : (rival.timeframe_hours ?? rival.total_hours);
+  const hoursDiff = Math.max(0, rivalHours - myHours);
   const h = Math.floor(hoursDiff);
   const m = Math.round((hoursDiff - h) * 60);
   const diffLabel = hoursDiff < 0.01 ? 'EVEN' : (h > 0 ? `+${h}H ${m}M` : `+${m}M`);
@@ -113,52 +116,50 @@ export function renderLbPage(
   // Live ETA logic if user is currently running a timer
   const isMeFocusing = appState.activeTimer.isRunning;
   let etaHtml = '';
-  if (isMeFocusing && hoursDiff > 0) {
-    etaHtml = `<div style="font-size: 0.65rem; color: #3b82f6; font-weight: 800; font-family: 'JetBrains Mono', monospace; display: flex; align-items: center; gap: 6px;"><span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#3b82f6; animation: pulseGlow 1.5s infinite;"></span> ACTIVE PURSUIT</div>`;
-  }
+    etaHtml = `<div class="lb-font-mono" style="font-size: 0.65rem; color: var(--accent-blue, #3b82f6); font-weight: 800; display: flex; align-items: center; gap: 6px;"><span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--accent-blue, #3b82f6); animation: pulseGlow 1.5s infinite;"></span> ACTIVE PURSUIT</div>`;
 
-  const combinedHours = (myUser.total_hours || 0) + (rival.total_hours || 0);
-  const myPct = combinedHours > 0 ? ((myUser.total_hours || 0) / combinedHours) * 100 : 50;
-  const rivalPct = combinedHours > 0 ? ((rival.total_hours || 0) / combinedHours) * 100 : 50;
+  const combinedHours = myHours + rivalHours;
+  const myPct = combinedHours > 0 ? (myHours / combinedHours) * 100 : 50;
+  const rivalPct = combinedHours > 0 ? (rivalHours / combinedHours) * 100 : 50;
 
   rivalryContainer.innerHTML = `
-    <article class="rivalry-card" style="border-radius: 4px; padding: 24px; margin-top: 0; background: #0a0a0a; border: 1px solid #1f1f1f; display: flex; flex-direction: column; gap: 24px;">
+    <article class="rivalry-card" style="border-radius: 4px; padding: 24px; margin-top: 0; background: var(--bg-primary); border: 1px solid var(--border); display: flex; flex-direction: column; gap: 24px;">
        <div style="display: flex; align-items: center; justify-content: space-between;">
           <div style="display: flex; align-items: center; gap: 8px;">
              <span style="display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: rgba(239, 68, 68, 0.1); border-radius: 6px; box-shadow: 0 0 10px rgba(239, 68, 68, 0.2);">
                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>
              </span>
-             <h3 style="font-family: 'JetBrains Mono', monospace; font-weight: 800; letter-spacing: 2px; color: #ef4444; font-size: 0.75rem; margin: 0; text-transform: uppercase;">Target Acquired</h3>
+             <h3 class="lb-font-mono" style="font-weight: 800; letter-spacing: 2px; color: #ef4444; font-size: 0.75rem; margin: 0; text-transform: uppercase;">Target Acquired</h3>
           </div>
-          <span style="font-size: 0.6rem; color: #a1a1aa; font-weight: 800; background: #18181b; border: 1px solid #27272a; padding: 4px 8px; border-radius: 2px; font-family: 'JetBrains Mono', monospace; letter-spacing: 1px;">RIVALRY</span>
+          <span class="lb-font-mono" style="font-size: 0.6rem; color: var(--text-muted); font-weight: 800; background: var(--bg-tertiary); border: 1px solid var(--border); padding: 4px 8px; border-radius: 2px; letter-spacing: 1px;">RIVALRY</span>
        </div>
        
        <div style="display: flex; align-items: flex-start; gap: 16px;">
           <div style="position: relative; flex-shrink: 0;">
-            <div style="width: 52px; height: 52px; border-radius: 4px; border: 1px solid #27272a; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; background: #121212;">
+            <div style="width: 52px; height: 52px; border-radius: 4px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; background: var(--bg-secondary);">
                ${rivalAvatar}
             </div>
             ${rivalStatusHTML}
           </div>
           <div style="flex: 1; min-width: 0; padding-top: 2px;">
              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-               <div style="font-size: 0.65rem; color: #71717a; font-weight: 700; letter-spacing: 1px;">RANK #${rivalRank}</div>
+               <div style="font-size: 0.65rem; color: var(--text-secondary); font-weight: 700; letter-spacing: 1px;">RANK #${rivalRank}</div>
                <div style="font-size: 0.65rem; color: #f59e0b; font-weight: 800; display: flex; align-items: center; gap: 4px;">
                  <span>🔥</span> ${rival.current_streak || 0} DAY STREAK
                </div>
              </div>
-             <div style="font-family: 'Outfit', sans-serif; font-weight: 700; color: #e4e4e7; font-size: 1.15rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 12px;">@${rivalName}</div>
+             <div class="lb-font-heading" style="font-weight: 700; color: var(--text-primary); font-size: 1.15rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 12px;">@${rivalName}</div>
              
-             <div style="display: flex; gap: 16px; font-size: 0.65rem; color: #71717a; font-weight: 600;">
-               <div style="display: flex; align-items: baseline; gap: 6px;">TOTAL: <span style="color: #e4e4e7; font-weight: 800; font-size: 0.75rem;">${(rival.total_hours || 0).toFixed(1)}H</span></div>
-               <div style="display: flex; align-items: baseline; gap: 6px;">TODAY: <span style="color: #e4e4e7; font-weight: 800; font-size: 0.75rem;">${(rival.today_hours || 0).toFixed(1)}H</span></div>
+             <div style="display: flex; gap: 16px; font-size: 0.65rem; color: var(--text-secondary); font-weight: 600;">
+               <div style="display: flex; align-items: baseline; gap: 6px;">${lbTimeframe.toUpperCase()}: <span style="color: var(--text-primary); font-weight: 800; font-size: 0.75rem;">${rivalHours.toFixed(1)}H</span></div>
+               <div style="display: flex; align-items: baseline; gap: 6px;">TODAY: <span style="color: var(--text-primary); font-weight: 800; font-size: 0.75rem;">${(rival.today_hours || 0).toFixed(1)}H</span></div>
              </div>
           </div>
        </div>
 
-       <div style="border-radius: 4px; padding: 16px 20px; background: #121212; border: 1px solid #1f1f1f;">
+       <div style="border-radius: 4px; padding: 16px 20px; background: var(--bg-secondary); border: 1px solid var(--border);">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <div style="font-size: 0.65rem; color: #71717a; font-weight: 700; letter-spacing: 1px;">OVERTAKE REQUIREMENT</div>
+            <div style="font-size: 0.65rem; color: var(--text-secondary); font-weight: 700; letter-spacing: 1px;">OVERTAKE REQUIREMENT</div>
             <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
               <div style="font-size: 0.65rem; color: ${tauntColor}; font-weight: 800; font-style: italic;">
                 ${tauntText}
@@ -167,11 +168,11 @@ export function renderLbPage(
             </div>
           </div>
           <div style="display: flex; align-items: baseline; gap: 8px;">
-             <span style="font-family: 'Tektur', sans-serif; font-weight: 800; color: #ef4444; font-size: 1.5rem; letter-spacing: 1px;">${diffLabel}</span>
-             <span style="font-size: 0.65rem; color: #71717a; font-weight: 700; letter-spacing: 1px;">OF FOCUS</span>
+             <span class="lb-font-special" style="font-weight: 800; color: #ef4444; font-size: 1.5rem; letter-spacing: 1px;">${diffLabel}</span>
+             <span style="font-size: 0.65rem; color: var(--text-secondary); font-weight: 700; letter-spacing: 1px;">OF FOCUS</span>
           </div>
           
-          <div style="margin-top: 16px; height: 6px; background: #1f1f1f; border-radius: 2px; overflow: hidden; display: flex;">
+          <div style="margin-top: 16px; height: 6px; background: var(--border); border-radius: 2px; overflow: hidden; display: flex;">
             <div style="height: 100%; background: #3b82f6; width: ${myPct}%; transition: width 0.5s ease;"></div>
             <div style="height: 100%; background: #ef4444; width: ${rivalPct}%; transition: width 0.5s ease;"></div>
           </div>
@@ -293,14 +294,14 @@ export function renderHoverCard(
         <div class="lb-telemetry-readout">
           <div class="readout-row">
             <span class="readout-key">STATUS</span>
-            <span class="readout-val" style="color: ${isFocusing ? '#ef4444' : (u.is_online ? '#8b5cf6' : '#64748b')};">
-              <span class="lb-pulse-dot" style="background: ${isFocusing ? '#ef4444' : (u.is_online ? '#8b5cf6' : '#64748b')};"></span>
+            <span class="readout-val" style="color: ${isFocusing ? 'var(--accent-red, #ef4444)' : (u.is_online ? 'var(--accent-blue, #8b5cf6)' : 'var(--text-muted, #64748b)')};">
+              <span class="lb-pulse-dot" style="background: ${isFocusing ? 'var(--accent-red, #ef4444)' : (u.is_online ? 'var(--accent-blue, #8b5cf6)' : 'var(--text-muted, #64748b)')};"></span>
               ${isFocusing ? 'ACTIVE' : (u.is_online ? 'ONLINE' : 'OFFLINE')}
             </span>
           </div>
           <div class="readout-row">
             <span class="readout-key">TARGET</span>
-            <span class="readout-val" style="color: ${isFocusing ? '#e2e8f0' : '#94a3b8'};">
+            <span class="readout-val" style="color: ${isFocusing ? 'var(--text-primary, #e2e8f0)' : 'var(--text-muted, #94a3b8)'};">
               ${isFocusing ? (u.is_focus_public || isMe ? (u.current_focus_subject || 'CLASSIFIED') : '[ CONFIDENTIAL ]') : 'IDLE / REFUELING'}
             </span>
           </div>
@@ -378,16 +379,16 @@ export function renderPodium(
     }
     
     const { isFocusing, statusClass, statusLabel, todayHoursDisplay } = getUserStatus(u);
-    const statusDotColor = isFocusing ? '#ef4444' : (statusClass === 'status-online' ? '#10b981' : '#71717a');
+    const statusDotColor = isFocusing ? 'var(--accent-pink, #f472b6)' : (statusClass === 'online' ? 'var(--accent-red, #ef4444)' : 'var(--text-muted, #71717a)');
 
     const rankLabel = globalIndex === 0 
       ? `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="#000"><path d="M2 22h20v-2H2v2zm2-4h16l1-10-5 3-4-7-4 7-5-3 1 10z"/></svg>`
       : `${globalIndex + 1}`;
 
     return `
-      <div class="podium-node leaderboard-item ${medalClass} ${overlapClass} ${isMe ? 'is-me' : ''}" style="border: 1px solid #1f1f1f; animation-delay: ${delay}s; ${zIndexStyle}">
-        <div class="podium-rank" style="background: ${medalColor}; color: #000; font-family: 'Tektur', sans-serif; display: flex; align-items: center; justify-content: center;">${rankLabel}</div>
-        <div class="podium-avatar-wrapper" style="border: 2px solid ${medalColor}; background: #121212; box-shadow: none;">
+      <div class="podium-node leaderboard-item ${medalClass} ${overlapClass} ${isMe ? 'is-me' : ''}" style="border: 1px solid var(--border); background: var(--bg-secondary); animation-delay: ${delay}s; ${zIndexStyle}">
+        <div class="podium-rank lb-font-special" style="background: ${medalColor}; color: var(--bg-primary); display: flex; align-items: center; justify-content: center;">${rankLabel}</div>
+        <div class="podium-avatar-wrapper" style="border: 2px solid ${medalColor}; background: var(--bg-secondary); box-shadow: none;">
           <div class="podium-avatar">${avatar}</div>
         </div>
         <div class="podium-info">
@@ -401,18 +402,18 @@ export function renderPodium(
             <span style="font-size: 0.55rem; color: ${statusDotColor}; font-weight: 800; letter-spacing: 1px;">${statusLabel.toUpperCase()}</span>
           </div>
           <div class="podium-hours" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 8px;">
-            <div style="font-family: 'Tektur', sans-serif; font-size: 1.25rem; color: ${medalColor}; font-weight: 800; letter-spacing: 1px; line-height: 1;">
-              ${(calculateCompetitiveXP(u.total_hours, u.current_streak || 0, u.integrity_score || 0)).toLocaleString()}
+            <div class="lb-font-special" style="font-size: 1.25rem; color: ${medalColor}; font-weight: 800; letter-spacing: 1px; line-height: 1;">
+              ${(calculateCompetitiveXP(lbTimeframe === 'all-time' ? u.total_hours : (u.timeframe_hours ?? u.total_hours), u.current_streak || 0, u.integrity_score || 0)).toLocaleString()}
             </div>
             <div style="font-size: 0.55rem; color: var(--text-secondary); font-weight: 800; letter-spacing: 2px; margin-top: 4px; opacity: 0.7;">RANK SCORE</div>
           </div>
 
-          <div class="podium-today" style="display: flex; flex-direction: column; align-items: center; padding: 6px 10px; background: transparent; border-radius: 4px; border: 1px solid #27272a; width: 90%; max-width: 120px;">
-            <div style="color: #10b981; font-size: 0.75rem; font-weight: 800; white-space: nowrap;">
+          <div class="podium-today" style="display: flex; flex-direction: column; align-items: center; padding: 6px 10px; background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(8px); border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.05); width: 90%; max-width: 120px;">
+            <div style="color: var(--accent-green, #10b981); font-size: 0.75rem; font-weight: 800; white-space: nowrap;">
               ${formatDuration(todayHoursDisplay) || '0h'} <span style="font-size: 0.55rem; opacity: 0.8;">TODAY</span>
             </div>
-            <div style="color: var(--text-secondary); font-size: 0.6rem; font-weight: 600; margin-top: 1px; opacity: 0.8; white-space: nowrap;">
-              ${formatDuration(u.total_hours) || '0h'} <span style="font-size: 0.5rem; opacity: 0.6;">TOTAL</span>
+            <div style="color: var(--text-primary); font-size: 0.65rem; font-weight: 600; margin-top: 2px; opacity: 0.75; white-space: nowrap;">
+              ${formatDuration(lbTimeframe === 'all-time' ? u.total_hours : (u.timeframe_hours ?? u.total_hours)) || '0h'} <span style="font-size: 0.55rem; opacity: 0.8;">${lbTimeframe.toUpperCase()}</span>
             </div>
           </div>
         </div>
@@ -439,7 +440,8 @@ export function renderUserRow(
   const rankTitle = getRankTitle(u.total_hours);
   const rankColor = getRankColor(rankTitle);
   const currentRank = globalIndex + 1;
-  const rankScore = calculateCompetitiveXP(u.total_hours, u.current_streak || 0, u.integrity_score || 0);
+  const userHours = lbTimeframe === 'all-time' ? u.total_hours : (u.timeframe_hours ?? u.total_hours);
+  const rankScore = calculateCompetitiveXP(userHours, u.current_streak || 0, u.integrity_score || 0);
 
   const streakMatch = (u.current_rank || '').match(/\[S:(\d+)\]/);
   const streakCount = u.current_streak !== undefined ? String(u.current_streak) : (streakMatch ? streakMatch[1] : '0');
@@ -468,12 +470,12 @@ export function renderUserRow(
           <span class="status-tag ${statusClass}">${statusLabel}</span>
         </div>
         <div class="lb-row-score-bar">
-          <div class="lb-row-score-fill" style="width: ${Math.min(100, (u.total_hours % 10) * 10)}%; background: ${rankColor};"></div>
+          <div class="lb-row-score-fill" style="width: ${Math.min(100, (userHours % 10) * 10)}%; background: ${rankColor};"></div>
         </div>
       </div>
 
       <div class="lb-row-telemetry">
-        <div class="lb-row-total">${formatDuration(u.total_hours) || '0H'}</div>
+        <div class="lb-row-total">${formatDuration(userHours) || '0H'} <span class="today-label">${lbTimeframe.toUpperCase()}</span></div>
         <div class="lb-row-today">+${formatDuration(todayHoursDisplay) || '0H'} <span class="today-label">TODAY</span></div>
         <div class="lb-row-rank-score">${rankScore.toLocaleString()} <span class="score-label">PTS</span></div>
       </div>

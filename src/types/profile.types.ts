@@ -28,6 +28,7 @@ export interface GlobalProfile {
   age?: number | null; // Server-computed from DOB (raw DOB never exposed)
   nation: string;
   total_hours: number;
+  timeframe_hours?: number; // Added for dynamic timeframe leaderboards
   today_hours: number;
   current_rank: string;
   is_focusing_now: boolean;

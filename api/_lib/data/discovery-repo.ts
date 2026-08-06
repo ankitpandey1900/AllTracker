@@ -1,6 +1,6 @@
 import { getPool } from "../db/pool.js";
 
-export async function fetchLeaderboard() {
+export async function fetchLeaderboard(timeframe: string = 'weekly') {
   const pool = getPool();
 
   // Reset stale today_hours at exactly 12:00 AM IST
@@ -18,38 +18,94 @@ export async function fetchLeaderboard() {
       and last_active < now() - interval '10 minutes'
   `);
 
+  // Determine the time condition based on timeframe
+  let timeCondition = '';
+  switch (timeframe) {
+    case 'today':
+      timeCondition = `and start_time AT TIME ZONE 'Asia/Kolkata' >= (now() AT TIME ZONE 'Asia/Kolkata')::date`;
+      break;
+    case 'weekly':
+      timeCondition = `and start_time >= now() - interval '7 days'`;
+      break;
+    case 'monthly':
+      timeCondition = `and start_time >= now() - interval '30 days'`;
+      break;
+    case 'all-time':
+    default:
+      timeCondition = '';
+      break;
+  }
+
   // Data minimization: Only select fields needed for the public leaderboard.
   // Sensitive PII (email, phone_number, dob, internal ID) is NEVER sent to the client.
   // Age is computed server-side from dob so the raw date is never exposed.
-  const { rows } = await pool.query(
-    `
-      select
-        p.username,
-        p.full_name,
-        p.avatar,
-        p.nation,
-        p.rank,
-        p.total_hours,
-        case 
-          when (p.last_active AT TIME ZONE 'Asia/Kolkata')::date = (now() AT TIME ZONE 'Asia/Kolkata')::date 
-          then p.today_hours 
-          else 0 
-        end as today_hours,
-        p.is_focusing,
-        p.focus_subject,
-        p.last_active,
-        p.dob,
-        p.is_focus_public,
-        p.integrity_score,
-        p.competitive_score,
-        p.current_streak,
-        (p.last_active > now() - interval '60 seconds') as is_online
-      from profiles p
-      where p.is_public is not false
-      order by p.competitive_score desc, p.total_hours desc, p.updated_at desc nulls last
-      limit 1000
-    `,
-  );
+  
+  // Use a left join to compute dynamic timeframe hours if needed,
+  // falling back to total_hours if it's all-time to save query complexity on massive tables.
+  const query = timeframe === 'all-time' ? `
+    select
+      p.username,
+      p.full_name,
+      p.avatar,
+      p.nation,
+      p.rank,
+      p.total_hours as timeframe_hours,
+      p.total_hours,
+      case 
+        when (p.last_active AT TIME ZONE 'Asia/Kolkata')::date = (now() AT TIME ZONE 'Asia/Kolkata')::date 
+        then p.today_hours 
+        else 0 
+      end as today_hours,
+      p.is_focusing,
+      p.focus_subject,
+      p.last_active,
+      p.dob,
+      p.is_focus_public,
+      p.integrity_score,
+      p.competitive_score,
+      p.current_streak,
+      (p.last_active > now() - interval '60 seconds') as is_online
+    from profiles p
+    where p.is_public is not false
+    order by p.total_hours desc, p.competitive_score desc, p.updated_at desc nulls last
+    limit 1000
+  ` : `
+    with timeframe_stats as (
+      select user_id, sum(duration) as timeframe_hours
+      from study_sessions
+      where 1=1 ${timeCondition}
+      group by user_id
+    )
+    select
+      p.username,
+      p.full_name,
+      p.avatar,
+      p.nation,
+      p.rank,
+      coalesce(ts.timeframe_hours, 0) as timeframe_hours,
+      p.total_hours,
+      case 
+        when (p.last_active AT TIME ZONE 'Asia/Kolkata')::date = (now() AT TIME ZONE 'Asia/Kolkata')::date 
+        then p.today_hours 
+        else 0 
+      end as today_hours,
+      p.is_focusing,
+      p.focus_subject,
+      p.last_active,
+      p.dob,
+      p.is_focus_public,
+      p.integrity_score,
+      p.competitive_score,
+      p.current_streak,
+      (p.last_active > now() - interval '60 seconds') as is_online
+    from profiles p
+    left join timeframe_stats ts on ts.user_id = p.id
+    where p.is_public is not false
+    order by timeframe_hours desc, p.competitive_score desc, p.updated_at desc nulls last
+    limit 1000
+  `;
+
+  const { rows } = await pool.query(query);
 
   return rows.map((row: any) => {
     // Compute age server-side — raw DOB never leaves the server
@@ -71,6 +127,7 @@ export async function fetchLeaderboard() {
       User_name: row.full_name || "",
       age,
       nation: row.nation || "Global",
+      timeframe_hours: Number(row.timeframe_hours || 0),
       total_hours: Number(row.total_hours || 0),
       today_hours: Number(row.today_hours || 0),
       current_rank: row.rank || "IRON",
