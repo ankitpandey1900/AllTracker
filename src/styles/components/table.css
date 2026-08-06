@@ -214,9 +214,9 @@ tr.hidden {
 
 .cell-input {
   width: 100%;
-  border: 1px solid rgba(99, 121, 177, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
-  background: var(--bg-primary);
+  background: rgba(255, 255, 255, 0.02);
   color: #edf3ff;
   padding: 4px 8px;
   padding-right: 32px; /* Make room for the duration hint on the right */
@@ -235,9 +235,9 @@ tr.hidden {
   display: flex;
   align-items: center;
   height: 32px;
-  border: 1px solid rgba(99, 121, 177, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
-  background: var(--bg-primary);
+  background: rgba(255, 255, 255, 0.02);
   width: 100%;
   box-sizing: border-box;
   transition: border-color 0.2s, box-shadow 0.2s;
@@ -334,8 +334,8 @@ input[type="number"] {
 .project-input:hover,
 .topics-input:focus,
 .project-input:focus {
-  background: var(--bg-primary);
-  border-color: rgba(124, 58, 237, 0.6);
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(124, 58, 237, 0.4);
   color: #edf3ff;
   resize: vertical;
 }
@@ -396,8 +396,8 @@ tr.locked-row:hover td {
 }
 
 tr.locked-row .cell-input {
-  background: var(--bg-primary);
-  border-color: rgba(99, 121, 177, 0.1);
+  background: rgba(255, 255, 255, 0.01);
+  border-color: rgba(255, 255, 255, 0.03);
   color: #64748b;
   pointer-events: none;
 }

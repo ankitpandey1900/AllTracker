@@ -123,7 +123,7 @@ export function renderLbPage(
   const rivalPct = combinedHours > 0 ? (rivalHours / combinedHours) * 100 : 50;
 
   rivalryContainer.innerHTML = `
-    <article class="rivalry-card" style="border-radius: 4px; padding: 24px; margin-top: 0; background: var(--bg-primary); border: 1px solid var(--border); display: flex; flex-direction: column; gap: 24px;">
+    <article class="rivalry-card" style="border-radius: 16px; padding: 24px; margin-top: 0; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); box-shadow: inset 0 1px 0 rgba(255,255,255,0.02); display: flex; flex-direction: column; gap: 24px; position: relative; overflow: hidden;">
        <div style="display: flex; align-items: center; justify-content: space-between;">
           <div style="display: flex; align-items: center; gap: 8px;">
              <span style="display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: rgba(239, 68, 68, 0.1); border-radius: 6px; box-shadow: 0 0 10px rgba(239, 68, 68, 0.2);">
@@ -131,12 +131,12 @@ export function renderLbPage(
              </span>
              <h3 class="lb-font-mono" style="font-weight: 800; letter-spacing: 2px; color: #ef4444; font-size: 0.75rem; margin: 0; text-transform: uppercase;">Target Acquired</h3>
           </div>
-          <span class="lb-font-mono" style="font-size: 0.6rem; color: var(--text-muted); font-weight: 800; background: var(--bg-tertiary); border: 1px solid var(--border); padding: 4px 8px; border-radius: 2px; letter-spacing: 1px;">RIVALRY</span>
+          <span class="lb-font-mono" style="font-size: 0.6rem; color: var(--text-muted); font-weight: 800; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 6px; letter-spacing: 1px;">RIVALRY</span>
        </div>
        
        <div style="display: flex; align-items: flex-start; gap: 16px;">
           <div style="position: relative; flex-shrink: 0;">
-            <div style="width: 52px; height: 52px; border-radius: 4px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; background: var(--bg-secondary);">
+            <div style="width: 52px; height: 52px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); box-shadow: inset 0 1px 0 rgba(255,255,255,0.02); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; background: rgba(255,255,255,0.02);">
                ${rivalAvatar}
             </div>
             ${rivalStatusHTML}
@@ -157,7 +157,7 @@ export function renderLbPage(
           </div>
        </div>
 
-       <div style="border-radius: 4px; padding: 16px 20px; background: var(--bg-secondary); border: 1px solid var(--border);">
+       <div style="border-radius: 12px; padding: 16px 20px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
             <div style="font-size: 0.65rem; color: var(--text-secondary); font-weight: 700; letter-spacing: 1px;">OVERTAKE REQUIREMENT</div>
             <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
@@ -172,7 +172,7 @@ export function renderLbPage(
              <span style="font-size: 0.65rem; color: var(--text-secondary); font-weight: 700; letter-spacing: 1px;">OF FOCUS</span>
           </div>
           
-          <div style="margin-top: 16px; height: 6px; background: var(--border); border-radius: 2px; overflow: hidden; display: flex;">
+          <div style="margin-top: 16px; height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden; display: flex;">
             <div style="height: 100%; background: #3b82f6; width: ${myPct}%; transition: width 0.5s ease;"></div>
             <div style="height: 100%; background: #ef4444; width: ${rivalPct}%; transition: width 0.5s ease;"></div>
           </div>
@@ -386,9 +386,9 @@ export function renderPodium(
       : `${globalIndex + 1}`;
 
     return `
-      <div class="podium-node leaderboard-item ${medalClass} ${overlapClass} ${isMe ? 'is-me' : ''}" style="border: 1px solid var(--border); background: var(--bg-secondary); animation-delay: ${delay}s; ${zIndexStyle}">
+      <div class="podium-node leaderboard-item ${medalClass} ${overlapClass} ${isMe ? 'is-me' : ''}" style="border: 1px solid rgba(255,255,255,0.05); background: rgba(255,255,255,0.02); backdrop-filter: blur(8px); box-shadow: inset 0 1px 0 rgba(255,255,255,0.02); animation-delay: ${delay}s; ${zIndexStyle}">
         <div class="podium-rank lb-font-special" style="background: ${medalColor}; color: var(--bg-primary); display: flex; align-items: center; justify-content: center;">${rankLabel}</div>
-        <div class="podium-avatar-wrapper" style="border: 2px solid ${medalColor}; background: var(--bg-secondary); box-shadow: none;">
+        <div class="podium-avatar-wrapper" style="border: 2px solid ${medalColor}; background: rgba(255,255,255,0.04); box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);">
           <div class="podium-avatar">${avatar}</div>
         </div>
         <div class="podium-info">

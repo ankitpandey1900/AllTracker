@@ -7,20 +7,30 @@
 
 
 html[data-theme="obsidian-glass"] :root {
-  --bg-primary: #0a1118;
-  --bg-secondary: #0f172a;
-  --bg-tertiary: #1e293b;
-  --surface: rgba(255, 255, 255, 0.01);
-  /* ULTRA TRANSPARENT GLASS */
+  --bg-primary: rgba(255, 255, 255, 0.01);
+  --bg-secondary: rgba(255, 255, 255, 0.02);
+  --bg-tertiary: rgba(255, 255, 255, 0.04);
+  --surface: rgba(0, 0, 0, 0.5);
   --surface-2: rgba(255, 255, 255, 0.03);
   --text-primary: #f1f5f9;
   --text-secondary: #94a3b8;
   --text-muted: #475569;
-  --border: rgba(14, 165, 233, 0.1);
+  --border: rgba(255, 255, 255, 0.05);
   --border-strong: #0ea5e9;
   --accent-blue: #8b5cf6;
   --accent-purple: #a78bfa;
   --accent-cyan: #c4b5fd;
+  --border-strong: #7c3aed;
+
+  /* Intelligence / Maamu Overrides */
+  --maamu-bg: transparent;
+  /* Full transparency for sidebar */
+  --maamu-card: rgba(15, 23, 42, 0.15);
+  --maamu-border: rgba(14, 165, 233, 0.2);
+  --maamu-text: #f1f5f9;
+  --maamu-text-muted: #94a3b8;
+  --maamu-accent: #8b5cf6;
+  --maamu-accent-soft: rgba(139, 92, 246, 0.1);
   --border-strong: #7c3aed;
 
   /* Intelligence / Maamu Overrides */
@@ -38,105 +48,40 @@ html[data-theme="obsidian-glass"] :root {
   --empty-state-bg: rgba(15, 23, 42, 0.1);
 }
 
-/* 🌌 ATMOSPHERIC PROTOCOL: Arctic Aurora (STABLE PULSE) */
+/* /* OBSIDIAN ABYSS: Ambient Obsidian Glow */
 html[data-theme="obsidian-glass"]::before {
   content: "";
   position: fixed;
   top: -50vh;
   left: -50vw;
   width: 200vw;
-  height: 100vh;
-  background: radial-gradient(circle at center, rgba(14, 165, 233, 0.15), transparent 70%);
-  /* filter: blur(100px); Removed for GPU performance */
-  animation: aurora-pulse 30s ease-in-out infinite alternate;
-  pointer-events: none;
-  z-index: -3;
-}
-
-@keyframes aurora-pulse {
-  0% {
-    transform: translateY(0) scale(1);
-    opacity: 0.3;
-  }
-
-  100% {
-    transform: translateY(50px) scale(1.1);
-    opacity: 0.6;
-  }
-}
-
-/* 🏔️ THE FROZEN SUMMIT: Background with Parallax Depth */
-html[data-theme="obsidian-glass"] body {
-  background-color: var(--bg-primary);
-  background-image:
-    radial-gradient(100% 100% at 50% 0%, rgba(14, 165, 233, 0.1) 0%, transparent 50%),
-    linear-gradient(to top, rgba(15, 23, 42, 1) 0%, transparent 30%),
-    radial-gradient(circle at 100% 100%, rgba(56, 189, 248, 0.1) 0%, transparent 50%);
-  color: #f1f5f9;
-  font-family: 'Outfit', sans-serif !important;
-  overflow-x: hidden;
-  position: relative;
-}
-
-/* 🏔️ DISTANT RANGE: Secondary Mountain (PARALLAX DEPTH) */
-html[data-theme="obsidian-glass"] body::before {
-  content: "";
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100vw;
-  height: 50vh;
-  background: transparent;
-  clip-path: polygon(0% 100%, 15% 70%, 30% 85%, 50% 60%, 75% 90%, 90% 75%, 100% 100%);
-  opacity: 0.2;
-  pointer-events: none;
+  height: 200vh;
+  background: 
+    radial-gradient(circle at 50% 50%, rgba(124, 58, 237, 0.05) 0%, rgba(0, 0, 0, 0) 50%),
+    radial-gradient(circle at 80% 20%, rgba(56, 189, 248, 0.03) 0%, rgba(0, 0, 0, 0) 40%),
+    linear-gradient(180deg, #06080e 0%, #030407 100%);
+  background-color: #06080e;
   z-index: -2;
+  animation: ambient-glow 20s ease-in-out infinite alternate;
 }
 
-/* 🏔️ HIMALAYAN PEAK: Primary Mountain (SHARP) */
-html[data-theme="obsidian-glass"] body::after {
+html[data-theme="obsidian-glass"]::after {
   content: "";
   position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100vw;
-  height: 35vh;
-  background: var(--bg-primary);
-  clip-path: polygon(0% 100%, 20% 40%, 35% 70%, 50% 10%, 65% 65%, 85% 30%, 100% 100%);
-  opacity: 0.8;
-  pointer-events: none;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 40px 40px;
   z-index: -1;
-}
-
-/* 🌨️ SUMMIT-DRIFT PROTOCOL: Multi-Depth Immersive Physics (FIXED SELECTOR) */
-html[data-theme="obsidian-glass"] main::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: calc(100vw + 1200px);
-  height: calc(100vh + 1200px);
-  background-image:
-    radial-gradient(circle, #ffffff 1.2px, transparent 1.2px),
-    radial-gradient(circle, #ffffff 1.8px, transparent 1.8px),
-    radial-gradient(circle, rgba(255, 255, 255, 0.4) 5px, transparent 5px);
-  /* Enhanced Bokeh */
-  background-size: 50px 50px, 120px 120px, 400px 400px;
-  background-position: 0 0, 20px 40px, 60px 10px;
-  animation: summit-drift 180s linear infinite;
   pointer-events: none;
-  z-index: 10;
-  opacity: 0.35;
-  will-change: transform;
+  mask-image: radial-gradient(circle at center, black 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(circle at center, black 30%, transparent 80%);
 }
 
-@keyframes summit-drift {
-  from {
-    transform: translate3d(0, 0, 0);
-  }
-  to {
-    transform: translate3d(-1200px, -1200px, 0);
-  }
+@keyframes ambient-glow {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.05); }
 }
 
 /* 🧊 FROSTED HUD: Header (CLEAR-SKY GLASS) */
@@ -144,7 +89,7 @@ html[data-theme="obsidian-glass"] .app-header {
   background: transparent !important;
   backdrop-filter: blur(10px) !important;
   border-bottom: 2px solid rgba(255, 255, 255, 0.05) !important;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+  box-shadow: none !important;
 }
 
 html[data-theme="obsidian-glass"] .app-header .brand {
@@ -178,12 +123,7 @@ html[data-theme="obsidian-glass"] .mentor-v2-container {
   box-shadow: none !important;
 }
 
-html[data-theme="obsidian-glass"] .modal-content {
-  background: rgba(15, 23, 42, 0.8) !important;
-  backdrop-filter: blur(12px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6) !important;
-}
+
 
 /* ❄️ FIX: Turning White on Hover (CLEAR-SKY HUD) */
 html[data-theme="obsidian-glass"] .card:hover,
@@ -255,7 +195,57 @@ html[data-theme="obsidian-glass"] .mobile-nav {
   }
 
   html[data-theme="obsidian-glass"] .app-header {
-    background: rgba(10, 17, 24, 0.3) !important;
-    backdrop-filter: blur(8px) !important;
-  }
+  background: transparent !important;
+  backdrop-filter: blur(10px) !important;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.05) !important;
+  box-shadow: none !important;
+}
+}
+
+
+/* =========================================================
+   GLOBAL OVERRIDES FOR ALL MODALS & WIDGETS
+   ========================================================= */
+html[data-theme="obsidian-glass"] .modal-content {
+  background: rgba(10, 15, 25, 0.85) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+}
+
+html[data-theme="obsidian-glass"] .heatmap-matrix-hub,
+html[data-theme="obsidian-glass"] .stat-card,
+html[data-theme="obsidian-glass"] .hm-stat-card,
+html[data-theme="obsidian-glass"] .badge-card,
+html[data-theme="obsidian-glass"] .analytics-panel {
+  background: rgba(255, 255, 255, 0.02) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02) !important;
+}
+
+
+
+
+
+
+/* =========================================================
+   GLOBAL OVERRIDES FOR ALL MODALS & WIDGETS
+   ========================================================= */
+html[data-theme="obsidian-glass"] .modal-content {
+  background: rgba(10, 15, 25, 0.85) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+}
+
+html[data-theme="obsidian-glass"] .heatmap-matrix-hub,
+html[data-theme="obsidian-glass"] .stat-card,
+html[data-theme="obsidian-glass"] .hm-stat-card,
+html[data-theme="obsidian-glass"] .badge-card,
+html[data-theme="obsidian-glass"] .analytics-panel {
+  background: rgba(255, 255, 255, 0.02) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02) !important;
 }
