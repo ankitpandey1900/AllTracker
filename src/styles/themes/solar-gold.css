@@ -138,3 +138,26 @@ html[data-theme="solar-gold"] .modern-table th {
   border-bottom: 1px solid var(--border) !important;
   font-weight: 800;
 }
+
+/* 27. History Modal Executive Gold Overrides */
+html[data-theme="solar-gold"] #historyModal {
+  --sh-accent: #c5a059;
+  --sh-accent-rgb: 197, 160, 89;
+  --sh-bg: #000000;
+  --sh-header-bg: #09090b;
+  --sh-border: rgba(197, 160, 89, 0.2);
+}
+
+/* 28. Weekly Modal Executive Gold Overrides */
+html[data-theme="solar-gold"] #weeklyModal {
+  --wm-accent: #c5a059;
+  --wm-accent-rgb: 197, 160, 89;
+  --wm-bg: #000000;
+  --wm-border: rgba(197, 160, 89, 0.2);
+  --wm-header-border: rgba(197, 160, 89, 0.2);
+  --wm-card-bg: #09090b;
+  --wm-hover: #18181b;
+}
+html[data-theme="solar-gold"] .weekly-metric {
+  background: #000000 !important;
+}

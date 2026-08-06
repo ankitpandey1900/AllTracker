@@ -445,17 +445,20 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 20px;
-  border-bottom: 1px solid var(--border);
-  background: var(--surface-2);
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(10, 15, 25, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   flex-shrink: 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .chat-header-left,
 .chat-header-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
 }
 
 .sidebar-toggle-btn {
@@ -520,28 +523,38 @@
 }
 
 #activeMissionTitle {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: #94a3b8;
-  letter-spacing: 1px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #e2e8f0;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
 }
 
 .beast-toggle-group {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(239, 68, 68, 0.04);
-  border: 1px solid rgba(239, 68, 68, 0.12);
-  border-radius: 10px;
-  padding: 5px 12px;
+  background: rgba(239, 68, 68, 0.06);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 12px;
+  padding: 6px 14px;
+  box-shadow: inset 0 0 12px rgba(239, 68, 68, 0.05);
+  transition: all 0.3s ease;
+}
+
+.beast-toggle-group:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+  box-shadow: inset 0 0 15px rgba(239, 68, 68, 0.1), 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .beast-label {
-  font-size: 0.65rem;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #fca5a5;
 }
 
 .maamu-compact-toggle-btn {

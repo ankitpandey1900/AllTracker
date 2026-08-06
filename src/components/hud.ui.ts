@@ -87,13 +87,26 @@ export const hudView = `
 
       <div class="control-row">
         <button id="timerExtendBtn" class="btn" style="display: none; background: linear-gradient(135deg, #fbbf24, #d97706); color: var(--text-primary); font-size: 0.65rem; font-weight: 800; border: none; box-shadow: 0 0 15px rgba(251, 191, 26, 0.4);">EXTEND GRIND +1H</button>
-        <button id="timerPauseBtn" class="btn btn-outline" style="min-width: 100px;">Break ☕</button>
-        <button id="timerTerminateBtn" class="btn btn-ghost" title="Discard session — no data saved" style="border: 1px solid rgba(239,68,68,0.4); color: #ef4444; font-size: 0.65rem; letter-spacing: 1px; opacity: 0.8;">TERMINATE</button>
-        <button id="timerStopBtn" class="btn btn-danger glow-danger">Stop</button>
+        
+        <button id="timerPauseBtn" class="btn btn-outline" style="min-width: 110px; font-weight: 700; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.03);">
+          <svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+          BREAK
+        </button>
+        
+        <button id="timerTerminateBtn" class="btn btn-ghost" title="Discard session - no data saved" style="border: 1px solid rgba(239,68,68,0.2); color: #ef4444; font-weight: 700; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(239, 68, 68, 0.05);">
+          <svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          TERMINATE
+        </button>
+        
+        <button id="timerStopBtn" class="btn" style="min-width: 110px; font-weight: 800; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect></svg>
+          STOP
+        </button>
       </div>
-      <div class="session-goal-row">
-        <label for="sessionGoalInput">Session Goal (mins)</label>
-        <input id="sessionGoalInput" class="input small" type="number" min="1" value="60" />
+      <div class="session-goal-row" style="opacity: 0.8;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+        <label for="sessionGoalInput" style="font-weight: 600; font-size: 0.75rem; letter-spacing: 0.5px;">Session Goal (mins)</label>
+        <input id="sessionGoalInput" class="input small" type="number" min="1" value="60" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); color: #fff; width: 60px; text-align: center; border-radius: 6px; padding: 4px;" />
       </div>
     </div>
   </div>

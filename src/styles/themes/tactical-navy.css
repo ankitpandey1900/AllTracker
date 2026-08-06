@@ -189,3 +189,36 @@ html[data-theme="tactical-navy"] .mobile-nav {
   background: var(--bg-secondary) !important;
   border-top: 2px solid var(--accent-cyan) !important;
 }
+
+/* 27. History Modal Chanakya Overrides */
+html[data-theme="tactical-navy"] #historyModal {
+  --sh-accent: #3fb950;
+  --sh-accent-rgb: 63, 185, 80;
+  --sh-bg: #0d1117;
+  --sh-header-bg: #010409;
+  --sh-border: #30363d;
+}
+html[data-theme="tactical-navy"] #historyModal .modal-content.wide {
+  border: 1px solid #30363d !important;
+  border-radius: 6px !important;
+  box-shadow: 0 0 0 1px #30363d, 0 16px 32px rgba(0,0,0,0.8) !important;
+}
+
+/* 28. Weekly Modal Chanakya Overrides */
+html[data-theme="tactical-navy"] #weeklyModal {
+  --wm-accent: #3fb950;
+  --wm-accent-rgb: 63, 185, 80;
+  --wm-bg: #0d1117;
+  --wm-border: #30363d;
+  --wm-header-border: #30363d;
+  --wm-card-bg: #010409;
+  --wm-hover: #161b22;
+}
+html[data-theme="tactical-navy"] #weeklyModal .modal-content.wide {
+  border: 1px solid #30363d !important;
+  border-radius: 6px !important;
+  box-shadow: 0 0 0 1px #30363d, 0 16px 32px rgba(0,0,0,0.8) !important;
+}
+html[data-theme="tactical-navy"] .weekly-metric {
+  background: #0d1117 !important;
+}

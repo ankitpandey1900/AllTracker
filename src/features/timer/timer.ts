@@ -543,10 +543,14 @@ function updateTimerUI(isVisible: boolean): void {
   if (isVisible) {
     section.style.display = 'block';
     if (appState.activeTimer.isRunning) {
-      section.classList.remove('paused'); pauseBtn.textContent = 'Break ☕';
-      display.classList.remove('blink'); document.body.classList.add('focus-mode'); updateFocusTask();
+      section.classList.remove('paused');
+      pauseBtn.innerHTML = `<svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg> BREAK`;
+      display.classList.remove('blink'); 
+      document.body.classList.add('focus-mode'); 
+      updateFocusTask();
     } else {
-      section.classList.add('paused'); pauseBtn.textContent = 'Resume ▶️';
+      section.classList.add('paused');
+      pauseBtn.innerHTML = `<svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> RESUME`;
       if (appState.activeTimer.activeBreak) display.classList.remove('blink'); else display.classList.add('blink');
     }
   } else { section.style.display = 'none'; document.body.classList.remove('focus-mode', 'focus-minimized'); notificationService.stopAmbient(); }

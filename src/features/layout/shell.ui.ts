@@ -12,8 +12,8 @@ export const shellView = `
       <!-- Navigation Tabs next to Logo -->
       <nav class="header-nav-tabs" role="tablist" style="display: flex; gap: 12px;">
         <button class="nav-item active" data-target="dashboardPane" role="tab" aria-selected="true" title="View Dashboard" aria-label="Open study dashboard">Dashboard</button>
-        <button class="nav-item" data-target="worldStagePane" role="tab" aria-selected="false" title="View Global Leaderboard" aria-label="Open global leaderboard">World Stage</button>
         <button class="nav-item" data-target="tasksPane" role="tab" aria-selected="false" title="View Tasks" aria-label="Open mission task board">Tasks</button>
+        <button class="nav-item" data-target="worldStagePane" role="tab" aria-selected="false" title="View Global Leaderboard" aria-label="Open global leaderboard">World Stage</button>
       </nav>
     </div>
 
@@ -37,10 +37,9 @@ export const shellView = `
       
       <div id="headerDesktopActions" class="header-desktop-actions">
         <button class="btn nav-item" data-target="routinePane" title="View Routines" aria-label="Open routine habits tracker">Routine</button>
-        <button class="btn nav-item" data-target="feedPane" title="Arena Feed" aria-label="Open arena feed">Feed</button>
         <button class="btn nav-item" data-target="intelligencePane" title="Ask Maamu AI" aria-label="Open Maamu AI">Maamu</button>
+        <button class="btn nav-item" data-target="feedPane" title="Arena Feed" aria-label="Open arena feed">Feed</button>
         <button class="btn nav-item" data-target="bookmarksPane" title="View Bookmarks" aria-label="Open bookmarks">Bookmarks</button>
-        <button id="userManualBtn" class="btn" title="Open User Manual" aria-label="View documentation and user guide">User Manual</button>
         <button id="settingsBtn" class="btn" title="App Settings" aria-label="Configure display and sync settings">Settings</button>
       </div>
 
@@ -102,6 +101,7 @@ export const shellView = `
 
   <footer class="app-footer" style="text-align: center; padding: 2rem 1rem; color: #6b7280; font-size: 0.85rem; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 2rem;">
     <div style="display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 0.5rem;">
+      <a href="/manual.html" style="color: #818cf8; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#a5b4fc'" onmouseout="this.style.color='#818cf8'">User Manual</a>
       <a href="/privacy.html" style="color: #818cf8; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#a5b4fc'" onmouseout="this.style.color='#818cf8'">Privacy Policy</a>
       <a href="/terms.html" style="color: #818cf8; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#a5b4fc'" onmouseout="this.style.color='#818cf8'">Terms &amp; Conditions</a>
     </div>

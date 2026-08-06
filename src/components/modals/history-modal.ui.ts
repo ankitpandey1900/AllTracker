@@ -1,8 +1,22 @@
 /**
- * Session History Modal — Professional v3 (Mobile-first responsive)
+ * Session History Modal — Professional v4 (Theme-aware & Mobile-first)
  */
 export const historyModal = `
   <style>
+    #historyModal {
+      /* Base Theme Variables - Can be overridden by specific themes */
+      --sh-accent: #60a5fa;
+      --sh-accent-rgb: 96, 165, 250;
+      --sh-bg: #070c1a;
+      --sh-header-bg: #0b1121;
+      --sh-border: rgba(var(--sh-accent-rgb), 0.16);
+      --sh-card-bg: rgba(var(--sh-accent-rgb), 0.042);
+      --sh-hover: rgba(var(--sh-accent-rgb), 0.09);
+      --sh-text: #f1f5f9;
+      --sh-text-muted: rgba(255, 255, 255, 0.5);
+      
+      box-sizing: border-box;
+    }
     #historyModal * { box-sizing: border-box; }
 
     @keyframes shRowFade {
@@ -21,10 +35,10 @@ export const historyModal = `
       width: min(1080px, 95vw) !important;
       max-width: 95vw !important;
       max-height: 90vh !important;
-      background: #070c1a !important;
-      border: 1px solid rgba(96,165,250,0.16) !important;
+      background: var(--sh-bg) !important;
+      border: 1px solid var(--sh-border) !important;
       border-radius: 20px !important;
-      box-shadow: 0 0 0 1px rgba(96,165,250,0.06), 0 32px 80px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.05) !important;
+      box-shadow: 0 0 0 1px rgba(var(--sh-accent-rgb), 0.06), 0 32px 80px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.05) !important;
       overflow: hidden !important;
       display: flex !important;
       flex-direction: column !important;
@@ -35,7 +49,7 @@ export const historyModal = `
       align-items: center !important;
       justify-content: space-between !important;
       padding: 16px 22px !important;
-      background: linear-gradient(135deg,rgba(96,165,250,0.07) 0%,transparent 60%) !important;
+      background: linear-gradient(135deg, rgba(var(--sh-accent-rgb), 0.07) 0%, transparent 60%) !important;
       border-bottom: 1px solid rgba(255,255,255,0.06) !important;
     }
     #historyModal .modal-header h2 {
@@ -43,7 +57,7 @@ export const historyModal = `
       font-weight: 900 !important;
       letter-spacing: 3px !important;
       text-transform: uppercase !important;
-      color: #fff !important;
+      color: var(--sh-text) !important;
       margin: 0 !important;
     }
     #historyModal .modal-close {
@@ -109,8 +123,8 @@ export const historyModal = `
       transition: border-color 0.2s, box-shadow 0.2s;
     }
     .sh-filter-bar input[type="date"]:focus {
-      border-color: rgba(96,165,250,0.5);
-      box-shadow: 0 0 0 3px rgba(96,165,250,0.1);
+      border-color: rgba(var(--sh-accent-rgb), 0.5);
+      box-shadow: 0 0 0 3px rgba(var(--sh-accent-rgb), 0.1);
     }
     .sh-filter-sep {
       font-size: 0.6rem;
@@ -133,7 +147,7 @@ export const historyModal = `
     }
     #clearHistoryFilter:hover {
       background: rgba(255,255,255,0.1);
-      color: var(--text-primary);
+      color: var(--sh-text);
     }
 
     /* ════════════════════════════════════════════════
@@ -145,8 +159,8 @@ export const historyModal = `
       flex-wrap: wrap;
       gap: 0;
       padding: 10px 20px;
-      background: rgba(96,165,250,0.04);
-      border-bottom: 1px solid rgba(96,165,250,0.1);
+      background: rgba(var(--sh-accent-rgb), 0.04);
+      border-bottom: 1px solid rgba(var(--sh-accent-rgb), 0.1);
     }
     .sh-stat {
       display: flex;
@@ -157,7 +171,7 @@ export const historyModal = `
     .sh-stat-val {
       font-size: 0.88rem;
       font-weight: 800;
-      color: var(--text-primary);
+      color: var(--sh-text);
       font-variant-numeric: tabular-nums;
     }
     .sh-stat-lbl {
@@ -188,7 +202,7 @@ export const historyModal = `
     }
     .sh-scroll::-webkit-scrollbar { width: 4px; }
     .sh-scroll::-webkit-scrollbar-track { background: transparent; }
-    .sh-scroll::-webkit-scrollbar-thumb { background: rgba(96,165,250,0.25); border-radius: 4px; }
+    .sh-scroll::-webkit-scrollbar-thumb { background: rgba(var(--sh-accent-rgb), 0.25); border-radius: 4px; }
 
     /* ════════════════════════════════════════════════
        DESKTOP: CSS GRID — 5 columns
@@ -207,8 +221,8 @@ export const historyModal = `
       position: sticky;
       top: 0;
       z-index: 20;
-      background: #0b1121;
-      border-bottom: 1px solid rgba(96,165,250,0.18);
+      background: var(--sh-header-bg);
+      border-bottom: 1px solid rgba(var(--sh-accent-rgb), 0.18);
     }
     .sh-col-header .sh-row > div {
       padding: 11px 14px;
@@ -216,7 +230,7 @@ export const historyModal = `
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 2px;
-      color: rgba(96,165,250,0.55);
+      color: rgba(var(--sh-accent-rgb), 0.55);
       white-space: nowrap;
     }
     .sh-col-header .sh-row > div:first-child { padding-left: 22px; }
@@ -225,14 +239,14 @@ export const historyModal = `
     /* Date group row */
     .sh-date-row {
       cursor: pointer;
-      background: rgba(96,165,250,0.042);
-      border-top: 1px solid rgba(96,165,250,0.1);
-      border-bottom: 1px solid rgba(96,165,250,0.12);
-      border-left: 3px solid rgba(96,165,250,0.55);
+      background: var(--sh-card-bg);
+      border-top: 1px solid rgba(var(--sh-accent-rgb), 0.1);
+      border-bottom: 1px solid rgba(var(--sh-accent-rgb), 0.12);
+      border-left: 3px solid rgba(var(--sh-accent-rgb), 0.55);
       transition: background 0.15s;
       user-select: none;
     }
-    .sh-date-row:hover { background: rgba(96,165,250,0.09); }
+    .sh-date-row:hover { background: var(--sh-hover); }
     .sh-date-row > div { padding: 12px 14px; }
     .sh-date-row > div:first-child { padding-left: 20px; }
     .sh-date-row > div:nth-child(3) { text-align: right; padding-right: 18px; }
@@ -243,24 +257,24 @@ export const historyModal = `
       align-items: center;
       justify-content: center;
       width: 20px; height: 20px;
-      background: rgba(96,165,250,0.1);
-      border: 1px solid rgba(96,165,250,0.25);
+      background: rgba(var(--sh-accent-rgb), 0.1);
+      border: 1px solid rgba(var(--sh-accent-rgb), 0.25);
       border-radius: 5px;
       font-size: 0.52rem;
-      color: rgba(96,165,250,0.8);
+      color: rgba(var(--sh-accent-rgb), 0.8);
       transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), background 0.15s;
       flex-shrink: 0;
     }
-    .sh-date-row.open .sh-chevron { transform: rotate(90deg); background: rgba(96,165,250,0.2); }
+    .sh-date-row.open .sh-chevron { transform: rotate(90deg); background: rgba(var(--sh-accent-rgb), 0.2); }
     .sh-date-stack { display: flex; flex-direction: column; gap: 1px; }
-    .sh-date-primary { font-size: 0.88rem; font-weight: 800; color: var(--text-primary); }
+    .sh-date-primary { font-size: 0.88rem; font-weight: 800; color: var(--sh-text); }
     .sh-date-secondary { font-size: 0.6rem; color: rgba(255,255,255,0.32); font-weight: 600; }
     .sh-date-sessions-label {
       font-size: 0.62rem; font-weight: 700;
       color: rgba(255,255,255,0.28); letter-spacing: 0.8px; text-transform: uppercase;
       display: flex; align-items: center; gap: 8px; white-space: nowrap;
     }
-    .sh-total-hours { font-size: 0.9rem; font-weight: 800; color: #60a5fa; }
+    .sh-total-hours { font-size: 0.9rem; font-weight: 800; color: var(--sh-accent); }
 
     /* Subject row */
     .sh-subject-row {
@@ -296,7 +310,7 @@ export const historyModal = `
     }
     .sh-session-row > div:first-child { padding-left: 48px; overflow: visible !important; text-overflow: clip !important; }
     .sh-session-row > div:nth-child(3) { text-align: right; padding-right: 18px; overflow: visible; }
-    .sh-session-row:hover { background: rgba(96,165,250,0.04); border-left-color: rgba(96,165,250,0.2); }
+    .sh-session-row:hover { background: rgba(var(--sh-accent-rgb), 0.04); border-left-color: rgba(var(--sh-accent-rgb), 0.2); }
     .sh-session-row.alt { background: rgba(255,255,255,0.01); }
 
     .sh-session-num { font-size: 0.68rem; font-weight: 700; color: rgba(255,255,255,0.32); display: flex; align-items: center; }
@@ -304,9 +318,9 @@ export const historyModal = `
       margin-left: 8px;
       font-size: 0.62rem;
       font-weight: 800;
-      background: rgba(56, 189, 248, 0.15);
-      color: #38bdf8;
-      border: 1px solid rgba(56, 189, 248, 0.4);
+      background: rgba(var(--sh-accent-rgb), 0.15);
+      color: var(--sh-accent);
+      border: 1px solid rgba(var(--sh-accent-rgb), 0.4);
       padding: 1px 6px;
       border-radius: 4px;
       letter-spacing: 0.5px;
@@ -318,9 +332,9 @@ export const historyModal = `
     .sh-time-sep { opacity: 0.3; margin: 0 6px; }
 
     .sh-duration { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-    .sh-dur-val { font-size: 0.78rem; font-weight: 700; color: #60a5fa; font-variant-numeric: tabular-nums; }
+    .sh-dur-val { font-size: 0.78rem; font-weight: 700; color: var(--sh-accent); font-variant-numeric: tabular-nums; }
     .sh-dur-bar { width: 100%; height: 2px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
-    .sh-dur-fill { height: 100%; border-radius: 2px; opacity: 0.7; transition: width 0.4s ease; }
+    .sh-dur-fill { height: 100%; border-radius: 2px; opacity: 0.7; transition: width 0.4s ease; background: var(--sh-accent); }
 
     .sh-category { font-size: 0.71rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
     .sh-note {
@@ -352,9 +366,9 @@ export const historyModal = `
       line-height: 1;
     }
     .sh-btn-edit { color: #a5b4fc; }
-    .sh-btn-edit:hover { background: rgba(99,102,241,0.2); border-color: rgba(99,102,241,0.4); color: var(--text-primary); }
+    .sh-btn-edit:hover { background: rgba(99,102,241,0.2); border-color: rgba(99,102,241,0.4); color: #fff; }
     .sh-btn-delete { color: #f87171; }
-    .sh-btn-delete:hover { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.4); color: var(--text-primary); }
+    .sh-btn-delete:hover { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.4); color: #fff; }
 
     /* Empty state */
     .sh-empty {
@@ -395,7 +409,6 @@ export const historyModal = `
       .sh-stat-val { font-size: 1rem; }
 
       /* All rows switch to grid: none → block-based cards */
-      /* Specific selector to avoid forcing children to be visible */
       .sh-date-row.sh-row { display: flex !important; }
 
       /* DATE GROUP ROW — full-width banner card */
@@ -403,11 +416,11 @@ export const historyModal = `
         display: flex !important;
         align-items: center !important;
         justify-content: space-between !important;
-        padding: 14px 16px !important;
-        margin: 8px 12px 0 !important;
+        padding: 16px !important;
+        margin: 12px 12px 0 !important;
         border-radius: 12px !important;
-        border: 1px solid rgba(96,165,250,0.18) !important;
-        border-left: 4px solid rgba(96,165,250,0.55) !important;
+        border: 1px solid rgba(var(--sh-accent-rgb), 0.18) !important;
+        border-left: 4px solid rgba(var(--sh-accent-rgb), 0.55) !important;
       }
       .sh-date-row > div { padding: 0 !important; }
       .sh-date-row > div:nth-child(3) { text-align: right !important; padding: 0 !important; }
@@ -420,11 +433,11 @@ export const historyModal = `
         display: none;
         align-items: center !important;
         justify-content: space-between !important;
-        padding: 10px 16px !important;
-        margin: 4px 12px 0 16px !important;
+        padding: 12px 16px !important;
+        margin: 6px 12px 0 16px !important;
         border-radius: 8px !important;
         border: 1px solid rgba(255,255,255,0.07) !important;
-        border-left: 3px solid rgba(96,165,250,0.2) !important;
+        border-left: 3px solid rgba(var(--sh-accent-rgb), 0.2) !important;
       }
       .sh-subject-row.expanded { display: flex !important; }
       .sh-subject-row > div { padding: 0 !important; }
@@ -435,8 +448,8 @@ export const historyModal = `
       /* SESSION DETAIL ROW — full info card */
       .sh-session-row {
         display: none;
-        margin: 4px 12px 0 20px !important;
-        padding: 12px 14px !important;
+        margin: 6px 12px 0 20px !important;
+        padding: 14px 16px !important;
         border-radius: 10px !important;
         border: 1px solid rgba(255,255,255,0.06) !important;
         border-left: 3px solid transparent !important;
@@ -444,8 +457,8 @@ export const historyModal = `
       }
       .sh-session-row.expanded { display: block !important; }
       .sh-session-row:hover {
-        background: rgba(96,165,250,0.06) !important;
-        border-left-color: rgba(96,165,250,0.3) !important;
+        background: rgba(var(--sh-accent-rgb), 0.06) !important;
+        border-left-color: rgba(var(--sh-accent-rgb), 0.3) !important;
       }
       /* Override grid-cell padding — render as stacked rows */
       .sh-session-row > div {
@@ -460,23 +473,24 @@ export const historyModal = `
         font-size: 0.72rem !important;
         font-weight: 800 !important;
         color: rgba(255,255,255,0.5) !important;
-        margin-bottom: 4px !important;
+        margin-bottom: 6px !important;
       }
       /* Time range — second line */
       .sh-session-row > div:nth-child(2) {
-        font-size: 0.8rem !important;
-        color: rgba(255,255,255,0.65) !important;
+        font-size: 0.85rem !important;
+        color: rgba(255,255,255,0.8) !important;
       }
       /* Duration — third line */
       .sh-session-row > div:nth-child(3) {
         text-align: left !important;
         flex-direction: column !important;
         align-items: flex-start !important;
+        margin: 8px 0 !important;
       }
-      .sh-dur-bar { width: 80px !important; }
+      .sh-dur-bar { width: 100% !important; max-width: 120px !important; height: 3px !important; }
       /* Category */
       .sh-session-row > div:nth-child(4) {
-        font-size: 0.75rem !important;
+        font-size: 0.8rem !important;
       }
       /* Notes */
       .sh-session-row > div:nth-child(5) {
@@ -484,22 +498,22 @@ export const historyModal = `
         padding-left: 0 !important;
         font-size: 0.75rem !important;
         color: rgba(255,255,255,0.42) !important;
-        margin-top: 2px !important;
+        margin-top: 4px !important;
       }
 
       /* last session row bottom margin */
-      .sh-session-row:last-child { margin-bottom: 12px !important; }
+      .sh-session-row:last-child { margin-bottom: 16px !important; }
 
       .sh-note { border-left: none !important; padding-left: 0 !important; }
 
       /* Hide actions column on mobile, show as full-width row */
       .sh-actions {
         opacity: 1 !important;
-        justify-content: flex-start !important;
-        padding: 4px 0 0 0 !important;
+        justify-content: flex-end !important;
+        padding: 12px 0 0 0 !important;
+        border-top: 1px solid rgba(255,255,255,0.05) !important;
+        margin-top: 8px !important;
       }
-
-      .sh-note { border-left: none !important; padding-left: 0 !important; }
     }
 
     /* ════════════════════════════════════════════════
@@ -507,7 +521,15 @@ export const historyModal = `
     ════════════════════════════════════════════════ */
     @media (max-width: 380px) {
       #historyModal .modal-header { padding: 14px 16px !important; }
-      .sh-filter-bar { padding: 10px 12px !important; }
+      .sh-filter-bar { 
+        padding: 10px 12px !important; 
+        flex-direction: column !important;
+        align-items: stretch !important;
+      }
+      .sh-filter-group { justify-content: space-between !important; }
+      #clearHistoryFilter { margin-top: 8px !important; margin-left: 0 !important; }
+      .sh-filter-sep { display: none !important; }
+      
       .sh-date-row, .sh-subject-row, .sh-session-row { margin-left: 8px !important; margin-right: 8px !important; }
       .sh-date-primary { font-size: 0.78rem !important; }
     }
@@ -525,7 +547,6 @@ export const historyModal = `
             <label for="sh-from-date">From</label>
             <input type="date" id="sh-from-date">
           </div>
-          <div class="sh-filter-sep">TO</div>
           <div class="sh-filter-group">
             <label for="sh-to-date">To</label>
             <input type="date" id="sh-to-date">

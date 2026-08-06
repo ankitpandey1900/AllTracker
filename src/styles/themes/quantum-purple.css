@@ -534,3 +534,36 @@ html[data-theme="quantum-purple"] .lb-hud-close:hover {
   background: #E04D00 !important;
   transform: translateY(-2px);
 }
+
+/* 27. History Modal Vajra Shakti Overrides */
+html[data-theme="quantum-purple"] #historyModal {
+  --sh-accent: #FF5C00;
+  --sh-accent-rgb: 255, 92, 0;
+  --sh-bg: #031A33;
+  --sh-header-bg: #021226;
+  --sh-border: #133961;
+}
+html[data-theme="quantum-purple"] #historyModal .modal-content.wide {
+  border-width: 2px !important;
+  border-radius: 4px !important;
+  box-shadow: 0 10px 30px rgba(255, 92, 0, 0.15) !important;
+}
+
+/* 28. Weekly Modal Vajra Shakti Overrides */
+html[data-theme="quantum-purple"] #weeklyModal {
+  --wm-accent: #FF5C00;
+  --wm-accent-rgb: 255, 92, 0;
+  --wm-bg: #031A33;
+  --wm-border: #133961;
+  --wm-header-border: #133961;
+  --wm-card-bg: #021226;
+  --wm-hover: #052240;
+}
+html[data-theme="quantum-purple"] #weeklyModal .modal-content.wide {
+  border-width: 2px !important;
+  border-radius: 4px !important;
+  box-shadow: 0 10px 30px rgba(255, 92, 0, 0.15) !important;
+}
+html[data-theme="quantum-purple"] .weekly-metric {
+  background: #031A33 !important;
+}

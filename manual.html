@@ -1,0 +1,750 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Manual - All Tracker</title>
+  <meta name="description" content="Complete user guide and documentation for All Tracker — learn how to track study hours, use the focus timer, compete on the leaderboard, and get AI coaching from Maamu." />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet" />
+  <meta name="theme-color" content="#0b0e1a" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      background: #0b0e1a;
+      color: #cbd5e1;
+      font-family: 'Outfit', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    /* ── Top Bar ── */
+    .doc-topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 32px;
+      background: rgba(11, 14, 26, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .doc-topbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+    }
+    .doc-topbar-brand img { height: 32px; width: auto; }
+    .doc-topbar-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #e2e8f0;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+    .doc-topbar-version {
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: #818cf8;
+      background: rgba(129, 140, 248, 0.1);
+      border: 1px solid rgba(129, 140, 248, 0.2);
+      padding: 2px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+    }
+    .doc-topbar-back {
+      color: #818cf8;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: color 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .doc-topbar-back:hover { color: #a5b4fc; }
+
+    /* ── Layout ── */
+    .doc-layout {
+      display: flex;
+      max-width: 1200px;
+      margin: 0 auto;
+      min-height: calc(100vh - 60px);
+    }
+
+    /* ── Sidebar ── */
+    .doc-sidebar {
+      width: 260px;
+      flex-shrink: 0;
+      padding: 28px 20px;
+      border-right: 1px solid rgba(255,255,255,0.05);
+      position: sticky;
+      top: 60px;
+      height: calc(100vh - 60px);
+      overflow-y: auto;
+    }
+    .doc-sidebar::-webkit-scrollbar { width: 3px; }
+    .doc-sidebar::-webkit-scrollbar-track { background: transparent; }
+    .doc-sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+    .doc-sidebar-label {
+      font-size: 0.65rem;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #64748b;
+      margin: 24px 0 10px;
+    }
+    .doc-sidebar-label:first-child { margin-top: 0; }
+
+    .doc-sidebar a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .doc-sidebar a:hover {
+      background: rgba(255,255,255,0.04);
+      color: #e2e8f0;
+    }
+    .doc-sidebar a.active {
+      background: rgba(129, 140, 248, 0.1);
+      color: #a5b4fc;
+      font-weight: 600;
+    }
+    .doc-sidebar a .nav-icon { font-size: 1rem; }
+
+    /* ── Main Content ── */
+    .doc-main {
+      flex: 1;
+      padding: 40px 48px 80px;
+      min-width: 0;
+    }
+
+    .doc-section { margin-bottom: 48px; }
+    .doc-breadcrumb {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #64748b;
+      margin-bottom: 8px;
+    }
+    .doc-breadcrumb b { color: #818cf8; margin: 0 4px; }
+
+    .doc-h1 {
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: #f1f5f9;
+      letter-spacing: -0.5px;
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+    .doc-h2 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #e2e8f0;
+      margin-bottom: 12px;
+    }
+    .doc-h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #cbd5e1;
+      margin: 20px 0 8px;
+    }
+
+    .doc-lead {
+      font-size: 1.1rem;
+      color: #94a3b8;
+      margin-bottom: 28px;
+      max-width: 640px;
+    }
+
+    .doc-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.05);
+      margin: 40px 0;
+    }
+
+    /* ── Feature Cards ── */
+    .doc-feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .doc-feature-card {
+      background: rgba(20, 25, 40, 0.6);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 14px;
+      padding: 20px;
+      transition: all 0.25s;
+    }
+    .doc-feature-card:hover {
+      border-color: rgba(129, 140, 248, 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    }
+    .doc-feature-card .icon { font-size: 1.5rem; margin-bottom: 10px; }
+    .doc-feature-card .title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #e2e8f0;
+      margin-bottom: 6px;
+    }
+    .doc-feature-card .desc {
+      font-size: 0.82rem;
+      color: #94a3b8;
+      line-height: 1.5;
+    }
+
+    /* ── Callouts ── */
+    .doc-callout {
+      background: rgba(129, 140, 248, 0.06);
+      border: 1px solid rgba(129, 140, 248, 0.15);
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin: 16px 0;
+    }
+    .doc-callout-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #a5b4fc;
+      margin-bottom: 6px;
+    }
+    .doc-callout p { font-size: 0.85rem; color: #94a3b8; }
+
+    /* ── Steps ── */
+    .doc-steps { display: flex; flex-direction: column; gap: 16px; margin-top: 16px; }
+    .doc-step {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .doc-step-num {
+      width: 32px;
+      height: 32px;
+      flex-shrink: 0;
+      border-radius: 10px;
+      background: rgba(129, 140, 248, 0.1);
+      border: 1px solid rgba(129, 140, 248, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.85rem;
+      color: #818cf8;
+    }
+    .doc-step-body { flex: 1; }
+    .doc-step-body .doc-callout-title { margin-bottom: 4px; }
+    .doc-step-body p { font-size: 0.85rem; color: #94a3b8; }
+
+    /* ── Tables ── */
+    .doc-table-wrap { overflow-x: auto; margin: 16px 0; border-radius: 12px; }
+    .doc-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+    .doc-table th {
+      text-align: left;
+      padding: 12px 16px;
+      background: rgba(20, 25, 40, 0.8);
+      color: #818cf8;
+      font-weight: 700;
+      letter-spacing: 1px;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .doc-table td {
+      padding: 10px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      color: #94a3b8;
+    }
+    .doc-table tbody tr:hover { background: rgba(255,255,255,0.02); }
+
+    /* ── Shortcuts Grid ── */
+    .doc-shortcuts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .doc-shortcut {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: rgba(20, 25, 40, 0.5);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 10px;
+      font-size: 0.82rem;
+      color: #94a3b8;
+    }
+    .doc-shortcut kbd {
+      background: rgba(129, 140, 248, 0.1);
+      border: 1px solid rgba(129, 140, 248, 0.2);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #a5b4fc;
+      font-family: 'Outfit', monospace;
+    }
+
+    ul.doc-ul {
+      padding-left: 20px;
+      margin: 8px 0;
+    }
+    ul.doc-ul li {
+      font-size: 0.88rem;
+      margin-bottom: 6px;
+      color: #94a3b8;
+    }
+
+    /* ── Footer ── */
+    .doc-footer {
+      text-align: center;
+      padding: 32px 16px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      color: #64748b;
+      font-size: 0.82rem;
+    }
+    .doc-footer a {
+      color: #818cf8;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .doc-footer a:hover { color: #a5b4fc; }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .doc-sidebar { display: none; }
+      .doc-main { padding: 24px 20px 60px; }
+      .doc-h1 { font-size: 2rem; }
+      .doc-topbar { padding: 12px 16px; }
+      .doc-feature-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <header class="doc-topbar">
+    <a href="/" class="doc-topbar-brand">
+      <img src="/app-logo.png" alt="All Tracker Logo" />
+      <span class="doc-topbar-title">User Manual</span>
+      <span class="doc-topbar-version">v4.3.0</span>
+    </a>
+    <a href="/" class="doc-topbar-back">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+      Back to Dashboard
+    </a>
+  </header>
+
+  <div class="doc-layout">
+    <!-- Sidebar -->
+    <nav class="doc-sidebar">
+      <div class="doc-sidebar-label">Getting Started</div>
+      <a class="active" href="#doc-intro"><span class="nav-icon">👋</span> Welcome</a>
+      <a href="#doc-quickstart"><span class="nav-icon">⚡</span> Quick Start</a>
+      <a href="#doc-auth"><span class="nav-icon">🛡️</span> Security & Login</a>
+
+      <div class="doc-sidebar-label">Main Features</div>
+      <a href="#doc-dashboard"><span class="nav-icon">📊</span> Command Center</a>
+      <a href="#doc-tracker"><span class="nav-icon">📝</span> Study Log</a>
+      <a href="#doc-timer"><span class="nav-icon">⏱️</span> Focus Timer</a>
+      <a href="#doc-missions"><span class="nav-icon">🎯</span> Mission Control</a>
+      <a href="#doc-routines"><span class="nav-icon">🔄</span> Routines</a>
+      <a href="#doc-bookmarks"><span class="nav-icon">🔖</span> Bookmarks</a>
+
+      <div class="doc-sidebar-label">Community & AI</div>
+      <a href="#doc-analytics"><span class="nav-icon">📈</span> Growth Insights</a>
+      <a href="#doc-leaderboard"><span class="nav-icon">🏆</span> Leaderboard</a>
+      <a href="#doc-integrity"><span class="nav-icon">🛡️</span> Trust Score</a>
+      <a href="#doc-maamu"><span class="nav-icon">🤖</span> AI Mentor</a>
+
+      <div class="doc-sidebar-label">Advanced</div>
+      <a href="#doc-heatmap"><span class="nav-icon">🗺️</span> Heatmap</a>
+      <a href="#doc-settings"><span class="nav-icon">⚙️</span> Settings</a>
+      <a href="#doc-shortcuts"><span class="nav-icon">⌨️</span> Hotkeys</a>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="doc-main">
+
+      <!-- INTRO -->
+      <section class="doc-section" id="doc-intro">
+        <div class="doc-breadcrumb">Welcome <b>›</b> Start Here</div>
+        <h1 class="doc-h1">Welcome to AllTracker</h1>
+        <div class="doc-lead">Your ultimate companion for elite study mastery. Stay disciplined, track your progress with absolute precision, and compete on the Global World Stage.</div>
+        <div class="doc-feature-grid">
+          <div class="doc-feature-card">
+            <div class="icon">🚀</div>
+            <div class="title">Stay Disciplined</div>
+            <div class="desc">A high-precision focus timer ensures you build long-term study habits without manual record-keeping.</div>
+          </div>
+          <div class="doc-feature-card">
+            <div class="icon">🌍</div>
+            <div class="title">Compete Globally</div>
+            <div class="desc">Compare your progress with students worldwide and climb the ranks of the World Stage leaderboard.</div>
+          </div>
+          <div class="doc-feature-card">
+            <div class="icon">🤖</div>
+            <div class="title">Personal AI Coach</div>
+            <div class="desc">Get personalized advice from Maamu, your AI mentor who analyzes your study patterns.</div>
+          </div>
+        </div>
+      </section>
+
+      <div class="doc-divider"></div>
+
+      <!-- QUICK START -->
+      <section class="doc-section" id="doc-quickstart">
+        <div class="doc-breadcrumb">Onboarding <b>›</b> Step-by-Step</div>
+        <h2 class="doc-h2">Quick Start Guide</h2>
+        <p>Get your first study session running in 3 steps.</p>
+        <div class="doc-steps">
+          <div class="doc-step">
+            <div class="doc-step-num">1</div>
+            <div class="doc-step-body">
+              <div class="doc-callout-title">Secure Login</div>
+              <p>Click <strong>Login</strong> and sign in with your <strong>Google</strong> or <strong>GitHub</strong> account. Your data will be synced across all your devices automatically.</p>
+            </div>
+          </div>
+          <div class="doc-step">
+            <div class="doc-step-num">2</div>
+            <div class="doc-step-body">
+              <div class="doc-callout-title">Choose your Pilot Handle</div>
+              <p>Pick a unique callsign. This is your permanent identity on the <strong>Global Leaderboard</strong>. Choose wisely.</p>
+            </div>
+          </div>
+          <div class="doc-step">
+            <div class="doc-step-num">3</div>
+            <div class="doc-step-body">
+              <div class="doc-callout-title">Start your first Session</div>
+              <p>Go to the <strong>Command Center</strong> dashboard, select your subject on the Focus Timer, and hit <strong>Start</strong>. Your hours are logged automatically.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="doc-divider"></div>
+
+      <!-- AUTH -->
+      <section class="doc-section" id="doc-auth">
+        <div class="doc-breadcrumb">Security <b>›</b> Your Privacy</div>
+        <h2 class="doc-h2">Login & Privacy</h2>
+        <div class="doc-callout">
+          <div class="doc-callout-title">🛡️ Your Data is Secure</div>
+          <p>We use industry-standard encryption. Your passwords are never stored on our servers — OAuth 2.0 providers (Google, GitHub) handle all authentication.</p>
+        </div>
+        <h3 class="doc-h3">Why sign in?</h3>
+        <ul class="doc-ul">
+          <li><strong>Cloud Sync:</strong> Your study data is backed up and available from any device.</li>
+          <li><strong>Leaderboard Access:</strong> Your hours count toward the Global World Stage rankings.</li>
+          <li><strong>Privacy:</strong> Your personal information is never shared or sold.</li>
+        </ul>
+      </section>
+
+      <div class="doc-divider"></div>
+
+      <!-- COMMAND CENTER -->
+      <section class="doc-section" id="doc-dashboard">
+        <div class="doc-breadcrumb">Main Features <b>›</b> Command Center</div>
+        <h2 class="doc-h2">Command Center</h2>
+        <p>The Command Center is your mission HQ — a live dashboard showing your key performance indicators at a glance.</p>
+        <div class="doc-feature-grid">
+          <div class="doc-feature-card"><div class="icon">📅</div><div class="title">Deadline Countdown</div><div class="desc">A live timer counting down to your exam or target date, creating urgency and focus.</div></div>
+          <div class="doc-feature-card"><div class="icon">🔥</div><div class="title">Active Streak</div><div class="desc">Your current daily study streak. Mark a rest day to freeze it without breaking it.</div></div>
+          <div class="doc-feature-card"><div class="icon">⭐</div><div class="title">XP & Rank</div><div class="desc">Every study hour earns you XP. Watch your rank climb from Iron to Singularity.</div></div>
+          <div class="doc-feature-card"><div class="icon">📊</div><div class="title">Weekly Progress</div><div class="desc">A bar chart showing your study hours for each day of the current week.</div></div>
+        </div>
+        <div class="doc-callout" style="margin-top: 16px;">
+          <div class="doc-callout-title">💡 Tip: Beast Mode</div>
+          <p>Enable <strong>Beast Mode</strong> in Settings to switch your AI Mentor to high-intensity coaching — no excuses, only data.</p>
+        </div>
+      </section>
+
+      <div class="doc-divider"></div>
+
+      <!-- STUDY LOG -->
+      <section class="doc-section" id="doc-tracker">
+        <div class="doc-breadcrumb">Main Features <b>›</b> Study Log</div>
+        <h2 class="doc-h2">Study Log</h2>
+        <p>The Study Log is your permanent record — a scrollable table of every day in your mission timeline. Each row represents one day.</p>
+        <h3 class="doc-h3">How to log a day</h3>
+        <div class="doc-steps">
+          <div class="doc-step"><div class="doc-step-num">1</div><div class="doc-step-body"><div class="doc-callout-title">Find today's row</div><p>Use <kbd>Ctrl + T</kbd> to instantly jump to today's entry in the table.</p></div></div>
+          <div class="doc-step"><div class="doc-step-num">2</div><div class="doc-step-body"><div class="doc-callout-title">Enter your hours</div><p>Click any cell in your subject columns and type the number of hours you studied for that subject.</p></div></div>
+          <div class="doc-step"><div class="doc-step-num">3</div><div class="doc-step-body"><div class="doc-callout-title">Mark as Complete</div><p>Check the <strong>✓</strong> checkbox at the end of the row to mark the day as a successful study day and build your streak.</p></div></div>
+        </div>
+        <div class="doc-callout" style="margin-top: 16px;">
+          <div class="doc-callout-title">🔒 Iron-Gate Protection</div>
+          <p>Historical data is locked for editing after <strong>4:00 AM</strong> the following morning to ensure data integrity. You cannot alter yesterday's record after this window closes.</p>
+        </div>
+      </section>
+
+      <div class="doc-divider"></div>
+
+      <!-- FOCUS TIMER -->
+      <section class="doc-section" id="doc-timer">
+        <div class="doc-breadcrumb">Main Features <b>›</b> Focus Timer</div>
+        <h2 class="doc-h2">The Focus Timer</h2>
+        <p>The Focus Timer automatically logs your study hours as you work — no manual entry required. Simply start it when you begin and stop it when you finish.</p>
+        <div class="doc-feature-grid">
+          <div class="doc-feature-card"><div class="icon">⏱️</div><div class="title">Auto-Logging</div><div class="desc">Hours are calculated and written directly into today's Study Log when you stop the timer.</div></div>
+          <div class="doc-feature-card"><div class="icon">⚡</div><div class="title">Grind Guard</div><div class="desc">Sessions are capped at 3 hours to prevent "zombie logs." Approaching the limit? Click the golden EXTEND button on the HUD to grant yourself another hour.</div></div>
+          <div class="doc-feature-card"><div class="icon">🛡️</div><div class="title">Insomniac Mode</div><div class="desc">The app aggressively prevents your laptop from sleeping while the timer is active—even during breaks—so you never lose sight of your mission.</div></div>
+          <div class="doc-feature-card"><div class="icon">📡</div><div class="title">Cross-Device Sync</div><div class="desc">Start on mobile, follow on desktop. Your session status, subject, and elapsed time sync across all active devices in real-time.</div></div>
+        </div>
+      </section>
+
+      <div class="doc-divider"></div>
+
+      <!-- MISSION CONTROL -->
+      <section class="doc-section" id="doc-missions">
+        <div class="doc-breadcrumb">Main Features <b>›</b> Mission Control</div>
+        <h2 class="doc-h2">Mission Control</h2>
+        <p>Mission Control is your daily task manager. Add objectives for the day, prioritize them, and track your clearance rate in real-time.</p>
+        <h3 class="doc-h3">Daily Clearance Bar</h3>
+        <p>The progress bar at the top of Mission Control shows your <strong>Daily Clearance %</strong> — the percentage of today's tasks you have completed.</p>
+        <div class="doc-callout">
+          <div class="doc-callout-title">📌 Note on Future Tasks</div>
+          <p>If you have no tasks for today, the nearest upcoming task is shown as a preview. However, it does <strong>not</strong> count toward your Daily Clearance — only tasks scheduled for today affect the bar.</p>
+        </div>
+        <h3 class="doc-h3">Priority Levels</h3>
+        <div class="doc-table-wrap">
+          <table class="doc-table">
+            <thead><tr><th>BADGE</th><th>LEVEL</th><th>USE WHEN</th></tr></thead>
+            <tbody>
+              <tr><td style="color:#a78bfa;font-weight:700;">L</td><td>Low</td><td>Nice-to-do, no deadline pressure.</td></tr>
+              <tr><td style="color:#fbbf24;font-weight:700;">M</td><td>Medium</td><td>Standard tasks with moderate importance.</td></tr>
+              <tr><td style="color:#f87171;font-weight:700;">H</td><td>High</td><td>Critical objectives — shown first in your queue.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 class="doc-h3">The Backlog</h3>
+        <p>Any task that remains incomplete past its assigned date is automatically moved to <strong>The Backlog</strong>. A badge in the header shows you how many unresolved tasks are waiting. Clear your backlog regularly to stay on track.</p>
+        <h3 class="doc-h3">History</h3>
+        <p>Completed tasks are stored in the <strong>History</strong> section for up to <strong>3 days</strong>, then automatically cleaned up to keep your log lean.</p>
+      </section>
+
+      <div class="doc-divider"></div>
+
+      <!-- ROUTINES -->
+      <section class="doc-section" id="doc-routines">
+        <div class="doc-breadcrumb">Main Features <b>›</b> Routines</div>
+        <h2 class="doc-h2">Routines</h2>
+        <p>Routines are your recurring daily habits — things you want to do every single day, separate from your one-off study tasks.</p>
+        <div class="doc-feature-grid">
+          <div class="doc-feature-card"><div class="icon">✅</div><div class="title">Daily Check-ins</div><div class="desc">Mark each routine item as done daily. Your completion rate is tracked in the Growth Insights panel.</div></div>
+          <div class="doc-feature-card"><div class="icon">🔁</div><div class="title">Automatic Reset</div><div class="desc">Routines reset every day at midnight so you always start fresh with a clean checklist.</div></div>
+          <div class="doc-feature-card"><div class="icon">➕</div><div class="title">Custom Items</div><div class="desc">Add, edit, or remove any routine item. Build the exact daily ritual that works for you.</div></div>
+        </div>
+      </section>
+
+      <div class="doc-divider"></div>
+
+      <!-- BOOKMARKS -->
+      <section class="doc-section" id="doc-bookmarks">
+        <div class="doc-breadcrumb">Main Features <b>›</b> Bookmarks</div>
+        <h2 class="doc-h2">Bookmarks</h2>
+        <p>Save, organize, and instantly access all your important study links in one place — no more digging through browser tabs.</p>
+        <div class="doc-feature-grid">
+          <div class="doc-feature-card"><div class="icon">🗂️</div><div class="title">Folders</div><div class="desc">Organize bookmarks into categories like Development, Learning, Work, and more.</div></div>
+          <div class="doc-feature-card"><div class="icon">🔍</div><div class="title">Quick Find</div><div class="desc">Filter your bookmarks by name or URL instantly to find exactly what you need.</div></div>
+        </div>
+      </section>
+
+      <div class="doc-divider"></div>
+
+      <!-- GROWTH INSIGHTS -->
+      <section class="doc-section" id="doc-analytics">
+        <div class="doc-breadcrumb">Community & AI <b>›</b> Growth Insights</div>
+        <h2 class="doc-h2">Growth Insights</h2>
+        <p>Growth Insights gives you a data-driven view of your study habits — not just totals, but patterns, stability, and trends over time.</p>
+        <div class="doc-feature-grid">
+          <div class="doc-feature-card"><div class="icon">📉</div><div class="title">SEP Score</div><div class="desc">The Strategic Equilibrium Protocol measures consistency. High variation in your study days reduces this score. A stable routine maximizes it.</div></div>
+          <div class="doc-feature-card"><div class="icon">📊</div><div class="title">Weekly Charts</div><div class="desc">Visualize your study hours split by subject category across the last 7 days.</div></div>
+          <div class="doc-feature-card"><div class="icon">🏅</div><div class="title">Badges</div><div class="desc">Earn achievements for streaks, total hours, and weekend study sessions. Badges are displayed on your leaderboard profile.</div></div>
+        </div>
+      </section>
+
+      <div class="doc-divider"></div>
+
+      <!-- LEADERBOARD -->
+      <section class="doc-section" id="doc-leaderboard">
+        <div class="doc-breadcrumb">Community & AI <b>›</b> Global Rankings</div>
+        <h2 class="doc-h2">The Global Leaderboard</h2>
+        <p>Compete with dedicated students worldwide. Your position is decided by your <strong>Rank Score</strong>, a multi-factor "God Tier" score that rewards long-term consistency and absolute integrity.</p>
+        <div class="doc-callout">
+          <div class="doc-callout-title">⚔️ Elite Rank Score Formula</div>
+          <p><strong>Rank Score</strong> = (Hours × 1.8) + (Current Streak × 1.5) + (Trust Score × 0.1)</p>
+          <p style="font-size: 0.75rem; margin-top: 8px; opacity: 0.8;">Note: Reaching a score of <strong>1,000</strong> is a legendary milestone requiring approximately <strong>500+ hours</strong> of verified work.</p>
+        </div>
+        <h3 class="doc-h3">Rank Tiers</h3>
+        <div class="doc-table-wrap">
+          <table class="doc-table">
+            <thead><tr><th>RANK</th><th>HOURS NEEDED</th><th>BADGE</th></tr></thead>
+            <tbody>
+              <tr><td>Recruit</td><td>0 – 10 hrs</td><td>⚙️</td></tr>
+              <tr><td>Cadet</td><td>10 – 30 hrs</td><td>🎖️</td></tr>
+              <tr><td>Pilot</td><td>30 – 70 hrs</td><td>🚀</td></tr>
+              <tr><td>Officer</td><td>70 – 150 hrs</td><td>🛡️</td></tr>
+              <tr><td>Commander</td><td>150 – 300 hrs</td><td>🛸</td></tr>
+              <tr><td>Captain</td><td>300 – 600 hrs</td><td>⚔️</td></tr>
+              <tr><td>Veteran</td><td>600 – 1,200 hrs</td><td>🏅</td></tr>
+              <tr><td>Elite</td><td>1,200 – 2,500 hrs</td><td>🔥</td></tr>
+              <tr><td>Legend</td><td>2,500 – 5,000 hrs</td><td>✨</td></tr>
+              <tr><td>Eternal</td><td>5,000 – 10,000 hrs</td><td>🌟</td></tr>
+              <tr><td>Deity</td><td>10,000 – 20,000 hrs</td><td>🌌</td></tr>
+              <tr><td>Singularity</td><td>20,000+ hrs</td><td>⚛️</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="doc-divider"></div>
+
+      <!-- TRUST SCORE -->
+      <section class="doc-section" id="doc-integrity">
+        <div class="doc-breadcrumb">Community & AI <b>›</b> Mission Integrity</div>
+        <h2 class="doc-h2">Trust Score & Verification</h2>
+        <p>The World Stage is built on fairness. The Integrity Engine verifies your study habits to ensure a level playing field.</p>
+        <div class="doc-callout">
+          <div class="doc-callout-title">🔘 The Blue Tick (Verified Operative)</div>
+          <p>Cross the <strong>75% Trust Threshold</strong> to earn the elite Blue Tick next to your name. This proves your hours are backed by real Live Timer logs.</p>
+        </div>
+        <h3 class="doc-h3">How it's calculated</h3>
+        <p>Your Trust Score is the ratio of <strong>Verified Timer Hours</strong> to <strong>Total Table Hours</strong>. If you enter 10 hours manually but only use the timer for 1 hour, your score drops. Use the Focus Timer for all your grinds to maintain a high-integrity profile.</p>
+        <h3 class="doc-h3">Broadcast Guard</h3>
+        <p>The system uses a <strong>Hybrid Sync</strong> protocol. If you study offline or on a slow connection, the app remembers your session logs locally and only broadcasts your score once it is perfectly verified with the cloud.</p>
+      </section>
+
+      <div class="doc-divider"></div>
+
+      <!-- AI MENTOR -->
+      <section class="doc-section" id="doc-maamu">
+        <div class="doc-breadcrumb">Community & AI <b>›</b> AI Mentor</div>
+        <h2 class="doc-h2">Maamu — AI Mentor</h2>
+        <p>Maamu is your personal AI strategist. It analyzes your study data and delivers context-aware coaching, not generic motivational quotes.</p>
+        <div class="doc-feature-grid">
+          <div class="doc-feature-card"><div class="icon">🧠</div><div class="title">Context-Aware</div><div class="desc">Maamu reads your last 14 days of sessions, your active backlog, rank, and streak before responding.</div></div>
+          <div class="doc-feature-card"><div class="icon">⚔️</div><div class="title">Beast Mode</div><div class="desc">Enable Beast Mode for aggressive, metric-focused tactical feedback. Disable for a calm, analytical coaching style.</div></div>
+          <div class="doc-feature-card"><div class="icon">🔑</div><div class="title">Bring Your Own Key</div><div class="desc">Add your own Groq API key in Settings to use Maamu without limits.</div></div>
+        </div>
+        <div class="doc-callout" style="margin-top: 16px;">
+          <div class="doc-callout-title">💡 How to get a Groq API key</div>
+          <p>Visit <strong>console.groq.com</strong>, create a free account, and generate an API key. Paste it into <strong>Settings → AI Mentor → API Key</strong>.</p>
+        </div>
+      </section>
+
+      <div class="doc-divider"></div>
+
+      <!-- HEATMAP -->
+      <section class="doc-section" id="doc-heatmap">
+        <div class="doc-breadcrumb">Advanced <b>›</b> Heatmap</div>
+        <h2 class="doc-h2">Activity Heatmap</h2>
+        <p>The Heatmap gives you a GitHub-style calendar view of your entire study history. Each cell represents one day — the brighter the cell, the more hours you studied.</p>
+        <div class="doc-feature-grid">
+          <div class="doc-feature-card"><div class="icon">🗓️</div><div class="title">Full History View</div><div class="desc">See your entire mission timeline from start to your target exam date in one compact grid.</div></div>
+          <div class="doc-feature-card"><div class="icon">🎨</div><div class="title">Color Intensity</div><div class="desc">Cells scale from dim (light study) to bright (heavy study) so you can spot gaps and strong weeks instantly.</div></div>
+        </div>
+        <p style="margin-top: 12px;">Open the Heatmap anytime with <kbd>Ctrl + H</kbd>.</p>
+      </section>
+
+      <div class="doc-divider"></div>
+
+      <!-- SETTINGS -->
+      <section class="doc-section" id="doc-settings">
+        <div class="doc-breadcrumb">Advanced <b>›</b> Settings</div>
+        <h2 class="doc-h2">Settings</h2>
+        <p>Customize AllTracker to match your mission parameters exactly.</p>
+        <div class="doc-table-wrap">
+          <table class="doc-table">
+            <thead><tr><th>SETTING</th><th>WHAT IT DOES</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Mission Dates</strong></td><td>Set your study start date and target exam/goal date. This drives the deadline countdown and streak calendar.</td></tr>
+              <tr><td><strong>Subject Columns</strong></td><td>Define your study subjects (e.g., DSA, Python, Projects) and set target hours for each.</td></tr>
+              <tr><td><strong>Theme</strong></td><td>Switch between visual themes: Stealth Midnight (Default), Obsidian Glass, and others.</td></tr>
+              <tr><td><strong>Timer Style</strong></td><td>Choose between Ring (circular) or Block (digital) timer display.</td></tr>
+              <tr><td><strong>Beast Mode</strong></td><td>Toggles Maamu AI between aggressive coaching and analytical strategy mode.</td></tr>
+              <tr><td><strong>AI API Key</strong></td><td>Add your personal Groq API key for unlimited AI Mentor access.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="doc-divider"></div>
+
+      <!-- HOTKEYS -->
+      <section class="doc-section" id="doc-shortcuts">
+        <div class="doc-breadcrumb">Advanced <b>›</b> Hotkeys</div>
+        <h2 class="doc-h2">Hotkeys & Macros</h2>
+        <div class="doc-shortcuts-grid">
+          <div class="doc-shortcut"><span>Go to Today</span> <kbd>Ctrl + T</kbd></div>
+          <div class="doc-shortcut"><span>Open Heatmap</span> <kbd>Ctrl + H</kbd></div>
+          <div class="doc-shortcut"><span>Mission Settings</span> <kbd>Ctrl + ,</kbd></div>
+          <div class="doc-shortcut"><span>Weekly Summary</span> <kbd>Ctrl + W</kbd></div>
+          <div class="doc-shortcut"><span>Global Search</span> <kbd>Ctrl + F</kbd></div>
+          <div class="doc-shortcut"><span>Close Modal</span> <kbd>ESC</kbd></div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer class="doc-footer">
+    <div style="display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 8px;">
+      <a href="/">Dashboard</a>
+      <a href="/privacy.html">Privacy Policy</a>
+      <a href="/terms.html">Terms & Conditions</a>
+    </div>
+    <p>&copy; 2026 All Tracker. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Active sidebar link highlighting on scroll
+    const sections = document.querySelectorAll('.doc-section');
+    const navLinks = document.querySelectorAll('.doc-sidebar a');
+    
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navLinks.forEach(link => link.classList.remove('active'));
+          const activeLink = document.querySelector(`.doc-sidebar a[href="#${entry.target.id}"]`);
+          if (activeLink) activeLink.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+
+    sections.forEach(section => observer.observe(section));
+
+    // Smooth scroll for sidebar links
+    navLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetId = link.getAttribute('href').substring(1);
+        const target = document.getElementById(targetId);
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+  </script>
+</body>
+</html>

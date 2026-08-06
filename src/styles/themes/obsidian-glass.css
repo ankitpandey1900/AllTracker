@@ -1,4 +1,4 @@
-﻿/* =========================================================
+/* =========================================================
    THEME: DEFAULT (The Himalayan Frozen Peak)
    Visual System: Pure Ice, Aurora Cyan, Himalayan Mist
    Aesthetic: Ultra-Minimalist, Frozen Glass, Pure
@@ -254,3 +254,75 @@ html[data-theme="obsidian-glass"] .analytics-panel {
 
 
 
+
+/* ?? CRYSTAL TIMER: Make Focus Timer match Obsidian Glass */
+html[data-theme="obsidian-glass"] #activeTimerSection {
+  background-color: rgba(10, 17, 24, 0.5) !important;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px) !important;
+  background-size: 40px 40px !important;
+  background-position: center !important;
+  backdrop-filter: blur(24px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), inset 0 0 40px rgba(139, 92, 246, 0.05) !important;
+  border-radius: 24px !important;
+}
+
+
+/* ?? FIX: Inner Timer Box for Obsidian Glass */
+html[data-theme="obsidian-glass"] body.timer-style-block .glass-block-content {
+  background: rgba(255, 255, 255, 0.02) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: inset 0 0 20px rgba(139, 92, 246, 0.05) !important;
+}
+
+/* 27. History Modal Obsidian Glass Overrides */
+html[data-theme="obsidian-glass"] #historyModal {
+  --sh-accent: #22d3ee;
+  --sh-accent-rgb: 34, 211, 238;
+  --sh-bg: rgba(13, 17, 23, 0.7);
+  --sh-header-bg: rgba(13, 17, 23, 0.9);
+}
+html[data-theme="obsidian-glass"] #historyModal .modal-content.wide {
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05), 0 20px 40px rgba(0,0,0,0.5) !important;
+}
+
+/* 28. Weekly Modal Obsidian Glass Overrides */
+html[data-theme="obsidian-glass"] #weeklyModal {
+  --wm-accent: #22d3ee;
+  --wm-accent-rgb: 34, 211, 238;
+  --wm-bg: rgba(5, 8, 15, 0.85);
+  --wm-border: rgba(255, 255, 255, 0.05);
+  --wm-header-border: rgba(255, 255, 255, 0.05);
+  --wm-card-bg: rgba(255, 255, 255, 0.02);
+  --wm-hover: rgba(255, 255, 255, 0.04);
+}
+html[data-theme="obsidian-glass"] #weeklyModal .modal-content.wide {
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05), 0 20px 40px rgba(0,0,0,0.5) !important;
+}
+
+html[data-theme="obsidian-glass"] .wm-nav,
+html[data-theme="obsidian-glass"] .wm-hero,
+html[data-theme="obsidian-glass"] .wm-days,
+html[data-theme="obsidian-glass"] .wm-subjects {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.0) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 8px 32px rgba(0,0,0,0.2);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+html[data-theme="obsidian-glass"] .wm-cons-segment {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+html[data-theme="obsidian-glass"] .wm-bar-track {
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+}
+html[data-theme="obsidian-glass"] .wm-bar-fill {
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.4);
+}

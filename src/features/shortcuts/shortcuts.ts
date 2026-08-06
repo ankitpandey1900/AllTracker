@@ -63,6 +63,8 @@ export function scrollToToday(): void {
 }
 
 // --- Weekly Progress Summary ---
+let currentWeekIndex = 0;
+let cachedWeekData: any[] = [];
 
 export function showWeeklySummary(): void {
   const modal = document.getElementById('weeklyModal');
@@ -74,8 +76,7 @@ export function showWeeklySummary(): void {
     weeks.push(appState.trackerData.slice(i, i + 7));
   }
 
-  const weekData = weeks.map((week, wi) => {
-    // Aggregation by NAME for phase-safety
+  cachedWeekData = weeks.map((week, wi) => {
     const catMap = new Map<string, number>();
     let completed = 0;
     let totalHours = 0;
@@ -94,50 +95,123 @@ export function showWeeklySummary(): void {
       }
     });
     
-    // For the UI display, we use the columns from the FIRST day of that week
     const displayCols = getColumnsForDay(week[0].day);
-    
     return { week, wi, displayCols, catMap, completed, totalHours };
   });
 
-  content.innerHTML = weekData.map(({ week, wi, displayCols, catMap, completed, totalHours }) => {
-    const weeklyAvg = totalHours / 7;
+  // Default to the week containing "today"
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  currentWeekIndex = cachedWeekData.findIndex(w => 
+    w.week.some((d: any) => {
+      const dt = new Date(d.date);
+      dt.setHours(0, 0, 0, 0);
+      return dt.getTime() === today.getTime();
+    })
+  );
+  if (currentWeekIndex === -1) currentWeekIndex = cachedWeekData.length - 1;
 
-    return `
-      <section class="weekly-card">
-        <header class="weekly-card-header">
-          <div class="weekly-title">WEEK ${wi + 1}</div>
-          <div class="weekly-range">${formatDate(new Date(week[0].date))} → ${formatDate(new Date(week[week.length - 1].date))}</div>
-        </header>
-
-        <div class="weekly-grid">
-          <div class="weekly-metric">
-            <div class="weekly-label">Days Completed</div>
-            <div class="weekly-value">${completed}<span class="weekly-sub">/${week.length}</span></div>
-          </div>
-          <div class="weekly-metric">
-            <div class="weekly-label">Total Hours</div>
-            <div class="weekly-value">${totalHours.toFixed(1)}<span class="weekly-sub">h</span></div>
-          </div>
-          <div class="weekly-metric" style="background: rgba(100, 150, 255, 0.05); border-color: rgba(100, 150, 255, 0.2);">
-            <div class="weekly-label" style="color: #60a5fa;">Weekly Avg</div>
-            <div class="weekly-value">${weeklyAvg.toFixed(1)}<span class="weekly-sub">h/d</span></div>
-          </div>
-          ${displayCols.map((col) => {
-            const val = catMap.get(col.name) || 0;
-            return `
-              <div class="weekly-metric">
-                <div class="weekly-label">${col.name}</div>
-                <div class="weekly-value">${val.toFixed(1)}<span class="weekly-sub">h</span></div>
-              </div>
-            `;
-          }).join('')}
-        </div>
-      </section>
-    `;
-  }).join('');
-
+  renderSingleWeek();
   modal.classList.add('active');
+}
+
+function renderSingleWeek(): void {
+  const content = document.getElementById('weeklySummaryContent');
+  if (!content || !cachedWeekData[currentWeekIndex]) return;
+
+  const { week, wi, displayCols, catMap, completed, totalHours } = cachedWeekData[currentWeekIndex];
+  const weeklyAvg = totalHours / 7;
+
+  let maxCatHours = 0;
+  displayCols.forEach((col: any) => {
+    const val = catMap.get(col.name) || 0;
+    if (val > maxCatHours) maxCatHours = val;
+  });
+
+  content.innerHTML = `
+    <div class="wm-nav">
+      <button class="wm-nav-btn" id="prevWeekBtn" ${currentWeekIndex === 0 ? 'disabled' : ''}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="wm-nav-title">
+        <div class="wm-nav-week">WEEK ${wi + 1}</div>
+        <div class="wm-nav-dates">${formatDate(new Date(week[0].date))} → ${formatDate(new Date(week[week.length - 1].date))}</div>
+      </div>
+      <button class="wm-nav-btn" id="nextWeekBtn" ${currentWeekIndex === cachedWeekData.length - 1 ? 'disabled' : ''}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
+
+    <div class="wm-hero">
+      <div class="wm-hero-stat">
+        <div class="wm-hero-val">${totalHours.toFixed(1)}<span class="wm-hero-unit">h</span></div>
+        <div class="wm-hero-lbl">Total Hours</div>
+      </div>
+      <div class="wm-hero-divider"></div>
+      <div class="wm-hero-stat highlight">
+        <div class="wm-hero-val">${weeklyAvg.toFixed(1)}<span class="wm-hero-unit">h/d</span></div>
+        <div class="wm-hero-lbl">Weekly Avg</div>
+      </div>
+    </div>
+
+    <div class="wm-heatmap-card">
+      <div class="wm-cons-header">
+        <span class="wm-cons-title">Activity Heatmap</span>
+        <span class="wm-cons-val">${completed}<span class="wm-cons-total">/7 Days Active</span></span>
+      </div>
+      <div class="wm-heatmap-grid">
+        <div class="wm-hm-row header">
+          <div class="wm-hm-label"></div>
+          ${week.map((d: any) => `<div class="wm-hm-day">${new Date(d.date).toLocaleDateString('en-US', { weekday: 'narrow' })}</div>`).join('')}
+        </div>
+        ${displayCols.map((col: any, ci: number) => `
+          <div class="wm-hm-row">
+            <div class="wm-hm-label" title="${col.name}">${col.name}</div>
+            ${week.map((d: any) => {
+              const hours = (d.studyHours && d.studyHours[ci]) || 0;
+              let intensity = 0;
+              if (hours > 0) intensity = 0.2;
+              if (hours >= 1) intensity = 0.4;
+              if (hours >= 2) intensity = 0.6;
+              if (hours >= 3) intensity = 0.8;
+              if (hours >= 4) intensity = 1.0;
+              
+              const style = hours > 0 ? `background: rgba(var(--wm-accent-rgb), ${intensity}); border-color: rgba(var(--wm-accent-rgb), ${Math.min(1, intensity + 0.3)});` : '';
+              return `<div class="wm-hm-cell" style="${style}" title="${col.name} on ${formatDate(new Date(d.date))}: ${hours.toFixed(1)}h"></div>`;
+            }).join('')}
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <div class="wm-subjects">
+      <div class="wm-subjects-title">Subject Breakdown</div>
+      <div class="wm-bars-container">
+        ${displayCols.map((col: any) => {
+          const val = catMap.get(col.name) || 0;
+          const pct = maxCatHours > 0 ? (val / maxCatHours) * 100 : 0;
+          return `
+            <div class="wm-bar-row">
+              <div class="wm-bar-header">
+                <span class="wm-bar-name">${col.name}</span>
+                <span class="wm-bar-val">${val.toFixed(1)}h</span>
+              </div>
+              <div class="wm-bar-track">
+                <div class="wm-bar-fill" style="width: ${pct}%"></div>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+  `;
+
+  document.getElementById('prevWeekBtn')?.addEventListener('click', () => {
+    if (currentWeekIndex > 0) { currentWeekIndex--; renderSingleWeek(); }
+  });
+  document.getElementById('nextWeekBtn')?.addEventListener('click', () => {
+    if (currentWeekIndex < cachedWeekData.length - 1) { currentWeekIndex++; renderSingleWeek(); }
+  });
 }
 
 

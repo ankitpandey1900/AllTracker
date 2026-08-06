@@ -209,5 +209,28 @@ html[data-theme="stealth-midnight"] ::-webkit-scrollbar-thumb:hover {
   background: #333333;
 }
 
+/* 27. History Modal Stealth Overrides */
+html[data-theme="stealth-midnight"] #historyModal {
+  --sh-accent: #ffffff;
+  --sh-accent-rgb: 255, 255, 255;
+  --sh-bg: #000000;
+  --sh-header-bg: #000000;
+  --sh-border: rgba(255, 255, 255, 0.08);
+}
+
+/* 28. Weekly Modal Stealth Overrides */
+html[data-theme="stealth-midnight"] #weeklyModal {
+  --wm-accent: #ffffff;
+  --wm-accent-rgb: 255, 255, 255;
+  --wm-bg: #000000;
+  --wm-border: rgba(255, 255, 255, 0.08);
+  --wm-header-border: rgba(255, 255, 255, 0.08);
+  --wm-card-bg: #000000;
+  --wm-hover: #0a0a0a;
+}
+html[data-theme="stealth-midnight"] .weekly-metric {
+  background: #000000 !important;
+}
+
 
 

@@ -1114,104 +1114,30 @@ html[data-theme="pristine-white"] .category-progress-track {
 }
 
 /* 27. History Modal Light Mode Hardening */
+html[data-theme="pristine-white"] #historyModal {
+  --sh-accent: #3b82f6;
+  --sh-accent-rgb: 59, 130, 246;
+  --sh-bg: #ffffff;
+  --sh-header-bg: #f8fafc;
+  --sh-border: rgba(0, 0, 0, 0.08);
+  --sh-card-bg: #ffffff;
+  --sh-hover: #f1f5f9;
+  --sh-text: #0f172a;
+  --sh-text-muted: #64748b;
+}
 html[data-theme="pristine-white"] #historyModal .modal-content.wide {
-  background: #ffffff !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
   box-shadow: 0 24px 48px rgba(0, 0, 0, 0.1) !important;
-}
-html[data-theme="pristine-white"] #historyModal .modal-header {
-  background: #f8fafc !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
-}
-html[data-theme="pristine-white"] #historyModal .modal-header h2 {
-  color: #0f172a !important;
-}
-html[data-theme="pristine-white"] #historyModal .modal-close {
-  background: rgba(0, 0, 0, 0.04) !important;
-  color: #64748b !important;
-  border-color: transparent !important;
-}
-html[data-theme="pristine-white"] .sh-filter-bar {
-  background: #ffffff !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
-}
-html[data-theme="pristine-white"] .sh-filter-bar label,
-html[data-theme="pristine-white"] .sh-filter-sep {
-  color: #64748b !important;
 }
 html[data-theme="pristine-white"] .sh-filter-bar input[type="date"] {
   background: #f1f5f9 !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  color: #0f172a !important;
   color-scheme: light !important;
 }
-html[data-theme="pristine-white"] #clearHistoryFilter {
-  background: #f1f5f9 !important;
-  color: #475569 !important;
-  border-color: rgba(0, 0, 0, 0.08) !important;
-}
-html[data-theme="pristine-white"] #sh-stats-bar {
-  background: #f8fafc !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
-}
-html[data-theme="pristine-white"] .sh-stat-lbl {
-  color: #64748b !important;
-}
-html[data-theme="pristine-white"] .sh-stat-div {
-  background: rgba(0, 0, 0, 0.08) !important;
-}
-html[data-theme="pristine-white"] .sh-col-header {
-  background: #f8fafc !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
-}
-html[data-theme="pristine-white"] .sh-col-header .sh-row > div {
-  color: #64748b !important;
-}
-html[data-theme="pristine-white"] .sh-date-row {
-  background: #ffffff !important;
-  border-top: 1px solid rgba(0, 0, 0, 0.04) !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.04) !important;
-}
-html[data-theme="pristine-white"] .sh-date-row:hover {
-  background: #f1f5f9 !important;
-}
-html[data-theme="pristine-white"] .sh-date-secondary,
-html[data-theme="pristine-white"] .sh-date-sessions-label {
-  color: #64748b !important;
-}
-html[data-theme="pristine-white"] .sh-subject-row {
-  background: #f8fafc !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.04) !important;
-  border-left: 3px solid rgba(0, 0, 0, 0.04) !important;
-}
-html[data-theme="pristine-white"] .sh-session-row {
-  background: #ffffff !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.04) !important;
-}
-html[data-theme="pristine-white"] .sh-session-row:hover {
-  background: #f1f5f9 !important;
-}
-html[data-theme="pristine-white"] .sh-session-row.alt {
-  background: #f8fafc !important;
-}
-html[data-theme="pristine-white"] .sh-session-num {
-  color: #475569 !important;
-}
-html[data-theme="pristine-white"] .sh-time {
-  color: #475569 !important;
-}
+html[data-theme="pristine-white"] .sh-stat-div,
 html[data-theme="pristine-white"] .sh-dur-bar {
   background: rgba(0, 0, 0, 0.08) !important;
 }
-html[data-theme="pristine-white"] .sh-note {
-  color: #475569 !important;
-  border-left: 1px solid rgba(0, 0, 0, 0.08) !important;
-}
-html[data-theme="pristine-white"] .sh-note.empty {
-  color: rgba(0, 0, 0, 0.2) !important;
-}
-html[data-theme="pristine-white"] .sh-empty {
-  color: #64748b !important;
+html[data-theme="pristine-white"] .sh-session-row.alt {
+  background: #f8fafc !important;
 }
 
 /* 28. Share Modal Light Mode Hardening */
@@ -1435,5 +1361,24 @@ html[data-theme="pristine-white"] .social-save-btn {
 }
 html[data-theme="pristine-white"] .social-save-btn:hover {
   background: #7c3aed !important;
+}
+
+/* 28. Weekly Modal Light Mode Overrides */
+html[data-theme="pristine-white"] #weeklyModal {
+  --wm-accent: #3b82f6;
+  --wm-accent-rgb: 59, 130, 246;
+  --wm-bg: #ffffff;
+  --wm-border: rgba(0, 0, 0, 0.08);
+  --wm-header-border: rgba(0, 0, 0, 0.08);
+  --wm-card-bg: #ffffff;
+  --wm-hover: #f1f5f9;
+  --wm-text: #0f172a;
+  --wm-text-muted: #64748b;
+}
+html[data-theme="pristine-white"] #weeklyModal .modal-content.wide {
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.1) !important;
+}
+html[data-theme="pristine-white"] .weekly-metric {
+  background: #f8fafc !important;
 }
 

@@ -145,7 +145,9 @@ export const intelligenceView = `
       <div class="maamu-chat-header">
         <div class="chat-header-left">
           <button class="sidebar-toggle-btn" id="toggleMaamuSidebar" title="Toggle sidebar">
-            <span class="maamu-mini-toggle-icon">🧠</span>
+            <span class="maamu-mini-toggle-icon">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            </span>
           </button>
           <div class="active-session-info">
             <div class="session-dot"></div>
@@ -158,7 +160,10 @@ export const intelligenceView = `
               <input type="checkbox" id="beastModeToggle">
               <span class="tactical-slider"></span>
             </label>
-            <span class="beast-label" style="margin-left: 8px;">Beast Mode</span>
+            <span class="beast-label" style="display: flex; align-items: center; gap: 6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c2 4 4 6 4 9a4 4 0 0 1-8 0c0-3 2-5 4-9z"></path></svg>
+              Beast Mode
+            </span>
           </div>
         </div>
       </div>
