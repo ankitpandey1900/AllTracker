@@ -1275,10 +1275,14 @@ textarea:focus {
 
 .custom-range-item {
   border: 1px solid var(--border);
-  border-radius: 4px;
-  background: var(--bg-secondary);
-  padding: 18px;
-  margin-bottom: 12px;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.15);
+  padding: 20px;
+  margin-bottom: 16px;
+  transition: border-color 0.2s;
+}
+.custom-range-item:hover {
+  border-color: rgba(255,255,255,0.15);
 }
 
 .range-grid {

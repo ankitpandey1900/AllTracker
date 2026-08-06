@@ -732,3 +732,55 @@
   margin-top: 5px !important;
   opacity: 0.8 !important;
 }
+
+/* Custom Font Select Dropdown */
+.font-select-wrapper {
+  position: relative;
+  flex: 1;
+  user-select: none;
+  z-index: 1;
+}
+.font-select-wrapper.open {
+  z-index: 100;
+}
+.font-select-trigger {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  min-height: 38px;
+}
+.font-select-trigger:hover {
+  border-color: rgba(255,255,255,0.3) !important;
+}
+.font-select-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--bg-tertiary, var(--bg-primary));
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  margin-top: 2px;
+  padding: 0;
+  z-index: 50;
+  max-height: 250px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+}
+.font-select-wrapper.open .font-select-options {
+  display: block;
+}
+.font-option {
+  padding: 8px 12px;
+  cursor: pointer;
+  color: var(--text-primary);
+  border-radius: 0;
+  font-size: 0.95rem;
+}
+.font-option:hover {
+  background: #2563eb;
+  color: #ffffff;
+}

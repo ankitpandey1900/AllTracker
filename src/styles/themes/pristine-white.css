@@ -187,9 +187,9 @@ html[data-theme="pristine-white"] .status-tag {
 }
 
 html[data-theme="pristine-white"] .status-tag.online {
-  color: #10b981 !important;
-  background: rgba(16, 185, 129, 0.1) !important;
-  border: 1px solid rgba(16, 185, 129, 0.2) !important;
+  color: #ef4444 !important;
+  background: rgba(239, 68, 68, 0.1) !important;
+  border: 1px solid rgba(239, 68, 68, 0.2) !important;
   opacity: 1 !important;
 }
 

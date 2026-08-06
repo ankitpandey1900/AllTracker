@@ -66,7 +66,8 @@ export function applyTimerFontToDOM(timerFont: string = 'fira') {
 
 /** Applies the UI text font class to the body */
 export function applyUiFontToDOM(uiFont: string = 'default') {
-  document.body.classList.remove('ui-font-default', 'ui-font-inter', 'ui-font-poppins', 'ui-font-montserrat', 'ui-font-jakarta', 'ui-font-quicksand', 'ui-font-syne', 'ui-font-fira');
+  const classesToRemove = Array.from(document.body.classList).filter(c => c.startsWith('ui-font-'));
+  document.body.classList.remove(...classesToRemove);
   document.body.classList.add(`ui-font-${uiFont}`);
 }
 

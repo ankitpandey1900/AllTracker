@@ -231,7 +231,8 @@ html[data-theme="obsidian-glass"] .settings-input {
 
 /* ❄️ FIX: Dropdown Menu Options (Overrides OS default white background) */
 html[data-theme="obsidian-glass"] select option,
-html[data-theme="obsidian-glass"] .settings-input option {
+html[data-theme="obsidian-glass"] .settings-input option,
+html[data-theme="obsidian-glass"] .font-select-options {
   background: #0f172a !important;
   color: #ffffff !important;
 }

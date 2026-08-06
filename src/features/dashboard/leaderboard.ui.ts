@@ -294,8 +294,8 @@ export function renderHoverCard(
         <div class="lb-telemetry-readout">
           <div class="readout-row">
             <span class="readout-key">STATUS</span>
-            <span class="readout-val" style="color: ${isFocusing ? 'var(--accent-red, #ef4444)' : (u.is_online ? 'var(--accent-blue, #8b5cf6)' : 'var(--text-muted, #64748b)')};">
-              <span class="lb-pulse-dot" style="background: ${isFocusing ? 'var(--accent-red, #ef4444)' : (u.is_online ? 'var(--accent-blue, #8b5cf6)' : 'var(--text-muted, #64748b)')};"></span>
+            <span class="readout-val" style="color: ${isFocusing ? 'var(--accent-pink, #f472b6)' : (u.is_online ? 'var(--accent-red, #ef4444)' : 'var(--text-muted, #64748b)')};">
+              <span class="lb-pulse-dot" style="background: ${isFocusing ? 'var(--accent-pink, #f472b6)' : (u.is_online ? 'var(--accent-red, #ef4444)' : 'var(--text-muted, #64748b)')};"></span>
               ${isFocusing ? 'ACTIVE' : (u.is_online ? 'ONLINE' : 'OFFLINE')}
             </span>
           </div>

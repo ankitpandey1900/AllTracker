@@ -33,6 +33,50 @@ export function openSettingsModal(): void {
 
   renderCustomRanges();
   modal?.classList.add('active');
+
+  initCustomDropdown('uiFontCustomWrapper', 'uiFontSelectInput');
+  initCustomDropdown('timerFontCustomWrapper', 'timerFontSelectInput');
+}
+
+// Ensure clicking outside closes custom dropdowns
+document.addEventListener('click', () => {
+  document.querySelectorAll('.font-select-wrapper').forEach(w => w.classList.remove('open'));
+});
+
+function initCustomDropdown(wrapperId: string, selectId: string) {
+  const wrapper = document.getElementById(wrapperId);
+  const select = document.getElementById(selectId) as HTMLSelectElement;
+  if (!wrapper || !select) return;
+
+  const trigger = wrapper.querySelector('.font-select-trigger') as HTMLElement;
+  const optionsContainer = wrapper.querySelector('.font-select-options') as HTMLElement;
+  const selectedText = trigger.querySelector('span') as HTMLElement;
+  const options = optionsContainer.querySelectorAll('.font-option');
+
+  const activeOption = Array.from(options).find(opt => opt.getAttribute('data-value') === select.value) as HTMLElement;
+  if (activeOption) {
+    selectedText.textContent = activeOption.textContent;
+  }
+
+  trigger.onclick = (e) => {
+    e.stopPropagation();
+    document.querySelectorAll('.font-select-wrapper').forEach(w => {
+      if (w !== wrapper) w.classList.remove('open');
+    });
+    wrapper.classList.toggle('open');
+  };
+
+  options.forEach(opt => {
+    (opt as HTMLElement).onclick = (e) => {
+      e.stopPropagation();
+      const val = opt.getAttribute('data-value');
+      if (val) {
+        select.value = val;
+        selectedText.textContent = opt.textContent;
+      }
+      wrapper.classList.remove('open');
+    };
+  });
 }
 
 // --- Date Settings ---
@@ -188,31 +232,36 @@ function addCustomRangeToDOM(range: Partial<CustomRange>, index: number): void {
   div.innerHTML = `
     <div class="settings-card-header phase-header-toggle" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; user-select: none;">
       <div style="display: flex; align-items: center;">
-        <h4 style="margin: 0;">Study Phase ${index + 1}</h4>
-        ${isCompleted ? '<span style="color: #ef4444; font-size: 0.6rem; margin-left: 8px; font-weight: bold; border: 1px solid #ef4444; padding: 2px 6px; border-radius: 4px;">FINISHED</span>' : ''}
-        <input type="text" class="settings-input range-name" value="${range.name || ''}" placeholder="Phase Name" style="font-size: 0.7rem; width: 150px; margin-left: 15px;" onclick="event.stopPropagation()">
+        <h4 style="margin: 0; font-size: 0.9rem; font-weight: 700; color: var(--text-primary); letter-spacing: 0.5px; text-transform: uppercase;">Study Phase ${index + 1}</h4>
+        ${isCompleted ? '<span style="color: #ef4444; font-size: 0.6rem; margin-left: 10px; font-weight: 800; border: 1px solid rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.1); padding: 3px 8px; border-radius: 12px;">FINISHED</span>' : ''}
+        <input type="text" class="settings-input range-name" value="${range.name || ''}" placeholder="Enter phase name..." style="font-size: 0.8rem; width: 200px; margin-left: 20px; background: rgba(0,0,0,0.15); border-color: transparent;" onclick="event.stopPropagation()">
       </div>
       <div style="display: flex; align-items: center; gap: 12px;">
-        <span class="toggle-icon" style="font-size: 0.8rem; color: #8e9fc6; transition: transform 0.2s;">
-          ${isCompleted ? '▼' : '▲'}
+        <span class="toggle-icon" style="font-size: 0.8rem; color: var(--text-muted); transition: transform 0.2s;">
+          ${isCompleted ? '&#9660;' : '&#9650;'}
         </span>
-        <button class="btn-remove-item" title="Remove Range" onclick="event.stopPropagation()" style="position: static;">×</button>
+        <button class="btn-remove-item" title="Remove Range" onclick="event.stopPropagation()" style="position: relative; background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.background='#ef4444'; this.style.color='#fff'" onmouseout="this.style.background='rgba(239, 68, 68, 0.1)'; this.style.color='#ef4444'">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
       </div>
     </div>
-    <div class="phase-body" style="display: ${isCompleted ? 'none' : 'block'}; margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
-      <div class="range-grid">
-        <div class="settings-group">
-          <label>Start Date:</label>
+    <div class="phase-body" style="display: ${isCompleted ? 'none' : 'block'}; margin-top: 20px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 20px;">
+      <div class="range-grid" style="display: flex; gap: 20px; margin-bottom: 24px;">
+        <div class="settings-group" style="flex: 1;">
+          <label style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; display: block;">Start Date</label>
           <input type="date" class="settings-input range-start" value="${range.startDate || ''}">
         </div>
-        <div class="settings-group">
-          <label>End Date:</label>
+        <div class="settings-group" style="flex: 1;">
+          <label style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; display: block;">End Date</label>
           <input type="date" class="settings-input range-end" value="${range.endDate || ''}">
         </div>
       </div>
-      <div class="range-overrides-heading" style="margin-top:10px; font-size:0.8rem; color:var(--text-secondary);">Specific Category Goals</div>
-      <div class="range-categories-wrap" style="display:flex; flex-direction:column; gap:8px; margin-top:8px;"></div>
-      <button class="btn add-range-cat" type="button" style="margin-top:10px; font-size:0.7rem; padding:4px 8px;">+ Add Category Goal</button>
+      <div class="range-overrides-heading" style="margin-bottom:12px; font-size:0.75rem; font-weight: 700; color:var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; justify-content: space-between;">
+        <span>Specific Category Goals</span>
+        <span style="font-size: 0.65rem; color: var(--text-muted); font-weight: normal; letter-spacing: 0;">Target Hrs</span>
+      </div>
+      <div class="range-categories-wrap" style="display:flex; flex-direction:column; gap:8px;"></div>
+      <button class="btn add-range-cat" type="button" style="margin-top:16px; font-size:0.75rem; padding:6px 12px; background: rgba(255,255,255,0.05); color: var(--text-primary); border: 1px dashed rgba(255,255,255,0.15); width: 100%; border-radius: 8px; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">+ Add Category Goal</button>
     </div>
   `;
 
@@ -251,12 +300,18 @@ function buildRangeCategoryRow(name: string, target: number): HTMLElement {
   const row = document.createElement('div');
   row.className = 'range-category-item settings-row';
   row.style.display = 'flex';
-  row.style.gap = '8px';
+  row.style.gap = '12px';
   row.style.alignItems = 'center';
+  row.style.background = 'rgba(0,0,0,0.15)';
+  row.style.padding = '6px 6px 6px 12px';
+  row.style.borderRadius = '8px';
+  row.style.border = '1px solid rgba(255,255,255,0.03)';
   row.innerHTML = `
-    <input type="text" class="settings-input range-cat-name" value="${name || ''}" placeholder="Category" style="flex:1;">
-    <input type="number" step="0.1" class="settings-input range-cat-target" value="${target || ''}" placeholder="target hrs" style="width:80px;">
-    <button class="btn-remove-item remove-range-cat" type="button">×</button>
+    <input type="text" class="range-cat-name" value="${name || ''}" placeholder="Enter category..." style="flex:1; border:none; background:transparent; color:var(--text-primary); outline:none; font-size:0.85rem;">
+    <input type="number" step="0.1" class="range-cat-target" value="${target || ''}" placeholder="0.0" style="width:60px; border:none; background:rgba(0,0,0,0.2); padding:6px; border-radius:6px; color:var(--accent, #3b82f6); text-align:center; font-weight:700; outline:none; font-size:0.85rem;">
+    <button class="btn-remove-item remove-range-cat" type="button" style="background:transparent; border:none; color:var(--text-muted); cursor:pointer; padding:6px; border-radius:6px; display:flex; align-items:center; justify-content:center; transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'; this.style.color='#ef4444'" onmouseout="this.style.background='transparent'; this.style.color='var(--text-muted)'">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
   `;
   row.querySelector('.remove-range-cat')?.addEventListener('click', () => row.remove());
   return row;
