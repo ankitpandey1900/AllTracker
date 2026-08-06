@@ -51,7 +51,7 @@ export function openSharePreview(imageDataUrl: string, title: string = 'SHARE YO
       const loader = document.getElementById('shareLoadingOverlay');
       if (loader) loader.style.display = 'flex';
       try {
-        await generateQuoteShareCard();
+        await generateQuoteShareCard(undefined, undefined, true);
       } finally {
         if (loader) loader.style.display = 'none';
       }

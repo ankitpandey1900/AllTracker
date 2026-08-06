@@ -1,4 +1,4 @@
-import { QUOTES, Quote } from '../../data/quotes.data';
+﻿import { QUOTES, Quote } from '../../data/quotes.data';
 import { appState } from '../../state/app-state';
 import { calculateSummaryStats } from '../../utils/calc.utils';
 
@@ -105,30 +105,22 @@ export class QuotesManager {
     let pool: Quote[] = [];
 
     // Mapping logic as per proposed plan:
-    // BEHIND -> Savage (behavior) + Problems
-    // STEADY -> Coding + Work
-    // AHEAD -> Future + Spiritual + Life
     if (category === 'behind') {
       pool = QUOTES.filter(q => q.category === 'behavior' || q.category === 'SAVAGE_WISDOM' || q.category === 'problem-solving');
     } else if (category === 'ahead-high') {
-      // High performers get Futurism, Spirituality (Gita), and Life Philosophy
       pool = QUOTES.filter(q => q.category === 'future' || q.category === 'spiritual' || q.category === 'life');
     } else if (category === 'ahead-low') {
       pool = QUOTES.filter(q => q.category === 'spiritual' || q.category === 'THE_CRAFT' || q.category === 'EXECUTION');
     } else {
-      // Steady - Craft, Execution, and Life
       pool = QUOTES.filter(q => q.category === 'THE_CRAFT' || q.category === 'EXECUTION' || q.category === 'life' || q.category === 'spiritual');
     }
 
-    if (pool.length === 0) pool = QUOTES; // Fallback
+    if (pool.length === 0) pool = QUOTES;
 
-    // Avoid picking the same quote twice in a row if possible
-    let selected = pool[Math.floor(Math.random() * pool.length)];
-    if (this.currentQuote && selected.id === this.currentQuote.id && pool.length > 1) {
-      selected = pool[Math.floor(Math.random() * pool.length)];
-    }
-
-    return selected;
+    // Sequential rotation instead of random to fix user request
+    const currentIndex = this.currentQuote ? pool.findIndex(q => q.id === this.currentQuote!.id) : -1;
+    let nextIndex = (currentIndex + 1) % pool.length;
+    return pool[nextIndex];
   }
 
   private updateHUD(): void {
@@ -164,3 +156,4 @@ export class QuotesManager {
     return this.currentQuote;
   }
 }
+

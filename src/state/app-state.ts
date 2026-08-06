@@ -27,7 +27,7 @@ function createDefaultSettings(): Settings {
     sessionLogs: [],
     groqApiKey: '',
     maamuModel: 'openai/gpt-oss-20b',
-    theme: 'stealth-midnight',
+    theme: 'obsidian-glass',
     accentColor: '#3b82f6', // Default blue accent
     timerStyle: 'block',
     timerFont: 'fira',
@@ -39,7 +39,7 @@ function createDefaultSettings(): Settings {
 }
 
 /** Applies the theme class to the HTML tag */
-export function applyThemeToDOM(themeName: string = 'stealth-midnight') {
+export function applyThemeToDOM(themeName: string = 'obsidian-glass') {
   document.documentElement.setAttribute('data-theme', themeName);
 }
 

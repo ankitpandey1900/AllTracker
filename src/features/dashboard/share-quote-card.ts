@@ -13,10 +13,10 @@ import { getSecureLocalProfileString } from '@/utils/security';
  *   Branding    — Outfit sans-serif, gold, letter-spaced
  *   Atmosphere  — Procedural stars, SVG mountain/treeline silhouette
  */
-export async function generateQuoteShareCard(themeKey?: string, customText?: string): Promise<void> {
+export async function generateQuoteShareCard(themeKey?: string, customText?: string, forceRotate: boolean = false): Promise<void> {
 
-  // Rotate to a new quote each time (unless custom text)
-  if (!customText) QuotesManager.getInstance().rotate();
+  // Only rotate if explicitly requested (e.g. Shuffle button) and no custom text
+  if (forceRotate && !customText) QuotesManager.getInstance().rotate();
   const finalQuote = QuotesManager.getInstance().getCurrentQuote();
 
   // Profile
