@@ -77,7 +77,6 @@ export interface Settings {
   customRanges: CustomRange[];
   beastMode: boolean;
   unlockedBadges: string[];
-  sessionLogs: SessionLog[];
   groqApiKey?: string;
   maamuModel?: string;
   theme?: 'stealth-midnight' | 'obsidian-glass' | 'tactical-navy' | 'solar-gold' | 'pristine-white' | 'quantum-purple';
@@ -90,6 +89,12 @@ export interface Settings {
   ambientVolume?: number;         // 0 to 1
   timezone?: string;              // IANA timezone e.g. 'Asia/Kolkata' (defaults to IST)
   maamuUsage?: { date: string; count: number }; // Daily free tier usage
+  lastRoutineReset?: string;      // ISO date of last daily routine reset (synced to cloud)
+  // Maamu AI UI preferences (synced to cloud)
+  maamuCompact?: boolean;
+  maamuTemplatesCollapsed?: boolean;
+  maamuTemplateFavs?: string[];
+  maamuTemplateCategory?: string;
 }
 
 // --- Badges ---

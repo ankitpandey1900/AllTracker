@@ -55,7 +55,12 @@ export function renderBadges(): void {
       <div class="badge ${unlocked ? 'unlocked' : 'locked'}" title="${badge.description}">
         <div class="badge-icon-wrap">
           <span class="badge-icon">${badge.icon || '🏅'}</span>
-          <span class="badge-status-dot">${unlocked ? '✓' : '🔒'}</span>
+          <span class="badge-status-dot">
+            ${unlocked 
+              ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>' 
+              : '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>'
+            }
+          </span>
         </div>
         <span class="badge-name">${badge.name}</span>
         <span class="badge-desc">${badge.description}</span>

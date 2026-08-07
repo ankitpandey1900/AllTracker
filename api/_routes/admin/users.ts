@@ -31,20 +31,19 @@ export default async function handler(
         p.id as profile_id, 
         p.username, 
         u.email, 
-        COALESCE(
-          (SELECT MAX(start_time) FROM public.study_sessions WHERE user_id = p.id),
-          p.created_at
-        ) as last_active,
+        COALESCE(up.last_active, p.created_at) as last_active,
         (SELECT COALESCE(SUM(duration), 0) FROM public.study_sessions WHERE user_id = p.id AND start_time >= NOW() - INTERVAL '7 days') as last_7_days_hours,
         (SELECT COALESCE(SUM(duration), 0) FROM public.study_sessions WHERE user_id = p.id AND start_time >= CURRENT_DATE) as today_hours,
         p.created_at,
-        p.rank, 
-        p.total_hours, 
-        p.current_streak, 
-        p.integrity_score,
-        p.last_reengagement_sent_at
+        s.rank, 
+        s.total_hours, 
+        s.current_streak, 
+        s.integrity_score,
+        s.last_reengagement_sent_at
       FROM public.profiles p
       JOIN public.user u ON p.auth_user_id = u.id
+      LEFT JOIN public.user_stats s ON s.user_id = p.id
+      LEFT JOIN public.user_presence up ON up.user_id = p.id
       ORDER BY last_active DESC;
     `;
     

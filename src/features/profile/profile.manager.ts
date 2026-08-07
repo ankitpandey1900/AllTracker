@@ -54,7 +54,7 @@ export async function checkProfileIdentity(): Promise<void> {
         displayName: cloudProfile.display_name,
         realName: cloudProfile.User_name || '',
         dob: cloudProfile.dob || '',
-        nation: cloudProfile.nation || 'Global',
+        nation: cloudProfile.nation || 'India',
         avatar: cloudProfile.avatar || '👨‍🚀',
         phoneNumber: cloudProfile.phone_number || '',
         isFocusPublic: cloudProfile.is_focus_public !== false,
@@ -99,7 +99,7 @@ export async function checkProfileIdentity(): Promise<void> {
 export async function syncProfileBroadcast(focusStateChanged = false): Promise<void> {
   // 1. Ensure cross-tab timer state is synced BEFORE any calculations
   try {
-    const storedTimer = JSON.parse(localStorage.getItem('programmingTrackerTimer') || '{}');
+    const storedTimer = JSON.parse(localStorage.getItem('at_timer_state') || '{}');
     if (storedTimer && (storedTimer.isRunning !== appState.activeTimer.isRunning || storedTimer.elapsedAcc > appState.activeTimer.elapsedAcc)) {
       Object.assign(appState.activeTimer, storedTimer);
     }
@@ -347,7 +347,7 @@ export function isProfileIncomplete(profile: UserProfile): boolean {
     !profile.displayName || 
     !profile.realName || 
     !profile.dob || 
-    profile.nation === 'Global' || 
+    !profile.nation ||
     !profile.email
   );
 }

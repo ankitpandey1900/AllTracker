@@ -368,7 +368,7 @@ export async function loadUserProfileCloud(): Promise<GlobalProfile | null> {
     display_name: profile.username,
     User_name: profile.fullName || "",
     dob: profile.metadata?.dob || "",
-    nation: profile.nation || "Global",
+    nation: profile.nation || "India",
     total_hours: Number(profile.totalHours || 0),
     today_hours: Number(profile.todayHours || 0),
     current_rank: profile.rank || "IRON",

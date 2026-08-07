@@ -87,15 +87,16 @@ export function showWeeklySummary(): void {
       const dayCols = getColumnsForDay(day.day);
       if (Array.isArray(day.studyHours)) {
         day.studyHours.forEach((h, ci) => {
-          const name = dayCols[ci]?.name;
-          if (name && (h || 0) > 0) {
+          if ((h || 0) > 0) {
+            const name = dayCols[ci]?.name || `Subject ${ci + 1}`;
             catMap.set(name, (catMap.get(name) || 0) + (h || 0));
             totalHours += (h || 0);
           }
         });
       }
     });
-    // Collect unique display columns from ALL days in the week (not just the first)
+
+    // Collect unique display columns from ALL days in the week
     const colNameSet = new Set<string>();
     const displayCols: any[] = [];
     week.forEach(day => {
@@ -106,7 +107,21 @@ export function showWeeklySummary(): void {
           displayCols.push(col);
         }
       });
+      
+      // Ensure we have a column for any logged hours that lost their category mapping
+      if (Array.isArray(day.studyHours)) {
+        day.studyHours.forEach((h, ci) => {
+          if ((h || 0) > 0 && !dayCols[ci]) {
+             const fallbackName = `Subject ${ci + 1}`;
+             if (!colNameSet.has(fallbackName)) {
+               colNameSet.add(fallbackName);
+               displayCols.push({ name: fallbackName, color: 'var(--text-secondary)' });
+             }
+          }
+        });
+      }
     });
+
     return { week, wi, displayCols, catMap, completed, totalHours };
   });
 
@@ -174,13 +189,61 @@ function renderSingleWeek(): void {
     return `${h}h ${m < 10 ? '0' + m : m}m`;
   };
 
+  let titleText = `WEEK ${wi + 1}`;
+  const ranges = appState.settings.customRanges;
+  if (ranges && ranges.length > 0) {
+    const firstDayStr = week[0].date;
+    const activeRange = ranges.find(r => firstDayStr >= r.startDate && firstDayStr <= r.endDate);
+    if (activeRange) {
+      const phaseName = activeRange.name || 'PHASE';
+      const phaseStartWeekIndex = cachedWeekData.findIndex(w => w.week.some((d: any) => d.date >= activeRange.startDate && d.date <= activeRange.endDate));
+      if (phaseStartWeekIndex !== -1) {
+        titleText = `${phaseName.toUpperCase()} — WEEK ${(wi - phaseStartWeekIndex) + 1}`;
+      }
+    }
+  }
+
+  let totalBreakMinutes = 0;
+  try {
+    const localSaved = localStorage.getItem('all_tracker_history');
+    if (localSaved) {
+      const history: any[] = JSON.parse(localSaved);
+      const weekStartStr = week[0].date;
+      const weekEndStr = week[week.length - 1].date;
+      
+      history.forEach(session => {
+        const sessionDate = session.log_date || (session.start_at ? session.start_at.split('T')[0] : null);
+        if (sessionDate && sessionDate >= weekStartStr && sessionDate <= weekEndStr) {
+          if (session.note) {
+            const breakMatch = session.note.match(/\[Breaks:\s*(.*?)\]/);
+            if (breakMatch && breakMatch[1]) {
+              const minMatches = breakMatch[1].match(/(\d+)m/g);
+              if (minMatches) {
+                minMatches.forEach((m: string) => {
+                  totalBreakMinutes += parseInt(m.replace('m', ''));
+                });
+              }
+            }
+          }
+        }
+      });
+    }
+  } catch(e) { console.error(e); }
+
+  const formatM = (minutes: number) => {
+    if (minutes < 60) return `${minutes}m`;
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    return `${h}h ${m}m`;
+  };
+
   content.innerHTML = `
     <div class="wm-nav">
       <button class="wm-nav-btn" id="prevWeekBtn" ${currentWeekIndex === 0 ? 'disabled' : ''}>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
       </button>
       <div class="wm-nav-title">
-        <div class="wm-nav-week">WEEK ${wi + 1}</div>
+        <div class="wm-nav-week">${titleText}</div>
         <div class="wm-nav-dates"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px; margin-bottom:-1px; opacity:0.7;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${formatDate(new Date(week[0].date))} – ${formatDate(new Date(week[week.length - 1].date))}</div>
       </div>
       <button class="wm-nav-btn" id="nextWeekBtn" ${currentWeekIndex === cachedWeekData.length - 1 ? 'disabled' : ''}>
@@ -198,14 +261,6 @@ function renderSingleWeek(): void {
         </div>
       </div>
       <div class="wm-hero-card">
-        <div class="wm-hc-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg></div>
-        <div class="wm-hc-info">
-          <div class="wm-hc-lbl">Weekly Avg</div>
-          <div class="wm-hc-val">${formatHM(weeklyAvg)} <span style="font-size:0.5em; opacity:0.6;">/day</span></div>
-          <div class="wm-hc-trend">${avgTrendText}</div>
-        </div>
-      </div>
-      <div class="wm-hero-card">
         <div class="wm-hc-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M9 16l2 2 4-4"/></svg></div>
         <div class="wm-hc-info">
           <div class="wm-hc-lbl">Active Days</div>
@@ -214,11 +269,27 @@ function renderSingleWeek(): void {
         </div>
       </div>
       <div class="wm-hero-card">
-        <div class="wm-hc-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div>
+        <div class="wm-hc-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg></div>
+        <div class="wm-hc-info">
+          <div class="wm-hc-lbl">Daily Avg</div>
+          <div class="wm-hc-val">${formatHM(weeklyAvg)} <span style="font-size:0.5em; opacity:0.6;">/day</span></div>
+          <div class="wm-hc-trend">${avgTrendText}</div>
+        </div>
+      </div>
+      <div class="wm-hero-card wm-hero-card--wide">
+        <div class="wm-hc-icon" style="color: var(--wm-accent);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div>
         <div class="wm-hc-info">
           <div class="wm-hc-lbl">Focus Score</div>
-          <div class="wm-hc-val">${focusScore} <span style="font-size:0.5em; opacity:0.6;">/100</span></div>
+          <div class="wm-hc-val" style="color: var(--wm-accent);">${focusScore} <span style="font-size:0.5em; opacity:0.6;">/100</span></div>
           <div class="wm-hc-trend">${focusMsg}</div>
+        </div>
+      </div>
+      <div class="wm-hero-card wm-hero-card--wide">
+        <div class="wm-hc-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></div>
+        <div class="wm-hc-info">
+          <div class="wm-hc-lbl">Break Time</div>
+          <div class="wm-hc-val">${formatM(totalBreakMinutes)}</div>
+          <div class="wm-hc-trend">Total Rest Taken</div>
         </div>
       </div>
     </div>
@@ -300,7 +371,7 @@ function renderSingleWeek(): void {
 
 export function handleReset(): void {
   if (confirm('Are you sure you want to reset all data? This action cannot be undone.')) {
-    localStorage.removeItem('programmingTrackerData');
+    localStorage.removeItem('at_session_data');
     appState.trackerData = initializeData();
     saveTrackerDataToStorage(appState.trackerData);
 

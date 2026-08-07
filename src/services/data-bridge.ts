@@ -15,7 +15,7 @@ import {
   subscribeToUserDataSync,
   drainOfflineSessionQueue,
 } from '@/services/vault.service';
-import { appState, ensureTimelineIntegrity } from '@/state/app-state';
+import { appState, ensureTimelineIntegrity, syncTrackerTimelineWithSettings } from '@/state/app-state';
 import { 
   saveLocal, loadLocal, 
   saveSecuredSettings, loadSecuredSettings, 
@@ -67,18 +67,26 @@ export async function loadBookmarksFromStorage(): Promise<any[]> {
 export async function saveRoutineResetToStorage(reset: string): Promise<void> {
   saveLocal(STORAGE_KEYS.ROUTINE_RESET, reset);
   updateLocalTimestamp(STORAGE_KEYS.ROUTINE_RESET);
+  // Also persist into the settings blob so it syncs to cloud
+  if (appState.settings.lastRoutineReset !== reset) {
+    appState.settings.lastRoutineReset = reset;
+    saveSettingsToStorage({ lastRoutineReset: reset });
+  }
 }
 
 export async function loadRoutineResetFromStorage(): Promise<string | null> {
-  return localStorage.getItem(STORAGE_KEYS.ROUTINE_RESET);
+  // Prefer local key, fall back to what came from cloud via settings
+  return localStorage.getItem(STORAGE_KEYS.ROUTINE_RESET) ||
+    (appState.settings.lastRoutineReset as string | undefined) ||
+    null;
 }
 
 // --- Settings ---
 export async function saveSettingsToStorage(settings: any): Promise<void> {
   appState.settings = { ...appState.settings, ...settings };
-  saveSecuredSettings(settings);
+  saveSecuredSettings(appState.settings);
   updateLocalTimestamp(STORAGE_KEYS.SETTINGS);
-  if (isAuthenticated()) saveSettingsCloud(settings);
+  if (isAuthenticated()) saveSettingsCloud(appState.settings);
 }
 
 export async function loadSettingsFromStorage(): Promise<any | null> {
@@ -153,22 +161,26 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
     const sync = (key: string, cloud: any, local: any, setter: Function, cloudSaver: Function) => {
       const isNewer = isCloudNewer(key, cloud?.updatedAt);
       const isDiff = cloud && isDifferent(local, cloud.data);
+      const isCloudDataEmpty = cloud && isLocalEmpty(cloud.data);
       
-      if (cloud && (force || isNewer)) {
-        // Cloud is newer or forced pull: Overwrite local
+      if (cloud && force) {
+        setter(cloud.data, false);
+        updateLocalTimestamp(key, cloud.updatedAt || undefined);
+      } else if (cloud && isNewer && !isCloudDataEmpty) {
+        // Cloud is newer and HAS DATA: Overwrite local
         setter(cloud.data, false);
         updateLocalTimestamp(key, cloud.updatedAt || undefined);
       } else if (isDiff && !isLocalEmpty(local)) {
-        // Local is newer and different: Push local to cloud
+        // Local is newer, OR cloud is newer but empty: Push local to cloud
         cloudSaver(local);
       } else if (!cloud && !isLocalEmpty(local)) {
-        // Cloud is empty but local has data: Push to cloud
+        // Cloud is empty/missing but local has data: Push to cloud
         cloudSaver(local);
       }
     };
 
-    sync(STORAGE_KEYS.TRACKER_DATA, cloudTracker, appState.trackerData, (d: any) => { appState.trackerData = d; ensureTimelineIntegrity(); saveLocal(STORAGE_KEYS.TRACKER_DATA, d); }, saveTrackerDataCloud);
-    sync(STORAGE_KEYS.SETTINGS, cloudSettings, appState.settings, (d: any) => saveSecuredSettings(d), saveSettingsCloud);
+    sync(STORAGE_KEYS.TRACKER_DATA, cloudTracker, appState.trackerData, (d: any) => { appState.trackerData = d; syncTrackerTimelineWithSettings(); ensureTimelineIntegrity(); saveLocal(STORAGE_KEYS.TRACKER_DATA, appState.trackerData); }, saveTrackerDataCloud);
+    sync(STORAGE_KEYS.SETTINGS, cloudSettings, appState.settings, (d: any) => { appState.settings = { ...appState.settings, ...d }; saveSecuredSettings(d); }, saveSettingsCloud);
     sync(STORAGE_KEYS.ROUTINES, cloudRoutines, appState.routines, (d: any) => { appState.routines = d; saveLocal(STORAGE_KEYS.ROUTINES, d); }, saveRoutinesCloud);
     sync(STORAGE_KEYS.TASKS, cloudTasks, appState.tasks, (d: any) => { appState.tasks = d; saveLocal(STORAGE_KEYS.TASKS, d); }, saveTasksCloud);
     sync(STORAGE_KEYS.BOOKMARKS, cloudBookmarks, appState.bookmarks, (d: any) => { appState.bookmarks = d; saveLocal(STORAGE_KEYS.BOOKMARKS, d); }, saveBookmarksCloud);
@@ -232,8 +244,8 @@ export async function performBackgroundSync(): Promise<void> {
       }
     };
 
-    check(STORAGE_KEYS.TRACKER_DATA, cloud[0], appState.trackerData, (d: any) => { appState.trackerData = d; ensureTimelineIntegrity(); saveLocal(STORAGE_KEYS.TRACKER_DATA, d); });
-    check(STORAGE_KEYS.SETTINGS, cloud[1], appState.settings, (d: any) => saveSecuredSettings(d));
+    check(STORAGE_KEYS.TRACKER_DATA, cloud[0], appState.trackerData, (d: any) => { appState.trackerData = d; syncTrackerTimelineWithSettings(); ensureTimelineIntegrity(); saveLocal(STORAGE_KEYS.TRACKER_DATA, appState.trackerData); });
+    check(STORAGE_KEYS.SETTINGS, cloud[1], appState.settings, (d: any) => { appState.settings = { ...appState.settings, ...d }; saveSecuredSettings(d); });
     check(STORAGE_KEYS.ROUTINES, cloud[2], appState.routines, (d: any) => { appState.routines = d; saveLocal(STORAGE_KEYS.ROUTINES, d); });
     check(STORAGE_KEYS.TASKS, cloud[3], appState.tasks, (d: any) => { appState.tasks = d; saveLocal(STORAGE_KEYS.TASKS, d); });
     check(STORAGE_KEYS.ROUTINE_HISTORY, cloud[4], appState.routineHistory, (d: any) => { appState.routineHistory = d; saveLocal(STORAGE_KEYS.ROUTINE_HISTORY, d); });

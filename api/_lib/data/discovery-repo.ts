@@ -5,14 +5,16 @@ export async function fetchLeaderboard(timeframe: string = 'weekly') {
 
   // Reset stale today_hours at exactly 12:00 AM IST
   await pool.query(`
-    update profiles 
+    update user_stats s
     set today_hours = 0 
-    where (last_active AT TIME ZONE 'Asia/Kolkata')::date < (now() AT TIME ZONE 'Asia/Kolkata')::date
+    from user_presence up
+    where s.user_id = up.user_id
+      and (up.last_active AT TIME ZONE 'Asia/Kolkata')::date < (now() AT TIME ZONE 'Asia/Kolkata')::date
   `);
 
   // Auto-clear is_focusing if last_active > 10 minutes ago
   await pool.query(`
-    update profiles 
+    update user_presence 
     set is_focusing = false, focus_subject = null
     where is_focusing = true
       and last_active < now() - interval '10 minutes'
@@ -48,26 +50,28 @@ export async function fetchLeaderboard(timeframe: string = 'weekly') {
       p.full_name,
       p.avatar,
       p.nation,
-      p.rank,
-      p.total_hours as timeframe_hours,
-      p.total_hours,
+      s.rank,
+      s.total_hours as timeframe_hours,
+      s.total_hours,
       case 
-        when (p.last_active AT TIME ZONE 'Asia/Kolkata')::date = (now() AT TIME ZONE 'Asia/Kolkata')::date 
-        then p.today_hours 
+        when (up.last_active AT TIME ZONE 'Asia/Kolkata')::date = (now() AT TIME ZONE 'Asia/Kolkata')::date 
+        then s.today_hours 
         else 0 
       end as today_hours,
-      p.is_focusing,
-      p.focus_subject,
-      p.last_active,
+      up.is_focusing,
+      up.focus_subject,
+      up.last_active,
       p.dob,
       p.is_focus_public,
-      p.integrity_score,
-      p.competitive_score,
-      p.current_streak,
-      (p.last_active > now() - interval '60 seconds') as is_online
+      s.integrity_score,
+      s.competitive_score,
+      s.current_streak,
+      (up.last_active > now() - interval '60 seconds') as is_online
     from profiles p
+    left join user_stats s on s.user_id = p.id
+    left join user_presence up on up.user_id = p.id
     where p.is_public is not false
-    order by p.total_hours desc, p.competitive_score desc, p.updated_at desc nulls last
+    order by s.total_hours desc, s.competitive_score desc, p.updated_at desc nulls last
     limit 1000
   ` : `
     with timeframe_stats as (
@@ -81,27 +85,29 @@ export async function fetchLeaderboard(timeframe: string = 'weekly') {
       p.full_name,
       p.avatar,
       p.nation,
-      p.rank,
+      s.rank,
       coalesce(ts.timeframe_hours, 0) as timeframe_hours,
-      p.total_hours,
+      s.total_hours,
       case 
-        when (p.last_active AT TIME ZONE 'Asia/Kolkata')::date = (now() AT TIME ZONE 'Asia/Kolkata')::date 
-        then p.today_hours 
+        when (up.last_active AT TIME ZONE 'Asia/Kolkata')::date = (now() AT TIME ZONE 'Asia/Kolkata')::date 
+        then s.today_hours 
         else 0 
       end as today_hours,
-      p.is_focusing,
-      p.focus_subject,
-      p.last_active,
+      up.is_focusing,
+      up.focus_subject,
+      up.last_active,
       p.dob,
       p.is_focus_public,
-      p.integrity_score,
-      p.competitive_score,
-      p.current_streak,
-      (p.last_active > now() - interval '60 seconds') as is_online
+      s.integrity_score,
+      s.competitive_score,
+      s.current_streak,
+      (up.last_active > now() - interval '60 seconds') as is_online
     from profiles p
+    left join user_stats s on s.user_id = p.id
+    left join user_presence up on up.user_id = p.id
     left join timeframe_stats ts on ts.user_id = p.id
     where p.is_public is not false
-    order by timeframe_hours desc, p.competitive_score desc, p.updated_at desc nulls last
+    order by timeframe_hours desc, s.competitive_score desc, p.updated_at desc nulls last
     limit 1000
   `;
 
@@ -149,14 +155,16 @@ export async function fetchTelemetry() {
 
   // 🛡️ SELF-HEALING: Reset stale today_hours at exactly 12:00 AM IST
   await pool.query(`
-    update profiles 
+    update user_stats s
     set today_hours = 0 
-    where (last_active AT TIME ZONE 'Asia/Kolkata')::date < (now() AT TIME ZONE 'Asia/Kolkata')::date
+    from user_presence up
+    where s.user_id = up.user_id
+      and (up.last_active AT TIME ZONE 'Asia/Kolkata')::date < (now() AT TIME ZONE 'Asia/Kolkata')::date
   `);
 
   // Auto-clear is_focusing if last_active > 10 minutes ago
   await pool.query(`
-    update profiles 
+    update user_presence 
     set is_focusing = false, focus_subject = null
     where is_focusing = true
       and last_active < now() - interval '10 minutes'
@@ -170,7 +178,7 @@ export async function fetchTelemetry() {
   const { rows: activeRows } = await pool.query(
     `
       select count(*)::int as count
-      from profiles
+      from user_presence
       where is_focusing = true
         and last_active > $1
     `,
@@ -180,9 +188,10 @@ export async function fetchTelemetry() {
   const { rows: totals } = await pool.query(
     `
       select
-        coalesce(sum(total_hours), 0) as total_platform_hours,
-        coalesce(sum(case when (last_active AT TIME ZONE 'Asia/Kolkata')::date = (now() AT TIME ZONE 'Asia/Kolkata')::date then today_hours else 0 end), 0) as global_hours_today
-      from profiles
+        coalesce(sum(s.total_hours), 0) as total_platform_hours,
+        coalesce(sum(case when (up.last_active AT TIME ZONE 'Asia/Kolkata')::date = (now() AT TIME ZONE 'Asia/Kolkata')::date then s.today_hours else 0 end), 0) as global_hours_today
+      from user_stats s
+      join user_presence up on up.user_id = s.user_id
     `,
   );
 

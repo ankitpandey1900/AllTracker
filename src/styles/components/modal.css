@@ -848,11 +848,12 @@ body:has(.modal.active) {
 
 .wm-hero-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 16px;
   margin-bottom: 24px;
 }
 .wm-hero-card {
+  grid-column: span 2;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 12px;
@@ -861,6 +862,9 @@ body:has(.modal.active) {
   align-items: center;
   gap: 16px;
   transition: all 0.2s;
+}
+.wm-hero-card--wide {
+  grid-column: span 3;
 }
 .wm-hero-card:hover {
   background: rgba(255, 255, 255, 0.05);
@@ -1053,8 +1057,14 @@ body:has(.modal.active) {
     border-bottom: none !important;
   }
   .wm-hero-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .wm-hero-card {
+    grid-column: span 1;
+  }
+  .wm-hero-card--wide {
+    grid-column: span 1;
   }
   .wm-hero-card {
     padding: 12px;

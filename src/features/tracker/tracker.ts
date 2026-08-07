@@ -113,7 +113,7 @@ export function generateTable(resetPagination = false): void {
     // Inject a sub-header if the category structure changed
     if (dayLabelsStr !== currentLabelsStr) {
       currentLabelsStr = dayLabelsStr;
-      
+
       // Determine the name of the phase we just entered (going backwards in time)
       const dayDateOnly = day.date.split('T')[0];
       let phaseName = 'Previous Phase';
@@ -154,37 +154,37 @@ export function generateTable(resetPagination = false): void {
           <div class="day-num">D-${day.day}</div>
           <div class="date-sub">${formatDateCompact(new Date(day.date))}</div>
           ${day.restDay
-            ? (editable 
-              ? `<button class="btn-rest-day active" data-day="${day.originalIdx}" title="Unfreeze Streak">
+        ? (editable
+          ? `<button class="btn-rest-day active" data-day="${day.originalIdx}" title="Unfreeze Streak">
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 17.58A5 5 0 0 0 18 8.1V5a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v3.1a5 5 0 0 0-2 9.48V20a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-2.42z"/><circle cx="12" cy="13" r="2"/></svg>
                   <span>Frozen</span>
                  </button>`
-              : `<div class="rest-day-badge" title="Streak Frozen">
+          : `<div class="rest-day-badge" title="Streak Frozen">
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 17.58A5 5 0 0 0 18 8.1V5a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v3.1a5 5 0 0 0-2 9.48V20a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-2.42z"/><circle cx="12" cy="13" r="2"/></svg>
                   <span>Frozen</span>
                  </div>`)
-            : (editable 
-              ? `<button class="btn-rest-day" data-day="${day.originalIdx}" title="Streak Freeze / Rest Day">
+        : (editable
+          ? `<button class="btn-rest-day" data-day="${day.originalIdx}" title="Streak Freeze / Rest Day">
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 17.58A5 5 0 0 0 18 8.1V5a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v3.1a5 5 0 0 0-2 9.48V20a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-2.42z"/><circle cx="12" cy="13" r="2"/></svg>
                   <span>Freeze</span>
                  </button>`
-              : '<span class="lock-sub">🔒</span>')
-          }
+          : '<span class="lock-sub">🔒</span>')
+      }
         </td>
         <td style="padding: 4px 6px;">
           <div class="hours-flex-row" style="display: flex; gap: 8px; width: 100%;">
             ${dayLabels.length > 0
-            ? dayLabels.map((_label: string, ci: number) => {
-              const v = getHourAt(day, ci);
-              const displayVal = formatDuration(v);
-              return `
+        ? dayLabels.map((_label: string, ci: number) => {
+          const v = getHourAt(day, ci);
+          const displayVal = formatDuration(v);
+          return `
                 <div class="hour-cell-wrapper" style="flex: 1 1 0; min-width: 0;">
                   <input type="number" class="cell-input hour-input" data-col="${ci}" value="${v}" min="0" max="24" step="any" placeholder="0.0" ${(!editable || day.restDay) ? 'disabled' : ''} style="width: 100%;">
                   <span class="duration-hint">${displayVal}</span>
                 </div>`;
-            }).join('')
-            : `<div class="no-cat-warning" style="flex: 1 1 0; text-align: center; color: #ef4444; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 800;">No Phase Defined</div>`
-          }
+        }).join('')
+        : `<div class="no-cat-warning" style="flex: 1 1 0; text-align: center; color: #ef4444; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 800;">No Phase Defined</div>`
+      }
           </div>
         </td>
         <td><input type="number" class="cell-input topics-solved" value="${day.problemsSolved}" min="0" step="1" ${(!editable || day.restDay) ? 'disabled' : ''}></td>

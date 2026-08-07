@@ -79,7 +79,7 @@ function buildLocalProfile(payload: BootstrapResponse) {
     displayName: payload.profile.username,
     realName: payload.profile.fullName || payload.session.user.name || "",
     dob: payload.profile.metadata?.dob || "",
-    nation: payload.profile.nation || "Global",
+    nation: payload.profile.nation || "India",
     email: payload.session.user.email || "",
     avatar: payload.profile.avatar || "👤",
     phoneNumber: payload.profile.metadata?.phoneNumber || "",

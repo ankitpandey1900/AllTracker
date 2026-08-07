@@ -51,13 +51,6 @@ type TimerRow = {
   updated_at: string;
 };
 
-function stripProfileFromSettings(data: Record<string, unknown>): Record<string, unknown> {
-  // profile metadata → profiles table columns
-  // chatSessions / activeSessionId → maamu_conversations + maamu_messages tables
-  const { profile, chatSessions, activeSessionId, ...rest } = data;
-  return rest;
-}
-
 function toRoutineItem(row: RoutineItemRow) {
   return {
     id: row.id,
@@ -120,22 +113,77 @@ export async function readVault(
   switch (vault) {
     case "tracker": {
       const { rows } = await pool.query(
-        "select data, updated_at from user_trackers where id = $1 limit 1",
-        [profile.profileId],
+        "select log_date as date, study_hours, problems_solved as \"problemsSolved\", completed, topics, project, updated_at from daily_trackers where user_id = $1 order by log_date asc",
+        [profile.profileId]
       );
+      
+      const data = rows.map(r => ({
+        date: r.date,
+        studyHours: r.study_hours || [],
+        problemsSolved: r.problemsSolved || 0,
+        completed: r.completed || false,
+        topics: r.topics || '',
+        project: r.project || ''
+      }));
+
+      const updatedAt = rows.length > 0 ? rows[rows.length - 1].updated_at : null;
+
       return {
-        data: rows[0]?.data || [],
-        updatedAt: rows[0]?.updated_at || null,
+        data,
+        updatedAt
       };
     }
     case "settings": {
-      const { rows } = await pool.query(
-        "select data, updated_at from user_settings where id = $1 limit 1",
-        [profile.profileId],
+      const prefsRes = await pool.query(
+        "select * from user_preferences where user_id = $1 limit 1",
+        [profile.profileId]
       );
+      
+      const phasesRes = await pool.query(
+        "select name, start_date as \"startDate\", end_date as \"endDate\", columns from study_phases where user_id = $1 order by created_at asc",
+        [profile.profileId]
+      );
+      
+      const badgesRes = await pool.query(
+        "select badge_id from user_badges where user_id = $1",
+        [profile.profileId]
+      );
+
+      let data: any = {};
+      let updatedAt = null;
+
+      if (prefsRes.rows.length > 0) {
+        const p = prefsRes.rows[0];
+        data = {
+          startDate: p.start_date,
+          endDate: p.end_date,
+          columns: p.columns || [],
+          theme: p.theme,
+          timerStyle: p.timer_style,
+          timerFont: p.timer_font,
+          uiFont: p.ui_font,
+          beastMode: p.beast_mode,
+          ambientSound: p.ambient_sound,
+          ambientVolume: p.ambient_volume,
+          timezone: p.timezone,
+          maamuModel: p.maamu_model,
+          groqApiKey: p.groq_api_key,
+          lastRoutineReset: p.last_routine_reset,
+          maamuCompact: p.maamu_compact,
+          maamuTemplatesCollapsed: p.maamu_templates_collapsed,
+          maamuTemplateFavs: p.maamu_template_favs || [],
+          maamuTemplateCategory: p.maamu_template_category,
+          sessionGoal: p.session_goal
+        };
+        updatedAt = p.updated_at;
+      }
+      
+      data.customRanges = phasesRes.rows;
+      data.unlockedBadges = badgesRes.rows.map(b => b.badge_id);
+
       return {
-        data: rows[0]?.data ? stripProfileFromSettings(rows[0].data) : {},
-        updatedAt: rows[0]?.updated_at || null,
+        data,
+        updatedAt
       };
     }
     case "routines": {
@@ -235,49 +283,99 @@ export async function writeVault(
     switch (vault) {
       case "tracker": {
         const updatedAt = new Date().toISOString();
-        await client.query(
-          `
-            insert into user_trackers (id, data, updated_at)
-            values ($1, $2::jsonb, $3)
-            on conflict (id)
-            do update set
-              data = excluded.data,
-              updated_at = excluded.updated_at
-          `,
-          [profile.profileId, JSON.stringify(data || []), updatedAt],
-        );
+        const incomingData = Array.isArray(data) ? data : [];
+        
+        if (incomingData.length > 0) {
+          // Batch upsert to daily_trackers
+          await client.query(
+            `
+              insert into daily_trackers (user_id, log_date, study_hours, problems_solved, completed, topics, project, updated_at)
+              select 
+                $1::uuid, 
+                (r->>'date'), 
+                case when r->'studyHours' is not null then array(select jsonb_array_elements_text(r->'studyHours')::numeric) else '{}'::numeric[] end,
+                COALESCE((r->>'problemsSolved')::integer, 0),
+                COALESCE((r->>'completed')::boolean, false),
+                COALESCE((r->>'topics'), ''),
+                COALESCE((r->>'project'), ''),
+                $3
+              from jsonb_array_elements($2::jsonb) as r
+              on conflict (user_id, log_date)
+              do update set
+                study_hours = excluded.study_hours,
+                problems_solved = excluded.problems_solved,
+                completed = excluded.completed,
+                topics = excluded.topics,
+                project = excluded.project,
+                updated_at = excluded.updated_at
+            `,
+            [profile.profileId, JSON.stringify(incomingData), updatedAt],
+          );
+        }
         await client.query("commit");
         return { updatedAt };
       }
       case "settings": {
-        const existing = await client.query(
-          "select data from user_settings where id = $1 limit 1",
-          [profile.profileId],
-        );
-        const current = existing.rows[0]?.data || {};
-        // Strip keys that belong in other tables (profile → profiles columns, chat → maamu tables)
         const incoming = (data && typeof data === "object" ? data : {}) as Record<string, unknown>;
-        const { profile: _p, chatSessions: _c, activeSessionId: _a, ...incomingClean } = incoming;
-        const next: Record<string, unknown> = {
-          ...(current && typeof current === "object" ? current as Record<string, unknown> : {}),
-          ...incomingClean,
-        };
-        // Always ensure profile/chat keys are absent
-        delete next.profile;
-        delete next.chatSessions;
-        delete next.activeSessionId;
         const updatedAt = new Date().toISOString();
+        
+        // 1. Upsert Preferences
         await client.query(
           `
-            insert into user_settings (id, data, updated_at)
-            values ($1, $2::jsonb, $3)
-            on conflict (id)
+            insert into user_preferences (
+              user_id, start_date, end_date, columns, theme, timer_style, timer_font, ui_font, beast_mode, 
+              ambient_sound, ambient_volume, timezone, maamu_model, groq_api_key, 
+              last_routine_reset, maamu_compact, maamu_templates_collapsed, 
+              maamu_template_favs, maamu_template_category, session_goal, updated_at
+            )
+            values ($1, $2, $3, $4::jsonb, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18::jsonb, $19, $20, $21)
+            on conflict (user_id)
             do update set
-              data = excluded.data,
-              updated_at = excluded.updated_at
+              start_date = excluded.start_date, end_date = excluded.end_date, columns = excluded.columns,
+              theme = excluded.theme, timer_style = excluded.timer_style, timer_font = excluded.timer_font, 
+              ui_font = excluded.ui_font, beast_mode = excluded.beast_mode, ambient_sound = excluded.ambient_sound, 
+              ambient_volume = excluded.ambient_volume, timezone = excluded.timezone, maamu_model = excluded.maamu_model, 
+              groq_api_key = excluded.groq_api_key, last_routine_reset = excluded.last_routine_reset, 
+              maamu_compact = excluded.maamu_compact, maamu_templates_collapsed = excluded.maamu_templates_collapsed, 
+              maamu_template_favs = excluded.maamu_template_favs, maamu_template_category = excluded.maamu_template_category, 
+              session_goal = excluded.session_goal, updated_at = excluded.updated_at
           `,
-          [profile.profileId, JSON.stringify(next), updatedAt],
+          [
+            profile.profileId, incoming.startDate, incoming.endDate, JSON.stringify(incoming.columns || []),
+            incoming.theme, incoming.timerStyle, incoming.timerFont, incoming.uiFont, 
+            incoming.beastMode, incoming.ambientSound, incoming.ambientVolume, incoming.timezone, 
+            incoming.maamuModel, incoming.groqApiKey, incoming.lastRoutineReset, incoming.maamuCompact, 
+            incoming.maamuTemplatesCollapsed, JSON.stringify(incoming.maamuTemplateFavs || []), 
+            incoming.maamuTemplateCategory, incoming.sessionGoal, updatedAt
+          ]
         );
+
+        // 2. Refresh Study Phases
+        await client.query("delete from study_phases where user_id = $1", [profile.profileId]);
+        if (Array.isArray(incoming.customRanges) && incoming.customRanges.length > 0) {
+          await client.query(
+            `
+              insert into study_phases (user_id, name, start_date, end_date, columns)
+              select $1::uuid, (r->>'name'), (r->>'startDate'), (r->>'endDate'), (r->'columns')::jsonb
+              from jsonb_array_elements($2::jsonb) as r
+            `,
+            [profile.profileId, JSON.stringify(incoming.customRanges)]
+          );
+        }
+
+        // 3. Refresh Badges
+        await client.query("delete from user_badges where user_id = $1", [profile.profileId]);
+        if (Array.isArray(incoming.unlockedBadges) && incoming.unlockedBadges.length > 0) {
+          await client.query(
+            `
+              insert into user_badges (user_id, badge_id)
+              select $1::uuid, (r->>0)
+              from jsonb_array_elements($2::jsonb) as r
+            `,
+            [profile.profileId, JSON.stringify(incoming.unlockedBadges)]
+          );
+        }
+
         await client.query("commit");
         return { updatedAt };
       }

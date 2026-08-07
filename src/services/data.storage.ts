@@ -1,6 +1,4 @@
 import { STORAGE_KEYS } from '@/config/constants';
-import { obfuscate, deobfuscate } from '@/utils/security';
-import { getCurrentUserId } from '@/services/auth.service';
 import { applyThemeToDOM, applyTimerStyleToDOM, applyTimerFontToDOM, applyUiFontToDOM, applyAccentColorToDOM } from '@/state/app-state';
 
 /**
@@ -24,22 +22,12 @@ export function removeLocal(key: string): void {
 }
 
 export function saveSecuredSettings(settings: any): void {
-  const syncId = getCurrentUserId() || '';
-  const secured = { 
-    ...settings, 
-    groqApiKey: settings.groqApiKey ? obfuscate(settings.groqApiKey, syncId) : '' 
-  };
-  saveLocal(STORAGE_KEYS.SETTINGS, secured);
+  saveLocal(STORAGE_KEYS.SETTINGS, settings);
 }
 
 export function loadSecuredSettings(): any | null {
   const settings = loadLocal<any>(STORAGE_KEYS.SETTINGS);
   if (!settings) return null;
-  
-  if (settings.groqApiKey) {
-    const syncId = getCurrentUserId() || '';
-    settings.groqApiKey = deobfuscate(settings.groqApiKey, syncId);
-  }
   
   if (settings.theme) {
     applyThemeToDOM(settings.theme);

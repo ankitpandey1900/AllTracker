@@ -310,7 +310,7 @@ function hydrateIdentityFields(): void {
   if (profileName) profileName.textContent = profile.realName || profile.displayName;
   if (handleEl) handleEl.textContent = `@${profile.displayName}`;
   if (passportAvatar) passportAvatar.textContent = profile.avatar || "👤";
-  if (nationBadge) nationBadge.textContent = profile.nation || "Global";
+  if (nationBadge) nationBadge.textContent = profile.nation || "India";
   
   const setDossierVal = (el: HTMLElement | null, val: string | undefined) => {
     if (!el) return;
@@ -351,7 +351,7 @@ function hydrateIdentityFields(): void {
   if (dInput) { dInput.value = profile.dob || ""; if (profile.dob) dInput.setAttribute('disabled', 'true'); }
   if (eInput) { eInput.value = profile.email || ""; if (profile.email) eInput.setAttribute('disabled', 'true'); }
   if (pInput) { pInput.value = profile.phoneNumber || ""; if (profile.phoneNumber) pInput.setAttribute('disabled', 'true'); }
-  if (nSelect) { nSelect.value = profile.nation || "Global"; if (profile.nation && profile.nation !== "Global") nSelect.setAttribute('disabled', 'true'); }
+  if (nSelect) { nSelect.value = profile.nation || "India"; if (profile.nation && profile.nation !== "India") nSelect.setAttribute('disabled', 'true'); }
 
   const publicToggle = document.getElementById("profilePublicToggle") as HTMLInputElement | null;
   const focusToggle = document.getElementById("profileFocusPrivacyToggle") as HTMLInputElement | null;

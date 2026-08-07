@@ -61,8 +61,8 @@ export function exportTrackerDataCSV(): void {
 
 function exportSessionLogsCSV(): void {
   const timestamp = generateExportTimestamp();
-  const logs = appState.settings.sessionLogs || [];
-  const exportData = logs.map((log) => {
+  const logs = JSON.parse(localStorage.getItem('all_tracker_history') || '[]');
+  const exportData = logs.map((log: any) => {
     const d = new Date(log.date);
     return { Timestamp: log.date, Date: d.toLocaleDateString(), Time: d.toLocaleTimeString(), Category: log.category, CategoryName: log.categoryName, DurationHours: log.duration.toFixed(2), TimeRange: log.timeRange || '' };
   });
@@ -96,7 +96,7 @@ function exportSettingsJSON(): void {
   const metadata = {
     exportDate: new Date().toISOString(), appVersion: '3.0.0',
     settings: appState.settings, totalDays: appState.totalDays,
-    dataStats: { trackerEntries: appState.trackerData.length, sessionLogs: (appState.settings.sessionLogs || []).length, routines: appState.routines.length, bookmarks: appState.bookmarks.length, unlockedBadges: appState.settings.unlockedBadges.length },
+    dataStats: { trackerEntries: appState.trackerData.length, routines: appState.routines.length, bookmarks: appState.bookmarks.length, unlockedBadges: appState.settings.unlockedBadges.length },
   };
   downloadFile(JSON.stringify(metadata, null, 2), `settings_metadata_${timestamp}.json`, 'application/json');
 }

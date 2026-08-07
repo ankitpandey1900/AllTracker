@@ -9,6 +9,24 @@ export async function renderStudyAnalytics(): Promise<void> {
     renderStudyTrendChart(),
     renderSubjectRadarChart(),
   ]);
+
+  // Bind the filter dropdown event listener only once
+  const filterEl = document.getElementById('analyticsTimeFilter');
+  if (filterEl && !(filterEl as any)._hasListener) {
+    (filterEl as any)._hasListener = true;
+    filterEl.addEventListener('change', () => {
+      renderStudyTrendChart();
+      renderSubjectRadarChart();
+    });
+  }
+}
+
+function getAnalyticsDaysToShow(todayDay: number): number {
+  const filterEl = document.getElementById('analyticsTimeFilter') as HTMLSelectElement;
+  if (!filterEl) return 21;
+  const val = filterEl.value;
+  if (val === 'all') return todayDay; // Show all days up to today
+  return parseInt(val, 10) || 21;
 }
 
 async function renderStudyTrendChart(): Promise<void> {
@@ -23,7 +41,7 @@ async function renderStudyTrendChart(): Promise<void> {
   const diffTime = now.getTime() - start.getTime();
   const todayDay = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
 
-  const daysToShow = 21;
+  const daysToShow = getAnalyticsDaysToShow(todayDay);
   const labels: string[] = [];
   const hoursData: number[] = [];
   const problemsData: number[] = [];
@@ -174,7 +192,7 @@ async function renderSubjectRadarChart(): Promise<void> {
   const diffTime = now.getTime() - start.getTime();
   const todayDay = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
 
-  const daysToShow = 21;
+  const daysToShow = getAnalyticsDaysToShow(todayDay);
   const columnLabels = getAllHourColumnLabels(todayDay);
   
   // Initialize totals

@@ -24,7 +24,7 @@ export const profileModal = `
             <div class="profile-identity-info">
               <div class="name-row">
                 <h2 id="profileDisplayName" class="social-full-name">Operative Name</h2>
-                <div id="profileNationBadge" class="nation-badge">Global</div>
+                <div id="profileNationBadge" class="nation-badge">India</div>
               </div>
               <div class="handle-row">
                 <span class="social-handle" id="displayHandle">@User</span>
@@ -167,10 +167,7 @@ export const profileModal = `
                   <div class="edit-group">
                     <label class="social-input-label">NATION</label>
                     <select id="profileNationSelect" class="social-input">
-                      <option value="Global">Global</option>
                       <option value="India">India</option>
-                      <option value="USA">USA</option>
-                      <option value="UK">UK</option>
                     </select>
                   </div>
                 </div>

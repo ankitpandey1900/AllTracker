@@ -14,7 +14,7 @@ import { generateTable } from '@/features/tracker/tracker';
 import { updateDashboard, toggleFocusHUD } from '@/features/dashboard/dashboard';
 import { renderHeatmap } from '@/features/heatmap/heatmap';
 import { renderPerformanceCurve } from '@/features/routines/performance-chart';
-import { formatMsToTime, formatClockTime } from '@/utils/date.utils';
+import { formatMsToTime } from '@/utils/date.utils';
 import { showToast, startConfetti } from '@/utils/dom.utils';
 import { log } from '@/utils/logger.utils';
 import { getNextRoutine } from '@/utils/calc.utils';
@@ -332,23 +332,7 @@ export async function stopTimer(autoNote?: string, clampMs?: number): Promise<vo
         appState.verifiedHours += totalHours;
       }
 
-      // Store session history in settings for analysis
-      const startTimeStr = formatClockTime(sessionStart);
-      const endTimeStr = formatClockTime(sessionEnd);
-      const sessionLog = {
-        date: sessionStart.toISOString().split('T')[0],
-        category: appState.activeTimer.category || '0',
-        categoryName: appState.activeTimer.colName || 'General',
-        duration: totalHours,
-        timeRange: `${startTimeStr} - ${endTimeStr}`,
-        note: note
-      };
-      
-      const updatedLogs = [...(appState.settings.sessionLogs || []), sessionLog];
-      // Keep only last 200 logs to prevent storage bloating
-      appState.settings.sessionLogs = updatedLogs.slice(-200);
       saveSettingsToStorage(appState.settings);
-      
       saveTrackerDataToStorage(appState.trackerData);
 
       // Persist the complete session to the backend

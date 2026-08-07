@@ -128,26 +128,28 @@ async function fetchProfile(
         p.full_name,
         p.avatar,
         p.nation,
-        p.rank,
-        p.total_hours,
-        p.today_hours,
-        p.is_focusing,
-        p.focus_subject,
-        p.last_active,
+        s.rank,
+        s.total_hours,
+        s.today_hours,
+        up.is_focusing,
+        up.focus_subject,
+        up.last_active,
         p.created_at,
         p.updated_at,
         p.dob,
         p.phone_number,
         p.is_public,
         p.is_focus_public,
-        p.integrity_score,
-        p.competitive_score,
-        p.current_streak,
+        s.integrity_score,
+        s.competitive_score,
+        s.current_streak,
         u.name as user_name,
         u.email,
         u.image
       from profiles p
       join "user" u on u.id = p.auth_user_id
+      left join user_stats s on s.user_id = p.id
+      left join user_presence up on up.user_id = p.id
       where p.auth_user_id = $1
       limit 1
     `,
@@ -195,21 +197,14 @@ export async function ensureProfileForUser(
           full_name,
           avatar,
           nation,
-          rank,
-          total_hours,
-          today_hours,
-          is_focusing,
           dob,
           phone_number,
           is_public,
           is_focus_public,
-          integrity_score,
-          competitive_score,
-          current_streak,
-          last_active,
+          created_at,
           updated_at
         )
-        values ($1, $2, $3, $4, 'Global', 'IRON', 0, 0, false, null, '', true, true, 0, 0, 0, now(), now())
+        values ($1, $2, $3, $4, 'India', null, '', true, true, now(), now())
         returning id
       `,
       [user.id, username, fullName, avatar],
@@ -217,23 +212,32 @@ export async function ensureProfileForUser(
 
     const profileId = rows[0].id as string;
 
-    // user_settings: only for app settings (theme, columns, etc.) — no profile data
+    // insert default stats
     await client.query(
       `
-        insert into user_settings (id, data, updated_at)
-        values ($1, $2::jsonb, now())
-        on conflict (id)
-        do nothing
+        insert into user_stats (user_id, rank, total_hours, today_hours, integrity_score, competitive_score, current_streak)
+        values ($1, 'IRON', 0, 0, 0, 0, 0)
+        on conflict (user_id) do nothing
       `,
-      [profileId, JSON.stringify({})],
+      [profileId]
     );
 
+    // insert default presence
     await client.query(
       `
-        insert into user_trackers (id, data, updated_at)
-        values ($1, '[]'::jsonb, now())
-        on conflict (id)
-        do nothing
+        insert into user_presence (user_id, is_focusing, last_active, updated_at)
+        values ($1, false, now(), now())
+        on conflict (user_id) do nothing
+      `,
+      [profileId]
+    );
+
+    // insert default preferences
+    await client.query(
+      `
+        insert into user_preferences (user_id, updated_at)
+        values ($1, now())
+        on conflict (user_id) do nothing
       `,
       [profileId],
     );
@@ -355,65 +359,84 @@ export async function broadcastProfileStats(
       ? payload.display_name.trim()
       : profile.username;
 
+  const client = await pool.connect();
+  try {
+    await client.query("begin");
 
-  await pool.query(
-    `
-      update profiles
-      set
-        username = $2,
-        full_name = $3,
-        avatar = $4,
-        nation = $5,
-        rank = $6,
-        total_hours = $7,
-        today_hours = $17,
-        is_focusing = $8,
-        focus_subject = $9,
-        dob = $10,
-        phone_number = $11,
-        is_public = $12,
-        is_focus_public = $13,
-        integrity_score = $14,
-        competitive_score = $15,
-        current_streak = $16,
-        last_active = now(),
-        updated_at = now()
-      where id = $1
-    `,
-    [
-      profile.profileId,
-      nextUsername,
-      typeof payload.User_name === "string" && payload.User_name.trim()
-        ? payload.User_name
-        : profile.fullName,
-      typeof payload.avatar === "string" && payload.avatar.trim()
-        ? payload.avatar
-        : profile.avatar,
-      typeof payload.nation === "string" && payload.nation.trim()
-        ? payload.nation
-        : profile.nation,
-      typeof payload.current_rank === "string" && payload.current_rank.trim()
-        ? payload.current_rank
-        : profile.rank,
-      Number(payload.total_hours || profile.totalHours || 0),
-      payload.is_focusing_now === true,
-      typeof payload.current_focus_subject === "string"
-        ? payload.current_focus_subject
-        : null,
-      typeof payload.dob === "string" && payload.dob ? payload.dob : (profile.metadata.dob || null),
-      typeof payload.phone_number === "string"
-        ? payload.phone_number
-        : profile.metadata.phoneNumber || "",
-      typeof payload.is_public === "boolean"
-        ? payload.is_public
-        : profile.metadata.isPublic !== false,
-      typeof payload.is_focus_public === "boolean"
-        ? payload.is_focus_public
-        : profile.metadata.isFocusPublic !== false,
-      Number(payload.integrity_score || 0),
-      Number(payload.competitive_score || 0),
-      Number(payload.current_streak || 0),
-      Number(payload.today_hours || profile.todayHours || 0),
-    ],
-  );
+    await client.query(
+      `
+        update profiles
+        set
+          username = $2,
+          full_name = $3,
+          avatar = $4,
+          nation = $5,
+          dob = $6,
+          phone_number = $7,
+          is_public = $8,
+          is_focus_public = $9,
+          updated_at = now()
+        where id = $1
+      `,
+      [
+        profile.profileId,
+        nextUsername,
+        typeof payload.User_name === "string" && payload.User_name.trim() ? payload.User_name : profile.fullName,
+        typeof payload.avatar === "string" && payload.avatar.trim() ? payload.avatar : profile.avatar,
+        typeof payload.nation === "string" && payload.nation.trim() ? payload.nation : profile.nation,
+        typeof payload.dob === "string" && payload.dob ? payload.dob : (profile.metadata.dob || null),
+        typeof payload.phone_number === "string" ? payload.phone_number : profile.metadata.phoneNumber || "",
+        typeof payload.is_public === "boolean" ? payload.is_public : profile.metadata.isPublic !== false,
+        typeof payload.is_focus_public === "boolean" ? payload.is_focus_public : profile.metadata.isFocusPublic !== false,
+      ]
+    );
+
+    await client.query(
+      `
+        update user_stats
+        set
+          rank = COALESCE($2, rank),
+          total_hours = COALESCE($3, total_hours),
+          today_hours = COALESCE($4, today_hours),
+          integrity_score = COALESCE($5, integrity_score),
+          competitive_score = COALESCE($6, competitive_score),
+          current_streak = COALESCE($7, current_streak),
+          updated_at = now()
+        where user_id = $1
+      `,
+      [
+        profile.profileId,
+        typeof payload.current_rank === "string" && payload.current_rank.trim() ? payload.current_rank : null,
+        payload.total_hours !== undefined ? Number(payload.total_hours) : null,
+        payload.today_hours !== undefined ? Number(payload.today_hours) : null,
+        payload.integrity_score !== undefined ? Number(payload.integrity_score) : null,
+        payload.competitive_score !== undefined ? Number(payload.competitive_score) : null,
+        payload.current_streak !== undefined ? Number(payload.current_streak) : null,
+      ]
+    );
+
+    await client.query(
+      `
+        update user_presence
+        set
+          is_focusing = $2,
+          focus_subject = $3,
+          last_active = now(),
+          updated_at = now()
+        where user_id = $1
+      `,
+      [
+        profile.profileId,
+        payload.is_focusing_now === true,
+        typeof payload.current_focus_subject === "string" ? payload.current_focus_subject : null,
+      ]
+    );
+
+    await client.query("commit");
+  } catch (error) {
+    await client.query("rollback");
+    throw error;
+  } finally {
+    client.release();
+  }
 }

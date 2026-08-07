@@ -41,7 +41,7 @@ export interface TacticalBriefing {
 }
 
 export function getTacticalBriefing(): TacticalBriefing {
-  const logs = appState.settings.sessionLogs || [];
+  const logs: any[] = []; // Replaced by fetchMySessionsCloud elsewhere if needed
   const trackerData = appState.trackerData || [];
   const tasks = appState.tasks || [];
   const routines = appState.routines || [];
@@ -90,7 +90,6 @@ export function getTacticalBriefingString(): string {
     rank: getRankTitle(totalHours),
     briefing,
     trackerData: appState.trackerData,
-    sessionLogs: appState.settings.sessionLogs || [],
     tasks: appState.tasks,
     routines: appState.routines,
     activeTimer: appState.activeTimer,

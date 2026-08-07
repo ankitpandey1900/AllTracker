@@ -81,7 +81,6 @@ export function buildDeepContextJSON(data: {
   rank: string;
   briefing: any;
   trackerData: any[];
-  sessionLogs: any[];
   tasks: any[];
   routines: any[];
   activeTimer: any;
@@ -127,27 +126,7 @@ export function buildDeepContextJSON(data: {
     weeklySummaries.push({ w: Math.floor(i / 7) + 1, h: avgH.toFixed(1) });
   }
 
-  // 2. Real session logs: group by date for the last 30 days
-  const cutoff = new Date(now);
-  cutoff.setDate(cutoff.getDate() - 30);
-  const cutoffStr = `${cutoff.getFullYear()}-${String(cutoff.getMonth() + 1).padStart(2, '0')}-${String(cutoff.getDate()).padStart(2, '0')}`;
-  
-  const sessionByDate: Record<string, { mins: number; cats: string[] }> = {};
-  (data.sessionLogs || []).forEach((log: any) => {
-    if (!log.date || log.date < cutoffStr) return;
-    if (!sessionByDate[log.date]) sessionByDate[log.date] = { mins: 0, cats: [] };
-    sessionByDate[log.date].mins += Math.round((log.duration || 0) * 60);
-    if (log.categoryName && !sessionByDate[log.date].cats.includes(log.categoryName)) {
-      sessionByDate[log.date].cats.push(log.categoryName);
-    }
-  });
-  const sessions30d = Object.entries(sessionByDate)
-    .sort(([a], [b]) => a.localeCompare(b))
-    .slice(-30)
-    .map(([date, v]) => ({ date, mins: v.mins, cats: v.cats.join(',') }));
-
   // 3. Total hours from real sessions (source of truth)
-  const realTotalMins = (data.sessionLogs || []).reduce((s: number, l: any) => s + Math.round((l.duration || 0) * 60), 0);
 
   // 4. Pending vs overdue task split (Top 10 each)
   const priorityMap: Record<number, string> = { 1: 'L', 2: 'M', 3: 'H' };
@@ -175,10 +154,10 @@ export function buildDeepContextJSON(data: {
     user: { 
       handle: "@" + data.username, 
       total_hours_grid: data.totalHours.toFixed(1), 
-      verified_mins_timer: realTotalMins,
-      verified_hours_timer: (realTotalMins / 60).toFixed(2),
-      timer_logs_count: (data.sessionLogs || []).length,
-      timer_data_available: realTotalMins > 0,
+      verified_mins_timer: 0,
+      verified_hours_timer: "0.00",
+      timer_logs_count: 0,
+      timer_data_available: false,
       rank: data.rank 
     },
     beast: data.beastModeActive,
@@ -191,7 +170,6 @@ export function buildDeepContextJSON(data: {
       daily_30d: last30Days,
       weekly_old: weeklySummaries 
     },
-    sessions_30d: sessions30d,
     tasks: {
       pending_count: pendingCount,
       overdue_count: overdueCount,

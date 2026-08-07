@@ -33,19 +33,15 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     // 3. Query for strict inactivity (haven't actually logged a study session in 7 days)
     const query = `
       SELECT p.id as profile_id, p.username, u.email, 
-             COALESCE(
-               (SELECT MAX(start_time) FROM public.study_sessions WHERE user_id = p.id),
-               p.created_at
-             ) as last_active,
+             COALESCE(up.last_active, p.created_at) as last_active,
              (SELECT COALESCE(SUM(duration), 0) FROM public.study_sessions WHERE user_id = p.id AND start_time >= NOW() - INTERVAL '7 days') as last_7_days_hours,
-             p.rank, p.total_hours, p.current_streak, p.integrity_score
+             s.rank, s.total_hours, s.current_streak, s.integrity_score
       FROM public.profiles p
       JOIN public.user u ON p.auth_user_id = u.id
-      WHERE COALESCE(
-              (SELECT MAX(start_time) FROM public.study_sessions WHERE user_id = p.id), 
-              p.created_at
-            ) < NOW() - INTERVAL '7 days'
-      AND p.last_reengagement_sent_at IS NULL
+      LEFT JOIN public.user_stats s ON s.user_id = p.id
+      LEFT JOIN public.user_presence up ON up.user_id = p.id
+      WHERE COALESCE(up.last_active, p.created_at) < NOW() - INTERVAL '7 days'
+      AND s.last_reengagement_sent_at IS NULL
       LIMIT 100;
     `;
     
@@ -228,9 +224,9 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     // 5. Update DB to mark emails as sent
     if (successProfileIds.length > 0) {
       const updateQuery = `
-        UPDATE public.profiles
+        UPDATE public.user_stats
         SET last_reengagement_sent_at = NOW()
-        WHERE id = ANY($1::uuid[]);
+        WHERE user_id = ANY($1::uuid[]);
       `;
       await pool.query(updateQuery, [successProfileIds]);
     }

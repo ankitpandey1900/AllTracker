@@ -69,11 +69,14 @@ function setStopButtonState(isStreaming: boolean): void {
 }
 
 function isCompactModeEnabled(): boolean {
-  return localStorage.getItem(MAAMU_COMPACT_STORAGE_KEY) === '1';
+  const local = localStorage.getItem(MAAMU_COMPACT_STORAGE_KEY);
+  if (local !== null) return local === '1';
+  return (appState.settings as any).maamuCompact === true;
 }
 
 function setCompactMode(enabled: boolean): void {
   localStorage.setItem(MAAMU_COMPACT_STORAGE_KEY, enabled ? '1' : '0');
+  saveSettingsToStorage({ maamuCompact: enabled });
   const container = document.getElementById('maamuGptContainer');
   if (container) container.classList.toggle('maamu-compact', enabled);
   const btn = document.getElementById('toggleCompactView') as HTMLButtonElement | null;
@@ -81,7 +84,8 @@ function setCompactMode(enabled: boolean): void {
 }
 
 function hasUserCompactPreference(): boolean {
-  return localStorage.getItem(MAAMU_COMPACT_STORAGE_KEY) !== null;
+  return localStorage.getItem(MAAMU_COMPACT_STORAGE_KEY) !== null ||
+    (appState.settings as any).maamuCompact !== undefined;
 }
 
 function getEffectiveCompactMode(): boolean {
@@ -90,11 +94,14 @@ function getEffectiveCompactMode(): boolean {
 }
 
 function areTemplatesCollapsed(): boolean {
-  return localStorage.getItem(MAAMU_TEMPLATES_COLLAPSED_KEY) === '1';
+  const local = localStorage.getItem(MAAMU_TEMPLATES_COLLAPSED_KEY);
+  if (local !== null) return local === '1';
+  return (appState.settings as any).maamuTemplatesCollapsed === true;
 }
 
 function setTemplatesCollapsed(collapsed: boolean): void {
   localStorage.setItem(MAAMU_TEMPLATES_COLLAPSED_KEY, collapsed ? '1' : '0');
+  saveSettingsToStorage({ maamuTemplatesCollapsed: collapsed });
   const container = document.getElementById('maamuGptContainer');
   if (container) container.classList.toggle('templates-collapsed', collapsed);
   const btn = document.getElementById('toggleTemplatesBtn') as HTMLButtonElement | null;
@@ -104,24 +111,32 @@ function setTemplatesCollapsed(collapsed: boolean): void {
 function getTemplateFavorites(): Set<string> {
   try {
     const raw = localStorage.getItem(MAAMU_TEMPLATE_FAVS_KEY);
-    const parsed = raw ? JSON.parse(raw) : [];
-    return new Set(Array.isArray(parsed) ? parsed.map(String) : []);
-  } catch {
-    return new Set();
-  }
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return new Set(Array.isArray(parsed) ? parsed.map(String) : []);
+    }
+    // Fall back to cloud-synced settings
+    const fromSettings = (appState.settings as any).maamuTemplateFavs;
+    if (Array.isArray(fromSettings)) return new Set(fromSettings.map(String));
+  } catch { /* noop */ }
+  return new Set();
 }
 
 function saveTemplateFavorites(favs: Set<string>): void {
-  localStorage.setItem(MAAMU_TEMPLATE_FAVS_KEY, JSON.stringify(Array.from(favs)));
+  const arr = Array.from(favs);
+  localStorage.setItem(MAAMU_TEMPLATE_FAVS_KEY, JSON.stringify(arr));
+  saveSettingsToStorage({ maamuTemplateFavs: arr });
 }
 
 function getTemplateCategory(): string {
-  const value = localStorage.getItem(MAAMU_TEMPLATE_CATEGORY_KEY) || 'all';
+  const local = localStorage.getItem(MAAMU_TEMPLATE_CATEGORY_KEY);
+  const value = local || (appState.settings as any).maamuTemplateCategory || 'all';
   return ['all', 'favorites', 'general', 'coding', 'web'].includes(value) ? value : 'all';
 }
 
 function setTemplateCategory(category: string): void {
   localStorage.setItem(MAAMU_TEMPLATE_CATEGORY_KEY, category);
+  saveSettingsToStorage({ maamuTemplateCategory: category });
 }
 
 function refreshTemplateUI(): void {

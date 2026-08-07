@@ -252,7 +252,7 @@ export async function reconcileProfileHours(profileId: string, timezone?: string
   const tz = safeTz(timezone);
   await pool.query(
     `
-      update profiles
+      update user_stats
       set
         total_hours = (
           select coalesce(sum(duration), 0)
@@ -266,7 +266,7 @@ export async function reconcileProfileHours(profileId: string, timezone?: string
             and (start_time AT TIME ZONE $2)::date = (now() AT TIME ZONE $2)::date
         ),
         updated_at = now()
-      where id = $1::uuid
+      where user_id = $1::uuid
     `,
     [profileId, tz]
   );

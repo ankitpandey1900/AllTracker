@@ -10,25 +10,25 @@ import type { Badge, TrackerDay } from '@/types/tracker.types';
 // --- Storage Keys ---
 
 export const STORAGE_KEYS = {
-  TRACKER_DATA: 'programmingTrackerData',
-  SETTINGS: 'programmingTrackerSettings',
-  TIMER: 'programmingTrackerTimer',
-  ROUTINES: 'studyTrackerRoutine',
-  ROUTINE_HISTORY: 'studyTrackerRoutineHistory',
-  ROUTINE_RESET: 'studyTrackerLastReset',
-  BOOKMARKS: 'studyTrackerBookmarks',
-  SYNC_ID: 'tracker_sync_id',
-  DEADLINE: 'trackerDeadline',
-  DEADLINE_TITLE: 'trackerDeadlineTitle',
-  SESSION_GOAL: 'trackerSessionGoal',
-  TASKS: 'studyTrackerTasks',
-  USER_PROFILE: 'studyTrackerUserProfile',
-  SYNC_METADATA: 'all-tracker-sync-metadata',
+  TRACKER_DATA: 'at_session_data',
+  SETTINGS: 'at_preferences',
+  TIMER: 'at_timer_state',
+  ROUTINES: 'at_routines',
+  ROUTINE_HISTORY: 'at_routine_logs',
+  ROUTINE_RESET: 'at_routine_anchor',
+  BOOKMARKS: 'at_bookmarks',
+  SYNC_ID: 'at_session_token',
+  DEADLINE: 'at_deadline',
+  DEADLINE_TITLE: 'at_deadline_title',
+  SESSION_GOAL: 'at_session_goal',
+  TASKS: 'at_tasks',
+  USER_PROFILE: 'at_profile',
+  SYNC_METADATA: 'at_sync_meta',
 } as const;
 
 // --- Default Dates ---
 
-export const DEFAULT_START_DATE = new Date(new Date().getFullYear(), 0, 1); // Jan 1st
+export const DEFAULT_START_DATE = new Date(); // Today
 export const DEFAULT_END_DATE = new Date(new Date().getFullYear(), 11, 31); // Dec 31st
 
 // --- Default Study Groups ---
@@ -174,14 +174,6 @@ export const NUMBER_FIELD_MAP: Record<string, keyof TrackerDay> = {
   'topics-solved': 'problemsSolved',
 };
 
-// --- Nation Flags ---
 export const NATION_FLAGS: Record<string, string> = {
-  'Global': 'un',
-  'India': 'in',
-  'USA': 'us',
-  'UK': 'gb',
-  'Canada': 'ca',
-  'Germany': 'de',
-  'Japan': 'jp',
-  'Other': 'un'
+  'India': 'in'
 };

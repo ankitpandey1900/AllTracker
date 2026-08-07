@@ -47,9 +47,11 @@ export default async function handler(
 
     // Check if user has received a reengagement email recently
     const rateLimitQuery = await pool.query(
-      `SELECT id, username, current_streak, total_hours, rank, integrity_score,
+      `SELECT p.id, p.username, s.current_streak, s.total_hours, s.rank, s.integrity_score,
        (SELECT COALESCE(SUM(duration), 0) FROM public.study_sessions WHERE user_id = p.id AND start_time >= NOW() - INTERVAL '7 days') as last_7_days_hours
-       FROM public.profiles p WHERE id = $1`,
+       FROM public.profiles p 
+       LEFT JOIN public.user_stats s ON s.user_id = p.id
+       WHERE p.id = $1`,
       [profile_id]
     );
     
