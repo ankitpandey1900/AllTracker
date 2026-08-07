@@ -5,7 +5,7 @@
 /* ───────────────────────────────────────────────────────── */
 
 :root {
-  --mobile-nav-height: 80px;
+  --mobile-nav-height: 60px;
   --mobile-gutter: 16px;
   --accent-blue: #7c3aed;
   --bg-deep: #000000;
@@ -147,21 +147,6 @@
     display: none;
   }
 
-  .app-logo {
-    height: 50px;
-    width: auto;
-    max-width: none;
-    max-height: none;
-    flex-shrink: 0;
-    object-fit: contain;
-    border-radius: 0;
-    border: none;
-    filter: none;
-    background: transparent;
-  }
-
-
-
   .tabs {
     display: none !important;
     visibility: hidden !important;
@@ -222,12 +207,8 @@
   }
 
   .user-info-group #headerUserAlias {
-    max-width: 65px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
     padding: 2px 5px !important;
-    font-size: 0.58rem !important;
+    font-size: 0.75rem !important;
     flex-shrink: 1;
   }
 
@@ -323,9 +304,11 @@
     transform: translateY(-16px) scale(0.95);
   }
 
-  /* Hide the top timer button to save space */
+  /* Show the top timer button but make it smaller */
   #startTimerBtn {
-    display: none !important;
+    padding: 6px 12px !important;
+    font-size: 0.75rem;
+    letter-spacing: 0;
   }
 
   .mobile-nav-item {
@@ -358,8 +341,8 @@
   }
 
   .mobile-nav-item svg {
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
     color: #64748b;
     stroke-width: 2.2;
     transition: transform 0.3s ease, color 0.3s ease;

@@ -1435,11 +1435,11 @@
   white-space: nowrap;
 }
 
-@media (max-width: 500px) {
+  @media (max-width: 500px) {
   .pilot-hud-pill {
     padding: 3px 10px 3px 4px;
-    font-size: 0.65rem;
-    max-width: 120px;
+    font-size: 0.75rem;
+    max-width: 160px;
   }
   
   .pilot-hud-avatar {
@@ -1457,9 +1457,7 @@
 }
 
 .pilot-hud-pill:hover {
-  background: rgba(139, 92, 246, 0.1);
-  border-color: #8b5cf6;
-  box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);
+  background: rgba(255, 255, 255, 0.05);
   transform: translateY(-1px);
 }
 
@@ -2379,14 +2377,15 @@
   transform: translateY(-2px);
 }
 
-.social-btn.btn-danger-ghost {
+.btn-danger-ghost {
   background: transparent;
   color: #ef4444;
   border: 1px solid transparent;
   opacity: 0.8;
+  transition: all 0.2s;
 }
 
-.social-btn.btn-danger-ghost:hover {
+.btn-danger-ghost:hover {
   background: rgba(239, 68, 68, 0.1);
   opacity: 1;
 }
@@ -2588,13 +2587,26 @@
 }
 
 @media (max-width: 500px) {
-  .social-profile-card {
-    width: 92vw !important;
-    margin: 0 auto;
-  }
-  
   .input-row {
     grid-template-columns: 1fr;
+  }
+  
+  .social-header {
+    padding: 20px;
+    gap: 12px;
+  }
+  
+  .profile-content-body {
+    padding: 20px;
+  }
+  
+  .social-stats-bar {
+    padding: 12px 6px;
+    margin-bottom: 20px;
+  }
+  
+  .profile-tab-panels {
+    min-height: 100px;
   }
 }
 

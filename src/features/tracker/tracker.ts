@@ -95,7 +95,7 @@ export function generateTable(resetPagination = false): void {
       <th><div class="th-content" title="Problems Solved">Problems Solved</div></th>
       <th><div class="th-content" title="Topics">Topics</div></th>
       <th><div class="th-content" title="Project Work">Project Work</div></th>
-      <th class="action-cell" style="text-align: right; padding-right: 20px !important;"><div class="th-content">Done</div></th>
+      <th class="action-cell"><div class="th-content">Done</div></th>
     `;
   }
 
@@ -113,9 +113,24 @@ export function generateTable(resetPagination = false): void {
     // Inject a sub-header if the category structure changed
     if (dayLabelsStr !== currentLabelsStr) {
       currentLabelsStr = dayLabelsStr;
+      
+      // Determine the name of the phase we just entered (going backwards in time)
+      const dayDateOnly = day.date.split('T')[0];
+      let phaseName = 'Previous Phase';
+      if (appState.settings.customRanges) {
+        const range = appState.settings.customRanges.find(r => dayDateOnly >= r.startDate && dayDateOnly <= r.endDate);
+        if (range && range.name) {
+          phaseName = range.name;
+        } else if (range) {
+          // Fallback if unnamed but found
+          const idx = appState.settings.customRanges.indexOf(range);
+          phaseName = `Phase ${idx + 1}`;
+        }
+      }
+
       html += `
         <tr class="phase-sub-header" style="background: rgba(13, 22, 45, 0.6); border-top: 1px solid rgba(108, 135, 255, 0.2); border-bottom: 1px solid rgba(108, 135, 255, 0.2);">
-          <th style="padding: 12px 6px; font-size: 0.6rem; color: #6c87ff; text-align: center;">Previous Phase</th>
+          <th style="padding: 12px 6px; font-size: 0.6rem; color: #6c87ff; text-align: center;">${escapeHtml(phaseName)}</th>
           <th style="padding: 12px 6px; min-width: ${dayLabels.length * 65}px;">
             <div class="hours-flex-header" style="display: flex; gap: 8px; width: 100%;">
               ${dayLabels.map((l) => `<div style="flex: 1 1 0; min-width: 0; text-align: center; font-size: 0.65rem; color: #8e9fc6; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${l} Hrs">${l}</div>`).join('')}

@@ -44,7 +44,8 @@ export async function openProfileModal(): Promise<void> {
     editPane.classList.remove("hidden");
   }
 
-  const totalHours = calculateTotalStudyHours(appState.trackerData);
+  const localTotal = calculateTotalStudyHours(appState.trackerData);
+  const totalHours = Math.max(localTotal, appState.verifiedTotalHours || 0);
   const todayHours = calculateTodayStudyHours(appState.trackerData);
   const totalHoursEl = document.getElementById("totalHoursPassport");
   const todayHoursEl = document.getElementById("todayHoursPassport");

@@ -123,7 +123,7 @@ export const profileModal = `
                 <button id="switchToEditProfileBtn" class="social-btn btn-solid">Edit Profile</button>
                 <button id="closeProfileModalAlt" class="social-btn btn-outline">Back to Home</button>
               </div>
-              <button id="profileSignOutBtn" class="social-btn btn-danger-ghost">
+              <button id="profileSignOutBtn" class="btn-danger-ghost" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; margin: 10px auto 0; padding: 6px 12px; font-size: 0.75rem; border-radius: 6px; cursor: pointer; border: none; font-weight: 600;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                 Sign Out
               </button>

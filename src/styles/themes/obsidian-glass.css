@@ -100,11 +100,6 @@ html[data-theme="obsidian-glass"] .app-header .brand {
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  mix-blend-mode: screen; /* 🛡️ Fix for logo with black background */
-}
-
-html[data-theme="obsidian-glass"] .app-logo {
-  filter: brightness(1.2) contrast(1.1);
 }
 
 /* 🌫️ CRYSTAL CONTAINERS: Ice-Sculpted Cards (ULTRA GLASS) */
@@ -122,8 +117,6 @@ html[data-theme="obsidian-glass"] .mentor-v2-container {
   border-radius: 20px !important;
   box-shadow: none !important;
 }
-
-
 
 /* ❄️ FIX: Turning White on Hover (CLEAR-SKY HUD) */
 html[data-theme="obsidian-glass"] .card:hover,

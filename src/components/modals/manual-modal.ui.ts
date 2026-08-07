@@ -509,7 +509,7 @@ export const manualModal = `
                   <tbody>
                     <tr><td><strong>Mission Dates</strong></td><td>Set your study start date and target exam/goal date. This drives the deadline countdown and streak calendar.</td></tr>
                     <tr><td><strong>Subject Columns</strong></td><td>Define your study subjects (e.g., DSA, Python, Projects) and set target hours for each.</td></tr>
-                    <tr><td><strong>Theme</strong></td><td>Switch between visual themes: Stealth Midnight (Default), Obsidian Glass, and others.</td></tr>
+                    <tr><td><strong>Theme</strong></td><td>Switch between visual themes: Obsidian Glass (Default), Stealth Midnight, and others.</td></tr>
                     <tr><td><strong>Timer Style</strong></td><td>Choose between Ring (circular) or Block (digital) timer display.</td></tr>
                     <tr><td><strong>Beast Mode</strong></td><td>Toggles Maamu AI between aggressive coaching and analytical strategy mode.</td></tr>
                     <tr><td><strong>AI API Key</strong></td><td>Add your personal Groq API key for unlimited AI Mentor access.</td></tr>

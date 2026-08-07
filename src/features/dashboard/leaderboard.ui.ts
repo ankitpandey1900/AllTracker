@@ -3,8 +3,9 @@ import { escapeHtml } from '@/utils/security';
 import { getRankColor, getRankTitle } from '@/utils/rank.utils';
 import { getRankProgression, calculateCompetitiveXP } from '@/utils/calc.utils'; // calculateCompetitiveXP used in renderUserRow & renderPodium
 import { formatDuration } from '@/utils/date.utils';
-import { NATION_FLAGS } from '@/config/constants';
-import { 
+import { NATION_FLAGS, BADGES } from '@/config/constants';
+import { appState } from '@/state/app-state';
+import {
   lbCurrentPage, 
   LB_PAGE_SIZE, 
   setLbCurrentPage,
@@ -300,6 +301,29 @@ export function renderHoverCard(
         </div>
       </div>
 
+      ${isMe ? `
+      <div class="hover-subject-container" style="margin-top: 8px;">
+        <div class="focus-label">ACHIEVEMENT TRACKER</div>
+        <div class="lb-telemetry-readout" style="padding: 10px; background: rgba(0,0,0,0.2);">
+          <div class="readout-row" style="margin-bottom: 6px;">
+            <span class="readout-key">UNLOCKED</span>
+            <span class="readout-val" style="color: var(--accent-blue, #3b82f6); font-weight: 800;">
+              ${appState.settings.unlockedBadges.length} / ${BADGES.length} BADGES
+            </span>
+          </div>
+          <div class="readout-row">
+            <span class="readout-key">NEXT TARGET</span>
+            <span class="readout-val" style="color: var(--text-primary); font-size: 0.65rem;">
+              ${(() => {
+                const lockedBadge = BADGES.find(b => !appState.settings.unlockedBadges.includes(b.id));
+                return lockedBadge ? `${lockedBadge.icon} ${lockedBadge.name}` : 'ALL UNLOCKED 🏆';
+              })()}
+            </span>
+          </div>
+        </div>
+      </div>
+      ` : ''}
+
       <div class="hover-stats">
         <div class="hover-stat-box tactical-glass-box">
           <div class="stat-name">LIFETIME_EXP</div>
@@ -466,7 +490,6 @@ export function renderUserRow(
         <div class="lb-row-total">${formatDuration(userHours) || '0H'} <span class="today-label">${lbTimeframe.toUpperCase()}</span></div>
         <div class="lb-row-today">+${formatDuration(todayHoursDisplay) || '0H'} <span class="today-label">TODAY</span></div>
         <div class="lb-row-rank-score">${rankScore.toLocaleString()} <span class="score-label">PTS</span></div>
-        </div>
       </div>
       ${renderHoverCard(u, isMe, isFocusing, streakCount)}
     </div>

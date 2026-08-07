@@ -4,77 +4,74 @@ import { formatDuration } from '@/utils/date.utils';
 /** HUD interaction events */
 export function bindLbItemEvents(): void {
   document.querySelectorAll('.leaderboard-item').forEach(item => {
-    const avatarIcon = item.querySelector('.lb-avatar-wrapper, .podium-avatar-wrapper') as HTMLElement;
-    
     // Hide the inline template so it doesn't mess with flex layouts
     const inlineCard = item.querySelector('.lb-hover-card') as HTMLElement;
     if (inlineCard) inlineCard.style.display = 'none';
 
-    if (avatarIcon) {
-      avatarIcon.onclick = (e) => {
-        e.stopPropagation();
-        if (item.classList.contains('is-me')) {
-          openProfileModal();
-        } else {
-          // Destroy any existing global HUD & Scrim
-          const existingHud = document.getElementById('active-global-hud');
-          const existingScrim = document.getElementById('active-hud-scrim');
-          if (existingHud) {
-            existingHud.classList.remove('active-hud');
-            setTimeout(() => existingHud.remove(), 300);
-          }
-          if (existingScrim) {
-            existingScrim.classList.remove('active');
-            setTimeout(() => existingScrim.remove(), 300);
-          }
+    // Bind the click to the entire item for better mobile usability
+    item.addEventListener('click', (e) => {
+      e.stopPropagation();
+      
+      if (item.classList.contains('is-me')) {
+        openProfileModal();
+      } else {
+        // Destroy any existing global HUD & Scrim
+        const existingHud = document.getElementById('active-global-hud');
+        const existingScrim = document.getElementById('active-hud-scrim');
+        if (existingHud) {
+          existingHud.classList.remove('active-hud');
+          setTimeout(() => existingHud.remove(), 300);
+        }
+        if (existingScrim) {
+          existingScrim.classList.remove('active');
+          setTimeout(() => existingScrim.remove(), 300);
+        }
 
-          if (inlineCard) {
-            const card = inlineCard.cloneNode(true) as HTMLElement;
-            card.id = 'active-global-hud';
-            card.style.display = 'flex'; // Restore flex from inline none
-            
-            
-            // Create Scrim for "Web Vibe"
-            const scrim = document.createElement('div');
-            scrim.className = 'lb-hud-scrim';
-            scrim.id = 'active-hud-scrim';
-            
-            document.body.appendChild(scrim);
-            document.body.appendChild(card);
-            
-            // Bind close button on the cloned node
-            const hudClose = card.querySelector('.lb-hud-close') as HTMLElement;
-            const closeHud = () => {
-              card.classList.remove('active-hud');
-              scrim.classList.remove('active');
-              setTimeout(() => {
-                card.remove();
-                scrim.remove();
-              }, 300);
-            };
+        if (inlineCard) {
+          const card = inlineCard.cloneNode(true) as HTMLElement;
+          card.id = 'active-global-hud';
+          card.style.display = 'flex'; // Restore flex from inline none
+          
+          // Create Scrim for "Web Vibe"
+          const scrim = document.createElement('div');
+          scrim.className = 'lb-hud-scrim';
+          scrim.id = 'active-hud-scrim';
+          
+          document.body.appendChild(scrim);
+          document.body.appendChild(card);
+          
+          // Bind close button on the cloned node
+          const hudClose = card.querySelector('.lb-hud-close') as HTMLElement;
+          const closeHud = () => {
+            card.classList.remove('active-hud');
+            scrim.classList.remove('active');
+            setTimeout(() => {
+              card.remove();
+              scrim.remove();
+            }, 300);
+          };
 
-            if (hudClose) {
-              hudClose.onclick = (e) => {
-                e.stopPropagation();
-                closeHud();
-              };
-            }
-
-            // Click scrim to close
-            scrim.onclick = (e) => {
+          if (hudClose) {
+            hudClose.onclick = (e) => {
               e.stopPropagation();
               closeHud();
             };
-
-            requestAnimationFrame(() => {
-              card.classList.add('active-hud');
-              scrim.classList.add('active');
-              animateNumbers(card);
-            });
           }
+          
+          // Allow closing by clicking on the scrim
+          scrim.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeHud();
+          });
+
+          requestAnimationFrame(() => {
+            card.classList.add('active-hud');
+            scrim.classList.add('active');
+            animateNumbers(card);
+          });
         }
-      };
-    }
+      }
+    });
   });
 }
 

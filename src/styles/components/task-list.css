@@ -102,13 +102,11 @@
   font-size: 1.5rem;
   font-weight: 900;
   color: var(--accent-purple);
-  text-shadow: 0 0 15px rgba(139, 92, 246, 0.7);
   transition: color 0.5s;
 }
 
 .hud-percent.cleared {
   color: var(--accent-green);
-  text-shadow: 0 0 20px rgba(34, 197, 94, 0.8);
 }
 
 .hud-track {
@@ -137,19 +135,11 @@
 }
 
 .hud-fill-glow {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  background: var(--accent-purple);
-  filter: blur(10px);
-  opacity: 0.8;
-  border-radius: 99px;
-  transition: width 1s cubic-bezier(0.16, 1, 0.3, 1), background 0.5s;
+  display: none;
 }
 
 .hud-fill.cleared ~ .hud-fill-glow {
-  background: var(--accent-green);
+  display: none;
 }
 
 /* =========================================
@@ -252,7 +242,6 @@
   text-transform: uppercase;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
 }
 
 .mc-add-btn svg {
@@ -263,7 +252,6 @@
 
 .mc-add-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.5);
 }
 
 .mc-add-btn:hover svg {
@@ -564,5 +552,55 @@
     border-radius: 14px;
     font-size: 1.05rem;
     letter-spacing: 1px;
+  }
+}
+
+/* =========================================
+   NEW TASK TYPE TOGGLE & DUAL PANE LAYOUT
+   ========================================= */
+
+.mc-input-dock {
+  flex-wrap: wrap;
+}
+
+.task-type-toggle {
+  display: flex;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.task-type-toggle .type-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.task-type-toggle .type-btn:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.task-type-toggle .type-btn.active {
+  background: var(--accent-purple);
+  color: white;
+}
+
+.mc-tasks-container.split-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+
+@media (max-width: 900px) {
+  .mc-tasks-container.split-layout {
+    grid-template-columns: 1fr;
   }
 }

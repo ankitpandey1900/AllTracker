@@ -18,8 +18,8 @@ export const settingsModal = `
               <label>Select Visual Theme</label>
               <div class="row" style="gap: 10px; align-items: stretch; margin-bottom: 12px;">
                 <select id="themeSelectInput" class="settings-input" style="flex: 1;">
-                  <option value="stealth-midnight">Stealth Midnight (Default)</option>
-                  <option value="obsidian-glass">Obsidian Glass</option>
+                  <option value="stealth-midnight">Stealth Midnight</option>
+                  <option value="obsidian-glass">Obsidian Glass (Default)</option>
                   <option value="tactical-navy">Tactical Navy</option>
                   <option value="solar-gold">Solar Gold</option>
                   <option value="pristine-white">Pristine White (Light Mode)</option>

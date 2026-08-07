@@ -37,6 +37,7 @@ export function renderTasks(): void {
   
   const todayList = document.getElementById('todayTasksList');
   const backlogList = document.getElementById('backlogTasksList');
+  const weeklyList = document.getElementById('weeklyTasksList');
   const historyList = document.getElementById('completedTasksList');
   const backlogBadge = document.getElementById('backlogCount');
 
@@ -44,27 +45,30 @@ export function renderTasks(): void {
 
   const tasks = appState.tasks;
 
-  let backlogTasks = tasks.filter(t => !t.completed && t.date < today);
-  const historyTasks = tasks.filter(t => t.completed).sort((a, b) => b.createdAt - a.createdAt);
+  // Separate tasks by type
+  const dailyTasks = tasks.filter(t => t.type !== 'weekly');
+  const weeklyTasks = tasks.filter(t => t.type === 'weekly');
 
-  // Senior Logic: Calculate 'Today' stats BEFORE any UI injection of future tasks
-  const todayCompleted = historyTasks.filter(t => t.date === today);
-  const todayIncomplete = tasks.filter(t => !t.completed && t.date === today);
-  const totalTodayTasks = todayIncomplete.length + todayCompleted.length;
-
-  let todayMissions = [...todayIncomplete];
-  const futureTasks = tasks.filter(t => !t.completed && t.date > today);
+  // Daily processing
+  let backlogDaily = dailyTasks.filter(t => !t.completed && t.date < today);
+  const historyDaily = dailyTasks.filter(t => t.completed).sort((a, b) => b.createdAt - a.createdAt);
   
-  // UI Convenience: If no tasks today, but we have upcoming ones, show the nearest one as 'Today'
-  // Note: We don't include this in 'Clearance' calculation.
-  if (todayMissions.length === 0 && futureTasks.length > 0) {
-    todayMissions = [futureTasks[0]];
+  const todayCompleted = historyDaily.filter(t => t.date === today);
+  const todayIncomplete = dailyTasks.filter(t => !t.completed && t.date === today);
+  const totalTodayTasks = todayIncomplete.length + todayCompleted.length;
+  
+  let todayMissions = [...todayIncomplete];
+  const futureDaily = dailyTasks.filter(t => !t.completed && t.date > today);
+  
+  if (todayMissions.length === 0 && futureDaily.length > 0) {
+    todayMissions = [futureDaily[0]];
   }
 
-  // Diagnostic Log (Structured)
-  log.debug(`Rendering Tasks: Active=${todayMissions.length}, Backlog=${backlogTasks.length}`);
+  // Weekly processing
+  let incompleteWeekly = weeklyTasks.filter(t => !t.completed);
+  const historyWeekly = weeklyTasks.filter(t => t.completed).sort((a, b) => b.createdAt - a.createdAt);
 
-  // Sort by Priority: High (3) -> Med (2) -> Low (1)
+  // Sorting
   const prioritySort = (a: StudyTask, b: StudyTask) => {
     const ap = a.priority ?? 1;
     const bp = b.priority ?? 1;
@@ -73,8 +77,10 @@ export function renderTasks(): void {
   };
 
   todayMissions.sort(prioritySort);
-  backlogTasks.sort(prioritySort);
+  backlogDaily.sort(prioritySort);
+  incompleteWeekly.sort(prioritySort);
 
+  // Clearance calculation
   const clearancePercent = totalTodayTasks > 0 ? Math.round((todayCompleted.length / totalTodayTasks) * 100) : 0;
   
   const clearanceText = document.getElementById('clearanceText');
@@ -95,14 +101,20 @@ export function renderTasks(): void {
 
   // Update Badge
   if (backlogBadge) {
-    backlogBadge.textContent = `${backlogTasks.length} Backlog`;
-    backlogBadge.className = backlogTasks.length > 0 ? 'badge-backlog active' : 'badge-backlog';
+    backlogBadge.textContent = `${backlogDaily.length} Backlog`;
+    backlogBadge.className = backlogDaily.length > 0 ? 'badge-backlog active' : 'badge-backlog';
   }
 
   // Render Lists
   todayList.innerHTML = renderTaskList(todayMissions);
-  backlogList.innerHTML = renderTaskList(backlogTasks);
-  historyList.innerHTML = renderTaskList(historyTasks.slice(0, 20)); // Limit history to last 20 items
+  backlogList.innerHTML = renderTaskList(backlogDaily);
+  if (weeklyList) {
+    weeklyList.innerHTML = renderTaskList(incompleteWeekly);
+  }
+  
+  // Combine all history for history tab, or just keep it all together
+  const allHistory = [...historyDaily, ...historyWeekly].sort((a, b) => b.createdAt - a.createdAt);
+  historyList.innerHTML = renderTaskList(allHistory.slice(0, 20));
 
   // Attach dynamic listeners
   document.querySelectorAll('.mc-task-item [data-id]').forEach(el => {
@@ -158,8 +170,21 @@ function setupTaskListeners(): void {
   const input = document.getElementById('newTaskInput') as HTMLInputElement;
   const selector = document.getElementById('taskPrioritySelector');
   const buttons = selector?.querySelectorAll('.priority-toggle');
+  const typeButtons = document.querySelectorAll('.task-type-toggle .type-btn');
 
   let activePriority: 1 | 2 | 3 = 2; // Default to Med
+  let activeType: 'daily' | 'weekly' = 'daily';
+
+  if (typeButtons.length > 0) {
+    typeButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        typeButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeType = btn.getAttribute('data-type') as 'daily' | 'weekly';
+        input.placeholder = activeType === 'daily' ? 'Initiate new objective...' : 'Initiate high-level weekly goal...';
+      });
+    });
+  }
 
   if (buttons) {
     buttons.forEach(btn => {
@@ -175,7 +200,7 @@ function setupTaskListeners(): void {
     const handleAdd = () => {
       const text = input.value.trim();
       if (!text) return;
-      addTask(text, activePriority);
+      addTask(text, activePriority, activeType);
       input.value = '';
     };
 
@@ -193,17 +218,17 @@ function handleTaskAction(e: Event): void {
   if (action === 'delete') deleteTask(id);
 }
 
-export function addTask(text: string, priority: 1 | 2 | 3 = 2): void {
+export function addTask(text: string, priority: 1 | 2 | 3 = 2, type: 'daily' | 'weekly' = 'daily'): void {
   const newTask: StudyTask = {
     id: crypto.randomUUID(),
     text,
     completed: false,
     date: getLocalIsoDate(),
     createdAt: Date.now(),
-    priority
+    priority,
+    type
   };
 
-  // Senior Developer Practice: Trigger reactivity by re-assigning the array
   appState.tasks = [...appState.tasks, newTask];
   
   saveTasks();

@@ -16,4 +16,8 @@ export interface StudyTask {
   completedAt?: number;
   /** Importance level: 1 (Low), 2 (Med), 3 (High) */
   priority?: 1 | 2 | 3;
+  /** Task type: defaults to 'daily' if missing */
+  type?: 'daily' | 'weekly';
+  /** If type is 'weekly', this holds the ISO string of the Monday of that week */
+  weekOf?: string;
 }

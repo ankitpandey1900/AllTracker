@@ -18,10 +18,19 @@
   display: none;
 }
 
+/* Prevent background scrolling when a modal is open */
+body:has(.modal.active) {
+  overflow: hidden;
+  /* Extra safeguard for mobile browsers */
+  touch-action: none;
+}
+
 .modal-content {
   width: min(480px, 100%);
   max-height: 90vh;
   overflow: auto;
+  overscroll-behavior: contain;
+  touch-action: auto;
   border-radius: 12px;
   border: 1px solid var(--border);
   background: var(--bg-secondary);

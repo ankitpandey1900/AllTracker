@@ -51,7 +51,7 @@ th {
 
 /* Checkbox look - Modern & Premium */
 .checkbox-container {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   position: relative;
@@ -134,14 +134,17 @@ th {
 #trackerTable th:nth-child(5),
 #trackerTable td:nth-child(5) {
   min-width: 140px;
+  width: 100%;
   padding-right: 16px; /* Safe padding gap before Done column */
 }
 
 /* done / action-cell column */
 .action-cell {
-  width: 100px;
-  min-width: 100px;
-  padding-right: 20px !important;
+  width: 50px !important;
+  min-width: 50px !important;
+  max-width: 50px !important;
+  padding: 0 4px !important;
+  text-align: center !important;
 }
 
 /* Row rhythm & Modern Polish */

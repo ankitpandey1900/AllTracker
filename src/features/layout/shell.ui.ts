@@ -6,10 +6,13 @@
 
 export const shellView = `
   <header id="appHeader" class="app-header backdrop-blur-md">
-    <div class="brand-group" style="flex-shrink: 0; display: flex; align-items: center; gap: 32px;">
-      <img src="/app-logo.png" alt="All Tracker Logo: High-Performance Study Management" class="app-logo" title="All Tracker — Home">
+    <div style="display: flex; align-items: center; gap: 32px;">
+      <!-- Auth State / Profile Badge (Moved to Left) -->
+      <div id="headerRight" style="display: flex; align-items: center; min-width: 0;">
+        <!-- Auth state is handled dynamically by auth.service.ts -->
+      </div>
       
-      <!-- Navigation Tabs next to Logo -->
+      <!-- Navigation Tabs -->
       <nav class="header-nav-tabs" role="tablist" style="display: flex; gap: 12px;">
         <button class="nav-item active" data-target="dashboardPane" role="tab" aria-selected="true" title="View Dashboard" aria-label="Open study dashboard">Dashboard</button>
         <button class="nav-item" data-target="tasksPane" role="tab" aria-selected="false" title="View Tasks" aria-label="Open mission task board">Tasks</button>
@@ -17,10 +20,7 @@ export const shellView = `
       </nav>
     </div>
 
-    <!-- Pushes the right actions all the way to the right -->
-    <div style="flex: 1;"></div>
-
-    <div class="header-actions" style="flex-shrink: 1; min-width: 0; display: flex; align-items: center; justify-content: flex-end; gap: 16px; white-space: nowrap;">
+    <div class="header-actions" style="display: flex; align-items: center; justify-content: flex-end; gap: 16px; white-space: nowrap;">
       
       <!-- Canvas toggle (Tool) -->
       <button id="excalidrawToggle" class="btn btn-ghost hide-mobile" style="display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 8px; font-weight: 500;" title="Toggle Canvas" aria-label="Open or close sketching canvas">
@@ -52,12 +52,7 @@ export const shellView = `
         </svg>
       </button>
 
-      <div class="header-divider" style="width: 1px; height: 24px; background: rgba(255,255,255,0.15); border-radius: 1px; margin: 0 8px;"></div>
-
-      <!-- Auth State -->
-      <div id="headerRight" style="display: flex; align-items: center; flex-shrink: 1; min-width: 0;">
-        <!-- Auth state is handled dynamically by auth.service.ts -->
-      </div>
+      <!-- Auth state moved to left -->
     </div>
   </header>
 

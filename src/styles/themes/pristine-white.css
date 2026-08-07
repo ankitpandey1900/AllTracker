@@ -55,12 +55,7 @@ html[data-theme="pristine-white"] .app-header .btn-primary * {
   color: #ffffff !important;
 }
 
-/* 4. Logo Strategy: All themes use the same app-logo.png */
-html[data-theme="pristine-white"] .app-logo {
-  filter: none !important;
-  background: transparent !important;
-  mix-blend-mode: multiply; /* Makes dark bg transparent on white */
-}
+
 
 
 /* 5. Navigation & Button Styles */

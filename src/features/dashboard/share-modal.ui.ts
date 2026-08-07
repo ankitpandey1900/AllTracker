@@ -127,7 +127,7 @@ export const shareModal = `
         </div>
       </div>
       <!-- THEME TAB BAR -->
-      <div style="
+      <div id="themeTabBar" style="
         display:flex; gap:0; margin-top:20px;
         border-bottom:1px solid rgba(255,255,255,0.06);
         overflow-x:auto; -webkit-overflow-scrolling:touch;

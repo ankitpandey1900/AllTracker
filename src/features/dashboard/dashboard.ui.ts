@@ -8,7 +8,7 @@ export const dashboardView = `
       <div class="dashboard-arena-layout">
         <div class="dashboard-main-content">
           <!-- PRIMARY MISSION CONTROL -->
-          <article class="hero card" style="border: 1px solid rgba(99, 102, 241, 0.15); margin-bottom: 24px;">
+          <article class="hero card" style="margin-bottom: 24px;">
             <div class="row-between hero-top" style="margin-bottom: 20px;">
               <h1 id="heroStatusTitle" style="font-family: 'Outfit'; font-size: 0.9rem; letter-spacing: 2px; color: var(--accent-blue); font-weight: 800; text-transform: uppercase;">MISSION STATUS</h1>
               <div style="display: flex; gap: 12px; align-items: center;">
