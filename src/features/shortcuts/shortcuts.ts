@@ -8,6 +8,7 @@
 
 import { openSettingsModal } from '@/features/settings/settings';
 import { renderHeatmapModal } from '@/features/heatmap/heatmap';
+import { CATEGORY_COLORS } from '@/config/constants';
 
 export function setupKeyboardShortcuts(): void {
   document.addEventListener('keydown', (e) => {
@@ -94,8 +95,18 @@ export function showWeeklySummary(): void {
         });
       }
     });
-    
-    const displayCols = getColumnsForDay(week[0].day);
+    // Collect unique display columns from ALL days in the week (not just the first)
+    const colNameSet = new Set<string>();
+    const displayCols: any[] = [];
+    week.forEach(day => {
+      const dayCols = getColumnsForDay(day.day);
+      dayCols.forEach((col: any) => {
+        if (!colNameSet.has(col.name)) {
+          colNameSet.add(col.name);
+          displayCols.push(col);
+        }
+      });
+    });
     return { week, wi, displayCols, catMap, completed, totalHours };
   });
 
@@ -112,6 +123,15 @@ export function showWeeklySummary(): void {
   if (currentWeekIndex === -1) currentWeekIndex = cachedWeekData.length - 1;
 
   renderSingleWeek();
+  // Apply user's accent color directly on the modal to override theme defaults
+  const accentColor = appState.settings.accentColor;
+  if (accentColor && modal) {
+    const r = parseInt(accentColor.slice(1, 3), 16);
+    const g = parseInt(accentColor.slice(3, 5), 16);
+    const b = parseInt(accentColor.slice(5, 7), 16);
+    modal.style.setProperty('--wm-accent', accentColor);
+    modal.style.setProperty('--wm-accent-rgb', `${r}, ${g}, ${b}`);
+  }
   modal.classList.add('active');
 }
 
@@ -128,6 +148,32 @@ function renderSingleWeek(): void {
     if (val > maxCatHours) maxCatHours = val;
   });
 
+  const lastWeekData = currentWeekIndex > 0 ? cachedWeekData[currentWeekIndex - 1] : null;
+  const lastWeekTotalHours = lastWeekData ? lastWeekData.totalHours : 0;
+  
+  const diffHours = totalHours - lastWeekTotalHours;
+  const diffHoursAbs = Math.abs(diffHours);
+  const diffH = Math.floor(diffHoursAbs);
+  const diffM = Math.round((diffHoursAbs - diffH) * 60);
+  const hoursTrendText = lastWeekTotalHours === 0 ? "No previous data" : (diffHours >= 0 ? `+${diffH}h ${diffM}m vs last week` : `-${diffH}h ${diffM}m vs last week`);
+  
+
+  const lastWeekAvg = lastWeekTotalHours / 7;
+  const diffAvg = weeklyAvg - lastWeekAvg;
+  const diffAvgAbs = Math.abs(diffAvg);
+  const diffAvgH = Math.floor(diffAvgAbs);
+  const diffAvgM = Math.round((diffAvgAbs - diffAvgH) * 60);
+  const avgTrendText = lastWeekTotalHours === 0 ? "No previous data" : (diffAvg >= 0 ? `+${diffAvgH}h ${diffAvgM}m vs last week` : `-${diffAvgH}h ${diffAvgM}m vs last week`);
+  
+  const focusScore = Math.min(100, Math.round((completed / 7 * 50) + (Math.min(totalHours, 40) / 40 * 50)));
+  const focusMsg = focusScore >= 80 ? 'Great consistency!' : (focusScore >= 50 ? 'Good effort!' : 'Needs more focus!');
+
+  const formatHM = (hours: number) => {
+    const h = Math.floor(hours);
+    const m = Math.round((hours - h) * 60);
+    return `${h}h ${m < 10 ? '0' + m : m}m`;
+  };
+
   content.innerHTML = `
     <div class="wm-nav">
       <button class="wm-nav-btn" id="prevWeekBtn" ${currentWeekIndex === 0 ? 'disabled' : ''}>
@@ -135,34 +181,65 @@ function renderSingleWeek(): void {
       </button>
       <div class="wm-nav-title">
         <div class="wm-nav-week">WEEK ${wi + 1}</div>
-        <div class="wm-nav-dates">${formatDate(new Date(week[0].date))} → ${formatDate(new Date(week[week.length - 1].date))}</div>
+        <div class="wm-nav-dates"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px; margin-bottom:-1px; opacity:0.7;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${formatDate(new Date(week[0].date))} – ${formatDate(new Date(week[week.length - 1].date))}</div>
       </div>
       <button class="wm-nav-btn" id="nextWeekBtn" ${currentWeekIndex === cachedWeekData.length - 1 ? 'disabled' : ''}>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
       </button>
     </div>
 
-    <div class="wm-hero">
-      <div class="wm-hero-stat">
-        <div class="wm-hero-val">${totalHours.toFixed(1)}<span class="wm-hero-unit">h</span></div>
-        <div class="wm-hero-lbl">Total Hours</div>
+    <div class="wm-hero-grid">
+      <div class="wm-hero-card">
+        <div class="wm-hc-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <div class="wm-hc-info">
+          <div class="wm-hc-lbl">Total Hours</div>
+          <div class="wm-hc-val">${formatHM(totalHours)}</div>
+          <div class="wm-hc-trend">${hoursTrendText}</div>
+        </div>
       </div>
-      <div class="wm-hero-divider"></div>
-      <div class="wm-hero-stat highlight">
-        <div class="wm-hero-val">${weeklyAvg.toFixed(1)}<span class="wm-hero-unit">h/d</span></div>
-        <div class="wm-hero-lbl">Weekly Avg</div>
+      <div class="wm-hero-card">
+        <div class="wm-hc-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg></div>
+        <div class="wm-hc-info">
+          <div class="wm-hc-lbl">Weekly Avg</div>
+          <div class="wm-hc-val">${formatHM(weeklyAvg)} <span style="font-size:0.5em; opacity:0.6;">/day</span></div>
+          <div class="wm-hc-trend">${avgTrendText}</div>
+        </div>
+      </div>
+      <div class="wm-hero-card">
+        <div class="wm-hc-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M9 16l2 2 4-4"/></svg></div>
+        <div class="wm-hc-info">
+          <div class="wm-hc-lbl">Active Days</div>
+          <div class="wm-hc-val">${completed} <span style="font-size:0.5em; opacity:0.6;">/ 7</span></div>
+          <div class="wm-hc-trend">Days Active</div>
+        </div>
+      </div>
+      <div class="wm-hero-card">
+        <div class="wm-hc-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div>
+        <div class="wm-hc-info">
+          <div class="wm-hc-lbl">Focus Score</div>
+          <div class="wm-hc-val">${focusScore} <span style="font-size:0.5em; opacity:0.6;">/100</span></div>
+          <div class="wm-hc-trend">${focusMsg}</div>
+        </div>
       </div>
     </div>
 
     <div class="wm-heatmap-card">
       <div class="wm-cons-header">
         <span class="wm-cons-title">Activity Heatmap</span>
-        <span class="wm-cons-val">${completed}<span class="wm-cons-total">/7 Days Active</span></span>
+        <div class="wm-hm-legend">
+          <span style="font-size:0.75rem; color:var(--wm-text-muted);">Less</span>
+          <div class="wm-hm-legend-cell" style="opacity:0.1;"></div>
+          <div class="wm-hm-legend-cell" style="opacity:0.3;"></div>
+          <div class="wm-hm-legend-cell" style="opacity:0.5;"></div>
+          <div class="wm-hm-legend-cell" style="opacity:0.7;"></div>
+          <div class="wm-hm-legend-cell" style="opacity:1.0; background:var(--wm-accent); border-color:var(--wm-accent);"></div>
+          <span style="font-size:0.75rem; color:var(--wm-text-muted);">More</span>
+        </div>
       </div>
       <div class="wm-heatmap-grid">
         <div class="wm-hm-row header">
           <div class="wm-hm-label"></div>
-          ${week.map((d: any) => `<div class="wm-hm-day">${new Date(d.date).toLocaleDateString('en-US', { weekday: 'narrow' })}</div>`).join('')}
+          ${week.map((d: any) => `<div class="wm-hm-day">${new Date(d.date).toLocaleDateString('en-US', { weekday: 'short' })}</div>`).join('')}
         </div>
         ${displayCols.map((col: any, ci: number) => `
           <div class="wm-hm-row">
@@ -185,19 +262,24 @@ function renderSingleWeek(): void {
     </div>
 
     <div class="wm-subjects">
-      <div class="wm-subjects-title">Subject Breakdown</div>
+      <div class="wm-subjects-header">
+        <div class="wm-subjects-title">Subject Breakdown</div>
+        <div class="wm-subjects-total">Total: ${formatHM(totalHours)}</div>
+      </div>
       <div class="wm-bars-container">
-        ${displayCols.map((col: any) => {
+        ${displayCols.map((col: any, ci: number) => {
           const val = catMap.get(col.name) || 0;
           const pct = maxCatHours > 0 ? (val / maxCatHours) * 100 : 0;
+          const overallPct = totalHours > 0 ? (val / totalHours) * 100 : 0;
+          const color = CATEGORY_COLORS[ci % CATEGORY_COLORS.length];
           return `
             <div class="wm-bar-row">
-              <div class="wm-bar-header">
-                <span class="wm-bar-name">${col.name}</span>
-                <span class="wm-bar-val">${val.toFixed(1)}h</span>
-              </div>
+              <div class="wm-bar-dot" style="background: ${color}"></div>
+              <div class="wm-bar-name">${col.name}</div>
+              <div class="wm-bar-val">${formatHM(val)}</div>
+              <div class="wm-bar-pct">${Math.round(overallPct)}%</div>
               <div class="wm-bar-track">
-                <div class="wm-bar-fill" style="width: ${pct}%"></div>
+                <div class="wm-bar-fill" style="width: ${pct}%; background: ${color}; box-shadow: 0 0 10px ${color}80;"></div>
               </div>
             </div>
           `;

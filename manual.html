@@ -380,6 +380,7 @@
 
       <div class="doc-sidebar-label">Advanced</div>
       <a href="#doc-heatmap"><span class="nav-icon">🗺️</span> Heatmap</a>
+      <a href="#doc-weekly"><span class="nav-icon">📅</span> Weekly Summary</a>
       <a href="#doc-settings"><span class="nav-icon">⚙️</span> Settings</a>
       <a href="#doc-shortcuts"><span class="nav-icon">⌨️</span> Hotkeys</a>
     </nav>
@@ -666,6 +667,49 @@
           <div class="doc-feature-card"><div class="icon">🎨</div><div class="title">Color Intensity</div><div class="desc">Cells scale from dim (light study) to bright (heavy study) so you can spot gaps and strong weeks instantly.</div></div>
         </div>
         <p style="margin-top: 12px;">Open the Heatmap anytime with <kbd>Ctrl + H</kbd>.</p>
+      </section>
+
+      <div class="doc-divider"></div>
+
+      <!-- WEEKLY SUMMARY -->
+      <section class="doc-section" id="doc-weekly">
+        <div class="doc-breadcrumb">Advanced <b>›</b> Weekly Summary</div>
+        <h2 class="doc-h2">Weekly Summary</h2>
+        <p>The Weekly Summary (<kbd>Ctrl + W</kbd>) gives you a comprehensive dashboard of your study performance for each 7-day period. It includes 4 hero cards, an activity heatmap, and a subject breakdown.</p>
+
+        <div class="doc-feature-grid">
+          <div class="doc-feature-card"><div class="icon">⏱️</div><div class="title">Total Hours</div><div class="desc">The total study time logged across all subjects for the week, with a trend comparison against the previous week.</div></div>
+          <div class="doc-feature-card"><div class="icon">📊</div><div class="title">Weekly Average</div><div class="desc">Your average daily study time (Total Hours ÷ 7), shown in hours and minutes per day.</div></div>
+          <div class="doc-feature-card"><div class="icon">📅</div><div class="title">Active Days</div><div class="desc">The number of days (out of 7) where you logged at least one study session.</div></div>
+          <div class="doc-feature-card"><div class="icon">🎯</div><div class="title">Focus Score</div><div class="desc">A composite score out of 100 measuring your weekly discipline. See the formula below.</div></div>
+        </div>
+
+        <h3 style="font-size: 1rem; font-weight: 700; color: #e2e8f0; margin-top: 28px; margin-bottom: 12px;">🧮 Focus Score Formula</h3>
+        <p>The Focus Score is a <strong>50/50 weighted blend</strong> of consistency and volume:</p>
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 16px 20px; margin: 12px 0 16px; font-family: monospace; font-size: 0.9rem; color: #818cf8;">
+          Focus Score = min(100, (Active Days / 7 × 50) + (min(Total Hours, 40) / 40 × 50))
+        </div>
+        <div class="doc-table-wrap">
+          <table class="doc-table">
+            <thead><tr><th>COMPONENT</th><th>WEIGHT</th><th>HOW IT WORKS</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Consistency</strong></td><td>50%</td><td>Rewards showing up every day. 7/7 active days = full 50 points.</td></tr>
+              <tr><td><strong>Volume</strong></td><td>50%</td><td>Rewards total study time, capped at 40 hours/week. 40h+ = full 50 points.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="margin-top: 12px;"><strong>Score interpretation:</strong></p>
+        <ul style="margin-left: 20px; margin-top: 6px; list-style: disc;">
+          <li><strong>80–100:</strong> Great consistency! 🔥</li>
+          <li><strong>50–79:</strong> Good effort! Keep pushing.</li>
+          <li><strong>0–49:</strong> Needs more focus. Try to study more days and log more hours.</li>
+        </ul>
+
+        <h3 style="font-size: 1rem; font-weight: 700; color: #e2e8f0; margin-top: 28px; margin-bottom: 12px;">🗺️ Activity Heatmap</h3>
+        <p>A per-subject × per-day grid showing study intensity. Brighter cells = more hours on that subject that day. Includes a Less → More legend.</p>
+
+        <h3 style="font-size: 1rem; font-weight: 700; color: #e2e8f0; margin-top: 28px; margin-bottom: 12px;">📋 Subject Breakdown</h3>
+        <p>Lists each subject with its total hours, percentage of the week's total, and a color-coded progress bar.</p>
       </section>
 
       <div class="doc-divider"></div>

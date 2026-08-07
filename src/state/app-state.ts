@@ -50,6 +50,19 @@ export function applyAccentColorToDOM(color: string) {
   document.documentElement.style.setProperty('--zen-accent', color);
   document.documentElement.style.setProperty('--etn-accent', color);
   document.documentElement.style.setProperty('--accent-purple', color);
+  document.documentElement.style.setProperty('--wm-accent', color);
+  // Parse hex to RGB for rgba() usage
+  const r = parseInt(color.slice(1, 3), 16);
+  const g = parseInt(color.slice(3, 5), 16);
+  const b = parseInt(color.slice(5, 7), 16);
+  const rgb = `${r}, ${g}, ${b}`;
+  document.documentElement.style.setProperty('--wm-accent-rgb', rgb);
+  // Also set directly on weeklyModal to override theme-scoped CSS specificity
+  const weeklyModal = document.getElementById('weeklyModal');
+  if (weeklyModal) {
+    weeklyModal.style.setProperty('--wm-accent', color);
+    weeklyModal.style.setProperty('--wm-accent-rgb', rgb);
+  }
 }
 
 /** Applies the timer style class to the body */
