@@ -230,17 +230,17 @@ function addCustomRangeToDOM(range: Partial<CustomRange>, index: number): void {
   div.className = 'custom-range-item settings-card';
   div.style.marginBottom = '20px';
   div.innerHTML = `
-    <div class="settings-card-header phase-header-toggle" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; user-select: none;">
-      <div style="display: flex; align-items: center;">
-        <h4 style="margin: 0; font-size: 0.9rem; font-weight: 700; color: var(--text-primary); letter-spacing: 0.5px; text-transform: uppercase;">Study Phase ${index + 1}</h4>
-        ${isCompleted ? '<span style="color: #ef4444; font-size: 0.6rem; margin-left: 10px; font-weight: 800; border: 1px solid rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.1); padding: 3px 8px; border-radius: 12px;">FINISHED</span>' : ''}
-        <input type="text" class="settings-input range-name" value="${range.name || ''}" placeholder="Enter phase name..." style="font-size: 0.8rem; width: 200px; margin-left: 20px; background: rgba(0,0,0,0.15); border-color: transparent;" onclick="event.stopPropagation()">
+    <div class="settings-card-header phase-header-toggle" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 8px; user-select: none;">
+      <div style="display: flex; align-items: center; flex: 1; min-width: 0; gap: 8px;">
+        <h4 style="margin: 0; font-size: 0.9rem; font-weight: 700; color: var(--text-primary); letter-spacing: 0.5px; text-transform: uppercase; white-space: nowrap; flex-shrink: 0;">Phase ${index + 1}</h4>
+        ${isCompleted ? '<span style="color: #ef4444; font-size: 0.6rem; font-weight: 800; border: 1px solid rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.1); padding: 3px 8px; border-radius: 12px; white-space: nowrap; flex-shrink: 0;">FINISHED</span>' : ''}
+        <input type="text" class="settings-input range-name" value="${range.name || ''}" placeholder="Name..." style="font-size: 0.8rem; flex: 1; min-width: 60px; max-width: 180px; background: rgba(0,0,0,0.15); border-color: transparent;" onclick="event.stopPropagation()">
       </div>
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <span class="toggle-icon" style="font-size: 0.8rem; color: var(--text-muted); transition: transform 0.2s;">
+      <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+        <span class="toggle-icon" style="font-size: 0.8rem; color: var(--text-muted); transition: transform 0.2s; flex-shrink: 0;">
           ${isCompleted ? '&#9660;' : '&#9650;'}
         </span>
-        <button class="btn-remove-item" title="Remove Range" onclick="event.stopPropagation()" style="position: relative; background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.background='#ef4444'; this.style.color='#fff'" onmouseout="this.style.background='rgba(239, 68, 68, 0.1)'; this.style.color='#ef4444'">
+        <button class="btn-remove-item" title="Remove Range" onclick="event.stopPropagation()" style="position: relative; background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: all 0.2s; flex-shrink: 0;" onmouseover="this.style.background='#ef4444'; this.style.color='#fff'" onmouseout="this.style.background='rgba(239, 68, 68, 0.1)'; this.style.color='#ef4444'">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </button>
       </div>

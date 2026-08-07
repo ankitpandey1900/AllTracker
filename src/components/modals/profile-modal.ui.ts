@@ -142,7 +142,7 @@ export const profileModal = `
               <div class="edit-group" style="margin-bottom: 25px;">
                 <label class="social-input-label" style="text-align: center; width: 100%; display: block; margin-bottom: 12px; font-size: 0.75rem; letter-spacing: 2px;">SELECT TACTICAL ARCHETYPE</label>
                 <div id="avatarPickerContainer" class="avatar-vault-grid">
-                  <div id="avatarPickerGrid" class="avatar-social-grid" style="grid-template-columns: repeat(6, 1fr); gap: 6px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                  <div id="avatarPickerGrid" class="avatar-social-grid" style="grid-template-columns: repeat(auto-fit, minmax(40px, 1fr)); gap: 6px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
                     <!-- Avatar items injected/setup in profile.ui.ts -->
                   </div>
                 </div>

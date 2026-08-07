@@ -676,13 +676,12 @@ body:has(.modal.active) {
 #historyModal .modal-content.wide {
   width: min(1040px, 98%) !important;
   max-width: 98% !important;
-  background: rgba(13, 17, 23, 0.85) !important;
-  backdrop-filter: blur(20px) !important;
 }
 
 #historyModal .modal-body {
   padding: 12px 10px !important;
   overflow-x: hidden !important;
+  width: 100% !important;
 }
 
 #historyModal .responsive-table-container {

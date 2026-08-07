@@ -1,6 +1,6 @@
 {
   "name": "all-tracker",
-  "version": "4.3.0",
+  "version": "4.4.0",
   "engines": {
     "node": "24.x"
   },
@@ -39,7 +39,7 @@
     "ai": "^7.0.52",
     "better-auth": "^1.3.7",
     "chart.js": "^4.5.1",
-    "html2canvas": "^1.4.1",
+    "html-to-image": "^1.11.13",
     "pg": "^8.16.3",
     "resend": "^6.18.1"
   }

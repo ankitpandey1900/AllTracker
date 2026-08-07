@@ -126,16 +126,40 @@ export async function renderSessionHistory(): Promise<void> {
     const rangeText = firstDate === lastDate
       ? fmtDMY(firstDate)
       : `${fmtDMY(firstDate)} → ${fmtDMY(lastDate)}`;
+    const chartSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.6;"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>`;
+    const clockSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.6;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`;
+    const coffeeSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.6;"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>`;
+    const calSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.6;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>`;
+
     statsBar.innerHTML = `
-      <span class="sh-stat"><span class="sh-stat-val" id="sh-stat-count">${displayLogs.length}</span><span class="sh-stat-lbl">Sessions</span></span>
-      <span class="sh-stat-div"></span>
-      <span class="sh-stat"><span class="sh-stat-val">${formatDuration(totalHours)}</span><span class="sh-stat-lbl">Total Time</span></span>
-      ${totalBreakMins > 0 ? `
-        <span class="sh-stat-div"></span>
-        <span class="sh-stat"><span class="sh-stat-val" id="sh-stat-break" style="color:#38bdf8">${formatMinutes(totalBreakMins)}</span><span class="sh-stat-lbl">Total Break</span></span>
-      ` : ''}
-      <span class="sh-stat-div"></span>
-      <span class="sh-stat"><span class="sh-stat-val sh-stat-range">${rangeText}</span><span class="sh-stat-lbl">Date Range</span></span>
+      <div class="sh-stat-card">
+        <div class="sh-stat-icon-wrapper">${chartSvg}</div>
+        <div class="sh-stat-content">
+          <span class="sh-stat-val" id="sh-stat-count">${displayLogs.length}</span>
+          <span class="sh-stat-lbl">Sessions</span>
+        </div>
+      </div>
+      <div class="sh-stat-card">
+        <div class="sh-stat-icon-wrapper">${clockSvg}</div>
+        <div class="sh-stat-content">
+          <span class="sh-stat-val">${formatDuration(totalHours)}</span>
+          <span class="sh-stat-lbl">Total Time</span>
+        </div>
+      </div>
+      <div class="sh-stat-card" style="opacity: ${totalBreakMins > 0 ? '1' : '0.4'}">
+        <div class="sh-stat-icon-wrapper">${coffeeSvg}</div>
+        <div class="sh-stat-content">
+          <span class="sh-stat-val" id="sh-stat-break">${totalBreakMins > 0 ? formatMinutes(totalBreakMins) : '0m'}</span>
+          <span class="sh-stat-lbl">Total Break</span>
+        </div>
+      </div>
+      <div class="sh-stat-card">
+        <div class="sh-stat-icon-wrapper">${calSvg}</div>
+        <div class="sh-stat-content">
+          <span class="sh-stat-val sh-stat-range">${rangeText.replace(' → ', ' – ')}</span>
+          <span class="sh-stat-lbl">Date Range</span>
+        </div>
+      </div>
     `;
     statsBar.style.display = 'flex';
 
@@ -147,19 +171,17 @@ export async function renderSessionHistory(): Promise<void> {
     });
   }
 
-  const dateMap = new Map<string, { total_hours: number, total_breaks: number, session_count: number, subjects: Map<string, any[]> }>();
+  const dateMap = new Map<string, { total_hours: number, total_breaks: number, session_count: number, sessions: any[] }>();
 
   displayLogs.forEach((log: any) => {
     const d = log.log_date || (log.end_at || '').split('T')[0];
     if (!d || d === 'null') return;
-    if (!dateMap.has(d)) dateMap.set(d, { total_hours: 0, total_breaks: 0, session_count: 0, subjects: new Map() });
+    if (!dateMap.has(d)) dateMap.set(d, { total_hours: 0, total_breaks: 0, session_count: 0, sessions: [] });
     const dayData = dateMap.get(d)!;
     dayData.total_hours += (log.duration || 0);
     dayData.total_breaks += parseBreaks(log.note || '').mins;
     dayData.session_count++;
-    const sub = log.subject || 'General';
-    if (!dayData.subjects.has(sub)) dayData.subjects.set(sub, []);
-    dayData.subjects.get(sub)!.push(log);
+    dayData.sessions.push(log);
   });
 
   const sortedDates = Array.from(dateMap.keys()).sort((a, b) => b.localeCompare(a));
@@ -168,11 +190,22 @@ export async function renderSessionHistory(): Promise<void> {
   sortedDates.forEach((date, idx) => {
     const dayData = dateMap.get(date)!;
     const rel = getRelativeDate(date);
+    
+    // Sort sessions chronologically
+    const sessions = dayData.sessions.sort((a: any, b: any) => {
+      const tA = new Date(a.start_at || a.end_at || 0).getTime();
+      const tB = new Date(b.start_at || b.end_at || 0).getTime();
+      return tA - tB;
+    });
+
+    const calendarSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sh-calendar-icon"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>`;
+    const chevronSvg = `<div class="sh-chevron-box"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sh-chevron-icon"><polyline points="9 18 15 12 9 6"></polyline></svg></div>`;
 
     rows.push(`
       <div class="sh-date-row sh-row" data-date="${date}" style="animation-delay: ${idx * 0.05}s">
         <div class="sh-date-label">
-          <span class="sh-chevron">▶</span>
+          ${chevronSvg}
+          <div class="sh-date-icon-box">${calendarSvg}</div>
           <div class="sh-date-stack">
             <span class="sh-date-primary">${rel.primary}</span>
             <span class="sh-date-secondary">${rel.day}</span>
@@ -180,82 +213,52 @@ export async function renderSessionHistory(): Promise<void> {
         </div>
         <div class="sh-date-sessions-label">
           ${dayData.session_count} session${dayData.session_count !== 1 ? 's' : ''}
-          ${dayData.total_breaks > 0 ? `<span style="color:#38bdf8; margin-left:8px; opacity:0.8;">${formatMinutes(dayData.total_breaks)} break</span>` : ''}
+          ${dayData.total_breaks > 0 ? `<div class="sh-break-label">${formatMinutes(dayData.total_breaks)} break</div>` : ''}
         </div>
-        <div class="sh-total-hours">${formatDuration(dayData.total_hours)}</div>
+        <div class="sh-total-hours" style="color: var(--sh-accent); font-weight: 500;">${formatDuration(dayData.total_hours)}</div>
+        <div></div>
         <div></div>
         <div></div>
       </div>
     `);
 
-    Array.from(dayData.subjects.keys()).forEach(subName => {
-      const sessions = dayData.subjects.get(subName)!.sort((a: any, b: any) => {
-        const tA = new Date(a.start_at || a.end_at || 0).getTime();
-        const tB = new Date(b.start_at || b.end_at || 0).getTime();
-        return tA - tB;
-      });
-      const subHours = sessions.reduce((s: number, l: any) => s + (l.duration || 0), 0);
+    sessions.forEach((log: any, idx: number) => {
+      const subName = log.subject || 'General';
       const col = getSubjectColor(subName);
-      const subBreaks = sessions.reduce((s: number, l: any) => s + parseBreaks(l.note || '').mins, 0);
+      const duration = log.duration || 0;
+      const startTime = log.start_at ? formatTime12h(log.start_at) : '—';
+      const endTime = log.end_at ? formatTime12h(log.end_at) : '—';
+      let note = (log.note && log.note !== 'null' && log.note.trim()) ? log.note : '';
+      const breakInfo = parseBreaks(note);
       
+      const cleanNote = note.replace(/\[Breaks:\s*.+?\]/gi, '').trim();
+      const safeNote = note.replace(/"/g, '&quot;');
+      const noteDisplay = cleanNote ? cleanNote : '<span style="opacity:0.28;">—</span>';
+      
+      const breakBadge = breakInfo.count > 0
+        ? `<span class="sh-break-badge" style="color: var(--sh-accent); margin-left: 8px; font-size: 0.7rem;">${breakInfo.count} BREAK${breakInfo.count > 1 ? 'S' : ''} ${breakInfo.mins > 0 ? `(${formatMinutes(breakInfo.mins)})` : ''}</span>`
+        : '';
+        
+      const lockedSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`;
+
       rows.push(`
-        <div class="sh-subject-row sh-row sh-child sh-child-${date}">
-          <div style="display:flex; align-items:center; gap:8px;">
-            <span class="sh-subject-badge" style="background:${col.bg}; border-color:${col.border}; color:${col.text};">${subName}</span>
-            <span class="sh-subject-count">
-              ${sessions.length} session${sessions.length > 1 ? 's' : ''}
-              ${subBreaks > 0 ? `<span style="color:#38bdf8; margin-left:6px; opacity:0.7; font-size:0.6rem;">${formatMinutes(subBreaks)} break</span>` : ''}
-            </span>
+        <div class="sh-session-row sh-row sh-child sh-child-${date}" data-session-id="${log.id}" data-session-duration="${duration}" data-session-subject="${subName}" data-session-note="${safeNote}" data-date="${log.log_date}">
+          <div class="sh-session-num">
+            <div class="sh-dot" style="background:${col.text}; box-shadow: 0 0 8px ${col.text}88;"></div>
+            <span style="opacity: 0.7;">Session ${idx + 1}</span> ${breakBadge}
           </div>
-          <div></div>
-          <div class="sh-sub-hours" style="color:${col.text};">${formatDuration(subHours)}</div>
-          <div></div>
-          <div></div>
+          <div class="sh-time">${startTime}<span class="sh-time-sep">–</span>${endTime}</div>
+          <div class="sh-duration" style="color: var(--sh-accent); font-weight: 500;">${formatDuration(duration)}</div>
+          <div class="sh-category" style="color: var(--text-muted);">${subName}</div>
+          <div class="sh-note${cleanNote ? '' : ' empty'}" title="${safeNote}">${noteDisplay}</div>
+          <div class="sh-actions">
+            ${isRowEditable(log.log_date) ? `
+              <button class="sh-btn-edit" title="Edit session" data-id="${log.id}" data-duration="${duration}" data-subject="${subName}" data-note="${safeNote}">✎</button>
+              <button class="sh-btn-delete" title="Delete session" data-id="${log.id}">🗑</button>
+            ` : `<span style="opacity:0.6; font-size: 0.7rem; display:flex; align-items:center;">${lockedSvg} Locked</span>`}
+          </div>
         </div>
       `);
-
-      sessions.forEach((log: any, idx: number) => {
-        const duration = log.duration || 0;
-        const startTime = log.start_at ? formatTime12h(log.start_at) : '—';
-        const endTime = log.end_at ? formatTime12h(log.end_at) : '—';
-        let note = (log.note && log.note !== 'null' && log.note.trim()) ? log.note : '';
-        const breakInfo = parseBreaks(note);
-        const breakBadge = breakInfo.count > 0
-          ? `<span class="sh-break-badge">${breakInfo.count} BREAK${breakInfo.count > 1 ? 'S' : ''} ${breakInfo.mins > 0 ? `(${formatMinutes(breakInfo.mins)})` : ''}</span>`
-          : '';
-        const sessionNum = idx + 1;
-        const barW = maxDuration > 0 ? Math.max(6, Math.round((duration / maxDuration) * 100)) : 6;
-        const cleanNote = note.replace(/\[Breaks:\s*.+?\]/gi, '').trim();
-        const safeNote = note.replace(/"/g, '&quot;');
-        const breakMatch = note.match(/\[Breaks:\s*(.+?)\]/i);
-        const breakDetails = breakMatch ? breakMatch[1] : '';
-        const noteDisplay = cleanNote 
-          ? cleanNote 
-          : (breakDetails ? `<span style="color:#38bdf8; font-size:0.7rem; opacity:0.85; font-style:italic;">Break: ${breakDetails}</span>` : '<span style="opacity:0.28;">—</span>');
-
-        rows.push(`
-          <div class="sh-session-row sh-row sh-child sh-child-${date}${idx % 2 === 1 ? ' alt' : ''}" data-session-id="${log.id}" data-session-duration="${duration}" data-session-subject="${subName}" data-session-note="${safeNote}" data-date="${log.log_date}">
-            <div class="sh-session-num">Session ${sessionNum} ${breakBadge}</div>
-            <div class="sh-time">
-              ${startTime}<span class="sh-time-sep">–</span>${endTime}
-            </div>
-            <div class="sh-duration">
-              <span class="sh-dur-val">${formatDuration(duration)}</span>
-              <div class="sh-dur-bar" title="Session Intensity: ${barW}% of daily peak">
-                <div class="sh-dur-fill" style="width:${barW}%; background:${col.text};"></div>
-              </div>
-            </div>
-            <div class="sh-category" style="color:${col.text};">${subName}</div>
-            <div class="sh-note${cleanNote ? '' : ' empty'}" title="${safeNote}">${noteDisplay}</div>
-            <div class="sh-actions">
-              ${isRowEditable(log.log_date) ? `
-                <button class="sh-btn-edit" title="Edit session" data-id="${log.id}" data-duration="${duration}" data-subject="${subName}" data-note="${safeNote}">✎</button>
-                <button class="sh-btn-delete" title="Delete session" data-id="${log.id}">🗑</button>
-              ` : '<span style="opacity:0.2; font-size: 0.7rem; letter-spacing: 1px;">LOCKED</span>'}
-            </div>
-          </div>
-        `);
-      });
     });
   });
 

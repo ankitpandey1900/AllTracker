@@ -357,8 +357,8 @@ export async function writeVault(
                 (t->>'completed')::boolean, 
                 (t->>'date')::date, 
                 (t->>'priority')::integer,
-                case when t->>'createdAt' is not null then (t->>'createdAt')::timestamp else now() end,
-                case when t->>'completedAt' is not null then (t->>'completedAt')::timestamp else null end
+                case when t->>'createdAt' is not null then to_timestamp((t->>'createdAt')::numeric / 1000) else now() end,
+                case when t->>'completedAt' is not null then to_timestamp((t->>'completedAt')::numeric / 1000) else null end
               from jsonb_array_elements($2::jsonb) as t
             `,
             [profile.profileId, JSON.stringify(data)],

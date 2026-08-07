@@ -18,8 +18,11 @@ export const dashboardView = `
                 <button id="shareStatsBtn" class="btn-icon" title="Share Performance">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
                 </button>
-                <div class="hero-day-chip" style="background: var(--bg-tertiary); padding: 6px 14px; border-radius: 99px; border: 1px solid var(--border);">
-                  <span id="currentDay" style="font-weight: 800; font-size: 0.8rem; color: var(--accent-blue);">DAY 0</span>
+                <!-- Refined Premium Day Chip -->
+                <div class="hero-day-chip" style="background: rgba(255,255,255,0.03); padding: 6px 14px; border-radius: 99px; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 2px 8px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 8px; backdrop-filter: blur(8px);">
+                  <!-- Crisp Accent Dot -->
+                  <div style="width: 5px; height: 5px; background: #8B5CF6; border-radius: 50%;"></div>
+                  <span id="currentDay" style="font-weight: 700; font-size: 0.75rem; color: #E5E7EB; letter-spacing: 1px;">DAY 0</span>
                 </div>
               </div>
             </div>

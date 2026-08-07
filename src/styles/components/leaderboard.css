@@ -1438,8 +1438,8 @@
   @media (max-width: 500px) {
   .pilot-hud-pill {
     padding: 3px 10px 3px 4px;
-    font-size: 0.75rem;
-    max-width: 160px;
+    font-size: 0.7rem;
+    max-width: 110px;
   }
   
   .pilot-hud-avatar {

@@ -4,16 +4,15 @@
 export const historyModal = `
   <style>
     #historyModal {
-      /* Base Theme Variables - Can be overridden by specific themes */
-      --sh-accent: #60a5fa;
-      --sh-accent-rgb: 96, 165, 250;
-      --sh-bg: #070c1a;
-      --sh-header-bg: #0b1121;
-      --sh-border: rgba(var(--sh-accent-rgb), 0.16);
-      --sh-card-bg: rgba(var(--sh-accent-rgb), 0.042);
-      --sh-hover: rgba(var(--sh-accent-rgb), 0.09);
-      --sh-text: #f1f5f9;
-      --sh-text-muted: rgba(255, 255, 255, 0.5);
+      /* Base Theme Variables - Mockup Exact Colors */
+      --sh-accent: #3b82f6; /* Soft blue */
+      --sh-bg: #121212; /* Dark flat background */
+      --sh-header-bg: #121212;
+      --sh-border: #27272a; /* Zinc 800 */
+      --sh-card-bg: rgba(255,255,255,0.03);
+      --sh-hover: rgba(255,255,255,0.02);
+      --sh-text: #fafafa;
+      --sh-text-muted: #a1a1aa;
       
       box-sizing: border-box;
     }
@@ -37,8 +36,8 @@ export const historyModal = `
       max-height: 90vh !important;
       background: var(--sh-bg) !important;
       border: 1px solid var(--sh-border) !important;
-      border-radius: 20px !important;
-      box-shadow: 0 0 0 1px rgba(var(--sh-accent-rgb), 0.06), 0 32px 80px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.05) !important;
+      border-radius: 12px !important;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.8) !important;
       overflow: hidden !important;
       display: flex !important;
       flex-direction: column !important;
@@ -48,15 +47,13 @@ export const historyModal = `
       display: flex !important;
       align-items: center !important;
       justify-content: space-between !important;
-      padding: 16px 22px !important;
-      background: linear-gradient(135deg, rgba(var(--sh-accent-rgb), 0.07) 0%, transparent 60%) !important;
-      border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+      padding: 20px 24px 16px 24px !important;
+      background: var(--sh-bg) !important;
+      border-bottom: 1px solid var(--sh-border) !important;
     }
     #historyModal .modal-header h2 {
-      font-size: 0.72rem !important;
-      font-weight: 900 !important;
-      letter-spacing: 3px !important;
-      text-transform: uppercase !important;
+      font-size: 1.1rem !important;
+      font-weight: 600 !important;
       color: var(--sh-text) !important;
       margin: 0 !important;
     }
@@ -123,8 +120,8 @@ export const historyModal = `
       transition: border-color 0.2s, box-shadow 0.2s;
     }
     .sh-filter-bar input[type="date"]:focus {
-      border-color: rgba(var(--sh-accent-rgb), 0.5);
-      box-shadow: 0 0 0 3px rgba(var(--sh-accent-rgb), 0.1);
+      border-color: color-mix(in srgb, var(--sh-accent) 50%, transparent);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--sh-accent) 10%, transparent);
     }
     .sh-filter-sep {
       font-size: 0.6rem;
@@ -155,41 +152,50 @@ export const historyModal = `
     ════════════════════════════════════════════════ */
     #sh-stats-bar {
       display: none;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 0;
-      padding: 10px 20px;
-      background: rgba(var(--sh-accent-rgb), 0.04);
-      border-bottom: 1px solid rgba(var(--sh-accent-rgb), 0.1);
+      align-items: stretch;
+      gap: 16px;
+      padding: 16px 24px;
+      background: var(--sh-bg);
+      border-bottom: 1px solid var(--sh-border);
     }
-    .sh-stat {
+    .sh-stat-card {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--sh-border);
+      border-radius: 12px;
+    }
+    .sh-stat-icon-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 10px;
+      color: var(--sh-text-muted);
+    }
+    .sh-stat-content {
       display: flex;
       flex-direction: column;
-      gap: 1px;
-      padding: 2px 20px 2px 0;
+      gap: 2px;
     }
     .sh-stat-val {
-      font-size: 0.88rem;
-      font-weight: 800;
+      font-size: 0.95rem;
+      font-weight: 600;
       color: var(--sh-text);
       font-variant-numeric: tabular-nums;
     }
     .sh-stat-lbl {
-      font-size: 0.55rem;
-      font-weight: 700;
-      letter-spacing: 1.2px;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.3);
+      font-size: 0.75rem;
+      font-weight: 400;
+      color: var(--sh-text-muted);
     }
-    .sh-stat-range { font-size: 0.72rem; }
-    .sh-stat-div {
-      width: 1px;
-      height: 26px;
-      background: rgba(255,255,255,0.08);
-      margin: 0 20px 0 0;
-      flex-shrink: 0;
-      align-self: center;
-    }
+    .sh-stat-range { font-size: 0.8rem; }
 
     /* ════════════════════════════════════════════════
        SCROLL CONTAINER
@@ -202,14 +208,14 @@ export const historyModal = `
     }
     .sh-scroll::-webkit-scrollbar { width: 4px; }
     .sh-scroll::-webkit-scrollbar-track { background: transparent; }
-    .sh-scroll::-webkit-scrollbar-thumb { background: rgba(var(--sh-accent-rgb), 0.25); border-radius: 4px; }
+    .sh-scroll::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--sh-accent) 25%, transparent); border-radius: 4px; }
 
     /* ════════════════════════════════════════════════
-       DESKTOP: CSS GRID — 5 columns
+       DESKTOP: CSS GRID — 6 columns
     ════════════════════════════════════════════════ */
     .sh-row {
       display: grid;
-      grid-template-columns: 18% 20% 12% 14% 24% 12%;
+      grid-template-columns: 24% 20% 12% 18% 16% 10%;
       align-items: center;
       width: 100%;
     }
@@ -222,127 +228,101 @@ export const historyModal = `
       top: 0;
       z-index: 20;
       background: var(--sh-header-bg);
-      border-bottom: 1px solid rgba(var(--sh-accent-rgb), 0.18);
+      border-bottom: 1px solid var(--sh-border);
     }
     .sh-col-header .sh-row > div {
-      padding: 11px 14px;
-      font-size: 0.57rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      color: rgba(var(--sh-accent-rgb), 0.55);
+      padding: 12px 14px;
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      color: var(--sh-text-muted);
       white-space: nowrap;
     }
-    .sh-col-header .sh-row > div:first-child { padding-left: 22px; }
-    .sh-col-header .sh-row > div:nth-child(3) { text-align: right; padding-right: 18px; }
+    .sh-col-header .sh-row > div:first-child { padding-left: 28px; }
 
     /* Date group row */
     .sh-date-row {
       cursor: pointer;
-      background: var(--sh-card-bg);
-      border-top: 1px solid rgba(var(--sh-accent-rgb), 0.1);
-      border-bottom: 1px solid rgba(var(--sh-accent-rgb), 0.12);
-      border-left: 3px solid rgba(var(--sh-accent-rgb), 0.55);
-      transition: background 0.15s;
+      background: transparent;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
       user-select: none;
     }
-    .sh-date-row:hover { background: var(--sh-hover); }
-    .sh-date-row > div { padding: 12px 14px; }
+    .sh-date-row:hover { background: rgba(255,255,255,0.015); }
+    .sh-date-row > div { padding: 14px; }
     .sh-date-row > div:first-child { padding-left: 20px; }
-    .sh-date-row > div:nth-child(3) { text-align: right; padding-right: 18px; }
 
-    .sh-date-label { display: flex; align-items: center; gap: 10px; }
-    .sh-chevron {
+    .sh-date-label { display: flex; align-items: center; gap: 12px; }
+    .sh-chevron-box {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 20px; height: 20px;
-      background: rgba(var(--sh-accent-rgb), 0.1);
-      border: 1px solid rgba(var(--sh-accent-rgb), 0.25);
-      border-radius: 5px;
-      font-size: 0.52rem;
-      color: rgba(var(--sh-accent-rgb), 0.8);
-      transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), background 0.15s;
-      flex-shrink: 0;
+      width: 24px; height: 24px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--sh-border);
+      border-radius: 6px;
+      color: var(--sh-text-muted);
+      cursor: pointer;
     }
-    .sh-date-row.open .sh-chevron { transform: rotate(90deg); background: rgba(var(--sh-accent-rgb), 0.2); }
-    .sh-date-stack { display: flex; flex-direction: column; gap: 1px; }
-    .sh-date-primary { font-size: 0.88rem; font-weight: 800; color: var(--sh-text); }
-    .sh-date-secondary { font-size: 0.6rem; color: rgba(255,255,255,0.32); font-weight: 600; }
+    .sh-chevron-icon { transition: transform 0.2s; }
+    .sh-date-row.open .sh-chevron-icon { transform: rotate(90deg); }
+    
+    .sh-date-icon-box {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px; height: 32px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 8px;
+      color: var(--sh-text-muted);
+    }
+    .sh-date-stack { display: flex; flex-direction: column; gap: 2px; }
+    .sh-date-primary { font-size: 0.9rem; font-weight: 600; color: var(--sh-text); }
+    .sh-date-secondary { font-size: 0.75rem; color: var(--sh-text-muted); font-weight: 400; }
     .sh-date-sessions-label {
-      font-size: 0.62rem; font-weight: 700;
-      color: rgba(255,255,255,0.28); letter-spacing: 0.8px; text-transform: uppercase;
-      display: flex; align-items: center; gap: 8px; white-space: nowrap;
+      font-size: 0.8rem; font-weight: 400;
+      color: var(--sh-text-muted);
+      display: flex; flex-direction: column; gap: 2px;
     }
-    .sh-total-hours { font-size: 0.9rem; font-weight: 800; color: var(--sh-accent); }
-
-    /* Subject row */
-    .sh-subject-row {
-      background: rgba(255,255,255,0.018);
-      border-bottom: 1px solid rgba(255,255,255,0.04);
-      border-left: 3px solid rgba(255,255,255,0.06);
-    }
-    .sh-subject-row > div { padding: 9px 14px; }
-    .sh-subject-row > div:first-child { padding-left: 34px; }
-    .sh-subject-row > div:nth-child(3) { text-align: right; padding-right: 18px; }
-
-    .sh-subject-badge {
-      display: inline-flex; align-items: center;
-      border-radius: 6px; padding: 3px 10px;
-      font-size: 0.64rem; font-weight: 800; letter-spacing: 0.8px;
-      text-transform: uppercase; border: 1px solid;
-    }
-    .sh-subject-count { 
-      font-size: 0.62rem; color: rgba(255,255,255,0.28); font-weight: 600; margin-left: 8px;
-      display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
-    }
-    .sh-sub-hours { font-size: 0.82rem; font-weight: 700; }
+    .sh-break-label { font-size: 0.75rem; color: var(--sh-accent); opacity: 0.9; }
 
     /* Session row */
     .sh-session-row {
-      border-bottom: 1px solid rgba(255,255,255,0.028);
-      border-left: 3px solid transparent;
-      transition: background 0.12s, border-left-color 0.12s;
+      background: rgba(255,255,255,0.01);
+      border-bottom: 1px solid rgba(255,255,255,0.02);
+      transition: background 0.15s;
     }
     .sh-session-row > div {
-      padding: 9px 14px;
+      padding: 12px 14px;
       overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
-    .sh-session-row > div:first-child { padding-left: 48px; overflow: visible !important; text-overflow: clip !important; }
-    .sh-session-row > div:nth-child(3) { text-align: right; padding-right: 18px; overflow: visible; }
-    .sh-session-row:hover { background: rgba(var(--sh-accent-rgb), 0.04); border-left-color: rgba(var(--sh-accent-rgb), 0.2); }
-    .sh-session-row.alt { background: rgba(255,255,255,0.01); }
-
-    .sh-session-num { font-size: 0.68rem; font-weight: 700; color: rgba(255,255,255,0.32); display: flex; align-items: center; }
-    .sh-break-badge {
-      margin-left: 8px;
-      font-size: 0.62rem;
-      font-weight: 800;
-      background: rgba(var(--sh-accent-rgb), 0.15);
-      color: var(--sh-accent);
-      border: 1px solid rgba(var(--sh-accent-rgb), 0.4);
-      padding: 1px 6px;
-      border-radius: 4px;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      white-space: nowrap;
+    .sh-session-row > div:first-child { padding-left: 28px; display: flex; align-items: center; gap: 16px; overflow: visible !important; text-overflow: clip !important; }
+    
+    .sh-dot {
+      width: 6px; height: 6px; border-radius: 50%;
       flex-shrink: 0;
     }
-    .sh-time { font-size: 0.77rem; color: rgba(255,255,255,0.52); font-variant-numeric: tabular-nums; }
-    .sh-time-sep { opacity: 0.3; margin: 0 6px; }
-
-    .sh-duration { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-    .sh-dur-val { font-size: 0.78rem; font-weight: 700; color: var(--sh-accent); font-variant-numeric: tabular-nums; }
-    .sh-dur-bar { width: 100%; height: 2px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
-    .sh-dur-fill { height: 100%; border-radius: 2px; opacity: 0.7; transition: width 0.4s ease; background: var(--sh-accent); }
-
-    .sh-category { font-size: 0.71rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
-    .sh-note {
-      font-size: 0.75rem; color: rgba(255,255,255,0.48); font-style: italic;
-      padding-left: 14px !important; border-left: 1px solid rgba(255,255,255,0.06);
-      overflow: hidden; text-overflow: ellipsis;
+    .sh-session-num { 
+      font-size: 0.85rem; font-weight: 500; color: var(--sh-text);
+      display: flex; align-items: center; gap: 14px;
     }
-    .sh-note.empty { color: rgba(255,255,255,0.18); font-style: normal; }
+    .sh-break-badge {
+      font-size: 0.7rem; font-weight: 600;
+      color: var(--sh-accent);
+    }
+    .sh-time { font-size: 0.8rem; color: var(--sh-text-muted); font-variant-numeric: tabular-nums; }
+    .sh-time-sep { margin: 0 4px; }
+    .sh-duration { font-size: 0.9rem; }
+    .sh-category { font-size: 0.8rem; color: var(--sh-text-muted); }
+    .sh-note {
+      font-size: 0.8rem; color: var(--sh-text-muted);
+      white-space: normal !important; /* Allow note text to wrap */
+      overflow: visible !important;
+      text-overflow: clip !important;
+      line-height: 1.4;
+      padding-right: 24px; /* Add breathing room before actions column */
+    }
+    .sh-note.empty { opacity: 0.5; }
 
     /* ── Action buttons ─────────────────────────────── */
     .sh-actions {
@@ -396,17 +376,35 @@ export const historyModal = `
         border-bottom: none !important;
       }
 
+      .sh-row { width: auto !important; }
+
+      .sh-scroll {
+        padding-bottom: 90px !important; /* Offset for bottom nav bar */
+      }
+
       /* Hide desktop column header */
       .sh-col-header { display: none !important; }
 
-      /* Stats bar wraps on mobile */
+      /* Stats bar 2x2 grid on mobile */
       #sh-stats-bar {
-        padding: 10px 16px !important;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        padding: 12px 16px !important;
         gap: 8px !important;
       }
-      .sh-stat-div { display: none; }
-      .sh-stat { padding: 4px 12px 4px 0; }
-      .sh-stat-val { font-size: 1rem; }
+      .sh-stat-card {
+        padding: 10px 12px !important;
+        gap: 10px !important;
+      }
+      .sh-stat-icon-wrapper {
+        width: 32px !important;
+        height: 32px !important;
+        border-radius: 8px !important;
+      }
+      .sh-stat-icon-wrapper svg { width: 16px !important; height: 16px !important; }
+      .sh-stat-val { font-size: 0.85rem !important; }
+      .sh-stat-lbl { font-size: 0.65rem !important; }
+      .sh-stat-range { font-size: 0.75rem !important; }
 
       /* All rows switch to grid: none → block-based cards */
       .sh-date-row.sh-row { display: flex !important; }
@@ -419,31 +417,14 @@ export const historyModal = `
         padding: 16px !important;
         margin: 12px 12px 0 !important;
         border-radius: 12px !important;
-        border: 1px solid rgba(var(--sh-accent-rgb), 0.18) !important;
-        border-left: 4px solid rgba(var(--sh-accent-rgb), 0.55) !important;
+        border: 1px solid var(--sh-border) !important;
       }
       .sh-date-row > div { padding: 0 !important; }
-      .sh-date-row > div:nth-child(3) { text-align: right !important; padding: 0 !important; }
+      
       /* Hide empty cells on mobile date rows */
       .sh-date-row > div:nth-child(4),
-      .sh-date-row > div:nth-child(5) { display: none !important; }
-
-      /* SUBJECT ROW — sub-card */
-      .sh-subject-row {
-        display: none;
-        align-items: center !important;
-        justify-content: space-between !important;
-        padding: 12px 16px !important;
-        margin: 6px 12px 0 16px !important;
-        border-radius: 8px !important;
-        border: 1px solid rgba(255,255,255,0.07) !important;
-        border-left: 3px solid rgba(var(--sh-accent-rgb), 0.2) !important;
-      }
-      .sh-subject-row.expanded { display: flex !important; }
-      .sh-subject-row > div { padding: 0 !important; }
-      .sh-subject-row > div:nth-child(3) { text-align: right !important; padding: 0 !important; }
-      .sh-subject-row > div:nth-child(4),
-      .sh-subject-row > div:nth-child(5) { display: none !important; }
+      .sh-date-row > div:nth-child(5),
+      .sh-date-row > div:nth-child(6) { display: none !important; }
 
       /* SESSION DETAIL ROW — full info card */
       .sh-session-row {
@@ -452,13 +433,11 @@ export const historyModal = `
         padding: 14px 16px !important;
         border-radius: 10px !important;
         border: 1px solid rgba(255,255,255,0.06) !important;
-        border-left: 3px solid transparent !important;
         background: rgba(255,255,255,0.02) !important;
       }
       .sh-session-row.expanded { display: block !important; }
       .sh-session-row:hover {
-        background: rgba(var(--sh-accent-rgb), 0.06) !important;
-        border-left-color: rgba(var(--sh-accent-rgb), 0.3) !important;
+        background: rgba(255,255,255,0.04) !important;
       }
       /* Override grid-cell padding — render as stacked rows */
       .sh-session-row > div {
@@ -470,15 +449,17 @@ export const historyModal = `
       }
       /* Session number — top line, bold */
       .sh-session-row > div:first-child {
-        font-size: 0.72rem !important;
-        font-weight: 800 !important;
-        color: rgba(255,255,255,0.5) !important;
+        font-size: 0.8rem !important;
+        font-weight: 600 !important;
+        color: var(--sh-text) !important;
         margin-bottom: 6px !important;
+        padding-left: 0 !important;
+        gap: 10px !important;
       }
       /* Time range — second line */
       .sh-session-row > div:nth-child(2) {
         font-size: 0.85rem !important;
-        color: rgba(255,255,255,0.8) !important;
+        color: var(--sh-text-muted) !important;
       }
       /* Duration — third line */
       .sh-session-row > div:nth-child(3) {
@@ -487,24 +468,21 @@ export const historyModal = `
         align-items: flex-start !important;
         margin: 8px 0 !important;
       }
-      .sh-dur-bar { width: 100% !important; max-width: 120px !important; height: 3px !important; }
       /* Category */
       .sh-session-row > div:nth-child(4) {
         font-size: 0.8rem !important;
       }
       /* Notes */
       .sh-session-row > div:nth-child(5) {
-        border-left: none !important;
         padding-left: 0 !important;
         font-size: 0.75rem !important;
-        color: rgba(255,255,255,0.42) !important;
         margin-top: 4px !important;
       }
 
       /* last session row bottom margin */
       .sh-session-row:last-child { margin-bottom: 16px !important; }
 
-      .sh-note { border-left: none !important; padding-left: 0 !important; }
+      .sh-note { padding-left: 0 !important; }
 
       /* Hide actions column on mobile, show as full-width row */
       .sh-actions {
@@ -542,20 +520,20 @@ export const historyModal = `
         <button id="closeHistoryModal" class="modal-close">&times;</button>
       </div>
       <div class="modal-body">
-        <div class="sh-filter-bar">
-          <div class="sh-filter-group">
-            <label for="sh-from-date">From</label>
-            <input type="date" id="sh-from-date">
-          </div>
-          <div class="sh-filter-group">
-            <label for="sh-to-date">To</label>
-            <input type="date" id="sh-to-date">
-          </div>
-          <button id="clearHistoryFilter">Clear Filter</button>
-        </div>
-        <div id="sh-stats-bar" style="display:none;"></div>
-        <div id="historyMigrationBanner" style="display:none;"></div>
         <div class="sh-scroll">
+          <div class="sh-filter-bar">
+            <div class="sh-filter-group">
+              <label for="sh-from-date">From</label>
+              <input type="date" id="sh-from-date">
+            </div>
+            <div class="sh-filter-group">
+              <label for="sh-to-date">To</label>
+              <input type="date" id="sh-to-date">
+            </div>
+            <button id="clearHistoryFilter">Clear Filter</button>
+          </div>
+          <div id="sh-stats-bar" style="display:none;"></div>
+          <div id="historyMigrationBanner" style="display:none;"></div>
           <div class="sh-col-header">
             <div class="sh-row">
               <div>Date</div>

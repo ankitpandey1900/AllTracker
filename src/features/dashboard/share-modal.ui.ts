@@ -23,41 +23,45 @@ export const shareModal = `
 
     <!-- ─── HEADER ─── -->
     <div style="
-      padding:22px 24px; display:flex; justify-content:space-between; align-items:center;
+      padding:24px; display:flex; justify-content:space-between; align-items:center;
       border-bottom:1px solid rgba(255,255,255,0.04);
       position:sticky; top:0; background:rgba(12,15,23,0.95);
-      backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+      backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
       z-index:20; border-radius:24px 24px 0 0;
     ">
-      <div style="display:flex;align-items:center;gap:14px;">
-        <!-- Icon -->
+      <div style="display:flex;align-items:center;gap:16px;">
+        <!-- Premium Icon -->
         <div style="
-          width:44px;height:44px; background:rgba(255,255,255,0.04);
-          border-radius:13px; display:flex;align-items:center;justify-content:center;
-          border:1px solid rgba(255,255,255,0.06);
+          width:46px;height:46px; 
+          background:linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.01) 100%);
+          border-radius:14px; display:flex;align-items:center;justify-content:center;
+          border:1px solid rgba(255,255,255,0.08);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.4);
         ">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c8a96e" stroke-width="1.8">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c8a96e" stroke-width="2" style="filter: drop-shadow(0 2px 4px rgba(200,169,110,0.3));">
             <path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/>
           </svg>
         </div>
         <!-- Title Block -->
         <div>
           <h2 id="shareModalTitle" style="
-            font-family:'Outfit',sans-serif; font-size:1rem; font-weight:600;
-            color:#f0ede8; margin:0; letter-spacing:0.2px;
-          ">Share Quote</h2>
-          <p style="font-size:0.73rem; color:#5a5e6b; margin:3px 0 0; font-weight:400;">
-            Create beautiful quote images to share.
+            font-family:'Outfit',sans-serif; font-size:1.15rem; font-weight:700;
+            color:#ffffff; margin:0; letter-spacing:0.5px; text-transform: uppercase;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+          ">SHARE YOUR PROGRESS</h2>
+          <p id="shareModalSubtitle" style="font-size:0.78rem; color:#8A8C95; margin:4px 0 0; font-weight:500; letter-spacing: 0.3px;">
+            Share your stats and badges with the world.
           </p>
         </div>
       </div>
       <!-- Close -->
       <button id="closeSharePreviewBtn" style="
-        width:34px;height:34px; background:rgba(255,255,255,0.04);
-        border:1px solid rgba(255,255,255,0.06); border-radius:10px;
-        color:#5a5e6b; font-size:1.15rem; cursor:pointer;
+        width:36px;height:36px; background:rgba(255,255,255,0.03);
+        border:1px solid rgba(255,255,255,0.08); border-radius:12px;
+        color:#a1a1aa; font-size:1.2rem; cursor:pointer;
         display:flex;align-items:center;justify-content:center;
-        transition:background 0.15s;
+        transition:all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+
       ">&times;</button>
     </div>
 
@@ -202,10 +206,10 @@ export const shareModal = `
         </button>
         <button id="downloadShareBtn" style="
           padding:14px 0; font-weight:700; display:flex;align-items:center;justify-content:center;gap:8px;
-          font-size:0.78rem; background:linear-gradient(135deg,#b8860b,#c9a23a);
-          border:none; border-radius:14px; color: var(--text-primary); cursor:pointer;
-          font-family:'Outfit',sans-serif;
-          box-shadow:0 6px 20px rgba(184,134,11,0.25); transition:all 0.2s;
+          font-size:0.78rem; background:linear-gradient(135deg,#c8a96e 0%, #e2ca97 100%);
+          border: 1px solid rgba(255,255,255,0.2); border-radius:14px; color: #070709; cursor:pointer;
+          font-family:'Outfit',sans-serif; letter-spacing: 0.3px;
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 6px 20px rgba(200,169,110,0.25); transition:all 0.2s;
         ">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>

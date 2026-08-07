@@ -11,6 +11,7 @@ import { saveSettingsToStorage } from '@/services/data-bridge';
 import { showToast, startConfetti } from '@/utils/dom.utils';
 import { openSharePreview } from '@/features/dashboard/share-preview';
 import { getSecureLocalProfileString } from '@/utils/security';
+import { toPng } from 'html-to-image';
 
 /** Checks all badges and unlocks any newly earned ones */
 export function checkBadges(): void {
@@ -148,18 +149,15 @@ export function renderBadges(): void {
         `;
         
         await new Promise(res => setTimeout(res, 100)); // allow DOM to settle
-        const html2canvas = (await import('html2canvas')).default;
         const targetEl = captureDiv.firstElementChild as HTMLElement;
         
         if (targetEl) {
-          const canvas = await html2canvas(targetEl, {
-            backgroundColor: null,
-            scale: 2, 
-            logging: false,
-            useCORS: true
+          const dataUrl = await toPng(targetEl, {
+            backgroundColor: 'transparent',
+            pixelRatio: 2
           });
           
-          openSharePreview(canvas.toDataURL('image/png'), `SHARE BADGE: ${badgeName.toUpperCase()}`, network, text, 'https://www.alltracker.online');
+          openSharePreview(dataUrl, `SHARE BADGE: ${badgeName.toUpperCase()}`, network, text, 'https://www.alltracker.online');
         }
         
         document.body.removeChild(captureDiv);

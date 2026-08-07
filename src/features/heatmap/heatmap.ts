@@ -125,6 +125,13 @@ function renderAdvancedHeatmap(grid: HTMLElement, labels: HTMLElement, mode: 'da
       bestDayEl.innerText = yearBestDay.hours > 0 ? `${formatDate(new Date(yearBestDay.date))} (${yearBestDay.hours.toFixed(1)}h)` : '-';
     }
   }
+
+  // 8. Auto-scroll to current date (right)
+  setTimeout(() => {
+    if (grid) grid.scrollLeft = grid.scrollWidth;
+    const area = grid.closest('.heatmap-grid-area');
+    if (area) area.scrollLeft = area.scrollWidth;
+  }, 50);
 }
 
 function renderMonthLabels(container: HTMLElement, year: number): void {

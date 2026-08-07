@@ -2,6 +2,7 @@
 import { openSharePreview } from '@/features/dashboard/share-preview';
 import { QuotesManager } from '@/features/dashboard/quotes.manager';
 import { getSecureLocalProfileString } from '@/utils/security';
+import { toPng } from 'html-to-image';
 
 /**
  * Generates a premium "Midnight Reflection" Share Card.
@@ -181,16 +182,13 @@ export async function generateQuoteShareCard(themeKey?: string, customText?: str
     try {
       // Wait for font rendering
       await new Promise(r => setTimeout(r, 500));
-      const html2canvas = (await import('html2canvas')).default;
-      const canvas = await html2canvas(target, {
-        backgroundColor: null,
-        scale: 2.5,
-        logging: false,
-        useCORS: true,
+      const dataUrl = await toPng(target, {
+        backgroundColor: 'transparent',
+        pixelRatio: 2.5,
         width: 450,
         height: 600,
       });
-      openSharePreview(canvas.toDataURL('image/png'), 'SHARE QUOTE');
+      openSharePreview(dataUrl, 'SHARE QUOTE');
     } catch (e) {
       console.error('[ShareCard] capture failed', e);
     }

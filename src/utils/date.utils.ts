@@ -110,14 +110,14 @@ export function formatDuration(hours: number): string {
   return `${h}h ${m}m`;
 }
 
-// Turns raw minutes like 113 into pretty strings like "1H 53M"
+// Turns raw minutes like 113 into pretty strings like "1h 53m"
 export function formatMinutes(minutes: number): string {
-  if (!minutes || minutes <= 0) return '0M';
+  if (!minutes || minutes <= 0) return '0m';
   
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
   
-  if (h === 0) return `${m}M`;
-  if (m === 0) return `${h}H`;
-  return `${h}H ${m}M`;
+  if (h === 0) return `${m}m`;
+  if (m === 0) return `${h}h`;
+  return `${h}h ${m}m`;
 }

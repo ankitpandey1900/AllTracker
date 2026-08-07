@@ -17,6 +17,8 @@
   font-weight: 500;
   text-align: right;
   margin-top: 28px; /* Align with grid below months */
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .heatmap-yaxis span {
   line-height: var(--hm-cell);
