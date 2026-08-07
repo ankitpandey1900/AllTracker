@@ -109,7 +109,7 @@ export async function renderSessionHistory(): Promise<void> {
 
   const totalHours = displayLogs.reduce((s: number, l: any) => s + (l.duration || 0), 0);
   const totalBreakMins = displayLogs.reduce((s: number, l: any) => s + parseBreaks(l.note || '').mins, 0);
-  const maxDuration = Math.max(...displayLogs.map((l: any) => l.duration || 0), 0.001);
+
   const statsBar = document.getElementById('sh-stats-bar');
 
   const fmtDMY = (iso: string) => {
