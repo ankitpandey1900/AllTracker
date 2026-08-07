@@ -14,7 +14,6 @@ import {
   calculateTodayStudyHours, 
   calculateTotalStudyHours, 
   calculateStreak, 
-  calculateBestStreak,
   calculateVerificationScore,
   calculateCompetitiveXP 
 } from '@/utils/calc.utils';
@@ -234,7 +233,6 @@ export async function syncProfileBroadcast(focusStateChanged = false): Promise<v
   }
 
   const streak = calculateStreak(appState.trackerData);
-  const bestStreak = calculateBestStreak(appState.trackerData);
 
   const payload = {
     display_name: profile.displayName,
@@ -372,7 +370,7 @@ export function checkAndNotifyIncompleteProfile(profile: UserProfile): void {
 }
 
 /** Moves all your study data to a new Secret Key */
-export async function handleIdentityMigration(currentKey: string, newKey: string): Promise<void> {
+export async function handleIdentityMigration(currentKey: string): Promise<void> {
   const actualId = getCurrentUserId();
   if (currentKey !== actualId) {
     alert("Authentication Failure: Current Secret Key is incorrect.");

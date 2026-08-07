@@ -14,10 +14,7 @@ import { fetchLeaderboard } from '@/services/vault.service';
 const notifiedRoutineIds = new Set<string>();
 
 export async function initNotifications(): Promise<void> {
-  if (!("Notification" in window)) {
-    console.log("This browser does not support desktop notification");
-    return;
-  }
+  if (!("Notification" in window)) return;
 
   // Sync UI state
   syncNotificationUI();
@@ -169,13 +166,13 @@ async function checkContextualNotifs(): Promise<void> {
   });
 
   if (currentSlot && !sentNotifs.includes(currentSlot.id)) {
-    await sendDynamicAlert(currentSlot.id, currentHour);
+    await sendDynamicAlert(currentHour);
     sentNotifs.push(currentSlot.id);
     localStorage.setItem(storageKey, JSON.stringify(sentNotifs));
   }
 }
 
-async function sendDynamicAlert(slotId: string, hour: number): Promise<void> {
+async function sendDynamicAlert(hour: number): Promise<void> {
   const today = new Date().toLocaleDateString('en-GB', { timeZone: 'Asia/Kolkata' });
   const todayData = appState.trackerData.find(d => {
     const dDate = new Date(d.date).toLocaleDateString('en-GB', { timeZone: 'Asia/Kolkata' });
@@ -291,9 +288,6 @@ function checkRoutineTimers(): void {
   }
 }
 
-function checkAndNotify(): void {
-  // Legacy function replaced by checkContextualNotifs
-}
 
 async function sendNotification(title: string, body: string): Promise<void> {
   const profileRaw = localStorage.getItem('secure_local_profile');

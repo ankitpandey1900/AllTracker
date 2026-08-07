@@ -10,12 +10,11 @@ import { appState, getColumnsForDay } from '@/state/app-state';
 import { STORAGE_KEYS } from '@/config/constants';
 import { SyncIndicator, logStudySessionCloud } from '@/services/vault.service';
 import { saveTrackerDataToStorage, saveSettingsToStorage, saveTimerStateToStorage, clearTimerStateDB } from '@/services/data-bridge';
-import { getCurrentUserId } from '@/services/auth.service';
 import { generateTable } from '@/features/tracker/tracker';
 import { updateDashboard, toggleFocusHUD } from '@/features/dashboard/dashboard';
 import { renderHeatmap } from '@/features/heatmap/heatmap';
 import { renderPerformanceCurve } from '@/features/routines/performance-chart';
-import { formatMsToTime, formatClockTime, formatDuration } from '@/utils/date.utils';
+import { formatMsToTime, formatClockTime } from '@/utils/date.utils';
 import { showToast, startConfetti } from '@/utils/dom.utils';
 import { log } from '@/utils/logger.utils';
 import { getNextRoutine } from '@/utils/calc.utils';
@@ -411,6 +410,7 @@ export async function terminateTimer(): Promise<void> {
     !!appState.activeTimer.activeBreak;
   if (!hasActiveSession) return;
   const confirmed = await showTerminateConfirmModal();
+  if (!confirmed) return;
   // Prevent other tabs from resyncing the active session data after termination
   localStorage.setItem('timer_term_lock', Date.now().toString());
   

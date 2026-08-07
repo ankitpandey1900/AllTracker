@@ -123,7 +123,7 @@ class NotificationService {
   startAmbient(): void {
     if (!this.ambientAudio || this.currentAmbientType === 'none') return;
     
-    this.ambientAudio.play().catch(err => {
+    this.ambientAudio.play().catch(_err => {
       log.warn(`Ambient audio (${this.currentAmbientType}) playback blocked. User interaction needed.`);
     });
   }

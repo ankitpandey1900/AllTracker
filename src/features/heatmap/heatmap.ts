@@ -141,8 +141,8 @@ function renderMonthLabels(container: HTMLElement, year: number): void {
     const span = document.createElement('span');
     span.className = 'month-label';
     span.innerText = name;
-    // Align based on CSS column width (12px cell + 3px gap)
-    span.style.left = `${weekIndex * 15}px`; 
+    // Align based on dynamic CSS variables for perfect mobile and desktop accuracy
+    span.style.left = `calc((var(--hm-cell, 12px) + var(--hm-gap, 3px)) * ${weekIndex})`;
     container.appendChild(span);
   });
 }

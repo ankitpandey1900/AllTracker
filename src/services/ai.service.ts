@@ -1,5 +1,4 @@
-import { MentorMessage } from '@/types/tracker.types';
-import { getActiveSession, getChatSessions, persistMessage } from '@/features/intelligence/intelligence.service';
+import { getChatSessions, persistMessage } from '@/features/intelligence/intelligence.service';
 import type { ChatSession } from '@/types/tracker.types';
 
 const AI_API_URL = '/api/app/chat';

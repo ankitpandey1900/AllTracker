@@ -274,7 +274,7 @@ export function getRankProgression(totalHours: number) {
     { h: 20000,l: 'SINGULARITY' }
   ];
 
-  let currentIdx = levels.findIndex((lv, i) => totalHours < (levels[i+1]?.h ?? Infinity));
+  let currentIdx = levels.findIndex((_lv, i) => totalHours < (levels[i+1]?.h ?? Infinity));
   if (currentIdx === -1) currentIdx = levels.length - 1;
 
   const current = levels[currentIdx];

@@ -1,4 +1,4 @@
-import { appState } from '@/state/app-state';
+
 import { StudySession } from '@/types/profile.types';
 import { fetchMySessionsCloud, deleteStudySessionCloud, updateStudySessionCloud } from '@/services/vault.service';
 import { showToast, showLoading, hideLoading, animateValue } from '@/utils/dom.utils';

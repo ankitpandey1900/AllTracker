@@ -44,8 +44,17 @@ export const heatmapModal = `
           <!-- Grid Row -->
           <div class="heatmap-grid-area">
             <div class="heatmap-scroll-viewport">
-              <div id="heatmapModalMonths" class="heatmap-months"></div>
-              <div id="heatmapModalGrid" class="heatmap-grid centered-grid"></div>
+              <div class="heatmap-grid-container">
+                <div class="heatmap-yaxis">
+                  <span>Mon</span>
+                  <span>Wed</span>
+                  <span>Fri</span>
+                </div>
+                <div class="heatmap-grid-wrapper">
+                  <div id="heatmapModalMonths" class="heatmap-months"></div>
+                  <div id="heatmapModalGrid" class="heatmap-grid centered-grid"></div>
+                </div>
+              </div>
             </div>
           </div>
 

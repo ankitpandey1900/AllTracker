@@ -23,7 +23,6 @@ import {
   calculateVerificationScore,
   calculateCompetitiveXP
 } from '@/utils/calc.utils';
-import { VanguardService } from '@/services/vanguard.service';
 import { QuotesManager } from './quotes.manager';
 
 // --- Sub-Module Imports ---
@@ -34,10 +33,6 @@ import {
   applyKPIMissionAuras,
   initInteractiveParallax
 } from './dashboard.renderers';
-import { lbAllUsers } from './leaderboard.state';
-
-const formatNum = (num: number) => new Intl.NumberFormat().format(num);
-
 // --- Timer HUD Logic ---
 
 export function toggleFocusHUD(show: boolean, subject: string = '', time: string = ''): void {
@@ -113,7 +108,6 @@ export function updateDashboard(): void {
   const rankScore = Math.max(calculateCompetitiveXP(totalHours, streak, calculateVerificationScore(appState.verifiedHours, localTotal)), appState.verifiedRankScore);
 
   const xpData = calculateXP(totalHours);
-  const rankData = getRank(totalHours);
 
   // Update ALL Tracker Header
   const xpFill = document.getElementById('xpFill');
@@ -212,7 +206,7 @@ export function updateDashboard(): void {
   renderIntelligenceBriefing();
 
   // Apply Mission Auras to KPI Cards
-  applyKPIMissionAuras(completionRate, streak, today.day);
+  applyKPIMissionAuras(completionRate, streak);
 
   // Initialize Interactive Parallax
   initInteractiveParallax();

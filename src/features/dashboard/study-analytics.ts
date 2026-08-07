@@ -2,8 +2,7 @@ import { appState, getAllHourColumnLabels } from '@/state/app-state';
 
 let chartLibrary: any = null;
 
-let studyTrendChartInstance: any = null;
-let subjectRadarChartInstance: any = null;
+
 
 export async function renderStudyAnalytics(): Promise<void> {
   await Promise.all([
@@ -72,7 +71,7 @@ async function renderStudyTrendChart(): Promise<void> {
   problemsGradient.addColorStop(0, 'rgba(231, 76, 60, 0.2)');
   problemsGradient.addColorStop(1, 'rgba(231, 76, 60, 0.01)');
 
-  studyTrendChartInstance = new chartLibrary.Chart(ctx, {
+  new chartLibrary.Chart(ctx, {
     type: 'line',
     data: {
       labels,
@@ -207,7 +206,7 @@ async function renderSubjectRadarChart(): Promise<void> {
 
   const isWhiteTheme = document.documentElement.getAttribute('data-theme') === 'pristine-white';
 
-  subjectRadarChartInstance = new chartLibrary.Chart(ctx, {
+  new chartLibrary.Chart(ctx, {
     type: 'radar',
     data: {
       labels: columnLabels,

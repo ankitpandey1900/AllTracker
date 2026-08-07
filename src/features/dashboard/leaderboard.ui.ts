@@ -4,7 +4,6 @@ import { getRankColor, getRankTitle } from '@/utils/rank.utils';
 import { getRankProgression, calculateCompetitiveXP } from '@/utils/calc.utils'; // calculateCompetitiveXP used in renderUserRow & renderPodium
 import { formatDuration } from '@/utils/date.utils';
 import { NATION_FLAGS } from '@/config/constants';
-import { openProfileModal } from '@/features/profile/profile.ui';
 import { 
   lbCurrentPage, 
   LB_PAGE_SIZE, 
@@ -13,14 +12,12 @@ import {
 } from './leaderboard.state';
 import { refreshLeaderboard } from './leaderboard';
 import { bindLbItemEvents } from '@/features/dashboard/leaderboard.events';
-import { appState } from '@/state/app-state';
 
 /** Renders only the players on the current page */
 export function renderLbPage(
   listEl: HTMLElement,
   allUsers: GlobalProfile[],
   page: number,
-  climbData: { worst: Record<string, number>; best: Record<string, number> },
   myDisplayName: string | null
 ): void {
   const pageStart = (page - 1) * LB_PAGE_SIZE;
@@ -32,16 +29,16 @@ export function renderLbPage(
   // 1. Render Podium and primary page users
   if (page === 1 && podiumEl && allUsers.length >= 3) {
     podiumEl.style.display = 'flex';
-    podiumEl.innerHTML = renderPodium(allUsers.slice(0, 3), climbData, myDisplayName);
+    podiumEl.innerHTML = renderPodium(allUsers.slice(0, 3), myDisplayName);
     
     listUsers = allUsers.slice(3, pageEnd);
     listEl.innerHTML = listUsers
-      .map((u, i) => renderUserRow(u, 3 + i, climbData, myDisplayName))
+      .map((u, i) => renderUserRow(u, 3 + i, myDisplayName))
       .join('');
   } else {
     if (podiumEl) podiumEl.style.display = 'none';
     listEl.innerHTML = listUsers
-      .map((u, i) => renderUserRow(u, pageStart + i, climbData, myDisplayName))
+      .map((u, i) => renderUserRow(u, pageStart + i, myDisplayName))
       .join('');
   }
 
@@ -52,7 +49,7 @@ export function renderLbPage(
   if (myDisplayName && !isMeOnPage && myIndex !== -1) {
     const myUser = allUsers[myIndex];
     const personalRowHtml = `<div class="lb-anchor-divider"><span>MISSION IDENTITY PINNED</span></div>` + 
-                            renderUserRow(myUser, myIndex, climbData, myDisplayName);
+                            renderUserRow(myUser, myIndex, myDisplayName);
     listEl.insertAdjacentHTML('beforeend', personalRowHtml);
   }
 
@@ -114,9 +111,6 @@ export function renderLbPage(
   }
 
   // Live ETA logic if user is currently running a timer
-  const isMeFocusing = appState.activeTimer.isRunning;
-  let etaHtml = '';
-    etaHtml = `<div class="lb-font-mono" style="font-size: 0.65rem; color: var(--accent-blue, #3b82f6); font-weight: 800; display: flex; align-items: center; gap: 6px;"><span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--accent-blue, #3b82f6); animation: pulseGlow 1.5s infinite;"></span> ACTIVE PURSUIT</div>`;
 
   const combinedHours = myHours + rivalHours;
   const myPct = combinedHours > 0 ? (myHours / combinedHours) * 100 : 50;
@@ -164,7 +158,6 @@ export function renderLbPage(
               <div style="font-size: 0.65rem; color: ${tauntColor}; font-weight: 800; font-style: italic;">
                 ${tauntText}
               </div>
-              ${etaHtml}
             </div>
           </div>
           <div style="display: flex; align-items: baseline; gap: 8px;">
@@ -242,7 +235,6 @@ export function renderHoverCard(
   u: GlobalProfile,
   isMe: boolean,
   isFocusing: boolean,
-  todayHoursDisplay: number,
   streakCount: string
 ): string {
   // 🔥 ELITE VERIFICATION: 10+ Day Streak AND 3+ Hr/Day Average
@@ -329,7 +321,6 @@ export function renderHoverCard(
 /** Renders the top 3 users in a special Podium layout */
 export function renderPodium(
   topUsers: GlobalProfile[],
-  climbData: any,
   myDisplayName: string | null
 ): string {
   if (topUsers.length < 3) return '';
@@ -341,8 +332,6 @@ export function renderPodium(
     if (!u) return '';
     const globalIndex = positions[idx];
     const isMe = myDisplayName ? u.display_name === myDisplayName : false;
-    const rankTitle = getRankTitle(u.total_hours);
-    const rankColor = getRankColor(rankTitle);
 
     const streakMatch = (u.current_rank || '').match(/\[S:(\d+)\]/);
     const streakCount = u.current_streak !== undefined ? String(u.current_streak) : (streakMatch ? streakMatch[1] : '0');
@@ -417,7 +406,7 @@ export function renderPodium(
             </div>
           </div>
         </div>
-        ${renderHoverCard(u, isMe, isFocusing, todayHoursDisplay, streakCount)}
+        ${renderHoverCard(u, isMe, isFocusing, streakCount)}
       </div>
     `;
   }).join('');
@@ -427,7 +416,6 @@ export function renderPodium(
 export function renderUserRow(
   u: GlobalProfile,
   globalIndex: number,
-  climbData: any,
   myDisplayName: string | null
 ): string {
   const isMe = myDisplayName ? u.display_name === myDisplayName : false;
@@ -478,9 +466,9 @@ export function renderUserRow(
         <div class="lb-row-total">${formatDuration(userHours) || '0H'} <span class="today-label">${lbTimeframe.toUpperCase()}</span></div>
         <div class="lb-row-today">+${formatDuration(todayHoursDisplay) || '0H'} <span class="today-label">TODAY</span></div>
         <div class="lb-row-rank-score">${rankScore.toLocaleString()} <span class="score-label">PTS</span></div>
+        </div>
       </div>
-      
-      ${renderHoverCard(u, isMe, isFocusing, todayHoursDisplay, streakCount)}
+      ${renderHoverCard(u, isMe, isFocusing, streakCount)}
     </div>
   `;
 }

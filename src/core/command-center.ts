@@ -2,7 +2,7 @@ import { appState } from "@/state/app-state";
 import { openTimerModal, startTimer, stopTimer, resumeFromBreak, startBreak } from "@/features/timer/timer";
 import { toggleFocusHUD } from "@/features/dashboard/dashboard";
 import { renderSessionHistory } from "@/features/dashboard/session-history";
-import { scrollToToday, setupKeyboardShortcuts, showWeeklySummary, handleReset } from "@/features/shortcuts/shortcuts";
+import { scrollToToday, showWeeklySummary, handleReset } from "@/features/shortcuts/shortcuts";
 import { exportAllData, exportTrackerDataCSV } from "@/features/export/export";
 import { openSettingsModal, applyColumnSettings, addCustomRange } from "@/features/settings/settings";
 import { renderBadges } from "@/features/dashboard/badges";

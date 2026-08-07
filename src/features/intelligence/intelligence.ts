@@ -17,11 +17,9 @@ import {
   loadMaamuSessionsIntoState,
   switchSession 
 } from './intelligence.service';
-import { getMaamuResponseStream, generateSessionTitle, MAAMU_MODELS, normalizeMaamuModel } from '@/services/ai.service';
+import { getMaamuResponseStream, generateSessionTitle, MAAMU_MODELS } from '@/services/ai.service';
 import { appState } from '@/state/app-state';
 import { saveSettingsToStorage } from '@/services/data-bridge';
-import { getCurrentUserLeaderboardContext } from '@/features/dashboard/leaderboard';
-import { formatDuration } from '@/utils/date.utils';
 import { showToast } from '@/utils/dom.utils';
 import { 
   intelligenceView, 
@@ -157,10 +155,6 @@ function refreshTemplateUI(): void {
 
 // --- Helpers ---
 
-function estimateTokens(text: string): number {
-  return Math.max(1, Math.ceil((text || '').length / 4));
-}
-
 const DAILY_PROMPT_BUDGET = 5;
 
 function getUsageStorageKey(): string {
@@ -283,16 +277,6 @@ function renderModelOptions(): void {
   if (bottomSelect) bottomSelect.innerHTML = options;
 }
 
-function bindModelSelect(selectEl: HTMLSelectElement | null): void {
-  if (!selectEl || selectEl.dataset.bound === 'true') return;
-  selectEl.dataset.bound = 'true';
-  selectEl.addEventListener('change', (e) => {
-    const selected = normalizeMaamuModel((e.target as HTMLSelectElement).value);
-    appState.settings.maamuModel = selected;
-    saveSettingsToStorage(appState.settings);
-    renderModelOptions();
-  });
-}
 
 function renderSessionQuickAccess(): void {
   const select = document.getElementById('maamuSessionSelectBottom') as HTMLSelectElement | null;
@@ -308,41 +292,6 @@ function renderSessionQuickAccess(): void {
   }).join('');
 }
 
-function bindSessionQuickAccess(): void {
-  const select = document.getElementById('maamuSessionSelectBottom') as HTMLSelectElement | null;
-  if (select && select.dataset.bound !== 'true') {
-    select.dataset.bound = 'true';
-    select.addEventListener('change', (e) => {
-      const id = (e.target as HTMLSelectElement).value;
-      if (!id) return;
-      switchSession(id);
-      renderSessionsList();
-      renderActiveChat();
-      renderSidebarMetrics();
-      const s = getActiveSession();
-      const t = document.getElementById('activeMissionTitle');
-      if (t) t.textContent = s ? s.title : 'MAAMU AI';
-    });
-  }
-
-  const deleteBtn = document.getElementById('maamuDeleteSessionBtn') as HTMLButtonElement | null;
-  if (deleteBtn && deleteBtn.dataset.bound !== 'true') {
-    deleteBtn.dataset.bound = 'true';
-    deleteBtn.addEventListener('click', async () => {
-      const selectedId = (document.getElementById('maamuSessionSelectBottom') as HTMLSelectElement | null)?.value || getActiveSession()?.id || '';
-      if (!selectedId) return;
-      if (!confirm('Delete this conversation?')) return;
-      await deleteSession(selectedId);
-      renderSessionsList();
-      renderActiveChat();
-      renderSessionQuickAccess();
-      renderSidebarMetrics();
-      const s = getActiveSession();
-      const t = document.getElementById('activeMissionTitle');
-      if (t) t.textContent = s ? s.title : 'MAAMU AI';
-    });
-  }
-}
 
 // --- Session Management ---
 

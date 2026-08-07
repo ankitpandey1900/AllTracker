@@ -9,8 +9,6 @@ import type { TrackerDay, StudyCategory } from '@/types/tracker.types';
 import { isRowEditable } from '@/services/integrity';
 import { syncProfileBroadcast } from '@/features/profile/profile.manager';
 import { escapeHtml } from '@/utils/security';
-import { log } from '@/utils/logger.utils';
-
 
 function getHourAt(day: TrackerDay, idx: number): number {
   return (day.studyHours?.[idx] ?? 0) as number;
@@ -105,7 +103,7 @@ export function generateTable(resetPagination = false): void {
   let html = '';
   let currentLabelsStr = topLabels.join(',');
 
-  paginatedData.forEach((day, index) => {
+  paginatedData.forEach((day) => {
     const phase = getPhase(day.day);
     const isToday = day.date.split('T')[0] === getLocalIsoDate(today);
     const editable = isRowEditable(day.date);
@@ -161,7 +159,7 @@ export function generateTable(resetPagination = false): void {
         <td style="padding: 4px 6px;">
           <div class="hours-flex-row" style="display: flex; gap: 8px; width: 100%;">
             ${dayLabels.length > 0
-            ? dayLabels.map((label: string, ci: number) => {
+            ? dayLabels.map((_label: string, ci: number) => {
               const v = getHourAt(day, ci);
               const displayVal = formatDuration(v);
               return `
@@ -426,10 +424,6 @@ export function setupTableSearch(): void {
   }
 }
 
-function filterTable(): void {
-  // Legacy function replaced by generateTable search integration
-  generateTable(true);
-}
 
 /**
  * 🛰️ DATA RECONCILIATION ENGINE

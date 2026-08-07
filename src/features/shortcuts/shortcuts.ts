@@ -40,7 +40,7 @@ import { generateTable } from '@/features/tracker/tracker';
 import { updateDashboard } from '@/features/dashboard/dashboard';
 import { renderHeatmap } from '@/features/heatmap/heatmap';
 import { renderPerformanceCurve } from '@/features/routines/performance-chart';
-import { syncProfileBroadcast } from '@/features/profile/profile.manager';
+
 
 // --- Navigation Helpers ---
 

@@ -3,7 +3,6 @@ import { setTxt } from '@/utils/dom.utils';
 
 let chartLibrary: any = null;
 
-let performanceChartInstance: any = null;
 
 export function setupChartFilters(): void {
   const filterSelect = document.getElementById('chartDateFilter') as HTMLSelectElement;
@@ -139,7 +138,7 @@ export async function renderPerformanceCurve(): Promise<void> {
   hoursGradient.addColorStop(0, 'rgba(37, 189, 132, 0.2)');
   hoursGradient.addColorStop(1, 'rgba(37, 189, 132, 0.01)');
 
-  performanceChartInstance = new chartLibrary.Chart(ctx, {
+  new chartLibrary.Chart(ctx, {
     type: 'line',
     data: {
       labels,

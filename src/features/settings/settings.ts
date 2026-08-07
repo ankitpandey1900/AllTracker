@@ -5,7 +5,7 @@
  * study categories, and changing themes.
  */
 
-import { appState, calculateDates, initializeData, syncTrackerTimelineWithSettings } from '@/state/app-state';
+import { appState, syncTrackerTimelineWithSettings } from '@/state/app-state';
 import { showToast } from '@/utils/dom.utils';
 import { getLocalIsoDate } from '@/utils/date.utils';
 import { saveSettingsToStorage, saveTrackerDataToStorage } from '@/services/data-bridge';

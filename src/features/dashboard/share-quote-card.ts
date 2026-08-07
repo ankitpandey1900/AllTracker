@@ -1,4 +1,4 @@
-import { appState } from '@/state/app-state';
+
 import { openSharePreview } from '@/features/dashboard/share-preview';
 import { QuotesManager } from '@/features/dashboard/quotes.manager';
 import { getSecureLocalProfileString } from '@/utils/security';
@@ -43,9 +43,6 @@ export async function generateQuoteShareCard(themeKey?: string, customText?: str
   const authorSource = (!customText && (finalQuote as any)?.s) || '';
 
   // Metadata
-  const reflectionNum = appState.trackerData?.length || 1;
-  const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-
   // Adaptive font sizing
   const len = quoteText.length;
   let qSize = '2.8rem';
@@ -60,7 +57,6 @@ export async function generateQuoteShareCard(themeKey?: string, customText?: str
   let textColor = '#f8f8f8';
   let accentColor = '#d8a45b'; // Swapped to a slightly richer gold to match the screenshot
   let brandingColor = 'rgba(216,164,91,0.7)';
-  let dateColor = 'rgba(216,164,91,0.45)';
   
   // Theme definitions
   if (theme === 'midnight') {
@@ -94,7 +90,6 @@ export async function generateQuoteShareCard(themeKey?: string, customText?: str
     textColor = '#2c2c2c';
     accentColor = '#8a7a64';
     brandingColor = 'rgba(138,122,100,0.8)';
-    dateColor = 'rgba(138,122,100,0.5)';
   } else if (theme === 'warm') {
     bgHtml = `
       <div style="position:absolute;inset:0;background:linear-gradient(135deg,#e8c89c 0%,#d2a66e 50%,#ba8848 100%);z-index:1;"></div>
@@ -103,7 +98,6 @@ export async function generateQuoteShareCard(themeKey?: string, customText?: str
     textColor = '#1a1410';
     accentColor = '#5c452e';
     brandingColor = 'rgba(92,69,46,0.8)';
-    dateColor = 'rgba(92,69,46,0.5)';
   } else if (theme === 'forest') {
     bgHtml = `
       <div style="position:absolute;inset:0;background:linear-gradient(180deg,#0a1a14 0%,#153024 40%,#1e4030 100%);z-index:1;"></div>
@@ -115,7 +109,6 @@ export async function generateQuoteShareCard(themeKey?: string, customText?: str
     textColor = '#e0ecd8';
     accentColor = '#94b898';
     brandingColor = 'rgba(148,184,152,0.7)';
-    dateColor = 'rgba(148,184,152,0.5)';
   } else if (theme === 'aurora') {
     bgHtml = `
       <div style="position:absolute;inset:0;background:#0d111a;z-index:1;"></div>
@@ -126,7 +119,6 @@ export async function generateQuoteShareCard(themeKey?: string, customText?: str
     textColor = '#f0f4ff';
     accentColor = '#80e5b3';
     brandingColor = 'rgba(128,229,179,0.7)';
-    dateColor = 'rgba(128,229,179,0.45)';
   } else if (theme === 'minimal') {
     bgHtml = `
       <div style="position:absolute;inset:0;background:linear-gradient(135deg,#ffffff 0%,#f0f0f0 100%);z-index:1;"></div>
@@ -134,7 +126,6 @@ export async function generateQuoteShareCard(themeKey?: string, customText?: str
     textColor = '#1a1a1a';
     accentColor = '#666666';
     brandingColor = 'rgba(40,40,40,0.7)';
-    dateColor = 'rgba(40,40,40,0.5)';
   }
 
   // ── Build the card HTML ──────────────────────────────────────────

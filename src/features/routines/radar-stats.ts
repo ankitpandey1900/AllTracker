@@ -4,7 +4,6 @@ import { getLocalIsoDate } from '@/utils/date.utils';
 
 let chartLibrary: any = null;
 
-let radarChartInstance: any = null;
 
 export async function renderRadarStats(): Promise<void> {
   const canvas = document.getElementById('skillRadarChart') as HTMLCanvasElement;
@@ -53,7 +52,7 @@ export async function renderRadarStats(): Promise<void> {
   const existingChart = chartLibrary.Chart.getChart(canvas);
   if (existingChart) existingChart.destroy();
 
-  radarChartInstance = new chartLibrary.Chart(ctx, {
+  new chartLibrary.Chart(ctx, {
     type: 'radar',
     data: {
       labels: ['Discipline', 'Endurance', 'Focus', 'Output', 'Versatility'],

@@ -24,7 +24,6 @@ import { renderBadges, checkBadges } from "@/features/dashboard/badges";
 import { initTasks } from "@/features/tasks/tasks";
 import { setupKeyboardShortcuts } from "@/features/shortcuts/shortcuts";
 import { initWorldStage } from "@/features/dashboard/leaderboard";
-import { initAtmosphericProtocol } from "@/features/dashboard/particles";
 import { checkProfileIdentity } from "@/features/profile/profile.manager";
 import { setupEventListeners } from "./command-center";
 import { startMissionPulse } from "./mission-pulse";

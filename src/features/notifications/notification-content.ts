@@ -1,5 +1,5 @@
 import { QUOTES } from '../../data/quotes.data';
-import { calculatePaceProjections, calculateSummaryStats } from '@/utils/calc.utils';
+import { calculatePaceProjections } from '@/utils/calc.utils';
 import { appState } from '@/state/app-state';
 
 /**

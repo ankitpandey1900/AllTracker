@@ -55,7 +55,7 @@ function getCategoryColor(name: string, targetRange?: any): { color: string, acc
 /** 
  * Analyzes mission status and applies glowing auras to core KPI cards.
  */
-export function applyKPIMissionAuras(completionRate: number, streak: number, day: number): void {
+export function applyKPIMissionAuras(completionRate: number, streak: number): void {
   const cards = {
     sustainability: document.getElementById('sustainabilityLabel')?.closest('.card'),
     totalHours: document.getElementById('totalHours')?.closest('.card'),
@@ -232,12 +232,6 @@ export function renderSectorTokens(today: any): void {
     d.setDate(d.getDate() + etaDays);
     return formatDate(d);
   };
-
-  const accentClasses = [
-    'accent-teal', 'accent-blue', 'accent-purple', 'accent-gold', 'accent-red', 
-    'accent-cyan', 'accent-pink', 'accent-purple', 'accent-orange', 'accent-lime',
-    'accent-fuchsia', 'accent-indigo'
-  ];
 
   const studyCats = displayCols.map((col) => {
     const total = categoryTotals.get(col.name) || 0;

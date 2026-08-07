@@ -26,7 +26,7 @@ import { syncProfileBroadcast } from "@/features/profile/profile.manager";
 
 export async function refreshApplicationUI(): Promise<void> {
   try {
-    const [settings, data, routines, history, bookmarks, tasks, timer] = await Promise.all([
+    const [settings, , routines, history, bookmarks, tasks, timer] = await Promise.all([
       loadSettingsFromStorage(),
       loadTrackerDataFromStorage(),
       loadRoutinesFromStorage(),

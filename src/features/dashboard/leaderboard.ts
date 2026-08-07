@@ -2,7 +2,6 @@ import { getSecureLocalProfileString } from '@/utils/security';
 import { appState } from '@/state/app-state';
 import Registry from '@/utils/lifecycle';
 import { fetchLeaderboard, fetchGlobalTelemetry } from '@/services/vault.service';
-import { GlobalProfile } from '@/types/profile.types';
 import { setupPasswordToggle } from '@/services/auth.service';
 import { formatDuration } from '@/utils/date.utils';
 import { calculateCompetitiveXP } from '@/utils/calc.utils';
@@ -230,13 +229,7 @@ export async function refreshLeaderboard(): Promise<void> {
   });
   setLbAllUsers(users);
 
-  const climbData = { worst: {} as Record<string, number>, best: {} as Record<string, number> };
-  users.forEach((u, i) => {
-    climbData.worst[u.display_name] = i + 1;
-    climbData.best[u.display_name] = i + 1;
-  });
-
-  renderLbPage(listEl, users, lbCurrentPage, climbData, myDisplayName);
+  renderLbPage(listEl, users, lbCurrentPage, myDisplayName);
   renderLbPagination(listEl, users.length);
 
   // Update MVP HUD

@@ -17,7 +17,7 @@ import {
 } from '@/services/vault.service';
 import { appState, ensureTimelineIntegrity } from '@/state/app-state';
 import { 
-  saveLocal, loadLocal, removeLocal, 
+  saveLocal, loadLocal, 
   saveSecuredSettings, loadSecuredSettings, 
   updateLocalTimestamp, getLocalTimestamp
 } from './data.storage';
@@ -147,7 +147,7 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
       loadRoutineHistoryCloud(), loadBookmarksCloud(), loadTasksCloud(), loadTimerStateCloud()
     ]);
 
-    const [cloudTracker, cloudSettings, cloudRoutines, cloudHistory, cloudBookmarks, cloudTasks, cloudTimer] = results;
+    const [cloudTracker, cloudSettings, cloudRoutines, _cloudHistory, cloudBookmarks, cloudTasks, cloudTimer] = results;
     const force = forceCloudPull || isLocalEmpty(appState.trackerData);
 
     const sync = (key: string, cloud: any, local: any, setter: Function, cloudSaver: Function) => {
@@ -224,7 +224,7 @@ export async function performBackgroundSync(): Promise<void> {
     ]);
     let changed = false;
 
-    const check = (key: string, cloud: any, local: any, setter: Function) => {
+    const check = (key: string, cloud: any, _local: any, setter: Function) => {
       if (cloud && isCloudNewer(key, cloud.updatedAt)) {
         setter(cloud.data);
         updateLocalTimestamp(key, cloud.updatedAt || undefined);

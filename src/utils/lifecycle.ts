@@ -40,7 +40,7 @@ class LifecycleRegistry {
    * Clears all registered tasks.
    */
   static clearAll(): void {
-    this.tasks.forEach((cleanup, name) => {
+    this.tasks.forEach((_cleanup, name) => {
       this.clear(name);
     });
   }

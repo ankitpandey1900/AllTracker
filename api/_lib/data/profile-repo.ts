@@ -355,10 +355,6 @@ export async function broadcastProfileStats(
       ? payload.display_name.trim()
       : profile.username;
 
-  // Extract timezone from payload (sent by frontend), default to Asia/Kolkata
-  const tz = (typeof payload.timezone === 'string' && payload.timezone.trim())
-    ? payload.timezone.trim()
-    : 'Asia/Kolkata';
 
   await pool.query(
     `

@@ -1,6 +1,6 @@
 import { appState } from '@/state/app-state';
-import type { SessionLog, ChatSession, MentorMessage } from '@/types/tracker.types';
-import { formatDateDMY, formatDuration } from '@/utils/date.utils';
+import type { ChatSession } from '@/types/tracker.types';
+import { formatDuration } from '@/utils/date.utils';
 import { getRankTitle } from '@/utils/rank.utils';
 import { getCurrentUserLeaderboardContext } from '@/features/dashboard/leaderboard';
 import {
@@ -57,7 +57,7 @@ export function getTacticalBriefing(): TacticalBriefing {
   const disciplineTrend = calculateDisciplineTrend(routineHistory, routines);
   const sustainabilityScore = calculateSustainability(logs);
   
-  const context = getStrategicContext(trackerData, logs, taskHealth, routineConsistency, sustainabilityScore);
+  const context = getStrategicContext(trackerData, taskHealth, routineConsistency, sustainabilityScore);
   const { message, persona } = generateMentorAdvice(taskHealth, sustainabilityScore, disciplineTrend, momentumData.value, vulnerableDay, neglectedTopic);
 
   return {
@@ -99,7 +99,7 @@ export function getTacticalBriefingString(): string {
   });
 }
 
-export function getStrategicContext(data: any[], logs: any[], taskHealth: any, routine: number, sustainability: number): string[] {
+export function getStrategicContext(data: any[], taskHealth: any, routine: number, sustainability: number): string[] {
   const totalHours = data.reduce((sum, day) => sum + (day.studyHours || []).reduce((a: number, b: number) => a + (b || 0), 0), 0);
   return [
     `Sustainability: ${sustainability}%`,

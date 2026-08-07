@@ -1,5 +1,4 @@
-import { STORAGE_KEYS } from '@/config/constants';
-import { getLocalTimestamp, updateLocalTimestamp } from './data.storage';
+import { getLocalTimestamp } from './data.storage';
 
 /**
  * DATA SYNC ENGINE

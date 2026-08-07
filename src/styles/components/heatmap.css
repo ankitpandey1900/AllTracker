@@ -1,12 +1,52 @@
+.heatmap-grid-container {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  --hm-cell: 12px;
+  --hm-gap: 3px;
+}
+
+.heatmap-yaxis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: calc((var(--hm-cell) * 7) + (var(--hm-gap) * 6));
+  padding-top: calc(var(--hm-cell) + var(--hm-gap)); /* Offset for first row (Sun) */
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 500;
+  text-align: right;
+  margin-top: 28px; /* Align with grid below months */
+}
+.heatmap-yaxis span {
+  line-height: var(--hm-cell);
+}
+
+.heatmap-grid-wrapper {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.heatmap-months {
+  position: relative;
+  height: 16px;
+  margin-bottom: 8px;
+  width: 100%;
+}
+.heatmap-months .month-label {
+  position: absolute;
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
 .heatmap-grid {
   display: grid;
-  grid-template-rows: repeat(7, 12px);
-  /* 7 Days of the week */
+  grid-template-rows: repeat(7, var(--hm-cell));
   grid-auto-flow: column;
-  grid-auto-columns: 12px;
-  gap: 3px;
-  margin-top: 4px;
-  /* Reduced from 12px */
+  grid-auto-columns: var(--hm-cell);
+  gap: var(--hm-gap);
   overflow-x: auto;
   padding-bottom: 8px;
   scrollbar-width: none;
@@ -17,8 +57,8 @@
 }
 
 .heatmap-cell {
-  width: 12px;
-  height: 12px;
+  width: var(--hm-cell);
+  height: var(--hm-cell);
   border-radius: 2px;
   background: var(--bg-primary);
   border: 1px solid rgba(255, 255, 255, 0.03);
@@ -219,7 +259,7 @@
 }
 
 .centered-grid {
-  margin-top: 24px;
+  margin-top: 0;
 }
 
 /* Cell Interaction */
@@ -372,10 +412,21 @@
     margin-top: 0;
   }
 
+  .heatmap-grid-container {
+    --hm-cell: 10px;
+    --hm-gap: 2px;
+    gap: 6px;
+  }
+
+  .heatmap-yaxis {
+    font-size: 8px;
+    margin-top: 22px;
+  }
+
   /* Unified Unified Scroll Architecture */
   .heatmap-grid-area {
-    padding: 12px;
-    border-radius: 16px;
+    padding: 16px;
+    border-radius: 12px;
     position: relative;
     overflow: hidden;
   }
@@ -387,8 +438,8 @@
     right: 0;
     top: 0;
     bottom: 0;
-    width: 40px;
-    background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.4));
+    width: 30px;
+    background: linear-gradient(90deg, transparent, var(--surface));
     pointer-events: none;
     z-index: 5;
   }
@@ -398,9 +449,9 @@
     width: 100%;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
-    padding-right: 20px; /* Space for the glow hint */
-    scroll-snap-type: x mandatory;
+    scroll-snap-type: none; /* Removed mandatory snap to make it smoother like GitHub */
     scroll-behavior: smooth;
+    padding-bottom: 4px;
   }
 
   .heatmap-scroll-viewport::-webkit-scrollbar {
@@ -409,25 +460,24 @@
 
   /* Professional Touch Targets & Snapping */
   .heatmap-grid {
-    grid-template-rows: repeat(7, 14px);
-    grid-auto-columns: 14px;
-    gap: 4px;
-    scroll-snap-align: start;
+    grid-template-rows: repeat(7, var(--hm-cell));
+    grid-auto-columns: var(--hm-cell);
+    gap: var(--hm-gap);
   }
 
   .heatmap-cell {
-    width: 14px;
-    height: 14px;
-    border-radius: 3px;
+    width: var(--hm-cell);
+    height: var(--hm-cell);
+    border-radius: 2px;
   }
 
   .heatmap-months {
-    height: 14px;
-    margin-bottom: 6px;
+    height: 12px;
+    margin-bottom: 4px;
   }
 
-  .month-label {
-    font-size: 9px;
+  .heatmap-months .month-label {
+    font-size: 8px;
   }
 
   .legend-content {

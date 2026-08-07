@@ -131,14 +131,6 @@ export class Shell {
     }
   }
 
-  private prefetchModules(currentId: string): void {
-    // If on Dashboard, prefetch Tasks and Routine
-    if (currentId === 'dashboardPane') {
-      import("@/features/tasks/tasks");
-      import("@/features/routines/routines");
-    }
-  }
-
   // ⚡ PRE-LOADED MODULE CACHE: All features are loaded eagerly on first shell init
   // This prevents the lazy-load delay when switching tabs for the first time
   private preloadAllModules(): void {
