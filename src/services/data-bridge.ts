@@ -17,8 +17,8 @@ import {
 } from '@/services/vault.service';
 import { appState, ensureTimelineIntegrity, syncTrackerTimelineWithSettings } from '@/state/app-state';
 import { 
-  saveLocal, loadLocal, 
-  saveSecuredSettings, loadSecuredSettings, 
+  saveLocal, loadLocal,
+  saveSecuredSettings,
   updateLocalTimestamp, getLocalTimestamp
 } from './data.storage';
 import { isCloudNewer, isDifferent, isLocalEmpty } from './data.sync';
@@ -30,44 +30,36 @@ function isAuthenticated(): boolean { return getCurrentUserId() !== null; }
 export async function saveTrackerDataToStorage(data: any[]): Promise<void> {
   appState.trackerData = data;
   ensureTimelineIntegrity();
-  saveLocal(STORAGE_KEYS.TRACKER_DATA, appState.trackerData);
-  updateLocalTimestamp(STORAGE_KEYS.TRACKER_DATA);
   if (isAuthenticated()) saveTrackerDataCloud(data);
 }
 
 export async function loadTrackerDataFromStorage(): Promise<any[]> {
-  return loadLocal<any[]>(STORAGE_KEYS.TRACKER_DATA) || [];
+  return [];
 }
 
 // --- History ---
 export async function saveRoutineHistoryToStorage(history: any): Promise<void> {
   appState.routineHistory = history;
-  saveLocal(STORAGE_KEYS.ROUTINE_HISTORY, history);
-  updateLocalTimestamp(STORAGE_KEYS.ROUTINE_HISTORY);
   if (isAuthenticated()) saveRoutineHistoryCloud(history);
 }
 
 export async function loadRoutineHistoryFromStorage(): Promise<any> {
-  return loadLocal<any>(STORAGE_KEYS.ROUTINE_HISTORY) || {};
+  return {};
 }
 
 // --- Bookmarks ---
 export async function saveBookmarksToStorage(bookmarks: any[]): Promise<void> {
   appState.bookmarks = bookmarks;
-  saveLocal(STORAGE_KEYS.BOOKMARKS, bookmarks);
-  updateLocalTimestamp(STORAGE_KEYS.BOOKMARKS);
   if (isAuthenticated()) saveBookmarksCloud(bookmarks);
 }
 
 export async function loadBookmarksFromStorage(): Promise<any[]> {
-  return loadLocal<any[]>(STORAGE_KEYS.BOOKMARKS) || [];
+  return [];
 }
 
 // --- Routine Reset ---
 export async function saveRoutineResetToStorage(reset: string): Promise<void> {
-  saveLocal(STORAGE_KEYS.ROUTINE_RESET, reset);
-  updateLocalTimestamp(STORAGE_KEYS.ROUTINE_RESET);
-  // Also persist into the settings blob so it syncs to cloud
+  // Persist into the settings blob so it syncs to cloud
   if (appState.settings.lastRoutineReset !== reset) {
     appState.settings.lastRoutineReset = reset;
     saveSettingsToStorage({ lastRoutineReset: reset });
@@ -75,42 +67,33 @@ export async function saveRoutineResetToStorage(reset: string): Promise<void> {
 }
 
 export async function loadRoutineResetFromStorage(): Promise<string | null> {
-  // Prefer local key, fall back to what came from cloud via settings
-  return localStorage.getItem(STORAGE_KEYS.ROUTINE_RESET) ||
-    (appState.settings.lastRoutineReset as string | undefined) ||
-    null;
+  return (appState.settings.lastRoutineReset as string | undefined) || null;
 }
 
 // --- Settings ---
 export async function saveSettingsToStorage(settings: any): Promise<void> {
   appState.settings = { ...appState.settings, ...settings };
-  saveSecuredSettings(appState.settings);
-  updateLocalTimestamp(STORAGE_KEYS.SETTINGS);
   if (isAuthenticated()) saveSettingsCloud(appState.settings);
 }
 
 export async function loadSettingsFromStorage(): Promise<any | null> {
-  return loadSecuredSettings();
+  return null;
 }
 
 // --- Routines & Tasks (Generic Logic) ---
 export async function saveRoutinesToStorage(data: any[]): Promise<void> {
   appState.routines = data;
-  saveLocal(STORAGE_KEYS.ROUTINES, data);
-  updateLocalTimestamp(STORAGE_KEYS.ROUTINES);
   if (isAuthenticated()) saveRoutinesCloud(data);
 }
 
-export async function loadRoutinesFromStorage(): Promise<any[]> { return loadLocal<any[]>(STORAGE_KEYS.ROUTINES) || []; }
+export async function loadRoutinesFromStorage(): Promise<any[]> { return []; }
 
 export async function saveTasksToStorage(data: any[]): Promise<void> {
   appState.tasks = data;
-  saveLocal(STORAGE_KEYS.TASKS, data);
-  updateLocalTimestamp(STORAGE_KEYS.TASKS);
   if (isAuthenticated()) saveTasksCloud(data);
 }
 
-export async function loadTasksFromStorage(): Promise<any[]> { return loadLocal<any[]>(STORAGE_KEYS.TASKS) || []; }
+export async function loadTasksFromStorage(): Promise<any[]> { return []; }
 
 // --- Timer (Pure Sync) ---
 export async function loadTimerStateFromStorage(): Promise<any | null> {
@@ -179,11 +162,21 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
       }
     };
 
-    sync(STORAGE_KEYS.TRACKER_DATA, cloudTracker, appState.trackerData, (d: any) => { appState.trackerData = d; syncTrackerTimelineWithSettings(); ensureTimelineIntegrity(); saveLocal(STORAGE_KEYS.TRACKER_DATA, appState.trackerData); }, saveTrackerDataCloud);
-    sync(STORAGE_KEYS.SETTINGS, cloudSettings, appState.settings, (d: any) => { appState.settings = { ...appState.settings, ...d }; saveSecuredSettings(d); }, saveSettingsCloud);
-    sync(STORAGE_KEYS.ROUTINES, cloudRoutines, appState.routines, (d: any) => { appState.routines = d; saveLocal(STORAGE_KEYS.ROUTINES, d); }, saveRoutinesCloud);
-    sync(STORAGE_KEYS.TASKS, cloudTasks, appState.tasks, (d: any) => { appState.tasks = d; saveLocal(STORAGE_KEYS.TASKS, d); }, saveTasksCloud);
-    sync(STORAGE_KEYS.BOOKMARKS, cloudBookmarks, appState.bookmarks, (d: any) => { appState.bookmarks = d; saveLocal(STORAGE_KEYS.BOOKMARKS, d); }, saveBookmarksCloud);
+    sync(STORAGE_KEYS.TRACKER_DATA, cloudTracker, appState.trackerData, (d: any) => { appState.trackerData = d; syncTrackerTimelineWithSettings(); ensureTimelineIntegrity(); }, saveTrackerDataCloud);
+    sync(STORAGE_KEYS.SETTINGS, cloudSettings, appState.settings, (d: any) => { 
+      appState.settings = { ...appState.settings, ...d }; 
+      saveSecuredSettings(d); 
+      import('@/state/app-state').then(m => {
+        if (d.theme) m.applyThemeToDOM(d.theme);
+        if (d.accentColor) m.applyAccentColorToDOM(d.accentColor);
+        if (d.timerStyle) m.applyTimerStyleToDOM(d.timerStyle);
+        if (d.timerFont) m.applyTimerFontToDOM(d.timerFont);
+        if (d.uiFont) m.applyUiFontToDOM(d.uiFont);
+      });
+    }, saveSettingsCloud);
+    sync(STORAGE_KEYS.ROUTINES, cloudRoutines, appState.routines, (d: any) => { appState.routines = d; }, saveRoutinesCloud);
+    sync(STORAGE_KEYS.TASKS, cloudTasks, appState.tasks, (d: any) => { appState.tasks = d; }, saveTasksCloud);
+    sync(STORAGE_KEYS.BOOKMARKS, cloudBookmarks, appState.bookmarks, (d: any) => { appState.bookmarks = d; }, saveBookmarksCloud);
 
     // If cloud timer is >24h old and running, it's a ghost session. Clear it.
     if (cloudTimer?.data?.isRunning && cloudTimer?.data?.startTime) {
@@ -244,12 +237,22 @@ export async function performBackgroundSync(): Promise<void> {
       }
     };
 
-    check(STORAGE_KEYS.TRACKER_DATA, cloud[0], appState.trackerData, (d: any) => { appState.trackerData = d; syncTrackerTimelineWithSettings(); ensureTimelineIntegrity(); saveLocal(STORAGE_KEYS.TRACKER_DATA, appState.trackerData); });
-    check(STORAGE_KEYS.SETTINGS, cloud[1], appState.settings, (d: any) => { appState.settings = { ...appState.settings, ...d }; saveSecuredSettings(d); });
-    check(STORAGE_KEYS.ROUTINES, cloud[2], appState.routines, (d: any) => { appState.routines = d; saveLocal(STORAGE_KEYS.ROUTINES, d); });
-    check(STORAGE_KEYS.TASKS, cloud[3], appState.tasks, (d: any) => { appState.tasks = d; saveLocal(STORAGE_KEYS.TASKS, d); });
-    check(STORAGE_KEYS.ROUTINE_HISTORY, cloud[4], appState.routineHistory, (d: any) => { appState.routineHistory = d; saveLocal(STORAGE_KEYS.ROUTINE_HISTORY, d); });
-    check(STORAGE_KEYS.BOOKMARKS, cloud[5], appState.bookmarks, (d: any) => { appState.bookmarks = d; saveLocal(STORAGE_KEYS.BOOKMARKS, d); });
+    check(STORAGE_KEYS.TRACKER_DATA, cloud[0], appState.trackerData, (d: any) => { appState.trackerData = d; syncTrackerTimelineWithSettings(); ensureTimelineIntegrity(); });
+    check(STORAGE_KEYS.SETTINGS, cloud[1], appState.settings, (d: any) => { 
+      appState.settings = { ...appState.settings, ...d }; 
+      saveSecuredSettings(d); 
+      import('@/state/app-state').then(m => {
+        if (d.theme) m.applyThemeToDOM(d.theme);
+        if (d.accentColor) m.applyAccentColorToDOM(d.accentColor);
+        if (d.timerStyle) m.applyTimerStyleToDOM(d.timerStyle);
+        if (d.timerFont) m.applyTimerFontToDOM(d.timerFont);
+        if (d.uiFont) m.applyUiFontToDOM(d.uiFont);
+      });
+    });
+    check(STORAGE_KEYS.ROUTINES, cloud[2], appState.routines, (d: any) => { appState.routines = d; });
+    check(STORAGE_KEYS.TASKS, cloud[3], appState.tasks, (d: any) => { appState.tasks = d; });
+    check(STORAGE_KEYS.ROUTINE_HISTORY, cloud[4], appState.routineHistory, (d: any) => { appState.routineHistory = d; });
+    check(STORAGE_KEYS.BOOKMARKS, cloud[5], appState.bookmarks, (d: any) => { appState.bookmarks = d; });
     
     // Adopt cloud timer if newer
     if (cloud[6]?.data) {

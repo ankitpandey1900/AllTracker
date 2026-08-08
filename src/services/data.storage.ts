@@ -1,5 +1,5 @@
 import { STORAGE_KEYS } from '@/config/constants';
-import { applyThemeToDOM, applyTimerStyleToDOM, applyTimerFontToDOM, applyUiFontToDOM, applyAccentColorToDOM } from '@/state/app-state';
+
 
 /**
  * DATA STORAGE ENGINE
@@ -21,22 +21,13 @@ export function removeLocal(key: string): void {
   localStorage.removeItem(key);
 }
 
-export function saveSecuredSettings(settings: any): void {
-  saveLocal(STORAGE_KEYS.SETTINGS, settings);
+export function saveSecuredSettings(_settings: any): void {
+  removeLocal(STORAGE_KEYS.SETTINGS);
 }
 
 export function loadSecuredSettings(): any | null {
-  const settings = loadLocal<any>(STORAGE_KEYS.SETTINGS);
-  if (!settings) return null;
-  
-  if (settings.theme) {
-    applyThemeToDOM(settings.theme);
-    if (settings.accentColor) applyAccentColorToDOM(settings.accentColor);
-    applyTimerStyleToDOM(settings.timerStyle);
-    applyTimerFontToDOM(settings.timerFont);
-    if (settings.uiFont) applyUiFontToDOM(settings.uiFont);
-  }
-  return settings;
+  removeLocal(STORAGE_KEYS.SETTINGS);
+  return null;
 }
 
 export function updateLocalTimestamp(key: string, timestamp?: string): void {
