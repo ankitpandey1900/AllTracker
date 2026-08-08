@@ -113,7 +113,7 @@ export async function readVault(
   switch (vault) {
     case "tracker": {
       const { rows } = await pool.query(
-        "select log_date as date, study_hours, problems_solved as \"problemsSolved\", completed, topics, project, updated_at from daily_trackers where user_id = $1 order by log_date asc",
+        "select to_char(log_date, 'YYYY-MM-DD') as date, study_hours, problems_solved as \"problemsSolved\", completed, topics, project, updated_at from daily_trackers where user_id = $1 order by log_date asc",
         [profile.profileId]
       );
       
@@ -135,12 +135,12 @@ export async function readVault(
     }
     case "settings": {
       const prefsRes = await pool.query(
-        "select * from user_preferences where user_id = $1 limit 1",
+        "select *, to_char(start_date, 'YYYY-MM-DD') as formatted_start_date, to_char(end_date, 'YYYY-MM-DD') as formatted_end_date from user_preferences where user_id = $1 limit 1",
         [profile.profileId]
       );
       
       const phasesRes = await pool.query(
-        "select name, start_date as \"startDate\", end_date as \"endDate\", columns from study_phases where user_id = $1 order by created_at asc",
+        "select name, to_char(start_date, 'YYYY-MM-DD') as \"startDate\", to_char(end_date, 'YYYY-MM-DD') as \"endDate\", columns from study_phases where user_id = $1 order by created_at asc",
         [profile.profileId]
       );
       
@@ -155,8 +155,8 @@ export async function readVault(
       if (prefsRes.rows.length > 0) {
         const p = prefsRes.rows[0];
         data = {
-          startDate: p.start_date,
-          endDate: p.end_date,
+          startDate: p.formatted_start_date || p.start_date,
+          endDate: p.formatted_end_date || p.end_date,
           columns: p.columns || [],
           theme: p.theme,
           timerStyle: p.timer_style,
@@ -238,7 +238,7 @@ export async function readVault(
     case "tasks": {
       const { rows } = await pool.query<TaskRow>(
         `
-          select id, text, completed, date, priority, created_at, completed_at
+          select id, text, completed, to_char(date, 'YYYY-MM-DD') as date, priority, created_at, completed_at
           from tasks
           where user_id = $1
           order by created_at asc
