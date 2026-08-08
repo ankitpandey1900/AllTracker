@@ -481,7 +481,7 @@
     margin-bottom: 80px;
   }
 
-  /* Modal Optimization */
+  /* Modal Optimization — compact by default for small modals */
   .modal-content {
     width: 100% !important;
     height: auto !important;
@@ -489,6 +489,27 @@
     border-radius: 12px !important;
     margin: 16px !important;
     padding-bottom: env(safe-area-inset-bottom) !important;
+  }
+
+  /* Full-screen override for content-heavy modals */
+  #weeklyModal .modal-content,
+  #historyModal .modal-content,
+  #settingsModal .modal-content,
+  #heatmapModal .modal-content,
+  #analyticsModal .modal-content,
+  #badgesModal .modal-content,
+  #bookmarkModal .modal-content,
+  #routineModal .modal-content,
+  #profileSetupModal .modal-content,
+  #importModal .modal-content,
+  #userManualModal .modal-content,
+  #authModal .modal-content {
+    min-height: 100% !important;
+    height: auto !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
   }
 
   .modal-header {
@@ -501,7 +522,7 @@
   }
 
   .modal-body {
-    padding: 24px var(--mobile-gutter) 100px !important;
+    padding: 24px var(--mobile-gutter) 24px !important;
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch;
   }
@@ -558,12 +579,40 @@
     font-size: 1.5rem !important;
   }
 
-  /* ☢️ NUCLEAR OVERRIDE: History Modal Mission Context */
-  #historyModal .modal-content.wide {
-    width: 96% !important;
+  /* ── Analytics Modal Mobile ── */
+  #analyticsModal .modal-content.wide {
     max-width: 100% !important;
-    margin: 10px auto !important;
-}
+  }
+
+  #analyticsModal .grid-2 {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  #analyticsModal .chart-wrap {
+    min-height: 200px !important;
+  }
+
+  #analyticsModal .modal-header {
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+  }
+
+  /* ── Badges Modal Mobile ── */
+  #badgesModal .badge-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  #badgesModal .badge {
+    padding: 12px 10px !important;
+    font-size: 0.85rem !important;
+  }
+
+  /* ── History Modal Mobile ── */
+  #historyModal .modal-content.wide {
+    max-width: 100% !important;
+  }
 }
 
 
