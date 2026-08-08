@@ -1,3 +1,4 @@
+i
 /* --- Professional Responsive Layout Engine --- */
 
 /* Removed legacy history modal CSS from responsive.css */
@@ -31,7 +32,7 @@
   border-radius: 16px;
   padding: 16px;
   gap: 12px !important;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   z-index: 10000;
@@ -267,7 +268,8 @@
     display: flex;
     justify-content: space-around;
     align-items: stretch;
-    z-index: 9999; /* High, but MUST be below Leaderboard HUD (2,000,000) */
+    z-index: 9999;
+    /* High, but MUST be below Leaderboard HUD (2,000,000) */
     padding-bottom: env(safe-area-inset-bottom);
     box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.4);
   }
@@ -621,6 +623,7 @@
 
 /* Large Phones / Phablets (iPhone Pro Max, S24 Ultra - 6.7"+ class) */
 @media (max-width: 480px) {
+
   /* Routine HUD Elasticity */
   .hero-routine-next {
     flex-direction: column !important;
@@ -777,6 +780,7 @@
 .view-pane.active {
   animation: fadeInUp 0.4s ease-out forwards;
 }
+
 @supports (-webkit-touch-callout: none) {
   @media all and (display-mode: standalone) {
     .app-header {

@@ -155,18 +155,23 @@ export async function saveTasksToStorage(data: any[]): Promise<void> {
   updateLocalTimestamp(STORAGE_KEYS.TASKS);
 
   const previousById = new Map(previous.map(task => [task.id, task]));
-  const nextIds = new Set(snapshot.map(task => task.id));
   for (const task of snapshot) {
     const oldTask = previousById.get(task.id);
     if (!oldTask || JSON.stringify(oldTask) !== JSON.stringify(task)) {
       queueVaultWrite(`${STORAGE_KEYS.TASKS}:${task.id}`, () => upsertTaskCloud(task));
     }
   }
-  for (const task of previous) {
-    if (!nextIds.has(task.id)) {
-      queueVaultWrite(`${STORAGE_KEYS.TASKS}:${task.id}`, () => deleteTaskCloud(task.id));
-    }
-  }
+}
+
+/**
+ * A missing task in a browser snapshot is not enough evidence to delete it:
+ * another device may simply not have completed its first cloud pull. Only the
+ * explicit Delete action is allowed to issue a server-side delete.
+ */
+export async function deleteTaskFromStorage(taskId: string): Promise<void> {
+  saveLocal(STORAGE_KEYS.TASKS, snapshotForSync(appState.tasks));
+  updateLocalTimestamp(STORAGE_KEYS.TASKS);
+  queueVaultWrite(`${STORAGE_KEYS.TASKS}:${taskId}`, () => deleteTaskCloud(taskId));
 }
 
 export async function loadTasksFromStorage(): Promise<any[]> { return loadLocal<any[]>(STORAGE_KEYS.TASKS) || []; }

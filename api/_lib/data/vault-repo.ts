@@ -250,8 +250,13 @@ export async function readVault(
         `,
         [profile.profileId],
       );
-      const updatedAt =
-        rows.length > 0 ? rows[rows.length - 1].updated_at || rows[rows.length - 1].created_at || null : null;
+      // Include soft-deleted rows in the timestamp calculation. Otherwise a
+      // second device cannot detect that a task was deleted and keeps showing it.
+      const { rows: timestampRows } = await pool.query<{ updated_at: string | null }>(
+        "select max(updated_at) as updated_at from tasks where user_id = $1",
+        [profile.profileId],
+      );
+      const updatedAt = timestampRows[0]?.updated_at || null;
       return { data: rows.map(toTask), updatedAt };
     }
     case "timer": {

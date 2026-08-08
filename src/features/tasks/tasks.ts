@@ -7,7 +7,7 @@
 
 import { appState, subscribeToState } from '@/state/app-state';
 import { showToast } from '@/utils/dom.utils';
-import { saveTasksToStorage } from '@/services/data-bridge';
+import { deleteTaskFromStorage, saveTasksToStorage } from '@/services/data-bridge';
 import { log } from '@/utils/logger.utils';
 import { getLocalIsoDate } from '@/utils/date.utils';
 import type { StudyTask } from '@/types/task.types';
@@ -276,43 +276,18 @@ export function toggleTask(id: string): void {
   }
 }
 
-/** Automatically deletes tasks that have been in history for more than 3 days,
- *  and archives incomplete tasks older than 7 days to prevent backlog overflow. */
+/**
+ * Tasks are user records, not disposable cache entries. Keep them until the
+ * user explicitly deletes them; the UI already separates active work from
+ * completed history.
+ */
 function cleanupTasks(): void {
-  const threeDaysInMs = 3 * 24 * 60 * 60 * 1000;
-  const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
-  const now = Date.now();
-
-  const originalCount = appState.tasks.length;
-  let changed = false;
-
-  const updated = appState.tasks
-    .map(t => {
-      // Auto-archive: incomplete tasks older than 7 days
-      if (!t.completed && t.createdAt && (now - t.createdAt) > sevenDaysInMs) {
-        changed = true;
-        return { ...t, completed: true, completedAt: now, text: `[Archived] ${t.text}` };
-      }
-      return t;
-    })
-    .filter(t => {
-      // Purge: completed tasks older than 3 days
-      if (t.completed && t.completedAt) {
-        return (now - t.completedAt) < threeDaysInMs;
-      }
-      return true;
-    });
-
-  if (changed || updated.length < originalCount) {
-    appState.tasks = updated;
-    saveTasks();
-    log.info(`Cleanup: ${originalCount - updated.length} tasks purged, stale backlog archived.`);
-  }
+  log.info('Task cleanup skipped: tasks are retained until explicitly deleted.');
 }
 
 export function deleteTask(id: string): void {
   appState.tasks = appState.tasks.filter(t => t.id !== id);
-  saveTasks();
+  void deleteTaskFromStorage(id);
   showToast('Task Removed.');
 }
 
