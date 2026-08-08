@@ -93,6 +93,7 @@ export function applyColumnSettings(): void {
     const startDate = (item.querySelector('.range-start') as HTMLInputElement).value;
     const endDate = (item.querySelector('.range-end') as HTMLInputElement).value;
     const name = (item.querySelector('.range-name') as HTMLInputElement)?.value || '';
+    const id = (item as HTMLElement).dataset.phaseId || crypto.randomUUID();
     
     // Custom range category definitions
     const rangeCols: StudyCategory[] = [];
@@ -107,6 +108,7 @@ export function applyColumnSettings(): void {
       const today = new Date();
       const endOfYear = new Date(today.getFullYear(), 11, 31);
       appState.settings.customRanges.push({
+        id,
         startDate: startDate || today.toISOString().split('T')[0],
         endDate: endDate || endOfYear.toISOString().split('T')[0],
         name,
@@ -116,6 +118,7 @@ export function applyColumnSettings(): void {
       import('@/utils/dom.utils').then(m => m.showToast(`Warning: Phase "${name || 'Unnamed'}" has start date after end date. It was not saved.`, 'error'));
     } else {
       appState.settings.customRanges.push({
+        id,
         startDate,
         endDate,
         name,
@@ -242,6 +245,7 @@ function addCustomRangeToDOM(range: Partial<CustomRange>, index: number): void {
 
   const div = document.createElement('div');
   div.className = 'custom-range-item settings-card';
+  div.dataset.phaseId = range.id || crypto.randomUUID();
   div.style.marginBottom = '20px';
   div.innerHTML = `
     <div class="settings-card-header phase-header-toggle" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 8px; user-select: none;">

@@ -11,6 +11,7 @@ import {
   saveTimerStateCloud, loadTimerStateCloud,
   saveTasksCloud, loadTasksCloud,
   upsertTaskCloud, deleteTaskCloud,
+  upsertPhaseCloud, deletePhaseCloud,
   loadUserProfileCloud,
   updateSyncStatus,
   subscribeToUserDataSync,
@@ -106,11 +107,29 @@ export async function loadRoutineResetFromStorage(): Promise<string | null> {
 
 // --- Settings ---
 export async function saveSettingsToStorage(settings: any): Promise<void> {
+  const previous = loadLocal<any>(STORAGE_KEYS.SETTINGS)?.customRanges || [];
   appState.settings = { ...appState.settings, ...settings };
   const snapshot = snapshotForSync(appState.settings);
   saveLocal(STORAGE_KEYS.SETTINGS, snapshot);
   updateLocalTimestamp(STORAGE_KEYS.SETTINGS);
   queueVaultWrite(STORAGE_KEYS.SETTINGS, () => saveSettingsCloud(snapshot));
+
+  const previousById = new Map(previous.filter((phase: any) => phase.id).map((phase: any) => [phase.id, phase]));
+  const nextIds = new Set(snapshot.customRanges.filter((phase: any) => phase.id).map((phase: any) => phase.id));
+  for (const phase of snapshot.customRanges) {
+    // Legacy cached phases have no server identity. They are read safely but
+    // are never allowed to create duplicate rows during an unrelated setting save.
+    if (!phase.id) continue;
+    const oldPhase = previousById.get(phase.id);
+    if (!oldPhase || JSON.stringify(oldPhase) !== JSON.stringify(phase)) {
+      queueVaultWrite(`phase:${phase.id}`, () => upsertPhaseCloud(phase));
+    }
+  }
+  for (const phase of previous) {
+    if (phase.id && !nextIds.has(phase.id)) {
+      queueVaultWrite(`phase:${phase.id}`, () => deletePhaseCloud(phase.id));
+    }
+  }
 }
 
 export async function loadSettingsFromStorage(): Promise<any | null> {

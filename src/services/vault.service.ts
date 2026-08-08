@@ -1,5 +1,5 @@
 import { apiRequest } from "@/services/api.service";
-import type { TrackerDay, Settings } from "@/types/tracker.types";
+import type { TrackerDay, Settings, CustomRange } from "@/types/tracker.types";
 import type { StudyTask } from "@/types/task.types";
 import type { RoutineItem, RoutineHistory } from "@/types/routine.types";
 import type { Bookmark } from "@/types/bookmark.types";
@@ -124,6 +124,16 @@ export async function upsertTaskCloud(task: StudyTask): Promise<void> {
 export async function deleteTaskCloud(taskId: string): Promise<void> {
   if (!getCurrentUserId()) return;
   await apiRequest("/api/app/vault/tasks", { method: "DELETE", body: { id: taskId } });
+}
+
+export async function upsertPhaseCloud(phase: CustomRange): Promise<void> {
+  if (!getCurrentUserId()) return;
+  await apiRequest("/api/app/vault/phases", { method: "POST", body: { phase } });
+}
+
+export async function deletePhaseCloud(phaseId: string): Promise<void> {
+  if (!getCurrentUserId()) return;
+  await apiRequest("/api/app/vault/phases", { method: "DELETE", body: { id: phaseId } });
 }
 
 export function subscribeToRealtimeTelemetry(

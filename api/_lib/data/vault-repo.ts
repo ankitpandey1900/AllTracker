@@ -145,7 +145,7 @@ export async function readVault(
       );
       
       const phasesRes = await pool.query(
-        "select name, start_date as \"startDate\", end_date as \"endDate\", columns from study_phases where user_id = $1 order by created_at asc",
+        "select id, name, start_date as \"startDate\", end_date as \"endDate\", columns from study_phases where user_id = $1 and deleted_at is null order by created_at asc",
         [profile.profileId]
       );
       
@@ -355,18 +355,8 @@ export async function writeVault(
           ]
         );
 
-        // 2. Refresh Study Phases
-        await client.query("delete from study_phases where user_id = $1", [profile.profileId]);
-        if (Array.isArray(incoming.customRanges) && incoming.customRanges.length > 0) {
-          await client.query(
-            `
-              insert into study_phases (user_id, name, start_date, end_date, columns)
-              select $1::uuid, (r->>'name'), (r->>'startDate'), (r->>'endDate'), (r->'columns')::jsonb
-              from jsonb_array_elements($2::jsonb) as r
-            `,
-            [profile.profileId, JSON.stringify(incoming.customRanges)]
-          );
-        }
+        // 2. Study phases are synchronized through record-level endpoints.
+        // Never delete them as a side effect of saving unrelated settings.
 
         // 3. Refresh Badges
         await client.query("delete from user_badges where user_id = $1", [profile.profileId]);
@@ -537,6 +527,54 @@ export async function writeVault(
   } finally {
     client.release();
   }
+}
+
+export async function upsertPhase(
+  profile: AuthenticatedProfile,
+  phase: Record<string, unknown>,
+): Promise<void> {
+  if (
+    typeof phase.id !== "string" ||
+    typeof phase.startDate !== "string" ||
+    typeof phase.endDate !== "string" ||
+    !Array.isArray(phase.columns)
+  ) {
+    throw new Error("Invalid phase payload");
+  }
+
+  const pool = getPool();
+  await pool.query(
+    `
+      insert into study_phases (id, user_id, name, start_date, end_date, columns, updated_at, deleted_at)
+      values ($1::uuid, $2::uuid, $3, $4, $5, $6::jsonb, now(), null)
+      on conflict (id) do update set
+        name = excluded.name,
+        start_date = excluded.start_date,
+        end_date = excluded.end_date,
+        columns = excluded.columns,
+        updated_at = now(),
+        deleted_at = null
+      where study_phases.user_id = excluded.user_id
+    `,
+    [
+      phase.id,
+      profile.profileId,
+      typeof phase.name === "string" ? phase.name : "",
+      phase.startDate,
+      phase.endDate,
+      JSON.stringify(phase.columns),
+    ],
+  );
+  await pool.query("update user_preferences set updated_at = now() where user_id = $1", [profile.profileId]);
+}
+
+export async function deletePhase(profile: AuthenticatedProfile, phaseId: string): Promise<void> {
+  const pool = getPool();
+  await pool.query(
+    "update study_phases set deleted_at = now(), updated_at = now() where id = $1::uuid and user_id = $2::uuid",
+    [phaseId, profile.profileId],
+  );
+  await pool.query("update user_preferences set updated_at = now() where user_id = $1", [profile.profileId]);
 }
 
 export async function upsertTask(

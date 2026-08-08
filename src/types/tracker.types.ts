@@ -31,6 +31,8 @@ export interface StudyCategory {
 
 /** A date-range override for column names and targets */
 export interface CustomRange {
+  /** Stable cloud identity for record-level synchronization. */
+  id?: string;
   startDate: string;
   endDate: string;
   /** Overridden categories for this range. */
