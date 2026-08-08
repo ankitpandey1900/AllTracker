@@ -48,7 +48,10 @@ export async function fetchLeaderboard(timeframe: string = 'weekly') {
     with timeframe_stats as (
       select
         dt.user_id,
-        sum(coalesce((select sum(hour_value) from unnest(dt.study_hours) as hour_value), 0)) as timeframe_hours
+        sum(coalesce((
+          select sum(hours.hour_value)
+          from unnest(coalesce(dt.study_hours, '{}'::numeric[])) as hours(hour_value)
+        ), 0::numeric)) as timeframe_hours
       from daily_trackers dt
       where 1=1 ${trackerTimeCondition}
       group by dt.user_id
