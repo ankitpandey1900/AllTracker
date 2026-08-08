@@ -59,9 +59,12 @@ export async function igniteApp(): Promise<void> {
     applyTimerStyleToDOM(appState.settings.timerStyle);
     applyTimerFontToDOM(appState.settings.timerFont);
     applyUiFontToDOM(appState.settings.uiFont);
-    migrateDataFormat();
-
+    calculateDates();
     appState.trackerData = (trackerData && trackerData.length > 0) ? trackerData : initializeData();
+    migrateDataFormat();
+    // A cloud read intentionally returns dated tracker logs rather than a
+    // redundant day counter. Repair old cached records before the first UI
+    // render, so phases are resolved correctly without opening Settings.
     ensureTimelineIntegrity();
     calculateDates();
 

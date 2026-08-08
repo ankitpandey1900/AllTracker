@@ -122,7 +122,11 @@ export async function readVault(
         [profile.profileId]
       );
       
-      const data = rows.map(r => ({
+      // `day` is derived from chronological position, not a database column.
+      // Include it in the read model so first-paint clients and older local
+      // caches use the same complete TrackerDay shape.
+      const data = rows.map((r, index) => ({
+        day: index + 1,
         date: r.date,
         studyHours: r.study_hours || [],
         problemsSolved: r.problemsSolved || 0,

@@ -391,12 +391,35 @@ export function syncTrackerTimelineWithSettings(): void {
   appState.trackerData = newData;
 }
 
+/**
+ * Restores the derived day number used by the tracker UI.
+ *
+ * `day` deliberately is not stored in the database: it is the position of a
+ * dated log in the user's timeline and can always be reconstructed. Older
+ * local cache entries and the database read model therefore may not contain
+ * it. Keep the repair at the state boundary so every renderer gets a valid
+ * timeline, including the very first render after a refresh.
+ */
+export function normalizeTrackerDayNumbers(): void {
+  const data = appState.trackerData;
+  if (!Array.isArray(data) || data.length === 0) return;
+
+  const needsNormalization = data.some((entry, index) => entry.day !== index + 1);
+  if (!needsNormalization) return;
+
+  appState.trackerData = data.map((entry, index) => ({
+    ...entry,
+    day: index + 1,
+  }));
+}
+
 /** 
  * Infinite Timeline Logic
  * Ensures 'Today' always exists in the tracker data.
  * If the user hasn't opened the app in days, it auto-fills the gaps.
  */
 export function ensureTimelineIntegrity(): void {
+  normalizeTrackerDayNumbers();
   const data = appState.trackerData;
   if (!data || data.length === 0) return;
 
