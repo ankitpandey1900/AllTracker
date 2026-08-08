@@ -7,7 +7,7 @@ if (root) {
   root.innerHTML = `
     <div class="manual-shell">
       <header class="manual-topbar">
-        <a class="manual-brand" href="/" aria-label="Return to All Tracker dashboard"><span class="manual-mark">A</span> ALL TRACKER</a>
+        <a class="manual-brand" href="/" aria-label="Return to All Tracker dashboard"><img src="/app-logo.png" alt="All Tracker" /></a>
         <div class="manual-topbar-actions">
           <label class="manual-search" for="manualSearch">
             <span class="manual-search-label">Search</span>
