@@ -14,7 +14,7 @@ export async function fetchTransmissions(userId?: string) {
       p.full_name as display_name,
       p.username as handle,
       p.avatar,
-      p.rank,
+      COALESCE(s.rank, 'IRON') as rank,
       t.content,
       t.focus_tag,
       t.likes_count,
@@ -22,7 +22,9 @@ export async function fetchTransmissions(userId?: string) {
       t.replies_count,
       t.views_count,
       t.created_at,
-      p.total_hours, p.current_streak, p.competitive_score,
+      COALESCE(s.total_hours, 0) as total_hours,
+      COALESCE(s.current_streak, 0) as current_streak,
+      COALESCE(s.competitive_score, 0) as competitive_score,
       (t.user_id = $1) as is_mine,
       EXISTS (
         SELECT 1 FROM feed_interactions fi 
@@ -34,6 +36,7 @@ export async function fetchTransmissions(userId?: string) {
       ) as is_reposted_by_me
     FROM transmissions t
     JOIN profiles p ON t.user_id = p.id
+    LEFT JOIN user_stats s ON s.user_id = p.id
     ORDER BY t.created_at DESC
     LIMIT 50
   `;
@@ -143,10 +146,11 @@ export async function fetchComments(postId: string, currentUserId?: string) {
       p.full_name as display_name,
       p.username as handle,
       p.avatar,
-      p.rank,
+      COALESCE(s.rank, 'IRON') as rank,
       (c.user_id = $2) as is_mine
     FROM feed_comments c
     JOIN profiles p ON c.user_id = p.id
+    LEFT JOIN user_stats s ON s.user_id = p.id
     WHERE c.post_id = $1
     ORDER BY c.created_at ASC
     LIMIT 50
@@ -204,16 +208,19 @@ export async function fetchUserPosts(targetUserId: string, currentUserId?: strin
   const query = `
     SELECT 
       t.id, t.user_id,
-      p.full_name as display_name, p.username as handle, p.avatar, p.rank,
+      p.full_name as display_name, p.username as handle, p.avatar, COALESCE(s.rank, 'IRON') as rank,
       t.content, t.focus_tag,
       t.likes_count, t.reposts_count, t.replies_count, t.views_count,
       t.created_at,
-      p.total_hours, p.current_streak, p.competitive_score,
+      COALESCE(s.total_hours, 0) as total_hours,
+      COALESCE(s.current_streak, 0) as current_streak,
+      COALESCE(s.competitive_score, 0) as competitive_score,
       (t.user_id = $2) as is_mine,
       EXISTS (SELECT 1 FROM feed_interactions fi WHERE fi.post_id = t.id AND fi.user_id = $2 AND fi.interaction_type = 'LIKE') as is_liked_by_me,
       EXISTS (SELECT 1 FROM feed_interactions fi WHERE fi.post_id = t.id AND fi.user_id = $2 AND fi.interaction_type = 'REPOST') as is_reposted_by_me
     FROM transmissions t
     JOIN profiles p ON t.user_id = p.id
+    LEFT JOIN user_stats s ON s.user_id = p.id
     WHERE t.user_id = $1
     ORDER BY t.created_at DESC
     LIMIT 30
@@ -277,9 +284,11 @@ export async function fetchNotifications(userId: string) {
   const { rows } = await pool.query(`
     SELECT 
       n.id, n.type, n.post_id, n.preview, n.is_read, n.created_at,
-      p.full_name as from_name, p.username as from_handle, p.avatar as from_avatar, p.rank as from_rank
+      p.full_name as from_name, p.username as from_handle, p.avatar as from_avatar,
+      COALESCE(s.rank, 'IRON') as from_rank
     FROM feed_notifications n
     JOIN profiles p ON n.from_user_id = p.id
+    LEFT JOIN user_stats s ON s.user_id = p.id
     WHERE n.user_id = $1
     ORDER BY n.created_at DESC
     LIMIT 30
@@ -315,8 +324,9 @@ export async function searchUsers(query: string) {
   const safeQuery = query.replace(/[^\w]/g, '').substring(0, 30);
   if (!safeQuery) return [];
   const { rows } = await pool.query(
-    `SELECT id, username, full_name, avatar, rank
-     FROM profiles
+    `SELECT p.id, p.username, p.full_name, p.avatar, COALESCE(s.rank, 'IRON') as rank
+     FROM profiles p
+     LEFT JOIN user_stats s ON s.user_id = p.id
      WHERE LOWER(username) LIKE $1
      ORDER BY username ASC
      LIMIT 8`,

@@ -18,7 +18,6 @@ import {
 import { appState, ensureTimelineIntegrity, syncTrackerTimelineWithSettings } from '@/state/app-state';
 import { 
   saveLocal, loadLocal,
-  saveSecuredSettings,
   updateLocalTimestamp, getLocalTimestamp
 } from './data.storage';
 import { isCloudNewer, isDifferent, isLocalEmpty } from './data.sync';
@@ -26,35 +25,69 @@ import { isCloudNewer, isDifferent, isLocalEmpty } from './data.sync';
 // --- Auth Helpers ---
 function isAuthenticated(): boolean { return getCurrentUserId() !== null; }
 
+// Vault writes replace whole collections. Keep one ordered write stream per
+// collection so rapid edits cannot let an older snapshot finish last.
+const pendingVaultWrites = new Map<string, Promise<void>>();
+
+function snapshotForSync<T>(data: T): T {
+  return JSON.parse(JSON.stringify(data)) as T;
+}
+
+function queueVaultWrite(key: string, write: () => Promise<void>): void {
+  if (!isAuthenticated()) return;
+
+  const previous = pendingVaultWrites.get(key) || Promise.resolve();
+  const next = previous
+    .catch(() => undefined)
+    .then(write)
+    .catch((error) => {
+      log.error(`Vault save failed for ${key}; local cache retained.`, error);
+    });
+
+  pendingVaultWrites.set(key, next);
+  void next.finally(() => {
+    if (pendingVaultWrites.get(key) === next) pendingVaultWrites.delete(key);
+  });
+}
+
 // --- Tracker ---
 export async function saveTrackerDataToStorage(data: any[]): Promise<void> {
   appState.trackerData = data;
   ensureTimelineIntegrity();
-  if (isAuthenticated()) saveTrackerDataCloud(data);
+  const snapshot = snapshotForSync(appState.trackerData);
+  saveLocal(STORAGE_KEYS.TRACKER_DATA, snapshot);
+  updateLocalTimestamp(STORAGE_KEYS.TRACKER_DATA);
+  queueVaultWrite(STORAGE_KEYS.TRACKER_DATA, () => saveTrackerDataCloud(snapshot));
 }
 
 export async function loadTrackerDataFromStorage(): Promise<any[]> {
-  return [];
+  return loadLocal<any[]>(STORAGE_KEYS.TRACKER_DATA) || [];
 }
 
 // --- History ---
 export async function saveRoutineHistoryToStorage(history: any): Promise<void> {
   appState.routineHistory = history;
-  if (isAuthenticated()) saveRoutineHistoryCloud(history);
+  const snapshot = snapshotForSync(history);
+  saveLocal(STORAGE_KEYS.ROUTINE_HISTORY, snapshot);
+  updateLocalTimestamp(STORAGE_KEYS.ROUTINE_HISTORY);
+  queueVaultWrite(STORAGE_KEYS.ROUTINE_HISTORY, () => saveRoutineHistoryCloud(snapshot));
 }
 
 export async function loadRoutineHistoryFromStorage(): Promise<any> {
-  return {};
+  return loadLocal<any>(STORAGE_KEYS.ROUTINE_HISTORY) || {};
 }
 
 // --- Bookmarks ---
 export async function saveBookmarksToStorage(bookmarks: any[]): Promise<void> {
   appState.bookmarks = bookmarks;
-  if (isAuthenticated()) saveBookmarksCloud(bookmarks);
+  const snapshot = snapshotForSync(bookmarks);
+  saveLocal(STORAGE_KEYS.BOOKMARKS, snapshot);
+  updateLocalTimestamp(STORAGE_KEYS.BOOKMARKS);
+  queueVaultWrite(STORAGE_KEYS.BOOKMARKS, () => saveBookmarksCloud(snapshot));
 }
 
 export async function loadBookmarksFromStorage(): Promise<any[]> {
-  return [];
+  return loadLocal<any[]>(STORAGE_KEYS.BOOKMARKS) || [];
 }
 
 // --- Routine Reset ---
@@ -73,27 +106,36 @@ export async function loadRoutineResetFromStorage(): Promise<string | null> {
 // --- Settings ---
 export async function saveSettingsToStorage(settings: any): Promise<void> {
   appState.settings = { ...appState.settings, ...settings };
-  if (isAuthenticated()) saveSettingsCloud(appState.settings);
+  const snapshot = snapshotForSync(appState.settings);
+  saveLocal(STORAGE_KEYS.SETTINGS, snapshot);
+  updateLocalTimestamp(STORAGE_KEYS.SETTINGS);
+  queueVaultWrite(STORAGE_KEYS.SETTINGS, () => saveSettingsCloud(snapshot));
 }
 
 export async function loadSettingsFromStorage(): Promise<any | null> {
-  return null;
+  return loadLocal<any>(STORAGE_KEYS.SETTINGS);
 }
 
 // --- Routines & Tasks (Generic Logic) ---
 export async function saveRoutinesToStorage(data: any[]): Promise<void> {
   appState.routines = data;
-  if (isAuthenticated()) saveRoutinesCloud(data);
+  const snapshot = snapshotForSync(data);
+  saveLocal(STORAGE_KEYS.ROUTINES, snapshot);
+  updateLocalTimestamp(STORAGE_KEYS.ROUTINES);
+  queueVaultWrite(STORAGE_KEYS.ROUTINES, () => saveRoutinesCloud(snapshot));
 }
 
-export async function loadRoutinesFromStorage(): Promise<any[]> { return []; }
+export async function loadRoutinesFromStorage(): Promise<any[]> { return loadLocal<any[]>(STORAGE_KEYS.ROUTINES) || []; }
 
 export async function saveTasksToStorage(data: any[]): Promise<void> {
   appState.tasks = data;
-  if (isAuthenticated()) saveTasksCloud(data);
+  const snapshot = snapshotForSync(data);
+  saveLocal(STORAGE_KEYS.TASKS, snapshot);
+  updateLocalTimestamp(STORAGE_KEYS.TASKS);
+  queueVaultWrite(STORAGE_KEYS.TASKS, () => saveTasksCloud(snapshot));
 }
 
-export async function loadTasksFromStorage(): Promise<any[]> { return []; }
+export async function loadTasksFromStorage(): Promise<any[]> { return loadLocal<any[]>(STORAGE_KEYS.TASKS) || []; }
 
 // --- Timer (Pure Sync) ---
 export async function loadTimerStateFromStorage(): Promise<any | null> {
@@ -101,9 +143,10 @@ export async function loadTimerStateFromStorage(): Promise<any | null> {
 }
 
 export async function saveTimerStateToStorage(state: any): Promise<void> {
-  saveLocal(STORAGE_KEYS.TIMER, state);
+  const snapshot = snapshotForSync(state);
+  saveLocal(STORAGE_KEYS.TIMER, snapshot);
   updateLocalTimestamp(STORAGE_KEYS.TIMER);
-  if (isAuthenticated()) saveTimerStateCloud(state).catch(() => {});
+  queueVaultWrite(STORAGE_KEYS.TIMER, () => saveTimerStateCloud(snapshot));
 }
 
 export async function clearTimerStateDB(): Promise<void> {
@@ -148,10 +191,12 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
       
       if (cloud && force) {
         setter(cloud.data, false);
+        saveLocal(key, cloud.data);
         updateLocalTimestamp(key, cloud.updatedAt || undefined);
       } else if (cloud && isNewer && !isCloudDataEmpty) {
         // Cloud is newer and HAS DATA: Overwrite local
         setter(cloud.data, false);
+        saveLocal(key, cloud.data);
         updateLocalTimestamp(key, cloud.updatedAt || undefined);
       } else if (isDiff && !isLocalEmpty(local)) {
         // Local is newer, OR cloud is newer but empty: Push local to cloud
@@ -165,7 +210,7 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
     sync(STORAGE_KEYS.TRACKER_DATA, cloudTracker, appState.trackerData, (d: any) => { appState.trackerData = d; syncTrackerTimelineWithSettings(); ensureTimelineIntegrity(); }, saveTrackerDataCloud);
     sync(STORAGE_KEYS.SETTINGS, cloudSettings, appState.settings, (d: any) => { 
       appState.settings = { ...appState.settings, ...d }; 
-      saveSecuredSettings(d); 
+      saveLocal(STORAGE_KEYS.SETTINGS, appState.settings);
       import('@/state/app-state').then(m => {
         if (d.theme) m.applyThemeToDOM(d.theme);
         if (d.accentColor) m.applyAccentColorToDOM(d.accentColor);
@@ -232,6 +277,7 @@ export async function performBackgroundSync(): Promise<void> {
     const check = (key: string, cloud: any, _local: any, setter: Function) => {
       if (cloud && isCloudNewer(key, cloud.updatedAt)) {
         setter(cloud.data);
+        saveLocal(key, cloud.data);
         updateLocalTimestamp(key, cloud.updatedAt || undefined);
         changed = true;
       }
@@ -240,7 +286,7 @@ export async function performBackgroundSync(): Promise<void> {
     check(STORAGE_KEYS.TRACKER_DATA, cloud[0], appState.trackerData, (d: any) => { appState.trackerData = d; syncTrackerTimelineWithSettings(); ensureTimelineIntegrity(); });
     check(STORAGE_KEYS.SETTINGS, cloud[1], appState.settings, (d: any) => { 
       appState.settings = { ...appState.settings, ...d }; 
-      saveSecuredSettings(d); 
+      saveLocal(STORAGE_KEYS.SETTINGS, appState.settings);
       import('@/state/app-state').then(m => {
         if (d.theme) m.applyThemeToDOM(d.theme);
         if (d.accentColor) m.applyAccentColorToDOM(d.accentColor);

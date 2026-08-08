@@ -31,7 +31,7 @@ export async function fetchFeed(forceView: boolean = false): Promise<Transmissio
     return posts;
   } catch (error) {
     console.error('Failed to fetch feed:', error);
-    return [];
+    throw error;
   }
 }
 

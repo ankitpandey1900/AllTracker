@@ -213,11 +213,12 @@ async function refreshFeedStream() {
 
     streamEl.innerHTML = transmissions.map(t => renderTransmission(t)).join('');
     bindFeedEvents();
-  } catch {
+  } catch (error) {
+    console.error('Feed stream refresh failed:', error);
     streamEl.innerHTML = `<div class="feed-empty">
       <div class="feed-empty-icon">⚠️</div>
-      <div class="feed-empty-title">Couldn't load posts</div>
-      <div class="feed-empty-text">Check your connection and try again.</div>
+      <div class="feed-empty-title">Feed temporarily unavailable</div>
+      <div class="feed-empty-text">The server could not load transmissions. Please try again shortly.</div>
     </div>`;
   }
 }
