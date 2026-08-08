@@ -26,15 +26,19 @@ export function renderLbPage(
 
   const podiumEl = document.getElementById('leaderboardPodium');
   let listUsers = allUsers.slice(pageStart, pageEnd);
+  const podiumUsers = allUsers.filter((user) => {
+    const hours = lbTimeframe === 'all-time' ? user.total_hours : (user.timeframe_hours ?? user.total_hours);
+    return calculateCompetitiveXP(hours, user.current_streak || 0, user.integrity_score || 0) > 0;
+  }).slice(0, 3);
 
   // 1. Render Podium and primary page users
-  if (page === 1 && podiumEl && allUsers.length >= 3) {
+  if (page === 1 && podiumEl && podiumUsers.length === 3) {
     podiumEl.style.display = 'flex';
-    podiumEl.innerHTML = renderPodium(allUsers.slice(0, 3), myDisplayName);
+    podiumEl.innerHTML = renderPodium(podiumUsers, myDisplayName);
     
-    listUsers = allUsers.slice(3, pageEnd);
+    listUsers = allUsers.slice(pageStart, pageEnd).filter((user) => !podiumUsers.includes(user));
     listEl.innerHTML = listUsers
-      .map((u, i) => renderUserRow(u, 3 + i, myDisplayName))
+      .map((u) => renderUserRow(u, allUsers.indexOf(u), myDisplayName))
       .join('');
   } else {
     if (podiumEl) podiumEl.style.display = 'none';
@@ -326,7 +330,7 @@ export function renderHoverCard(
 
       <div class="hover-stats">
         <div class="hover-stat-box tactical-glass-box">
-          <div class="stat-name">LIFETIME_EXP</div>
+          <div class="stat-name">ALL-TIME STUDY</div>
           <div class="stat-val" style="text-transform: uppercase;">${formatDuration(u.total_hours) || '0H'}</div>
           <div class="tactical-corner bottom-right"></div>
         </div>

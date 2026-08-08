@@ -20,21 +20,23 @@ export async function fetchLeaderboard(timeframe: string = 'weekly') {
       and last_active < now() - interval '10 minutes'
   `);
 
-  // Determine the time condition based on timeframe
-  let timeCondition = '';
+  // The Study Log is the product's complete dated record: it includes timer
+  // sessions and legitimate manual entries. Ranking only `study_sessions`
+  // made logged work disappear from weekly/monthly views.
+  let trackerTimeCondition = '';
   switch (timeframe) {
     case 'today':
-      timeCondition = `and start_time AT TIME ZONE 'Asia/Kolkata' >= (now() AT TIME ZONE 'Asia/Kolkata')::date`;
+      trackerTimeCondition = `and dt.log_date >= (now() AT TIME ZONE 'Asia/Kolkata')::date`;
       break;
     case 'weekly':
-      timeCondition = `and start_time >= now() - interval '7 days'`;
+      trackerTimeCondition = `and dt.log_date >= (now() AT TIME ZONE 'Asia/Kolkata')::date - 6`;
       break;
     case 'monthly':
-      timeCondition = `and start_time >= now() - interval '30 days'`;
+      trackerTimeCondition = `and dt.log_date >= (now() AT TIME ZONE 'Asia/Kolkata')::date - 29`;
       break;
     case 'all-time':
     default:
-      timeCondition = '';
+      trackerTimeCondition = '';
       break;
   }
 
@@ -42,47 +44,14 @@ export async function fetchLeaderboard(timeframe: string = 'weekly') {
   // Sensitive PII (email, phone_number, dob, internal ID) is NEVER sent to the client.
   // Age is computed server-side from dob so the raw date is never exposed.
   
-  // Use a left join to compute dynamic timeframe hours if needed,
-  // falling back to total_hours if it's all-time to save query complexity on massive tables.
-  const query = timeframe === 'all-time' ? `
-    select
-      p.username,
-      p.full_name,
-      p.avatar,
-      p.nation,
-      s.rank,
-      s.total_hours as timeframe_hours,
-      s.total_hours,
-      case 
-        when (up.last_active AT TIME ZONE 'Asia/Kolkata')::date = (now() AT TIME ZONE 'Asia/Kolkata')::date 
-        then s.today_hours 
-        else 0 
-      end as today_hours,
-      up.is_focusing,
-      up.focus_subject,
-      up.last_active,
-      p.dob,
-      p.is_focus_public,
-      s.integrity_score,
-      s.competitive_score,
-      s.current_streak,
-      (up.last_active > now() - interval '60 seconds') as is_online
-    from profiles p
-    left join user_stats s on s.user_id = p.id
-    left join user_presence up on up.user_id = p.id
-    where p.is_public is not false
-    order by s.total_hours desc, s.competitive_score desc, p.updated_at desc nulls last
-    limit 1000
-  ` : `
+  const query = `
     with timeframe_stats as (
-      select user_id, sum(duration) as timeframe_hours
-      from study_sessions
-      -- Today's live total lives in user_stats so an active timer can be
-      -- ranked before it is stopped and converted into a final session row.
-      -- Exclude today's completed rows here to avoid counting them twice.
-      where 1=1 ${timeCondition}
-        and (start_time AT TIME ZONE 'Asia/Kolkata')::date < (now() AT TIME ZONE 'Asia/Kolkata')::date
-      group by user_id
+      select
+        dt.user_id,
+        sum(coalesce((select sum(hour_value) from unnest(dt.study_hours) as hour_value), 0)) as timeframe_hours
+      from daily_trackers dt
+      where 1=1 ${trackerTimeCondition}
+      group by dt.user_id
     )
     select
       p.username,
@@ -90,19 +59,15 @@ export async function fetchLeaderboard(timeframe: string = 'weekly') {
       p.avatar,
       p.nation,
       s.rank,
-      (
-        coalesce(ts.timeframe_hours, 0) +
-        case
-          when (up.last_active AT TIME ZONE 'Asia/Kolkata')::date = (now() AT TIME ZONE 'Asia/Kolkata')::date
-          then coalesce(s.today_hours, 0)
-          else 0
-        end
-      ) as timeframe_hours,
-      s.total_hours,
-      case 
-        when (up.last_active AT TIME ZONE 'Asia/Kolkata')::date = (now() AT TIME ZONE 'Asia/Kolkata')::date 
-        then s.today_hours 
-        else 0 
+      case
+        when $1 = 'all-time' then greatest(coalesce(ts.timeframe_hours, 0), coalesce(s.total_hours, 0))
+        else coalesce(ts.timeframe_hours, 0)
+      end as timeframe_hours,
+      greatest(coalesce(ts.timeframe_hours, 0), coalesce(s.total_hours, 0)) as total_hours,
+      case
+        when (up.last_active AT TIME ZONE 'Asia/Kolkata')::date = (now() AT TIME ZONE 'Asia/Kolkata')::date
+        then coalesce(s.today_hours, 0)
+        else 0
       end as today_hours,
       up.is_focusing,
       up.focus_subject,
@@ -122,7 +87,7 @@ export async function fetchLeaderboard(timeframe: string = 'weekly') {
     limit 1000
   `;
 
-  const { rows } = await pool.query(query);
+  const { rows } = await pool.query(query, [timeframe]);
 
   return rows.map((row: any) => {
     // Compute age server-side — raw DOB never leaves the server
