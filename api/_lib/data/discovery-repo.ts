@@ -77,7 +77,11 @@ export async function fetchLeaderboard(timeframe: string = 'weekly') {
     with timeframe_stats as (
       select user_id, sum(duration) as timeframe_hours
       from study_sessions
+      -- Today's live total lives in user_stats so an active timer can be
+      -- ranked before it is stopped and converted into a final session row.
+      -- Exclude today's completed rows here to avoid counting them twice.
       where 1=1 ${timeCondition}
+        and (start_time AT TIME ZONE 'Asia/Kolkata')::date < (now() AT TIME ZONE 'Asia/Kolkata')::date
       group by user_id
     )
     select
@@ -86,7 +90,14 @@ export async function fetchLeaderboard(timeframe: string = 'weekly') {
       p.avatar,
       p.nation,
       s.rank,
-      coalesce(ts.timeframe_hours, 0) as timeframe_hours,
+      (
+        coalesce(ts.timeframe_hours, 0) +
+        case
+          when (up.last_active AT TIME ZONE 'Asia/Kolkata')::date = (now() AT TIME ZONE 'Asia/Kolkata')::date
+          then coalesce(s.today_hours, 0)
+          else 0
+        end
+      ) as timeframe_hours,
       s.total_hours,
       case 
         when (up.last_active AT TIME ZONE 'Asia/Kolkata')::date = (now() AT TIME ZONE 'Asia/Kolkata')::date 

@@ -83,6 +83,13 @@ export function getTacticalBriefing(): TacticalBriefing {
 export function getTacticalBriefingString(): string {
   const briefing = getTacticalBriefing();
   const totalHours = (appState.trackerData || []).reduce((sum, day) => sum + (day.studyHours || []).reduce((s, h) => s + (h || 0), 0), 0);
+  let sessionLogs: any[] = [];
+  try {
+    const saved = JSON.parse(localStorage.getItem('all_tracker_history') || '[]');
+    sessionLogs = Array.isArray(saved) ? saved : [];
+  } catch {
+    // The tracker grid and timer context still give Maamu useful context.
+  }
   
   return buildDeepContextJSON({
     username: localStorage.getItem('tracker_username') || "New Participant",
@@ -92,6 +99,9 @@ export function getTacticalBriefingString(): string {
     trackerData: appState.trackerData,
     tasks: appState.tasks,
     routines: appState.routines,
+    routineHistory: appState.routineHistory,
+    settings: appState.settings,
+    sessionLogs,
     activeTimer: appState.activeTimer,
     beastModeActive: !!appState.settings.beastMode,
     leaderboard: getCurrentUserLeaderboardContext()

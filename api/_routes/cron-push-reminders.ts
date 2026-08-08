@@ -3,26 +3,16 @@ import webpush from 'web-push';
 import { getPool } from '../_lib/db/pool.js';
 import { sendJson } from '../_lib/http/response.js';
 
-const SLOTS = [
-  { id: 'morning-brief', minute: 450 },
-  { id: 'morning-start', minute: 570 },
-  { id: 'midday-check', minute: 720 },
-  { id: 'afternoon-reset', minute: 870 },
-  { id: 'evening-push', minute: 1050 },
-  { id: 'night-sprint', minute: 1200 },
-  { id: 'day-close', minute: 1305 },
-];
-
-function indiaNow(): { date: string; minute: number } {
+function indiaNow(): { date: string } {
   const parts = new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
   }).formatToParts();
   const read = (type: Intl.DateTimeFormatPartTypes) => parts.find(part => part.type === type)?.value || '0';
-  return { date: `${read('year')}-${read('month')}-${read('day')}`, minute: Number(read('hour')) * 60 + Number(read('minute')) };
+  return { date: `${read('year')}-${read('month')}-${read('day')}` };
 }
 
 function message(username: string, todayHours: number, slot: string): { title: string; body: string } {
-  if (slot === 'morning-brief') return { title: 'Maamu: naya din, nayi fight', body: `${username}, pehla focused block chalu karo. Intentions se rank nahi banti.` };
+  if (slot === 'daily-brief') return { title: 'Maamu: naya din, nayi fight', body: `${username}, pehla focused block chalu karo. Intentions se rank nahi banti.` };
   if (slot === 'day-close') return todayHours > 0
     ? { title: 'Maamu: day close check', body: `${username}, ${todayHours.toFixed(1)}h logged. Kal ke liye ek clear target set karke so.` }
     : { title: 'Maamu: scoreboard blank hai', body: `${username}, aaj 0h. 20 minutes ka honest session abhi bhi din bacha sakta hai.` };
@@ -45,11 +35,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   }
 
   const now = indiaNow();
-  const slot = SLOTS.find(item => now.minute >= item.minute && now.minute < item.minute + 15);
-  if (!slot) {
-    sendJson(res, 200, { ok: true, sent: 0, reason: 'No reminder slot due.' });
-    return;
-  }
+  const slot = { id: 'daily-brief' };
 
   webpush.setVapidDetails('mailto:support@alltracker.online', publicKey, privateKey);
   const pool = getPool();

@@ -14,16 +14,18 @@ const TIME_ZONE = 'Asia/Kolkata';
 const notifiedRoutineIds = new Set<string>();
 let notificationsInitialized = false;
 
-// Seven useful checkpoints. They only run while the app is open; web push is a
+// Night-owl study checkpoints. They only run while the app is open; web push is a
 // separate server-side feature and must not be faked by the browser scheduler.
 const DAILY_SLOTS = [
-  { id: 'morning-brief', hour: 7, minute: 30 },
-  { id: 'morning-start', hour: 9, minute: 30 },
-  { id: 'midday-check', hour: 12, minute: 0 },
-  { id: 'afternoon-reset', hour: 14, minute: 30 },
-  { id: 'evening-push', hour: 17, minute: 30 },
-  { id: 'night-sprint', hour: 20, minute: 0 },
-  { id: 'day-close', hour: 21, minute: 45 },
+  { id: 'late-morning', hour: 10, minute: 0 },
+  { id: 'afternoon-start', hour: 13, minute: 0 },
+  { id: 'afternoon-reset', hour: 16, minute: 0 },
+  { id: 'evening-start', hour: 18, minute: 0 },
+  { id: 'prime-time', hour: 20, minute: 0 },
+  { id: 'night-sprint', hour: 22, minute: 0 },
+  { id: 'midnight-check', hour: 0, minute: 0 },
+  { id: 'late-night-push', hour: 2, minute: 0 },
+  { id: 'final-call', hour: 4, minute: 30 },
 ];
 
 type IndiaClock = { date: string; hour: number; minute: number };

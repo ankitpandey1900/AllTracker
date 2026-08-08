@@ -83,6 +83,9 @@ export function buildDeepContextJSON(data: {
   trackerData: any[];
   tasks: any[];
   routines: any[];
+  routineHistory: any;
+  settings: any;
+  sessionLogs: any[];
   activeTimer: any;
   beastModeActive: boolean;
   leaderboard: any;
@@ -150,6 +153,23 @@ export function buildDeepContextJSON(data: {
     s: r.streak || 0 // pass the streak!
   }));
 
+  // Recent completed timer sessions add the detail missing from the grid: what
+  // was studied, for how long, and when. Limit the payload so one chat never
+  // becomes an unbounded dump of a user's history.
+  const recentSessions = data.sessionLogs.slice(-40).map(session => ({
+    at: session.date || session.startTime || session.createdAt || null,
+    subject: session.categoryName || session.subject || 'Uncategorized',
+    minutes: Math.round(Number(session.duration || 0) / 60),
+    note: typeof session.note === 'string' ? session.note.slice(0, 160) : '',
+  }));
+
+  const phaseContext = (data.settings.customRanges || []).map((phase: any) => ({
+    name: phase.name || 'Study phase',
+    start: phase.startDate,
+    end: phase.endDate,
+    subjects: (phase.columns || []).map((column: any) => column.name).filter(Boolean),
+  }));
+
   return JSON.stringify({
     user: { 
       handle: "@" + data.username, 
@@ -177,6 +197,13 @@ export function buildDeepContextJSON(data: {
       overdue_top: overdueTasks
     },
     rout: routinesContext,
+    routine_history: data.routineHistory,
+    study_setup: {
+      current_columns: (data.settings.columns || []).map((column: any) => column.name).filter(Boolean),
+      phases: phaseContext,
+      session_goal: data.settings.sessionGoal || null,
+    },
+    sessions_recent: recentSessions,
     lb: data.leaderboard,
     tmr: data.activeTimer
   });

@@ -51,7 +51,7 @@ Route handlers are in `api/_routes/`. Query and data mapping code is in `api/_li
 
 Browser notifications require permission from a real user click. AllTracker currently runs seven Maamu-style reminder slots per day while the app is open, plus routine alerts and a periodic check for public users who are actively studying.
 
-For true notifications after the PWA is closed, use the Web Push path in this repo: the browser saves an opted-in device subscription, the `/api/app/cron/push-reminders` cron sends up to seven India-time messages per day, and `public/sw.js` displays them. Before deployment, run `docs/push-notifications-migration.sql`, set the VAPID values and `CRON_SECRET`, and confirm your Vercel plan supports a 15-minute cron. Quiet hours and per-user frequency controls are the next improvement before expanding this to a large audience.
+For true notifications after the PWA is closed, use the Web Push path in this repo: the browser saves an opted-in device subscription, `public/sw.js` displays the push, and the daily Hobby cron sends one Maamu briefing. Before deployment, run `docs/push-notifications-migration.sql` and set the VAPID values and `CRON_SECRET`. The email re-engagement route is deliberately not registered as a cron; use the admin page to send emails manually. Hobby cron timing is approximate, so this is one daily nudge rather than a precise seven-message schedule.
 
 ## Useful places to inspect first
 

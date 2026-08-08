@@ -115,6 +115,7 @@ async function fetchUsers() {
         </td>
         <td>
           <button class="btn" onclick="sendTargetedRoast('${u.profile_id}', this)">Send Roast</button>
+          <button class="btn" onclick="sendTargetedPush('${u.profile_id}')">Send Push</button>
         </td>
       `;
       tbody.appendChild(tr);
@@ -229,6 +230,22 @@ window.sendTargetedRoast = async (profileId: string, btn: HTMLButtonElement) => 
     modal.style.display = "flex";
     if (input) input.focus();
   }
+}
+
+// @ts-ignore
+window.sendTargetedPush = async (profileId: string) => {
+  const title = window.prompt('Push title:', 'Maamu: reality check');
+  if (title === null) return;
+  const message = window.prompt('Push message:');
+  if (!message?.trim()) return;
+  const response = await fetch('/api/app/ankit/send-push', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ profile_id: profileId, title, message }),
+  });
+  const result = await response.json();
+  if (!response.ok) return alert(`Push failed: ${result.error || 'Unknown error'}`);
+  alert(result.sent > 0 ? `Push sent to ${result.sent} device(s).` : 'No active push subscription found for this user.');
 }
 
 document.getElementById("nuke-btn")?.addEventListener("click", async (e) => {

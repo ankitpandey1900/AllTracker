@@ -23,6 +23,7 @@ import cronPushReminders from "./_routes/cron-push-reminders.js";
 import adminUsers from "./_routes/admin/users.js";
 import adminSendRoast from "./_routes/admin/send-roast.js";
 import adminDbStats from "./_routes/admin/db-stats.js";
+import adminSendPush from "./_routes/admin/send-push.js";
 
 export default async function handler(
   req: IncomingMessage & { query?: Record<string, string | string[]> },
@@ -53,6 +54,7 @@ export default async function handler(
     if (path === "/ankit/users") return adminUsers(req, res);
     if (path === "/ankit/send-roast") return adminSendRoast(req, res);
     if (path === "/ankit/db-stats") return adminDbStats(req, res);
+    if (path === "/ankit/send-push") return adminSendPush(req, res);
     
     // Dynamic vault path: /api/app/vault/:name
     if (path.startsWith("/vault/")) {
