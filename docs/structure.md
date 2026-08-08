@@ -1,75 +1,48 @@
-# THE MASTER MAP: COMPLETE REPO TREE 🗺️🏗️
-
-This is the entire "DNA" of AllTracker. I’ve mapped out every single file so you know exactly where the bones are buried. No more guessing.
-
----
-
-## 📂 THE FULL RECURSIVE TREE
+# Project map
 
 ```text
 AllTracker/
-├── api/                       # THE CLOUD (Vercel Serverless Backend)
-│   ├── main.ts                # THE GATEWAY (Consolidated API Switchboard)
-│   ├── auth/                  # Better Auth OAuth endpoints
-│   ├── _routes/               # THE LOGIC (Implementation of all API paths)
-│   └── _lib/                  # THE FOUNDATION (DB, Auth, and HTTP patterns)
-├── docs/                      # THE MANUALS (Where you are now)
-│   ├── engineering/           # Empty for now (Legacy)
-│   ├── development.md         # The Hacker's Blueprint
-│   ├── guide.md               # The Pilot's Survival Guide
-│   └── structure.md           # This file (The Master Map)
-├── public/                    # THE ASSETS (Logos, Icons, and MP3s)
-│   ├── logo.png               # The face of the app
-│   ├── interstellar.mp3       # The mood
-│   └── manifest.json          # PWA configuration
-├── src/                       # THE FRONTEND (The Heart of the App)
-│   ├── main.ts                # THE ORCHESTRATOR (App Entry Point)
-│   ├── vite-env.d.ts          # Global types for Vite
-│   ├── core/                  # THE HEART (Lifecycle & System logic)
-│   │   ├── app-ignition.ts    # The Spark (Auth check & data hydration)
-│   │   ├── command-center.ts  # The CNS (Global events & navigation)
-│   │   └── mission-pulse.ts   # The Heartbeat (12s Sync loop)
-│   ├── features/              # THE MUSCLE (Specific App Pillars)
-│   │   ├── dashboard/         # Leaderboard, Analytics, and Particles
-│   │   ├── intelligence/      # Maamu AI (Prompts, Math, and Chat)
-│   │   ├── timer/             # Focus sessions & Midnight Split logic
-│   │   ├── tracker/           # The 120-day categorical grid
-│   │   ├── tasks/             # Priority-based task management
-│   │   ├── routines/          # Habit tracking and 14-day trends
-│   │   └── layout/            # The Shell and persistent UI
-│   ├── services/              # THE NERVES (Data & API Gatekeepers)
-│   │   ├── data-bridge.ts     # The Gatekeeper (Local-First sync)
-│   │   ├── groq.service.ts    # The AI Uplink (Maamu's brain)
-│   │   ├── vault.service.ts   # The Registry (Mapping data to API)
-│   │   ├── auth.service.ts    # The Identity Guard (OAuth management)
-│   │   └── api.service.ts     # The Resilient Uplink (Fetch wrapper)
-│   ├── components/            # THE FRAGMENTS (Shared UI Modals)
-│   │   └── modals/            # 15+ specialized UI overlays
-│   ├── state/                 # THE MEMORY (App State)
-│   │   └── app-state.ts       # Single Source of Truth
-│   ├── styles/                # THE SKIN (Modular CSS)
-│   │   ├── themes/            # Chanakya, Ayodhya, and Default themes
-│   │   └── components/        # Feature-specific styles (Intelligence, Modal, etc.)
-│   ├── types/                 # THE DNA (TypeScript Definitions)
-│   └── utils/                 # THE TOOLS (Math, Date, and Security helpers)
-├── index.html                 # The mounting point for the SPA
-├── vercel.json                # Deployment configuration
-└── package.json               # Dependencies and build scripts
+  src/
+    core/            startup, app refresh, command handling
+    features/        product features: timer, tasks, tracker, feed, routines, settings
+    services/        API client, auth, sync, storage, notifications
+    state/           shared app state and derived tracker data
+    styles/          global, component, and theme CSS
+    types/           TypeScript models
+  api/
+    _routes/         server route handlers used by /api/app/*
+    _lib/            database pool, auth, request helpers, repositories
+    auth/            Better Auth route
+  public/            PWA manifest, service worker, images, audio
+  docs/              setup notes and SQL migrations
 ```
 
----
+## Request paths
 
-## 🏗️ THE STRUCTURAL LOGIC
+```text
+Browser UI
+  -> feature module
+  -> service / data bridge
+  -> /api/app route
+  -> repository
+  -> Supabase Postgres
+```
 
-1.  **Pure TypeScript**: I skipped the heavy frameworks. We use Vanilla TS for near-zero memory footprint and total control over the DOM.
-2.  **Logic + UI Split**: In `src/features/`, you'll notice `feature.ts` handles the math/state, while `feature.ui.ts` handles the HTML. Never mix them.
-3.  **Local-First Sync**: We save to `localStorage` first (instant), then the **Data Bridge** pushes it to the cloud in the background.
-4.  **The API Gateway**: To bypass Vercel's 12-function limit, we use a single entry point (`api/main.ts`) that routes traffic to internal handlers in `api/_routes/`.
-5.  **The Service Hierarchy**: 
-    - `api.service` = Low-level Fetch.
-    - `vault.service` = Data Mapping.
-    - `data-bridge` = Sync Orchestration.
+`api/main.ts` is the Vercel API entry point. It dispatches `/api/app/*` paths to the handlers in `api/_routes/`.
 
----
+## Where data belongs
 
-**This map is the ground truth. Use it to navigate the grind.** 🚀
+| Data | Client entry point | Server repository |
+| --- | --- | --- |
+| Tracker, settings, routines, bookmarks | `src/services/data-bridge.ts` | `api/_lib/data/vault-repo.ts` |
+| Tasks | `src/features/tasks/tasks.ts` | `api/_lib/data/vault-repo.ts` |
+| Phases | `src/features/settings/settings.ts` | `api/_lib/data/vault-repo.ts` |
+| Timer sessions and presence | `src/features/timer/timer.ts` | `api/_lib/data/study-repo.ts` / `profile-repo.ts` |
+| Feed and feed notifications | `src/features/feed/` | `api/_lib/data/feed-repo.ts` |
+
+## Things that are intentionally separate
+
+- Browser notifications are local reminders while the app is running.
+- Feed notifications are database records shown inside the feed bell.
+- Focus presence is used by the leaderboard and may be used for an opt-in, privacy-aware reminder that another public user is studying.
+- Maamu chat history is stored separately from the tracker vault.

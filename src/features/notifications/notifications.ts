@@ -1,323 +1,226 @@
 import { appState } from '@/state/app-state';
 import { showToast } from '@/utils/dom.utils';
-import { getDeedMessage, getPeerPressureMessage, getDailyBriefingMessage, getWisdomNotification, getRoastNotification } from './notification-content';
+import {
+  getDailyBriefingMessage,
+  getDeedMessage,
+  getPeerPressureMessage,
+  getRoastNotification,
+  getWisdomNotification,
+} from './notification-content';
 import { fetchLeaderboard } from '@/services/vault.service';
 
-/**
- * Handles showing Desktop Notifications.
- * 
- * It asks for permission to send alerts and reminds you to study 
- * if you haven't logged any time today.
- */
-
-// TRACKING: Map to ensure each routine item only triggers one alert per day
+const TIME_ZONE = 'Asia/Kolkata';
 const notifiedRoutineIds = new Set<string>();
+let notificationsInitialized = false;
+
+// Seven useful checkpoints. They only run while the app is open; web push is a
+// separate server-side feature and must not be faked by the browser scheduler.
+const DAILY_SLOTS = [
+  { id: 'morning-brief', hour: 7, minute: 30 },
+  { id: 'morning-start', hour: 9, minute: 30 },
+  { id: 'midday-check', hour: 12, minute: 0 },
+  { id: 'afternoon-reset', hour: 14, minute: 30 },
+  { id: 'evening-push', hour: 17, minute: 30 },
+  { id: 'night-sprint', hour: 20, minute: 0 },
+  { id: 'day-close', hour: 21, minute: 45 },
+];
+
+type IndiaClock = { date: string; hour: number; minute: number };
+
+function indiaClock(now = new Date()): IndiaClock {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: TIME_ZONE,
+    year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+  }).formatToParts(now);
+  const value = (type: Intl.DateTimeFormatPartTypes) => parts.find(part => part.type === type)?.value || '0';
+  return {
+    date: `${value('year')}-${value('month')}-${value('day')}`,
+    hour: Number(value('hour')),
+    minute: Number(value('minute')),
+  };
+}
+
+function sentKey(date: string): string {
+  return `all_tracker_notification_slots_${date}`;
+}
+
+function getSentSlots(date: string): string[] {
+  try {
+    const saved = JSON.parse(localStorage.getItem(sentKey(date)) || '[]');
+    return Array.isArray(saved) ? saved.filter((id): id is string => typeof id === 'string') : [];
+  } catch {
+    return [];
+  }
+}
+
+function markSlotSent(date: string, slotId: string): void {
+  const slots = getSentSlots(date);
+  if (!slots.includes(slotId)) localStorage.setItem(sentKey(date), JSON.stringify([...slots, slotId]));
+}
+
+function myName(): string {
+  try {
+    return JSON.parse(localStorage.getItem('secure_local_profile') || '{}').displayName || 'Operative';
+  } catch {
+    return 'Operative';
+  }
+}
 
 export async function initNotifications(): Promise<void> {
-  if (!("Notification" in window)) return;
-
-  // Sync UI state
+  if (!('Notification' in window) || notificationsInitialized) return;
+  notificationsInitialized = true;
   syncNotificationUI();
 
-  // Setup dynamic deed-checks & routine alerts
-  setupStrategicAlerts();
-  setupRoutineAlerts();
+  // A short pulse catches scheduled windows even when mobile browsers throttle
+  // timers. It does not create notifications after the app is closed.
+  setInterval(() => void runNotificationPulse(), 5 * 60 * 1000);
+  setInterval(checkRoutineTimers, 60 * 1000);
+  setTimeout(() => void runNotificationPulse(), 5_000);
+  setTimeout(checkRoutineTimers, 3_000);
 
-  // Nag user to enable notifications if they haven't (once per session)
   setTimeout(() => {
-    if (Notification.permission !== "granted" && !sessionStorage.getItem('notif_nagged')) {
-      showToast("🔔 Important: Enable notifications! Click the lock icon 🔒 next to the web address so we can send you Daily Alerts.", "info");
+    if (Notification.permission === 'default' && !sessionStorage.getItem('notif_nagged')) {
+      showToast('Enable notifications from Settings if you want Maamu reminders and study alerts.', 'info');
       sessionStorage.setItem('notif_nagged', 'true');
     }
-  }, 4000);
+  }, 4_000);
 }
 
 export function requestNotificationPermission(): void {
-    if (!("Notification" in window)) {
-        showToast("Your browser does not support notifications.", "error");
-        return;
-    }
+  if (!('Notification' in window)) {
+    showToast('Your browser does not support notifications.', 'error');
+    return;
+  }
+  if (Notification.permission === 'granted') {
+    showToast('Notifications are already enabled.', 'info');
+    return;
+  }
 
-    // Handled state: Inform user how to toggle browser-level OS APIs.
-    if (Notification.permission === "granted") {
-        showToast("Notifications are already rolling! To disable, click the lock icon 🔒 next to your URL bar.", "info");
-        return;
+  void Notification.requestPermission().then(permission => {
+    if (permission === 'granted') {
+      showToast('Notifications enabled. Maamu will keep the pressure on while the app is open.', 'success');
+      syncNotificationUI();
+      void runNotificationPulse();
+    } else if (permission === 'denied') {
+      showToast('Notifications are blocked in browser settings. Allow them from the lock icon beside the address bar.', 'error');
     }
-    
-    Notification.requestPermission().then(permission => {
-        if (permission === "granted") {
-            showToast("Notifications Enabled! All Tracker will remind you to stay consistent.", "success");
-            syncNotificationUI();
-        } else if (permission === "denied") {
-            showToast("Notifications are blocked in your browser settings. Please allow them manually via the lock icon in your URL bar.", "error");
-        }
-    });
+  });
 }
 
 function syncNotificationUI(): void {
   const btn = document.getElementById('enableNotificationsBtn');
-  if (!btn) return;
-
-  if (Notification.permission === "granted") {
-    btn.classList.add('notif-active');
-    btn.style.display = 'flex';
-    btn.style.alignItems = 'center';
-    btn.style.justifyContent = 'center';
-    btn.style.gap = '8px';
-    btn.innerHTML = `
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-        <polyline points="22 4 12 14.01 9 11.01"></polyline>
-      </svg>
-      <span>Notifications Active</span>
-    `;
-  }
+  if (!btn || Notification.permission !== 'granted') return;
+  btn.classList.add('notif-active');
+  btn.innerHTML = '<span>Notifications Active</span>';
 }
 
-function setupStrategicAlerts(): void {
-  // 1. Tactical Window checks (10 times a day via DECA-PULSE)
-  // Interval must be shorter than the 10-minute window to guarantee it fires even if throttled
-  setInterval(() => {
-    checkDailyBriefing();
-    checkContextualNotifs();
-  }, 1000 * 60 * 5); // 5 min pulse
+async function runNotificationPulse(): Promise<void> {
+  await Promise.all([checkScheduledAlert(), checkActiveChaser()]);
+}
 
-  // 2. 'Active Chaser' check (Periodic competitive taunts)
-  setInterval(() => {
-    checkActiveChaser();
-  }, 1000 * 60 * 45); // 45 min pulse
+async function checkScheduledAlert(): Promise<void> {
+  if (Notification.permission !== 'granted') return;
+  const now = indiaClock();
+  const slot = DAILY_SLOTS.find(item => item.hour === now.hour && now.minute >= item.minute && now.minute < item.minute + 20);
+  if (!slot || getSentSlots(now.date).includes(slot.id)) return;
 
-  // Initial check on load
-  setTimeout(() => {
-    checkDailyBriefing();
-    checkContextualNotifs();
-    checkActiveChaser();
-  }, 10000);
+  if (await sendDynamicAlert(now.hour)) markSlotSent(now.date, slot.id);
 }
 
 async function checkActiveChaser(): Promise<void> {
-  // Rate limit: Max one chaser notif every 3 hours. Store in localStorage to survive tab reloads.
-  const lastChaserNotifAt = parseInt(localStorage.getItem('last_chaser_notif_at') || '0', 10);
-  if (Date.now() - lastChaserNotifAt < 1000 * 60 * 60 * 3) return;
-
-  const isUserFocusing = appState.activeTimer.isRunning;
-  if (isUserFocusing) return; // Don't taunt if already working!
+  if (Notification.permission !== 'granted' || appState.activeTimer.isRunning) return;
+  const key = 'all_tracker_last_chaser_notification';
+  const lastAt = Number(localStorage.getItem(key) || 0);
+  if (Date.now() - lastAt < 3 * 60 * 60 * 1000) return;
 
   try {
     const leaderboard = await fetchLeaderboard();
-    const profileRaw = localStorage.getItem('secure_local_profile');
-    const myName = profileRaw ? JSON.parse(profileRaw).displayName : null;
-    
-    // RIVAL: Someone actively studying right now who is NOT YOU
-    const otherFocusing = leaderboard.find(u => u.is_focusing_now && u.display_name !== myName);
-    const topUser = leaderboard[0];
-    
-    if (otherFocusing) {
-      // If someone is actively studying, THEY are the chaser
-      const { title, body } = getPeerPressureMessage(topUser.display_name, otherFocusing.display_name, myName || '');
-      sendNotification(title, body);
-      localStorage.setItem('last_chaser_notif_at', Date.now().toString());
-    }
-  } catch (e) { /* ignore */ }
-}
-
-async function checkDailyBriefing(): Promise<void> {
-  const now = new Date();
-  const todayStr = now.toLocaleDateString('en-GB', { timeZone: 'Asia/Kolkata' });
-  const storageKey = 'last_daily_briefing_date';
-  
-  const lastBriefing = localStorage.getItem(storageKey);
-  
-  // If it's a new day and we haven't sent it yet today
-  if (lastBriefing !== todayStr) {
-    const msg = getDailyBriefingMessage();
-    await sendNotification(msg.title, msg.body);
-    localStorage.setItem(storageKey, todayStr);
+    const name = myName();
+    const otherFocusing = leaderboard.find(user => user.is_focusing_now && user.is_focus_public !== false && user.display_name !== name);
+    if (!otherFocusing) return;
+    const topUser = leaderboard[0]?.display_name || otherFocusing.display_name;
+    const message = getPeerPressureMessage(topUser, otherFocusing.display_name, name);
+    if (await sendNotification(message.title, message.body)) localStorage.setItem(key, String(Date.now()));
+  } catch {
+    // Leaderboard availability should never break normal reminders.
   }
 }
 
-async function checkContextualNotifs(): Promise<void> {
-  const now = new Date();
-  const currentHour = now.getHours();
-  const currentMinute = now.getMinutes();
-  const todayStr = now.toLocaleDateString('en-GB', { timeZone: 'Asia/Kolkata' });
-  const storageKey = `sent_tactical_notif_${todayStr}`;
-  
-  const sentNotifs = JSON.parse(localStorage.getItem(storageKey) || '[]');
-  
-  // 🎯 DECA-PULSE SCHEDULE (10 Precision Pings)
-  const schedule = [
-    { id: 'ping_1',  h: 7,  m: 0,  label: 'Daily Briefing' },
-    { id: 'ping_2',  h: 9,  m: 0,  label: 'Momentum Start' },
-    { id: 'ping_3',  h: 11, m: 0,  label: 'Morning Check-in' },
-    { id: 'ping_4',  h: 13, m: 0,  label: 'Afternoon Mission' },
-    { id: 'ping_5',  h: 15, m: 0,  label: 'Wisdom Injection' },
-    { id: 'ping_6',  h: 17, m: 0,  label: 'Peer Pressure' },
-    { id: 'ping_7',  h: 19, m: 0,  label: 'Evening Roar' },
-    { id: 'ping_8',  h: 21, m: 0,  label: 'Last Chance' },
-    { id: 'ping_9',  h: 22, m: 30, label: 'Wrap-up' },
-    { id: 'ping_10', h: 23, m: 30, label: 'Final Integrity' }
-  ];
+async function sendDynamicAlert(hour: number): Promise<boolean> {
+  const today = indiaClock().date;
+  const todayData = appState.trackerData.find(day => day.date === today);
+  const totalHours = todayData ? (todayData.studyHours || []).reduce((sum, value) => sum + (value || 0), 0) : 0;
 
-  // Find the current slot
-  const currentSlot = schedule.find(s => {
-    // Trigger if within the hour and past the minute
-    return s.h === currentHour && currentMinute >= s.m && currentMinute < s.m + 10;
-  });
-
-  if (currentSlot && !sentNotifs.includes(currentSlot.id)) {
-    await sendDynamicAlert(currentHour);
-    sentNotifs.push(currentSlot.id);
-    localStorage.setItem(storageKey, JSON.stringify(sentNotifs));
+  if (hour === 7) {
+    const message = getDailyBriefingMessage();
+    return sendNotification(message.title, message.body);
   }
-}
 
-async function sendDynamicAlert(hour: number): Promise<void> {
-  const today = new Date().toLocaleDateString('en-GB', { timeZone: 'Asia/Kolkata' });
-  const todayData = appState.trackerData.find(d => {
-    const dDate = new Date(d.date).toLocaleDateString('en-GB', { timeZone: 'Asia/Kolkata' });
-    return dDate === today;
-  });
-
-  const totalHours = todayData ? (todayData.studyHours || []).reduce((a, b) => a + (b || 0), 0) : 0;
-  
-  // 🎯 STRATEGIC CATEGORY NUDGE: Detect neglected subjects
   const categories = appState.settings.columns || [];
   if (categories.length > 0 && Math.random() < 0.3) {
-    const last3Days = appState.trackerData.slice(-3);
-    const categoryStats = categories.map((cat, idx) => {
-      const hours = last3Days.reduce((sum, day) => sum + (day.studyHours[idx] || 0), 0);
-      return { name: cat.name, hours };
-    });
-
-    const neglected = categoryStats.find(c => c.hours === 0);
+    const recentDays = appState.trackerData.slice(-3);
+    const neglected = categories
+      .map((category, index) => ({ name: category.name, hours: recentDays.reduce((sum, day) => sum + (day.studyHours[index] || 0), 0) }))
+      .find(category => category.hours === 0);
     if (neglected) {
-      sendNotification(
-        "Missing in Action! 🔍",
-        `Bhai, "${neglected.name}" ko bhool gaye kya? 3 din se 0 progress hai. Aaj thoda dekh lo!`
-      );
-      return;
+      return sendNotification('Missing in action', `Maamu check: ${neglected.name} has been at 0 for three days. Open it for one proper study block today.`);
     }
   }
 
-  // 🎲 Chance to swap to Wisdom/Projection Alert (40% chance if hours are low, or 20% otherwise)
-  const wisdomChance = totalHours < 2 ? 0.4 : 0.2;
-
-  if (Math.random() < wisdomChance) {
-    const wisdom = getWisdomNotification();
-    sendNotification(wisdom.title, wisdom.body);
-    return;
+  if (Math.random() < (totalHours < 2 ? 0.35 : 0.15)) {
+    const message = getWisdomNotification();
+    return sendNotification(message.title, message.body);
   }
 
-  // 🌶️ Roast Injection (Zomato-style engagement): frequent when low output
-  const roastChance = totalHours < 1 ? 0.7 : totalHours < 2.5 ? 0.45 : 0.15;
-  if (Math.random() < roastChance) {
-    const roast = getRoastNotification(totalHours);
-    sendNotification(roast.title, roast.body);
-    return;
+  if (Math.random() < (totalHours < 1 ? 0.7 : totalHours < 2.5 ? 0.45 : 0.15)) {
+    const message = getRoastNotification(totalHours);
+    return sendNotification(message.title, message.body);
   }
 
-  // 1. Deed-Based Messaging (Standard)
-  const { title, body } = getDeedMessage(totalHours, hour);
-
-  // 2. Peer Pressure Injection (Extra spice)
-  let finalTitle = title;
-  let finalBody = body;
-
-  try {
-    const leaderboard = await fetchLeaderboard();
-    if (leaderboard.length > 0) {
-      const myName = JSON.parse(localStorage.getItem('secure_local_profile') || '{}').displayName || '';
-      const topUser = leaderboard[0].display_name;
-      const focusingNow = leaderboard.find(u => u.is_focusing_now && u.display_name !== myName)?.display_name;
-      
-      // 30% chance to swap to a Peer Pressure alert if hours are low
-      if (totalHours < 2 && Math.random() < 0.3) {
-        const peer = getPeerPressureMessage(topUser, focusingNow, myName);
-        finalTitle = peer.title;
-        finalBody = peer.body;
-      }
-    }
-  } catch (e) { /* ignore lb fetch errors for notifications */ }
-
-  sendNotification(finalTitle, finalBody);
-}
-
-function setupRoutineAlerts(): void {
-  // Check every minute for precision
-  setInterval(() => {
-    checkRoutineTimers();
-  }, 1000 * 60);
-
-  // Initial check
-  setTimeout(checkRoutineTimers, 3000);
+  const message = getDeedMessage(totalHours, hour);
+  return sendNotification(message.title, message.body);
 }
 
 function checkRoutineTimers(): void {
   const now = new Date();
-  const todayStr = now.toISOString().split('T')[0];
-  const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
+  const today = indiaClock(now).date;
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
   appState.routines.forEach(item => {
-    if (item.completed) return;
-
+    if (item.completed || !item.time) return;
     const [hours, minutes] = item.time.split(':').map(Number);
-    const routineTimeInMinutes = hours * 60 + minutes;
-    const diff = routineTimeInMinutes - currentTimeInMinutes;
-
-    // Trigger if within the 15-minute warning window
-    // (Uses > 0 and <= 15 instead of === 15 to handle browser throttling intervals)
-    if (diff > 0 && diff <= 15) {
-      const key = `${todayStr}-${item.id}`;
-      if (!notifiedRoutineIds.has(key)) {
-        sendNotification(
-          "Hogaya aaram? Chalo kaam pe! ⏰",
-          `15 mins mein "${item.title}" shuru hone wala hai. Books kholein ya hum aake kholein?`
-        );
-        notifiedRoutineIds.add(key);
-      }
+    const remaining = (hours * 60 + minutes) - currentMinutes;
+    const key = `${today}-${item.id}`;
+    if (remaining > 0 && remaining <= 15 && !notifiedRoutineIds.has(key)) {
+      void sendNotification('Routine incoming', `15 minutes until "${item.title}". Maamu says: book kholo, countdown khatam hone ka wait mat karo.`);
+      notifiedRoutineIds.add(key);
     }
   });
-
-  // Cleanup old keys from different days if the app stays open
-  if (notifiedRoutineIds.size > 20) {
-    const keys = Array.from(notifiedRoutineIds);
-    keys.forEach(k => {
-      if (!k.startsWith(todayStr)) notifiedRoutineIds.delete(k);
-    });
-  }
 }
 
+async function sendNotification(title: string, body: string): Promise<boolean> {
+  if (Notification.permission !== 'granted') return false;
+  const finalTitle = title.replace(/Operative/g, myName());
+  const finalBody = body.replace(/Operative/g, myName());
+  const options = {
+    body: finalBody,
+    icon: '/pwa-logo.png',
+    badge: '/pwa-logo.png',
+    tag: `alltracker-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40)}`,
+    renotify: true,
+    data: { url: `${window.location.origin}/` },
+  };
 
-async function sendNotification(title: string, body: string): Promise<void> {
-  const profileRaw = localStorage.getItem('secure_local_profile');
-  const myName = profileRaw ? JSON.parse(profileRaw).displayName : 'Operative';
-  const finalTitle = title.replace(/Operative/g, myName);
-  const finalBody = body.replace(/Operative/g, myName);
-
-  if (Notification.permission === "granted") {
-    const options = {
-      body: finalBody,
-      icon: "/pwa-logo.png",
-      badge: "/pwa-logo.png",
-      tag: finalTitle.includes("Mission") ? "routine-alert" : "study-reminder",
-      renotify: true
-    };
-
-    // 📱 Modern PWA Standard: Must use Service Worker to guarantee delivery on Android/iOS
+  try {
     if ('serviceWorker' in navigator) {
-      try {
-        const registration = await navigator.serviceWorker.ready;
-        if (registration && registration.showNotification) {
-          await registration.showNotification(title, options);
-          return;
-        }
-      } catch (e) {
-        console.warn('SW Notification failed, falling back...', e);
-      }
+      const registration = await navigator.serviceWorker.ready;
+      await registration.showNotification(finalTitle, options);
+    } else {
+      new Notification(finalTitle, options);
     }
-
-    // 💻 Fallback for legacy desktop contexts where SW isn't managing pushes
-    new Notification(title, options as any);
+    return true;
+  } catch (error) {
+    console.warn('Notification delivery failed', error);
+    return false;
   }
 }

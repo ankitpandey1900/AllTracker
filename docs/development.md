@@ -1,59 +1,63 @@
-# HACKER'S GUIDE: THE ENGINEERING OF ALLTRACKER 🛠️
+# Development notes
 
-Welcome to the internal blueprints. I built AllTracker with a very specific set of rules to keep it fast, secure, and easy to scale. If you're contributing, here’s how I think about the code.
+This is the short version of how I work on AllTracker. The app is vanilla TypeScript on purpose. I like being able to trace a click, state update, save, API request, and database write without a framework hiding the path.
 
----
+## Before changing anything
 
-## 🏛️ HOW TO BUILD A FEATURE (LOGIC + UI)
+Run these before a deploy:
 
-Every feature in the `src/features/` folder is split into two parts. Don't mix them.
+```bash
+npm run typecheck
+npm run build
+```
 
-1.  **`featureName.ts` (The Brain)**: This is where the logic lives. State updates, API calls, and calculations go here.
-2.  **`featureName.ui.ts` (The Skin)**: This is just for HTML strings and simple template helpers. Keep it static.
-3.  **The Rule**: Don't put heavy DOM logic in the `.ui.ts` file. It makes debugging a nightmare.
+If a change needs a database column or table, add a migration in `docs/` and run it in Supabase before deploying the code that expects it.
 
-## 🏺 THE DATA FLOW (LOCAL-FIRST)
+## Feature shape
 
-I wanted the app to feel instant. That’s why we use the **Local-First Sync Protocol.**
+Most frontend features live in `src/features/<feature>/`.
 
-- **Save Fast**: When a user saves something, it hits `localStorage` immediately.
-- **Sync in the Background**: The `data-bridge.ts` then handles the cloud sync asynchronously.
-- **The Backend**: We use Vercel Serverless functions for the API. No direct database calls from the frontend—it’s more secure that way.
+- `*.ts` contains event handling, state changes, and feature logic.
+- `*.ui.ts` contains HTML/template helpers where a feature has them.
+- Shared browser/API/storage work belongs in `src/services/`.
 
-## ⚡ STATE MANAGEMENT (NO FRAMEWORKS)
+Keep template code simple. Do not hide business rules inside HTML strings.
 
-I skipped React/Vue because I wanted zero bloat. I built a simple **Proxy-based state engine** instead.
+## State and saving
 
-- **Subscriptions**: If a component needs to update when data changes, use `subscribeToState`.
-- **Immutability**: When you update an array (like tasks), don't just push to it. Re-assign the whole array (e.g., `appState.tasks = [...appState.tasks, newTask]`). This triggers the Proxy and keeps the UI in sync.
+`src/state/app-state.ts` holds the live client state. Arrays must be replaced instead of mutated in place, for example:
 
-## 🛡️ RESILIENCY (WHEN THE NET IS DOWN)
+```ts
+appState.tasks = [...appState.tasks, newTask];
+```
 
-I built the `api.service.ts` to be tough. 
-- **Retries**: If a cloud request fails, it automatically retries with an exponential backoff.
-- **Offline Mode**: If the user is offline, the app keeps working on local data. Sync will pick up whenever they're back online.
+That lets state subscribers re-render correctly.
 
-## 🏗️ THE DATA AUTHORITY (RECONCILIATION)
+For signed-in data, use `src/services/data-bridge.ts`. It writes the local cache immediately and then syncs through the API. The local cache makes reloads feel fast; the database is the long-term shared source of truth.
 
-To keep the global rankings accurate, I use a three-way check:
-1.  **The Cloud**: The `study_sessions` table is the ultimate truth.
-2.  **The Leaderboard**: The `profiles` table stores the total hours for fast ranking. I re-aggregate this on the backend whenever a session changes to prevent "stat-drift."
-3.  **The HUD**: The local state patches itself based on session changes so the user sees their XP increase instantly.
+For records that users can create independently on multiple devices (tasks and phases), use record-level create/update/delete endpoints. Never take a partial browser list and interpret every missing record as a delete. A fresh phone can have an incomplete cache.
 
-## 📂 WHERE IS EVERYTHING?
+## API and database
 
-| Path | Purpose |
-| :--- | :--- |
-| `src/main.ts` | The Orchestrator. The first file that runs. |
-| `src/state/app-state.ts` | The single source of truth for the app. |
-| `src/services/data-bridge.ts` | The Gatekeeper for all saving/loading. |
-| `src/services/api.service.ts` | The secure fetch wrapper. |
+The browser never connects directly to Postgres. The normal path is:
 
----
+```text
+feature -> data bridge / vault service -> /api/app/* -> repository -> Postgres
+```
 
-## 🚀 PUSHING CODE
+Route handlers are in `api/_routes/`. Query and data mapping code is in `api/_lib/data/`. Keep authorization in the route/repository path, and always scope reads/writes by the authenticated profile.
 
-- Always run `npm run build` before you push. It catches errors and minifies the code.
-- Make sure your `.env` is set up with valid credentials.
+## Notifications
 
-**Keep it fast. Keep it clean.** 🚀
+Browser notifications require permission from a real user click. AllTracker currently runs seven Maamu-style reminder slots per day while the app is open, plus routine alerts and a periodic check for public users who are actively studying.
+
+This is not Web Push. A browser timer cannot send a notification after the tab/app has been closed. For reliable background mobile notifications, add Push API subscriptions, VAPID keys, a server-side sender, unsubscribe handling, quiet hours, and user preferences before enabling it for everyone.
+
+## Useful places to inspect first
+
+- `src/core/app-ignition.ts`: boot order.
+- `src/services/data-bridge.ts`: cache and cloud reconciliation.
+- `src/services/vault.service.ts`: typed frontend API calls.
+- `api/_routes/vault/[name].ts`: user data endpoints.
+- `api/_lib/data/vault-repo.ts`: tracker/tasks/phases database work.
+- `src/features/notifications/notifications.ts`: reminder schedule and delivery.
