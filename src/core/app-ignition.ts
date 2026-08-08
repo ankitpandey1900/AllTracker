@@ -1,5 +1,6 @@
 import { appState, calculateDates, initializeData, applyThemeToDOM, applyTimerStyleToDOM, applyTimerFontToDOM, applyUiFontToDOM, applyAccentColorToDOM, ensureTimelineIntegrity, migrateDataFormat } from "@/state/app-state";
 import { log } from "@/utils/logger.utils";
+import { STORAGE_KEYS } from "@/config/constants";
 import {
   loadTrackerDataFromStorage,
   loadSettingsFromStorage,
@@ -70,6 +71,13 @@ export async function igniteApp(): Promise<void> {
     appState.bookmarks = bookmarks;
     appState.tasks = tasks;
     if (savedTimer) Object.assign(appState.activeTimer, savedTimer);
+
+    // Cleanup deprecated local storage keys to free up browser memory
+    localStorage.removeItem(STORAGE_KEYS.TRACKER_DATA);
+    localStorage.removeItem(STORAGE_KEYS.ROUTINES);
+    localStorage.removeItem(STORAGE_KEYS.TASKS);
+    localStorage.removeItem(STORAGE_KEYS.BOOKMARKS);
+    localStorage.removeItem(STORAGE_KEYS.ROUTINE_HISTORY);
 
     // 4. Initial Render (Show user data IMMEDIATELY)
     generateTable();
