@@ -115,16 +115,6 @@ export function requestNotificationPermission(): void {
   });
 }
 
-/** Sends an immediate device notification to verify browser delivery. */
-export async function sendTestNotification(): Promise<void> {
-  if (!('Notification' in window) || Notification.permission !== 'granted') {
-    showToast('Enable notifications first, then send a test.', 'info');
-    return;
-  }
-  const sent = await sendNotification('All Tracker notifications are working', 'Test received. Maamu will interrupt excuses, not your actual focus.');
-  showToast(sent ? 'Test notification sent to this device.' : 'The browser blocked the test notification.', sent ? 'success' : 'error');
-}
-
 function vapidPublicKey(): string | undefined {
   const key = import.meta.env.VITE_VAPID_PUBLIC_KEY;
   return typeof key === 'string' && key.trim() ? key.trim() : undefined;
@@ -156,17 +146,18 @@ async function subscribeToPush(): Promise<void> {
     });
     await savePushSubscription(subscription);
     showToast('Background notifications are active, even when AllTracker is closed.', 'success');
+    syncNotificationUI('Background notifications active');
   } catch (error) {
     console.warn('Web Push subscription failed', error);
     showToast('Browser reminders are active, but background push could not be enabled on this device.', 'info');
   }
 }
 
-function syncNotificationUI(): void {
+function syncNotificationUI(label = 'Notifications enabled'): void {
   const btn = document.getElementById('enableNotificationsBtn');
   if (!btn || Notification.permission !== 'granted') return;
   btn.classList.add('notif-active');
-  btn.innerHTML = '<span>Notifications Active</span>';
+  btn.innerHTML = `<span>${label}</span>`;
 }
 
 async function runNotificationPulse(): Promise<void> {

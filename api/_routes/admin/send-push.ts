@@ -30,13 +30,19 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       return;
     }
 
-    webpush.setVapidDetails('mailto:support@alltracker.online', publicKey, privateKey);
+    try {
+      webpush.setVapidDetails('mailto:support@alltracker.online', publicKey, privateKey);
+    } catch {
+      sendJson(res, 503, { error: 'Web Push keys are invalid. Set the matching VAPID public and private keys in Vercel, then redeploy.' });
+      return;
+    }
     const pool = getPool();
     const { rows } = await pool.query<{ id: string; subscription: webpush.PushSubscription }>(
       'select id, subscription from push_subscriptions where user_id = $1::uuid and disabled_at is null',
       [body.profile_id],
     );
     let sent = 0;
+    let failedStatus: number | undefined;
     for (const row of rows) {
       try {
         await webpush.sendNotification(row.subscription, JSON.stringify({
@@ -46,10 +52,17 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
         }));
         sent += 1;
       } catch (error: any) {
+        failedStatus = error?.statusCode;
         if (error?.statusCode === 404 || error?.statusCode === 410) {
           await pool.query('update push_subscriptions set disabled_at = now() where id = $1::uuid', [row.id]);
         }
       }
+    }
+    if (rows.length > 0 && sent === 0 && failedStatus) {
+      sendJson(res, 502, {
+        error: `Push provider rejected this subscription (${failedStatus}). Ask the user to enable notifications again; if it continues, verify the deployed VAPID key pair matches the public key used by the browser.`,
+      });
+      return;
     }
     sendJson(res, 200, { success: true, sent, subscribedDevices: rows.length });
   } catch (error) {
