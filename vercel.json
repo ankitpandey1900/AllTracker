@@ -3,6 +3,10 @@
     {
       "path": "/api/app/cron/reengagement",
       "schedule": "30 6 * * *"
+    },
+    {
+      "path": "/api/app/cron/push-reminders",
+      "schedule": "*/15 * * * *"
     }
   ],
   "rewrites": [

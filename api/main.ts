@@ -16,6 +16,8 @@ import vaultName from "./_routes/vault/[name].js";
 import vaultSync from "./_routes/vault/sync.js";
 import cronReengagement from "./_routes/cron-reengagement.js";
 import chat from "./_routes/chat.js";
+import push from "./_routes/push.js";
+import cronPushReminders from "./_routes/cron-push-reminders.js";
 
 // Admin / Ankit routes
 import adminUsers from "./_routes/admin/users.js";
@@ -44,6 +46,8 @@ export default async function handler(
     if (path === "/vault/sync") return vaultSync(req, res);
     if (path === "/cron/reengagement") return cronReengagement(req, res);
     if (path === "/chat") return chat(req, res);
+    if (path === "/push") return push(req, res);
+    if (path === "/cron/push-reminders") return cronPushReminders(req, res);
     
     // Ankit Admin Routes
     if (path === "/ankit/users") return adminUsers(req, res);

@@ -24,7 +24,7 @@ Use Settings to create a phase and choose the columns/subjects used during that 
 
 Maamu is meant to be direct. It can be supportive, tactical, or give a light roast when your work has been missing. Enable browser notifications from Settings if you want reminder slots, routine warnings, and public-study activity prompts.
 
-The reminders work while AllTracker is open in the browser or installed PWA. They are not background push notifications yet, so a fully closed browser cannot receive them.
+When Web Push is configured, an installed PWA can receive Maamu reminders even after AllTracker is closed, like WhatsApp-style laptop notifications. Browser permission is always required, and you can turn it off from browser/PWA notification settings.
 
 ## Feed and privacy
 

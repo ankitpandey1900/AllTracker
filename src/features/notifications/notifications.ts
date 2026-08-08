@@ -8,6 +8,7 @@ import {
   getWisdomNotification,
 } from './notification-content';
 import { fetchLeaderboard } from '@/services/vault.service';
+import { apiRequest } from '@/services/api.service';
 
 const TIME_ZONE = 'Asia/Kolkata';
 const notifiedRoutineIds = new Set<string>();
@@ -70,6 +71,7 @@ export async function initNotifications(): Promise<void> {
   if (!('Notification' in window) || notificationsInitialized) return;
   notificationsInitialized = true;
   syncNotificationUI();
+  if (Notification.permission === 'granted') void registerExistingPushSubscription();
 
   // A short pulse catches scheduled windows even when mobile browsers throttle
   // timers. It does not create notifications after the app is closed.
@@ -100,11 +102,60 @@ export function requestNotificationPermission(): void {
     if (permission === 'granted') {
       showToast('Notifications enabled. Maamu will keep the pressure on while the app is open.', 'success');
       syncNotificationUI();
+      void subscribeToPush();
       void runNotificationPulse();
     } else if (permission === 'denied') {
       showToast('Notifications are blocked in browser settings. Allow them from the lock icon beside the address bar.', 'error');
     }
   });
+}
+
+function vapidPublicKey(): string | undefined {
+  const key = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+  return typeof key === 'string' && key.trim() ? key.trim() : undefined;
+}
+
+function base64UrlToArrayBuffer(value: string): ArrayBuffer {
+  const padded = `${value}${'='.repeat((4 - value.length % 4) % 4)}`.replace(/-/g, '+').replace(/_/g, '/');
+  const raw = window.atob(padded);
+  const bytes = Uint8Array.from(raw, character => character.charCodeAt(0));
+  return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
+}
+
+async function savePushSubscription(subscription: PushSubscription): Promise<void> {
+  await apiRequest('/api/app/push', { method: 'POST', body: subscription.toJSON() });
+}
+
+async function registerExistingPushSubscription(): Promise<void> {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+  try {
+    const registration = await navigator.serviceWorker.ready;
+    const subscription = await registration.pushManager.getSubscription();
+    if (subscription) await savePushSubscription(subscription);
+  } catch (error) {
+    console.warn('Unable to refresh Web Push subscription', error);
+  }
+}
+
+async function subscribeToPush(): Promise<void> {
+  const publicKey = vapidPublicKey();
+  if (!publicKey || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+    showToast('Browser reminders are active. Background push will activate after Web Push is configured.', 'info');
+    return;
+  }
+  try {
+    const registration = await navigator.serviceWorker.ready;
+    const existing = await registration.pushManager.getSubscription();
+    const subscription = existing || await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: base64UrlToArrayBuffer(publicKey),
+    });
+    await savePushSubscription(subscription);
+    showToast('Background notifications are active, even when AllTracker is closed.', 'success');
+  } catch (error) {
+    console.warn('Web Push subscription failed', error);
+    showToast('Browser reminders are active, but background push could not be enabled on this device.', 'info');
+  }
 }
 
 function syncNotificationUI(): void {

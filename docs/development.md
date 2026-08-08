@@ -51,7 +51,7 @@ Route handlers are in `api/_routes/`. Query and data mapping code is in `api/_li
 
 Browser notifications require permission from a real user click. AllTracker currently runs seven Maamu-style reminder slots per day while the app is open, plus routine alerts and a periodic check for public users who are actively studying.
 
-This is not Web Push. A browser timer cannot send a notification after the tab/app has been closed. For reliable background mobile notifications, add Push API subscriptions, VAPID keys, a server-side sender, unsubscribe handling, quiet hours, and user preferences before enabling it for everyone.
+For true notifications after the PWA is closed, use the Web Push path in this repo: the browser saves an opted-in device subscription, the `/api/app/cron/push-reminders` cron sends up to seven India-time messages per day, and `public/sw.js` displays them. Before deployment, run `docs/push-notifications-migration.sql`, set the VAPID values and `CRON_SECRET`, and confirm your Vercel plan supports a 15-minute cron. Quiet hours and per-user frequency controls are the next improvement before expanding this to a large audience.
 
 ## Useful places to inspect first
 

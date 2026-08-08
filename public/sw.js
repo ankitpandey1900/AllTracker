@@ -110,3 +110,18 @@ self.addEventListener('notificationclick', (event) => {
     })
   );
 });
+
+// Push events arrive even when no AllTracker page is open. The server sends
+// only user-opted-in subscriptions and the click brings the user back to the app.
+self.addEventListener('push', (event) => {
+  const payload = event.data ? event.data.json() : {};
+  const options = {
+    body: payload.body || 'Maamu has a study reminder for you.',
+    icon: '/pwa-logo.png',
+    badge: '/pwa-logo.png',
+    tag: 'alltracker-maamu-reminder',
+    renotify: true,
+    data: { url: payload.url || '/' },
+  };
+  event.waitUntil(self.registration.showNotification(payload.title || 'AllTracker', options));
+});
