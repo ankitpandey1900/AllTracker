@@ -73,7 +73,9 @@ export async function initNotifications(): Promise<void> {
   if (!('Notification' in window) || notificationsInitialized) return;
   notificationsInitialized = true;
   syncNotificationUI();
-  if (Notification.permission === 'granted') void registerExistingPushSubscription();
+  // Retry after a deployment adds VAPID configuration. A device can have
+  // browser permission but still have no PushSubscription.
+  if (Notification.permission === 'granted') void subscribeToPush();
 
   // A short pulse catches scheduled windows even when mobile browsers throttle
   // timers. It does not create notifications after the app is closed.
@@ -96,7 +98,8 @@ export function requestNotificationPermission(): void {
     return;
   }
   if (Notification.permission === 'granted') {
-    showToast('Notifications are already enabled.', 'info');
+    void subscribeToPush();
+    showToast('Notifications are enabled. Checking background push setup for this device.', 'info');
     return;
   }
 
@@ -110,6 +113,16 @@ export function requestNotificationPermission(): void {
       showToast('Notifications are blocked in browser settings. Allow them from the lock icon beside the address bar.', 'error');
     }
   });
+}
+
+/** Sends an immediate device notification to verify browser delivery. */
+export async function sendTestNotification(): Promise<void> {
+  if (!('Notification' in window) || Notification.permission !== 'granted') {
+    showToast('Enable notifications first, then send a test.', 'info');
+    return;
+  }
+  const sent = await sendNotification('All Tracker notifications are working', 'Test received. Maamu will interrupt excuses, not your actual focus.');
+  showToast(sent ? 'Test notification sent to this device.' : 'The browser blocked the test notification.', sent ? 'success' : 'error');
 }
 
 function vapidPublicKey(): string | undefined {
@@ -126,17 +139,6 @@ function base64UrlToArrayBuffer(value: string): ArrayBuffer {
 
 async function savePushSubscription(subscription: PushSubscription): Promise<void> {
   await apiRequest('/api/app/push', { method: 'POST', body: subscription.toJSON() });
-}
-
-async function registerExistingPushSubscription(): Promise<void> {
-  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
-  try {
-    const registration = await navigator.serviceWorker.ready;
-    const subscription = await registration.pushManager.getSubscription();
-    if (subscription) await savePushSubscription(subscription);
-  } catch (error) {
-    console.warn('Unable to refresh Web Push subscription', error);
-  }
 }
 
 async function subscribeToPush(): Promise<void> {
@@ -210,7 +212,7 @@ async function sendDynamicAlert(hour: number): Promise<boolean> {
   }
 
   const categories = appState.settings.columns || [];
-  if (categories.length > 0 && Math.random() < 0.3) {
+  if (categories.length > 0) {
     const recentDays = appState.trackerData.slice(-3);
     const neglected = categories
       .map((category, index) => ({ name: category.name, hours: recentDays.reduce((sum, day) => sum + (day.studyHours[index] || 0), 0) }))
@@ -220,12 +222,12 @@ async function sendDynamicAlert(hour: number): Promise<boolean> {
     }
   }
 
-  if (Math.random() < (totalHours < 2 ? 0.35 : 0.15)) {
+  if (totalHours < 2 && hour % 2 === 0) {
     const message = getWisdomNotification();
     return sendNotification(message.title, message.body);
   }
 
-  if (Math.random() < (totalHours < 1 ? 0.7 : totalHours < 2.5 ? 0.45 : 0.15)) {
+  if (totalHours < 1 || (totalHours < 2.5 && hour % 2 === 1)) {
     const message = getRoastNotification(totalHours);
     return sendNotification(message.title, message.body);
   }

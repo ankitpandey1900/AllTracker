@@ -9,7 +9,7 @@ import { renderBadges } from "@/features/dashboard/badges";
 import { renderPerformanceCurve } from "@/features/routines/performance-chart";
 import { renderRadarStats } from "@/features/routines/radar-stats";
 import { importFromJSON, importFromCSV } from "@/features/import/import";
-import { requestNotificationPermission } from "@/features/notifications/notifications";
+import { requestNotificationPermission, sendTestNotification } from "@/features/notifications/notifications";
 
 /**
  * COMMAND CENTER
@@ -116,13 +116,12 @@ export function setupEventListeners(): void {
 
   // Settings & Navigation
   bindClick("settingsBtn", openSettingsModal);
-  bindClick("userManualBtn", () => document.getElementById("userManualModal")?.classList.add("active"));
-  bindClick("closeUserManualModal", () => document.getElementById("userManualModal")?.classList.remove("active"));
   bindClick("applyColumnSettings", applyColumnSettings);
   bindClick("applyThemeBtn", () => {
     import('@/features/settings/settings').then(m => m.applyThemeSettings());
   });
   bindClick("enableNotificationsBtn", requestNotificationPermission);
+  bindClick("testNotificationBtn", () => void sendTestNotification());
   bindClick("addCustomRangeBtn", addCustomRange);
   bindClick("closeSettingsModal", () => document.getElementById("settingsModal")?.classList.remove("active"));
 

@@ -28,6 +28,36 @@
   position: relative;
 }
 
+/* Standalone User Manual page. The same dossier content is used without the
+   dashboard's modal backdrop, so it has a stable URL and its own browser tab. */
+.manual-page-body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100dvh;
+  background: var(--docs-bg);
+}
+
+#manual-root {
+  min-height: 100dvh;
+}
+
+.docs-modal.manual-page-content {
+  width: min(100%, 1440px) !important;
+  max-width: none !important;
+  height: 100dvh !important;
+  min-height: 100dvh;
+  margin: 0 auto;
+  border-radius: 0 !important;
+}
+
+.manual-return {
+  text-decoration: none;
+}
+
+.manual-return:hover {
+  transform: none;
+}
+
 /* 🧬 HUD Decoration Elements */
 .docs-modal::before {
   content: "";

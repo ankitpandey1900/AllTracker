@@ -125,6 +125,9 @@ export const settingsModal = `
             <button id="enableNotificationsBtn" class="btn">
               Enable Study Notifications
             </button>
+            <button id="testNotificationBtn" class="btn" type="button">
+              Send Test Notification
+            </button>
             <button id="applyColumnSettings" class="btn btn-primary" style="padding: 12px 30px">
               Apply All Changes
             </button>

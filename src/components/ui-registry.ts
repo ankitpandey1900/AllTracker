@@ -54,7 +54,6 @@ export async function initUI(): Promise<void> {
         import('@/components/modals/profile-modal.ui.ts').then(m => m.profileModal),
         import('@/features/dashboard/share-modal.ui.ts').then(m => m.shareModal),
         import('@/components/modals/timer-modal.ui.ts').then(m => m.timerModal),
-        import('@/components/modals/manual-modal.ui.ts').then(m => m.manualModal),
         import('@/components/modals/settings-modal.ui.ts').then(m => m.settingsModal),
         import('@/components/modals/weekly-modal.ui.ts').then(m => m.weeklyModal),
         import('@/components/modals/heatmap-modal.ui.ts').then(m => m.heatmapModal),

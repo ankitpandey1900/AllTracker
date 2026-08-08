@@ -49,7 +49,7 @@ Route handlers are in `api/_routes/`. Query and data mapping code is in `api/_li
 
 ## Notifications
 
-Browser notifications require permission from a real user click. AllTracker currently runs seven Maamu-style reminder slots per day while the app is open, plus routine alerts and a periodic check for public users who are actively studying.
+Browser notifications require permission from a real user click. AllTracker runs nine Maamu-style reminder slots per day while the app is open, plus routine alerts and a periodic check for public users who are actively studying. Use **Send Test Notification** in Settings to verify permission and device delivery immediately.
 
 For true notifications after the PWA is closed, use the Web Push path in this repo: the browser saves an opted-in device subscription, `public/sw.js` displays the push, and the daily Hobby cron sends one Maamu briefing. Before deployment, run `docs/push-notifications-migration.sql` and set the VAPID values and `CRON_SECRET`. The email re-engagement route is deliberately not registered as a cron; use the admin page to send emails manually. Hobby cron timing is approximate, so this is one daily nudge rather than a precise seven-message schedule.
 

@@ -127,13 +127,11 @@ export async function igniteApp(): Promise<void> {
       await (await import('@/services/data-bridge')).startLiveSync();
 
       const [
-        { initManualLogic },
         { initNotifications },
         { initIntegrityService },
         { loadMaamuSessionsIntoState },
         { hydrateSessionCache }
       ] = await Promise.all([
-        import('@/features/manual/manual'),
         import('@/features/notifications/notifications'),
         import('@/services/integrity'),
         import('@/features/intelligence/intelligence.service'),
@@ -142,7 +140,6 @@ export async function igniteApp(): Promise<void> {
 
       await hydrateSessionCache();
       await loadMaamuSessionsIntoState();
-      initManualLogic();
       initNotifications();
       initIntegrityService();
       
