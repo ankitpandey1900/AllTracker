@@ -47,11 +47,14 @@ export function initTimerModules(): void {
       const cloudHasSession = cloudState.elapsedAcc > 0 || cloudIsRunning || cloudOnBreak;
 
       // Detect any meaningful state change + Timestamp check
-      const cloudLastUpdated = cloudState.lastUpdatedAt || 0;
+      const cloudLastUpdated = payload.new.data[6].updatedAt ? new Date(payload.new.data[6].updatedAt).getTime() : 0;
       const localLastUpdated = appState.activeTimer.lastUpdatedAt || 0;
 
       if (cloudLastUpdated <= localLastUpdated && localLastUpdated !== 0) {
-        log.info(`📡 CLOUD SYNC: Ignored stale state (${cloudLastUpdated} <= ${localLastUpdated})`);
+        // Prevent aggressive logging for identical states
+        if (cloudLastUpdated !== localLastUpdated) {
+          log.info(`📡 CLOUD SYNC: Ignored stale state (${cloudLastUpdated} <= ${localLastUpdated})`);
+        }
         return;
       }
 
@@ -112,9 +115,23 @@ export function initTimerModules(): void {
 let isStopping = false; 
 let wakeLock: any = null; 
 
+const localTimerSync = new BroadcastChannel('timer_local_sync');
+
+localTimerSync.onmessage = (event) => {
+  if (event.data === 'sync') {
+    import('@/services/data-bridge').then(m => m.loadTimerStateFromStorage().then(timer => {
+       if (timer) {
+         Object.assign(appState.activeTimer, timer);
+         resumeTimerIfNeeded(); // Refresh UI instantly
+       }
+    }));
+  }
+};
+
 function saveTimerState(): void {
   appState.activeTimer.lastUpdatedAt = Date.now();
   saveTimerStateToStorage(appState.activeTimer);
+  localTimerSync.postMessage('sync');
 }
 
 async function requestWakeLock() {
@@ -409,6 +426,7 @@ export async function terminateTimer(): Promise<void> {
   
   notificationService.stopAmbient(); 
   await clearTimerStateDB();
+  localTimerSync.postMessage('sync');
   
   document.body.classList.remove('focus-mode', 'focus-minimized', 'is-focusing');
   const section = document.getElementById('activeTimerSection');
@@ -601,6 +619,7 @@ export function resumeTimerIfNeeded(): void {
   if (!isRunning && !activeBreak && elapsedAcc === 0) {
     if (appState.timerInterval) clearInterval(appState.timerInterval);
     updateTimerUI(false);
+    toggleFocusHUD(false);
     return;
   }
 

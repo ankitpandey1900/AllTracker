@@ -154,42 +154,66 @@ export async function subscribeToUserDataSync(
   callback: (payload: any) => void,
 ): Promise<{ unsubscribe: () => void }> {
   let lastFingerprint = "";
-  // Increased interval to 30s to save CPU and Edge Requests
-  const intervalId = window.setInterval(async () => {
-    if (!getCurrentUserId()) return;
-    if (document.visibilityState !== 'visible') return;
+  let timeoutId: number;
+  let isUnsubscribed = false;
 
-    try {
-      const snapshotMap = await syncAllUserDataCloud();
-      if (!snapshotMap) return;
-
-      // The order must match what performBackgroundSync expects or we handle the map
-      const snapshot = [
-        snapshotMap.tracker,
-        snapshotMap.settings,
-        snapshotMap.routines,
-        snapshotMap.history,
-        snapshotMap.bookmarks,
-        snapshotMap.tasks,
-        snapshotMap.timer,
-      ];
-
-      const fingerprint = JSON.stringify(snapshot);
-      if (fingerprint !== lastFingerprint) {
-        lastFingerprint = fingerprint;
-        callback({
-          table: "__poll__",
-          eventType: "UPDATE",
-          new: { data: snapshot },
-        });
+  const fetchSync = async () => {
+    if (isUnsubscribed || !getCurrentUserId()) return;
+    
+    // Adaptive: if hidden, we don't fetch. We rely on visibilitychange to trigger when back.
+    if (document.visibilityState === 'visible') {
+      try {
+        const snapshotMap = await syncAllUserDataCloud();
+        if (snapshotMap) {
+          const snapshot = [
+            snapshotMap.tracker,
+            snapshotMap.settings,
+            snapshotMap.routines,
+            snapshotMap.history,
+            snapshotMap.bookmarks,
+            snapshotMap.tasks,
+            snapshotMap.timer,
+          ];
+          const fingerprint = JSON.stringify(snapshot);
+          if (fingerprint !== lastFingerprint) {
+            lastFingerprint = fingerprint;
+            callback({
+              table: "__poll__",
+              eventType: "UPDATE",
+              new: { data: snapshot },
+            });
+          }
+        }
+      } catch (error) {
+        log.error("User data polling failed", error);
       }
-    } catch (error) {
-      log.error("User data polling failed", error);
     }
-  }, 30000);
+    
+    // Schedule next pull (10s in foreground)
+    if (!isUnsubscribed) {
+      timeoutId = window.setTimeout(fetchSync, 10000);
+    }
+  };
+
+  // Start polling
+  fetchSync();
+
+  // Instant fetch on visibility return
+  const visibilityHandler = () => {
+    if (document.visibilityState === 'visible') {
+      // Clear existing timeout to prevent overlapping immediate calls
+      window.clearTimeout(timeoutId);
+      fetchSync();
+    }
+  };
+  document.addEventListener('visibilitychange', visibilityHandler);
 
   return {
-    unsubscribe: () => window.clearInterval(intervalId),
+    unsubscribe: () => {
+      isUnsubscribed = true;
+      window.clearTimeout(timeoutId);
+      document.removeEventListener('visibilitychange', visibilityHandler);
+    }
   };
 }
 
