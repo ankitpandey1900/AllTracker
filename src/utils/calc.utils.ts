@@ -631,15 +631,17 @@ export function calculateVerificationScore(sessionHours: number, trackerHours: n
 
 /**
  * COMPETITIVE XP ENGINE (Rank 2.0 - God Tier Scaling)
- * Weights: Hours (1.8x), Current Streak (1.5x), Trust Score (0.1x)
- * Insanely strict scaling. Breaking 1,000 points requires ~500+ hours of verified work.
+ * Hours are the score. Streak and verification are modest percentage bonuses
+ * on already-earned work, never fixed points that can outweigh real study time.
  */
 export function calculateCompetitiveXP(totalHours: number, currentStreak: number, trustScore: number): number {
   // Integrity validates work; it must never create rank points for a user who
   // has not studied in the selected leaderboard period.
   if (!Number.isFinite(totalHours) || totalHours <= 0) return 0;
-  const hourPoints = totalHours * 1.8;
-  const streakPoints = currentStreak * 1.5;
-  const integrityPoints = trustScore * 0.1;
-  return Math.round(hourPoints + streakPoints + integrityPoints);
+  // 2.5 points per real study hour keeps rank progression deliberately slow.
+  // Streak and verified-timer integrity can help, but cannot replace work.
+  const hourPoints = totalHours * 2.5;
+  const streakBonus = Math.min(0.10, Math.max(0, currentStreak) * 0.003);
+  const integrityBonus = Math.min(0.05, Math.max(0, Math.min(100, trustScore)) / 2000);
+  return Math.round(hourPoints * (1 + streakBonus + integrityBonus));
 }

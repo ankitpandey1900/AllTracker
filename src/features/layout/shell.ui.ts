@@ -96,7 +96,7 @@ export const shellView = `
 
   <footer class="app-footer" style="text-align: center; padding: 2rem 1rem; color: #6b7280; font-size: 0.85rem; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 2rem;">
     <div style="display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 0.5rem;">
-      <a href="/manual.html" style="color: #818cf8; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#a5b4fc'" onmouseout="this.style.color='#818cf8'">User Manual</a>
+      <button id="userManualBtn" type="button" style="color: #818cf8; text-decoration: none; transition: color 0.2s; background: none; border: 0; padding: 0; font: inherit; cursor: pointer;" onmouseover="this.style.color='#a5b4fc'" onmouseout="this.style.color='#818cf8'">User Manual</button>
       <a href="/privacy.html" style="color: #818cf8; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#a5b4fc'" onmouseout="this.style.color='#818cf8'">Privacy Policy</a>
       <a href="/terms.html" style="color: #818cf8; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#a5b4fc'" onmouseout="this.style.color='#818cf8'">Terms &amp; Conditions</a>
     </div>
