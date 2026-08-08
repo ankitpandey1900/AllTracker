@@ -1,4 +1,4 @@
-.focus-hud {
+ioop .focus-hud {
   position: fixed;
   inset: 0;
   pointer-events: none;
@@ -9,6 +9,8 @@
   pointer-events: auto;
   background: rgba(8, 8, 12, 0.98);
   backdrop-filter: blur(10px);
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .view-pane {
@@ -420,6 +422,7 @@ body.timer-style-block #activeTimerSection {
   flex-direction: column;
   justify-content: space-between;
   margin: 3vh auto;
+  padding-bottom: 40px;
   container-type: inline-size;
 }
 
@@ -868,7 +871,8 @@ body.focus-minimized.timer-style-block #activeTimerSection:hover {
 /* =========================================
    MOBILE LANDSCAPE MODE (Professional UX)
    ========================================= */
-@media (max-width: 950px) and (orientation: landscape), (max-height: 500px) {
+@media (max-width: 950px) and (orientation: landscape),
+(max-height: 500px) {
   .focus-hud.active {
     overflow-y: auto;
   }
