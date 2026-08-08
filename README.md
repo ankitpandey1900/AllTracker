@@ -1,8 +1,16 @@
-# AllTracker
+<div align="center">
+  <img src="./public/pwa-logo.png" width="260" height="260" style="border-radius: 30px; box-shadow: 0 14px 40px rgba(0, 0, 0, 0.25);" alt="All Tracker Logo">
+  <h1> AllTracker </h1>
+  <p><strong>The High-Performance Mission Control for the Grind.</strong></p>
+
+  <p>
+    <a href="https://alltracker.online"><strong>Launch Live Tracker</strong></a> |
+    <a href="https://github.com/ankitpandey1900/Tracker/issues">Open an Issue</a>
+  </p>
+</div>
 
 AllTracker is the study and focus tracker I built for myself. I wanted one place for daily tasks, study sessions, routines, a long-term tracker, and progress that does not disappear when I switch from my phone to my laptop.
 
-Live site: [alltracker.online](https://www.alltracker.online)
 
 ## What it does
 
@@ -109,7 +117,6 @@ The app is deployed on Vercel. Add the same environment variables in Vercel, cha
 
 ## Notes for future me
 
-- Do not put database credentials in the frontend.
 - Do not make a whole browser snapshot delete records in the database. This is especially dangerous when a user signs in on a new device.
 - For task, timer, feed, or phase issues, check the API response and database row first; the UI can only show what it receives.
 - Keep local storage as a fast cache, not the long-term authority for signed-in users.
