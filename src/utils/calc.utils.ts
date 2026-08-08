@@ -635,6 +635,9 @@ export function calculateVerificationScore(sessionHours: number, trackerHours: n
  * Insanely strict scaling. Breaking 1,000 points requires ~500+ hours of verified work.
  */
 export function calculateCompetitiveXP(totalHours: number, currentStreak: number, trustScore: number): number {
+  // Integrity validates work; it must never create rank points for a user who
+  // has not studied in the selected leaderboard period.
+  if (!Number.isFinite(totalHours) || totalHours <= 0) return 0;
   const hourPoints = totalHours * 1.8;
   const streakPoints = currentStreak * 1.5;
   const integrityPoints = trustScore * 0.1;
