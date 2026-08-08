@@ -203,7 +203,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     `;
 
       return {
-        from: 'Maamu @ All Tracker <maamu@alltracker.online>',
+        from: process.env.RESEND_FROM_EMAIL || 'All Tracker <onboarding@resend.dev>',
         to: [user.email],
         subject: dynamicSubject,
         html: emailContent,

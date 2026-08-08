@@ -233,8 +233,11 @@ export default async function handler(
       : dynamicSubject;
 
     const resend = new Resend(resendApiKey);
+    // A verified Resend sender must be configured in production. The fallback
+    // is useful only for a Resend account owner's test recipient.
+    const from = process.env.RESEND_FROM_EMAIL || 'All Tracker <onboarding@resend.dev>';
     const sendResult = await resend.emails.send({
-      from: 'Maamu @ All Tracker <maamu@alltracker.online>',
+      from,
       to: [email],
       subject: emailSubject,
       html: emailContent,
@@ -242,16 +245,9 @@ export default async function handler(
 
     if (sendResult.error) {
       console.error("Failed to send targeted email", sendResult.error);
-      sendJson(res, 500, { error: "Failed to send email" });
+      sendJson(res, 502, { error: `Resend rejected the email: ${sendResult.error.message || 'unknown provider error'}` });
       return;
     }
-
-    // Mark as sent
-    await pool.query(`
-      UPDATE public.profiles
-      SET last_reengagement_sent_at = NOW()
-      WHERE id = $1::uuid
-    `, [body.profile_id]);
 
     sendJson(res, 200, { success: true, message: "Roast delivered successfully." });
   } catch (err) {
