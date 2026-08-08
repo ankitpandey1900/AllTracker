@@ -113,6 +113,16 @@ async function hydrateSessionState(): Promise<void> {
   updateHeaderProfileUI();
   dispatchIdentitySync(localProfile);
   await syncDataOnLogin();
+
+  // Start polling only after currentUserId is available. Starting it before
+  // authentication leaves the poller idle for the rest of the session.
+  const [{ startLiveSync }, { initTimerModules, resumeTimerIfNeeded }] = await Promise.all([
+    import("@/services/data-bridge"),
+    import("@/features/timer/timer"),
+  ]);
+  initTimerModules();
+  resumeTimerIfNeeded();
+  void startLiveSync();
 }
 
 export function initSyncAuth(): Promise<void> {
@@ -259,6 +269,18 @@ export async function handleSignOut(): Promise<void> {
   try {
     await authClient.signOut();
   } finally {
+    // Shared browsers must not expose a previous user's offline cache to the
+    // next person who opens the app on this device.
+    [
+      STORAGE_KEYS.TRACKER_DATA,
+      STORAGE_KEYS.SETTINGS,
+      STORAGE_KEYS.TIMER,
+      STORAGE_KEYS.ROUTINES,
+      STORAGE_KEYS.ROUTINE_HISTORY,
+      STORAGE_KEYS.BOOKMARKS,
+      STORAGE_KEYS.TASKS,
+      STORAGE_KEYS.SYNC_METADATA,
+    ].forEach(key => localStorage.removeItem(key));
     handleUserSignedOut();
   }
 }

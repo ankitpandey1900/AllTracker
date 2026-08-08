@@ -116,6 +116,16 @@ export async function loadTasksCloud(): Promise<VaultResponse<StudyTask[]> | nul
   return getVault<StudyTask[]>("tasks");
 }
 
+export async function upsertTaskCloud(task: StudyTask): Promise<void> {
+  if (!getCurrentUserId()) return;
+  await apiRequest("/api/app/vault/tasks", { method: "POST", body: { task } });
+}
+
+export async function deleteTaskCloud(taskId: string): Promise<void> {
+  if (!getCurrentUserId()) return;
+  await apiRequest("/api/app/vault/tasks", { method: "DELETE", body: { id: taskId } });
+}
+
 export function subscribeToRealtimeTelemetry(
   callback: (payload: any) => void,
 ): { unsubscribe: () => void } {

@@ -30,6 +30,9 @@ type TaskRow = {
   priority: number | null;
   created_at: string | null;
   completed_at: string | null;
+  type: "daily" | "weekly" | null;
+  week_of: string | null;
+  updated_at: string | null;
 };
 
 type BookmarkRow = {
@@ -75,6 +78,8 @@ function toTask(row: TaskRow) {
     completedAt: row.completed_at
       ? new Date(row.completed_at).getTime()
       : undefined,
+    type: row.type === "weekly" ? "weekly" : "daily",
+    weekOf: row.week_of || undefined,
   };
 }
 
@@ -238,15 +243,15 @@ export async function readVault(
     case "tasks": {
       const { rows } = await pool.query<TaskRow>(
         `
-          select id, text, completed, date, priority, created_at, completed_at
+          select id, text, completed, date, priority, created_at, completed_at, type, week_of, updated_at
           from tasks
-          where user_id = $1
+          where user_id = $1 and deleted_at is null
           order by created_at asc
         `,
         [profile.profileId],
       );
       const updatedAt =
-        rows.length > 0 ? rows[rows.length - 1].created_at || null : null;
+        rows.length > 0 ? rows[rows.length - 1].updated_at || rows[rows.length - 1].created_at || null : null;
       return { data: rows.map(toTask), updatedAt };
     }
     case "timer": {
@@ -443,11 +448,10 @@ export async function writeVault(
         return { updatedAt: new Date().toISOString() };
       }
       case "tasks": {
-        await client.query("delete from tasks where user_id = $1", [profile.profileId]);
         if (data && Array.isArray(data) && data.length > 0) {
           await client.query(
             `
-              insert into tasks (id, user_id, text, completed, date, priority, created_at, completed_at)
+              insert into tasks (id, user_id, text, completed, date, priority, created_at, completed_at, type, week_of, updated_at, deleted_at)
               select 
                 (t->>'id')::uuid, 
                 $1::uuid, 
@@ -456,8 +460,23 @@ export async function writeVault(
                 (t->>'date')::date, 
                 (t->>'priority')::integer,
                 case when t->>'createdAt' is not null then to_timestamp((t->>'createdAt')::numeric / 1000) else now() end,
-                case when t->>'completedAt' is not null then to_timestamp((t->>'completedAt')::numeric / 1000) else null end
+                case when t->>'completedAt' is not null then to_timestamp((t->>'completedAt')::numeric / 1000) else null end,
+                case when t->>'type' = 'weekly' then 'weekly' else 'daily' end,
+                case when t->>'weekOf' is not null then (t->>'weekOf')::date else null end,
+                now(),
+                null
               from jsonb_array_elements($2::jsonb) as t
+              on conflict (id) do update set
+                text = excluded.text,
+                completed = excluded.completed,
+                date = excluded.date,
+                priority = excluded.priority,
+                completed_at = excluded.completed_at,
+                type = excluded.type,
+                week_of = excluded.week_of,
+                updated_at = excluded.updated_at,
+                deleted_at = null
+              where tasks.user_id = excluded.user_id
             `,
             [profile.profileId, JSON.stringify(data)],
           );
@@ -518,6 +537,56 @@ export async function writeVault(
   } finally {
     client.release();
   }
+}
+
+export async function upsertTask(
+  profile: AuthenticatedProfile,
+  task: Record<string, unknown>,
+): Promise<void> {
+  if (typeof task.id !== "string" || typeof task.text !== "string" || typeof task.date !== "string") {
+    throw new Error("Invalid task payload");
+  }
+
+  const priority = Number(task.priority || 2);
+  const taskType = task.type === "weekly" ? "weekly" : "daily";
+  const pool = getPool();
+  await pool.query(
+    `
+      insert into tasks (id, user_id, text, completed, date, priority, created_at, completed_at, type, week_of, updated_at, deleted_at)
+      values ($1::uuid, $2::uuid, $3, $4, $5::date, $6, to_timestamp($7 / 1000.0), $8, $9, $10::date, now(), null)
+      on conflict (id) do update set
+        text = excluded.text,
+        completed = excluded.completed,
+        date = excluded.date,
+        priority = excluded.priority,
+        completed_at = excluded.completed_at,
+        type = excluded.type,
+        week_of = excluded.week_of,
+        updated_at = now(),
+        deleted_at = null
+      where tasks.user_id = excluded.user_id
+    `,
+    [
+      task.id,
+      profile.profileId,
+      task.text.trim(),
+      task.completed === true,
+      task.date,
+      Math.min(3, Math.max(1, Number.isFinite(priority) ? priority : 2)),
+      Number(task.createdAt || Date.now()),
+      task.completedAt ? new Date(Number(task.completedAt)).toISOString() : null,
+      taskType,
+      typeof task.weekOf === "string" && task.weekOf ? task.weekOf : null,
+    ],
+  );
+}
+
+export async function deleteTask(profile: AuthenticatedProfile, taskId: string): Promise<void> {
+  const pool = getPool();
+  await pool.query(
+    "update tasks set deleted_at = now(), updated_at = now() where id = $1::uuid and user_id = $2::uuid",
+    [taskId, profile.profileId],
+  );
 }
 
 export async function clearTimerState(profile: AuthenticatedProfile): Promise<void> {

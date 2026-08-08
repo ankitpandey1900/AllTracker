@@ -10,6 +10,7 @@ import {
   saveRoutineHistoryCloud, loadRoutineHistoryCloud,
   saveTimerStateCloud, loadTimerStateCloud,
   saveTasksCloud, loadTasksCloud,
+  upsertTaskCloud, deleteTaskCloud,
   loadUserProfileCloud,
   updateSyncStatus,
   subscribeToUserDataSync,
@@ -128,11 +129,25 @@ export async function saveRoutinesToStorage(data: any[]): Promise<void> {
 export async function loadRoutinesFromStorage(): Promise<any[]> { return loadLocal<any[]>(STORAGE_KEYS.ROUTINES) || []; }
 
 export async function saveTasksToStorage(data: any[]): Promise<void> {
+  const previous = loadLocal<any[]>(STORAGE_KEYS.TASKS) || [];
   appState.tasks = data;
   const snapshot = snapshotForSync(data);
   saveLocal(STORAGE_KEYS.TASKS, snapshot);
   updateLocalTimestamp(STORAGE_KEYS.TASKS);
-  queueVaultWrite(STORAGE_KEYS.TASKS, () => saveTasksCloud(snapshot));
+
+  const previousById = new Map(previous.map(task => [task.id, task]));
+  const nextIds = new Set(snapshot.map(task => task.id));
+  for (const task of snapshot) {
+    const oldTask = previousById.get(task.id);
+    if (!oldTask || JSON.stringify(oldTask) !== JSON.stringify(task)) {
+      queueVaultWrite(`${STORAGE_KEYS.TASKS}:${task.id}`, () => upsertTaskCloud(task));
+    }
+  }
+  for (const task of previous) {
+    if (!nextIds.has(task.id)) {
+      queueVaultWrite(`${STORAGE_KEYS.TASKS}:${task.id}`, () => deleteTaskCloud(task.id));
+    }
+  }
 }
 
 export async function loadTasksFromStorage(): Promise<any[]> { return loadLocal<any[]>(STORAGE_KEYS.TASKS) || []; }

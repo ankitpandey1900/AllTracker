@@ -24,6 +24,8 @@ import { notificationService } from '@/services/notification.service';
  * Initializes listeners for the Sync Status HUD
  */
 export function initTimerModules(): void {
+  if (timerModulesInitialized) return;
+  timerModulesInitialized = true;
   // Connectivity Listeners
   window.addEventListener('online', () => SyncIndicator.update('synced'));
   window.addEventListener('offline', () => SyncIndicator.update('offline'));
@@ -112,6 +114,7 @@ export function initTimerModules(): void {
 
 // --- Timer State ---
 
+let timerModulesInitialized = false;
 let isStopping = false; 
 let wakeLock: any = null; 
 

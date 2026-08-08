@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { getAuth } from "../../_lib/auth/index.js";
-import { readVault, writeVault } from "../../_lib/data/vault-repo.js";
+import { readVault, writeVault, deleteTask, upsertTask } from "../../_lib/data/vault-repo.js";
 import { ensureProfileForUser } from "../../_lib/data/profile-repo.js";
 import { headersFromNode, readJsonBody } from "../../_lib/http/request.js";
 import { handleRouteError, sendJson, sendMethodNotAllowed } from "../../_lib/http/response.js";
@@ -45,8 +45,30 @@ export default async function handler(
       return;
     }
 
+    if (name === "tasks" && req.method === "POST") {
+      const body = await readJsonBody<{ task?: unknown }>(req);
+      if (!body?.task || typeof body.task !== "object") {
+        sendJson(res, 400, { error: "task is required" });
+        return;
+      }
+      await upsertTask(profile, body.task as Record<string, unknown>);
+      sendJson(res, 200, { ok: true });
+      return;
+    }
+
+    if (name === "tasks" && req.method === "DELETE") {
+      const body = await readJsonBody<{ id?: string }>(req);
+      if (!body?.id) {
+        sendJson(res, 400, { error: "id is required" });
+        return;
+      }
+      await deleteTask(profile, body.id);
+      sendJson(res, 200, { ok: true });
+      return;
+    }
+
     if (req.method !== "PUT") {
-      sendMethodNotAllowed(res, ["GET", "PUT"]);
+      sendMethodNotAllowed(res, name === "tasks" ? ["GET", "POST", "PUT", "DELETE"] : ["GET", "PUT"]);
       return;
     }
 
