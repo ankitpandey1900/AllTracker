@@ -26,13 +26,13 @@ export async function fetchLeaderboard(timeframe: string = 'weekly') {
   let trackerTimeCondition = '';
   switch (timeframe) {
     case 'today':
-      trackerTimeCondition = `and dt.log_date >= (now() AT TIME ZONE 'Asia/Kolkata')::date`;
+      trackerTimeCondition = `and dt.log_date::date >= (now() AT TIME ZONE 'Asia/Kolkata')::date`;
       break;
     case 'weekly':
-      trackerTimeCondition = `and dt.log_date >= (now() AT TIME ZONE 'Asia/Kolkata')::date - 6`;
+      trackerTimeCondition = `and dt.log_date::date >= (now() AT TIME ZONE 'Asia/Kolkata')::date - 6`;
       break;
     case 'monthly':
-      trackerTimeCondition = `and dt.log_date >= (now() AT TIME ZONE 'Asia/Kolkata')::date - 29`;
+      trackerTimeCondition = `and dt.log_date::date >= (now() AT TIME ZONE 'Asia/Kolkata')::date - 29`;
       break;
     case 'all-time':
     default:
