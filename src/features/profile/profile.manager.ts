@@ -26,6 +26,7 @@ export let lastInteractionAt = Date.now();
 
 // Cache to prevent redundant broadcast network calls
 let lastBroadcastPayload: string | null = null;
+export const getLastBroadcastPayload = () => lastBroadcastPayload;
 let lastBroadcastDate: string | null = null;
 let lastBroadcastTimeMs: number = 0;
 
@@ -267,23 +268,27 @@ export async function syncProfileBroadcast(focusStateChanged = false): Promise<v
   try {
     if (focusStateChanged || Date.now() - lastBroadcastTimeMs > 30000) {
       lastBroadcastTimeMs = Date.now();
-      await broadcastGlobalStats(payload);
+      let broadcastSuccess = false;
+      try {
+        await broadcastGlobalStats(payload);
+        broadcastSuccess = true;
+      } catch (err: any) {
+        if (err?.message?.includes("Too many requests") || err?.status === 429) {
+          log.info("Broadcast throttled by server rate limit.");
+        } else {
+          console.error('Broadcast failed:', err);
+        }
+      }
       
-      if (focusStateChanged) {
+      // Always refresh UI if focus state changed OR if we successfully broadcasted new time
+      if (focusStateChanged || broadcastSuccess) {
         import('@/features/dashboard/leaderboard').then(m => m.refreshLeaderboard());
+        import('@/features/dashboard/dashboard').then(m => m.updateDashboard());
       }
     }
   } catch (err: any) {
-    if (err?.message?.includes("Too many requests")) {
-      log.info("Broadcast throttled by server rate limit.");
-    } else {
-      console.error('Broadcast failed:', err);
-    }
+    console.error('Unexpected error in syncProfileBroadcast:', err);
   }
-
-  // Automatically refresh the UI to show the new stats
-  import('@/features/dashboard/leaderboard').then(m => m.refreshLeaderboard());
-  import('@/features/dashboard/dashboard').then(m => m.updateDashboard());
 }
 
 /** Professional Profile Persistence Flow */

@@ -7,7 +7,7 @@ import { formatDuration } from '@/utils/date.utils';
 import { calculateCompetitiveXP } from '@/utils/calc.utils';
 
 // 📡 FEATURE BRIDGE: Profile and Identity logic moved to src/features/profile/
-import { syncProfileBroadcast, updateLastInteraction, lastInteractionAt } from '@/features/profile/profile.manager';
+import { syncProfileBroadcast, updateLastInteraction, lastInteractionAt, getLastBroadcastPayload } from '@/features/profile/profile.manager';
 
 import { 
   lbCurrentPage, 
@@ -219,6 +219,33 @@ export async function refreshLeaderboard(): Promise<void> {
   
   const profileData = getSecureLocalProfileString();
   const myDisplayName = profileData ? JSON.parse(profileData).displayName : null;
+
+  // Optimistic UI Merge: Apply local state to bypass server rate limits/caches
+  const localPayloadStr = getLastBroadcastPayload();
+  if (localPayloadStr && myDisplayName) {
+    try {
+      const localPayload = JSON.parse(localPayloadStr);
+      const myUserIdx = users.findIndex(u => u.display_name === myDisplayName);
+      if (myUserIdx !== -1) {
+        const u = users[myUserIdx];
+        
+        // If local state says focusing but server says no, patch the telemetry count
+        if (localPayload.is_focusing_now && !u.is_focusing_now && telemetry) {
+          telemetry.active_now += 1;
+          const activeEl = document.getElementById('telemetry-active-now');
+          if (activeEl) activeEl.textContent = telemetry.active_now.toLocaleString();
+        }
+
+        u.total_hours = localPayload.total_hours ?? u.total_hours;
+        u.today_hours = localPayload.today_hours ?? u.today_hours;
+        u.is_focusing_now = localPayload.is_focusing_now ?? u.is_focusing_now;
+        if (localPayload.is_focusing_now) {
+          u.current_focus_subject = localPayload.current_focus_subject;
+          u.last_active = new Date().toISOString(); // Keep it fresh
+        }
+      }
+    } catch (e) {}
+  }
 
   users = users.sort((a, b) => {
     const hoursA = lbTimeframe === 'all-time' ? a.total_hours : (a.timeframe_hours ?? a.total_hours);

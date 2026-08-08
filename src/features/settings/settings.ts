@@ -102,7 +102,19 @@ export function applyColumnSettings(): void {
       if (name) rangeCols.push({ name, target });
     });
 
-    if (startDate && endDate && new Date(startDate) <= new Date(endDate)) {
+    if (!startDate || !endDate) {
+      import('@/utils/dom.utils').then(m => m.showToast(`Warning: Phase "${name || 'Unnamed'}" is missing dates. It was saved with default dates.`, 'warning'));
+      const today = new Date();
+      const endOfYear = new Date(today.getFullYear(), 11, 31);
+      appState.settings.customRanges.push({
+        startDate: startDate || today.toISOString().split('T')[0],
+        endDate: endDate || endOfYear.toISOString().split('T')[0],
+        name,
+        columns: rangeCols
+      });
+    } else if (new Date(startDate) > new Date(endDate)) {
+      import('@/utils/dom.utils').then(m => m.showToast(`Warning: Phase "${name || 'Unnamed'}" has start date after end date. It was not saved.`, 'error'));
+    } else {
       appState.settings.customRanges.push({
         startDate,
         endDate,
@@ -216,7 +228,9 @@ function renderCustomRanges(): void {
 }
 
 export function addCustomRange(): void {
-  addCustomRangeToDOM({}, document.querySelectorAll('.custom-range-item').length);
+  const today = getLocalIsoDate();
+  const endOfYear = `${new Date().getFullYear()}-12-31`;
+  addCustomRangeToDOM({ startDate: today, endDate: endOfYear }, document.querySelectorAll('.custom-range-item').length);
 }
 
 function addCustomRangeToDOM(range: Partial<CustomRange>, index: number): void {

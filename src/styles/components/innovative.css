@@ -7,7 +7,8 @@
 
 .focus-hud.active {
   pointer-events: auto;
-  background: transparent;
+  background: rgba(8, 8, 12, 0.98);
+  backdrop-filter: blur(10px);
 }
 
 .view-pane {
@@ -277,7 +278,7 @@
 }
 
 .session-goal-row {
-  margin-top: 24px;
+  margin-top: 0;
   display: flex;
   gap: 12px;
   justify-content: center;
@@ -286,12 +287,22 @@
   padding: 12px;
   border-radius: 4px;
   border: 1px solid rgba(255, 255, 255, 0.1);
+  flex-basis: 100%;
+  order: 10;
 }
+
 
 .progress-ring__circle {
   transform: rotate(-90deg);
   transform-origin: 50% 50%;
   transition: stroke-dashoffset 0.3s;
+}
+
+/* Lock background scrolling when HUD is fully active */
+body.focus-mode:not(.focus-minimized) {
+  overflow: hidden !important;
+  touch-action: none !important;
+  overscroll-behavior: none !important;
 }
 
 html.focus-minimized-scroll,
@@ -303,7 +314,8 @@ body.focus-minimized {
 
 body.focus-minimized .focus-hud,
 body.focus-minimized .focus-hud.active {
-  background: transparent;
+  background: transparent !important;
+  backdrop-filter: none !important;
   pointer-events: none !important;
 }
 
@@ -402,7 +414,8 @@ body.timer-style-ring .glass-block-content {
 body.timer-style-block #activeTimerSection {
   width: 98vw;
   max-width: 1800px;
-  min-height: 85vh;
+  height: auto;
+  min-height: auto;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -581,10 +594,10 @@ body.timer-style-block .timer-task-text {
 }
 
 body.timer-style-block .timer-display {
-  font-weight: 500;
+  font-weight: 700;
   color: var(--text-primary);
   line-height: 1;
-  text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+  text-shadow: none;
   margin: 0;
   padding: 0;
   white-space: nowrap;
@@ -596,7 +609,7 @@ body.timer-style-block #timerSubject {
   letter-spacing: 8px;
   margin-bottom: 15px;
   color: #4facfe;
-  text-shadow: 0 0 10px rgba(79, 172, 254, 0.5);
+  text-shadow: none;
   opacity: 1;
 }
 
@@ -849,5 +862,221 @@ body.focus-minimized.timer-style-block #activeTimerSection:hover {
 
   .session-goal-row input {
     width: 50px !important;
+  }
+}
+
+/* =========================================
+   MOBILE LANDSCAPE MODE (Professional UX)
+   ========================================= */
+@media (max-width: 950px) and (orientation: landscape), (max-height: 500px) {
+  .focus-hud.active {
+    overflow-y: auto;
+  }
+
+  #activeTimerSection {
+    width: 95vw !important;
+    height: auto !important;
+    max-width: none !important;
+    min-height: auto !important;
+    margin: 8px auto !important;
+    padding: 10px 16px !important;
+    box-sizing: border-box !important;
+  }
+
+  body.focus-minimized #activeTimerSection {
+    display: block !important;
+    transform: translate(var(--drag-x, 0px), var(--drag-y, 0px)) scale(0.3) !important;
+  }
+
+  /* Shrink the timer display for landscape */
+  .timer-display {
+    font-size: 3rem !important;
+  }
+
+  body.timer-style-block .timer-display {
+    font-size: clamp(2rem, 12vw, 4rem) !important;
+  }
+
+  body.timer-style-block .glass-block-content {
+    padding: 8px 12px !important;
+  }
+
+  body.timer-style-block #timerSubject {
+    font-size: 0.8rem !important;
+    margin-bottom: 4px !important;
+    letter-spacing: 4px !important;
+  }
+
+  /* Merge session goal + controls into one compact row */
+  .control-row {
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    margin-top: 8px !important;
+  }
+
+  .control-row .btn {
+    padding: 8px 14px !important;
+    font-size: 0.7rem !important;
+    min-width: auto !important;
+    flex: 0 1 auto !important;
+  }
+
+  #timerTerminateBtn {
+    width: auto !important;
+    margin-top: 0 !important;
+    order: 3 !important;
+  }
+
+  #timerPauseBtn {
+    order: 2 !important;
+  }
+
+  #timerStopBtn {
+    order: 4 !important;
+  }
+
+  .session-goal-row {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    margin-top: 0 !important;
+    padding: 6px 10px !important;
+    font-size: 0.7rem !important;
+    flex-basis: auto !important;
+    order: 1 !important;
+  }
+
+  .session-goal-row input {
+    width: 40px !important;
+    padding: 3px 4px !important;
+    font-size: 0.7rem !important;
+  }
+
+  .hud-top-bar {
+    padding: 4px 8px !important;
+    gap: 4px !important;
+  }
+
+  .timer-circle-container {
+    margin: 4px auto !important;
+  }
+
+  body.timer-style-ring .timer-circle-container {
+    transform: scale(0.6) !important;
+    margin: -30px auto !important;
+  }
+}
+
+/* =========================================
+   FORCED LANDSCAPE (iOS Safari Fallback)
+   ========================================= */
+@media (orientation: portrait) {
+  .focus-hud.force-landscape {
+    width: 100vh !important;
+    height: 100vw !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) rotate(90deg) !important;
+    transform-origin: center center;
+    background: rgba(8, 8, 12, 0.99) !important;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto;
+  }
+
+  .focus-hud.force-landscape #activeTimerSection {
+    width: 95% !important;
+    height: auto !important;
+    max-width: none !important;
+    min-height: auto !important;
+    margin: 8px auto !important;
+    padding: 10px 16px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Shrink timer for forced landscape */
+  .focus-hud.force-landscape .timer-display {
+    font-size: 3rem !important;
+  }
+
+  .focus-hud.force-landscape body.timer-style-block .timer-display,
+  body.timer-style-block .focus-hud.force-landscape .timer-display {
+    font-size: clamp(2rem, 12vw, 4rem) !important;
+  }
+
+  .focus-hud.force-landscape .glass-block-content {
+    padding: 8px 12px !important;
+  }
+
+  .focus-hud.force-landscape #timerSubject {
+    font-size: 0.8rem !important;
+    margin-bottom: 4px !important;
+    letter-spacing: 4px !important;
+  }
+
+  .focus-hud.force-landscape .control-row {
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    margin-top: 8px !important;
+  }
+
+  .focus-hud.force-landscape .control-row .btn {
+    padding: 8px 14px !important;
+    font-size: 0.7rem !important;
+    min-width: auto !important;
+    flex: 0 1 auto !important;
+  }
+
+  .focus-hud.force-landscape #timerTerminateBtn {
+    width: auto !important;
+    margin-top: 0 !important;
+    order: 3 !important;
+  }
+
+  .focus-hud.force-landscape #timerPauseBtn {
+    order: 2 !important;
+  }
+
+  .focus-hud.force-landscape #timerStopBtn {
+    order: 4 !important;
+  }
+
+  .focus-hud.force-landscape .session-goal-row {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    margin-top: 0 !important;
+    padding: 6px 10px !important;
+    font-size: 0.7rem !important;
+    flex-basis: auto !important;
+    order: 1 !important;
+  }
+
+  .focus-hud.force-landscape .session-goal-row input {
+    width: 40px !important;
+    padding: 3px 4px !important;
+    font-size: 0.7rem !important;
+  }
+
+
+  .focus-hud.force-landscape .hud-top-bar {
+    padding: 4px 8px !important;
+    gap: 4px !important;
+  }
+
+  .focus-hud.force-landscape .timer-circle-container {
+    margin: 4px auto !important;
+  }
+
+  body.timer-style-ring .focus-hud.force-landscape .timer-circle-container {
+    transform: scale(0.6) !important;
+    margin: -30px auto !important;
   }
 }

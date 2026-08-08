@@ -44,6 +44,10 @@ export const hudView = `
           </button>
         </div>
 
+        <button id="landscapeFocusToggle" class="btn-icon minimize-btn" title="Force Horizontal View" style="margin-right: 2px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2" ry="2"></rect><circle cx="12" cy="12" r="2"></circle></svg>
+        </button>
+
         <button id="manualFocusToggle" class="btn-icon minimize-btn" title="Toggle Mini-Player">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round">
@@ -88,6 +92,12 @@ export const hudView = `
       <div class="control-row">
         <button id="timerExtendBtn" class="btn" style="display: none; background: linear-gradient(135deg, #fbbf24, #d97706); color: var(--text-primary); font-size: 0.65rem; font-weight: 800; border: none; box-shadow: 0 0 15px rgba(251, 191, 26, 0.4);">EXTEND GRIND +1H</button>
         
+        <div class="session-goal-row" style="opacity: 0.8;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+          <label for="sessionGoalInput" style="font-weight: 600; font-size: 0.75rem; letter-spacing: 0.5px;">Session Goal (mins)</label>
+          <input id="sessionGoalInput" class="input small" type="number" min="1" value="60" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); color: #fff; width: 60px; text-align: center; border-radius: 6px; padding: 4px;" />
+        </div>
+
         <button id="timerPauseBtn" class="btn btn-outline" style="min-width: 110px; font-weight: 700; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.03);">
           <svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
           BREAK
@@ -103,11 +113,7 @@ export const hudView = `
           STOP
         </button>
       </div>
-      <div class="session-goal-row" style="opacity: 0.8;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
-        <label for="sessionGoalInput" style="font-weight: 600; font-size: 0.75rem; letter-spacing: 0.5px;">Session Goal (mins)</label>
-        <input id="sessionGoalInput" class="input small" type="number" min="1" value="60" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); color: #fff; width: 60px; text-align: center; border-radius: 6px; padding: 4px;" />
-      </div>
+
     </div>
   </div>
 

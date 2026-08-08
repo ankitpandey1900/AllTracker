@@ -21,6 +21,7 @@ async function fetchUsers() {
     }
 
     const response = await fetch("/api/app/ankit/users");
+    const dbStatsResponse = await fetch("/api/app/ankit/db-stats");
 
     if (!response.ok) {
       const err = await response.json();
@@ -118,6 +119,21 @@ async function fetchUsers() {
       `;
       tbody.appendChild(tr);
     });
+
+    if (dbStatsResponse.ok) {
+      const dbStatsData = await dbStatsResponse.json();
+      const stats = dbStatsData.stats;
+      
+      const statDbSessions = document.getElementById("stat-db-sessions");
+      const statDbTasks = document.getElementById("stat-db-tasks");
+      const statDbFeed = document.getElementById("stat-db-feed");
+      const statDbBadges = document.getElementById("stat-db-badges");
+      
+      if (statDbSessions) statDbSessions.textContent = stats.totalStudySessions.toLocaleString();
+      if (statDbTasks) statDbTasks.textContent = stats.totalTasks.toLocaleString();
+      if (statDbFeed) statDbFeed.textContent = stats.totalFeedPosts.toLocaleString();
+      if (statDbBadges) statDbBadges.textContent = stats.totalBadges.toLocaleString();
+    }
   } catch (err) {
     status.textContent = "Error connecting to server.";
   }

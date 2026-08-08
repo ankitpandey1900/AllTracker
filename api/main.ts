@@ -20,6 +20,7 @@ import chat from "./_routes/chat.js";
 // Admin / Ankit routes
 import adminUsers from "./_routes/admin/users.js";
 import adminSendRoast from "./_routes/admin/send-roast.js";
+import adminDbStats from "./_routes/admin/db-stats.js";
 
 export default async function handler(
   req: IncomingMessage & { query?: Record<string, string | string[]> },
@@ -47,6 +48,7 @@ export default async function handler(
     // Ankit Admin Routes
     if (path === "/ankit/users") return adminUsers(req, res);
     if (path === "/ankit/send-roast") return adminSendRoast(req, res);
+    if (path === "/ankit/db-stats") return adminDbStats(req, res);
     
     // Dynamic vault path: /api/app/vault/:name
     if (path.startsWith("/vault/")) {

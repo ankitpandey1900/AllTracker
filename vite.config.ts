@@ -13,6 +13,12 @@ const apiMiddleware = () => ({
     Object.assign(process.env, env);
 
     server.middlewares.use(async (req: any, res: any, next: any) => {
+      // Dev mode rewrite for /ankit to match Vercel behavior
+      if (req.url === '/ankit' || req.url === '/ankit/') {
+        req.url = '/src/admin/ankit.html';
+        return next();
+      }
+
       if (!req.url.startsWith('/api/')) return next();
 
       try {

@@ -637,15 +637,46 @@ export function resumeTimerIfNeeded(): void {
 
 export function setupFocusListeners(): void {
   const toggle = document.getElementById('manualFocusToggle'), toggleText = document.getElementById('focusToggleText');
-  const hudSection = document.getElementById('activeTimerSection'), pauseBtn = document.getElementById('timerPauseBtn');
-  const stopBtn = document.getElementById('timerStopBtn'), terminateBtn = document.getElementById('timerTerminateBtn'), extendBtn = document.getElementById('timerExtendBtn');
+  const landscapeToggle = document.getElementById('landscapeFocusToggle');
+
+  if (landscapeToggle) {
+    landscapeToggle.addEventListener('click', () => {
+      const hud = document.getElementById('focusHud');
+      
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+        if (hud) hud.classList.remove('force-landscape');
+      } else {
+        if (hud) hud.classList.add('force-landscape');
+        document.documentElement.requestFullscreen().then(() => {
+          // @ts-ignore
+          if (screen.orientation && screen.orientation.lock) {
+            // @ts-ignore
+            screen.orientation.lock("landscape").catch(console.warn);
+          }
+        }).catch(console.warn);
+      }
+    });
+  }
+
   if (toggle) {
     toggle.addEventListener('click', () => {
       const isMin = document.body.classList.toggle('focus-minimized');
-      if (toggleText) toggleText.textContent = isMin ? 'Restore HUD' : 'Minimize HUD';
-      if (!isMin && hudSection) { hudSection.style.setProperty('--drag-x', '0px'); hudSection.style.setProperty('--drag-y', '0px'); }
+      if (toggleText) {
+        toggleText.textContent = isMin ? 'Restore HUD' : 'Minimize HUD';
+      }
+      
+      const hudSection = document.getElementById('activeTimerSection');
+      if (!isMin && hudSection) { 
+        hudSection.style.setProperty('--drag-x', '0px'); 
+        hudSection.style.setProperty('--drag-y', '0px'); 
+      }
     });
   }
+
+  const hudSection = document.getElementById('activeTimerSection'), pauseBtn = document.getElementById('timerPauseBtn');
+  const stopBtn = document.getElementById('timerStopBtn'), terminateBtn = document.getElementById('timerTerminateBtn'), extendBtn = document.getElementById('timerExtendBtn');
+
   const soundToggle = document.getElementById('ambientSoundToggle');
   if (soundToggle) {
     soundToggle.addEventListener('click', (e) => {
