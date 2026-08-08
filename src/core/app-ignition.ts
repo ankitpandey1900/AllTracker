@@ -1,4 +1,4 @@
-import { appState, calculateDates, initializeData, applyThemeToDOM, applyTimerStyleToDOM, applyTimerFontToDOM, applyUiFontToDOM, applyAccentColorToDOM, ensureTimelineIntegrity, migrateDataFormat } from "@/state/app-state";
+import { appState, calculateDates, initializeData, applyThemeToDOM, applyTimerStyleToDOM, applyTimerFontToDOM, applyUiFontToDOM, applyAccentColorToDOM, ensureTimelineIntegrity, migrateDataFormat, syncTrackerTimelineWithSettings } from "@/state/app-state";
 import { log } from "@/utils/logger.utils";
 import {
   loadTrackerDataFromStorage,
@@ -62,9 +62,10 @@ export async function igniteApp(): Promise<void> {
     calculateDates();
     appState.trackerData = (trackerData && trackerData.length > 0) ? trackerData : initializeData();
     migrateDataFormat();
-    // A cloud read intentionally returns dated tracker logs rather than a
-    // redundant day counter. Repair old cached records before the first UI
-    // render, so phases are resolved correctly without opening Settings.
+    // Rebuild from the configured phase dates before the first render. Cloud
+    // storage can still contain historical rows from a previous plan; those
+    // must not make the first day of a new phase render as D-220.
+    syncTrackerTimelineWithSettings();
     ensureTimelineIntegrity();
     calculateDates();
 

@@ -143,8 +143,11 @@ export function applyColumnSettings(): void {
   // Step 1: Save settings + sync timeline (frame 1)
   setTimeout(() => {
     try {
-      saveSettingsToStorage(appState.settings);
       syncTrackerTimelineWithSettings();
+      // syncTrackerTimelineWithSettings derives the global start/end values
+      // from phases. Persist those derived dates, not the stale values from
+      // before the phase form was applied.
+      saveSettingsToStorage(appState.settings);
       saveTrackerDataToStorage(appState.trackerData);
     } catch (err) {
       console.error("Sync Failure (Step 1):", err);

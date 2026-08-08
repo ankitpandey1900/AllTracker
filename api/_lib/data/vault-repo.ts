@@ -118,7 +118,14 @@ export async function readVault(
   switch (vault) {
     case "tracker": {
       const { rows } = await pool.query(
-        "select log_date as date, study_hours, problems_solved as \"problemsSolved\", completed, topics, project, updated_at from daily_trackers where user_id = $1 order by log_date asc",
+        `
+          select dt.log_date as date, dt.study_hours, dt.problems_solved as "problemsSolved", dt.completed, dt.topics, dt.project, dt.updated_at
+          from daily_trackers dt
+          left join user_preferences up on up.user_id = dt.user_id
+          where dt.user_id = $1
+            and dt.log_date >= coalesce(up.start_date, dt.log_date)
+          order by dt.log_date asc
+        `,
         [profile.profileId]
       );
       
