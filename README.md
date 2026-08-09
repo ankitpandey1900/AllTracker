@@ -69,7 +69,7 @@ If I am working on saved user data, I start with these files:
 Requirements: Node 24 and a Supabase Postgres database.
 
 ```bash
-git clone https://github.com/ankitpandey1900/Tracker.git
+https://github.com/ankitpandey1900/AllTracker.git
 cd AllTracker
 npm install
 ```
