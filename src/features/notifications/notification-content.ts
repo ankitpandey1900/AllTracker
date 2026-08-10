@@ -1,4 +1,4 @@
-import { QUOTES } from '../../data/quotes.data';
+import { QUOTES } from '../../data/quotes.data.ts';
 import { calculatePaceProjections } from '@/utils/calc.utils';
 import { appState } from '@/state/app-state';
 
