@@ -43,6 +43,8 @@ export function handleRouteError(
   res: ServerResponse,
   error: unknown,
 ): void {
+  console.error("[ROUTE ERROR]", error);
+
   if (error instanceof ConfigurationError) {
     sendServiceUnavailable(res, error.message);
     return;

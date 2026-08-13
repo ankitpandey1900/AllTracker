@@ -348,7 +348,7 @@ export async function writeVault(
               last_routine_reset, maamu_compact, maamu_templates_collapsed, 
               maamu_template_favs, maamu_template_category, session_goal, updated_at
             )
-            values ($1, $2, $3, $4::jsonb, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18::jsonb, $19, $20, $21, $22)
+            values ($1, $2, $3, $4::jsonb, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19::jsonb, $20, $21, $22)
             on conflict (user_id)
             do update set
               start_date = excluded.start_date, end_date = excluded.end_date, columns = excluded.columns,
