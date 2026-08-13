@@ -311,8 +311,20 @@ export async function stopTimer(autoNote?: string, clampMs?: number): Promise<vo
   saveTimerState(); // Pushes isRunning: false to the cloud immediately
   import('@/features/profile/profile.manager').then(m => m.syncProfileBroadcast(true));
 
+  let note = autoNote || '';
+  let subtractMs = 0;
+  if (!autoNote) {
+    const res = await showSessionNoteModal();
+    note = res.note;
+    subtractMs = res.subtractMs;
+  }
+  
+  if (subtractMs > 0) {
+    totalElapsed = Math.max(0, totalElapsed - subtractMs);
+    note = note ? `${note} | [Time Subtracted: ${Math.round(subtractMs/60000)}m]` : `[Time Subtracted: ${Math.round(subtractMs/60000)}m]`;
+  }
+  
   const totalHours = totalElapsed / 3600000;
-  let note = autoNote || await showSessionNoteModal();
   if (appState.activeTimer.activeBreak) {
     const elapsedBreak = Date.now() - appState.activeTimer.activeBreak.startTime + appState.activeTimer.activeBreak.durationAcc;
     if (!appState.activeTimer.completedBreaks) appState.activeTimer.completedBreaks = [];
@@ -461,15 +473,22 @@ async function showTerminateConfirmModal(): Promise<boolean> {
   });
 }
 
-async function showSessionNoteModal(): Promise<string> {
+async function showSessionNoteModal(): Promise<{note: string, subtractMs: number}> {
   return new Promise((resolve) => {
     const modal = document.getElementById('sessionNoteModal');
     const input = document.getElementById('sessionNoteInput') as HTMLTextAreaElement;
+    const subtractInput = document.getElementById('sessionSubtractInput') as HTMLInputElement;
     const saveBtn = document.getElementById('saveSessionNoteBtn');
     const skipBtn = document.getElementById('skipSessionNoteBtn');
-    if (!modal || !input || !saveBtn) { resolve(''); return; }
-    input.value = ''; modal.classList.add('active');
-    const closeModal = (val: string) => { modal.classList.remove('active'); resolve(val); };
+    if (!modal || !input || !saveBtn) { resolve({note: '', subtractMs: 0}); return; }
+    input.value = ''; 
+    if (subtractInput) subtractInput.value = '';
+    modal.classList.add('active');
+    const closeModal = (noteVal: string) => { 
+      modal.classList.remove('active'); 
+      const subVal = subtractInput ? (parseFloat(subtractInput.value) || 0) : 0;
+      resolve({note: noteVal, subtractMs: subVal * 60000}); 
+    };
     saveBtn.addEventListener('click', () => closeModal(input.value.trim()), { once: true });
     if (skipBtn) skipBtn.addEventListener('click', () => closeModal(''), { once: true });
     modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(''); });
