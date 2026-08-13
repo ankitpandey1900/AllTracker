@@ -24,19 +24,24 @@ export async function fetchLeaderboard(timeframe: string = 'weekly') {
   // sessions and legitimate manual entries. Ranking only `study_sessions`
   // made logged work disappear from weekly/monthly views.
   let trackerTimeCondition = '';
+  let sessionTimeCondition = '';
   switch (timeframe) {
     case 'today':
       trackerTimeCondition = `and dt.log_date::date >= (now() AT TIME ZONE 'Asia/Kolkata')::date`;
+      sessionTimeCondition = `and (ss.start_time AT TIME ZONE 'Asia/Kolkata')::date >= (now() AT TIME ZONE 'Asia/Kolkata')::date`;
       break;
     case 'weekly':
       trackerTimeCondition = `and dt.log_date::date >= (now() AT TIME ZONE 'Asia/Kolkata')::date - 6`;
+      sessionTimeCondition = `and (ss.start_time AT TIME ZONE 'Asia/Kolkata')::date >= (now() AT TIME ZONE 'Asia/Kolkata')::date - 6`;
       break;
     case 'monthly':
       trackerTimeCondition = `and dt.log_date::date >= (now() AT TIME ZONE 'Asia/Kolkata')::date - 29`;
+      sessionTimeCondition = `and (ss.start_time AT TIME ZONE 'Asia/Kolkata')::date >= (now() AT TIME ZONE 'Asia/Kolkata')::date - 29`;
       break;
     case 'all-time':
     default:
       trackerTimeCondition = '';
+      sessionTimeCondition = '';
       break;
   }
 
@@ -46,15 +51,17 @@ export async function fetchLeaderboard(timeframe: string = 'weekly') {
   
   const query = `
     with timeframe_stats as (
-      select
-        dt.user_id,
-        sum(coalesce((
-          select sum(hours.hour_value)
-          from unnest(coalesce(dt.study_hours, '{}'::numeric[])) as hours(hour_value)
-        ), 0::numeric)) as timeframe_hours
-      from daily_trackers dt
-      where 1=1 ${trackerTimeCondition}
-      group by dt.user_id
+      select 
+        coalesce(dt_stats.user_id, ss_stats.user_id) as user_id,
+        greatest(coalesce(dt_stats.dt_hours, 0), coalesce(ss_stats.ss_hours, 0)) as timeframe_hours
+      from (
+        select dt.user_id, sum(coalesce((select sum(hours.hour_value) from unnest(coalesce(dt.study_hours, '{}'::numeric[])) as hours(hour_value)), 0::numeric)) as dt_hours
+        from daily_trackers dt where 1=1 ${trackerTimeCondition} group by dt.user_id
+      ) dt_stats
+      full outer join (
+        select user_id, sum(duration) as ss_hours
+        from study_sessions ss where 1=1 ${sessionTimeCondition} group by user_id
+      ) ss_stats on ss_stats.user_id = dt_stats.user_id
     )
     select
       p.username,
