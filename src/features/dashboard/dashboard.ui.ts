@@ -118,7 +118,7 @@ export const dashboardView = `
               <article class="card">
                 <div class="label" style="color: var(--text-secondary);">ELITE STREAK</div>
                 <div id="bestStreakStat" class="big" style="color: #cbd5e1;">0</div>
-                <div class="meta">ALL-TIME PEAK</div>
+                <div class="meta">ALL TIME PEAK</div>
               </article>
 
               <!-- FULL WIDTH RIVALRY ROW -->
@@ -222,7 +222,7 @@ export const worldStageView = `
              <button class="lb-timeframe-tab" data-timeframe="today">TODAY</button>
              <button class="lb-timeframe-tab active" data-timeframe="weekly">7 DAYS</button>
              <button class="lb-timeframe-tab" data-timeframe="monthly">30 DAYS</button>
-             <button class="lb-timeframe-tab" data-timeframe="all-time">ALL-TIME</button>
+             <button class="lb-timeframe-tab" data-timeframe="all-time">ALL TIME</button>
            </div>
         </div>
 

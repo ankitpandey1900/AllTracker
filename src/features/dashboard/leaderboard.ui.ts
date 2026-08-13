@@ -330,7 +330,7 @@ export function renderHoverCard(
 
       <div class="hover-stats">
         <div class="hover-stat-box tactical-glass-box">
-          <div class="stat-name">ALL-TIME STUDY</div>
+          <div class="stat-name">ALL TIME STUDY</div>
           <div class="stat-val" style="text-transform: uppercase;">${formatDuration(u.total_hours) || '0H'}</div>
           <div class="tactical-corner bottom-right"></div>
         </div>
@@ -430,7 +430,7 @@ export function renderPodium(
               ${formatDuration(todayHoursDisplay) || '0h'} <span style="font-size: 0.55rem; opacity: 0.8;">TODAY</span>
             </div>
             <div style="color: var(--text-primary); font-size: 0.65rem; font-weight: 600; margin-top: 2px; opacity: 0.75; white-space: nowrap;">
-              ${formatDuration(lbTimeframe === 'all-time' ? u.total_hours : (u.timeframe_hours ?? u.total_hours)) || '0h'} <span style="font-size: 0.55rem; opacity: 0.8;">${lbTimeframe.toUpperCase()}</span>
+              ${formatDuration(lbTimeframe === 'all-time' ? u.total_hours : (u.timeframe_hours ?? u.total_hours)) || '0h'} <span style="font-size: 0.55rem; opacity: 0.8;">${lbTimeframe === 'all-time' ? 'ALL TIME' : lbTimeframe.toUpperCase()}</span>
             </div>
           </div>
         </div>
@@ -491,7 +491,7 @@ export function renderUserRow(
       </div>
 
       <div class="lb-row-telemetry">
-        <div class="lb-row-total">${formatDuration(userHours) || '0H'} <span class="today-label">${lbTimeframe.toUpperCase()}</span></div>
+        <div class="lb-row-total">${formatDuration(userHours) || '0H'} <span class="today-label">${lbTimeframe === 'all-time' ? 'ALL TIME' : lbTimeframe.toUpperCase()}</span></div>
         <div class="lb-row-today">+${formatDuration(todayHoursDisplay) || '0H'} <span class="today-label">TODAY</span></div>
         <div class="lb-row-rank-score">${rankScore.toLocaleString()} <span class="score-label">PTS</span></div>
       </div>
