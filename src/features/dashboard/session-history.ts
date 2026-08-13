@@ -334,18 +334,47 @@ export async function renderSessionHistory(): Promise<void> {
         'background:rgba(0,0,0,0.7)', 'backdrop-filter:blur(6px)',
       ].join(';');
 
+      const oldHrs = Math.floor(oldDuration);
+      const oldMins = Math.round((oldDuration - oldHrs) * 60);
+
       modal.innerHTML = `
-        <div style="background:#0f1729; border:1px solid rgba(99,102,241,0.3); border-radius:16px; padding:28px 32px; min-width:380px; max-width:520px; width:90%; box-shadow:0 24px 48px rgba(0,0,0,0.6);">
-          <h3 style="margin:0 0 20px; font-size:1.1rem; color:#e2e8f0; letter-spacing:1px;">✎ EDIT SESSION</h3>
-          <label style="display:block; margin-bottom:6px; font-size:0.75rem; color:#94a3b8; letter-spacing:0.5px;">DURATION (hours)</label>
-          <input id="sh-edit-duration" type="number" min="0" step="0.01" value="${oldDuration}" style="width:100%; padding:10px 14px; background:#1e2a45; border:1px solid rgba(99,102,241,0.3); border-radius:8px; color:#e2e8f0; font-size:0.95rem; margin-bottom:16px; box-sizing:border-box;">
-          <label style="display:block; margin-bottom:6px; font-size:0.75rem; color:#94a3b8; letter-spacing:0.5px;">SUBJECT</label>
-          <input id="sh-edit-subject" type="text" value="${oldSubject}" style="width:100%; padding:10px 14px; background:#1e2a45; border:1px solid rgba(99,102,241,0.3); border-radius:8px; color:#e2e8f0; font-size:0.95rem; margin-bottom:16px; box-sizing:border-box;">
-          <label style="display:block; margin-bottom:6px; font-size:0.75rem; color:#94a3b8; letter-spacing:0.5px;">NOTE</label>
-          <textarea id="sh-edit-note" rows="3" style="width:100%; padding:10px 14px; background:#1e2a45; border:1px solid rgba(99,102,241,0.3); border-radius:8px; color:#e2e8f0; font-size:0.95rem; margin-bottom:24px; box-sizing:border-box; resize:vertical;">${oldNote.replace(/&quot;/g, '"')}</textarea>
+        <div style="background:#0f1729; border:1px solid rgba(99,102,241,0.4); border-radius:16px; padding:32px; min-width:380px; max-width:520px; width:90%; box-shadow:0 24px 64px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.05); position:relative;">
+          
+          <h3 style="margin:0 0 24px; font-size:1.15rem; color:#f8fafc; font-weight:700; letter-spacing:1px; display:flex; align-items:center; gap:8px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#6366f1;"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+            EDIT SESSION
+          </h3>
+
+          <div style="display:flex; gap:16px; margin-bottom:20px;">
+            <div style="flex:1;">
+              <label style="display:block; margin-bottom:8px; font-size:0.75rem; color:#94a3b8; font-weight:600; letter-spacing:0.5px;">HOURS</label>
+              <div style="position:relative;">
+                <input id="sh-edit-hours" type="number" min="0" step="1" value="${oldHrs}" style="width:100%; padding:12px 14px 12px 42px; background:rgba(30,41,69,0.5); border:1px solid rgba(99,102,241,0.2); border-radius:10px; color:#f8fafc; font-size:1rem; font-weight:500; box-sizing:border-box; transition:all 0.2s;" onfocus="this.style.borderColor='#6366f1'; this.style.background='rgba(30,41,69,0.8)'" onblur="this.style.borderColor='rgba(99,102,241,0.2)'; this.style.background='rgba(30,41,69,0.5)'">
+                <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#6366f1; font-size:0.85rem; font-weight:700; pointer-events:none;">HR</span>
+              </div>
+            </div>
+            <div style="flex:1;">
+              <label style="display:block; margin-bottom:8px; font-size:0.75rem; color:#94a3b8; font-weight:600; letter-spacing:0.5px;">MINUTES</label>
+              <div style="position:relative;">
+                <input id="sh-edit-mins" type="number" min="0" max="59" step="1" value="${oldMins}" style="width:100%; padding:12px 14px 12px 48px; background:rgba(30,41,69,0.5); border:1px solid rgba(99,102,241,0.2); border-radius:10px; color:#f8fafc; font-size:1rem; font-weight:500; box-sizing:border-box; transition:all 0.2s;" onfocus="this.style.borderColor='#6366f1'; this.style.background='rgba(30,41,69,0.8)'" onblur="this.style.borderColor='rgba(99,102,241,0.2)'; this.style.background='rgba(30,41,69,0.5)'">
+                <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#6366f1; font-size:0.85rem; font-weight:700; pointer-events:none;">MIN</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-bottom:20px;">
+            <label style="display:block; margin-bottom:8px; font-size:0.75rem; color:#94a3b8; font-weight:600; letter-spacing:0.5px;">SUBJECT</label>
+            <input id="sh-edit-subject" type="text" value="${oldSubject}" style="width:100%; padding:12px 14px; background:rgba(30,41,69,0.5); border:1px solid rgba(99,102,241,0.2); border-radius:10px; color:#f8fafc; font-size:0.95rem; box-sizing:border-box; transition:all 0.2s;" onfocus="this.style.borderColor='#6366f1'; this.style.background='rgba(30,41,69,0.8)'" onblur="this.style.borderColor='rgba(99,102,241,0.2)'; this.style.background='rgba(30,41,69,0.5)'">
+          </div>
+
+          <div style="margin-bottom:28px;">
+            <label style="display:block; margin-bottom:8px; font-size:0.75rem; color:#94a3b8; font-weight:600; letter-spacing:0.5px;">NOTE</label>
+            <textarea id="sh-edit-note" rows="3" style="width:100%; padding:12px 14px; background:rgba(30,41,69,0.5); border:1px solid rgba(99,102,241,0.2); border-radius:10px; color:#f8fafc; font-size:0.95rem; box-sizing:border-box; resize:vertical; transition:all 0.2s;" onfocus="this.style.borderColor='#6366f1'; this.style.background='rgba(30,41,69,0.8)'" onblur="this.style.borderColor='rgba(99,102,241,0.2)'; this.style.background='rgba(30,41,69,0.5)'">${oldNote.replace(/&quot;/g, '"')}</textarea>
+          </div>
+
           <div style="display:flex; gap:12px; justify-content:flex-end;">
-            <button id="sh-edit-cancel" style="padding:10px 20px; border-radius:8px; border:1px solid rgba(148,163,184,0.3); background:transparent; color:#94a3b8; cursor:pointer; font-size:0.9rem;">Cancel</button>
-            <button id="sh-edit-save" style="padding:10px 24px; border-radius:8px; border:none; background:linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff; cursor:pointer; font-size:0.9rem; font-weight:600;">Save Changes</button>
+            <button id="sh-edit-cancel" style="padding:10px 24px; border-radius:10px; border:1px solid rgba(148,163,184,0.2); background:rgba(255,255,255,0.02); color:#94a3b8; cursor:pointer; font-size:0.95rem; font-weight:600; transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='rgba(255,255,255,0.02)'">Cancel</button>
+            <button id="sh-edit-save" style="padding:10px 28px; border-radius:10px; border:none; background:linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff; cursor:pointer; font-size:0.95rem; font-weight:600; box-shadow:0 4px 12px rgba(99,102,241,0.3); transition:all 0.2s;" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 6px 16px rgba(99,102,241,0.4)'" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 12px rgba(99,102,241,0.3)'">Save Changes</button>
           </div>
         </div>
       `;
@@ -355,7 +384,10 @@ export async function renderSessionHistory(): Promise<void> {
       modal.addEventListener('click', (ev) => { if (ev.target === modal) modal!.remove(); });
 
       document.getElementById('sh-edit-save')!.onclick = async () => {
-        const newDuration = parseFloat((document.getElementById('sh-edit-duration') as HTMLInputElement).value) || 0;
+        const h = parseFloat((document.getElementById('sh-edit-hours') as HTMLInputElement).value) || 0;
+        const m = parseFloat((document.getElementById('sh-edit-mins') as HTMLInputElement).value) || 0;
+        const newDuration = h + (m / 60);
+        
         const newSubject = (document.getElementById('sh-edit-subject') as HTMLInputElement).value.trim() || oldSubject;
         const newNote = (document.getElementById('sh-edit-note') as HTMLTextAreaElement).value.trim();
         try {
