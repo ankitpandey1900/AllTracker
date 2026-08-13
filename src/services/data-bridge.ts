@@ -231,7 +231,6 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
       }
     };
 
-    sync(STORAGE_KEYS.TRACKER_DATA, cloudTracker, appState.trackerData, (d: any) => { appState.trackerData = d; syncTrackerTimelineWithSettings(); ensureTimelineIntegrity(); }, saveTrackerDataCloud);
     sync(STORAGE_KEYS.SETTINGS, cloudSettings, appState.settings, (d: any) => { 
       appState.settings = { ...appState.settings, ...d }; 
       saveLocal(STORAGE_KEYS.SETTINGS, appState.settings);
@@ -243,6 +242,7 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
         if (d.uiFont) m.applyUiFontToDOM(d.uiFont);
       });
     }, saveSettingsCloud);
+    sync(STORAGE_KEYS.TRACKER_DATA, cloudTracker, appState.trackerData, (d: any) => { appState.trackerData = d; syncTrackerTimelineWithSettings(); ensureTimelineIntegrity(); }, saveTrackerDataCloud);
     sync(STORAGE_KEYS.ROUTINES, cloudRoutines, appState.routines, (d: any) => { appState.routines = d; }, saveRoutinesCloud);
     sync(STORAGE_KEYS.TASKS, cloudTasks, appState.tasks, (d: any) => { appState.tasks = d; }, saveTasksCloud);
     sync(STORAGE_KEYS.BOOKMARKS, cloudBookmarks, appState.bookmarks, (d: any) => { appState.bookmarks = d; }, saveBookmarksCloud);
@@ -307,7 +307,6 @@ export async function performBackgroundSync(): Promise<void> {
       }
     };
 
-    check(STORAGE_KEYS.TRACKER_DATA, cloud[0], appState.trackerData, (d: any) => { appState.trackerData = d; syncTrackerTimelineWithSettings(); ensureTimelineIntegrity(); });
     check(STORAGE_KEYS.SETTINGS, cloud[1], appState.settings, (d: any) => { 
       appState.settings = { ...appState.settings, ...d }; 
       saveLocal(STORAGE_KEYS.SETTINGS, appState.settings);
@@ -319,6 +318,7 @@ export async function performBackgroundSync(): Promise<void> {
         if (d.uiFont) m.applyUiFontToDOM(d.uiFont);
       });
     });
+    check(STORAGE_KEYS.TRACKER_DATA, cloud[0], appState.trackerData, (d: any) => { appState.trackerData = d; syncTrackerTimelineWithSettings(); ensureTimelineIntegrity(); });
     check(STORAGE_KEYS.ROUTINES, cloud[2], appState.routines, (d: any) => { appState.routines = d; });
     check(STORAGE_KEYS.TASKS, cloud[3], appState.tasks, (d: any) => { appState.tasks = d; });
     check(STORAGE_KEYS.ROUTINE_HISTORY, cloud[4], appState.routineHistory, (d: any) => { appState.routineHistory = d; });
