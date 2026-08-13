@@ -131,12 +131,12 @@ export async function renderPerformanceCurve(): Promise<void> {
 
   // Create Gradients
   const routineGradient = ctx.createLinearGradient(0, 0, 0, 400);
-  routineGradient.addColorStop(0, 'rgba(108, 135, 255, 0.3)');
-  routineGradient.addColorStop(1, 'rgba(108, 135, 255, 0.01)');
+  routineGradient.addColorStop(0, 'rgba(108, 135, 255, 0.45)');
+  routineGradient.addColorStop(1, 'rgba(108, 135, 255, 0.0)');
 
   const hoursGradient = ctx.createLinearGradient(0, 0, 0, 400);
-  hoursGradient.addColorStop(0, 'rgba(37, 189, 132, 0.2)');
-  hoursGradient.addColorStop(1, 'rgba(37, 189, 132, 0.01)');
+  hoursGradient.addColorStop(0, 'rgba(37, 189, 132, 0.45)');
+  hoursGradient.addColorStop(1, 'rgba(37, 189, 132, 0.0)');
 
   new chartLibrary.Chart(ctx, {
     type: 'line',
@@ -150,7 +150,9 @@ export async function renderPerformanceCurve(): Promise<void> {
           backgroundColor: hoursGradient,
           borderWidth: 3,
           pointBackgroundColor: '#25bd84',
-          pointRadius: 0,
+          pointBorderColor: '#0a0f1e',
+          pointBorderWidth: 2,
+          pointRadius: 3,
           pointHoverRadius: 6,
           fill: true,
           tension: 0.4,
@@ -161,11 +163,12 @@ export async function renderPerformanceCurve(): Promise<void> {
           data: routineData,
           borderColor: '#6c87ff',
           backgroundColor: routineGradient,
-          borderWidth: 2,
-          borderDash: [5, 5],
+          borderWidth: 3,
           pointBackgroundColor: '#6c87ff',
-          pointRadius: 0,
-          pointHoverRadius: 4,
+          pointBorderColor: '#0a0f1e',
+          pointBorderWidth: 2,
+          pointRadius: 3,
+          pointHoverRadius: 6,
           fill: true,
           tension: 0.4,
           yAxisID: 'yRoutines'

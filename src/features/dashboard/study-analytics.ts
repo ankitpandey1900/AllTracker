@@ -82,12 +82,12 @@ async function renderStudyTrendChart(): Promise<void> {
   const isWhiteTheme = document.documentElement.getAttribute('data-theme') === 'pristine-white';
 
   const hoursGradient = ctx.createLinearGradient(0, 0, 0, 400);
-  hoursGradient.addColorStop(0, 'rgba(108, 135, 255, 0.3)');
-  hoursGradient.addColorStop(1, 'rgba(108, 135, 255, 0.01)');
+  hoursGradient.addColorStop(0, 'rgba(108, 135, 255, 0.45)');
+  hoursGradient.addColorStop(1, 'rgba(108, 135, 255, 0.0)');
 
   const problemsGradient = ctx.createLinearGradient(0, 0, 0, 400);
-  problemsGradient.addColorStop(0, 'rgba(231, 76, 60, 0.2)');
-  problemsGradient.addColorStop(1, 'rgba(231, 76, 60, 0.01)');
+  problemsGradient.addColorStop(0, 'rgba(255, 71, 87, 0.45)');
+  problemsGradient.addColorStop(1, 'rgba(255, 71, 87, 0.0)');
 
   new chartLibrary.Chart(ctx, {
     type: 'line',
@@ -101,7 +101,9 @@ async function renderStudyTrendChart(): Promise<void> {
           backgroundColor: hoursGradient,
           borderWidth: 3,
           pointBackgroundColor: '#6c87ff',
-          pointRadius: 0,
+          pointBorderColor: isWhiteTheme ? '#ffffff' : '#0a0f1e',
+          pointBorderWidth: 2,
+          pointRadius: 3,
           pointHoverRadius: 6,
           fill: true,
           tension: 0.4,
@@ -110,13 +112,14 @@ async function renderStudyTrendChart(): Promise<void> {
         {
           label: 'Problems Solved',
           data: problemsData,
-          borderColor: '#e74c3c',
+          borderColor: '#ff4757',
           backgroundColor: problemsGradient,
-          borderWidth: 2,
-          borderDash: [5, 5],
-          pointBackgroundColor: '#e74c3c',
-          pointRadius: 0,
-          pointHoverRadius: 4,
+          borderWidth: 3,
+          pointBackgroundColor: '#ff4757',
+          pointBorderColor: isWhiteTheme ? '#ffffff' : '#0a0f1e',
+          pointBorderWidth: 2,
+          pointRadius: 3,
+          pointHoverRadius: 6,
           fill: true,
           tension: 0.4,
           yAxisID: 'yProblems'
@@ -167,7 +170,7 @@ async function renderStudyTrendChart(): Promise<void> {
           position: 'right',
           beginAtZero: true,
           suggestedMax: 5,
-          title: { display: true, text: 'Problems', color: '#e74c3c', font: { size: 10, family: 'Tektur' } },
+          title: { display: true, text: 'Problems', color: '#ff4757', font: { size: 10, family: 'Tektur' } },
           ticks: { color: isWhiteTheme ? '#475569' : '#64748b', stepSize: 1 },
           grid: { display: false }
         },
