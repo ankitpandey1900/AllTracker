@@ -350,7 +350,7 @@ function renderSingleWeek(): void {
               <div class="wm-bar-val">${formatHM(val)}</div>
               <div class="wm-bar-pct">${Math.round(overallPct)}%</div>
               <div class="wm-bar-track">
-                <div class="wm-bar-fill" style="width: ${pct}%; background: ${color}; box-shadow: 0 0 10px ${color}80;"></div>
+                <div class="wm-bar-fill" style="width: ${overallPct}%; background: ${color}; box-shadow: 0 0 10px ${color}80;"></div>
               </div>
             </div>
           `;
