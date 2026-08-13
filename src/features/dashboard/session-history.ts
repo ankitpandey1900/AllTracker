@@ -263,10 +263,25 @@ export async function renderSessionHistory(): Promise<void> {
         
       const lockedSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`;
 
+      const iconPath = (() => {
+        const n = subName.toLowerCase();
+        if (n.includes('c++') || n.includes('code') || n.includes('dev')) return `<polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline>`;
+        if (n.includes('dsa') || n.includes('brain')) return `<path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/>`;
+        if (n.includes('web') || n.includes('net')) return `<circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/>`;
+        if (n.includes('project') || n.includes('app')) return `<path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>`;
+        if (n.includes('os') || n.includes('sys')) return `<rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>`;
+        if (n.includes('clg') || n.includes('col') || n.includes('uni')) return `<path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>`;
+        if (n.includes('read') || n.includes('book')) return `<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>`;
+        return `<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/>`;
+      })();
+      const iconSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${col.color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${iconPath}</svg>`;
+
       rows.push(`
         <div class="sh-session-row sh-row sh-child sh-child-${date}" data-session-id="${log.id}" data-session-duration="${duration}" data-session-subject="${subName}" data-session-note="${safeNote}" data-date="${log.log_date}">
-          <div class="sh-session-num">
-            <div class="sh-dot" style="background:${col.color}; box-shadow: 0 0 8px ${col.color}88;"></div>
+          <div class="sh-session-num" style="display: flex; align-items: center; gap: 8px;">
+            <div style="display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 6px; background: ${col.color}15; border: 1px solid ${col.color}40;">
+              ${iconSvg}
+            </div>
             <span style="opacity: 0.7;">Session ${idx + 1}</span> ${breakBadge}
           </div>
           <div class="sh-time">${startTime}<span class="sh-time-sep">–</span>${endTime}</div>

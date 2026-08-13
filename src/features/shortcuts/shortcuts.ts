@@ -204,6 +204,8 @@ function renderSingleWeek(): void {
   }
 
   let totalBreakMinutes = 0;
+  const sessionCounts: Record<string, Record<string, number>> = {};
+  
   try {
     const localSaved = localStorage.getItem('all_tracker_history');
     if (localSaved) {
@@ -214,6 +216,9 @@ function renderSingleWeek(): void {
       history.forEach(session => {
         const sessionDate = session.log_date || (session.start_at ? session.start_at.split('T')[0] : null);
         if (sessionDate && sessionDate >= weekStartStr && sessionDate <= weekEndStr) {
+          const subName = session.subject || 'General';
+          if (!sessionCounts[sessionDate]) sessionCounts[sessionDate] = {};
+          sessionCounts[sessionDate][subName] = (sessionCounts[sessionDate][subName] || 0) + 1;
           if (session.note) {
             const breakMatch = session.note.match(/\[Breaks:\s*(.*?)\]/);
             if (breakMatch && breakMatch[1]) {
@@ -299,24 +304,64 @@ function renderSingleWeek(): void {
         <span class="wm-cons-title">Activity Heatmap</span>
         <div class="wm-hm-legend">
           <span style="font-size:0.75rem; color:var(--wm-text-muted);">Less</span>
-          <div class="wm-hm-legend-cell" style="opacity:0.1;"></div>
-          <div class="wm-hm-legend-cell" style="opacity:0.3;"></div>
-          <div class="wm-hm-legend-cell" style="opacity:0.5;"></div>
-          <div class="wm-hm-legend-cell" style="opacity:0.7;"></div>
-          <div class="wm-hm-legend-cell" style="opacity:1.0; background:var(--wm-accent); border-color:var(--wm-accent);"></div>
+          <div class="wm-hm-legend-cell" style="background:rgba(var(--wm-accent-rgb), 0.2); border-color:rgba(var(--wm-accent-rgb), 0.3);"></div>
+          <div class="wm-hm-legend-cell" style="background:rgba(var(--wm-accent-rgb), 0.4); border-color:rgba(var(--wm-accent-rgb), 0.5);"></div>
+          <div class="wm-hm-legend-cell" style="background:rgba(var(--wm-accent-rgb), 0.6); border-color:rgba(var(--wm-accent-rgb), 0.7);"></div>
+          <div class="wm-hm-legend-cell" style="background:rgba(var(--wm-accent-rgb), 0.8); border-color:rgba(var(--wm-accent-rgb), 0.9);"></div>
+          <div class="wm-hm-legend-cell" style="background:var(--wm-accent); border-color:var(--wm-accent);"></div>
           <span style="font-size:0.75rem; color:var(--wm-text-muted);">More</span>
         </div>
       </div>
       <div class="wm-heatmap-grid">
         <div class="wm-hm-row header">
-          <div class="wm-hm-label"></div>
-          ${week.map((d: any) => `<div class="wm-hm-day">${new Date(d.date).toLocaleDateString('en-US', { weekday: 'short' })}</div>`).join('')}
+          <div class="wm-hm-label empty-label"></div>
+          ${week.map((d: any) => {
+            const isToday = new Date(d.date).toDateString() === new Date().toDateString();
+            return `<div class="wm-hm-day ${isToday ? 'is-today' : ''}">
+              ${isToday ? '<div class="wm-hm-today-badge">TODAY</div>' : ''}
+              ${new Date(d.date).toLocaleDateString('en-US', { weekday: 'short' })}
+            </div>`;
+          }).join('')}
         </div>
-        ${displayCols.map((col: any, ci: number) => `
+        ${displayCols.map((col: any, ci: number) => {
+          const color = CATEGORY_COLORS[ci % CATEGORY_COLORS.length];
+          let activeDays = 0;
+          week.forEach((d: any) => { if ((d.studyHours && d.studyHours[ci]) > 0) activeDays++; });
+          const pct = Math.round((activeDays / 7) * 100);
+          
+          const iconPath = (() => {
+            const n = col.name.toLowerCase();
+            if (n.includes('c++') || n.includes('code') || n.includes('dev')) return `<polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline>`;
+            if (n.includes('dsa') || n.includes('brain')) return `<path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/>`;
+            if (n.includes('web') || n.includes('net')) return `<circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/>`;
+            if (n.includes('project') || n.includes('app')) return `<path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>`;
+            if (n.includes('os') || n.includes('sys')) return `<rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>`;
+            if (n.includes('clg') || n.includes('col') || n.includes('uni')) return `<path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>`;
+            if (n.includes('read') || n.includes('book')) return `<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>`;
+            return `<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/>`;
+          })();
+          const svg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${iconPath}</svg>`;
+
+          return `
           <div class="wm-hm-row">
-            <div class="wm-hm-label" title="${col.name}">${col.name}</div>
+            <div class="wm-hm-label rich-label">
+              <div class="hl-icon" style="background: ${color}15; border: 1px solid ${color}40;">
+                ${svg}
+              </div>
+              <div class="hl-info">
+                <div class="hl-title">${col.name}</div>
+                <div class="hl-stats">
+                  <span>${activeDays} / 7</span>
+                  <span>${pct}%</span>
+                </div>
+                <div class="hl-progress-track">
+                  <div class="hl-progress-fill" style="width: ${pct}%; background: ${color};"></div>
+                </div>
+              </div>
+            </div>
             ${week.map((d: any) => {
               const hours = (d.studyHours && d.studyHours[ci]) || 0;
+              const isToday = new Date(d.date).toDateString() === new Date().toDateString();
               let intensity = 0;
               if (hours > 0) intensity = 0.2;
               if (hours >= 1) intensity = 0.4;
@@ -325,10 +370,39 @@ function renderSingleWeek(): void {
               if (hours >= 4) intensity = 1.0;
               
               const style = hours > 0 ? `background: rgba(var(--wm-accent-rgb), ${intensity}); border-color: rgba(var(--wm-accent-rgb), ${Math.min(1, intensity + 0.3)});` : '';
-              return `<div class="wm-hm-cell" style="${style}" title="${col.name} on ${formatDate(new Date(d.date))}: ${hours.toFixed(1)}h"></div>`;
+              
+              const dayStr = new Date(d.date).toLocaleDateString('en-US', { weekday: 'short' });
+              const actualSessions = sessionCounts[d.date]?.[col.name] || 0;
+              
+              return `
+              <div class="wm-hm-cell-wrapper ${isToday ? 'is-today-col' : ''}">
+                <div class="wm-hm-cell" style="${style}">
+                  <div class="wm-hm-tooltip">
+                    <div class="tt-header">${col.name} &bull; ${dayStr}</div>
+                    <div class="tt-stat">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--wm-accent)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                      <div><strong>${hours > 0 ? formatHM(hours) : '0h 0m'}</strong> <span class="tt-muted">Focus Time</span></div>
+                    </div>
+                    <div class="tt-stat">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--wm-accent)" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                      <div><strong>${actualSessions}</strong> <span class="tt-muted">Sessions</span></div>
+                    </div>
+                    <div class="tt-footer">View details <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+                  </div>
+                </div>
+              </div>`;
             }).join('')}
           </div>
-        `).join('')}
+        `}).join('')}
+      </div>
+      <div class="wm-hm-footer">
+        <div class="wm-hm-tip">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--wm-accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.9 1.2 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
+          Tip: Hover over any activity to see details
+        </div>
+        <div class="wm-hm-link">
+          View full analytics <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
       </div>
     </div>
 
@@ -342,14 +416,34 @@ function renderSingleWeek(): void {
           const val = catMap.get(col.name) || 0;
           const overallPct = totalHours > 0 ? (val / totalHours) * 100 : 0;
           const color = CATEGORY_COLORS[ci % CATEGORY_COLORS.length];
+          
+          const iconPath = (() => {
+            const n = col.name.toLowerCase();
+            if (n.includes('c++') || n.includes('code') || n.includes('dev')) return `<polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline>`;
+            if (n.includes('dsa') || n.includes('brain')) return `<path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/>`;
+            if (n.includes('web') || n.includes('net')) return `<circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/>`;
+            if (n.includes('project') || n.includes('app')) return `<path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>`;
+            if (n.includes('os') || n.includes('sys')) return `<rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>`;
+            if (n.includes('clg') || n.includes('col') || n.includes('uni')) return `<path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>`;
+            if (n.includes('read') || n.includes('book')) return `<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>`;
+            return `<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/>`;
+          })();
+          const svg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${iconPath}</svg>`;
+
           return `
-            <div class="wm-bar-row">
-              <div class="wm-bar-dot" style="background: ${color}"></div>
-              <div class="wm-bar-name">${col.name}</div>
-              <div class="wm-bar-val">${formatHM(val)}</div>
-              <div class="wm-bar-pct">${Math.round(overallPct)}%</div>
-              <div class="wm-bar-track">
-                <div class="wm-bar-fill" style="width: ${overallPct}%; background: ${color}; box-shadow: 0 0 10px ${color}80;"></div>
+            <div class="wm-bar-row" style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
+              <div class="wm-bar-icon" style="flex-shrink: 0; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: ${color}15; border: 1px solid ${color}40;">
+                ${svg}
+              </div>
+              <div class="wm-bar-name" style="width: 100px; font-weight: 700;">${col.name}</div>
+              <div style="flex-grow: 1;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.8rem; font-weight: 600;">
+                  <span style="color: var(--wm-text);">${formatHM(val)}</span>
+                  <span style="color: var(--wm-text-muted);">${Math.round(overallPct)}%</span>
+                </div>
+                <div class="wm-bar-track" style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; width: 100%;">
+                  <div class="wm-bar-fill" style="width: ${overallPct}%; height: 100%; background: ${color}; border-radius: 2px;"></div>
+                </div>
               </div>
             </div>
           `;
