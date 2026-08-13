@@ -154,7 +154,7 @@ function renderTaskList(tasks: StudyTask[]): string {
         </div>
         <div class="mc-task-meta">
           <span class="mc-task-priority-badge">${task.priority === 3 ? 'HIGH' : (task.priority === 2 ? 'MED' : 'LOW')}</span>
-          <span class="mc-task-date">${new Date(task.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+          <span class="mc-task-date">${new Date(task.createdAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
         </div>
         <div class="mc-task-actions" style="display: flex; gap: 4px;">
           <button class="mc-task-edit" data-id="${task.id}" data-action="edit" title="Edit Mission">
