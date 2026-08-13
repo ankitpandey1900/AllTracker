@@ -10,6 +10,7 @@ import { renderPerformanceCurve } from "@/features/routines/performance-chart";
 import { renderRadarStats } from "@/features/routines/radar-stats";
 import { importFromJSON, importFromCSV } from "@/features/import/import";
 import { requestNotificationPermission } from "@/features/notifications/notifications";
+import { requireAuth } from "@/services/auth.service";
 
 /**
  * COMMAND CENTER
@@ -29,19 +30,19 @@ export function setupEventListeners(): void {
     }
   });
 
-  bindClick("mainMissionStartBtn", openTimerModal);
+  bindClick("mainMissionStartBtn", requireAuth(openTimerModal));
 
-  bindClick("toggleCategoryBtn", () => {
+  bindClick("toggleCategoryBtn", requireAuth(() => {
     const container = document.getElementById("categoryCardsContainer");
     const btn = document.getElementById("toggleCategoryBtn");
     if (container && btn) {
       const isExpanded = container.classList.toggle("expanded");
       btn.textContent = isExpanded ? "Hide" : "Show";
     }
-  });
+  }));
 
-  bindClick("startTimerBtn", openTimerModal);
-  bindClick("mobileStartTimerBtn", openTimerModal);
+  bindClick("startTimerBtn", requireAuth(openTimerModal));
+  bindClick("mobileStartTimerBtn", requireAuth(openTimerModal));
   bindClick("jumpToTodayBtn", scrollToToday);
   bindClick("exportAllDataBtn", exportAllData);
   bindClick("shareStatsBtn", () => {
@@ -115,13 +116,13 @@ export function setupEventListeners(): void {
   }
 
   // Settings & Navigation
-  bindClick("settingsBtn", openSettingsModal);
-  bindClick("applyColumnSettings", applyColumnSettings);
-  bindClick("applyThemeBtn", () => {
+  bindClick("settingsBtn", requireAuth(openSettingsModal));
+  bindClick("applyColumnSettings", requireAuth(applyColumnSettings));
+  bindClick("applyThemeBtn", requireAuth(() => {
     import('@/features/settings/settings').then(m => m.applyThemeSettings());
-  });
-  bindClick("enableNotificationsBtn", requestNotificationPermission);
-  bindClick("addCustomRangeBtn", addCustomRange);
+  }));
+  bindClick("enableNotificationsBtn", requireAuth(requestNotificationPermission));
+  bindClick("addCustomRangeBtn", requireAuth(addCustomRange));
   bindClick("closeSettingsModal", () => document.getElementById("settingsModal")?.classList.remove("active"));
 
   // Modals

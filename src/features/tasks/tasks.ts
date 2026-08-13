@@ -1,9 +1,9 @@
 /**
- * Handles the Task List (Daily Missions).
- *
- * It deals with adding tasks, moving unfinished ones to the 'Backlog', 
- * and cleaning up old history items.
- */
+* Handles the Task List (Daily Missions).
+*
+* It deals with adding tasks, moving unfinished ones to the 'Backlog', 
+* and cleaning up old history items.
+*/
 
 import { appState, subscribeToState } from '@/state/app-state';
 import { showToast } from '@/utils/dom.utils';
@@ -11,6 +11,7 @@ import { deleteTaskFromStorage, saveTasksToStorage } from '@/services/data-bridg
 import { log } from '@/utils/logger.utils';
 import { getLocalIsoDate } from '@/utils/date.utils';
 import type { StudyTask } from '@/types/task.types';
+import { requireAuth } from '@/services/auth.service';
 
 // --- Starting Up ---
 
@@ -34,7 +35,7 @@ export function initTasks(): void {
 
 export function renderTasks(): void {
   const today = getLocalIsoDate();
-  
+
   const todayList = document.getElementById('todayTasksList');
   const backlogList = document.getElementById('backlogTasksList');
   const weeklyList = document.getElementById('weeklyTasksList');
@@ -52,14 +53,14 @@ export function renderTasks(): void {
   // Daily processing
   let backlogDaily = dailyTasks.filter(t => !t.completed && t.date < today);
   const historyDaily = dailyTasks.filter(t => t.completed).sort((a, b) => b.createdAt - a.createdAt);
-  
+
   const todayCompleted = historyDaily.filter(t => t.date === today);
   const todayIncomplete = dailyTasks.filter(t => !t.completed && t.date === today);
   const totalTodayTasks = todayIncomplete.length + todayCompleted.length;
-  
+
   let todayMissions = [...todayIncomplete];
   const futureDaily = dailyTasks.filter(t => !t.completed && t.date > today);
-  
+
   if (todayMissions.length === 0 && futureDaily.length > 0) {
     todayMissions = [futureDaily[0]];
   }
@@ -82,14 +83,14 @@ export function renderTasks(): void {
 
   // Clearance calculation
   const clearancePercent = totalTodayTasks > 0 ? Math.round((todayCompleted.length / totalTodayTasks) * 100) : 0;
-  
+
   const clearanceText = document.getElementById('clearanceText');
   const clearanceFill = document.getElementById('clearanceFill');
-  
+
   if (clearanceText && clearanceFill) {
     clearanceText.textContent = `${clearancePercent}%`;
     clearanceFill.style.width = `${clearancePercent}%`;
-    
+
     if (clearancePercent === 100 && totalTodayTasks > 0) {
       clearanceFill.classList.add('cleared');
       clearanceText.classList.add('cleared');
@@ -111,7 +112,7 @@ export function renderTasks(): void {
   if (weeklyList) {
     weeklyList.innerHTML = renderTaskList(incompleteWeekly);
   }
-  
+
   // Combine all history for history tab, or just keep it all together
   const allHistory = [...historyDaily, ...historyWeekly].sort((a, b) => b.createdAt - a.createdAt);
   historyList.innerHTML = renderTaskList(allHistory.slice(0, 20));
@@ -138,7 +139,7 @@ function renderTaskList(tasks: StudyTask[]): string {
 
   return tasks.map(task => {
     const priorityClass = task.priority === 3 ? 'high-pri' : (task.priority === 2 ? 'med-pri' : 'low-pri');
-    
+
     return `
       <div class="mc-task-item ${task.completed ? 'completed' : ''} ${priorityClass}" data-task-id="${task.id}">
         <div class="mc-task-check" data-id="${task.id}" data-action="toggle">
@@ -153,7 +154,7 @@ function renderTaskList(tasks: StudyTask[]): string {
         </div>
         <div class="mc-task-meta">
           <span class="mc-task-priority-badge">${task.priority === 3 ? 'HIGH' : (task.priority === 2 ? 'MED' : 'LOW')}</span>
-          <span class="mc-task-date">${new Date(task.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+          <span class="mc-task-date">${new Date(task.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
         </div>
         <div class="mc-task-actions" style="display: flex; gap: 4px;">
           <button class="mc-task-edit" data-id="${task.id}" data-action="edit" title="Edit Mission">
@@ -202,12 +203,12 @@ function setupTaskListeners(): void {
   }
 
   if (addBtn && input) {
-    const handleAdd = () => {
+    const handleAdd = requireAuth(() => {
       const text = input.value.trim();
       if (!text) return;
       addTask(text, activePriority, activeType);
       input.value = '';
-    };
+    });
 
     addBtn.addEventListener('click', handleAdd);
     input.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleAdd(); });
@@ -236,7 +237,7 @@ export function addTask(text: string, priority: 1 | 2 | 3 = 2, type: 'daily' | '
   };
 
   appState.tasks = [...appState.tasks, newTask];
-  
+
   saveTasks();
   showToast('Mission Accepted!', 'success');
 }
@@ -247,7 +248,7 @@ export function editTask(id: string): void {
 
   const newText = window.prompt("Edit Mission:", task.text);
   if (newText !== null && newText.trim() !== '') {
-    appState.tasks = appState.tasks.map(t => 
+    appState.tasks = appState.tasks.map(t =>
       t.id === id ? { ...t, text: newText.trim() } : t
     );
     saveTasks();
@@ -259,17 +260,17 @@ export function toggleTask(id: string): void {
   appState.tasks = appState.tasks.map(t => {
     if (t.id === id) {
       const completed = !t.completed;
-      return { 
-        ...t, 
-        completed, 
-        completedAt: completed ? Date.now() : undefined 
+      return {
+        ...t,
+        completed,
+        completedAt: completed ? Date.now() : undefined
       };
     }
     return t;
   });
 
   saveTasks();
-  
+
   const found = appState.tasks.find(t => t.id === id);
   if (found?.completed) {
     showToast('Objective Secured!', 'success');

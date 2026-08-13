@@ -29,7 +29,11 @@ export async function fetchFeed(forceView: boolean = false): Promise<Transmissio
     localStorage.setItem(seenKey, JSON.stringify(allIds.slice(-500)));
 
     return posts;
-  } catch (error) {
+  } catch (error: any) {
+    if (error.status === 401) {
+      console.warn('Feed requires authentication.');
+      return [];
+    }
     console.error('Failed to fetch feed:', error);
     throw error;
   }

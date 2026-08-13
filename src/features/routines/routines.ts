@@ -9,6 +9,7 @@ import { appState } from '@/state/app-state';
 import { formatTime12h, getLocalIsoDate } from '@/utils/date.utils';
 import { showToast } from '@/utils/dom.utils';
 import { saveRoutinesToStorage, saveRoutineHistoryToStorage, loadRoutineResetFromStorage, saveRoutineResetToStorage } from '@/services/data-bridge';
+import { requireAuth } from '@/services/auth.service';
 import { renderPerformanceCurve } from './performance-chart';
 import { renderRadarStats } from './radar-stats';
 import { getHabitPulse } from '@/features/intelligence/intelligence.service';
@@ -203,7 +204,7 @@ export function setupRoutineListeners(): void {
   const saveBtn = document.getElementById('saveRoutineBtn');
 
   if (addBtn && modal) {
-    addBtn.addEventListener('click', () => {
+    addBtn.addEventListener('click', requireAuth(() => {
       const title = modal.querySelector('.modal-header h2');
       delete modal.dataset.editId;
       if (title) title.textContent = 'Add New Routine Item';
@@ -219,7 +220,7 @@ export function setupRoutineListeners(): void {
       });
 
       modal.classList.add('active');
-    });
+    }));
   }
 
   if (closeBtn && modal) {

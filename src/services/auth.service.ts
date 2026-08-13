@@ -53,6 +53,20 @@ export function getCurrentUserId(): string | null {
   return currentUserId;
 }
 
+export function isAuthenticated(): boolean {
+  return currentUserId !== null;
+}
+
+export function requireAuth<T extends (...args: any[]) => any>(fn: T): (...args: Parameters<T>) => void {
+  return (...args: Parameters<T>) => {
+    if (isAuthenticated()) {
+      fn(...args);
+    } else {
+      openAuthModal();
+    }
+  };
+}
+
 export function setupPasswordToggle(toggleId: string, inputId: string): void {
   const toggle = document.getElementById(toggleId);
   const input = document.getElementById(inputId) as HTMLInputElement | null;
@@ -177,7 +191,7 @@ function clearAuthError(): void {
   errorEl.style.border = "";
 }
 
-async function openAuthModal(): Promise<void> {
+export async function openAuthModal(): Promise<void> {
   const modal = document.getElementById("authModal");
   if (!modal) return;
   clearAuthError();

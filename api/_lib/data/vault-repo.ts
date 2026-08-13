@@ -175,6 +175,7 @@ export async function readVault(
           endDate: p.end_date,
           columns: p.columns || [],
           theme: p.theme,
+          accentColor: p.accent_color,
           timerStyle: p.timer_style,
           timerFont: p.timer_font,
           uiFont: p.ui_font,
@@ -344,16 +345,16 @@ export async function writeVault(
         await client.query(
           `
             insert into user_preferences (
-              user_id, start_date, end_date, columns, theme, timer_style, timer_font, ui_font, beast_mode, 
+              user_id, start_date, end_date, columns, theme, accent_color, timer_style, timer_font, ui_font, beast_mode, 
               ambient_sound, ambient_volume, timezone, maamu_model, groq_api_key, 
               last_routine_reset, maamu_compact, maamu_templates_collapsed, 
               maamu_template_favs, maamu_template_category, session_goal, updated_at
             )
-            values ($1, $2, $3, $4::jsonb, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18::jsonb, $19, $20, $21)
+            values ($1, $2, $3, $4::jsonb, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18::jsonb, $19, $20, $21, $22)
             on conflict (user_id)
             do update set
               start_date = excluded.start_date, end_date = excluded.end_date, columns = excluded.columns,
-              theme = excluded.theme, timer_style = excluded.timer_style, timer_font = excluded.timer_font, 
+              theme = excluded.theme, accent_color = excluded.accent_color, timer_style = excluded.timer_style, timer_font = excluded.timer_font, 
               ui_font = excluded.ui_font, beast_mode = excluded.beast_mode, ambient_sound = excluded.ambient_sound, 
               ambient_volume = excluded.ambient_volume, timezone = excluded.timezone, maamu_model = excluded.maamu_model, 
               groq_api_key = excluded.groq_api_key, last_routine_reset = excluded.last_routine_reset, 
@@ -363,7 +364,7 @@ export async function writeVault(
           `,
           [
             profile.profileId, incoming.startDate, incoming.endDate, JSON.stringify(incoming.columns || []),
-            incoming.theme, incoming.timerStyle, incoming.timerFont, incoming.uiFont, 
+            incoming.theme, incoming.accentColor, incoming.timerStyle, incoming.timerFont, incoming.uiFont, 
             incoming.beastMode, incoming.ambientSound, incoming.ambientVolume, incoming.timezone, 
             incoming.maamuModel, incoming.groqApiKey, incoming.lastRoutineReset, incoming.maamuCompact, 
             incoming.maamuTemplatesCollapsed, JSON.stringify(incoming.maamuTemplateFavs || []), 

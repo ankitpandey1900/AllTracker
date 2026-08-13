@@ -56,19 +56,35 @@ export class Shell {
         const target = newItem.getAttribute("data-target");
         if (!target) return;
 
-        // 1. Update All Nav States
-        document.querySelectorAll(".nav-item, .mobile-nav-item").forEach((n) => {
-          n.classList.remove("active");
-          if (n.getAttribute("data-target") === target) n.classList.add("active");
-        });
-
-        // 2. Switch View Panes
-        this.switchView(target);
-
-        // 3. Scroll to top on view change
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        // AUTH GUARD: Restrict protected panes
+        const protectedPanes = ['feedPane', 'worldStagePane', 'routinePane', 'intelligencePane', 'bookmarksPane', 'tasksPane'];
+        if (protectedPanes.includes(target)) {
+          import('@/services/auth.service').then(({ isAuthenticated, openAuthModal }) => {
+            if (!isAuthenticated()) {
+              openAuthModal();
+            } else {
+              this.proceedWithNavigation(target);
+            }
+          });
+        } else {
+          this.proceedWithNavigation(target);
+        }
       });
     });
+  }
+
+  private proceedWithNavigation(target: string): void {
+    // 1. Update All Nav States
+    document.querySelectorAll(".nav-item, .mobile-nav-item").forEach((n) => {
+      n.classList.remove("active");
+      if (n.getAttribute("data-target") === target) n.classList.add("active");
+    });
+
+    // 2. Switch View Panes
+    this.switchView(target);
+
+    // 3. Scroll to top on view change
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   /** Switches between application views (Dashboard, Routine, etc) */

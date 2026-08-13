@@ -1,5 +1,6 @@
 import { Transmission } from './feed.types';
 import { fetchFeed, toggleLike, toggleRepost, postTransmission, deletePost, fetchComments, postComment, deleteComment, fetchUserPosts, getUnreadNotifCount, getNotifications, markNotifsRead, searchMentionUsers } from './feed.manager';
+import { requireAuth } from '@/services/auth.service';
 
 const MAX_CHARS = 280;
 let feedPollTimer: ReturnType<typeof setInterval> | null = null;
@@ -23,7 +24,6 @@ export async function renderFeedView(container: HTMLElement): Promise<void> {
           </div>
         </div>
         
-        ${isLoggedIn ? `
         <div class="transmission-box">
           <textarea id="transmissionInput" placeholder="Share your thoughts, progress, or questions..." maxlength="${MAX_CHARS}"></textarea>
           <div class="transmission-actions">
@@ -31,11 +31,6 @@ export async function renderFeedView(container: HTMLElement): Promise<void> {
             <button id="btnBroadcast" class="tactical-btn solid" disabled>POST</button>
           </div>
         </div>
-        ` : `
-        <div class="feed-login-prompt">
-          <span>🔒</span> Log in to share your progress with the community
-        </div>
-        `}
 
         <div id="feedStream" class="feed-stream">
           <div class="feed-skeleton">
@@ -47,57 +42,55 @@ export async function renderFeedView(container: HTMLElement): Promise<void> {
     </div>
   `;
 
-  if (isLoggedIn) {
-    const btnBroadcast = document.getElementById('btnBroadcast') as HTMLButtonElement;
-    const inputEl = document.getElementById('transmissionInput') as HTMLTextAreaElement;
-    const charCounter = document.getElementById('charCounter') as HTMLSpanElement;
+  const btnBroadcast = document.getElementById('btnBroadcast') as HTMLButtonElement;
+  const inputEl = document.getElementById('transmissionInput') as HTMLTextAreaElement;
+  const charCounter = document.getElementById('charCounter') as HTMLSpanElement;
 
-    let mentionTimer: ReturnType<typeof setTimeout> | null = null;
+  let mentionTimer: ReturnType<typeof setTimeout> | null = null;
 
-    inputEl.addEventListener('input', () => {
-      const remaining = MAX_CHARS - inputEl.value.length;
-      charCounter.textContent = String(remaining);
-      charCounter.className = 'char-counter' + (remaining <= 20 ? ' warn' : '') + (remaining <= 0 ? ' danger' : '');
-      btnBroadcast.disabled = inputEl.value.trim().length === 0 || remaining < 0;
+  inputEl.addEventListener('input', () => {
+    const remaining = MAX_CHARS - inputEl.value.length;
+    charCounter.textContent = String(remaining);
+    charCounter.className = 'char-counter' + (remaining <= 20 ? ' warn' : '') + (remaining <= 0 ? ' danger' : '');
+    btnBroadcast.disabled = inputEl.value.trim().length === 0 || remaining < 0;
 
-      // @mention autocomplete detection
-      const cursorPos = inputEl.selectionStart || 0;
-      const textBefore = inputEl.value.substring(0, cursorPos);
-      const mentionMatch = textBefore.match(/@(\w*)$/);
-      
-      if (mentionMatch && mentionMatch[1].length >= 1) {
-        const query = mentionMatch[1];
-        if (mentionTimer) clearTimeout(mentionTimer);
-        mentionTimer = setTimeout(async () => {
-          const users = await searchMentionUsers(query);
-          showMentionDropdown(inputEl, users, mentionMatch.index!);
-        }, 300);
-      } else {
-        hideMentionDropdown();
-      }
-    });
+    // @mention autocomplete detection
+    const cursorPos = inputEl.selectionStart || 0;
+    const textBefore = inputEl.value.substring(0, cursorPos);
+    const mentionMatch = textBefore.match(/@(\w*)$/);
+    
+    if (mentionMatch && mentionMatch[1].length >= 1) {
+      const query = mentionMatch[1];
+      if (mentionTimer) clearTimeout(mentionTimer);
+      mentionTimer = setTimeout(async () => {
+        const users = await searchMentionUsers(query);
+        showMentionDropdown(inputEl, users, mentionMatch.index!);
+      }, 300);
+    } else {
+      hideMentionDropdown();
+    }
+  });
 
-    btnBroadcast.onclick = async () => {
-      const content = inputEl.value.trim();
-      if (!content || content.length > MAX_CHARS) return;
-      
-      btnBroadcast.disabled = true;
-      btnBroadcast.textContent = 'POSTING...';
-      
-      try {
-        await postTransmission(content);
-        inputEl.value = '';
-        charCounter.textContent = String(MAX_CHARS);
-        charCounter.className = 'char-counter';
-        await refreshFeedStream();
-      } catch {
-        showFeedToast('Failed to post. Please try again.', 'error');
-      } finally {
-        btnBroadcast.disabled = false;
-        btnBroadcast.textContent = 'POST';
-      }
-    };
-  }
+  btnBroadcast.onclick = requireAuth(async () => {
+    const content = inputEl.value.trim();
+    if (!content || content.length > MAX_CHARS) return;
+    
+    btnBroadcast.disabled = true;
+    btnBroadcast.textContent = 'POSTING...';
+    
+    try {
+      await postTransmission(content);
+      inputEl.value = '';
+      charCounter.textContent = String(MAX_CHARS);
+      charCounter.className = 'char-counter';
+      await refreshFeedStream();
+    } catch {
+      showFeedToast('Failed to post. Please try again.', 'error');
+    } finally {
+      btnBroadcast.disabled = false;
+      btnBroadcast.textContent = 'POST';
+    }
+  });
 
   await refreshFeedStream();
 
@@ -306,20 +299,18 @@ function renderTransmission(t: Transmission): string {
 function bindFeedEvents() {
   // Like
   document.querySelectorAll('.like-btn').forEach(btn => {
-    (btn as HTMLElement).onclick = async (e) => {
-      if (!isLoggedIn) { showFeedToast('Log in to like posts', 'error'); return; }
+    (btn as HTMLElement).onclick = requireAuth(async (e) => {
       const id = (e.currentTarget as HTMLElement).dataset.id;
       if (id) { await toggleLike(id); refreshFeedStream(); }
-    };
+    });
   });
 
   // Repost
   document.querySelectorAll('.repost-btn').forEach(btn => {
-    (btn as HTMLElement).onclick = async (e) => {
-      if (!isLoggedIn) { showFeedToast('Log in to repost', 'error'); return; }
+    (btn as HTMLElement).onclick = requireAuth(async (e) => {
       const id = (e.currentTarget as HTMLElement).dataset.id;
       if (id) { await toggleRepost(id); refreshFeedStream(); }
-    };
+    });
   });
 
   // Delete
@@ -396,7 +387,7 @@ function bindFeedEvents() {
 
   // Send comment
   document.querySelectorAll('.comment-send-btn').forEach(btn => {
-    (btn as HTMLElement).onclick = async (e) => {
+    (btn as HTMLElement).onclick = requireAuth(async (e) => {
       const postId = (e.currentTarget as HTMLElement).dataset.postId;
       if (!postId) return;
 
@@ -442,7 +433,7 @@ function bindFeedEvents() {
         showFeedToast('Failed to post reply.', 'error');
       }
       (e.currentTarget as HTMLButtonElement).disabled = false;
-    };
+    });
   });
 
   // Profile click — open user posts modal
