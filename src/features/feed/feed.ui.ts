@@ -139,7 +139,8 @@ async function toggleNotifDropdown() {
   // Close on outside click
   const closeHandler = (e: MouseEvent) => {
     const dd = document.getElementById('notifDropdown');
-    if (dd && !dd.contains(e.target as Node)) {
+    const bell = document.getElementById('notifBell');
+    if (dd && !dd.contains(e.target as Node) && bell && !bell.contains(e.target as Node)) {
       dd.remove();
       document.removeEventListener('click', closeHandler);
     }
@@ -152,20 +153,44 @@ async function toggleNotifDropdown() {
   const dropdown = document.createElement('div');
   dropdown.id = 'notifDropdown';
   dropdown.className = 'notif-dropdown';
-  dropdown.innerHTML = '<div class="notif-loading">Loading...</div>';
+  
+  // Header with Clear All
+  const headerHtml = `
+    <div class="notif-header">
+      <span class="notif-title">Notifications</span>
+      <button id="clearNotifsBtn" class="notif-clear-btn">Clear All</button>
+    </div>
+    <div id="notifList" class="notif-list-container">
+      <div class="notif-loading">Loading...</div>
+    </div>
+  `;
+  dropdown.innerHTML = headerHtml;
   bell.parentElement!.appendChild(dropdown);
+
+  const clearBtn = document.getElementById('clearNotifsBtn');
+  const listContainer = document.getElementById('notifList');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      await import('./feed.manager.js').then(m => m.clearNotifications());
+      if (listContainer) listContainer.innerHTML = '<div class="notif-empty">No notifications yet</div>';
+      updateNotifBadge();
+    });
+  }
 
   // Mark as read + fetch
   await markNotifsRead();
   updateNotifBadge();
 
   const notifs = await getNotifications();
+  if (!listContainer) return;
+
   if (notifs.length === 0) {
-    dropdown.innerHTML = '<div class="notif-empty">No notifications yet</div>';
+    listContainer.innerHTML = '<div class="notif-empty">No notifications yet</div>';
     return;
   }
 
-  dropdown.innerHTML = notifs.map((n: any) => {
+  listContainer.innerHTML = notifs.map((n: any) => {
     let typeLabel = 'interacted with your post';
     if (n.type === 'POST_MENTION') typeLabel = 'mentioned you in a post';
     else if (n.type === 'COMMENT_MENTION') typeLabel = 'mentioned you in a reply';
@@ -465,72 +490,72 @@ async function openProfileModal(userId: string, name: string, handle: string, av
   modal.id = 'userProfileModal';
   modal.className = 'profile-modal-overlay';
   modal.innerHTML = `
-    <div class="profile-modal">
-      <!-- Header -->
-      <div class="social-header" style="padding: 20px 24px;">
-        <div class="profile-avatar-container">
-          <div class="profile-avatar-box tactical-ring" style="width:60px;height:60px;">
-            <div class="profile-avatar" style="font-size:1.8rem;">${avatar}</div>
+    <div class="profile-modal premium-modal">
+      <!-- Premium Hero Header -->
+      <div class="pm-hero" style="background: linear-gradient(135deg, rgba(10, 14, 28, 0.9) 0%, rgba(20, 24, 40, 0.9) 100%);">
+        <button class="profile-modal-close">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+        </button>
+        <div class="pm-hero-content">
+          <div class="pm-avatar-wrapper">
+            <div class="pm-avatar" style="box-shadow: 0 0 20px ${rankColor}40; border-color: ${rankColor};">
+              ${avatar}
+            </div>
+            <div class="pm-rank-badge" style="background: ${rankColor};">${rank}</div>
           </div>
-        </div>
-        <div class="profile-identity-info" style="flex:1;margin-left:14px;">
-          <div class="name-row">
-            <h2 class="social-full-name" style="font-size:1.1rem;color:${rankColor};">${escapeHtml(name)}</h2>
+          <div class="pm-identity">
+            <h2 class="pm-name">${escapeHtml(name)}</h2>
+            <span class="pm-handle">${escapeHtml(handle)}</span>
           </div>
-          <div class="handle-row">
-            <span class="social-handle">${escapeHtml(handle)}</span>
-            <span class="rank-tag" style="color:${rankColor};">${rank}</span>
-          </div>
-        </div>
-        <button class="profile-modal-close" style="position:absolute;top:16px;right:16px;">✕</button>
-      </div>
-
-      <!-- Stats Bar -->
-      <div class="social-stats-bar" style="margin:0 24px 0;">
-        <div class="stat-item">
-          <div class="stat-val-row"><span class="stat-value">${totalStudy}</span><span class="stat-unit">HRS</span></div>
-          <div class="stat-label">TOTAL STUDY</div>
-        </div>
-        <div class="stat-divider"></div>
-        <div class="stat-item">
-          <div class="stat-val-row"><span class="stat-value">${streak}</span><span class="stat-unit">DAYS</span></div>
-          <div class="stat-label">STREAK</div>
-        </div>
-        <div class="stat-divider"></div>
-        <div class="stat-item">
-          <div class="stat-val-row"><span class="stat-value">${rankScore}</span></div>
-          <div class="stat-label">RANK SCORE</div>
         </div>
       </div>
 
-      <!-- Tab Bar -->
-      <div class="profile-tab-bar" style="margin:0;">
-        <button class="profile-tab active" data-ftab="posts">Posts</button>
-        <button class="profile-tab" data-ftab="stats">Activity</button>
+      <!-- Glassmorphic Stats Bar -->
+      <div class="pm-stats-container">
+        <div class="pm-stat-box">
+          <div class="pm-stat-val">${totalStudy} <span class="pm-stat-unit">HRS</span></div>
+          <div class="pm-stat-label">TOTAL STUDY</div>
+        </div>
+        <div class="pm-stat-divider"></div>
+        <div class="pm-stat-box">
+          <div class="pm-stat-val">${streak} <span class="pm-stat-unit">DAYS</span></div>
+          <div class="pm-stat-label">STREAK</div>
+        </div>
+        <div class="pm-stat-divider"></div>
+        <div class="pm-stat-box">
+          <div class="pm-stat-val" style="color: ${rankColor};">${rankScore}</div>
+          <div class="pm-stat-label">RANK SCORE</div>
+        </div>
       </div>
 
-      <!-- Tab Content -->
-      <div class="profile-tab-panels" style="max-height:350px;">
+      <!-- Tab Navigation -->
+      <div class="pm-tabs">
+        <button class="pm-tab active profile-tab" data-ftab="posts">Posts</button>
+        <button class="pm-tab profile-tab" data-ftab="stats">Activity</button>
+      </div>
+
+      <!-- Tab Panels -->
+      <div class="pm-tab-content">
         <div class="profile-tab-panel active" id="fpPostsPanel">
           <div id="fpPostsList"><div class="profile-posts-loading">Loading posts...</div></div>
         </div>
         <div class="profile-tab-panel" id="fpStatsPanel">
-          <div class="profile-stats-grid">
-            <div class="profile-stat-card">
-              <div class="psc-label">RANK</div>
-              <div class="psc-value" style="color:${rankColor};">${rank}</div>
+          <div class="pm-activity-grid">
+            <div class="pm-activity-card">
+              <div class="pm-ac-label">RANK</div>
+              <div class="pm-ac-value" style="color:${rankColor};">${rank}</div>
             </div>
-            <div class="profile-stat-card">
-              <div class="psc-label">TOTAL POSTS</div>
-              <div class="psc-value" id="fpStatPosts">—</div>
+            <div class="pm-activity-card">
+              <div class="pm-ac-label">TOTAL POSTS</div>
+              <div class="pm-ac-value" id="fpStatPosts">—</div>
             </div>
-            <div class="profile-stat-card">
-              <div class="psc-label">TOTAL LIKES</div>
-              <div class="psc-value" id="fpStatLikes">—</div>
+            <div class="pm-activity-card">
+              <div class="pm-ac-label">TOTAL LIKES</div>
+              <div class="pm-ac-value" id="fpStatLikes">—</div>
             </div>
-            <div class="profile-stat-card">
-              <div class="psc-label">TOTAL VIEWS</div>
-              <div class="psc-value" id="fpStatViews">—</div>
+            <div class="pm-activity-card">
+              <div class="pm-ac-label">TOTAL VIEWS</div>
+              <div class="pm-ac-value" id="fpStatViews">—</div>
             </div>
           </div>
         </div>

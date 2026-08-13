@@ -231,10 +231,10 @@ export async function renderSessionHistory(): Promise<void> {
       const probMatch = note.match(/\[Problems:\s*(.+?)\]/i);
       let probTags = '';
       if (probMatch) {
-        const probs = probMatch[1].split(',').map(s => s.trim()).filter(s => s.length > 0);
+        const probs = probMatch[1].split(',').map((s: string) => s.trim()).filter((s: string) => s.length > 0);
         if (probs.length > 0) {
           probTags = `<div style="margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px;">`;
-          probs.forEach(p => {
+          probs.forEach((p: string) => {
             probTags += `<span style="background: rgba(45, 212, 191, 0.1); border: 1px solid rgba(45, 212, 191, 0.2); padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; color: #2dd4bf; font-weight: 500;">✓ ${p}</span>`;
           });
           probTags += `</div>`;

@@ -340,7 +340,6 @@ function renderSingleWeek(): void {
       <div class="wm-bars-container">
         ${displayCols.map((col: any, ci: number) => {
           const val = catMap.get(col.name) || 0;
-          const pct = maxCatHours > 0 ? (val / maxCatHours) * 100 : 0;
           const overallPct = totalHours > 0 ? (val / totalHours) * 100 : 0;
           const color = CATEGORY_COLORS[ci % CATEGORY_COLORS.length];
           return `

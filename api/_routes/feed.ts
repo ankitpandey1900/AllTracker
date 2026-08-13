@@ -1,7 +1,7 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { getAuth } from "../_lib/auth/index.js";
 import { ensureProfileForUser } from "../_lib/data/profile-repo.js";
-import { fetchTransmissions, createTransmission, deleteTransmission, deleteComment, fetchComments, createComment, incrementViewsBulk, fetchUserPosts, fetchNotifications, getUnreadCount, markNotificationsRead, searchUsers, toggleInteraction } from "../_lib/data/feed-repo.js";
+import { fetchTransmissions, createTransmission, deleteTransmission, deleteComment, fetchComments, createComment, incrementViewsBulk, fetchUserPosts, fetchNotifications, getUnreadCount, markNotificationsRead, clearNotifications, searchUsers, toggleInteraction } from "../_lib/data/feed-repo.js";
 import { headersFromNode, readJsonBody } from "../_lib/http/request.js";
 import { handleRouteError, sendJson, sendMethodNotAllowed } from "../_lib/http/response.js";
 
@@ -165,6 +165,13 @@ export default async function handler(
       if (body?.action === 'mark_read') {
         if (!profile) { sendJson(res, 401, { error: "Unauthorized." }); return; }
         await markNotificationsRead(profile.profileId);
+        sendJson(res, 200, { status: 'ok' });
+        return;
+      }
+
+      if (body?.action === 'clear_notifications') {
+        if (!profile) { sendJson(res, 401, { error: "Unauthorized." }); return; }
+        await clearNotifications(profile.profileId);
         sendJson(res, 200, { status: 'ok' });
         return;
       }

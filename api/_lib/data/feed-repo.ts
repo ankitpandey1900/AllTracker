@@ -318,6 +318,14 @@ export async function markNotificationsRead(userId: string) {
   );
 }
 
+export async function clearNotifications(userId: string) {
+  const pool = getPool();
+  await pool.query(
+    `DELETE FROM feed_notifications WHERE user_id = $1`,
+    [userId]
+  );
+}
+
 export async function searchUsers(query: string) {
   const pool = getPool();
   // Sanitize: only allow alphanumeric + underscore, max 30 chars

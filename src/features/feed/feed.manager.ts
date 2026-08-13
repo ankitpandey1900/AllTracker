@@ -161,7 +161,20 @@ export async function markNotifsRead(): Promise<void> {
       method: 'PATCH',
       body: { action: 'mark_read' }
     });
-  } catch { }
+  } catch (e) {
+    console.error('Failed to mark notifs read:', e);
+  }
+}
+
+export async function clearNotifications(): Promise<void> {
+  try {
+    await apiRequest('/api/app/feed', {
+      method: 'PATCH',
+      body: { action: 'clear_notifications' }
+    });
+  } catch (e) {
+    console.error('Failed to clear notifications:', e);
+  }
 }
 
 export async function searchMentionUsers(query: string): Promise<any[]> {

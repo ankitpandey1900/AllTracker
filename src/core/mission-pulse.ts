@@ -94,28 +94,22 @@ export function startMissionPulse(): void {
 
   // 3. PWA Service Worker (Shield Protocol)
   if ('serviceWorker' in navigator) {
-    if (import.meta.env.PROD) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-          .then(reg => {
-            log.success('Shield Protocol: Service Worker active');
-            reg.addEventListener('updatefound', () => {
-              const newWorker = reg.installing;
-              newWorker?.addEventListener('statechange', () => {
-                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                  log.info('System Update: New version available. Deployment triggered.');
-                }
-              });
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => {
+          log.success('Shield Protocol: Service Worker active');
+          reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            newWorker?.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                log.info('System Update: New version available. Deployment triggered.');
+              }
             });
-          })
-          .catch(err => log.error('Shield failure', err));
+          });
+        })
+        .catch(err => log.error('Shield failure', err));
 
-        navigator.serviceWorker.addEventListener('controllerchange', () => window.location.reload());
-      });
-    } else {
-      navigator.serviceWorker.getRegistrations().then((registrations) => {
-        for (const registration of registrations) registration.unregister();
-      });
-    }
+      navigator.serviceWorker.addEventListener('controllerchange', () => window.location.reload());
+    });
   }
 }
