@@ -260,7 +260,7 @@ function renderTransmission(t: Transmission): string {
           <span class="trans-handle">${escapeHtml(t.handle)}</span>
           <span class="trans-time">· ${timeDisplay}</span>
         </div>
-        <div class="trans-body">${highlightMentions(escapeHtml(t.content))}</div>
+        <div class="trans-body">${parseFeedText(escapeHtml(t.content))}</div>
         <div class="trans-actions">
           <button class="action-btn reply-btn" data-action="reply" data-id="${t.id}">
             <svg viewBox="0 0 24 24"><path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 8.129 3.64 8.129 8.13 0 2.96-1.607 5.68-4.196 7.11l-8.054 4.46v-3.69h-.067c-4.49.1-8.183-3.51-8.183-8.01z"></path></svg>
@@ -597,7 +597,7 @@ async function openProfileModal(userId: string, name: string, handle: string, av
     return `
       <div class="profile-feed-card" id="pfc-${t.id}">
         <div class="pfc-top-row">
-          <div class="pfc-content">${highlightMentions(escapeHtml(t.content))}</div>
+          <div class="pfc-content">${parseFeedText(escapeHtml(t.content))}</div>
           ${t.is_mine ? `
           <button class="pfc-delete-btn" data-id="${t.id}" title="Delete post">
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
@@ -732,8 +732,13 @@ function escapeHtml(unsafe: string): string {
     .replace(/'/g, "&#039;");
 }
 
-function highlightMentions(text: string): string {
-  return text.replace(/@(\w+)/g, '<span class="mention-highlight">@$1</span>');
+function parseFeedText(text: string): string {
+  // Convert URLs to clickable links
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  let parsed = text.replace(urlRegex, '<a href="$1" target="_blank" class="feed-link" rel="noopener noreferrer" style="color: var(--accent-blue); text-decoration: none;">$1</a>');
+  // Highlight @mentions
+  parsed = parsed.replace(/(^|\s)@(\w+)/g, '$1<span class="mention-highlight" style="color: var(--accent-purple); font-weight: 600; cursor: pointer;">@$2</span>');
+  return parsed;
 }
 
 function showMentionDropdown(inputEl: HTMLTextAreaElement, users: any[], matchIndex: number) {
