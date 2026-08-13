@@ -16,13 +16,39 @@ function getHourAt(day: TrackerDay, idx: number): number {
 
 function parseTimeString(val: string): number {
   if (!val) return 0;
-  val = val.trim();
+  val = val.trim().toLowerCase();
+  
+  // format: "90m"
+  if (/^\d+m$/.test(val)) {
+    return parseFloat((parseInt(val) / 60).toFixed(4));
+  }
+  
+  // format: "1h 30m", "1h", "1h30"
+  if (val.includes('h')) {
+    const parts = val.split('h');
+    const h = parseInt(parts[0]) || 0;
+    const mStr = parts[1] ? parts[1].replace(/m/g, '').trim() : '0';
+    const m = parseInt(mStr) || 0;
+    return parseFloat((h + (m / 60)).toFixed(4));
+  }
+  
+  // format: "1:30"
   if (val.includes(':')) {
     const parts = val.split(':');
     const h = parseInt(parts[0]) || 0;
     const m = parseInt(parts[1]) || 0;
     return parseFloat((h + (m / 60)).toFixed(4));
   }
+  
+  // format: "1 30"
+  if (/^\d+\s+\d+$/.test(val)) {
+    const parts = val.split(/\s+/);
+    const h = parseInt(parts[0]) || 0;
+    const m = parseInt(parts[1]) || 0;
+    return parseFloat((h + (m / 60)).toFixed(4));
+  }
+  
+  // format: standard decimal "1.5"
   return parseFloat(val) || 0;
 }
 
@@ -30,7 +56,9 @@ function formatTimeInput(hoursDecimal: number): string {
   if (!hoursDecimal) return '';
   const h = Math.floor(hoursDecimal);
   const m = Math.round((hoursDecimal - h) * 60);
-  return `${h}:${m.toString().padStart(2, '0')}`;
+  if (h > 0 && m > 0) return `${h}h ${m}m`;
+  if (h > 0) return `${h}h`;
+  return `${m}m`;
 }
 
 function setHourAt(day: TrackerDay, idx: number, value: number): void {
@@ -198,7 +226,7 @@ export function generateTable(resetPagination = false): void {
           const displayVal = formatDuration(v);
           return `
                 <div class="hour-cell-wrapper" style="flex: 1 1 0; min-width: 0;">
-                  <input type="text" class="cell-input hour-input" data-col="${ci}" value="${v > 0 ? formatTimeInput(v) : ''}" placeholder="0:00" ${(!editable || day.restDay) ? 'disabled' : ''} style="width: 100%;">
+                  <input type="text" class="cell-input hour-input" data-col="${ci}" value="${v > 0 ? formatTimeInput(v) : ''}" placeholder="0h 0m" ${(!editable || day.restDay) ? 'disabled' : ''} style="width: 100%;">
                   <span class="duration-hint">${displayVal}</span>
                 </div>`;
         }).join('')
