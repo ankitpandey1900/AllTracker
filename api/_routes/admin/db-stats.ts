@@ -36,7 +36,7 @@ export default async function handler(
     ] = await Promise.all([
       pool.query("SELECT COUNT(*) FROM public.study_sessions"),
       pool.query("SELECT COUNT(*) FROM public.tasks"),
-      pool.query("SELECT COUNT(*) FROM public.feed_posts"),
+      pool.query("SELECT COUNT(*) FROM public.transmissions"),
       pool.query("SELECT COUNT(*) FROM public.user_badges")
     ]);
 
