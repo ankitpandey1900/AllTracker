@@ -16,7 +16,7 @@ import {
   subscribeToUserDataSync,
   drainOfflineSessionQueue,
 } from '@/services/vault.service';
-import { appState, ensureTimelineIntegrity, syncTrackerTimelineWithSettings } from '@/state/app-state';
+import { appState, ensureTimelineIntegrity, syncTrackerTimelineWithSettings, calculateDates } from '@/state/app-state';
 import { 
   saveLocal, loadLocal,
   updateLocalTimestamp, getLocalTimestamp
@@ -233,6 +233,7 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
 
     sync(STORAGE_KEYS.SETTINGS, cloudSettings, appState.settings, (d: any) => { 
       appState.settings = { ...appState.settings, ...d }; 
+      calculateDates();
       saveLocal(STORAGE_KEYS.SETTINGS, appState.settings);
       import('@/state/app-state').then(m => {
         if (d.theme) m.applyThemeToDOM(d.theme);
@@ -309,6 +310,7 @@ export async function performBackgroundSync(): Promise<void> {
 
     check(STORAGE_KEYS.SETTINGS, cloud[1], appState.settings, (d: any) => { 
       appState.settings = { ...appState.settings, ...d }; 
+      calculateDates();
       saveLocal(STORAGE_KEYS.SETTINGS, appState.settings);
       import('@/state/app-state').then(m => {
         if (d.theme) m.applyThemeToDOM(d.theme);

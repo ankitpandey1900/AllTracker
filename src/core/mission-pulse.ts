@@ -26,7 +26,7 @@ import { syncProfileBroadcast } from "@/features/profile/profile.manager";
 
 export async function refreshApplicationUI(): Promise<void> {
   try {
-    const [settings, , routines, history, bookmarks, tasks, timer] = await Promise.all([
+    const [settings, trackerData, routines, history, bookmarks, tasks, timer] = await Promise.all([
       loadSettingsFromStorage(),
       loadTrackerDataFromStorage(),
       loadRoutinesFromStorage(),
@@ -38,6 +38,10 @@ export async function refreshApplicationUI(): Promise<void> {
 
     if (settings) {
       appState.settings = { ...appState.settings, ...settings };
+    }
+    
+    if (trackerData && trackerData.length > 0) {
+      appState.trackerData = trackerData;
     }
     
     migrateDataFormat();
