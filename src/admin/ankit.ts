@@ -70,20 +70,37 @@ async function fetchUsers() {
       const medals = ["🥇", "🥈", "🥉"];
       const colors = ["#fbbf24", "#94a3b8", "#b45309"];
       leaderboard.innerHTML = top3.map((u, i) => `
-        <div style="flex: 1; background: #27272a; padding: 1rem; border-radius: 8px; border-top: 4px solid ${colors[i]}; text-align: center;">
-          <div style="font-size: 2rem; margin-bottom: 0.5rem;">${medals[i]}</div>
-          <div style="font-weight: bold; font-size: 1.1rem; color: #fff;">${u.username}</div>
-          <div style="color: ${colors[i]}; font-weight: bold; margin-top: 0.5rem;">${Number(u.total_hours || 0).toFixed(1)} hrs</div>
+        <div class="stat-card" style="flex: 1; text-align: center; --accent-color: ${colors[i]}; padding: 2rem;">
+          <div style="font-size: 2.5rem; margin-bottom: 0.5rem; filter: drop-shadow(0 0 10px ${colors[i]}80);">${medals[i]}</div>
+          <div style="font-weight: 700; font-size: 1.25rem; color: #fff; margin-bottom: 0.5rem;">${u.username}</div>
+          <div style="color: ${colors[i]}; font-weight: 800; font-size: 1.1rem; letter-spacing: 0.5px;">${Number(u.total_hours || 0).toFixed(1)} hrs</div>
         </div>
       `).join("");
     }
 
     // 3. Render Table
     tbody.innerHTML = "";
+    
+    // Rank Color Helper
+    const getRankColor = (rank: string) => {
+      const r = rank.toUpperCase();
+      if (r.includes("LEGEND")) return "#f43f5e";
+      if (r.includes("GRANDMASTER")) return "#a855f7";
+      if (r.includes("MASTER")) return "#ef4444";
+      if (r.includes("DIAMOND")) return "#0ea5e9";
+      if (r.includes("PLATINUM")) return "#10b981";
+      if (r.includes("GOLD")) return "#eab308";
+      if (r.includes("SILVER")) return "#94a3b8";
+      if (r.includes("BRONZE")) return "#d97706";
+      return "#64748b"; // default recruit/unranked
+    };
+
     users.forEach((u: any) => {
       const daysInactive = Math.floor((Date.now() - new Date(u.last_active).getTime()) / (1000 * 60 * 60 * 24));
       
       const rankDisplay = u.rank ? u.rank.split(' ')[0] : 'Unranked';
+      const rankColor = getRankColor(rankDisplay);
+      
       const roundedTotalHrs = Number(u.total_hours || 0).toFixed(1);
       const rounded7DayHrs = Number(u.last_7_days_hours || 0).toFixed(1);
       
@@ -93,29 +110,43 @@ async function fetchUsers() {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>
-          <strong>${u.username}</strong><br/>
-          <span style="color: #a1a1aa; font-size: 0.9em;">${u.email}</span>
+          <div class="user-ident">
+            <span class="username">${u.username}</span>
+            <span class="email">${u.email}</span>
+          </div>
         </td>
         <td>
-          <span style="color: #fbbf24; font-weight: bold;">${rankDisplay}</span><br/>
-          🔥 ${u.current_streak} streak
+          <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+            <span class="table-pill" style="color: ${rankColor}; border-color: ${rankColor}40; background: ${rankColor}15; text-shadow: 0 0 10px ${rankColor}80;">
+              ${rankDisplay}
+            </span>
+            <span style="font-size: 0.8rem; font-weight: 600; color: #f97316; display: flex; align-items: center; gap: 4px;">
+              🔥 ${u.current_streak} Streak
+            </span>
+          </div>
         </td>
         <td>
-          <strong>${roundedTotalHrs} hrs</strong> total<br/>
-          <span style="color: #a1a1aa; font-size: 0.9em;">${rounded7DayHrs} hrs (7d)</span>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <strong style="color: #f8fafc;">${roundedTotalHrs} hrs <span style="font-weight: normal; color: #94a3b8; font-size: 0.8rem;">total</span></strong>
+            <span style="color: #38bdf8; font-size: 0.8rem; font-weight: 600;">${rounded7DayHrs} hrs (7d)</span>
+          </div>
         </td>
         <td>
-          ${daysInactive} days ago<br/>
-          <span style="font-size: 0.8em; color: ${u.last_reengagement_sent_at ? '#10b981' : '#a1a1aa'}">
-            ${u.last_reengagement_sent_at ? 'Roasted' : 'Not Roasted'}
-          </span>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <span style="color: ${daysInactive > 7 ? '#ef4444' : '#f8fafc'}; font-weight: 600;">${daysInactive} days ago</span>
+            <span style="font-size: 0.75rem; font-weight: 600; color: ${u.last_reengagement_sent_at ? '#10b981' : '#64748b'};">
+              ${u.last_reengagement_sent_at ? '✓ Roasted' : '• Not Roasted'}
+            </span>
+          </div>
         </td>
         <td>
-          ${joinedDate}
+          <span style="color: #cbd5e1; font-size: 0.85rem;">${joinedDate}</span>
         </td>
         <td>
-          <button class="btn" onclick="sendTargetedRoast('${u.profile_id}', this)">Send Roast</button>
-          <button class="btn" onclick="sendTargetedPush('${u.profile_id}')">Send Push</button>
+          <div class="action-group">
+            <button class="btn btn-sm btn-nuke" style="background: rgba(239,68,68,0.15);" onclick="sendTargetedRoast('${u.profile_id}', this)">Roast</button>
+            <button class="btn btn-sm btn-primary" style="background: rgba(56,189,248,0.15);" onclick="sendTargetedPush('${u.profile_id}')">Push</button>
+          </div>
         </td>
       `;
       tbody.appendChild(tr);

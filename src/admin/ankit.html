@@ -3,26 +3,36 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Jaldi wahan se hato</title>
+  <title>Admin Command Center</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #09090b;
-      --card: #18181b;
-      --border: #27272a;
-      --text: #f4f4f5;
-      --muted: #a1a1aa;
-      --primary: #3b82f6;
-      --primary-hover: #2563eb;
+      --bg: #030712;
+      --card: rgba(15, 23, 42, 0.6);
+      --card-hover: rgba(30, 41, 59, 0.8);
+      --border: rgba(51, 65, 85, 0.5);
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --primary: #38bdf8;
+      --primary-hover: #0284c7;
       --danger: #ef4444;
       --danger-hover: #dc2626;
       --gold: #fbbf24;
-      --silver: #94a3b8;
-      --bronze: #b45309;
+      --emerald: #10b981;
+      --fuchsia: #d946ef;
+      --cyan: #06b6d4;
+    }
+
+    * {
+      box-sizing: border-box;
     }
 
     body {
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
       background-color: var(--bg);
+      background-image: 
+        radial-gradient(circle at 15% 50%, rgba(56, 189, 248, 0.04) 0%, transparent 50%),
+        radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.04) 0%, transparent 50%);
       color: var(--text);
       margin: 0;
       padding: 0;
@@ -31,9 +41,9 @@
     }
 
     .container {
-      max-width: 1200px;
+      max-width: 1400px;
       margin: 0 auto;
-      padding: 2rem;
+      padding: 3rem 2rem;
     }
 
     /* Loader */
@@ -43,93 +53,185 @@
       align-items: center;
       height: 100vh;
       font-size: 1.25rem;
-      color: var(--muted);
+      color: var(--primary);
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
       animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
     @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: .5; }
+      0%, 100% { opacity: 1; text-shadow: 0 0 15px rgba(56,189,248,0.5); }
+      50% { opacity: 0.5; text-shadow: none; }
+    }
+
+    /* Header */
+    .hero-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 3rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .hero-header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .hero-header h1::before {
+      content: '';
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--primary);
+      box-shadow: 0 0 12px var(--primary);
     }
 
     /* Buttons */
     .btn {
-      background: var(--border);
+      background: var(--card);
       color: var(--text);
-      border: 1px solid rgba(255,255,255,0.1);
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
+      border: 1px solid var(--border);
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
       cursor: pointer;
-      font-weight: 500;
+      font-weight: 600;
       font-size: 0.875rem;
-      transition: all 0.2s;
+      transition: all 0.2s ease;
+      backdrop-filter: blur(8px);
     }
     .btn:hover:not(:disabled) {
-      background: rgba(255,255,255,0.1);
+      background: var(--card-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
     .btn:disabled {
       opacity: 0.5;
       cursor: not-allowed;
     }
+    
     .btn-nuke {
-      background: var(--danger);
-      color: white;
-      border: none;
-      box-shadow: 0 4px 14px 0 rgba(239, 68, 68, 0.39);
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.3);
     }
     .btn-nuke:hover:not(:disabled) {
-      background: var(--danger-hover);
+      background: rgba(239, 68, 68, 0.2);
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
     }
+    
     .btn-primary {
-      background: var(--primary);
-      color: white;
-      border: none;
-      box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39);
+      background: rgba(56, 189, 248, 0.1);
+      color: var(--primary);
+      border: 1px solid rgba(56, 189, 248, 0.3);
     }
     .btn-primary:hover:not(:disabled) {
-      background: var(--primary-hover);
+      background: rgba(56, 189, 248, 0.2);
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+    }
+
+    .action-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .btn-sm {
+      padding: 0.4rem 0.8rem;
+      font-size: 0.75rem;
+      border-radius: 6px;
     }
 
     /* Cards & Grids */
+    .section-title {
+      margin: 0 0 1.5rem 0;
+      color: var(--text);
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3.5rem;
+    }
+
     .stat-card {
       background: var(--card);
-      padding: 1.5rem;
-      border-radius: 12px;
+      backdrop-filter: blur(12px);
+      padding: 1.75rem;
+      border-radius: 16px;
       border: 1px solid var(--border);
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-      transition: transform 0.2s;
+      box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
     }
+    
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--accent-color, var(--border));
+      opacity: 0.5;
+    }
+
     .stat-card:hover {
-      transform: translateY(-2px);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.3);
+      border-color: var(--accent-color, var(--border));
     }
+    
+    .stat-card:hover::after {
+      opacity: 1;
+      box-shadow: 0 0 12px var(--accent-color, transparent);
+    }
+
     .stat-label {
       color: var(--muted);
-      font-size: 0.875rem;
+      font-size: 0.8rem;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.75rem;
+      font-weight: 600;
     }
     .stat-value {
-      font-size: 2.25rem;
-      font-weight: 700;
+      font-size: 2.5rem;
+      font-weight: 800;
       color: var(--text);
-      letter-spacing: -0.025em;
+      letter-spacing: -0.03em;
     }
 
     /* Table */
     .table-container {
       background: var(--card);
-      border-radius: 12px;
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
       border: 1px solid var(--border);
       overflow-x: auto;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.2);
     }
     table {
       width: 100%;
-      border-collapse: separate;
-      border-spacing: 0;
+      border-collapse: collapse;
     }
     th, td {
-      padding: 1rem 1.5rem;
+      padding: 1.25rem 1.5rem;
       text-align: left;
     }
     th {
@@ -142,113 +244,162 @@
       font-weight: 600;
     }
     td {
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid rgba(51, 65, 85, 0.3);
       color: var(--text);
-      font-size: 0.875rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: background 0.2s;
     }
     tr:last-child td {
       border-bottom: none;
     }
     tr:hover td {
-      background: rgba(255,255,255,0.02);
+      background: rgba(255,255,255,0.03);
+    }
+
+    /* Pill Badges inside table */
+    .table-pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .user-ident {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .user-ident .username {
+      font-weight: 700;
+      font-size: 1rem;
+    }
+    .user-ident .email {
+      font-size: 0.75rem;
+      color: var(--muted);
     }
 
     /* Modal */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.7);
-      backdrop-filter: blur(4px);
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(8px);
       display: none;
       justify-content: center;
       align-items: center;
       z-index: 50;
+      animation: fadeIn 0.2s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
     .modal {
-      background: var(--card);
+      background: #0a0f1c;
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 2rem;
+      border-radius: 20px;
+      padding: 2.5rem;
       width: 100%;
       max-width: 500px;
-      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8);
+      transform: scale(0.95);
+      animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
+    @keyframes popIn {
+      to { transform: scale(1); }
+    }
+    
     .modal h3 {
       margin-top: 0;
-      font-size: 1.25rem;
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
     }
-    textarea {
+    
+    textarea, input[type="text"] {
       width: 100%;
-      background: #000;
+      background: rgba(15, 23, 42, 0.8);
       border: 1px solid var(--border);
       color: var(--text);
-      border-radius: 8px;
+      border-radius: 12px;
       padding: 1rem;
-      min-height: 120px;
-      margin: 1rem 0;
+      margin-top: 1rem;
       font-family: inherit;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    textarea {
+      min-height: 120px;
       resize: vertical;
     }
-    textarea:focus {
+    textarea:focus, input[type="text"]:focus {
       outline: none;
       border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
     }
   </style>
 </head>
 <body>
 
-  <div id="status" class="loader">Verifying Admin Access...</div>
+  <div id="status" class="loader">Verifying Access...</div>
   
   <div id="admin-ui" class="container" style="display: none;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem;">
-      <h1 style="margin: 0; font-size: 2rem; letter-spacing: -0.025em; background: linear-gradient(to right, #fff, #a1a1aa); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">Ankit Dashboard</h1>
+    <div class="hero-header">
+      <h1>Command Center</h1>
       <button id="nuke-btn" class="btn btn-nuke">🔥 Nuke: Send All Pending Roasts</button>
     </div>
 
     <!-- Stats Grid -->
-    <div id="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
-      <div class="stat-card">
+    <h2 class="section-title">Live Overview</h2>
+    <div id="stats-grid" class="stats-grid">
+      <div class="stat-card" style="--accent-color: #f8fafc;">
         <div class="stat-label">Total Users</div>
         <div id="stat-users" class="stat-value">0</div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card" style="--accent-color: var(--emerald);">
         <div class="stat-label">Active Sessions (30m)</div>
-        <div id="stat-sessions" class="stat-value" style="color: #10b981;">0</div>
+        <div id="stat-sessions" class="stat-value" style="color: var(--emerald);">0</div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card" style="--accent-color: var(--primary);">
         <div class="stat-label">Global Focus Time</div>
         <div id="stat-total-hrs" class="stat-value">0 hrs</div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card" style="--accent-color: var(--fuchsia);">
         <div class="stat-label">Today's Focus Time</div>
-        <div id="stat-today-hrs" class="stat-value" style="color: #3b82f6;">0 hrs</div>
+        <div id="stat-today-hrs" class="stat-value" style="color: var(--fuchsia);">0 hrs</div>
       </div>
     </div>
 
     <!-- Database Health Stats Grid -->
-    <h3 style="margin: 0 0 1rem 0; color: #a1a1aa; font-size: 1.2rem;">Database & Content Metrics</h3>
-    <div id="db-stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
-      <div class="stat-card">
+    <h2 class="section-title">Database Integrity</h2>
+    <div id="db-stats-grid" class="stats-grid">
+      <div class="stat-card" style="--accent-color: #8b5cf6;">
         <div class="stat-label">Total Study Sessions</div>
         <div id="stat-db-sessions" class="stat-value" style="color: #8b5cf6;">0</div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card" style="--accent-color: #ec4899;">
         <div class="stat-label">Total Tasks Logged</div>
         <div id="stat-db-tasks" class="stat-value" style="color: #ec4899;">0</div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card" style="--accent-color: var(--cyan);">
         <div class="stat-label">Total Feed Posts</div>
-        <div id="stat-db-feed" class="stat-value" style="color: #06b6d4;">0</div>
+        <div id="stat-db-feed" class="stat-value" style="color: var(--cyan);">0</div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card" style="--accent-color: var(--gold);">
         <div class="stat-label">Total Badges Awarded</div>
-        <div id="stat-db-badges" class="stat-value" style="color: #fbbf24;">0</div>
+        <div id="stat-db-badges" class="stat-value" style="color: var(--gold);">0</div>
       </div>
     </div>
 
     <!-- Leaderboard -->
-    <div class="stat-card" style="margin-bottom: 3rem; padding: 2rem;">
-      <h2 style="margin: 0 0 1.5rem 0; color: var(--gold); font-size: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+    <div class="stat-card" style="margin-bottom: 3.5rem; padding: 2.5rem; --accent-color: var(--gold);">
+      <h2 style="margin: 0 0 2rem 0; color: var(--gold); font-size: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
         🏆 Top 3 Grinders
       </h2>
       <div id="leaderboard" style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
@@ -257,16 +408,17 @@
     </div>
 
     <!-- Users Table -->
+    <h2 class="section-title">User Roster</h2>
     <div class="table-container">
       <table id="user-table">
         <thead>
           <tr>
-            <th>User</th>
-            <th>Rank & Streak</th>
+            <th>User Identity</th>
+            <th>Rank Status</th>
             <th>Focus Time</th>
             <th>Last Active</th>
             <th>Joined</th>
-            <th>Action</th>
+            <th>Direct Actions</th>
           </tr>
         </thead>
         <tbody id="user-tbody"></tbody>
@@ -274,18 +426,18 @@
     </div>
   </div>
 
-  <!-- Custom Email Modal -->
+  <!-- Custom Action Modal -->
   <div id="email-modal" class="modal-overlay">
     <div class="modal">
-      <h3>Send Notification</h3>
-      <p style="color: var(--muted); font-size: 0.875rem; margin-top: 0.5rem; line-height: 1.5;">
-        Leave blank to send an automated <strong>Reality Check</strong> based on the user's recent inactivity and stats. Alternatively, write a personalized message below.
+      <h3>Targeted Alert</h3>
+      <p style="color: var(--muted); font-size: 0.875rem; margin-top: 0.75rem; line-height: 1.6;">
+        Leave blank to send an automated <strong>Reality Check</strong> based on the user's recent inactivity and stats.
       </p>
-      <input type="text" id="custom-subject-input" placeholder="Custom Subject (Optional)..." style="width: 100%; background: #000; border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 1rem; margin: 1rem 0 0 0; font-family: inherit; font-size: 14px;">
-      <textarea id="custom-msg-input" placeholder="Enter custom message..."></textarea>
-      <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+      <input type="text" id="custom-subject-input" placeholder="Subject (Optional)">
+      <textarea id="custom-msg-input" placeholder="Type a custom message here..."></textarea>
+      <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
         <button id="modal-cancel-btn" class="btn">Cancel</button>
-        <button id="modal-send-btn" class="btn btn-primary">Send Email</button>
+        <button id="modal-send-btn" class="btn btn-primary">Launch Alert</button>
       </div>
     </div>
   </div>
