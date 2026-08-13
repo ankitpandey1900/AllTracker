@@ -140,6 +140,15 @@ async function hydrateSessionState(): Promise<void> {
 }
 
 export function initSyncAuth(): Promise<void> {
+  const profileRaw = getSecureLocalProfileString();
+  if (profileRaw) {
+    updateHeaderProfileUI();
+  } else {
+    // Render the login button immediately if there's no cached profile,
+    // so the user doesn't have to wait for the session check to finish.
+    handleUserSignedOut();
+  }
+
   bindAuthUi();
 
   return hydrateSessionState().catch((error) => {

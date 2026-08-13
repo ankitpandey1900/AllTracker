@@ -119,7 +119,7 @@ export async function readVault(
     case "tracker": {
       const { rows } = await pool.query(
         `
-          select to_char(dt.log_date, 'YYYY-MM-DD') as date, dt.study_hours, dt.problems_solved as "problemsSolved", dt.completed, dt.topics, dt.project, dt.updated_at
+          select to_char(dt.log_date::timestamp, 'YYYY-MM-DD') as date, dt.study_hours, dt.problems_solved as "problemsSolved", dt.completed, dt.topics, dt.project, dt.updated_at
           from daily_trackers dt
           left join user_preferences up on up.user_id = dt.user_id
           where dt.user_id = $1
@@ -151,12 +151,12 @@ export async function readVault(
     }
     case "settings": {
       const prefsRes = await pool.query(
-        "select *, to_char(start_date, 'YYYY-MM-DD') as start_date_str, to_char(end_date, 'YYYY-MM-DD') as end_date_str from user_preferences where user_id = $1 limit 1",
+        "select *, to_char(start_date::timestamp, 'YYYY-MM-DD') as start_date_str, to_char(end_date::timestamp, 'YYYY-MM-DD') as end_date_str from user_preferences where user_id = $1 limit 1",
         [profile.profileId]
       );
       
       const phasesRes = await pool.query(
-        "select id, name, to_char(start_date, 'YYYY-MM-DD') as \"startDate\", to_char(end_date, 'YYYY-MM-DD') as \"endDate\", columns from study_phases where user_id = $1 and deleted_at is null order by created_at asc",
+        "select id, name, to_char(start_date::timestamp, 'YYYY-MM-DD') as \"startDate\", to_char(end_date::timestamp, 'YYYY-MM-DD') as \"endDate\", columns from study_phases where user_id = $1 and deleted_at is null order by created_at asc",
         [profile.profileId]
       );
       
@@ -206,7 +206,7 @@ export async function readVault(
     case "routines": {
       const { rows } = await pool.query<RoutineItemRow>(
         `
-          select id, title, time, note, completed, days, streak, to_char(last_completed_at, 'YYYY-MM-DD') as last_completed_date, created_at
+          select id, title, time, note, completed, days, streak, to_char(last_completed_at::timestamp, 'YYYY-MM-DD') as last_completed_date, created_at
           from routines
           where user_id = $1
           order by created_at asc
@@ -220,7 +220,7 @@ export async function readVault(
     case "history": {
       const { rows } = await pool.query<{ history_date: string; completed_count: number; updated_at: string | null }>(
         `
-          select to_char(history_date, 'YYYY-MM-DD') as history_date, completed_count, updated_at
+          select to_char(history_date::timestamp, 'YYYY-MM-DD') as history_date, completed_count, updated_at
           from routine_history
           where user_id = $1
           order by history_date asc
@@ -253,7 +253,7 @@ export async function readVault(
     case "tasks": {
       const { rows } = await pool.query<TaskRow>(
         `
-          select id, text, completed, to_char(date, 'YYYY-MM-DD') as date, priority, created_at, completed_at, type, to_char(week_of, 'YYYY-MM-DD') as week_of, updated_at
+          select id, text, completed, to_char(date::timestamp, 'YYYY-MM-DD') as date, priority, created_at, completed_at, type, to_char(week_of::timestamp, 'YYYY-MM-DD') as week_of, updated_at
           from tasks
           where user_id = $1 and deleted_at is null
           order by created_at asc
