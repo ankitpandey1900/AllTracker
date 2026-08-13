@@ -107,6 +107,7 @@ export async function renderSessionHistory(): Promise<void> {
         const typeMatch = p.match(/^\s*([^\(]+)/);
         if (typeMatch) {
           let t = typeMatch[1].trim();
+          if (minMatch) t += ` (${minMatch[1]}m)`;
           if (mult > 1) t += ` (${mult}x)`;
           types.push(t);
         }
