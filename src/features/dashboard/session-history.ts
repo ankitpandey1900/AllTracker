@@ -8,23 +8,11 @@ import { adjustTrackerDataForSessionDelta, generateTable } from '@/features/trac
 import { log } from '@/utils/logger.utils';
 import { updateDashboard } from './dashboard';
 import { refreshLeaderboard } from './leaderboard';
+import { getCategoryColor } from './dashboard.renderers';
 
 // --- Session History Helpers ---
 
-function getSubjectColor(name: string): { bg: string; border: string; text: string } {
-  const palette = [
-    { bg: 'rgba(96,165,250,0.12)', border: 'rgba(96,165,250,0.35)', text: '#93c5fd' },
-    { bg: 'rgba(167,139,250,0.13)', border: 'rgba(167,139,250,0.35)', text: '#c4b5fd' },
-    { bg: 'rgba(52,211,153,0.11)', border: 'rgba(52,211,153,0.35)', text: '#6ee7b7' },
-    { bg: 'rgba(251,191,36,0.11)', border: 'rgba(251,191,36,0.35)', text: '#fcd34d' },
-    { bg: 'rgba(248,113,113,0.12)', border: 'rgba(248,113,113,0.35)', text: '#fca5a5' },
-    { bg: 'rgba(34,211,238,0.11)', border: 'rgba(34,211,238,0.35)', text: '#67e8f9' },
-    { bg: 'rgba(251,146,60,0.12)', border: 'rgba(251,146,60,0.35)', text: '#fdba74' },
-  ];
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  return palette[Math.abs(hash) % palette.length];
-}
+// --- Session History Helpers ---
 
 function getRelativeDate(dateStr: string): { primary: string; day: string } {
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -233,7 +221,7 @@ export async function renderSessionHistory(): Promise<void> {
 
     sessions.forEach((log: any, idx: number) => {
       const subName = log.subject || 'General';
-      const col = getSubjectColor(subName);
+      const col = getCategoryColor(subName);
       const duration = log.duration || 0;
       const startTime = log.start_at ? formatTime12h(log.start_at) : '—';
       const endTime = log.end_at ? formatTime12h(log.end_at) : '—';
@@ -263,7 +251,7 @@ export async function renderSessionHistory(): Promise<void> {
       rows.push(`
         <div class="sh-session-row sh-row sh-child sh-child-${date}" data-session-id="${log.id}" data-session-duration="${duration}" data-session-subject="${subName}" data-session-note="${safeNote}" data-date="${log.log_date}">
           <div class="sh-session-num">
-            <div class="sh-dot" style="background:${col.text}; box-shadow: 0 0 8px ${col.text}88;"></div>
+            <div class="sh-dot" style="background:${col.color}; box-shadow: 0 0 8px ${col.color}88;"></div>
             <span style="opacity: 0.7;">Session ${idx + 1}</span> ${breakBadge}
           </div>
           <div class="sh-time">${startTime}<span class="sh-time-sep">–</span>${endTime}</div>

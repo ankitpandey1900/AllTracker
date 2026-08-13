@@ -10,7 +10,7 @@ function sanitize(str: string): string {
   return div.innerHTML;
 }
 
-function getCategoryColor(name: string, targetRange?: any): { color: string, accent: string } {
+export function getCategoryColor(name: string, targetRange?: any): { color: string, accent: string } {
   const accentClasses = [
     'accent-teal', 'accent-blue', 'accent-purple', 'accent-gold', 'accent-red', 
     'accent-cyan', 'accent-pink', 'accent-purple', 'accent-orange', 'accent-lime',
