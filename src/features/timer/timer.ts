@@ -320,10 +320,18 @@ export async function stopTimer(autoNote?: string, clampMs?: number): Promise<vo
 
   let note = autoNote || '';
   let subtractMs = 0;
+  let problemsStr = '';
   if (!autoNote) {
     const res = await showSessionNoteModal();
     note = res.note;
     subtractMs = res.subtractMs;
+    problemsStr = res.problems;
+  }
+  
+  let problemsCount = 0;
+  if (problemsStr) {
+    note = note ? `${note} | [Problems: ${problemsStr}]` : `[Problems: ${problemsStr}]`;
+    problemsCount = problemsStr.split(',').map(s => s.trim()).filter(s => s.length > 0).length;
   }
   
   if (subtractMs > 0) {
@@ -363,11 +371,11 @@ export async function stopTimer(autoNote?: string, clampMs?: number): Promise<vo
         
         const hoursBefore = (clockBefore * ratio) / 3600000;
         const hoursAfter = (clockAfter * ratio) / 3600000;
-        saveSessionToDate(colIdx, hoursBefore, note, sessionStart);
-        saveSessionToDate(colIdx, hoursAfter, note, sessionEnd);
+        saveSessionToDate(colIdx, hoursBefore, note, sessionStart, 0);
+        saveSessionToDate(colIdx, hoursAfter, note, sessionEnd, problemsCount);
         appState.verifiedHours += (hoursBefore + hoursAfter);
       } else {
-        saveSessionToDate(colIdx, totalHours, note, sessionEnd);
+        saveSessionToDate(colIdx, totalHours, note, sessionEnd, problemsCount);
         appState.verifiedHours += totalHours;
       }
 
@@ -480,21 +488,24 @@ async function showTerminateConfirmModal(): Promise<boolean> {
   });
 }
 
-async function showSessionNoteModal(): Promise<{note: string, subtractMs: number}> {
+async function showSessionNoteModal(): Promise<{note: string, subtractMs: number, problems: string}> {
   return new Promise((resolve) => {
     const modal = document.getElementById('sessionNoteModal');
     const input = document.getElementById('sessionNoteInput') as HTMLTextAreaElement;
     const subtractInput = document.getElementById('sessionSubtractInput') as HTMLInputElement;
+    const problemsInput = document.getElementById('sessionProblemsInput') as HTMLInputElement;
     const saveBtn = document.getElementById('saveSessionNoteBtn');
     const skipBtn = document.getElementById('skipSessionNoteBtn');
-    if (!modal || !input || !saveBtn) { resolve({note: '', subtractMs: 0}); return; }
+    if (!modal || !input || !saveBtn) { resolve({note: '', subtractMs: 0, problems: ''}); return; }
     input.value = ''; 
     if (subtractInput) subtractInput.value = '';
+    if (problemsInput) problemsInput.value = '';
     modal.classList.add('active');
     const closeModal = (noteVal: string) => { 
       modal.classList.remove('active'); 
       const subVal = subtractInput ? (parseFloat(subtractInput.value) || 0) : 0;
-      resolve({note: noteVal, subtractMs: subVal * 60000}); 
+      const probVal = problemsInput ? problemsInput.value.trim() : '';
+      resolve({note: noteVal, subtractMs: subVal * 60000, problems: probVal}); 
     };
     saveBtn.addEventListener('click', () => closeModal(input.value.trim()), { once: true });
     if (skipBtn) skipBtn.addEventListener('click', () => closeModal(''), { once: true });
@@ -502,7 +513,7 @@ async function showSessionNoteModal(): Promise<{note: string, subtractMs: number
   });
 }
 
-function saveSessionToDate(colIdx: number, hoursToAdd: number, note: string = '', targetDate: Date): void {
+function saveSessionToDate(colIdx: number, hoursToAdd: number, note: string = '', targetDate: Date, problemsToAdd: number = 0): void {
   const target = new Date(targetDate); target.setHours(0,0,0,0);
   const targetIndex = appState.trackerData.findIndex(d => {
     const date = new Date(d.date); date.setHours(0,0,0,0);
@@ -512,6 +523,11 @@ function saveSessionToDate(colIdx: number, hoursToAdd: number, note: string = ''
   const day = appState.trackerData[targetIndex];
   if (!Array.isArray(day.studyHours)) day.studyHours = [];
   day.studyHours[colIdx] = parseFloat(((day.studyHours[colIdx] || 0) + hoursToAdd).toFixed(4));
+  
+  if (problemsToAdd > 0) {
+    day.problemsSolved = (day.problemsSolved || 0) + problemsToAdd;
+  }
+  
   if (note) {
     const colName = getColumnsForDay(day.day)[colIdx]?.name || 'Study';
     const field = colName.toLowerCase().includes('project') ? 'project' : 'topics';

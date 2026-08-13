@@ -19,6 +19,10 @@ export const sessionNoteModal = `
         <textarea id="sessionNoteInput" class="cell-input reflection-textarea"
           placeholder="e.g., Completed 5 DSA problems on Graphs..."></textarea>
         <div style="margin-top: 12px; text-align: left;">
+          <label style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 4px; display: block;">Specific Problems Solved (optional)</label>
+          <input type="text" id="sessionProblemsInput" class="cell-input" placeholder="e.g., LC 1, Codeforces 1234" style="width: 100%;">
+        </div>
+        <div style="margin-top: 12px; text-align: left;">
           <label style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 4px; display: block;">Subtract Wasted Time (optional)</label>
           <input type="number" id="sessionSubtractInput" class="cell-input" placeholder="e.g., 15 (minutes)" min="0" style="width: 100%;">
         </div>

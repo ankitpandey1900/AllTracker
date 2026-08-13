@@ -227,8 +227,23 @@ export async function renderSessionHistory(): Promise<void> {
       const endTime = log.end_at ? formatTime12h(log.end_at) : '—';
       let note = (log.note && log.note !== 'null' && log.note.trim()) ? log.note : '';
       const breakInfo = parseBreaks(note);
+      // Parse Problems
+      const probMatch = note.match(/\[Problems:\s*(.+?)\]/i);
+      let probTags = '';
+      if (probMatch) {
+        const probs = probMatch[1].split(',').map(s => s.trim()).filter(s => s.length > 0);
+        if (probs.length > 0) {
+          probTags = `<div style="margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px;">`;
+          probs.forEach(p => {
+            probTags += `<span style="background: rgba(45, 212, 191, 0.1); border: 1px solid rgba(45, 212, 191, 0.2); padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; color: #2dd4bf; font-weight: 500;">✓ ${p}</span>`;
+          });
+          probTags += `</div>`;
+        }
+      }
       
-      const cleanNote = note.replace(/\[Breaks:\s*.+?\]/gi, '').trim();
+      let cleanNote = note.replace(/\[Breaks:\s*.+?\]/gi, '').trim();
+      cleanNote = cleanNote.replace(/\[Problems:\s*.+?\]/gi, '').trim();
+      cleanNote = cleanNote.replace(/\|\s*$/, '').trim(); // Remove trailing pipe if any
       const safeNote = note.replace(/"/g, '&quot;');
       let noteDisplay = cleanNote ? cleanNote : '<span style="opacity:0.28;">—</span>';
       
@@ -259,6 +274,7 @@ export async function renderSessionHistory(): Promise<void> {
           <div class="sh-category" style="color: var(--text-muted);">${subName}</div>
           <div class="sh-note${cleanNote ? '' : ' empty'}" title="${safeNote}">
             ${noteDisplay}
+            ${probTags}
             ${breakTags}
           </div>
           <div class="sh-actions">
