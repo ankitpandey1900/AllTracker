@@ -105,7 +105,9 @@ function setTemplatesCollapsed(collapsed: boolean): void {
   const container = document.getElementById('maamuGptContainer');
   if (container) container.classList.toggle('templates-collapsed', collapsed);
   const btn = document.getElementById('toggleTemplatesBtn') as HTMLButtonElement | null;
-  if (btn) btn.textContent = collapsed ? 'Show' : 'Hide';
+  if (btn) btn.innerHTML = collapsed 
+    ? 'Prompt Shortcuts <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>'
+    : 'Prompt Shortcuts <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg>';
 }
 
 function getTemplateFavorites(): Set<string> {
@@ -552,15 +554,25 @@ function streamResponse(
     query, 
     tacticalBrief,
     (_chunk: string, accumulated: string) => {
-      if (contentEl) {
-        const isAtBottom = chatOutput.scrollHeight - chatOutput.scrollTop - chatOutput.clientHeight < 40;
-        contentEl.innerHTML = formatMaamuText(accumulated) + '<span class="stream-cursor">▋</span>';
-        if (isAtBottom) chatOutput.scrollTop = chatOutput.scrollHeight;
-      }
+        if (contentEl) {
+          const isAtBottom = chatOutput.scrollHeight - chatOutput.scrollTop - chatOutput.clientHeight < 10;
+          contentEl.innerHTML = formatMaamuText(accumulated) + '<span class="stream-cursor">█</span>';
+          if (isAtBottom) chatOutput.scrollTop = chatOutput.scrollHeight;
+        }
     },
     async (fullResponse: string) => {
       assistantRow.classList.remove('streaming');
       if (contentEl) contentEl.innerHTML = formatMaamuText(fullResponse);
+
+      // Auto-name session from first message
+      if (isFirstMsg && session.title === 'New Chat') {
+        const title = await generateSessionTitle(query);
+        session.title = title;
+        const t = document.getElementById('activeMissionTitle');
+        if (t) t.textContent = title;
+        renderSessionsList();
+        saveSettingsToStorage(appState.settings);
+      }
 
       const msgBody = assistantRow.querySelector('.msg-body');
       if (msgBody) {
@@ -599,7 +611,7 @@ function streamResponse(
       }
 
       incrementDailyUsage();
-      const isAtBottom = chatOutput.scrollHeight - chatOutput.scrollTop - chatOutput.clientHeight < 40;
+      const isAtBottom = chatOutput.scrollHeight - chatOutput.scrollTop - chatOutput.clientHeight < 10;
       if (isAtBottom) chatOutput.scrollTop = chatOutput.scrollHeight;
       activeStreamController = null;
       setStopButtonState(false);
@@ -825,39 +837,49 @@ function setupListeners(): boolean {
 
       const query = (overrideQuery ?? input.value).trim();
       if (!query) return;
+
+      isSending = true;
+      updateSendButtonState();
+
+      if (!overrideQuery) {
+        input.value = '';
+        input.style.height = 'auto';
+        input.scrollTop = 0;
+      }
+
+      chatOutput.querySelector('.maamu-welcome')?.remove();
+
+      const userRow = document.createElement('div');
+      userRow.innerHTML = `
+        <div class="msg-row user">
+          <div class="msg-avatar">${getUserAvatar()}</div>
+          <div class="msg-body">
+            <div class="msg-sender">${getUserDisplayName()}</div>
+            <div class="msg-content">${formatMaamuText(query)}</div>
+          </div>
+        </div>
+      `;
+      chatOutput.appendChild(userRow.firstElementChild!);
+      chatOutput.scrollTop = chatOutput.scrollHeight;
+
       const localReply = getLocalSmallTalkReply(query, getUserDisplayName()) || getLocalDataContextReply(query);
       let session = getActiveSession();
       if (!session) {
         const sid = await createNewSession();
-        if (!sid) return;
+        if (!sid) {
+          isSending = false;
+          updateSendButtonState();
+          return;
+        }
         session = getActiveSession();
-        if (!session) return;
+        if (!session) {
+          isSending = false;
+          updateSendButtonState();
+          return;
+        }
         renderSessionsList();
       }
       const lockedSessionId = session.id;
-
-    isSending = true;
-    updateSendButtonState();
-
-    chatOutput.querySelector('.maamu-welcome')?.remove();
-
-    const userRow = document.createElement('div');
-    userRow.innerHTML = `
-      <div class="msg-row user">
-        <div class="msg-avatar">${getUserAvatar()}</div>
-        <div class="msg-body">
-          <div class="msg-sender">${getUserDisplayName()}</div>
-          <div class="msg-content">${formatMaamuText(query)}</div>
-        </div>
-      </div>
-    `;
-    chatOutput.appendChild(userRow.firstElementChild!);
-    if (!overrideQuery) {
-      input.value = '';
-      input.style.height = 'auto';
-      input.scrollTop = 0;
-    }
-    chatOutput.scrollTop = chatOutput.scrollHeight;
     if (localReply) {
       const botRow = document.createElement('div');
       botRow.innerHTML = `

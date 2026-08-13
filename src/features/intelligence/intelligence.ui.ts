@@ -172,8 +172,7 @@ export const intelligenceView = `
 
       <div class="maamu-input-zone">
         <div class="maamu-template-header">
-          <span>Prompt Shortcuts</span>
-          <button id="toggleTemplatesBtn" class="maamu-template-toggle-btn" title="Show or hide templates">Hide</button>
+          <button id="toggleTemplatesBtn" class="maamu-template-toggle-btn" title="Show or hide templates">Prompt Shortcuts <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg></button>
         </div>
         <div class="maamu-template-cats" id="maamuTemplateCats">
           <button class="maamu-template-cat-btn active" data-template-category="all">All</button>
