@@ -119,7 +119,7 @@ export async function readVault(
     case "tracker": {
       const { rows } = await pool.query(
         `
-          select to_char(dt.log_date::timestamp, 'YYYY-MM-DD') as date, dt.study_hours, dt.problems_solved as "problemsSolved", dt.completed, dt.topics, dt.project, dt.updated_at
+          select to_char(dt.log_date::timestamp, 'YYYY-MM-DD') as date, dt.study_hours, dt.problems_solved, dt.completed, dt.topics, dt.project, dt.updated_at
           from daily_trackers dt
           left join user_preferences up on up.user_id = dt.user_id
           where dt.user_id = $1
@@ -136,7 +136,7 @@ export async function readVault(
         day: index + 1,
         date: r.date,
         studyHours: r.study_hours || [],
-        problemsSolved: r.problemsSolved || 0,
+        problemsSolved: (r.problems_solved != null ? r.problems_solved : (r.problemsSolved || 0)),
         completed: r.completed || false,
         topics: r.topics || '',
         project: r.project || ''
