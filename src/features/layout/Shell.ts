@@ -57,7 +57,7 @@ export class Shell {
         if (!target) return;
 
         // AUTH GUARD: Restrict protected panes
-        const protectedPanes = ['feedPane', 'worldStagePane', 'routinePane', 'intelligencePane', 'bookmarksPane', 'tasksPane'];
+        const protectedPanes = ['worldStagePane', 'routinePane', 'intelligencePane', 'bookmarksPane', 'tasksPane'];
         if (protectedPanes.includes(target)) {
           import('@/services/auth.service').then(({ isAuthenticated, openAuthModal }) => {
             if (!isAuthenticated()) {
