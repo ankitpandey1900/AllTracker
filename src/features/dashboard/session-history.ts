@@ -93,6 +93,7 @@ export async function renderSessionHistory(): Promise<void> {
   const parseBreaks = (note: string) => {
     let count = 0;
     let mins = 0;
+    let types: string[] = [];
     const match = note.match(/\[Breaks:\s*(.+?)\]/i);
     if (match) {
       const parts = match[1].split(',');
@@ -102,9 +103,16 @@ export async function renderSessionHistory(): Promise<void> {
         count += mult;
         const minMatch = p.match(/\((\d+)M/i);
         if (minMatch) mins += parseInt(minMatch[1]) * (multMatch ? 1 : 1);
+
+        const typeMatch = p.match(/^\s*([^\(]+)/);
+        if (typeMatch) {
+          let t = typeMatch[1].trim();
+          if (mult > 1) t += ` (${mult}x)`;
+          types.push(t);
+        }
       });
     }
-    return { count, mins };
+    return { count, mins, types };
   };
 
   const totalHours = displayLogs.reduce((s: number, l: any) => s + (l.duration || 0), 0);
@@ -235,8 +243,9 @@ export async function renderSessionHistory(): Promise<void> {
       const safeNote = note.replace(/"/g, '&quot;');
       const noteDisplay = cleanNote ? cleanNote : '<span style="opacity:0.28;">—</span>';
       
+      const breakTypesTooltip = breakInfo.types.length > 0 ? `title="Break types: ${breakInfo.types.join(', ')}"` : '';
       const breakBadge = breakInfo.count > 0
-        ? `<span class="sh-break-badge" style="color: var(--sh-accent); margin-left: 8px; font-size: 0.7rem;">${breakInfo.count} BREAK${breakInfo.count > 1 ? 'S' : ''} ${breakInfo.mins > 0 ? `(${formatMinutes(breakInfo.mins)})` : ''}</span>`
+        ? `<span class="sh-break-badge" ${breakTypesTooltip} style="color: var(--sh-accent); margin-left: 8px; font-size: 0.7rem; cursor: help;">${breakInfo.count} BREAK${breakInfo.count > 1 ? 'S' : ''} ${breakInfo.mins > 0 ? `(${formatMinutes(breakInfo.mins)})` : ''}</span>`
         : '';
         
       const lockedSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`;
