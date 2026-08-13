@@ -106,6 +106,13 @@ export function initTimerModules(): void {
         updateTimerUI(false);
         toggleFocusHUD(false);
         releaseWakeLock();
+      } else {
+        // Remote device is in a paused state (no active break, not running)
+        updateTimerUI(true);
+        toggleFocusHUD(true, 'PAUSED', '--:--:--');
+        document.body.classList.add('focus-mode', 'is-focusing');
+        if (appState.timerInterval) clearInterval(appState.timerInterval);
+        releaseWakeLock();
       }
       updateTimerDisplay();
     });
@@ -674,6 +681,8 @@ export function resumeTimerIfNeeded(): void {
   // Case 4: Paused with accumulated time (no active break object)
   updateTimerUI(true);
   updateTimerDisplay();
+  import('@/features/dashboard/dashboard').then(m => m.toggleFocusHUD(true, 'PAUSED', '--:--:--'));
+  document.body.classList.add('focus-mode', 'is-focusing');
 }
 
 export function setupFocusListeners(): void {
