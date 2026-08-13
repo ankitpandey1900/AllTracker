@@ -150,7 +150,20 @@ async function renderStudyTrendChart(): Promise<void> {
           padding: 12,
           borderColor: isWhiteTheme ? 'rgba(0, 0, 0, 0.08)' : 'rgba(108, 135, 255, 0.2)',
           borderWidth: 1,
-          displayColors: true
+          displayColors: true,
+          callbacks: {
+            label: (context: any) => {
+              const label = context.dataset.label || '';
+              const val = context.parsed.y;
+              if (label.includes('Hours')) {
+                const h = Math.floor(val);
+                const m = Math.round((val - h) * 60);
+                const mStr = m.toString().padStart(2, '0');
+                return `${label}: ${h}:${mStr}hr`;
+              }
+              return `${label}: ${val}`;
+            }
+          }
         }
       },
       scales: {

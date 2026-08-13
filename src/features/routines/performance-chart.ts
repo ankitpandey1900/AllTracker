@@ -202,7 +202,13 @@ export async function renderPerformanceCurve(): Promise<void> {
             label: (context: any) => {
               const label = context.dataset.label || '';
               const val = context.parsed.y;
-              return `${label}: ${val}${label.includes('Hours') ? 'h' : ' tasks'}`;
+              if (label.includes('Hours')) {
+                const h = Math.floor(val);
+                const m = Math.round((val - h) * 60);
+                const mStr = m.toString().padStart(2, '0');
+                return `${label}: ${h}:${mStr}hr`;
+              }
+              return `${label}: ${val} tasks`;
             }
           }
         }
