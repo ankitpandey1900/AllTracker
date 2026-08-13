@@ -14,6 +14,25 @@ function getHourAt(day: TrackerDay, idx: number): number {
   return (day.studyHours?.[idx] ?? 0) as number;
 }
 
+function parseTimeString(val: string): number {
+  if (!val) return 0;
+  val = val.trim();
+  if (val.includes(':')) {
+    const parts = val.split(':');
+    const h = parseInt(parts[0]) || 0;
+    const m = parseInt(parts[1]) || 0;
+    return parseFloat((h + (m / 60)).toFixed(4));
+  }
+  return parseFloat(val) || 0;
+}
+
+function formatTimeInput(hoursDecimal: number): string {
+  if (!hoursDecimal) return '';
+  const h = Math.floor(hoursDecimal);
+  const m = Math.round((hoursDecimal - h) * 60);
+  return `${h}:${m.toString().padStart(2, '0')}`;
+}
+
 function setHourAt(day: TrackerDay, idx: number, value: number): void {
   if (!Array.isArray(day.studyHours)) day.studyHours = [];
   day.studyHours[idx] = value;
@@ -179,7 +198,7 @@ export function generateTable(resetPagination = false): void {
           const displayVal = formatDuration(v);
           return `
                 <div class="hour-cell-wrapper" style="flex: 1 1 0; min-width: 0;">
-                  <input type="number" class="cell-input hour-input" data-col="${ci}" value="${v}" min="0" max="24" step="any" placeholder="0.0" ${(!editable || day.restDay) ? 'disabled' : ''} style="width: 100%;">
+                  <input type="text" class="cell-input hour-input" data-col="${ci}" value="${v > 0 ? formatTimeInput(v) : ''}" placeholder="0:00" ${(!editable || day.restDay) ? 'disabled' : ''} style="width: 100%;">
                   <span class="duration-hint">${displayVal}</span>
                 </div>`;
         }).join('')
@@ -247,15 +266,15 @@ function attachInputListeners(): void {
   const tbody = document.getElementById('tableBody');
   if (!tbody) return;
 
-  // Standard number/duration inputs - keeping it number-based for speed
-  tbody.querySelectorAll<HTMLInputElement>('input[type="number"]').forEach((input) => {
+  // Standard inputs
+  tbody.querySelectorAll<HTMLInputElement>('.hour-input, input[type="number"]').forEach((input) => {
     input.addEventListener('change', handleNumberInput);
-    // Live hint: show "1h 30m" as they type "1.5" so they know it's working
+    // Live hint: show "1h 30m" as they type so they know it's working
     input.addEventListener('input', (e) => {
       const el = e.target as HTMLInputElement;
       const hint = el.nextElementSibling as HTMLElement;
       if (hint && el.classList.contains('hour-input')) {
-        const val = parseFloat(el.value) || 0;
+        const val = parseTimeString(el.value);
         hint.textContent = formatDuration(val);
       }
     });
@@ -293,14 +312,15 @@ function handleNumberInput(e: Event): void {
   const colIdxStr = input.getAttribute('data-col');
   if (colIdxStr !== null) {
     const colIdx = parseInt(colIdxStr);
-    const newVal = parseFloat(input.value) || 0;
+    const newVal = parseTimeString(input.value);
 
     // Day only has 24h - block anything impossible
     const otherHours = (day.studyHours || []).reduce((s, h, i) => s + (i === colIdx ? 0 : (h || 0)), 0);
 
     if (otherHours + newVal > 24) {
       showToast('Illegal timeline: Total hours for one day cannot exceed 24.', 'error');
-      input.value = String(day.studyHours?.[colIdx] || 0);
+      const oldVal = day.studyHours?.[colIdx] || 0;
+      input.value = oldVal > 0 ? formatTimeInput(oldVal) : '';
       return;
     }
 
