@@ -567,13 +567,10 @@ function streamResponse(
     tacticalBrief,
     (_chunk: string, accumulated: string) => {
         if (contentEl) {
-          const savedScrollTop = chatOutput.scrollTop;
           contentEl.innerHTML = formatMaamuText(accumulated) + '<span class="stream-cursor">█</span>';
           
           if (!userScrolledUp) {
             chatOutput.scrollTop = chatOutput.scrollHeight;
-          } else {
-            chatOutput.scrollTop = savedScrollTop; // Strictly prevent jumps
           }
         }
     },
@@ -581,7 +578,6 @@ function streamResponse(
       chatOutput.removeEventListener('scroll', onScroll);
       assistantRow.classList.remove('streaming');
       
-      const savedScrollTop = chatOutput.scrollTop;
       if (contentEl) contentEl.innerHTML = formatMaamuText(fullResponse);
 
       // Auto-name session from first message
@@ -620,21 +616,9 @@ function streamResponse(
         }));
       }
 
-      // Auto-name session from first message
-      if (isFirstMsg && session.title === 'New Chat') {
-        const title = await generateSessionTitle(query);
-        session.title = title;
-        const t = document.getElementById('activeMissionTitle');
-        if (t) t.textContent = title;
-        renderSessionsList();
-        saveSettingsToStorage(appState.settings);
-      }
-
       incrementDailyUsage();
       if (!userScrolledUp) {
         chatOutput.scrollTop = chatOutput.scrollHeight;
-      } else {
-        chatOutput.scrollTop = savedScrollTop;
       }
       activeStreamController = null;
       setStopButtonState(false);

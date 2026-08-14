@@ -20,6 +20,7 @@ import {
   checkTopicAttention 
 } from './intelligence.analytics';
 import { generateMentorAdvice, generateActionPlan, buildDeepContextJSON } from './intelligence.prompts';
+import { getProblemTrackingStats } from '@/utils/calc.utils';
 
 export interface TacticalBriefing {
   peakHour: number;
@@ -83,6 +84,7 @@ export function getTacticalBriefing(): TacticalBriefing {
 export function getTacticalBriefingString(): string {
   const briefing = getTacticalBriefing();
   const totalHours = (appState.trackerData || []).reduce((sum, day) => sum + (day.studyHours || []).reduce((s, h) => s + (h || 0), 0), 0);
+  const problemStats = getProblemTrackingStats(appState.trackerData || []);
   let sessionLogs: any[] = [];
   try {
     const saved = JSON.parse(localStorage.getItem('all_tracker_history') || '[]');
@@ -97,6 +99,7 @@ export function getTacticalBriefingString(): string {
     rank: getRankTitle(totalHours),
     briefing,
     trackerData: appState.trackerData,
+    problemStats,
     tasks: appState.tasks,
     routines: appState.routines,
     routineHistory: appState.routineHistory,

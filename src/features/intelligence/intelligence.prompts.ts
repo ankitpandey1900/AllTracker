@@ -81,6 +81,7 @@ export function buildDeepContextJSON(data: {
   rank: string;
   briefing: any;
   trackerData: any[];
+  problemStats?: any;
   tasks: any[];
   routines: any[];
   routineHistory: any;
@@ -181,6 +182,8 @@ export function buildDeepContextJSON(data: {
       rank: data.rank 
     },
     beast: data.beastModeActive,
+    leaderboard: data.leaderboard,
+    problemStats: data.problemStats,
     st: { 
       s: data.briefing.sustainabilityScore, 
       d: data.briefing.disciplineTrend, 

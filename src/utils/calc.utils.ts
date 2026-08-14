@@ -645,3 +645,46 @@ export function calculateCompetitiveXP(totalHours: number, currentStreak: number
   const integrityBonus = Math.min(0.05, Math.max(0, Math.min(100, trustScore)) / 2000);
   return Math.round(hourPoints * (1 + streakBonus + integrityBonus));
 }
+
+export function getProblemTrackingStats(data: import('@/types/tracker.types').TrackerDay[]) {
+  const platforms: Record<string, number> = {
+    'LeetCode': 0,
+    'Codeforces': 0,
+    'GeeksForGeeks': 0,
+    'CodeChef': 0,
+    'Other': 0
+  };
+  
+  let totalExplicitlySolved = 0;
+  let totalParsedFromText = 0;
+
+  data.forEach(day => {
+    totalExplicitlySolved += (day.problemsSolved || 0);
+
+    const text = (day.topics || '') + ' ' + (day.project || '');
+    const regex = /(LC|LeetCode|CF|Codeforces|GFG|CodeChef)\s*:?-?\s*(\d+)/gi;
+    let match;
+    while ((match = regex.exec(text)) !== null) {
+      const platform = match[1].toUpperCase();
+      const count = parseInt(match[2], 10);
+      
+      let key = 'Other';
+      if (platform === 'LC' || platform === 'LEETCODE') key = 'LeetCode';
+      else if (platform === 'CF' || platform === 'CODEFORCES') key = 'Codeforces';
+      else if (platform === 'GFG') key = 'GeeksForGeeks';
+      else if (platform === 'CODECHEF') key = 'CodeChef';
+      
+      platforms[key] += count;
+      totalParsedFromText += count;
+    }
+  });
+
+  if (totalExplicitlySolved > totalParsedFromText) {
+    platforms['Uncategorized'] = totalExplicitlySolved - totalParsedFromText;
+  }
+
+  return {
+    total: Math.max(totalExplicitlySolved, totalParsedFromText),
+    platforms
+  };
+}
