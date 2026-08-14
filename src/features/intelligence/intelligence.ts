@@ -1,4 +1,5 @@
 import { getSecureLocalProfileString } from '@/utils/security';
+import morphdom from 'morphdom';
 /**
  * Handles the Maamu AI chat logic.
  * 
@@ -567,7 +568,8 @@ function streamResponse(
     tacticalBrief,
     (_chunk: string, accumulated: string) => {
         if (contentEl) {
-          contentEl.innerHTML = formatMaamuText(accumulated) + '<span class="stream-cursor">█</span>';
+          const html = `<div class="msg-content streaming-content">${formatMaamuText(accumulated)}<span class="stream-cursor">█</span></div>`;
+          morphdom(contentEl, html);
           
           if (!userScrolledUp) {
             chatOutput.scrollTop = chatOutput.scrollHeight;
@@ -578,7 +580,10 @@ function streamResponse(
       chatOutput.removeEventListener('scroll', onScroll);
       assistantRow.classList.remove('streaming');
       
-      if (contentEl) contentEl.innerHTML = formatMaamuText(fullResponse);
+      if (contentEl) {
+        const html = `<div class="msg-content">${formatMaamuText(fullResponse)}</div>`;
+        morphdom(contentEl, html);
+      }
 
       // Auto-name session from first message
       if (isFirstMsg && session.title === 'New Chat') {
