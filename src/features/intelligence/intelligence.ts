@@ -551,13 +551,12 @@ function streamResponse(
   
   // Track if user manually scrolled away from bottom
   let userScrolledUp = false;
+  let isUpdatingDOM = false;
+    
   const onScroll = () => {
-    const isAtBottom = chatOutput.scrollHeight - chatOutput.scrollTop - chatOutput.clientHeight < 20;
-    if (!isAtBottom) {
-      userScrolledUp = true;
-    } else {
-      userScrolledUp = false;
-    }
+    if (isUpdatingDOM) return;
+    const isAtBottom = chatOutput.scrollHeight - chatOutput.scrollTop - chatOutput.clientHeight < 50;
+    userScrolledUp = !isAtBottom;
   };
   chatOutput.addEventListener('scroll', onScroll, { passive: true });
 
@@ -568,12 +567,16 @@ function streamResponse(
     tacticalBrief,
     (_chunk: string, accumulated: string) => {
         if (contentEl) {
+          isUpdatingDOM = true;
           const html = `<div class="msg-content streaming-content">${formatMaamuText(accumulated)}<span class="stream-cursor">█</span></div>`;
           morphdom(contentEl, html);
           
           if (!userScrolledUp) {
             chatOutput.scrollTop = chatOutput.scrollHeight;
           }
+          
+          // Release lock after layout recalculation
+          setTimeout(() => { isUpdatingDOM = false; }, 10);
         }
     },
     async (fullResponse: string) => {
