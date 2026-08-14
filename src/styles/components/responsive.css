@@ -111,7 +111,7 @@ i
   }
 
   .layout {
-    padding: 4px var(--mobile-gutter) calc(var(--mobile-nav-height) + 20px);
+    padding: 4px var(--mobile-gutter) calc(var(--mobile-nav-height) + env(safe-area-inset-bottom) + 25px);
     max-width: 100%;
     overflow-x: hidden;
   }
@@ -667,14 +667,9 @@ i
   }
 
   .header-actions #authTriggerBtn .btn-text {
-    display: none;
-  }
-}
-
-/* Small Phones (iPhone SE, 5" - 5.4" class) */
 @media (max-width: 380px) {
   .layout {
-    padding: 8px 8px calc(var(--mobile-nav-height) + 15px);
+    padding: 8px 8px calc(var(--mobile-nav-height) + env(safe-area-inset-bottom) + 20px);
   }
 
   .hero-top h1 {

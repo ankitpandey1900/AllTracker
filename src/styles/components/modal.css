@@ -1290,7 +1290,7 @@ body:has(.modal.active) {
     gap: 8px;
   }
   .wm-hm-row {
-    grid-template-columns: 60px repeat(7, 1fr);
+    grid-template-columns: 110px repeat(7, 1fr);
     gap: 4px;
   }
   .wm-hm-label {
