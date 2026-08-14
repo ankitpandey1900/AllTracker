@@ -601,7 +601,25 @@ i
   }
 
   #analyticsModal .chart-wrap {
-    min-height: 200px !important;
+    height: 220px !important;
+    min-height: auto !important;
+    max-height: 220px !important;
+    position: relative;
+  }
+
+  #analyticsModal .radar-wrap {
+    height: 240px !important;
+    max-height: 240px !important;
+  }
+  
+  #analyticsModal .card {
+    padding: 16px !important;
+    gap: 8px !important;
+  }
+  
+  #analyticsModal .card h2 {
+    font-size: 0.95rem !important;
+    letter-spacing: 1px !important;
   }
 
   #analyticsModal .modal-header {
