@@ -567,13 +567,21 @@ function streamResponse(
     tacticalBrief,
     (_chunk: string, accumulated: string) => {
         if (contentEl) {
+          const savedScrollTop = chatOutput.scrollTop;
           contentEl.innerHTML = formatMaamuText(accumulated) + '<span class="stream-cursor">█</span>';
-          if (!userScrolledUp) chatOutput.scrollTop = chatOutput.scrollHeight;
+          
+          if (!userScrolledUp) {
+            chatOutput.scrollTop = chatOutput.scrollHeight;
+          } else {
+            chatOutput.scrollTop = savedScrollTop; // Strictly prevent jumps
+          }
         }
     },
     async (fullResponse: string) => {
       chatOutput.removeEventListener('scroll', onScroll);
       assistantRow.classList.remove('streaming');
+      
+      const savedScrollTop = chatOutput.scrollTop;
       if (contentEl) contentEl.innerHTML = formatMaamuText(fullResponse);
 
       // Auto-name session from first message
@@ -623,7 +631,11 @@ function streamResponse(
       }
 
       incrementDailyUsage();
-      if (!userScrolledUp) chatOutput.scrollTop = chatOutput.scrollHeight;
+      if (!userScrolledUp) {
+        chatOutput.scrollTop = chatOutput.scrollHeight;
+      } else {
+        chatOutput.scrollTop = savedScrollTop;
+      }
       activeStreamController = null;
       setStopButtonState(false);
       options.onFinish();

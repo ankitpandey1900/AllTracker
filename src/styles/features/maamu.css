@@ -573,6 +573,7 @@
 .maamu-messages {
   flex: 1;
   overflow-y: auto;
+  overflow-anchor: none;
   padding: 14px 0;
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.06) transparent;
