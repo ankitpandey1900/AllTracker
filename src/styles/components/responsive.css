@@ -111,7 +111,8 @@ i
   }
 
   .layout {
-    padding: 4px var(--mobile-gutter) calc(var(--mobile-nav-height) + env(safe-area-inset-bottom) + 25px);
+    padding: 4px var(--mobile-gutter) calc(var(--mobile-nav-height) + 25px);
+    padding: 4px var(--mobile-gutter) calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0px) + 25px);
     max-width: 100%;
     overflow-x: hidden;
   }
@@ -270,7 +271,8 @@ i
     align-items: stretch;
     z-index: 9999;
     /* High, but MUST be below Leaderboard HUD (2,000,000) */
-    padding-bottom: env(safe-area-inset-bottom);
+    padding-bottom: 0px;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
     box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.4);
   }
 
@@ -528,6 +530,14 @@ i
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch;
   }
+  
+  .modal-body::after {
+    content: '';
+    display: block;
+    height: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0px) + 24px);
+    width: 100%;
+    flex-shrink: 0;
+  }
 
   /* Table Mobile Handling */
   .table-card {
@@ -667,9 +677,15 @@ i
   }
 
   .header-actions #authTriggerBtn .btn-text {
+    display: none;
+  }
+}
+
+/* Small Phones (iPhone SE, 5" - 5.4" class) */
 @media (max-width: 380px) {
   .layout {
-    padding: 8px 8px calc(var(--mobile-nav-height) + env(safe-area-inset-bottom) + 20px);
+    padding: 8px 8px calc(var(--mobile-nav-height) + 20px);
+    padding: 8px 8px calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0px) + 20px);
   }
 
   .hero-top h1 {
@@ -779,7 +795,7 @@ i
 @supports (-webkit-touch-callout: none) {
   @media all and (display-mode: standalone) {
     .app-header {
-      padding-top: calc(env(safe-area-inset-top) + 12px) !important;
+      padding-top: calc(env(safe-area-inset-top, 0px) + 12px) !important;
       height: auto !important;
     }
   }

@@ -1284,19 +1284,33 @@ body:has(.modal.active) {
     padding: 16px;
     gap: 12px;
   }
+  .wm-heatmap-grid {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 8px;
+  }
   .wm-cons-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
   .wm-hm-row {
-    grid-template-columns: 110px repeat(7, 1fr);
+    grid-template-columns: 120px repeat(7, minmax(24px, 1fr));
     gap: 4px;
+    min-width: max-content;
   }
   .wm-hm-label {
     width: 100%;
     font-size: 0.65rem;
     padding-right: 4px;
+  }
+  .hl-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .hl-stats {
+    white-space: nowrap;
   }
   .wm-hm-day {
     font-size: 0.65rem;
