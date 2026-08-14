@@ -531,10 +531,9 @@ i
     -webkit-overflow-scrolling: touch;
   }
   
-  .modal-body::after {
-    content: '';
-    display: block;
-    height: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0px) + 24px);
+  .mobile-nav-spacer {
+    display: block !important;
+    height: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0px) + 24px) !important;
     width: 100%;
     flex-shrink: 0;
   }

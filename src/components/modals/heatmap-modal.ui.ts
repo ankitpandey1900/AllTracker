@@ -22,7 +22,7 @@ export const heatmapModal = `
         <button id="closeHeatmapModal" class="modal-close">&times;</button>
       </div>
       <div class="modal-body">
-        <div class="heatmap-matrix-hub">
+        <div class="heatmap-matrix-hub" style="padding-bottom: calc(var(--mobile-nav-height, 60px) + env(safe-area-inset-bottom, 0px) + 24px);">
           <!-- KPI Row -->
           <div class="heatmap-kpi-row">
             <div class="kpi-card">
@@ -72,6 +72,7 @@ export const heatmapModal = `
             </div>
           </div>
         </div>
+        <div class="mobile-nav-spacer"></div>
       </div>
     </div>
   </div>

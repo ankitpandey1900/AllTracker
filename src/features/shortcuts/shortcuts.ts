@@ -406,7 +406,7 @@ function renderSingleWeek(): void {
       </div>
     </div>
 
-    <div class="wm-subjects">
+    <div class="wm-subjects" style="padding-bottom: calc(var(--mobile-nav-height, 60px) + env(safe-area-inset-bottom, 0px) + 24px);">
       <div class="wm-subjects-header">
         <div class="wm-subjects-title">Subject Breakdown</div>
         <div class="wm-subjects-total">Total: ${formatHM(totalHours)}</div>
@@ -450,6 +450,7 @@ function renderSingleWeek(): void {
         }).join('')}
       </div>
     </div>
+    <div class="mobile-nav-spacer"></div>
   `;
 
   document.getElementById('prevWeekBtn')?.addEventListener('click', () => {
