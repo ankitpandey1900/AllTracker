@@ -547,6 +547,18 @@ function streamResponse(
   chatOutput.scrollTop = chatOutput.scrollHeight;
 
   const contentEl = assistantRow.querySelector('.streaming-content') as HTMLElement;
+  
+  // Track if user manually scrolled away from bottom
+  let userScrolledUp = false;
+  const onScroll = () => {
+    const isAtBottom = chatOutput.scrollHeight - chatOutput.scrollTop - chatOutput.clientHeight < 20;
+    if (!isAtBottom) {
+      userScrolledUp = true;
+    } else {
+      userScrolledUp = false;
+    }
+  };
+  chatOutput.addEventListener('scroll', onScroll, { passive: true });
 
   activeStreamController = new AbortController();
   setStopButtonState(true);
@@ -555,12 +567,12 @@ function streamResponse(
     tacticalBrief,
     (_chunk: string, accumulated: string) => {
         if (contentEl) {
-          const isAtBottom = chatOutput.scrollHeight - chatOutput.scrollTop - chatOutput.clientHeight < 10;
           contentEl.innerHTML = formatMaamuText(accumulated) + '<span class="stream-cursor">█</span>';
-          if (isAtBottom) chatOutput.scrollTop = chatOutput.scrollHeight;
+          if (!userScrolledUp) chatOutput.scrollTop = chatOutput.scrollHeight;
         }
     },
     async (fullResponse: string) => {
+      chatOutput.removeEventListener('scroll', onScroll);
       assistantRow.classList.remove('streaming');
       if (contentEl) contentEl.innerHTML = formatMaamuText(fullResponse);
 
@@ -611,8 +623,7 @@ function streamResponse(
       }
 
       incrementDailyUsage();
-      const isAtBottom = chatOutput.scrollHeight - chatOutput.scrollTop - chatOutput.clientHeight < 10;
-      if (isAtBottom) chatOutput.scrollTop = chatOutput.scrollHeight;
+      if (!userScrolledUp) chatOutput.scrollTop = chatOutput.scrollHeight;
       activeStreamController = null;
       setStopButtonState(false);
       options.onFinish();
@@ -845,6 +856,7 @@ function setupListeners(): boolean {
         input.value = '';
         input.style.height = 'auto';
         input.scrollTop = 0;
+        input.blur();
       }
 
       chatOutput.querySelector('.maamu-welcome')?.remove();
@@ -902,15 +914,14 @@ function setupListeners(): boolean {
       renderSidebarMetrics();
       isSending = false;
       updateSendButtonState();
-      input.focus();
       return;
     }
+    
     streamResponse(query, chatOutput, {
       sessionId: lockedSessionId,
       onFinish: () => {
         isSending = false;
         updateSendButtonState();
-        input.focus();
       }
     });
   };
@@ -928,6 +939,29 @@ function setupListeners(): boolean {
   setStopButtonState(false);
   setCompactMode(getEffectiveCompactMode());
   setTemplatesCollapsed(areTemplatesCollapsed());
+
+  // ── Scroll to Bottom Button ──
+  const scrollBtn = document.getElementById('maamuScrollBottomBtn');
+  if (scrollBtn) {
+    chatOutput.addEventListener('scroll', () => {
+      const isAtBottom = chatOutput.scrollHeight - chatOutput.scrollTop - chatOutput.clientHeight < 50;
+      if (!isAtBottom) {
+        scrollBtn.style.display = 'flex';
+        requestAnimationFrame(() => {
+          scrollBtn.style.opacity = '1';
+          scrollBtn.style.transform = 'translateY(0)';
+        });
+      } else {
+        scrollBtn.style.opacity = '0';
+        scrollBtn.style.transform = 'translateY(10px)';
+        setTimeout(() => { if (scrollBtn.style.opacity === '0') scrollBtn.style.display = 'none'; }, 200);
+      }
+    }, { passive: true });
+
+    scrollBtn.addEventListener('click', () => {
+      chatOutput.scrollTo({ top: chatOutput.scrollHeight, behavior: 'smooth' });
+    });
+  }
 
   // ── Beast Mode ──
   const beastToggle = document.getElementById('beastModeToggle') as HTMLInputElement;
