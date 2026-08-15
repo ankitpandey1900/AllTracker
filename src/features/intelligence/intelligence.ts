@@ -1,5 +1,4 @@
 import { getSecureLocalProfileString } from '@/utils/security';
-import morphdom from 'morphdom';
 /**
  * Handles the Maamu AI chat logic.
  * 
@@ -412,6 +411,13 @@ function renderSessionsList(): void {
 
 // --- Chat Rendering ---
 
+function scrollToBottomIfNeeded(chatOutput: HTMLElement) {
+  const isAtBottom = chatOutput.scrollHeight - chatOutput.scrollTop - chatOutput.clientHeight < 100;
+  if (isAtBottom) {
+    chatOutput.scrollTop = chatOutput.scrollHeight;
+  }
+}
+
 function renderActiveChat(): void {
   const chatOutput = document.getElementById('maamuChatOutput');
   const inputZone = document.querySelector('.maamu-input-zone') as HTMLElement;
@@ -452,9 +458,19 @@ function renderActiveChat(): void {
     injectDailyBriefing(chatOutput);
     return;
   }
+  
+  // Preserve scroll state for background re-renders
+  const prevScrollTop = chatOutput.scrollTop;
+  const wasAtBottom = chatOutput.scrollHeight - chatOutput.scrollTop - chatOutput.clientHeight < 100;
+  
   chatOutput.innerHTML = msgs.map((m, i) => buildMessageHTML(m.role, m.content, i, getUserAvatar(), getUserDisplayName())).join('');
   bindMsgActions(chatOutput);
-  chatOutput.scrollTop = chatOutput.scrollHeight;
+  
+  if (wasAtBottom || prevScrollTop === 0) {
+    chatOutput.scrollTop = chatOutput.scrollHeight;
+  } else {
+    chatOutput.scrollTop = prevScrollTop;
+  }
 }
 
 function injectDailyBriefing(chatOutput: HTMLElement): void {
@@ -536,11 +552,13 @@ function streamResponse(
   const assistantRow = document.createElement('div');
   assistantRow.className = 'msg-row assistant streaming';
   assistantRow.innerHTML = `
-    <div class="msg-avatar"><span class="maamu-ai-avatar">🧠</span></div>
-    <div class="msg-body">
-      <div class="msg-sender">Maamu</div>
-      <div class="msg-content streaming-content">
-        <span class="thinking-indicator"><span></span><span></span><span></span></span>
+    <div class="msg-inner">
+      <div class="msg-avatar"><span class="maamu-ai-avatar">🧠</span></div>
+      <div class="msg-body">
+        <div class="msg-sender">Maamu</div>
+        <div class="msg-content streaming-content">
+          <span class="thinking-indicator"><span></span><span></span><span></span></span>
+        </div>
       </div>
     </div>
   `;
@@ -548,18 +566,7 @@ function streamResponse(
   chatOutput.scrollTop = chatOutput.scrollHeight;
 
   const contentEl = assistantRow.querySelector('.streaming-content') as HTMLElement;
-  
-  // Track if user manually scrolled away from bottom
-  let userScrolledUp = false;
-  let isUpdatingDOM = false;
     
-  const onScroll = () => {
-    if (isUpdatingDOM) return;
-    const isAtBottom = chatOutput.scrollHeight - chatOutput.scrollTop - chatOutput.clientHeight < 50;
-    userScrolledUp = !isAtBottom;
-  };
-  chatOutput.addEventListener('scroll', onScroll, { passive: true });
-
   activeStreamController = new AbortController();
   setStopButtonState(true);
   getMaamuResponseStream(
@@ -567,25 +574,16 @@ function streamResponse(
     tacticalBrief,
     (_chunk: string, accumulated: string) => {
         if (contentEl) {
-          isUpdatingDOM = true;
-          const html = `<div class="msg-content streaming-content">${formatMaamuText(accumulated)}<span class="stream-cursor">█</span></div>`;
-          morphdom(contentEl, html);
-          
-          if (!userScrolledUp) {
-            chatOutput.scrollTop = chatOutput.scrollHeight;
-          }
-          
-          // Release lock after layout recalculation
-          setTimeout(() => { isUpdatingDOM = false; }, 10);
+          contentEl.innerHTML = `${formatMaamuText(accumulated)}<span class="stream-cursor">█</span>`;
+          scrollToBottomIfNeeded(chatOutput);
         }
     },
     async (fullResponse: string) => {
-      chatOutput.removeEventListener('scroll', onScroll);
       assistantRow.classList.remove('streaming');
       
       if (contentEl) {
-        const html = `<div class="msg-content">${formatMaamuText(fullResponse)}</div>`;
-        morphdom(contentEl, html);
+        contentEl.className = 'msg-content';
+        contentEl.innerHTML = formatMaamuText(fullResponse);
       }
 
       // Auto-name session from first message
@@ -625,9 +623,6 @@ function streamResponse(
       }
 
       incrementDailyUsage();
-      if (!userScrolledUp) {
-        chatOutput.scrollTop = chatOutput.scrollHeight;
-      }
       activeStreamController = null;
       setStopButtonState(false);
       options.onFinish();
@@ -868,10 +863,12 @@ function setupListeners(): boolean {
       const userRow = document.createElement('div');
       userRow.innerHTML = `
         <div class="msg-row user">
-          <div class="msg-avatar">${getUserAvatar()}</div>
-          <div class="msg-body">
-            <div class="msg-sender">${getUserDisplayName()}</div>
-            <div class="msg-content">${formatMaamuText(query)}</div>
+          <div class="msg-inner">
+            <div class="msg-avatar">${getUserAvatar()}</div>
+            <div class="msg-body">
+              <div class="msg-sender">${getUserDisplayName()}</div>
+              <div class="msg-content">${formatMaamuText(query)}</div>
+            </div>
           </div>
         </div>
       `;
@@ -900,10 +897,12 @@ function setupListeners(): boolean {
       const botRow = document.createElement('div');
       botRow.innerHTML = `
         <div class="msg-row assistant">
-          <div class="msg-avatar"><span class="maamu-ai-avatar">🧠</span></div>
-          <div class="msg-body">
-            <div class="msg-sender">Maamu</div>
-            <div class="msg-content">${formatMaamuText(localReply)}</div>
+          <div class="msg-inner">
+            <div class="msg-avatar"><span class="maamu-ai-avatar">🧠</span></div>
+            <div class="msg-body">
+              <div class="msg-sender">Maamu</div>
+              <div class="msg-content">${formatMaamuText(localReply)}</div>
+            </div>
           </div>
         </div>
       `;

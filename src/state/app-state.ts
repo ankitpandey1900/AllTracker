@@ -45,23 +45,65 @@ export function applyThemeToDOM(themeName: string = 'obsidian-glass') {
 /** Applies the accent color dynamically */
 export function applyAccentColorToDOM(color: string) {
   if (!color) return;
-  document.documentElement.style.setProperty('--accent-blue', color);
-  document.documentElement.style.setProperty('--zen-accent', color);
-  document.documentElement.style.setProperty('--etn-accent', color);
-  document.documentElement.style.setProperty('--accent-purple', color);
-  document.documentElement.style.setProperty('--wm-accent', color);
-  // Parse hex to RGB for rgba() usage
-  const r = parseInt(color.slice(1, 3), 16);
-  const g = parseInt(color.slice(3, 5), 16);
-  const b = parseInt(color.slice(5, 7), 16);
+  
+  let hexColor = color;
+  let r = 59, g = 130, b = 246; // Default to #3b82f6 (blue)
+  
+  // Check if color is in format "r, g, b" or "r,g,b"
+  const rgbMatch = color.match(/^(\d+)\s*,\s*(\d+)\s*,\s*(\d+)$/);
+  if (rgbMatch) {
+    r = parseInt(rgbMatch[1], 10);
+    g = parseInt(rgbMatch[2], 10);
+    b = parseInt(rgbMatch[3], 10);
+    // Convert RGB to HEX
+    const toHex = (n: number) => {
+      const hex = Math.max(0, Math.min(255, n)).toString(16);
+      return hex.length === 1 ? '0' + hex : hex;
+    };
+    hexColor = `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+  } else if (color.startsWith('#')) {
+    // Parse hex to RGB for rgba() usage
+    // Handle both 3-digit and 6-digit hex
+    const hex = color.replace('#', '');
+    if (hex.length === 6) {
+      r = parseInt(hex.slice(0, 2), 16);
+      g = parseInt(hex.slice(2, 4), 16);
+      b = parseInt(hex.slice(4, 6), 16);
+    } else if (hex.length === 3) {
+      r = parseInt(hex[0] + hex[0], 16);
+      g = parseInt(hex[1] + hex[1], 16);
+      b = parseInt(hex[2] + hex[2], 16);
+    }
+  } else {
+    // If it's some other valid CSS color (like "red" or "rgb(..)"), we can't easily parse it synchronously without a canvas.
+    // But we still apply it. The RGB fallback might be wrong, but it's better than crashing.
+    hexColor = color; 
+  }
+
   const rgb = `${r}, ${g}, ${b}`;
+
+  document.documentElement.style.setProperty('--accent-blue', hexColor);
+  document.documentElement.style.setProperty('--zen-accent', hexColor);
+  document.documentElement.style.setProperty('--etn-accent', hexColor);
+  document.documentElement.style.setProperty('--accent-purple', hexColor);
+  document.documentElement.style.setProperty('--wm-accent', hexColor);
+  document.documentElement.style.setProperty('--maamu-accent', hexColor);
+  
   document.documentElement.style.setProperty('--wm-accent-rgb', rgb);
+  document.documentElement.style.setProperty('--maamu-accent-soft', `rgba(${rgb}, 0.15)`);
   // Also set directly on weeklyModal to override theme-scoped CSS specificity
   const weeklyModal = document.getElementById('weeklyModal');
   if (weeklyModal) {
-    weeklyModal.style.setProperty('--wm-accent', color);
+    weeklyModal.style.setProperty('--wm-accent', hexColor);
     weeklyModal.style.setProperty('--wm-accent-rgb', rgb);
   }
+
+  // Also set directly on maamu-gpt-container to override theme-scoped CSS specificity
+  const maamuContainers = document.querySelectorAll('.maamu-gpt-container');
+  maamuContainers.forEach(container => {
+    (container as HTMLElement).style.setProperty('--maamu-accent', hexColor);
+    (container as HTMLElement).style.setProperty('--maamu-accent-soft', `rgba(${rgb}, 0.15)`);
+  });
 }
 
 /** Applies the timer style class to the body */
