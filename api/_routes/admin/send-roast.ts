@@ -4,6 +4,7 @@ import { getPool } from "../../_lib/db/pool.js";
 import { headersFromNode, readJsonBody } from "../../_lib/http/request.js";
 import { handleRouteError, sendJson } from "../../_lib/http/response.js";
 import { Resend } from "resend";
+import { generateRoast } from "../../_lib/roast-generator.js";
 
 const ADMIN_EMAILS = ["ankit1pandey11@gmail.com"];
 
@@ -91,23 +92,16 @@ export default async function handler(
         <p style="font-size: 16px; line-height: 1.6; color: #374151; margin-bottom: 24px;">${custom_message.replace(/\n/g, '<br/>')}</p>
       `;
     } else {
-      let roast = "";
-      if (user.current_streak === 0) {
-        roast = "Streak: 0. Ek din bhi lagatar padhai nahi ho rahi tujhse? Instagram band kar aur thoda focus kar le, varna aukaat wahi reh jayegi.";
-        dynamicSubject = `bruh, your streak is literally 0 🤡 time to lock in`;
-      } else if (user.total_hours < 10) {
-        roast = `Sirf ${roundedTotalHrs} hrs total? Itna time toh log bathroom me reels scroll karte hue nikal dete hain. Padhna shuru kar bhai, tera future dark lag raha hai.`;
-        dynamicSubject = `you're slacking bestie 😔 only ${roundedTotalHrs} hours?`;
-      } else if (user.rank && user.rank.includes('IRON')) {
-        roast = "Abhi tak IRON rank pe hi atak raha tu? Tujhse zyada grind toh bgmi ke noobs karte hain. Chup chaap level up kar le.";
-        dynamicSubject = `still stuck in iron rank? embarrassing 💀`;
-      } else if (user.integrity_score < 50) {
-        roast = `Integrity score: ${user.integrity_score}. Khud se jhoot bolna band kar bhai. We both know you're faking those study sessions. Literal clown behavior 🤡`;
-        dynamicSubject = `we see you faking those hours 👀 stop playing`;
-      } else {
-        roast = `Total ${roundedTotalHrs} hrs karke achanak ruk kyu gaya? Motivation khatam ya breakup ho gaya? Wapas aa ja beta, bohot time waste kar chuka hai tu.`;
-        dynamicSubject = `u alive? missing u on the leaderboard 🏆`;
-      }
+      const { roastBody, dynamicSubject: generatedSubject } = generateRoast({
+        current_streak: user.current_streak || 0,
+        total_hours: user.total_hours || 0,
+        last_7_days_hours: user.last_7_days_hours || 0,
+        rank: user.rank || '',
+        integrity_score: user.integrity_score || 0,
+        days_inactive: daysInactive
+      });
+      
+      dynamicSubject = generatedSubject;
 
       mainBodyContent = `
         <h2 style="font-size: 24px; font-weight: 700; color: #111827; margin-top: 0; margin-bottom: 20px; letter-spacing: -0.5px;">Ae ${user.username}, idhar aa...</h2>
@@ -117,7 +111,7 @@ export default async function handler(
         </p>
         
         <div style="background-color: #fafafa; border-left: 3px solid #000000; padding: 18px 24px; margin: 32px 0;">
-          <p style="margin: 0; color: #111827; font-size: 16px; font-style: italic; line-height: 1.6;">"${roast}"</p>
+          <p style="margin: 0; color: #111827; font-size: 16px; font-style: italic; line-height: 1.6;">"${roastBody}"</p>
         </div>
 
         <p style="font-size: 16px; line-height: 1.6; color: #374151; margin-bottom: 32px;">
