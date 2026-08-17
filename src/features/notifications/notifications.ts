@@ -133,10 +133,20 @@ async function savePushSubscription(subscription: PushSubscription): Promise<voi
 
 async function subscribeToPush(): Promise<void> {
   const publicKey = vapidPublicKey();
-  if (!publicKey || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+  if (!publicKey) {
+    console.warn('Web Push: VITE_VAPID_PUBLIC_KEY is not set. Background push disabled.');
     showToast('Browser reminders are active. Background push will activate after Web Push is configured.', 'info');
     return;
   }
+  if (!('serviceWorker' in navigator)) {
+    console.warn('Web Push: serviceWorker not supported by this browser.');
+    return;
+  }
+  if (!('PushManager' in window)) {
+    console.warn('Web Push: PushManager not supported by this browser (common on iOS without PWA installed).');
+    return;
+  }
+  
   try {
     const registration = await navigator.serviceWorker.ready;
     const existing = await registration.pushManager.getSubscription();

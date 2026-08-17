@@ -245,7 +245,11 @@ export default async function handler(
 
     if (sendResult.error) {
       console.error("Failed to send targeted email", sendResult.error);
-      sendJson(res, 502, { error: `Resend rejected the email: ${sendResult.error.message || 'unknown provider error'}` });
+      let errorMsg = sendResult.error.message || 'unknown provider error';
+      if (errorMsg.toLowerCase().includes('testing emails')) {
+        errorMsg = 'Resend blocked this email. You are currently using the default Resend sandbox which only allows sending emails to yourself. Please verify your domain (e.g., alltracker.online) in the Resend dashboard and set RESEND_FROM_EMAIL to a domain email.';
+      }
+      sendJson(res, 502, { error: errorMsg });
       return;
     }
 
