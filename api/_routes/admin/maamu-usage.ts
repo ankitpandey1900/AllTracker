@@ -30,28 +30,22 @@ export default async function handler(
       SELECT 
         p.id as profile_id, 
         p.username, 
-        u.email, 
-        COALESCE(up.last_active, p.created_at) as last_active,
-        (SELECT COALESCE(SUM(duration), 0) FROM public.study_sessions WHERE user_id = p.id AND start_time >= NOW() - INTERVAL '7 days') as last_7_days_hours,
-        (SELECT COALESCE(SUM(duration), 0) FROM public.study_sessions WHERE user_id = p.id AND start_time >= CURRENT_DATE) as today_hours,
-        p.created_at,
-        s.rank, 
-        s.total_hours, 
-        s.current_streak, 
-        s.integrity_score,
-        s.last_reengagement_sent_at,
-        COALESCE(up.is_focusing, false) as is_focusing,
-        up.focus_subject
+        u.email,
+        COUNT(DISTINCT c.id) as total_conversations,
+        COUNT(m.id) as total_messages,
+        MAX(m.created_at) as last_used
       FROM public.profiles p
       JOIN public.user u ON p.auth_user_id = u.id
-      LEFT JOIN public.user_stats s ON s.user_id = p.id
-      LEFT JOIN public.user_presence up ON up.user_id = p.id
-      ORDER BY last_active DESC;
+      LEFT JOIN public.maamu_conversations c ON c.user_id = p.id
+      LEFT JOIN public.maamu_messages m ON m.conversation_id = c.id AND m.role = 'user'
+      GROUP BY p.id, p.username, u.email
+      HAVING COUNT(m.id) > 0
+      ORDER BY total_messages DESC;
     `;
     
     const result = await pool.query(query);
     
-    sendJson(res, 200, { users: result.rows });
+    sendJson(res, 200, { usage: result.rows });
   } catch (err) {
     handleRouteError(res, err);
   }

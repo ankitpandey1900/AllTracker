@@ -170,9 +170,7 @@ function refreshTemplateUI(): void {
   });
 }
 
-// --- Helpers ---
-
-const DAILY_PROMPT_BUDGET = 5;
+const DAILY_PROMPT_BUDGET = 3;
 
 function getUsageStorageKey(): string {
   const day = new Date().toISOString().split('T')[0];

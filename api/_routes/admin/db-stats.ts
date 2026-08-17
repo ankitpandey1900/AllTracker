@@ -32,12 +32,18 @@ export default async function handler(
       studySessionsResult,
       tasksResult,
       feedPostsResult,
-      badgesResult
+      badgesResult,
+      pushSubsResult,
+      vaultDocsResult,
+      maamuResult
     ] = await Promise.all([
       pool.query("SELECT COUNT(*) FROM public.study_sessions"),
       pool.query("SELECT COUNT(*) FROM public.tasks"),
       pool.query("SELECT COUNT(*) FROM public.transmissions"),
-      pool.query("SELECT COUNT(*) FROM public.user_badges")
+      pool.query("SELECT COUNT(*) FROM public.user_badges"),
+      pool.query("SELECT COUNT(*) FROM public.push_subscriptions"),
+      pool.query("SELECT COUNT(*) FROM public.bookmarks"),
+      pool.query("SELECT COUNT(*) FROM public.maamu_messages")
     ]);
 
     sendJson(res, 200, { 
@@ -45,7 +51,10 @@ export default async function handler(
         totalStudySessions: parseInt(studySessionsResult.rows[0].count, 10),
         totalTasks: parseInt(tasksResult.rows[0].count, 10),
         totalFeedPosts: parseInt(feedPostsResult.rows[0].count, 10),
-        totalBadges: parseInt(badgesResult.rows[0].count, 10)
+        totalBadges: parseInt(badgesResult.rows[0].count, 10),
+        totalPushSubs: parseInt(pushSubsResult.rows[0].count, 10),
+        totalVaultDocs: parseInt(vaultDocsResult.rows[0].count, 10),
+        totalMaamuMessages: parseInt(maamuResult.rows[0].count, 10)
       }
     });
   } catch (err) {

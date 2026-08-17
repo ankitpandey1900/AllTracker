@@ -24,6 +24,11 @@ import adminUsers from "./_routes/admin/users.js";
 import adminSendRoast from "./_routes/admin/send-roast.js";
 import adminDbStats from "./_routes/admin/db-stats.js";
 import adminSendPush from "./_routes/admin/send-push.js";
+import adminMaamuUsage from "./_routes/admin/maamu-usage.js";
+import adminMaamuChats from "./_routes/admin/maamu-chats.js";
+import adminNuke from "./_routes/admin/nuke.js";
+import adminBroadcastPush from "./_routes/admin/broadcast-push.js";
+import adminWipeStats from "./_routes/admin/wipe-stats.js";
 
 export default async function handler(
   req: IncomingMessage & { query?: Record<string, string | string[]> },
@@ -55,6 +60,11 @@ export default async function handler(
     if (path === "/ankit/send-roast") return adminSendRoast(req, res);
     if (path === "/ankit/db-stats") return adminDbStats(req, res);
     if (path === "/ankit/send-push") return adminSendPush(req, res);
+    if (path === "/ankit/maamu-usage") return adminMaamuUsage(req, res);
+    if (path === "/ankit/maamu-chats") return adminMaamuChats(req, res);
+    if (path === "/ankit/nuke") return adminNuke(req, res);
+    if (path === "/ankit/broadcast-push") return adminBroadcastPush(req, res);
+    if (path === "/ankit/wipe-stats") return adminWipeStats(req, res);
     
     // Dynamic vault path: /api/app/vault/:name
     if (path.startsWith("/vault/")) {

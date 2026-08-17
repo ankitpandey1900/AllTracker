@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Command Center</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     :root {
       --bg: #030712;
@@ -284,6 +285,33 @@
       color: var(--muted);
     }
 
+    /* Modals & Tabs */
+    .admin-tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .admin-tab {
+      padding: 1rem 1.5rem;
+      color: var(--muted);
+      cursor: pointer;
+      font-weight: 600;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    .admin-tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+    .tab-content.active {
+      display: block;
+    }
+
     /* Modal */
     .modal-overlay {
       position: fixed;
@@ -306,7 +334,9 @@
       border-radius: 20px;
       padding: 2.5rem;
       width: 100%;
-      max-width: 500px;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
       box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8);
       transform: scale(0.95);
       animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
@@ -343,6 +373,43 @@
       border-color: var(--primary);
       box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
     }
+    
+    /* Cheat Detection */
+    .row-suspicious td {
+      background: rgba(239, 68, 68, 0.05) !important;
+    }
+    .row-suspicious td:first-child {
+      border-left: 4px solid var(--danger);
+    }
+    
+    /* Chat Viewer */
+    .chat-bubble {
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+      margin-bottom: 0.5rem;
+      max-width: 85%;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+    .chat-bubble.user {
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      margin-left: auto;
+      border-bottom-right-radius: 4px;
+    }
+    .chat-bubble.model {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      margin-right: auto;
+      border-bottom-left-radius: 4px;
+    }
+    .chat-bubble p {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+    }
+    .chat-bubble p:last-child {
+      margin-bottom: 0;
+    }
   </style>
 </head>
 <body>
@@ -352,81 +419,123 @@
   <div id="admin-ui" class="container" style="display: none;">
     <div class="hero-header">
       <h1>Command Center</h1>
-      <button id="nuke-btn" class="btn btn-nuke">🔥 Nuke: Send All Pending Roasts</button>
-    </div>
-
-    <!-- Stats Grid -->
-    <h2 class="section-title">Live Overview</h2>
-    <div id="stats-grid" class="stats-grid">
-      <div class="stat-card" style="--accent-color: #f8fafc;">
-        <div class="stat-label">Total Users</div>
-        <div id="stat-users" class="stat-value">0</div>
-      </div>
-      <div class="stat-card" style="--accent-color: var(--emerald);">
-        <div class="stat-label">Active Sessions (30m)</div>
-        <div id="stat-sessions" class="stat-value" style="color: var(--emerald);">0</div>
-      </div>
-      <div class="stat-card" style="--accent-color: var(--primary);">
-        <div class="stat-label">Global Focus Time</div>
-        <div id="stat-total-hrs" class="stat-value">0 hrs</div>
-      </div>
-      <div class="stat-card" style="--accent-color: var(--fuchsia);">
-        <div class="stat-label">Today's Focus Time</div>
-        <div id="stat-today-hrs" class="stat-value" style="color: var(--fuchsia);">0 hrs</div>
+      <div style="display: flex; gap: 1rem;">
+        <button id="broadcast-btn" class="btn" style="background: rgba(217, 70, 239, 0.1); color: var(--fuchsia); border-color: rgba(217, 70, 239, 0.3);">📢 Global Broadcast</button>
+        <button id="nuke-btn" class="btn btn-nuke">🔥 Nuke Inactive Users</button>
       </div>
     </div>
 
-    <!-- Database Health Stats Grid -->
-    <h2 class="section-title">Database Integrity</h2>
-    <div id="db-stats-grid" class="stats-grid">
-      <div class="stat-card" style="--accent-color: #8b5cf6;">
-        <div class="stat-label">Total Study Sessions</div>
-        <div id="stat-db-sessions" class="stat-value" style="color: #8b5cf6;">0</div>
+    <div class="admin-tabs">
+      <div class="admin-tab active" data-target="tab-overview">Overview</div>
+      <div class="admin-tab" data-target="tab-maamu">Maamu Insights</div>
+    </div>
+
+    <!-- TAB: Overview -->
+    <div id="tab-overview" class="tab-content active">
+      <!-- Stats Grid -->
+      <h2 class="section-title">Live Overview</h2>
+      <div id="stats-grid" class="stats-grid">
+        <div class="stat-card" style="--accent-color: #f8fafc;">
+          <div class="stat-label">Total Users</div>
+          <div id="stat-users" class="stat-value">0</div>
+        </div>
+        <div class="stat-card" style="--accent-color: var(--emerald);">
+          <div class="stat-label">Currently Focusing</div>
+          <div id="stat-sessions" class="stat-value" style="color: var(--emerald);">0</div>
+        </div>
+        <div class="stat-card" style="--accent-color: var(--primary);">
+          <div class="stat-label">Global Focus Time</div>
+          <div id="stat-total-hrs" class="stat-value">0 hrs</div>
+        </div>
+        <div class="stat-card" style="--accent-color: var(--fuchsia);">
+          <div class="stat-label">Today's Focus Time</div>
+          <div id="stat-today-hrs" class="stat-value" style="color: var(--fuchsia);">0 hrs</div>
+        </div>
       </div>
-      <div class="stat-card" style="--accent-color: #ec4899;">
-        <div class="stat-label">Total Tasks Logged</div>
-        <div id="stat-db-tasks" class="stat-value" style="color: #ec4899;">0</div>
+
+      <!-- Database Health Stats Grid -->
+      <h2 class="section-title">Database Integrity</h2>
+      <div id="db-stats-grid" class="stats-grid">
+        <div class="stat-card" style="--accent-color: #8b5cf6;">
+          <div class="stat-label">Total Study Sessions</div>
+          <div id="stat-db-sessions" class="stat-value" style="color: #8b5cf6;">0</div>
+        </div>
+        <div class="stat-card" style="--accent-color: #ec4899;">
+          <div class="stat-label">Total Tasks Logged</div>
+          <div id="stat-db-tasks" class="stat-value" style="color: #ec4899;">0</div>
+        </div>
+        <div class="stat-card" style="--accent-color: var(--cyan);">
+          <div class="stat-label">Total Feed Posts</div>
+          <div id="stat-db-feed" class="stat-value" style="color: var(--cyan);">0</div>
+        </div>
+        <div class="stat-card" style="--accent-color: var(--gold);">
+          <div class="stat-label">Total Badges Awarded</div>
+          <div id="stat-db-badges" class="stat-value" style="color: var(--gold);">0</div>
+        </div>
+        <div class="stat-card" style="--accent-color: #f97316;">
+          <div class="stat-label">Active Push Devices</div>
+          <div id="stat-db-push" class="stat-value" style="color: #f97316;">0</div>
+        </div>
+        <div class="stat-card" style="--accent-color: #3b82f6;">
+          <div class="stat-label">Saved Bookmarks</div>
+          <div id="stat-db-vault" class="stat-value" style="color: #3b82f6;">0</div>
+        </div>
+        <div class="stat-card" style="--accent-color: #14b8a6;">
+          <div class="stat-label">Total AI Interactions</div>
+          <div id="stat-db-maamu" class="stat-value" style="color: #14b8a6;">0</div>
+        </div>
       </div>
-      <div class="stat-card" style="--accent-color: var(--cyan);">
-        <div class="stat-label">Total Feed Posts</div>
-        <div id="stat-db-feed" class="stat-value" style="color: var(--cyan);">0</div>
+
+      <!-- Leaderboard -->
+      <div class="stat-card" style="margin-bottom: 3.5rem; padding: 2.5rem; --accent-color: var(--gold);">
+        <h2 style="margin: 0 0 2rem 0; color: var(--gold); font-size: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+          🏆 Top 3 Grinders
+        </h2>
+        <div id="leaderboard" style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+          <!-- Top 3 injected here -->
+        </div>
       </div>
-      <div class="stat-card" style="--accent-color: var(--gold);">
-        <div class="stat-label">Total Badges Awarded</div>
-        <div id="stat-db-badges" class="stat-value" style="color: var(--gold);">0</div>
+
+      <!-- Users Table -->
+      <h2 class="section-title">User Roster</h2>
+      <div class="table-container">
+        <table id="user-table">
+          <thead>
+            <tr>
+              <th>User Identity</th>
+              <th>Rank Status</th>
+              <th>Focus Time</th>
+              <th>Last Active</th>
+              <th>Joined</th>
+              <th>Direct Actions</th>
+            </tr>
+          </thead>
+          <tbody id="user-tbody"></tbody>
+        </table>
       </div>
     </div>
 
-    <!-- Leaderboard -->
-    <div class="stat-card" style="margin-bottom: 3.5rem; padding: 2.5rem; --accent-color: var(--gold);">
-      <h2 style="margin: 0 0 2rem 0; color: var(--gold); font-size: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
-        🏆 Top 3 Grinders
-      </h2>
-      <div id="leaderboard" style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
-        <!-- Top 3 injected here -->
+    <!-- TAB: Maamu Insights -->
+    <div id="tab-maamu" class="tab-content">
+      <h2 class="section-title">Maamu Usage Ranked</h2>
+      <div class="table-container">
+        <table id="maamu-table">
+          <thead>
+            <tr>
+              <th>User Identity</th>
+              <th>Conversations</th>
+              <th>Total Messages</th>
+              <th>Last Used AI</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="maamu-tbody"></tbody>
+        </table>
       </div>
-    </div>
-
-    <!-- Users Table -->
-    <h2 class="section-title">User Roster</h2>
-    <div class="table-container">
-      <table id="user-table">
-        <thead>
-          <tr>
-            <th>User Identity</th>
-            <th>Rank Status</th>
-            <th>Focus Time</th>
-            <th>Last Active</th>
-            <th>Joined</th>
-            <th>Direct Actions</th>
-          </tr>
-        </thead>
-        <tbody id="user-tbody"></tbody>
-      </table>
     </div>
   </div>
 
-  <!-- Custom Action Modal -->
+  <!-- Custom Action Modal (Targeted Alert) -->
   <div id="email-modal" class="modal-overlay">
     <div class="modal">
       <h3>Targeted Alert</h3>
@@ -438,6 +547,56 @@
       <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
         <button id="modal-cancel-btn" class="btn">Cancel</button>
         <button id="modal-send-btn" class="btn btn-primary">Launch Alert</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Global Broadcast Modal -->
+  <div id="broadcast-modal" class="modal-overlay">
+    <div class="modal">
+      <h3 style="color: var(--fuchsia);">Global Broadcast 📢</h3>
+      <p style="color: var(--muted); font-size: 0.875rem; margin-top: 0.75rem;">
+        Send a push notification to EVERY user in the database. Use this sparingly.
+      </p>
+      <input type="text" id="broadcast-title-input" placeholder="Broadcast Title">
+      <textarea id="broadcast-msg-input" placeholder="Broadcast Message..."></textarea>
+      <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
+        <button id="broadcast-cancel-btn" class="btn">Cancel</button>
+        <button id="broadcast-send-btn" class="btn" style="background: rgba(217, 70, 239, 0.1); color: var(--fuchsia); border: 1px solid rgba(217, 70, 239, 0.3);">Send to All</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Details / Audit Modal -->
+  <div id="user-details-modal" class="modal-overlay">
+    <div class="modal">
+      <h3 id="ud-title">User Audit</h3>
+      <div style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+        <div style="display: flex; justify-content: space-between; padding: 1rem; background: rgba(255,255,255,0.02); border-radius: 8px;">
+          <span style="color: var(--muted);">Integrity Score</span>
+          <strong id="ud-integrity" style="font-size: 1.25rem;">0%</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding: 1rem; background: rgba(255,255,255,0.02); border-radius: 8px;">
+          <span style="color: var(--muted);">Last Focused On</span>
+          <strong id="ud-focus-subject">N/A</strong>
+        </div>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+        <button id="ud-reset-btn" class="btn btn-nuke">Wipe Stats (Cheat Action)</button>
+        <button id="ud-close-btn" class="btn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat Viewer Modal -->
+  <div id="chat-viewer-modal" class="modal-overlay">
+    <div class="modal" style="max-width: 800px;">
+      <h3>Maamu Chat Transcripts</h3>
+      <div id="chat-viewer-content" style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 2rem;">
+        <!-- Chats injected here -->
+      </div>
+      <div style="display: flex; justify-content: flex-end; margin-top: 2rem;">
+        <button id="chat-viewer-close-btn" class="btn">Close</button>
       </div>
     </div>
   </div>
