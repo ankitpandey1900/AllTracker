@@ -36,13 +36,13 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     const query = `
       SELECT p.id as profile_id, p.username, u.email, 
              COALESCE(up.last_active, p.created_at) as last_active,
-             (SELECT COALESCE(SUM(duration), 0) FROM public.study_sessions WHERE user_id = p.id AND start_time >= NOW() - INTERVAL '7 days') as last_7_days_hours,
+             (SELECT COALESCE(SUM(duration), 0) FROM public.study_sessions WHERE user_id = p.id AND start_time >= NOW() - INTERVAL '0 days') as last_7_days_hours,
              s.rank, s.total_hours, s.current_streak, s.integrity_score
       FROM public.profiles p
       JOIN public.user u ON p.auth_user_id = u.id
       LEFT JOIN public.user_stats s ON s.user_id = p.id
       LEFT JOIN public.user_presence up ON up.user_id = p.id
-      WHERE COALESCE(up.last_active, p.created_at) < NOW() - INTERVAL '7 days'
+      WHERE COALESCE(up.last_active, p.created_at) < NOW() - INTERVAL '0 days'
       AND s.last_reengagement_sent_at IS NULL
       LIMIT 100;
     `;
