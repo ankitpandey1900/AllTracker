@@ -42,7 +42,7 @@ export default async function handler(
         s.last_reengagement_sent_at,
         COALESCE(up.is_focusing, false) as is_focusing,
         up.focus_subject,
-        (SELECT COUNT(*) FROM public.push_subscriptions ps WHERE ps.user_id = u.id AND ps.disabled_at IS NULL) as push_devices
+        (SELECT COUNT(*) FROM public.push_subscriptions ps WHERE ps.user_id = u.id::text AND ps.disabled_at IS NULL) as push_devices
       FROM public.profiles p
       JOIN public.user u ON p.auth_user_id = u.id
       LEFT JOIN public.user_stats s ON s.user_id = p.id
