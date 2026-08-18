@@ -144,6 +144,7 @@ async function fetchUsers() {
             <span style="font-size: 0.75rem; font-weight: 600; color: ${u.last_reengagement_sent_at ? '#10b981' : '#64748b'};">
               ${u.last_reengagement_sent_at ? '✓ Roasted' : '• Not Roasted'}
             </span>
+            ${Number(u.push_devices) > 0 ? `<span style="font-size: 0.7rem; font-weight: 600; color: #38bdf8;">📱 ${u.push_devices} push</span>` : ''}
           </div>
         </td>
         <td>
