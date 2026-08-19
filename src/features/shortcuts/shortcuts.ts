@@ -150,7 +150,7 @@ export function showWeeklySummary(): void {
   modal.classList.add('active');
 }
 
-function renderSingleWeek(): void {
+async function renderSingleWeek(): Promise<void> {
   const content = document.getElementById('weeklySummaryContent');
   if (!content || !cachedWeekData[currentWeekIndex]) return;
 
@@ -206,8 +206,21 @@ function renderSingleWeek(): void {
   let totalBreakMinutes = 0;
   const sessionCounts: Record<string, Record<string, number>> = {};
   
+  let localSaved = localStorage.getItem('all_tracker_history');
+  
+  // If localStorage is empty but user is authenticated, hydrate from cloud first
+  if (!localSaved || localSaved === '[]') {
+    try {
+      const { getCurrentUserId } = await import('@/services/auth.service');
+      if (getCurrentUserId()) {
+        const { hydrateSessionCache } = await import('@/services/vault.service');
+        await hydrateSessionCache();
+        localSaved = localStorage.getItem('all_tracker_history');
+      }
+    } catch(e) { /* silent - will show 0 sessions if offline */ }
+  }
+
   try {
-    const localSaved = localStorage.getItem('all_tracker_history');
     if (localSaved) {
       const history: any[] = JSON.parse(localSaved);
       const weekStartStr = week[0].date;
