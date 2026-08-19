@@ -212,6 +212,7 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
       const isNewer = isCloudNewer(key, cloud?.updatedAt);
       const isDiff = cloud && isDifferent(local, cloud.data);
       const isCloudDataEmpty = cloud && isLocalEmpty(cloud.data);
+      const hasLocalSave = getLocalTimestamp(key) > 0;
       
       if (cloud && force) {
         setter(cloud.data, false);
@@ -222,12 +223,17 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
         setter(cloud.data, false);
         saveLocal(key, cloud.data);
         updateLocalTimestamp(key, cloud.updatedAt || undefined);
-      } else if (isDiff && !isLocalEmpty(local)) {
-        // Local is newer, OR cloud is newer but empty: Push local to cloud
+      } else if (isDiff && !isLocalEmpty(local) && hasLocalSave) {
+        // Local is newer AND was explicitly saved on this browser: Push local to cloud
         cloudSaver(local);
-      } else if (!cloud && !isLocalEmpty(local)) {
-        // Cloud is empty/missing but local has data: Push to cloud
+      } else if (!cloud && !isLocalEmpty(local) && hasLocalSave) {
+        // Cloud is empty/missing but local has explicitly saved data: Push to cloud
         cloudSaver(local);
+      } else if (cloud && !hasLocalSave && !isCloudDataEmpty) {
+        // Fresh browser with no local save: Always adopt cloud data
+        setter(cloud.data, false);
+        saveLocal(key, cloud.data);
+        updateLocalTimestamp(key, cloud.updatedAt || undefined);
       }
     };
 
