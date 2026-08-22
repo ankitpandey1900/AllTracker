@@ -521,23 +521,36 @@ function renderRoadmap() {
       // 1. DATE / DEADLINE
       else if (colUpper.includes('DATE') || colUpper.includes('DEADLINE')) {
         const cleanDateStr = cellValueStr.replace(/\[.*?\]/g, '').trim();
-        const parsedDate = new Date(cleanDateStr);
+        let parsedDate = new Date(cleanDateStr);
+        let displayDateStr = cleanDateStr;
+
+        if (/^\d{5}$/.test(cleanDateStr)) {
+          const serial = parseInt(cleanDateStr, 10);
+          parsedDate = new Date(Math.round((serial - 25569) * 86400 * 1000));
+          if (!isNaN(parsedDate.getTime())) {
+            displayDateStr = parsedDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+          }
+        }
         
         let dateHtml = `<div class="date-icon-wrap">${SVGS.calendar}</div> <div class="date-text">`;
         if (!isNaN(parsedDate.getTime())) {
            const today = new Date();
            today.setHours(0, 0, 0, 0);
-           const isToday = parsedDate.getTime() === today.getTime();
+           
+           // Ensure we only compare dates, ignoring any time component created during parsing
+           const isToday = parsedDate.getDate() === today.getDate() && 
+                           parsedDate.getMonth() === today.getMonth() && 
+                           parsedDate.getFullYear() === today.getFullYear();
            
            const overdue = parsedDate.getTime() < today.getTime() && String(row.cells['Status'] || row.cells['STATUS']).toLowerCase() !== 'completed';
            if (overdue) td.classList.add('date-overdue');
 
            const dayName = parsedDate.toLocaleDateString('en-US', { weekday: 'short' });
            
+           dateHtml += `<span class="date-main">${displayDateStr}</span>`;
            if (isToday) {
              dateHtml += `<span class="date-day-name today">Today</span>`;
            } else {
-             dateHtml += `<span class="date-main">${cleanDateStr}</span>`;
              dateHtml += `<span class="date-day-name">${dayName}</span>`;
            }
         } else {

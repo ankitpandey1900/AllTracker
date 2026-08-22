@@ -127,16 +127,18 @@ th {
 /* topics column */
 #trackerTable th:nth-child(4),
 #trackerTable td:nth-child(4) {
-  width: 50%;
-  min-width: 140px;
+  width: 70px;
+  min-width: 70px;
+  text-align: center;
 }
 
 /* project work column */
 #trackerTable th:nth-child(5),
 #trackerTable td:nth-child(5) {
-  width: 50%;
-  min-width: 140px;
+  width: 70px;
+  min-width: 70px;
   padding-right: 16px; /* Safe padding gap before Done column */
+  text-align: center;
 }
 
 /* done / action-cell column */
@@ -407,7 +409,7 @@ tr.locked-row .cell-input {
 }
 
 tr.locked-row .checkmark {
-  opacity: 0.3;
+  opacity: 0.6;
   cursor: not-allowed;
   pointer-events: none;
 }

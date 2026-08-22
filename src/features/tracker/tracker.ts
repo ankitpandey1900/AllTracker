@@ -10,6 +10,10 @@ import { isRowEditable } from '@/services/integrity';
 import { syncProfileBroadcast } from '@/features/profile/profile.manager';
 import { escapeHtml } from '@/utils/security';
 
+const SVGS = {
+  file: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>`
+};
+
 function getHourAt(day: TrackerDay, idx: number): number {
   return (day.studyHours?.[idx] ?? 0) as number;
 }
@@ -236,13 +240,17 @@ export function generateTable(resetPagination = false): void {
         </td>
         <td><input type="number" class="cell-input topics-solved" value="${day.problemsSolved}" min="0" step="1" ${(!editable || day.restDay) ? 'disabled' : ''}></td>
         <td>
-          <div class="topics-cell">
-            <textarea class="cell-input topics-input" rows="1" ${(!editable || day.restDay) ? 'readonly' : ''}>${escapeHtml(day.topics || '')}</textarea>
+          <div class="topics-cell" style="display: flex; justify-content: center; align-items: center; height: 100%;">
+            <button class="cell-note-btn topics-btn ${day.topics ? 'has-note' : ''}" data-day="${day.originalIdx}" title="View/Edit Topics">
+              ${SVGS.file}
+            </button>
           </div>
         </td>
         <td>
-          <div class="topics-cell">
-            <textarea class="cell-input project-input" rows="1" ${(!editable || day.restDay) ? 'readonly' : ''}>${escapeHtml(day.project || '')}</textarea>
+          <div class="topics-cell" style="display: flex; justify-content: center; align-items: center; height: 100%;">
+            <button class="cell-note-btn project-btn ${day.project ? 'has-note' : ''}" data-day="${day.originalIdx}" title="View/Edit Project Work">
+              ${SVGS.file}
+            </button>
           </div>
         </td>
         <td class="action-cell">
@@ -306,11 +314,76 @@ function attachInputListeners(): void {
         hint.textContent = formatDuration(val);
       }
     });
+  }); // <-- FIXED CLOSING BRACKET HERE
+
+  // Handle Note Modal
+  const trackerNoteModal = document.getElementById('trackerNoteModal');
+  const trackerNoteTextarea = document.getElementById('trackerNoteTextarea') as HTMLTextAreaElement;
+  const trackerNoteTitle = document.getElementById('trackerNoteModalTitle');
+  const closeTrackerNoteBtn = document.getElementById('closeTrackerNoteBtn');
+  const saveTrackerNoteBtn = document.getElementById('saveTrackerNoteBtn');
+
+  if (trackerNoteModal && !(trackerNoteModal as any)._initialized) {
+    (trackerNoteModal as any)._initialized = true;
+    
+    const closeNoteModal = () => {
+      trackerNoteModal.classList.remove('active');
+      (window as any).activeTrackerNoteRow = null;
+      (window as any).activeTrackerNoteType = null;
+    };
+
+    closeTrackerNoteBtn?.addEventListener('click', closeNoteModal);
+    trackerNoteModal.addEventListener('click', (e) => {
+      if (e.target === trackerNoteModal) closeNoteModal();
+    });
+
+    saveTrackerNoteBtn?.addEventListener('click', () => {
+      const rowIdx = (window as any).activeTrackerNoteRow;
+      const type = (window as any).activeTrackerNoteType;
+      if (rowIdx !== null && type && trackerNoteTextarea) {
+        const val = trackerNoteTextarea.value;
+        if (type === 'topics') {
+          appState.trackerData[rowIdx].topics = val;
+        } else {
+          appState.trackerData[rowIdx].project = val;
+        }
+        saveTrackerDataToStorage(appState.trackerData);
+        syncProfileBroadcast();
+        generateTable();
+      }
+      closeNoteModal();
+    });
+  }
+
+  // Attach click to buttons
+  tbody.querySelectorAll<HTMLButtonElement>('.topics-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.getAttribute('data-day') || '-1');
+      if (idx < 0) return;
+      (window as any).activeTrackerNoteRow = idx;
+      (window as any).activeTrackerNoteType = 'topics';
+      if (trackerNoteTitle) trackerNoteTitle.textContent = 'Topics';
+      if (trackerNoteTextarea) {
+        trackerNoteTextarea.value = appState.trackerData[idx].topics || '';
+        if (trackerNoteModal) trackerNoteModal.classList.add('active');
+        trackerNoteTextarea.focus();
+      }
+    });
   });
 
-  // Text inputs (topics)
-  tbody.querySelectorAll<HTMLTextAreaElement>('.topics-input, .project-input').forEach((input) => {
-    input.addEventListener('change', handleTextInput);
+  tbody.querySelectorAll<HTMLButtonElement>('.project-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.getAttribute('data-day') || '-1');
+      if (idx < 0) return;
+      (window as any).activeTrackerNoteRow = idx;
+      (window as any).activeTrackerNoteType = 'project';
+      if (trackerNoteTitle) trackerNoteTitle.textContent = 'Project Work';
+      if (trackerNoteTextarea) {
+        trackerNoteTextarea.value = appState.trackerData[idx].project || '';
+        if (trackerNoteModal) trackerNoteModal.classList.add('active');
+        trackerNoteTextarea.focus();
+      }
+    });
   });
 
   // Checkbox inputs (completed)
@@ -378,21 +451,6 @@ function handleNumberInput(e: Event): void {
   syncProfileBroadcast();
 }
 
-function handleTextInput(e: Event): void {
-  const input = e.target as HTMLTextAreaElement;
-  const idx = getRowIndex(input);
-  if (idx < 0) return;
-
-  if (input.classList.contains('topics-input')) {
-    appState.trackerData[idx].topics = input.value;
-  }
-  if (input.classList.contains('project-input')) {
-    appState.trackerData[idx].project = input.value;
-  }
-
-  saveTrackerDataToStorage(appState.trackerData);
-  syncProfileBroadcast();
-}
 
 function handleCheckboxInput(e: Event): void {
   const input = e.target as HTMLInputElement;
