@@ -6,6 +6,7 @@ import { log } from '@/utils/logger.utils';
 
 let overlay: HTMLElement | null = null;
 let roadmapSearchQuery = '';
+let roadmapStatusFilter = 'All';
 let roadmapCurrentPage = 1;
 const roadmapItemsPerPage = 10;
 let activeNoteRow: any = null;
@@ -47,13 +48,23 @@ function injectRoadmapModal() {
         <div class="roadmap-header">
           <div class="roadmap-header-left">
             <h2>Syllabus / Roadmap</h2>
-            <div class="roadmap-progress-container-inline">
+            <div class="roadmap-header-badge">
+              <div class="badge-dot"></div>
               <span id="headerProgressText">0% Completed</span>
-              <span class="divider">|</span>
+              <span class="divider">•</span>
               <span id="headerProgressCount">0 / 0 tasks</span>
             </div>
           </div>
           <div class="roadmap-actions">
+            <div class="roadmap-filter-box">
+              <select id="roadmapStatusFilter" class="roadmap-filter-select">
+                <option value="All">All Status</option>
+                <option value="Not Started">Not Started</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+                <option value="Skipped">Skipped</option>
+              </select>
+            </div>
             <div class="roadmap-search-box">
               ${SVGS.search}
               <input type="text" id="roadmapSearchInput" placeholder="Search syllabus..." autocomplete="off" />
@@ -252,6 +263,13 @@ function setupEventListeners() {
     renderRoadmap();
   });
 
+  const statusFilter = document.getElementById('roadmapStatusFilter') as HTMLSelectElement;
+  statusFilter?.addEventListener('change', (e) => {
+    roadmapStatusFilter = (e.target as HTMLSelectElement).value;
+    roadmapCurrentPage = 1;
+    renderRoadmap();
+  });
+
   // Drag and drop for upload
   dropZone?.addEventListener('dragover', (e) => {
     e.preventDefault();
@@ -391,20 +409,42 @@ function renderRoadmap() {
   const statProgressText = document.getElementById('statProgressText');
   const statProgressFill = document.getElementById('statProgressFill');
   
+  const headerProgressText = document.getElementById('headerProgressText');
+  const headerProgressCount = document.getElementById('headerProgressCount');
+  
+  if (headerProgressText) headerProgressText.textContent = `${progressPercent}% Completed`;
+  if (headerProgressCount) headerProgressCount.textContent = `${completedCount} / ${totalCount} tasks`;
+
   if (statTotalDays) statTotalDays.textContent = `${totalCount}`;
   if (statCompleted) statCompleted.innerHTML = `${completedCount} <span style="font-size: 0.7em; opacity: 0.7; font-weight: 500;">(${progressPercent}%)</span>`;
   if (statRemaining) statRemaining.innerHTML = `${remainingCount} <span style="font-size: 0.7em; opacity: 0.7; font-weight: 500;">(${remainingPercent}%)</span>`;
   if (statProgressText) statProgressText.textContent = `${progressPercent}%`;
   if (statProgressFill) statProgressFill.style.width = `${progressPercent}%`;
 
-  // Search Filtering
-  const filteredRows = roadmapSearchQuery 
-    ? rows.filter(row => {
-        return Object.values(row.cells).some(val => 
-          String(val).toLowerCase().includes(roadmapSearchQuery)
-        );
-      })
-    : rows;
+  // Search & Status Filtering
+  const filteredRows = rows.filter(row => {
+    // 1. Check Status
+    let rowStatus = 'Not Started';
+    columns.forEach(c => {
+      const colUpper = c.toUpperCase().trim();
+      if (colUpper.includes('STATUS') || colUpper.includes('PROGRESS')) {
+        rowStatus = String(row.cells[c] || '').trim();
+        if (!rowStatus) rowStatus = 'Not Started';
+      }
+    });
+
+    if (roadmapStatusFilter !== 'All') {
+      if (rowStatus.toLowerCase() !== roadmapStatusFilter.toLowerCase()) return false;
+    }
+
+    // 2. Check Search Query
+    if (roadmapSearchQuery) {
+      return Object.values(row.cells).some(val => 
+        String(val).toLowerCase().includes(roadmapSearchQuery)
+      );
+    }
+    return true;
+  });
 
   // Pagination Logic
   const totalPages = Math.ceil(filteredRows.length / roadmapItemsPerPage) || 1;
@@ -435,6 +475,19 @@ function renderRoadmap() {
     const tr = document.createElement('tr');
     if (row.isCompleted) tr.classList.add('completed');
 
+    let statusVal = '';
+    columns.forEach(c => {
+      if (c.toUpperCase() === 'STATUS') {
+        statusVal = (row.cells[c] || '').toString().trim().toLowerCase();
+      }
+    });
+
+    if (statusVal === 'skipped') {
+      tr.classList.add('skipped');
+    } else if (statusVal === 'in progress') {
+      tr.classList.add('in-progress');
+    }
+
     // Checkbox cell
     const tdCheck = document.createElement('td');
     tdCheck.className = 'col-checkbox';
@@ -449,12 +502,11 @@ function renderRoadmap() {
     });
     tdCheck.appendChild(checkbox);
     tr.appendChild(tdCheck);
-
-    // Data cells
+      // Data cells
     columns.forEach(col => {
       const td = document.createElement('td');
       const cellValueStr = row.cells[col] ? String(row.cells[col]).trim() : '';
-      const colUpper = col.toUpperCase();
+      const colUpper = col.toUpperCase().trim();
 
       // Specific Column Renderers
       if (colUpper === 'DAY') {
@@ -467,7 +519,7 @@ function renderRoadmap() {
         td.appendChild(dayDiv);
       } 
       // 1. DATE / DEADLINE
-      else if (colUpper === 'DATE' || colUpper === 'DEADLINE') {
+      else if (colUpper.includes('DATE') || colUpper.includes('DEADLINE')) {
         const cleanDateStr = cellValueStr.replace(/\[.*?\]/g, '').trim();
         const parsedDate = new Date(cleanDateStr);
         
@@ -494,7 +546,7 @@ function renderRoadmap() {
         dateHtml += `</div>`;
         td.innerHTML = `<div class="cell-date-complex">${dateHtml}</div>`;
       }
-      else if (colUpper === 'LECTURE(S)' || colUpper === 'LECTURES') {
+      else if (colUpper.includes('LECTURE') || colUpper.includes('MODULE') || colUpper.includes('EPISODE') || colUpper.includes('LESSON') || colUpper.includes('PART')) {
         if (cellValueStr) {
           const pill = document.createElement('div');
           pill.className = 'cell-lecture-pill';
@@ -503,13 +555,13 @@ function renderRoadmap() {
         }
       }
       // 3. TOPIC
-      else if (colUpper === 'TOPIC' || colUpper === 'TITLE') {
+      else if (colUpper.includes('TOPIC') || colUpper.includes('TITLE') || colUpper.includes('SUBJECT') || colUpper.includes('TRACK') || colUpper.includes('COURSE') || colUpper.includes('PATH')) {
         const topicDiv = document.createElement('div');
         topicDiv.className = 'cell-topic';
         topicDiv.innerHTML = `<div class="topic-icon-bg">${SVGS.book}</div><div class="topic-text">${cellValueStr}</div>`;
         td.appendChild(topicDiv);
       }
-      else if (colUpper === 'PHASE') {
+      else if (colUpper.includes('PHASE') || colUpper.includes('SECTION') || colUpper.includes('CHAPTER')) {
         if (cellValueStr) {
           const pill = document.createElement('span');
           pill.className = 'cell-phase-pill';
@@ -517,7 +569,7 @@ function renderRoadmap() {
           td.appendChild(pill);
         }
       }
-      else if (colUpper === 'STATUS') {
+      else if (colUpper.includes('STATUS') || colUpper.includes('PROGRESS')) {
         const selectContainer = document.createElement('div');
         selectContainer.className = 'cell-status-container';
         
@@ -589,7 +641,7 @@ function renderRoadmap() {
         selectContainer.appendChild(menu);
         td.appendChild(selectContainer);
       }
-      else if (colUpper === 'LEETCODE SOLVED' || colUpper === 'LEETCODE') {
+      else if (colUpper.includes('LEETCODE') || colUpper.includes('LINK') || colUpper.includes('PRACTICE') || colUpper.includes('URL') || colUpper.includes('CODE')) {
         const btn = document.createElement('button');
         btn.className = 'roadmap-cell-input-leetcode';
         
@@ -620,7 +672,7 @@ function renderRoadmap() {
         
         td.appendChild(btn);
       }
-      else if (colUpper === 'NOTES') {
+      else if (colUpper.includes('NOTE') || colUpper.includes('SUMMARY') || colUpper === 'NI') {
         const noteBtn = document.createElement('button');
         noteBtn.className = 'cell-note-btn';
         noteBtn.innerHTML = SVGS.file;

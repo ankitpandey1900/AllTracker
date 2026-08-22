@@ -107,10 +107,10 @@ export async function loadRoadmapFromStorage(): Promise<any> {
 
 // --- Routine Reset ---
 export async function saveRoutineResetToStorage(reset: string): Promise<void> {
-  // Persist into the settings blob so it syncs to cloud
+  // Persist into the settings blob, but skip cloud push to avoid timestamp races on boot
   if (appState.settings.lastRoutineReset !== reset) {
     appState.settings.lastRoutineReset = reset;
-    saveSettingsToStorage({ lastRoutineReset: reset });
+    saveSettingsToStorage({ lastRoutineReset: reset }, true);
   }
 }
 
@@ -119,13 +119,16 @@ export async function loadRoutineResetFromStorage(): Promise<string | null> {
 }
 
 // --- Settings ---
-export async function saveSettingsToStorage(settings: any): Promise<void> {
+export async function saveSettingsToStorage(settings: any, skipSync: boolean = false): Promise<void> {
   const previous = loadLocal<any>(STORAGE_KEYS.SETTINGS)?.customRanges || [];
   appState.settings = { ...appState.settings, ...settings };
   const snapshot = snapshotForSync(appState.settings);
   saveLocal(STORAGE_KEYS.SETTINGS, snapshot);
-  updateLocalTimestamp(STORAGE_KEYS.SETTINGS);
-  queueVaultWrite(STORAGE_KEYS.SETTINGS, () => saveSettingsCloud(snapshot));
+  
+  if (!skipSync) {
+    updateLocalTimestamp(STORAGE_KEYS.SETTINGS);
+    queueVaultWrite(STORAGE_KEYS.SETTINGS, () => saveSettingsCloud(snapshot));
+  }
 
   const previousById = new Map(previous.filter((phase: any) => phase.id).map((phase: any) => [phase.id, phase]));
   const nextIds = new Set(snapshot.customRanges.filter((phase: any) => phase.id).map((phase: any) => phase.id));
