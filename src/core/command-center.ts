@@ -44,6 +44,9 @@ export function setupEventListeners(): void {
   bindClick("startTimerBtn", requireAuth(openTimerModal));
   bindClick("mobileStartTimerBtn", requireAuth(openTimerModal));
   bindClick("jumpToTodayBtn", scrollToToday);
+  bindClick("openRoadmapBtn", () => {
+    import('@/features/roadmap/roadmap').then(m => m.openRoadmap());
+  });
   bindClick("exportAllDataBtn", exportAllData);
   bindClick("shareStatsBtn", () => {
     import('@/features/dashboard/share-card').then(m => m.generateShareCard());

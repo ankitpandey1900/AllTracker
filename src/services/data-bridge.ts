@@ -15,6 +15,7 @@ import {
   updateSyncStatus,
   subscribeToUserDataSync,
   drainOfflineSessionQueue,
+  saveRoadmapCloud, loadRoadmapCloud,
 } from '@/services/vault.service';
 import { appState, ensureTimelineIntegrity, syncTrackerTimelineWithSettings, calculateDates } from '@/state/app-state';
 import { 
@@ -89,6 +90,19 @@ export async function saveBookmarksToStorage(bookmarks: any[]): Promise<void> {
 
 export async function loadBookmarksFromStorage(): Promise<any[]> {
   return loadLocal<any[]>(STORAGE_KEYS.BOOKMARKS) || [];
+}
+
+// --- Roadmap ---
+export async function saveRoadmapToStorage(roadmap: any): Promise<void> {
+  appState.roadmap = roadmap;
+  const snapshot = snapshotForSync(roadmap);
+  saveLocal(STORAGE_KEYS.ROADMAP, snapshot);
+  updateLocalTimestamp(STORAGE_KEYS.ROADMAP);
+  queueVaultWrite(STORAGE_KEYS.ROADMAP, () => saveRoadmapCloud(snapshot));
+}
+
+export async function loadRoadmapFromStorage(): Promise<any> {
+  return loadLocal<any>(STORAGE_KEYS.ROADMAP) || { columns: [], rows: [] };
 }
 
 // --- Routine Reset ---
@@ -202,10 +216,10 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
   try {
     const results = await Promise.all([
       loadTrackerDataCloud(), loadSettingsCloud(), loadRoutinesCloud(),
-      loadRoutineHistoryCloud(), loadBookmarksCloud(), loadTasksCloud(), loadTimerStateCloud()
+      loadRoutineHistoryCloud(), loadBookmarksCloud(), loadTasksCloud(), loadTimerStateCloud(), loadRoadmapCloud()
     ]);
 
-    const [cloudTracker, cloudSettings, cloudRoutines, _cloudHistory, cloudBookmarks, cloudTasks, cloudTimer] = results;
+    const [cloudTracker, cloudSettings, cloudRoutines, _cloudHistory, cloudBookmarks, cloudTasks, cloudTimer, cloudRoadmap] = results;
     const force = forceCloudPull || isLocalEmpty(appState.trackerData);
 
     const sync = (key: string, cloud: any, local: any, setter: Function, cloudSaver: Function) => {
@@ -253,6 +267,7 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
     sync(STORAGE_KEYS.ROUTINES, cloudRoutines, appState.routines, (d: any) => { appState.routines = d; }, saveRoutinesCloud);
     sync(STORAGE_KEYS.TASKS, cloudTasks, appState.tasks, (d: any) => { appState.tasks = d; }, saveTasksCloud);
     sync(STORAGE_KEYS.BOOKMARKS, cloudBookmarks, appState.bookmarks, (d: any) => { appState.bookmarks = d; }, saveBookmarksCloud);
+    sync(STORAGE_KEYS.ROADMAP, cloudRoadmap, appState.roadmap, (d: any) => { appState.roadmap = d; }, saveRoadmapCloud);
 
     // If cloud timer is >24h old and running, it's a ghost session. Clear it.
     if (cloudTimer?.data?.isRunning && cloudTimer?.data?.startTime) {
@@ -301,7 +316,8 @@ export async function performBackgroundSync(): Promise<void> {
       loadTasksCloud(),
       loadRoutineHistoryCloud(),
       loadBookmarksCloud(),
-      loadTimerStateCloud()
+      loadTimerStateCloud(),
+      loadRoadmapCloud()
     ]);
     let changed = false;
 
@@ -331,6 +347,7 @@ export async function performBackgroundSync(): Promise<void> {
     check(STORAGE_KEYS.TASKS, cloud[3], appState.tasks, (d: any) => { appState.tasks = d; });
     check(STORAGE_KEYS.ROUTINE_HISTORY, cloud[4], appState.routineHistory, (d: any) => { appState.routineHistory = d; });
     check(STORAGE_KEYS.BOOKMARKS, cloud[5], appState.bookmarks, (d: any) => { appState.bookmarks = d; });
+    check(STORAGE_KEYS.ROADMAP, cloud[7], appState.roadmap, (d: any) => { appState.roadmap = d; });
     
     // Adopt cloud timer if newer
     if (cloud[6]?.data) {

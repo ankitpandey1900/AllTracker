@@ -13,6 +13,7 @@ const allowedVaults = new Set([
   "bookmarks",
   "tasks",
   "timer",
+  "roadmap",
 ]);
 
 export default async function handler(

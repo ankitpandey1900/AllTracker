@@ -24,6 +24,7 @@ export const STORAGE_KEYS = {
   TASKS: 'at_tasks',
   USER_PROFILE: 'at_profile',
   SYNC_METADATA: 'at_sync_meta',
+  ROADMAP: 'at_roadmap',
 } as const;
 
 // --- Default Dates ---

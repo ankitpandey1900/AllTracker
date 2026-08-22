@@ -22,6 +22,7 @@ import { renderPerformanceCurve, setupChartFilters } from "@/features/routines/p
 import { renderRadarStats } from "@/features/routines/radar-stats";
 import { renderBadges, checkBadges } from "@/features/dashboard/badges";
 import { initTasks } from "@/features/tasks/tasks";
+import { initRoadmap } from "@/features/roadmap/roadmap";
 import { setupKeyboardShortcuts } from "@/features/shortcuts/shortcuts";
 import { initWorldStage } from "@/features/dashboard/leaderboard";
 import { checkProfileIdentity } from "@/features/profile/profile.manager";
@@ -124,6 +125,7 @@ export async function igniteApp(): Promise<void> {
       checkBadges();
 
       initTasks();
+      initRoadmap();
 
       await (await import('@/services/data-bridge')).startLiveSync();
 

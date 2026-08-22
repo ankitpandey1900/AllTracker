@@ -130,3 +130,17 @@ export interface RankDetails extends RankTier {
   absolutePos: number;
 }
 
+
+// --- Roadmap (Excel Import) ---
+
+export interface RoadmapRow {
+  id: string;
+  isCompleted: boolean;
+  /** Raw cell data keyed by column name */
+  cells: Record<string, string | number | boolean | null>;
+}
+
+export interface Roadmap {
+  columns: string[];
+  rows: RoadmapRow[];
+}

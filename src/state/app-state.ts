@@ -11,6 +11,7 @@ import type { ActiveTimer } from '@/types/timer.types';
 import type { RoutineItem, RoutineHistory } from '@/types/routine.types';
 import type { Bookmark } from '@/types/bookmark.types';
 import type { StudyTask } from '@/types/task.types';
+import type { Roadmap } from '@/types/tracker.types';
 import { DEFAULT_START_DATE, DEFAULT_END_DATE, DEFAULT_COLUMNS, STORAGE_KEYS } from '@/config/constants';
 import { getLocalIsoDate } from '@/utils/date.utils';
 
@@ -169,6 +170,9 @@ const rawState = {
 
   /** Study tasks (To-Do list) */
   tasks: JSON.parse(localStorage.getItem(STORAGE_KEYS.TASKS) || '[]') as StudyTask[],
+
+  /** Imported Roadmap/Syllabus */
+  roadmap: JSON.parse(localStorage.getItem(STORAGE_KEYS.ROADMAP) || '{"columns":[],"rows":[]}') as Roadmap,
 
   /** Active study timer */
   activeTimer: createDefaultTimer(),

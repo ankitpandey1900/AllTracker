@@ -8,7 +8,8 @@ export type VaultName =
   | "history"
   | "bookmarks"
   | "tasks"
-  | "timer";
+  | "timer"
+  | "roadmap";
 
 type RoutineItemRow = {
   id: string;
@@ -149,6 +150,19 @@ export async function readVault(
         updatedAt
       };
     }
+    case "roadmap": {
+      const res = await pool.query(
+        "select data, updated_at from user_roadmaps where user_id = $1",
+        [profile.profileId]
+      );
+      if (res.rows.length > 0) {
+        return {
+          data: res.rows[0].data || [],
+          updatedAt: res.rows[0].updated_at
+        };
+      }
+      return { data: [], updatedAt: null };
+    }
     case "settings": {
       const prefsRes = await pool.query(
         "select *, to_char(start_date::timestamp, 'YYYY-MM-DD') as start_date_str, to_char(end_date::timestamp, 'YYYY-MM-DD') as end_date_str from user_preferences where user_id = $1 limit 1",
@@ -260,8 +274,6 @@ export async function readVault(
         `,
         [profile.profileId],
       );
-      // Include soft-deleted rows in the timestamp calculation. Otherwise a
-      // second device cannot detect that a task was deleted and keeps showing it.
       const { rows: timestampRows } = await pool.query<{ updated_at: string | null }>(
         "select max(updated_at) as updated_at from tasks where user_id = $1",
         [profile.profileId],
@@ -306,7 +318,6 @@ export async function writeVault(
         const incomingData = Array.isArray(data) ? data : [];
         
         if (incomingData.length > 0) {
-          // Batch upsert to daily_trackers
           await client.query(
             `
               insert into daily_trackers (user_id, log_date, study_hours, problems_solved, completed, topics, project, updated_at)
@@ -335,11 +346,25 @@ export async function writeVault(
         await client.query("commit");
         return { updatedAt };
       }
+      case "roadmap": {
+        await client.query(
+          `
+            insert into user_roadmaps (user_id, data, updated_at)
+            values ($1::uuid, $2::jsonb, now())
+            on conflict (user_id)
+            do update set
+              data = excluded.data,
+              updated_at = excluded.updated_at
+          `,
+          [profile.profileId, JSON.stringify(data || [])]
+        );
+        await client.query("commit");
+        return { updatedAt: new Date().toISOString() };
+      }
       case "settings": {
         const incoming = (data && typeof data === "object" ? data : {}) as Record<string, unknown>;
         const updatedAt = new Date().toISOString();
         
-        // 1. Upsert Preferences
         await client.query(
           `
             insert into user_preferences (
@@ -370,10 +395,6 @@ export async function writeVault(
           ]
         );
 
-        // 2. Study phases are synchronized through record-level endpoints.
-        // Never delete them as a side effect of saving unrelated settings.
-
-        // 3. Refresh Badges
         await client.query("delete from user_badges where user_id = $1", [profile.profileId]);
         if (Array.isArray(incoming.unlockedBadges) && incoming.unlockedBadges.length > 0) {
           await client.query(

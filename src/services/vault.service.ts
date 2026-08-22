@@ -136,6 +136,14 @@ export async function deletePhaseCloud(phaseId: string): Promise<void> {
   await apiRequest("/api/app/vault/phases", { method: "DELETE", body: { id: phaseId } });
 }
 
+export async function saveRoadmapCloud(data: any): Promise<void> {
+  await putVault("roadmap", data);
+}
+
+export async function loadRoadmapCloud(): Promise<VaultResponse<any> | null> {
+  return getVault<any>("roadmap");
+}
+
 export function subscribeToRealtimeTelemetry(
   callback: (payload: any) => void,
 ): { unsubscribe: () => void } {
