@@ -90,6 +90,7 @@ export function buildDeepContextJSON(data: {
   activeTimer: any;
   beastModeActive: boolean;
   leaderboard: any;
+  roadmap?: any;
 }): string {
   // Use local ISO date (YYYY-MM-DD) to prevent timezone bugs for night-owls
   const now = new Date();
@@ -171,6 +172,54 @@ export function buildDeepContextJSON(data: {
     subjects: (phase.columns || []).map((column: any) => column.name).filter(Boolean),
   }));
 
+  // Syllabus / Roadmap Context
+  let roadmapContext = {};
+  if (data.roadmap && Array.isArray(data.roadmap.rows) && data.roadmap.rows.length > 0) {
+    const totalSyllabus = data.roadmap.rows.length;
+    const completedSyllabus = data.roadmap.rows.filter((r: any) => r.isCompleted).length;
+    
+    // Find next 5 uncompleted tasks
+    const uncompletedRows = data.roadmap.rows.filter((r: any) => !r.isCompleted).slice(0, 5);
+    const nextUp = uncompletedRows.map((r: any) => {
+      // Pick the first 3 non-empty string cells (excluding day/date/status) to summarize the task
+      const summaryParts: string[] = [];
+      Object.keys(r.cells).forEach(k => {
+         const kUpper = k.toUpperCase();
+         if (!kUpper.includes('DAY') && !kUpper.includes('DATE') && !kUpper.includes('STATUS')) {
+            const val = r.cells[k];
+            if (typeof val === 'string' && val.trim().length > 0) {
+              summaryParts.push(val.trim());
+            }
+         }
+      });
+      return summaryParts.slice(0, 3).join(' | ');
+    });
+
+    // Find last 3 completed tasks
+    const completedRows = data.roadmap.rows.filter((r: any) => r.isCompleted).slice(-3);
+    const recentlyDone = completedRows.map((r: any) => {
+      const summaryParts: string[] = [];
+      Object.keys(r.cells).forEach(k => {
+         const kUpper = k.toUpperCase();
+         if (!kUpper.includes('DAY') && !kUpper.includes('DATE') && !kUpper.includes('STATUS')) {
+            const val = r.cells[k];
+            if (typeof val === 'string' && val.trim().length > 0) {
+              summaryParts.push(val.trim());
+            }
+         }
+      });
+      return summaryParts.slice(0, 3).join(' | ');
+    });
+
+    roadmapContext = {
+      total_days: totalSyllabus,
+      completed_days: completedSyllabus,
+      progress_pct: Math.round((completedSyllabus / totalSyllabus) * 100),
+      next_up: nextUp,
+      recently_completed: recentlyDone
+    };
+  }
+
   return JSON.stringify({
     user: { 
       handle: "@" + data.username, 
@@ -206,6 +255,7 @@ export function buildDeepContextJSON(data: {
       phases: phaseContext,
       session_goal: data.settings.sessionGoal || null,
     },
+    syllabus: roadmapContext,
     sessions_recent: recentSessions,
     lb: data.leaderboard,
     tmr: data.activeTimer

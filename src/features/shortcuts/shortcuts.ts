@@ -255,6 +255,9 @@ async function renderSingleWeek(): Promise<void> {
     return `${h}h ${m}m`;
   };
 
+  const hasSyllabus = (appState.roadmap && appState.roadmap.rows && appState.roadmap.rows.length > 0);
+  const bottomCardClass = hasSyllabus ? "wm-hero-card" : "wm-hero-card wm-hero-card--wide";
+
   content.innerHTML = `
     <div class="wm-nav">
       <button class="wm-nav-btn" id="prevWeekBtn" ${currentWeekIndex === 0 ? 'disabled' : ''}>
@@ -282,7 +285,7 @@ async function renderSingleWeek(): Promise<void> {
         <div class="wm-hc-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M9 16l2 2 4-4"/></svg></div>
         <div class="wm-hc-info">
           <div class="wm-hc-lbl">Active Days</div>
-          <div class="wm-hc-val">${completed} <span style="font-size:0.5em; opacity:0.6;">/ 7</span></div>
+          <div class="wm-hc-val">${completed} <span style="font-size:0.65em; font-weight:600; opacity:0.85;">/ 7</span></div>
           <div class="wm-hc-trend">Days Active</div>
         </div>
       </div>
@@ -290,19 +293,19 @@ async function renderSingleWeek(): Promise<void> {
         <div class="wm-hc-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg></div>
         <div class="wm-hc-info">
           <div class="wm-hc-lbl">Daily Avg</div>
-          <div class="wm-hc-val">${formatHM(weeklyAvg)} <span style="font-size:0.5em; opacity:0.6;">/day</span></div>
+          <div class="wm-hc-val">${formatHM(weeklyAvg)} <span style="font-size:0.65em; font-weight:600; opacity:0.85;">/day</span></div>
           <div class="wm-hc-trend">${avgTrendText}</div>
         </div>
       </div>
-      <div class="wm-hero-card wm-hero-card--wide">
+      <div class="${bottomCardClass}">
         <div class="wm-hc-icon" style="color: var(--wm-accent);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div>
         <div class="wm-hc-info">
           <div class="wm-hc-lbl">Focus Score</div>
-          <div class="wm-hc-val" style="color: var(--wm-accent);">${focusScore} <span style="font-size:0.5em; opacity:0.6;">/100</span></div>
+          <div class="wm-hc-val" style="color: var(--wm-accent);">${focusScore} <span style="font-size:0.65em; font-weight:600; opacity:0.85;">/100</span></div>
           <div class="wm-hc-trend">${focusMsg}</div>
         </div>
       </div>
-      <div class="wm-hero-card wm-hero-card--wide">
+      <div class="${bottomCardClass}">
         <div class="wm-hc-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></div>
         <div class="wm-hc-info">
           <div class="wm-hc-lbl">Break Time</div>
@@ -310,6 +313,36 @@ async function renderSingleWeek(): Promise<void> {
           <div class="wm-hc-trend">Total Rest Taken</div>
         </div>
       </div>
+      ${(() => {
+        if (hasSyllabus) {
+          let weekSyllabusTotal = 0;
+          let weekSyllabusCompleted = 0;
+          
+          week.forEach((d: any) => {
+            const rowIndex = d.day - 1;
+            const row = appState.roadmap.rows[rowIndex];
+            if (row) {
+              weekSyllabusTotal++;
+              if (row.isCompleted) weekSyllabusCompleted++;
+            }
+          });
+
+          if (weekSyllabusTotal > 0) {
+            const syllabusPct = Math.round((weekSyllabusCompleted / weekSyllabusTotal) * 100);
+            return `
+              <div class="${bottomCardClass}">
+                <div class="wm-hc-icon" style="color: var(--wm-accent);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg></div>
+                <div class="wm-hc-info">
+                  <div class="wm-hc-lbl">Syllabus Check</div>
+                  <div class="wm-hc-val" style="color: var(--wm-accent);">${weekSyllabusCompleted} <span style="font-size:0.65em; font-weight:600; opacity:0.85;">/ ${weekSyllabusTotal}</span></div>
+                  <div class="wm-hc-trend">${syllabusPct}% done this week</div>
+                </div>
+              </div>
+            `;
+          }
+        }
+        return '';
+      })()}
     </div>
 
     <div class="wm-heatmap-card">

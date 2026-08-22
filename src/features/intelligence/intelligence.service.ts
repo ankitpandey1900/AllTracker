@@ -107,7 +107,8 @@ export function getTacticalBriefingString(): string {
     sessionLogs,
     activeTimer: appState.activeTimer,
     beastModeActive: !!appState.settings.beastMode,
-    leaderboard: getCurrentUserLeaderboardContext()
+    leaderboard: getCurrentUserLeaderboardContext(),
+    roadmap: appState.roadmap
   });
 }
 
