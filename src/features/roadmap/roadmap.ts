@@ -6,6 +6,31 @@ import { log } from '@/utils/logger.utils';
 
 let overlay: HTMLElement | null = null;
 let roadmapSearchQuery = '';
+let roadmapCurrentPage = 1;
+const roadmapItemsPerPage = 10;
+let activeNoteRow: any = null;
+let activeNoteCol: string | null = null;
+let activeLeetcodeRow: any = null;
+let activeLeetcodeCol: string | null = null;
+
+const SVGS = {
+  search: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>`,
+  upload: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>`,
+  trash: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2-2v2"></path></svg>`,
+  close: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`,
+  excel: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><path d="M8 13h2"></path><path d="M8 17h2"></path><path d="M14 13h2"></path><path d="M14 17h2"></path></svg>`,
+  chart: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>`,
+  checkCircle: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`,
+  clock: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`,
+  file: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>`,
+  code: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>`,
+  calendar: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>`,
+  book: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`,
+  cube: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"></polygon><line x1="12" y1="22" x2="12" y2="15.5"></line><polyline points="22 8.5 12 15.5 2 8.5"></polyline><polyline points="2 15.5 12 8.5 22 15.5"></polyline><line x1="12" y1="2" x2="12" y2="8.5"></line></svg>`,
+  check: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`,
+  chevronLeft: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>`,
+  chevronRight: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>`
+};
 
 export function initRoadmap() {
   injectRoadmapModal();
@@ -21,22 +46,26 @@ function injectRoadmapModal() {
       <div class="roadmap-modal">
         <div class="roadmap-header">
           <div class="roadmap-header-left">
-            <h2><i class="fas fa-map"></i> Syllabus / Roadmap</h2>
-            <div id="roadmapProgressContainer" class="roadmap-progress-container"></div>
+            <h2>Syllabus / Roadmap</h2>
+            <div class="roadmap-progress-container-inline">
+              <span id="headerProgressText">0% Completed</span>
+              <span class="divider">|</span>
+              <span id="headerProgressCount">0 / 0 tasks</span>
+            </div>
           </div>
           <div class="roadmap-actions">
             <div class="roadmap-search-box">
-              <i class="fas fa-search"></i>
+              ${SVGS.search}
               <input type="text" id="roadmapSearchInput" placeholder="Search syllabus..." autocomplete="off" />
             </div>
             <button id="importRoadmapBtn" class="roadmap-btn">
-              <i class="fas fa-file-import"></i> Import
+              ${SVGS.upload} Import
             </button>
             <button id="clearRoadmapBtn" class="roadmap-btn">
-              <i class="fas fa-trash"></i> Clear
+              ${SVGS.trash} Clear
             </button>
             <button id="closeRoadmapBtn" class="roadmap-btn primary">
-              Close
+              ${SVGS.close} Close
             </button>
           </div>
         </div>
@@ -44,7 +73,7 @@ function injectRoadmapModal() {
           <div id="roadmapUploadArea" class="roadmap-upload-area">
             <input type="file" id="roadmapFileInput" accept=".xlsx, .xls, .csv" style="display: none;" />
             <div id="roadmapDropZone" class="roadmap-upload-box">
-              <i class="fas fa-file-excel"></i>
+              ${SVGS.excel}
               <p>Click or drag an Excel file to import</p>
               <span>Supports .xlsx, .xls, .csv</span>
             </div>
@@ -55,6 +84,69 @@ function injectRoadmapModal() {
               <tbody id="roadmapTbody"></tbody>
             </table>
           </div>
+        </div>
+        <div class="roadmap-footer" id="roadmapFooter">
+          <div class="roadmap-stats">
+            <div class="roadmap-stat-box">
+              <div class="roadmap-stat-icon icon-bg-blue">${SVGS.calendar}</div>
+              <div class="roadmap-stat-text">
+                <span class="roadmap-stat-label">Total Days</span>
+                <span class="roadmap-stat-value" id="statTotalDays">0</span>
+              </div>
+            </div>
+            <div class="roadmap-stat-box">
+              <div class="roadmap-stat-icon icon-bg-purple">${SVGS.checkCircle}</div>
+              <div class="roadmap-stat-text">
+                <span class="roadmap-stat-label">Completed</span>
+                <span class="roadmap-stat-value" id="statCompleted">0 <span style="font-size: 0.7em; opacity: 0.7; font-weight: 500;">(0%)</span></span>
+              </div>
+            </div>
+            <div class="roadmap-stat-box">
+              <div class="roadmap-stat-icon icon-bg-purple-dark">${SVGS.clock}</div>
+              <div class="roadmap-stat-text">
+                <span class="roadmap-stat-label">Remaining</span>
+                <span class="roadmap-stat-value" id="statRemaining">0 <span style="font-size: 0.7em; opacity: 0.7; font-weight: 500;">(0%)</span></span>
+              </div>
+            </div>
+            <div class="roadmap-stat-box" style="flex: 1; padding-left: 0.5rem;">
+              <div class="roadmap-stat-progress-container">
+                <div class="roadmap-stat-progress-header">
+                  <span class="roadmap-stat-label">Progress</span>
+                  <span class="roadmap-stat-value" id="statProgressText" style="font-size: 0.85rem;">0%</span>
+                </div>
+                <div class="roadmap-stat-progress-track">
+                  <div class="roadmap-stat-progress-fill" id="statProgressFill" style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="roadmap-pagination" id="roadmapPagination">
+            <!-- Pagination buttons -->
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="roadmapNoteModal" class="roadmap-note-modal">
+      <div class="roadmap-note-content">
+        <div class="roadmap-note-header">
+          <h3>${SVGS.file} Notes</h3>
+          <button id="closeRoadmapNoteBtn" class="roadmap-note-close">${SVGS.close}</button>
+        </div>
+        <textarea id="roadmapNoteTextarea" placeholder="Write your notes here..."></textarea>
+        <div class="roadmap-note-footer">
+          <button id="saveRoadmapNoteBtn" class="roadmap-btn primary">Save</button>
+        </div>
+      </div>
+    </div>
+    <div id="roadmapLeetcodeModal" class="roadmap-note-modal">
+      <div class="roadmap-note-content">
+        <div class="roadmap-note-header">
+          <h3>${SVGS.file} LeetCode Solved</h3>
+          <button id="closeRoadmapLeetcodeBtn" class="roadmap-note-close">${SVGS.close}</button>
+        </div>
+        <textarea id="roadmapLeetcodeTextarea" placeholder="Enter LeetCode problems, links, or count..."></textarea>
+        <div class="roadmap-note-footer">
+          <button id="saveRoadmapLeetcodeBtn" class="roadmap-btn primary">Save</button>
         </div>
       </div>
     </div>
@@ -81,6 +173,61 @@ function setupEventListeners() {
   const importBtn = document.getElementById('importRoadmapBtn');
   const clearBtn = document.getElementById('clearRoadmapBtn');
 
+  // Note Modal Elements
+  const noteModal = document.getElementById('roadmapNoteModal');
+  const noteTextarea = document.getElementById('roadmapNoteTextarea') as HTMLTextAreaElement;
+  const closeNoteBtn = document.getElementById('closeRoadmapNoteBtn');
+  const saveNoteBtn = document.getElementById('saveRoadmapNoteBtn');
+
+  const closeNoteModal = () => {
+    if (noteModal) noteModal.classList.remove('active');
+    activeNoteRow = null;
+    activeNoteCol = null;
+  };
+
+  closeNoteBtn?.addEventListener('click', closeNoteModal);
+  
+  // Close note modal on background click
+  noteModal?.addEventListener('click', (e) => {
+    if (e.target === noteModal) closeNoteModal();
+  });
+
+  saveNoteBtn?.addEventListener('click', () => {
+    if (activeNoteRow && activeNoteCol) {
+      activeNoteRow.cells[activeNoteCol] = noteTextarea.value;
+      saveRoadmapToStorage(appState.roadmap);
+      renderRoadmap();
+    }
+    closeNoteModal();
+  });
+
+  // Leetcode Modal Elements
+  const leetcodeModal = document.getElementById('roadmapLeetcodeModal');
+  const leetcodeTextarea = document.getElementById('roadmapLeetcodeTextarea') as HTMLTextAreaElement;
+  const closeLeetcodeBtn = document.getElementById('closeRoadmapLeetcodeBtn');
+  const saveLeetcodeBtn = document.getElementById('saveRoadmapLeetcodeBtn');
+
+  const closeLeetcodeModal = () => {
+    if (leetcodeModal) leetcodeModal.classList.remove('active');
+    activeLeetcodeRow = null;
+    activeLeetcodeCol = null;
+  };
+
+  closeLeetcodeBtn?.addEventListener('click', closeLeetcodeModal);
+  
+  leetcodeModal?.addEventListener('click', (e) => {
+    if (e.target === leetcodeModal) closeLeetcodeModal();
+  });
+
+  saveLeetcodeBtn?.addEventListener('click', () => {
+    if (activeLeetcodeRow && activeLeetcodeCol) {
+      activeLeetcodeRow.cells[activeLeetcodeCol] = leetcodeTextarea.value;
+      saveRoadmapToStorage(appState.roadmap);
+      renderRoadmap();
+    }
+    closeLeetcodeModal();
+  });
+
   importBtn?.addEventListener('click', () => fileInput?.click());
   dropZone?.addEventListener('click', () => fileInput?.click());
   
@@ -101,10 +248,11 @@ function setupEventListeners() {
   const searchInput = document.getElementById('roadmapSearchInput') as HTMLInputElement;
   searchInput?.addEventListener('input', (e) => {
     roadmapSearchQuery = (e.target as HTMLInputElement).value.toLowerCase();
+    roadmapCurrentPage = 1; // Reset to page 1 on search
     renderRoadmap();
   });
 
-  // Drag and drop
+  // Drag and drop for upload
   dropZone?.addEventListener('dragover', (e) => {
     e.preventDefault();
     dropZone.classList.add('dragover');
@@ -116,6 +264,57 @@ function setupEventListeners() {
     const file = e.dataTransfer?.files?.[0];
     if (file) handleFileUpload(file);
   });
+
+  // Mouse drag-to-scroll and wheel scroll for table container
+  const tableContainer = document.querySelector('.roadmap-table-container') as HTMLElement;
+  if (tableContainer) {
+    let isDown = false;
+    let startX: number;
+    let scrollLeft: number;
+
+    tableContainer.addEventListener('mousedown', (e) => {
+      const target = e.target as HTMLElement;
+      // Don't drag if clicking on interactive elements
+      if (target.closest('button') || target.closest('input') || target.closest('.roadmap-cell-select') || target.closest('.roadmap-col-resizer') || target.closest('.roadmap-checkbox') || target.closest('.custom-dropdown-item')) {
+        return;
+      }
+      isDown = true;
+      tableContainer.style.cursor = 'grabbing';
+      startX = e.pageX - tableContainer.offsetLeft;
+      scrollLeft = tableContainer.scrollLeft;
+    });
+
+    tableContainer.addEventListener('mouseleave', () => {
+      isDown = false;
+      tableContainer.style.cursor = '';
+    });
+
+    tableContainer.addEventListener('mouseup', () => {
+      isDown = false;
+      tableContainer.style.cursor = '';
+    });
+
+    tableContainer.addEventListener('mousemove', (e) => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - tableContainer.offsetLeft;
+      const walk = (x - startX) * 1.5; // Scroll speed multiplier
+      tableContainer.scrollLeft = scrollLeft - walk;
+    });
+    
+    // Translate vertical wheel scroll to horizontal if no vertical overflow
+    tableContainer.addEventListener('wheel', (e) => {
+      if (e.deltaY !== 0 && !e.shiftKey) {
+        // Only hijack if vertical scrollbar is not needed (i.e. table fits vertically)
+        // or we want horizontal scrolling prioritized
+        const isScrollableVertically = tableContainer.scrollHeight > tableContainer.clientHeight;
+        if (!isScrollableVertically) {
+          e.preventDefault();
+          tableContainer.scrollLeft += e.deltaY;
+        }
+      }
+    });
+  }
 }
 
 async function handleFileUpload(file: File) {
@@ -180,36 +379,45 @@ function renderRoadmap() {
 
   uploadArea.classList.add('hidden');
 
-  // Update Progress Stats
   const completedCount = rows.filter(r => r.isCompleted).length;
   const totalCount = rows.length;
   const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+  const remainingCount = totalCount - completedCount;
+  const remainingPercent = totalCount > 0 ? 100 - progressPercent : 0;
+
+  const statTotalDays = document.getElementById('statTotalDays');
+  const statCompleted = document.getElementById('statCompleted');
+  const statRemaining = document.getElementById('statRemaining');
+  const statProgressText = document.getElementById('statProgressText');
+  const statProgressFill = document.getElementById('statProgressFill');
   
-  const progressContainer = document.getElementById('roadmapProgressContainer');
-  if (progressContainer) {
-    progressContainer.innerHTML = `
-      <div class="roadmap-progress-text">
-        <span><i class="fas fa-bullseye"></i> ${progressPercent}% Completed</span>
-        <span class="roadmap-progress-count">${completedCount} / ${totalCount} tasks</span>
-      </div>
-      <div class="roadmap-progress-bar-bg">
-        <div class="roadmap-progress-bar-fill" style="width: ${progressPercent}%"></div>
-      </div>
-    `;
-  }
+  if (statTotalDays) statTotalDays.textContent = `${totalCount}`;
+  if (statCompleted) statCompleted.innerHTML = `${completedCount} <span style="font-size: 0.7em; opacity: 0.7; font-weight: 500;">(${progressPercent}%)</span>`;
+  if (statRemaining) statRemaining.innerHTML = `${remainingCount} <span style="font-size: 0.7em; opacity: 0.7; font-weight: 500;">(${remainingPercent}%)</span>`;
+  if (statProgressText) statProgressText.textContent = `${progressPercent}%`;
+  if (statProgressFill) statProgressFill.style.width = `${progressPercent}%`;
 
   // Search Filtering
   const filteredRows = roadmapSearchQuery 
     ? rows.filter(row => {
-        // Search across all cell values
         return Object.values(row.cells).some(val => 
           String(val).toLowerCase().includes(roadmapSearchQuery)
         );
       })
     : rows;
 
+  // Pagination Logic
+  const totalPages = Math.ceil(filteredRows.length / roadmapItemsPerPage) || 1;
+  if (roadmapCurrentPage > totalPages) roadmapCurrentPage = totalPages;
+  if (roadmapCurrentPage < 1) roadmapCurrentPage = 1;
+
+  const startIndex = (roadmapCurrentPage - 1) * roadmapItemsPerPage;
+  const paginatedRows = filteredRows.slice(startIndex, startIndex + roadmapItemsPerPage);
+
+  renderPaginationControls(totalPages);
+
   // Render Headers
-  let headerHtml = '<tr><th class="col-checkbox"><i class="fas fa-check"></i></th>';
+  let headerHtml = `<tr><th class="col-checkbox">${SVGS.check}</th>`;
   columns.forEach(col => {
     headerHtml += `<th>
       <div class="roadmap-th-content">
@@ -223,7 +431,7 @@ function renderRoadmap() {
 
   // Render Rows
   tbody.innerHTML = '';
-  filteredRows.forEach(row => {
+  paginatedRows.forEach(row => {
     const tr = document.createElement('tr');
     if (row.isCompleted) tr.classList.add('completed');
 
@@ -246,143 +454,220 @@ function renderRoadmap() {
     columns.forEach(col => {
       const td = document.createElement('td');
       const cellValueStr = row.cells[col] ? String(row.cells[col]).trim() : '';
+      const colUpper = col.toUpperCase();
 
-      // Date Highlighting Logic
-      if (col.toUpperCase() === 'DATE' || col.toUpperCase() === 'DEADLINE') {
-        if (cellValueStr && !row.isCompleted) {
-          // Attempt to parse date (assuming format like "23-Aug-2026" or "2026-08-23")
-          // Removing bracketed days if any like "23-Aug-2026 [Sun]"
-          const cleanDateStr = cellValueStr.replace(/\[.*?\]/g, '').trim();
-          const parsedDate = new Date(cleanDateStr);
-          if (!isNaN(parsedDate.getTime())) {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            
-            // Compare dates
-            if (parsedDate < today) {
-              td.classList.add('date-overdue');
-            } else if (parsedDate.getTime() === today.getTime()) {
-              td.classList.add('date-today');
-            }
-          }
+      // Specific Column Renderers
+      if (colUpper === 'DAY') {
+        const dayDiv = document.createElement('div');
+        dayDiv.className = 'cell-day';
+        if (!row.isCompleted) {
+          dayDiv.classList.add('active-day');
+        }
+        dayDiv.textContent = cellValueStr;
+        td.appendChild(dayDiv);
+      } 
+      // 1. DATE / DEADLINE
+      else if (colUpper === 'DATE' || colUpper === 'DEADLINE') {
+        const cleanDateStr = cellValueStr.replace(/\[.*?\]/g, '').trim();
+        const parsedDate = new Date(cleanDateStr);
+        
+        let dateHtml = `<div class="date-icon-wrap">${SVGS.calendar}</div> <div class="date-text">`;
+        if (!isNaN(parsedDate.getTime())) {
+           const today = new Date();
+           today.setHours(0, 0, 0, 0);
+           const isToday = parsedDate.getTime() === today.getTime();
+           
+           const overdue = parsedDate.getTime() < today.getTime() && String(row.cells['Status'] || row.cells['STATUS']).toLowerCase() !== 'completed';
+           if (overdue) td.classList.add('date-overdue');
+
+           const dayName = parsedDate.toLocaleDateString('en-US', { weekday: 'short' });
+           
+           if (isToday) {
+             dateHtml += `<span class="date-day-name today">Today</span>`;
+           } else {
+             dateHtml += `<span class="date-main">${cleanDateStr}</span>`;
+             dateHtml += `<span class="date-day-name">${dayName}</span>`;
+           }
+        } else {
+           dateHtml += `<span class="date-main">${cellValueStr}</span>`;
+        }
+        dateHtml += `</div>`;
+        td.innerHTML = `<div class="cell-date-complex">${dateHtml}</div>`;
+      }
+      else if (colUpper === 'LECTURE(S)' || colUpper === 'LECTURES') {
+        if (cellValueStr) {
+          const pill = document.createElement('div');
+          pill.className = 'cell-lecture-pill';
+          pill.textContent = cellValueStr;
+          td.appendChild(pill);
         }
       }
-      
-      if (col.toUpperCase() === 'STATUS') {
-        const select = document.createElement('select');
-        const updateSelectStyle = (val: string) => {
-          const statusClass = val.toLowerCase().replace(/\s+/g, '-');
-          select.className = `roadmap-cell-select status-${statusClass}`;
-        };
+      // 3. TOPIC
+      else if (colUpper === 'TOPIC' || colUpper === 'TITLE') {
+        const topicDiv = document.createElement('div');
+        topicDiv.className = 'cell-topic';
+        topicDiv.innerHTML = `<div class="topic-icon-bg">${SVGS.book}</div><div class="topic-text">${cellValueStr}</div>`;
+        td.appendChild(topicDiv);
+      }
+      else if (colUpper === 'PHASE') {
+        if (cellValueStr) {
+          const pill = document.createElement('span');
+          pill.className = 'cell-phase-pill';
+          pill.innerHTML = `<div class="phase-icon-bg">${SVGS.cube}</div> <span>${cellValueStr}</span>`;
+          td.appendChild(pill);
+        }
+      }
+      else if (colUpper === 'STATUS') {
+        const selectContainer = document.createElement('div');
+        selectContainer.className = 'cell-status-container';
         
+        const currentValue = cellValueStr || 'Not Started';
         const options = ['Not Started', 'In Progress', 'Completed', 'Skipped'];
-        const currentValue = row.cells[col] ? String(row.cells[col]).trim() : 'Not Started';
+        
+        if (!options.some(opt => opt.toLowerCase() === currentValue.toLowerCase())) {
+          options.push(currentValue);
+        }
+
+        const getStatusClass = (val: string) => `status-${val.toLowerCase().replace(/\s+/g, '-')}`;
+        
+        const triggerBtn = document.createElement('div');
+        triggerBtn.className = `roadmap-cell-select ${getStatusClass(currentValue)}`;
+        triggerBtn.innerHTML = `<span>${currentValue}</span> <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+        
+        const dot = document.createElement('span');
+        dot.className = 'status-dot';
+        
+        const menu = document.createElement('div');
+        menu.className = 'custom-dropdown-menu';
+        
+        const closeMenu = () => { menu.classList.remove('active'); };
         
         options.forEach(opt => {
-          const option = document.createElement('option');
-          option.value = opt;
-          option.textContent = opt;
-          if (currentValue.toLowerCase() === opt.toLowerCase()) {
-            option.selected = true;
-          }
-          select.appendChild(option);
-        });
-
-        // Add the current value if it's not in the default options
-        if (!options.some(opt => opt.toLowerCase() === currentValue.toLowerCase())) {
-          const customOption = document.createElement('option');
-          customOption.value = currentValue;
-          customOption.textContent = currentValue;
-          customOption.selected = true;
-          select.appendChild(customOption);
-        }
-
-        updateSelectStyle(select.value);
-
-        select.addEventListener('change', () => {
-          row.cells[col] = select.value;
-          updateSelectStyle(select.value);
-          saveRoadmapToStorage(appState.roadmap);
+          const item = document.createElement('div');
+          item.className = `custom-dropdown-item ${getStatusClass(opt)}`;
+          item.textContent = opt;
+          if (opt === currentValue) item.classList.add('selected');
           
-          // Optionally auto-check the row checkbox if marked 'Completed'
-          if (select.value === 'Completed' && !row.isCompleted) {
-            row.isCompleted = true;
+          item.addEventListener('click', (e) => {
+            e.stopPropagation();
+            row.cells[col] = opt;
+            
+            triggerBtn.className = `roadmap-cell-select ${getStatusClass(opt)}`;
+            triggerBtn.querySelector('span')!.textContent = opt;
+            
+            Array.from(menu.children).forEach(c => c.classList.remove('selected'));
+            item.classList.add('selected');
+            
+            if (opt === 'Completed' && !row.isCompleted) {
+               row.isCompleted = true;
+            } else if (opt !== 'Completed' && row.isCompleted) {
+               row.isCompleted = false;
+            }
             saveRoadmapToStorage(appState.roadmap);
-            renderRoadmap(); // re-render to update the checkbox and strike-through
-          }
-        });
-        
-        td.appendChild(select);
-      } else {
-        const editableDiv = document.createElement('div');
-        editableDiv.className = 'roadmap-cell-input';
-        editableDiv.contentEditable = 'true';
-        editableDiv.textContent = row.cells[col] !== undefined && row.cells[col] !== null 
-          ? String(row.cells[col]) 
-          : '';
-        
-        // Update state on blur (when user clicks away)
-        editableDiv.addEventListener('blur', () => {
-          row.cells[col] = editableDiv.textContent || '';
-          saveRoadmapToStorage(appState.roadmap);
+            renderRoadmap();
+            closeMenu();
+          });
+          menu.appendChild(item);
         });
 
-        // Allow Shift+Enter for newlines, but regular Enter to blur
-        editableDiv.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            editableDiv.blur();
+        triggerBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          document.querySelectorAll('.custom-dropdown-menu.active').forEach(m => {
+            if (m !== menu) m.classList.remove('active');
+          });
+          menu.classList.toggle('active');
+        });
+        
+        document.addEventListener('click', (e) => {
+          if (!selectContainer.contains(e.target as Node)) {
+            closeMenu();
+          }
+        });
+
+        selectContainer.appendChild(triggerBtn);
+        selectContainer.appendChild(dot);
+        selectContainer.appendChild(menu);
+        td.appendChild(selectContainer);
+      }
+      else if (colUpper === 'LEETCODE SOLVED' || colUpper === 'LEETCODE') {
+        const btn = document.createElement('button');
+        btn.className = 'roadmap-cell-input-leetcode';
+        
+        let displayValue = '-';
+        let isLong = false;
+        if (cellValueStr && cellValueStr !== '0' && cellValueStr !== '-') {
+          if (cellValueStr.length > 5) {
+             isLong = true;
+          } else {
+             displayValue = cellValueStr;
+          }
+          btn.classList.add('has-data');
+        }
+        
+        btn.innerHTML = isLong ? SVGS.code : displayValue;
+        
+        btn.addEventListener('click', () => {
+          activeLeetcodeRow = row;
+          activeLeetcodeCol = col;
+          const modal = document.getElementById('roadmapLeetcodeModal');
+          const textarea = document.getElementById('roadmapLeetcodeTextarea') as HTMLTextAreaElement;
+          if (modal && textarea) {
+            textarea.value = cellValueStr === '-' ? '' : cellValueStr;
+            modal.classList.add('active');
+            textarea.focus();
           }
         });
         
-        td.appendChild(editableDiv);
+        td.appendChild(btn);
       }
-      
+      else if (colUpper === 'NOTES') {
+        const noteBtn = document.createElement('button');
+        noteBtn.className = 'cell-note-btn';
+        noteBtn.innerHTML = SVGS.file;
+        noteBtn.title = cellValueStr ? 'View/Edit Notes' : 'Add Note';
+        if (cellValueStr) noteBtn.classList.add('has-note');
+        
+        noteBtn.addEventListener('click', () => {
+          activeNoteRow = row;
+          activeNoteCol = col;
+          const noteModal = document.getElementById('roadmapNoteModal');
+          const noteTextarea = document.getElementById('roadmapNoteTextarea') as HTMLTextAreaElement;
+          if (noteModal && noteTextarea) {
+            noteTextarea.value = cellValueStr;
+            noteModal.classList.add('active');
+            noteTextarea.focus();
+          }
+        });
+        td.appendChild(noteBtn);
+      }
+      else {
+        // Fallback for unknown columns: editable div
+        const div = document.createElement('div');
+        div.className = 'roadmap-cell-editable';
+        div.contentEditable = 'true';
+        div.textContent = cellValueStr;
+        div.addEventListener('blur', () => {
+          row.cells[col] = div.innerText;
+          saveRoadmapToStorage(appState.roadmap);
+        });
+        div.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            if (e.shiftKey) {
+              // allow newline
+              return;
+            }
+            e.preventDefault();
+            div.blur();
+          }
+        });
+        td.appendChild(div);
+      }
+
       tr.appendChild(td);
     });
 
     tbody.appendChild(tr);
   });
-
-  // Setup mouse drag to scroll
-  const container = document.querySelector('.roadmap-table-container') as HTMLElement;
-  if (container && !container.dataset.dragAttached) {
-    let isDown = false;
-    let startX: number;
-    let scrollLeft: number;
-
-    container.addEventListener('mousedown', (e) => {
-      // Don't drag if clicking inside an editable cell, checkbox, or select
-      const target = e.target as HTMLElement;
-      if (target.closest('.roadmap-cell-input') || target.tagName === 'SELECT' || target.tagName === 'INPUT') {
-        return;
-      }
-      isDown = true;
-      container.style.cursor = 'grabbing';
-      startX = e.pageX - container.offsetLeft;
-      scrollLeft = container.scrollLeft;
-    });
-    
-    container.addEventListener('mouseleave', () => {
-      isDown = false;
-      container.style.cursor = 'default';
-    });
-    
-    container.addEventListener('mouseup', () => {
-      isDown = false;
-      container.style.cursor = 'default';
-    });
-    
-    container.addEventListener('mousemove', (e) => {
-      if (!isDown) return;
-      e.preventDefault();
-      const x = e.pageX - container.offsetLeft;
-      const walk = (x - startX) * 2; // scroll fast
-      container.scrollLeft = scrollLeft - walk;
-    });
-    
-    container.dataset.dragAttached = 'true';
-  }
 
   // Setup Column Resizing
   const resizers = document.querySelectorAll('.roadmap-col-resizer');
@@ -413,4 +698,68 @@ function renderRoadmap() {
       document.addEventListener('mouseup', onMouseUp);
     });
   });
+}
+
+function renderPaginationControls(totalPages: number) {
+  const container = document.getElementById('roadmapPagination');
+  if (!container) return;
+  container.innerHTML = '';
+
+  if (totalPages <= 1) return;
+
+  const prevBtn = document.createElement('button');
+  prevBtn.className = 'roadmap-pagination-btn';
+  prevBtn.innerHTML = SVGS.chevronLeft;
+  prevBtn.disabled = roadmapCurrentPage === 1;
+  prevBtn.addEventListener('click', () => {
+    if (roadmapCurrentPage > 1) {
+      roadmapCurrentPage--;
+      renderRoadmap();
+    }
+  });
+  container.appendChild(prevBtn);
+
+  // Simple pagination (show 1, 2, ..., last)
+  let pages = [];
+  if (totalPages <= 5) {
+    for (let i = 1; i <= totalPages; i++) pages.push(i);
+  } else {
+    if (roadmapCurrentPage <= 3) {
+      pages = [1, 2, 3, 4, '...', totalPages];
+    } else if (roadmapCurrentPage >= totalPages - 2) {
+      pages = [1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+    } else {
+      pages = [1, '...', roadmapCurrentPage - 1, roadmapCurrentPage, roadmapCurrentPage + 1, '...', totalPages];
+    }
+  }
+
+  pages.forEach(p => {
+    if (p === '...') {
+      const dots = document.createElement('span');
+      dots.className = 'roadmap-pagination-dots';
+      dots.textContent = '...';
+      container.appendChild(dots);
+    } else {
+      const pageBtn = document.createElement('button');
+      pageBtn.className = `roadmap-pagination-btn ${p === roadmapCurrentPage ? 'active' : ''}`;
+      pageBtn.textContent = String(p);
+      pageBtn.addEventListener('click', () => {
+        roadmapCurrentPage = p as number;
+        renderRoadmap();
+      });
+      container.appendChild(pageBtn);
+    }
+  });
+
+  const nextBtn = document.createElement('button');
+  nextBtn.className = 'roadmap-pagination-btn';
+  nextBtn.innerHTML = SVGS.chevronRight;
+  nextBtn.disabled = roadmapCurrentPage === totalPages;
+  nextBtn.addEventListener('click', () => {
+    if (roadmapCurrentPage < totalPages) {
+      roadmapCurrentPage++;
+      renderRoadmap();
+    }
+  });
+  container.appendChild(nextBtn);
 }
