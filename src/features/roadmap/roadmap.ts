@@ -491,6 +491,7 @@ function renderRoadmap() {
     // Checkbox cell
     const tdCheck = document.createElement('td');
     tdCheck.className = 'col-checkbox';
+    tdCheck.setAttribute('data-label', 'Status');
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.className = 'roadmap-checkbox';
@@ -505,6 +506,7 @@ function renderRoadmap() {
       // Data cells
     columns.forEach(col => {
       const td = document.createElement('td');
+      td.setAttribute('data-label', col);
       const cellValueStr = row.cells[col] ? String(row.cells[col]).trim() : '';
       const colUpper = col.toUpperCase().trim();
 

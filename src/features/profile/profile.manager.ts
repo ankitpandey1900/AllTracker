@@ -224,7 +224,9 @@ export async function syncProfileBroadcast(focusStateChanged = false): Promise<v
     const prev = JSON.parse(lastBroadcastPayload);
     if (prev.display_name === profile.displayName) {
       if (todayHours < prev.today_hours) {
-        log.warn("Sync Guard: Prevented today_hours regression.");
+        if (prev.today_hours - todayHours > 0.005) {
+          log.warn(`Sync Guard: Prevented today_hours regression. (Current: ${todayHours.toFixed(4)}, Prev: ${prev.today_hours.toFixed(4)})`);
+        }
         todayHours = prev.today_hours;
       }
       if (totalHours < prev.total_hours) {

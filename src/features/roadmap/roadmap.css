@@ -1043,3 +1043,74 @@ td.date-today .date-day-name {
 #saveRoadmapLeetcodeBtn:hover {
   background: var(--surface);
 }
+
+
+@media (max-width: 768px) {
+  /* Header Compression */
+  .roadmap-header { padding: 0.75rem 1rem; gap: 0.5rem; flex-direction: column; align-items: stretch; }
+  .roadmap-header-left { align-items: center; width: 100%; }
+  .roadmap-header h2 { display: none; }
+  .roadmap-header-badge { margin-top: 0; width: 100%; justify-content: center; }
+  
+  .roadmap-actions { flex-wrap: wrap; justify-content: space-between; gap: 0.5rem; width: 100%; }
+  .roadmap-filter-box, .roadmap-search-box { flex: 1; min-width: 45%; }
+  .roadmap-search-box input { width: 100%; height: 32px; font-size: 0.8rem; padding-left: 2rem; }
+  .roadmap-filter-select { height: 32px; font-size: 0.8rem; padding: 0.25rem 0.5rem; width: 100%; }
+  .roadmap-btn { flex: 1; padding: 0.35rem; font-size: 0.75rem; height: 32px; white-space: nowrap; justify-content: center; }
+  .roadmap-btn svg { width: 14px; height: 14px; }
+  
+  /* Mobile Roadmap Card Layout */
+  .roadmap-table, .roadmap-table tbody, .roadmap-table tr, .roadmap-table td {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+  
+  .roadmap-table thead {
+    display: none;
+  }
+  
+  .roadmap-table tr {
+    margin-bottom: 1rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 0.5rem;
+    position: relative;
+  }
+  
+  .roadmap-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: none;
+    padding: 0.75rem 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    text-align: right;
+  }
+  
+  .roadmap-table td:last-child {
+    border-bottom: none;
+  }
+  
+  .roadmap-table td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    text-align: left;
+    margin-right: 1rem;
+    flex-shrink: 0;
+  }
+
+  /* Adjust components inside the card cells */
+  .cell-topic, .cell-date-complex { justify-content: flex-end; text-align: right; }
+  .col-checkbox { flex-direction: row-reverse; justify-content: space-between; }
+  
+  /* Footer Compression */
+  .roadmap-footer { flex-direction: column; gap: 0.5rem; align-items: stretch; height: auto; padding: 0.75rem 1rem; }
+  .roadmap-stats { display: none; } /* Hide bulky stats on mobile, badge has info */
+  .roadmap-pagination { flex-wrap: wrap; justify-content: center; margin-top: 0; width: 100%; gap: 6px; }
+  .roadmap-pagination-btn { margin: 0; min-width: 28px; height: 32px; font-size: 0.8rem; }
+}
