@@ -8,7 +8,6 @@
 import { appState, subscribeToState } from '@/state/app-state';
 import { showToast } from '@/utils/dom.utils';
 import { deleteTaskFromStorage, saveTasksToStorage } from '@/services/data-bridge';
-import { log } from '@/utils/logger.utils';
 import { getLocalIsoDate } from '@/utils/date.utils';
 import type { StudyTask } from '@/types/task.types';
 import { requireAuth } from '@/services/auth.service';
@@ -243,13 +242,13 @@ export function addTask(text: string, priority: 1 | 2 | 3 = 2, type: 'daily' | '
 }
 
 export function editTask(id: string): void {
-  const task = appState.tasks.find(t => t.id === id);
+  const task = appState.tasks.find(t => String(t.id) === id);
   if (!task) return;
 
   const newText = window.prompt("Edit Mission:", task.text);
   if (newText !== null && newText.trim() !== '') {
     appState.tasks = appState.tasks.map(t =>
-      t.id === id ? { ...t, text: newText.trim() } : t
+      String(t.id) === id ? { ...t, text: newText.trim() } : t
     );
     saveTasks();
   }
@@ -258,7 +257,7 @@ export function editTask(id: string): void {
 export function toggleTask(id: string): void {
   // Immutable update pattern to trigger Proxy
   appState.tasks = appState.tasks.map(t => {
-    if (t.id === id) {
+    if (String(t.id) === id) {
       const completed = !t.completed;
       return {
         ...t,
@@ -271,23 +270,25 @@ export function toggleTask(id: string): void {
 
   saveTasks();
 
-  const found = appState.tasks.find(t => t.id === id);
+  const found = appState.tasks.find(t => String(t.id) === id);
   if (found?.completed) {
     showToast('Objective Secured!', 'success');
   }
 }
 
-/**
- * Tasks are user records, not disposable cache entries. Keep them until the
- * user explicitly deletes them; the UI already separates active work from
- * completed history.
- */
+/** Automatically cleans up completed tasks older than 3 days. */
 function cleanupTasks(): void {
-  log.info('Task cleanup skipped: tasks are retained until explicitly deleted.');
+  const cutoff = Date.now() - (3 * 86400000);
+  const activeTasks = appState.tasks.filter(t => !t.completed || !t.completedAt || t.completedAt > cutoff);
+  
+  if (activeTasks.length !== appState.tasks.length) {
+    appState.tasks = activeTasks;
+    saveTasks();
+  }
 }
 
 export function deleteTask(id: string): void {
-  appState.tasks = appState.tasks.filter(t => t.id !== id);
+  appState.tasks = appState.tasks.filter(t => String(t.id) !== id);
   void deleteTaskFromStorage(id);
   showToast('Task Removed.');
 }
