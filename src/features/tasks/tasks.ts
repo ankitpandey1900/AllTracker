@@ -65,7 +65,14 @@ export function renderTasks(): void {
   }
 
   // Weekly processing
-  let incompleteWeekly = weeklyTasks.filter(t => !t.completed);
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  const cutoffIso = getLocalIsoDate(sevenDaysAgo);
+
+  const incompleteWeekly = weeklyTasks.filter(t => !t.completed && t.date >= cutoffIso);
+  const backlogWeekly = weeklyTasks.filter(t => !t.completed && t.date < cutoffIso);
+
+  const allBacklog = [...backlogDaily, ...backlogWeekly];
   const historyWeekly = weeklyTasks.filter(t => t.completed).sort((a, b) => b.createdAt - a.createdAt);
 
   // Sorting
@@ -77,7 +84,7 @@ export function renderTasks(): void {
   };
 
   todayMissions.sort(prioritySort);
-  backlogDaily.sort(prioritySort);
+  allBacklog.sort(prioritySort);
   incompleteWeekly.sort(prioritySort);
 
   // Clearance calculation
@@ -101,13 +108,13 @@ export function renderTasks(): void {
 
   // Update Badge
   if (backlogBadge) {
-    backlogBadge.textContent = `${backlogDaily.length} Backlog`;
-    backlogBadge.className = backlogDaily.length > 0 ? 'badge-backlog active' : 'badge-backlog';
+    backlogBadge.textContent = `${allBacklog.length} Backlog`;
+    backlogBadge.className = allBacklog.length > 0 ? 'badge-backlog active' : 'badge-backlog';
   }
 
   // Render Lists
   todayList.innerHTML = renderTaskList(todayMissions);
-  backlogList.innerHTML = renderTaskList(backlogDaily);
+  backlogList.innerHTML = renderTaskList(allBacklog);
   if (weeklyList) {
     weeklyList.innerHTML = renderTaskList(incompleteWeekly);
   }
