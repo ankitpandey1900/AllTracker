@@ -296,8 +296,18 @@ document.getElementById('chat-viewer-close-btn')?.addEventListener('click', () =
   if (modal) modal.style.display = 'none';
 });
 
+function escapeHtml(unsafe: any) {
+  if (typeof unsafe !== 'string') return unsafe;
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 // ---- User Drill-down Modal ----
-function openUserDetails(u: any) {
+async function openUserDetails(u: any) {
   const modal = document.getElementById('user-details-modal');
   if (!modal) return;
   
@@ -310,7 +320,6 @@ function openUserDetails(u: any) {
   
   document.getElementById('ud-focus-subject')!.textContent = u.focus_subject || "Not focusing";
   
-  // Set up wipe button
   const wipeBtn = document.getElementById('ud-reset-btn');
   wipeBtn!.onclick = async () => {
     if (!confirm(`Are you sure you want to WIPE all hours for ${u.username}? This cannot be undone.`)) return;
@@ -333,7 +342,97 @@ function openUserDetails(u: any) {
     }
   };
   
+  const metricsContainer = document.getElementById('ud-metrics-container');
+  if (metricsContainer) {
+    metricsContainer.innerHTML = '<div style="color:var(--muted); text-align:center; padding:1rem;">Loading detailed metrics...</div>';
+  }
+
   modal.style.display = 'flex';
+
+  if (metricsContainer) {
+    try {
+      const res = await fetch(`/api/app/ankit/user-details?profileId=${u.profile_id}`);
+      if (!res.ok) throw new Error("Failed to fetch details");
+      const data = await res.json();
+      
+      let html = '';
+      
+      // Phases
+      html += '<h4 style="margin: 0; color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">Study Phases</h4>';
+      if (!data.phases || data.phases.length === 0) {
+        html += '<div style="color: var(--muted); font-size: 0.9rem; margin-top: 0.5rem;">No phases found.</div>';
+      } else {
+        html += '<div style="display:flex; flex-direction:column; gap:0.5rem; margin-top: 0.5rem; max-height: 200px; overflow-y: auto;">';
+        data.phases.forEach((p: any) => {
+          const start = new Date(p.start_date).toLocaleDateString();
+          const end = new Date(p.end_date).toLocaleDateString();
+          const isCurrent = new Date() >= new Date(p.start_date) && new Date() <= new Date(p.end_date);
+          const badge = isCurrent ? '<span style="background:var(--emerald); color:#000; padding:2px 6px; border-radius:4px; font-size:0.7rem; font-weight:700;">ACTIVE</span>' : '';
+          
+          let categoriesHtml = '';
+          if (p.columns && Array.isArray(p.columns) && p.columns.length > 0) {
+            const pills = p.columns.map((c: any) => {
+              const name = typeof c === 'object' ? (c.name || c.title || 'Unknown') : c;
+              return `<span style="background:rgba(255,255,255,0.05); border:1px solid var(--border); padding:2px 8px; border-radius:12px; font-size:0.75rem;">${escapeHtml(name)}</span>`;
+            }).join('');
+            categoriesHtml = `<details style="margin-top:8px;"><summary style="font-size:0.8rem; color:var(--primary); cursor:pointer;">View Categories</summary><div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">${pills}</div></details>`;
+          }
+
+          const safePhaseName = escapeHtml(p.name) || 'Unnamed Phase';
+
+          html += `<div style="background:rgba(255,255,255,0.03); padding:0.75rem; border-radius:8px; display:flex; flex-direction:column; justify-content:center;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div style="font-weight:600; color:var(--primary); display:flex; align-items:center; gap:8px;">${safePhaseName} ${badge}</div>
+                <div style="font-size:0.8rem; color:var(--muted); margin-top:4px;">${start} - ${end}</div>
+              </div>
+            </div>
+            ${categoriesHtml}
+          </div>`;
+        });
+        html += '</div>';
+      }
+      
+      // Sessions
+      html += '<h4 style="margin: 1.5rem 0 0 0; color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">Last 10 Sessions</h4>';
+      if (!data.sessions || data.sessions.length === 0) {
+        html += '<div style="color: var(--muted); font-size: 0.9rem; margin-top: 0.5rem;">No sessions logged yet.</div>';
+      } else {
+        html += '<div style="display:flex; flex-direction:column; gap:0.5rem; margin-top: 0.5rem;">';
+        data.sessions.forEach((s: any) => {
+          const startDate = new Date(s.start_time);
+          const dateStr = startDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+          const startStr = startDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+          
+          let endStr = 'Ongoing';
+          if (s.end_time) {
+            endStr = new Date(s.end_time).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+          }
+          
+          const timeDisplay = `${dateStr}, ${startStr} - ${endStr}`;
+          const durStr = s.duration >= 1 ? `${Number(s.duration).toFixed(1)}h` : `${Math.round(s.duration * 60)}m`;
+          
+          const safeSubject = escapeHtml(s.subject) || 'Unknown';
+          const safeNote = escapeHtml(s.note);
+
+          html += `<div style="background:rgba(255,255,255,0.03); padding:0.75rem; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; flex-direction:column; gap:4px;">
+              <div style="font-weight:600;">${safeSubject}</div>
+              ${safeNote ? `<div style="font-size:0.8rem; color:var(--muted); font-style:italic;">"${safeNote}"</div>` : ''}
+              <div style="font-size:0.75rem; color:var(--muted);">${timeDisplay}</div>
+            </div>
+            <div style="font-weight:700; color:var(--fuchsia); font-size:1.1rem;">${durStr}</div>
+          </div>`;
+        });
+        html += '</div>';
+      }
+      
+      metricsContainer.innerHTML = html;
+      
+    } catch(err) {
+      metricsContainer.innerHTML = '<div style="color:var(--danger); text-align:center; padding:1rem;">Failed to load metrics.</div>';
+    }
+  }
 }
 
 document.getElementById('ud-close-btn')?.addEventListener('click', () => {

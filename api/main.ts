@@ -29,6 +29,7 @@ import adminMaamuChats from "./_routes/admin/maamu-chats.js";
 import adminNuke from "./_routes/admin/nuke.js";
 import adminBroadcastPush from "./_routes/admin/broadcast-push.js";
 import adminWipeStats from "./_routes/admin/wipe-stats.js";
+import adminUserDetails from "./_routes/admin/user-details.js";
 
 export default async function handler(
   req: IncomingMessage & { query?: Record<string, string | string[]> },
@@ -57,6 +58,7 @@ export default async function handler(
     
     // Ankit Admin Routes
     if (path === "/ankit/users") return adminUsers(req, res);
+    if (path === "/ankit/user-details") return adminUserDetails(req, res);
     if (path === "/ankit/send-roast") return adminSendRoast(req, res);
     if (path === "/ankit/db-stats") return adminDbStats(req, res);
     if (path === "/ankit/send-push") return adminSendPush(req, res);
