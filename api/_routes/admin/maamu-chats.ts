@@ -1,10 +1,8 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { getAuth } from "../../_lib/auth/index.js";
+import { getAuth, isAdmin } from "../../_lib/auth/index.js";
 import { getPool } from "../../_lib/db/pool.js";
 import { headersFromNode } from "../../_lib/http/request.js";
 import { handleRouteError, sendJson } from "../../_lib/http/response.js";
-
-const ADMIN_EMAILS = ["ankit1pandey11@gmail.com"];
 
 export default async function handler(
   req: IncomingMessage & { query?: Record<string, string | string[]> },
@@ -15,7 +13,7 @@ export default async function handler(
       headers: headersFromNode(req.headers),
     });
 
-    if (!session?.user || !ADMIN_EMAILS.includes(session.user.email)) {
+    if (!session?.user || !isAdmin(session.user.email)) {
       sendJson(res, 401, { error: "Unauthorized. Admin access required." });
       return;
     }

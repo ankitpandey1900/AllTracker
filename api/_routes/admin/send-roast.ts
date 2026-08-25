@@ -1,12 +1,10 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { getAuth } from "../../_lib/auth/index.js";
+import { getAuth, isAdmin } from "../../_lib/auth/index.js";
 import { getPool } from "../../_lib/db/pool.js";
 import { headersFromNode, readJsonBody } from "../../_lib/http/request.js";
 import { handleRouteError, sendJson } from "../../_lib/http/response.js";
 import { Resend } from "resend";
 import { generateRoast } from "../../_lib/roast-generator.js";
-
-const ADMIN_EMAILS = ["ankit1pandey11@gmail.com"];
 
 export default async function handler(
   req: IncomingMessage,
@@ -17,7 +15,7 @@ export default async function handler(
       headers: headersFromNode(req.headers),
     });
 
-    if (!session?.user || !ADMIN_EMAILS.includes(session.user.email)) {
+    if (!session?.user || !isAdmin(session.user.email)) {
       sendJson(res, 401, { error: "Unauthorized. Admin access required." });
       return;
     }
@@ -246,6 +244,12 @@ export default async function handler(
       sendJson(res, 502, { error: errorMsg });
       return;
     }
+
+    await pool.query(
+      `INSERT INTO public.admin_audit_logs (admin_email, action, target_user_id, details) 
+       VALUES ($1, $2, $3, $4)`,
+      [session.user.email, 'SEND_ROAST', profile_id, JSON.stringify({ subject: emailSubject, is_custom: !!custom_message })]
+    );
 
     sendJson(res, 200, { success: true, message: "Roast delivered successfully." });
   } catch (err) {

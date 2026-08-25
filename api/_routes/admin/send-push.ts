@@ -1,11 +1,9 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import webpush from 'web-push';
-import { getAuth } from '../../_lib/auth/index.js';
+import { getAuth, isAdmin } from '../../_lib/auth/index.js';
 import { getPool } from '../../_lib/db/pool.js';
 import { headersFromNode, readJsonBody } from '../../_lib/http/request.js';
 import { handleRouteError, sendJson, sendMethodNotAllowed } from '../../_lib/http/response.js';
-
-const ADMIN_EMAILS = ['ankit1pandey11@gmail.com'];
 
 export default async function handler(req: IncomingMessage, res: ServerResponse): Promise<void> {
   try {
@@ -14,7 +12,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       return;
     }
     const session = await getAuth().api.getSession({ headers: headersFromNode(req.headers) });
-    if (!session?.user || !ADMIN_EMAILS.includes(session.user.email)) {
+    if (!session?.user || !isAdmin(session.user.email)) {
       sendJson(res, 401, { error: 'Unauthorized. Admin access required.' });
       return;
     }
@@ -64,6 +62,12 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       });
       return;
     }
+    await pool.query(
+      `INSERT INTO public.admin_audit_logs (admin_email, action, target_user_id, details) 
+       VALUES ($1, $2, $3, $4)`,
+      [session.user.email, 'SEND_PUSH', body.profile_id, JSON.stringify({ title: body.title, sent })]
+    );
+
     sendJson(res, 200, { success: true, sent, subscribedDevices: rows.length });
   } catch (error) {
     handleRouteError(res, error);

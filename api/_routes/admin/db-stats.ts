@@ -1,10 +1,8 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { getAuth } from "../../_lib/auth/index.js";
+import { getAuth, isAdmin } from "../../_lib/auth/index.js";
 import { getPool } from "../../_lib/db/pool.js";
 import { headersFromNode } from "../../_lib/http/request.js";
 import { handleRouteError, sendJson } from "../../_lib/http/response.js";
-
-const ADMIN_EMAILS = ["ankit1pandey11@gmail.com"];
 
 export default async function handler(
   req: IncomingMessage,
@@ -15,7 +13,7 @@ export default async function handler(
       headers: headersFromNode(req.headers),
     });
 
-    if (!session?.user || !ADMIN_EMAILS.includes(session.user.email)) {
+    if (!session?.user || !isAdmin(session.user.email)) {
       sendJson(res, 401, { error: "Unauthorized. Admin access required." });
       return;
     }
@@ -46,6 +44,14 @@ export default async function handler(
       pool.query("SELECT COUNT(*) FROM public.maamu_messages")
     ]);
 
+    const globalActivityResult = await pool.query(`
+      SELECT start_time::date as study_date, SUM(duration) as total_duration 
+      FROM public.study_sessions 
+      WHERE start_time >= CURRENT_DATE - INTERVAL '30 days'
+      GROUP BY start_time::date 
+      ORDER BY study_date ASC
+    `);
+
     sendJson(res, 200, { 
       stats: {
         totalStudySessions: parseInt(studySessionsResult.rows[0].count, 10),
@@ -54,7 +60,8 @@ export default async function handler(
         totalBadges: parseInt(badgesResult.rows[0].count, 10),
         totalPushSubs: parseInt(pushSubsResult.rows[0].count, 10),
         totalVaultDocs: parseInt(vaultDocsResult.rows[0].count, 10),
-        totalMaamuMessages: parseInt(maamuResult.rows[0].count, 10)
+        totalMaamuMessages: parseInt(maamuResult.rows[0].count, 10),
+        globalActivity: globalActivityResult.rows
       }
     });
   } catch (err) {

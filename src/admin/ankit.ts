@@ -1,6 +1,124 @@
 import { authClient } from "../lib/auth-client";
 
 let usersData: any[] = [];
+let currentPage = 1;
+const pageSize = 25;
+let currentFilter = '';
+let filteredData: any[] = [];
+
+declare const Chart: any;
+let activeCharts: any[] = [];
+
+export function showToast(message: string, type: 'success' | 'error' = 'success') {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.innerHTML = message;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.classList.add('hide');
+    toast.addEventListener('animationend', () => toast.remove());
+  }, 4000);
+}
+
+function renderTable(users: any[] = filteredData) {
+  const tbody = document.getElementById("user-tbody");
+  if (!tbody) return;
+  tbody.innerHTML = "";
+  
+  const totalPages = Math.ceil(users.length / pageSize) || 1;
+  if (currentPage > totalPages) currentPage = totalPages;
+  if (currentPage < 1) currentPage = 1;
+  
+  const startIdx = (currentPage - 1) * pageSize;
+  const pagedUsers = users.slice(startIdx, startIdx + pageSize);
+  
+  const prevBtn = document.getElementById('page-prev-btn') as HTMLButtonElement;
+  const nextBtn = document.getElementById('page-next-btn') as HTMLButtonElement;
+  const indicator = document.getElementById('page-indicator');
+  
+  if (prevBtn) prevBtn.disabled = currentPage === 1;
+  if (nextBtn) nextBtn.disabled = currentPage === totalPages;
+  if (indicator) indicator.textContent = `Page ${currentPage} of ${totalPages} (Total: ${users.length})`;
+  
+  const getRankColor = (rank: string) => {
+    const r = rank ? rank.toUpperCase() : "";
+    if (r.includes("LEGEND")) return "#f43f5e";
+    if (r.includes("GRANDMASTER")) return "#a855f7";
+    if (r.includes("MASTER")) return "#ef4444";
+    if (r.includes("DIAMOND")) return "#0ea5e9";
+    if (r.includes("PLATINUM")) return "#10b981";
+    if (r.includes("GOLD")) return "#eab308";
+    if (r.includes("SILVER")) return "#94a3b8";
+    if (r.includes("BRONZE")) return "#d97706";
+    return "#64748b"; 
+  };
+
+  pagedUsers.forEach((u: any) => {
+    const daysInactive = Math.floor((Date.now() - new Date(u.last_active).getTime()) / (1000 * 60 * 60 * 24));
+    const rankDisplay = u.rank ? u.rank.split(' ')[0] : 'Unranked';
+    const rankColor = getRankColor(rankDisplay);
+    const roundedTotalHrs = Number(u.total_hours || 0).toFixed(1);
+    const rounded7DayHrs = Number(u.last_7_days_hours || 0).toFixed(1);
+    const joinedDate = new Date(u.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    
+    const isSuspicious = (u.integrity_score || 100) < 50;
+
+    const tr = document.createElement("tr");
+    if (isSuspicious) tr.classList.add('row-suspicious');
+    tr.style.cursor = "pointer";
+    
+    tr.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('.action-group')) return;
+      openUserDetails(u);
+    });
+
+    tr.innerHTML = `
+      <td>
+        <div class="user-ident">
+          <span class="username">${u.username} ${isSuspicious ? '<span style="color:var(--danger); font-size: 0.75rem;">[SUSPICIOUS]</span>' : ''}</span>
+          <span class="email">${u.email}</span>
+        </div>
+      </td>
+      <td>
+        <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+          <span class="table-pill" style="color: ${rankColor}; border-color: ${rankColor}40; background: ${rankColor}15; text-shadow: 0 0 10px ${rankColor}80;">
+            ${rankDisplay}
+          </span>
+          <span style="font-size: 0.8rem; font-weight: 600; color: #f97316; display: flex; align-items: center; gap: 4px;">
+            🔥 ${u.current_streak || 0} Streak
+          </span>
+        </div>
+      </td>
+      <td>
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <strong style="color: #f8fafc;">${roundedTotalHrs} hrs <span style="font-weight: normal; color: #94a3b8; font-size: 0.8rem;">total</span></strong>
+          <span style="color: #38bdf8; font-size: 0.8rem; font-weight: 600;">${rounded7DayHrs} hrs (7d)</span>
+        </div>
+      </td>
+      <td>
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <span style="color: ${daysInactive > 7 ? '#ef4444' : '#f8fafc'}; font-weight: 600;">${daysInactive} days ago</span>
+          <span style="font-size: 0.75rem; font-weight: 600; color: ${u.last_reengagement_sent_at ? '#10b981' : '#64748b'};">
+            ${u.last_reengagement_sent_at ? '✓ Roasted' : '• Not Roasted'}
+          </span>
+          ${Number(u.push_devices) > 0 ? `<span style="font-size: 0.7rem; font-weight: 600; color: #38bdf8;">📱 ${u.push_devices} push</span>` : ''}
+        </div>
+      </td>
+      <td>
+        <span style="color: #cbd5e1; font-size: 0.85rem;">${joinedDate}</span>
+      </td>
+      <td>
+        <div class="action-group">
+          <button class="btn btn-sm btn-nuke" style="background: rgba(239,68,68,0.15);" onclick="sendTargetedRoast('${u.profile_id}', this)">Roast</button>
+          <button class="btn btn-sm btn-primary" style="background: rgba(56,189,248,0.15);" onclick="sendTargetedPush('${u.profile_id}')">Push</button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
 
 async function fetchUsers() {
   const status = document.getElementById("status");
@@ -79,85 +197,38 @@ async function fetchUsers() {
     }
 
     // 3. Render Table
-    tbody.innerHTML = "";
+    filteredData = usersData;
+    currentPage = 1;
+    renderTable(filteredData);
     
-    const getRankColor = (rank: string) => {
-      const r = rank ? rank.toUpperCase() : "";
-      if (r.includes("LEGEND")) return "#f43f5e";
-      if (r.includes("GRANDMASTER")) return "#a855f7";
-      if (r.includes("MASTER")) return "#ef4444";
-      if (r.includes("DIAMOND")) return "#0ea5e9";
-      if (r.includes("PLATINUM")) return "#10b981";
-      if (r.includes("GOLD")) return "#eab308";
-      if (r.includes("SILVER")) return "#94a3b8";
-      if (r.includes("BRONZE")) return "#d97706";
-      return "#64748b"; 
-    };
-
-    usersData.forEach((u: any) => {
-      const daysInactive = Math.floor((Date.now() - new Date(u.last_active).getTime()) / (1000 * 60 * 60 * 24));
-      const rankDisplay = u.rank ? u.rank.split(' ')[0] : 'Unranked';
-      const rankColor = getRankColor(rankDisplay);
-      const roundedTotalHrs = Number(u.total_hours || 0).toFixed(1);
-      const rounded7DayHrs = Number(u.last_7_days_hours || 0).toFixed(1);
-      const joinedDate = new Date(u.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-      
-      const isSuspicious = (u.integrity_score || 100) < 50;
-
-      const tr = document.createElement("tr");
-      if (isSuspicious) tr.classList.add('row-suspicious');
-      tr.style.cursor = "pointer";
-      
-      // Make the row open the Drill-down modal
-      tr.addEventListener('click', (e) => {
-        // Prevent if clicking on an action button
-        if ((e.target as HTMLElement).closest('.action-group')) return;
-        openUserDetails(u);
+    // 3b. Setup Search Listener
+    const searchInput = document.getElementById('user-search-input') as HTMLInputElement;
+    if (searchInput) {
+      const newSearchInput = searchInput.cloneNode(true);
+      searchInput.replaceWith(newSearchInput);
+      newSearchInput.addEventListener('input', (e) => {
+        currentFilter = (e.target as HTMLInputElement).value.toLowerCase();
+        filteredData = usersData.filter(u => 
+          u.username?.toLowerCase().includes(currentFilter) || 
+          u.email?.toLowerCase().includes(currentFilter)
+        );
+        currentPage = 1;
+        renderTable(filteredData);
       });
+    }
 
-      tr.innerHTML = `
-        <td>
-          <div class="user-ident">
-            <span class="username">${u.username} ${isSuspicious ? '<span style="color:var(--danger); font-size: 0.75rem;">[SUSPICIOUS]</span>' : ''}</span>
-            <span class="email">${u.email}</span>
-          </div>
-        </td>
-        <td>
-          <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
-            <span class="table-pill" style="color: ${rankColor}; border-color: ${rankColor}40; background: ${rankColor}15; text-shadow: 0 0 10px ${rankColor}80;">
-              ${rankDisplay}
-            </span>
-            <span style="font-size: 0.8rem; font-weight: 600; color: #f97316; display: flex; align-items: center; gap: 4px;">
-              🔥 ${u.current_streak || 0} Streak
-            </span>
-          </div>
-        </td>
-        <td>
-          <div style="display: flex; flex-direction: column; gap: 4px;">
-            <strong style="color: #f8fafc;">${roundedTotalHrs} hrs <span style="font-weight: normal; color: #94a3b8; font-size: 0.8rem;">total</span></strong>
-            <span style="color: #38bdf8; font-size: 0.8rem; font-weight: 600;">${rounded7DayHrs} hrs (7d)</span>
-          </div>
-        </td>
-        <td>
-          <div style="display: flex; flex-direction: column; gap: 4px;">
-            <span style="color: ${daysInactive > 7 ? '#ef4444' : '#f8fafc'}; font-weight: 600;">${daysInactive} days ago</span>
-            <span style="font-size: 0.75rem; font-weight: 600; color: ${u.last_reengagement_sent_at ? '#10b981' : '#64748b'};">
-              ${u.last_reengagement_sent_at ? '✓ Roasted' : '• Not Roasted'}
-            </span>
-            ${Number(u.push_devices) > 0 ? `<span style="font-size: 0.7rem; font-weight: 600; color: #38bdf8;">📱 ${u.push_devices} push</span>` : ''}
-          </div>
-        </td>
-        <td>
-          <span style="color: #cbd5e1; font-size: 0.85rem;">${joinedDate}</span>
-        </td>
-        <td>
-          <div class="action-group">
-            <button class="btn btn-sm btn-nuke" style="background: rgba(239,68,68,0.15);" onclick="sendTargetedRoast('${u.profile_id}', this)">Roast</button>
-            <button class="btn btn-sm btn-primary" style="background: rgba(56,189,248,0.15);" onclick="sendTargetedPush('${u.profile_id}')">Push</button>
-          </div>
-        </td>
-      `;
-      tbody.appendChild(tr);
+    // Pagination Listeners
+    document.getElementById('page-prev-btn')?.addEventListener('click', () => {
+      if (currentPage > 1) { currentPage--; renderTable(filteredData); }
+    });
+    document.getElementById('page-next-btn')?.addEventListener('click', () => {
+      const totalPages = Math.ceil(filteredData.length / pageSize) || 1;
+      if (currentPage < totalPages) { currentPage++; renderTable(filteredData); }
+    });
+
+    // CSV Export
+    document.getElementById('export-csv-btn')?.addEventListener('click', () => {
+      exportToCSV(usersData);
     });
 
     if (dbStatsResponse.ok) {
@@ -179,6 +250,43 @@ async function fetchUsers() {
       if (statDbPush) statDbPush.textContent = (stats.totalPushSubs || 0).toLocaleString();
       if (statDbVault) statDbVault.textContent = (stats.totalVaultDocs || 0).toLocaleString();
       if (statDbMaamu) statDbMaamu.textContent = (stats.totalMaamuMessages || 0).toLocaleString();
+
+      // Render Global Analytics Chart
+      if (stats.globalActivity && stats.globalActivity.length > 0) {
+        const ctxGlobal = document.getElementById('global-activity-chart') as HTMLCanvasElement;
+        if (ctxGlobal) {
+          const labels = stats.globalActivity.map((d: any) => new Date(d.study_date).toLocaleDateString(undefined, {month: 'short', day: 'numeric'}));
+          const dataPoints = stats.globalActivity.map((d: any) => Number(d.total_duration));
+          
+          new Chart(ctxGlobal, {
+            type: 'line',
+            data: {
+              labels,
+              datasets: [{
+                label: 'Global Focus Hours',
+                data: dataPoints,
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#10b981'
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
+                x: { grid: { display: false } }
+              },
+              plugins: {
+                legend: { display: false }
+              }
+            }
+          });
+        }
+      }
     }
   } catch (err) {
     status.textContent = "Error connecting to server.";
@@ -331,20 +439,34 @@ async function openUserDetails(u: any) {
         body: JSON.stringify({ profile_id: u.profile_id })
       });
       if (res.ok) {
-        alert("User stats wiped successfully.");
+        showToast("User stats wiped successfully.");
         modal.style.display = 'none';
         fetchUsers();
       } else {
-        alert("Failed to wipe stats.");
+        showToast("Failed to wipe stats.", "error");
       }
     } catch(e) {
-      alert("Error wiping stats.");
+      showToast("Error wiping stats.", "error");
     }
   };
   
   const metricsContainer = document.getElementById('ud-metrics-container');
   if (metricsContainer) {
-    metricsContainer.innerHTML = '<div style="color:var(--muted); text-align:center; padding:1rem;">Loading detailed metrics...</div>';
+    metricsContainer.innerHTML = `
+      <div style="display:flex; flex-direction:column; gap:1.5rem;">
+        <div>
+          <h4 style="margin: 0 0 0.5rem 0; color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">Study Phases</h4>
+          <div class="skeleton-box" style="width: 100%; height: 60px; margin-bottom: 0.5rem;"></div>
+          <div class="skeleton-box" style="width: 100%; height: 60px;"></div>
+        </div>
+        <div>
+          <h4 style="margin: 0 0 0.5rem 0; color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">Last 10 Sessions</h4>
+          <div class="skeleton-box" style="width: 100%; height: 70px; margin-bottom: 0.5rem;"></div>
+          <div class="skeleton-box" style="width: 100%; height: 70px; margin-bottom: 0.5rem;"></div>
+          <div class="skeleton-box" style="width: 100%; height: 70px;"></div>
+        </div>
+      </div>
+    `;
   }
 
   modal.style.display = 'flex';
@@ -427,7 +549,75 @@ async function openUserDetails(u: any) {
         html += '</div>';
       }
       
+      // Charts Layout
+      html += '<h4 style="margin: 1.5rem 0 0.5rem 0; color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">Analytics</h4>';
+      html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem;">';
+      html += '<div style="background:rgba(255,255,255,0.02); padding:1rem; border-radius:12px; display:flex; justify-content:center;"><canvas id="activity-chart"></canvas></div>';
+      html += '<div style="background:rgba(255,255,255,0.02); padding:1rem; border-radius:12px; display:flex; justify-content:center;"><canvas id="subject-chart"></canvas></div>';
+      html += '</div>';
+      
       metricsContainer.innerHTML = html;
+      
+      // Render Charts
+      activeCharts.forEach(c => c.destroy());
+      activeCharts = [];
+
+      if (data.activity7Days && data.activity7Days.length > 0) {
+        const ctxActivity = document.getElementById('activity-chart') as HTMLCanvasElement;
+        const labels = data.activity7Days.map((d: any) => new Date(d.study_date).toLocaleDateString(undefined, {weekday: 'short'}));
+        const dataPoints = data.activity7Days.map((d: any) => Number(d.total_duration));
+        
+        activeCharts.push(new Chart(ctxActivity, {
+          type: 'bar',
+          data: {
+            labels,
+            datasets: [{
+              label: 'Hours Studied',
+              data: dataPoints,
+              backgroundColor: '#38bdf880',
+              borderColor: '#38bdf8',
+              borderWidth: 1,
+              borderRadius: 4
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
+              x: { grid: { display: false } }
+            },
+            plugins: {
+              legend: { display: false }
+            }
+          }
+        }));
+      }
+
+      if (data.subjectBreakdown && data.subjectBreakdown.length > 0) {
+        const ctxSubject = document.getElementById('subject-chart') as HTMLCanvasElement;
+        const labels = data.subjectBreakdown.map((d: any) => d.subject || 'Unknown');
+        const dataPoints = data.subjectBreakdown.map((d: any) => Number(d.total_duration));
+        
+        activeCharts.push(new Chart(ctxSubject, {
+          type: 'doughnut',
+          data: {
+            labels,
+            datasets: [{
+              data: dataPoints,
+              backgroundColor: ['#f43f5e', '#38bdf8', '#10b981', '#fbbf24', '#a855f7', '#94a3b8'],
+              borderWidth: 0,
+              hoverOffset: 4
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { position: 'right', labels: { color: '#94a3b8', font: { size: 10 } } }
+            },
+            cutout: '70%'
+          }
+        }));
+      }
       
     } catch(err) {
       metricsContainer.innerHTML = '<div style="color:var(--danger); text-align:center; padding:1rem;">Failed to load metrics.</div>';
@@ -438,6 +628,8 @@ async function openUserDetails(u: any) {
 document.getElementById('ud-close-btn')?.addEventListener('click', () => {
   const modal = document.getElementById('user-details-modal');
   if (modal) modal.style.display = 'none';
+  activeCharts.forEach(c => c.destroy());
+  activeCharts = [];
 });
 
 
@@ -454,39 +646,72 @@ document.getElementById('broadcast-cancel-btn')?.addEventListener('click', () =>
 document.getElementById('broadcast-send-btn')?.addEventListener('click', async () => {
   const titleEl = document.getElementById('broadcast-title-input') as HTMLInputElement;
   const msgEl = document.getElementById('broadcast-msg-input') as HTMLTextAreaElement;
-  const btn = document.getElementById('broadcast-send-btn') as HTMLButtonElement;
   
   if (!titleEl.value || !msgEl.value) {
-    alert("Please enter a title and message.");
+    showToast("Title and message are required.", "error");
     return;
   }
-  if (!confirm("Are you SURE you want to ping EVERY user?")) return;
   
+  const btn = document.getElementById('broadcast-send-btn') as HTMLButtonElement;
   btn.disabled = true;
-  btn.textContent = "Broadcasting...";
+  btn.textContent = "Sending...";
   
   try {
-    const response = await fetch("/api/app/ankit/broadcast-push", {
+    const res = await fetch('/api/app/ankit/broadcast-push', {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: titleEl.value, message: msgEl.value })
+      body: JSON.stringify({
+        title: titleEl.value,
+        message: msgEl.value
+      })
     });
-    
-    if (response.ok) {
-      const resData = await response.json();
-      alert(`Broadcast sent to ${resData.sent} devices!`);
+    if (res.ok) {
+      const data = await res.json();
+      showToast(`Broadcast sent to ${data.sent} devices! (${data.staleRemoved} stale removed)`);
       if (broadcastModal) broadcastModal.style.display = 'none';
       titleEl.value = '';
       msgEl.value = '';
     } else {
-      alert("Broadcast failed.");
+      showToast("Failed to send broadcast.", "error");
     }
   } catch(e) {
-    alert("Error executing broadcast.");
+    showToast("Error sending broadcast.", "error");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Blast to All Users";
   }
-  btn.disabled = false;
-  btn.textContent = "Send to All";
 });
+
+// ---- CSV Export ----
+function exportToCSV(users: any[]) {
+  if (users.length === 0) {
+    showToast("No data to export.", "error");
+    return;
+  }
+  
+  const headers = ["Username", "Email", "Total Hours", "Rank", "Current Streak", "Joined At"];
+  const rows = users.map(u => {
+    return [
+      `"${(u.username || '').replace(/"/g, '""')}"`,
+      `"${(u.email || '').replace(/"/g, '""')}"`,
+      Number(u.total_hours || 0).toFixed(1),
+      `"${(u.rank || '').replace(/"/g, '""')}"`,
+      u.current_streak || 0,
+      `"${new Date(u.created_at).toISOString()}"`
+    ].join(',');
+  });
+  
+  const csvContent = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", `alltracker_users_${new Date().toISOString().split('T')[0]}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
 
 
 // ---- Existing Logic (Roast/Push) ----
@@ -547,7 +772,7 @@ if (sendEmailBtn && emailModal) {
         const err = await response.json();
         btn.textContent = "Failed";
         btn.style.background = "var(--danger)";
-        alert("Error: " + err.error);
+        showToast("Error: " + err.error, "error");
         setTimeout(() => {
           btn.textContent = "Roast";
           btn.style.background = "rgba(239,68,68,0.15)";
@@ -606,10 +831,10 @@ document.getElementById("nuke-btn")?.addEventListener("click", async (e) => {
       const data = await res.json();
       alert(`Nuke detonated successfully! ${data.notifiedCount} users got roasted.`);
     } else {
-      alert("Nuke failed to launch.");
+      showToast("Nuke failed to launch.", "error");
     }
   } catch (err) {
-    alert("Error launching nuke.");
+    showToast("Error launching nuke.", "error");
   }
   
   btn.textContent = "🔥 Nuke Inactive Users";

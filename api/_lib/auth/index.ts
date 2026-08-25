@@ -38,3 +38,10 @@ export function getAuth() {
   authInstance = instance;
   return instance;
 }
+
+export function isAdmin(email: string | null | undefined): boolean {
+  if (!email) return false;
+  const adminEmailsStr = process.env.ADMIN_EMAILS || "ankit1pandey11@gmail.com";
+  const admins = adminEmailsStr.split(',').map(e => e.trim().toLowerCase());
+  return admins.includes(email.toLowerCase());
+}

@@ -1,17 +1,15 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { getAuth } from "../../_lib/auth/index.js";
+import { getAuth, isAdmin } from "../../_lib/auth/index.js";
 import { headersFromNode, readJsonBody } from "../../_lib/http/request.js";
 import { sendJson } from "../../_lib/http/response.js";
 import { getPool } from "../../_lib/db/pool.js";
-
-const ADMIN_EMAILS = ["ankit1pandey11@gmail.com"];
 
 export default async function handler(req: IncomingMessage, res: ServerResponse): Promise<void> {
   const session = await getAuth().api.getSession({
     headers: headersFromNode(req.headers),
   });
 
-  if (!session?.user || !ADMIN_EMAILS.includes(session.user.email)) {
+  if (!session?.user || !isAdmin(session.user.email)) {
     return sendJson(res, 401, { error: "Unauthorized. Admin access required." });
   }
 
@@ -43,6 +41,12 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
           integrity_score = 100
       WHERE user_id = $1::uuid
     `, [body.profile_id]);
+
+    await pool.query(
+      `INSERT INTO public.admin_audit_logs (admin_email, action, target_user_id, details) 
+       VALUES ($1, $2, $3, $4)`,
+      [session.user.email, 'WIPE_STATS', body.profile_id, JSON.stringify({ reason: 'Manual wipe from admin dashboard' })]
+    );
 
     await pool.query("COMMIT");
 

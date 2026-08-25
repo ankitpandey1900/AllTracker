@@ -1,10 +1,8 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { getAuth } from "../../_lib/auth/index.js";
+import { getAuth, isAdmin } from "../../_lib/auth/index.js";
 import { getPool } from "../../_lib/db/pool.js";
 import { headersFromNode } from "../../_lib/http/request.js";
 import { handleRouteError, sendJson } from "../../_lib/http/response.js";
-
-const ADMIN_EMAILS = ["ankit1pandey11@gmail.com"];
 
 export default async function handler(
   req: IncomingMessage & { query?: Record<string, string | string[]> },
@@ -15,7 +13,7 @@ export default async function handler(
       headers: headersFromNode(req.headers),
     });
 
-    if (!session?.user || !ADMIN_EMAILS.includes(session.user.email)) {
+    if (!session?.user || !isAdmin(session.user.email)) {
       sendJson(res, 401, { error: "Unauthorized. Admin access required." });
       return;
     }
@@ -54,9 +52,32 @@ export default async function handler(
       [profileId]
     );
 
+    // Fetch 7-Day Activity
+    const activityResult = await pool.query(
+      `SELECT start_time::date as study_date, SUM(duration) as total_duration 
+       FROM study_sessions 
+       WHERE user_id = $1 AND start_time >= CURRENT_DATE - INTERVAL '7 days'
+       GROUP BY start_time::date 
+       ORDER BY study_date ASC`,
+      [profileId]
+    );
+
+    // Fetch Lifetime Subject Breakdown
+    const subjectsResult = await pool.query(
+      `SELECT subject, SUM(duration) as total_duration 
+       FROM study_sessions 
+       WHERE user_id = $1 
+       GROUP BY subject 
+       ORDER BY total_duration DESC 
+       LIMIT 6`,
+      [profileId]
+    );
+
     sendJson(res, 200, {
       phases: phasesResult.rows,
-      sessions: sessionsResult.rows
+      sessions: sessionsResult.rows,
+      activity7Days: activityResult.rows,
+      subjectBreakdown: subjectsResult.rows
     });
   } catch (err) {
     handleRouteError(res, err);
