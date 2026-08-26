@@ -286,7 +286,11 @@ export function toggleTask(id: string): void {
 /** Automatically cleans up completed tasks older than 3 days. */
 function cleanupTasks(): void {
   const cutoff = Date.now() - (3 * 86400000);
-  const activeTasks = appState.tasks.filter(t => !t.completed || !t.completedAt || t.completedAt > cutoff);
+  const activeTasks = appState.tasks.filter(t => {
+    if (!t.completed) return true;
+    const timeToCompare = t.completedAt || t.createdAt;
+    return timeToCompare > cutoff;
+  });
   
   if (activeTasks.length !== appState.tasks.length) {
     appState.tasks = activeTasks;

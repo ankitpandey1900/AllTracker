@@ -240,10 +240,10 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
         setter(cloud.data, false);
         saveLocal(key, cloud.data);
         updateLocalTimestamp(key, cloud.updatedAt || undefined);
-      } else if (isDiff && !isLocalEmpty(local) && hasLocalSave) {
+      } else if (isDiff && hasLocalSave) {
         // Local is newer AND was explicitly saved on this browser: Push local to cloud
         cloudSaver(local);
-      } else if (!cloud && !isLocalEmpty(local) && hasLocalSave) {
+      } else if (!cloud && hasLocalSave) {
         // Cloud is empty/missing but local has explicitly saved data: Push to cloud
         cloudSaver(local);
       } else if (cloud && !hasLocalSave && !isCloudDataEmpty) {
