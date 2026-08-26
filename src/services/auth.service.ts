@@ -130,13 +130,18 @@ async function hydrateSessionState(): Promise<void> {
 
   // Start polling only after currentUserId is available. Starting it before
   // authentication leaves the poller idle for the rest of the session.
-  const [{ startLiveSync }, { initTimerModules, resumeTimerIfNeeded }] = await Promise.all([
+  const [{ startLiveSync }, { initTimerModules, resumeTimerIfNeeded }, { checkBadges, renderBadges }] = await Promise.all([
     import("@/services/data-bridge"),
     import("@/features/timer/timer"),
+    import("@/features/dashboard/badges"),
   ]);
   initTimerModules();
   resumeTimerIfNeeded();
   void startLiveSync();
+  
+  // Re-evaluate and render badges now that cloud data is loaded
+  renderBadges();
+  checkBadges();
 }
 
 export function initSyncAuth(): Promise<void> {

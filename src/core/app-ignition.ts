@@ -1,4 +1,4 @@
-import { appState, calculateDates, initializeData, applyThemeToDOM, applyTimerStyleToDOM, applyTimerFontToDOM, applyUiFontToDOM, applyAccentColorToDOM, ensureTimelineIntegrity, migrateDataFormat, syncTrackerTimelineWithSettings } from "@/state/app-state";
+import { appState, calculateDates, initializeData, applyThemeToDOM, applyTimerStyleToDOM, applyTimerFontToDOM, applyUiFontToDOM, applyAccentColorToDOM, ensureTimelineIntegrity, migrateDataFormat, syncTrackerTimelineWithSettings, subscribeToState } from "@/state/app-state";
 import { log } from "@/utils/logger.utils";
 import {
   loadTrackerDataFromStorage,
@@ -20,7 +20,7 @@ import { renderBookmarks, setupBookmarkListeners } from "@/features/bookmarks/bo
 import { setupFocusListeners, resumeTimerIfNeeded } from "@/features/timer/timer";
 import { renderPerformanceCurve, setupChartFilters } from "@/features/routines/performance-chart";
 import { renderRadarStats } from "@/features/routines/radar-stats";
-import { renderBadges, checkBadges } from "@/features/dashboard/badges";
+import { renderBadges } from "@/features/dashboard/badges";
 import { initTasks } from "@/features/tasks/tasks";
 import { initRoadmap } from "@/features/roadmap/roadmap";
 import { setupKeyboardShortcuts } from "@/features/shortcuts/shortcuts";
@@ -41,6 +41,17 @@ export async function igniteApp(): Promise<void> {
     shell.init('app-root');
     await initUI();
     shell.setupTabNavigation();
+
+    // Setup global state listeners
+    subscribeToState((path, value) => {
+      if (path === "settings") {
+        applyThemeToDOM(value.theme);
+        applyTimerStyleToDOM(value.timerStyle);
+        applyTimerFontToDOM(value.timerFont);
+        applyUiFontToDOM(value.uiFont);
+        if (value.accentColor) applyAccentColorToDOM(value.accentColor);
+      }
+    });
 
     // 2. Load Local State (Zero-Latency)
     const [settings, trackerData, routines, history, bookmarks, savedTimer, tasks] = await Promise.all([
@@ -122,7 +133,6 @@ export async function igniteApp(): Promise<void> {
       renderRadarStats();
       setupChartFilters();
       renderBadges();
-      checkBadges();
 
       initTasks();
       initRoadmap();
