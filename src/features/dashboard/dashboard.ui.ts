@@ -113,16 +113,16 @@ export const dashboardView = `
                   <canvas id="velocitySparkline" width="100" height="20" style="width: 100px; height: 20px; opacity: 0.3;"></canvas>
                 </div>
               </article>
-              <article class="card">
+              <article class="card" title="A daily streak requires at least 2 hours of logged focus time to count.">
                 <div class="label" style="color: var(--warning);">ACTIVE STREAK</div>
                 <div id="currentStreak" class="big" style="color: var(--warning);">0</div>
-                <div class="meta">DAYS 🔥</div>
+                <div class="meta">DAYS 🔥 <span style="font-size: 0.7em; opacity: 0.7;">(2hr+ req)</span></div>
                 <span id="currentStreakStat" style="display: none;">0</span>
               </article>
-              <article class="card">
+              <article class="card" title="Your highest ever streak of consecutive days with 2+ hours of focus.">
                 <div class="label" style="color: var(--text-secondary);">ELITE STREAK</div>
                 <div id="bestStreakStat" class="big" style="color: #cbd5e1;">0</div>
-                <div class="meta">ALL TIME PEAK</div>
+                <div class="meta">ALL TIME PEAK <span style="font-size: 0.7em; opacity: 0.7;">(2hr+ req)</span></div>
               </article>
 
               <!-- FULL WIDTH RIVALRY ROW -->

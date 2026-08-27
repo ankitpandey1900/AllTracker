@@ -56,6 +56,9 @@ export const manualModal = `
           </div>
           <div class="docs-sidebar-section">
             <div class="docs-sidebar-label">Community &amp; AI</div>
+            <a class="docs-nav-link" onclick="docScrollTo('doc-social')">
+              <span class="nav-icon">🔗</span> Social Sharing
+            </a>
             <a class="docs-nav-link" onclick="docScrollTo('doc-analytics')">
               <span class="nav-icon">📈</span> Growth Insights
             </a>
@@ -71,8 +74,17 @@ export const manualModal = `
           </div>
           <div class="docs-sidebar-section">
             <div class="docs-sidebar-label">Advanced</div>
+            <a class="docs-nav-link" onclick="docScrollTo('doc-roadmap')">
+              <span class="nav-icon">🗺️</span> Syllabus Roadmap
+            </a>
+            <a class="docs-nav-link" onclick="docScrollTo('doc-profile')">
+              <span class="nav-icon">👤</span> Profile &amp; Privacy
+            </a>
             <a class="docs-nav-link" onclick="docScrollTo('doc-heatmap')">
-              <span class="nav-icon">🗺️</span> Heatmap
+              <span class="nav-icon">🔥</span> Heatmap
+            </a>
+            <a class="docs-nav-link" onclick="docScrollTo('doc-vault')">
+              <span class="nav-icon">💾</span> Data Vault
             </a>
             <a class="docs-nav-link" onclick="docScrollTo('doc-settings')">
               <span class="nav-icon">⚙️</span> Settings
@@ -187,7 +199,7 @@ export const manualModal = `
                 <div class="docs-feature-card">
                   <div class="feature-card-icon">🔥</div>
                   <div class="feature-card-title">Active Streak</div>
-                  <div class="feature-card-desc">Your current daily study streak. Mark a rest day to freeze it without breaking it.</div>
+                  <div class="feature-card-desc">Your consecutive days of logging 2+ hours of study. Mark a rest day to freeze it without breaking it.</div>
                 </div>
                 <div class="docs-feature-card">
                   <div class="feature-card-icon">⭐</div>
@@ -360,6 +372,27 @@ export const manualModal = `
 
             <div class="docs-divider"></div>
 
+            <!-- SOCIAL SHARING -->
+            <section class="docs-section" id="doc-social">
+              <div class="docs-breadcrumb">Community &amp; AI <b>›</b> Social Sharing</div>
+              <h2 class="docs-h2">Social Sharing</h2>
+              <p>Share your progress with the world and build your public proof of work.</p>
+              <div class="docs-feature-grid">
+                <div class="docs-feature-card">
+                  <div class="feature-card-icon">📸</div>
+                  <div class="feature-card-title">Image Generation</div>
+                  <div class="feature-card-desc">Clicking Share automatically generates a high-quality summary card with your stats, current rank, and unlocked badges.</div>
+                </div>
+                <div class="docs-feature-card">
+                  <div class="feature-card-icon">🚀</div>
+                  <div class="feature-card-title">Direct Post</div>
+                  <div class="feature-card-desc">Instantly draft and share your achievements directly to X (Twitter) or LinkedIn using the built-in share actions.</div>
+                </div>
+              </div>
+            </section>
+
+            <div class="docs-divider"></div>
+
             <!-- GROWTH INSIGHTS / ANALYTICS -->
             <section class="docs-section" id="doc-analytics">
               <div class="docs-breadcrumb">Community &amp; AI <b>›</b> Growth Insights</div>
@@ -474,6 +507,46 @@ export const manualModal = `
 
             <div class="docs-divider"></div>
 
+            <!-- SYLLABUS ROADMAP -->
+            <section class="docs-section" id="doc-roadmap">
+              <div class="docs-breadcrumb">Advanced <b>›</b> Syllabus Roadmap</div>
+              <h2 class="docs-h2">Syllabus Roadmap</h2>
+              <p>Import a CSV/Excel file of your course syllabus or study topics and track your clearance rate chapter by chapter.</p>
+              <div class="docs-feature-grid">
+                <div class="docs-feature-card">
+                  <div class="feature-card-icon">📂</div>
+                  <div class="feature-card-title">Excel Import</div>
+                  <div class="feature-card-desc">Upload a <strong>.xlsx</strong> or <strong>.csv</strong> file. The Roadmap will instantly generate an interactive checklist of your entire curriculum.</div>
+                </div>
+                <div class="docs-feature-card">
+                  <div class="feature-card-icon">📝</div>
+                  <div class="feature-card-title">Topic Notes</div>
+                  <div class="feature-card-desc">Add persistent notes to any topic directly in the grid to remember important concepts or formulas.</div>
+                </div>
+                <div class="docs-feature-card">
+                  <div class="feature-card-icon">💻</div>
+                  <div class="feature-card-title">LeetCode Linking</div>
+                  <div class="feature-card-desc">Assign LeetCode problem URLs to specific topics. The grid will generate a direct clickable link to the problem.</div>
+                </div>
+              </div>
+            </section>
+
+            <div class="docs-divider"></div>
+
+            <!-- PROFILE & PRIVACY -->
+            <section class="docs-section" id="doc-profile">
+              <div class="docs-breadcrumb">Advanced <b>›</b> Profile &amp; Privacy</div>
+              <h2 class="docs-h2">Profile &amp; Privacy</h2>
+              <p>Control your identity and visibility on the Global Leaderboard.</p>
+              <ul class="docs-ul" style="padding-left: 20px;">
+                <li><strong>Pilot Handle:</strong> Your unique username. This is what others see on the leaderboard.</li>
+                <li><strong>Public Profile:</strong> Toggling this off hides you entirely from the Global Leaderboard (Ghost Mode).</li>
+                <li><strong>Public Focus:</strong> Toggling this off hides the specific subjects you are studying from competitors, while keeping your total hours visible.</li>
+              </ul>
+            </section>
+
+            <div class="docs-divider"></div>
+
             <!-- HEATMAP -->
             <section class="docs-section" id="doc-heatmap">
               <div class="docs-breadcrumb">Advanced <b>›</b> Heatmap</div>
@@ -492,6 +565,32 @@ export const manualModal = `
                 </div>
               </div>
               <p>Open the Heatmap anytime with <kbd>Ctrl + H</kbd>.</p>
+            </section>
+
+            <div class="docs-divider"></div>
+
+            <!-- DATA VAULT -->
+            <section class="docs-section" id="doc-vault">
+              <div class="docs-breadcrumb">Advanced <b>›</b> Data Vault</div>
+              <h2 class="docs-h2">Data Vault &amp; Backups</h2>
+              <p>You have full ownership of your data. The Data Vault allows you to export or import your entire study history at any time.</p>
+              <div class="docs-feature-grid">
+                <div class="docs-feature-card">
+                  <div class="feature-card-icon">📦</div>
+                  <div class="feature-card-title">JSON Export</div>
+                  <div class="feature-card-desc">Download your raw data (hours, routines, bookmarks, settings) as a full JSON backup for safekeeping or migration.</div>
+                </div>
+                <div class="docs-feature-card">
+                  <div class="feature-card-icon">📊</div>
+                  <div class="feature-card-title">CSV Export</div>
+                  <div class="feature-card-desc">Export your study log as a <strong>.csv</strong> file so you can run your own custom analytics in Excel or Google Sheets.</div>
+                </div>
+                <div class="docs-feature-card">
+                  <div class="feature-card-icon">📥</div>
+                  <div class="feature-card-title">Restore Data</div>
+                  <div class="feature-card-desc">Upload a previously exported JSON backup to completely restore your local and cloud data state.</div>
+                </div>
+              </div>
             </section>
 
             <div class="docs-divider"></div>
