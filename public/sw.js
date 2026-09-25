@@ -1,14 +1,15 @@
-const CACHE_NAME = 'alltracker-cache-v2.0.1'; // V2.0.1: Force cache clear for MAAMU stealth update
+const CACHE_NAME = 'alltracker-cache-v2.0.2'; // V2.0.2: Update shell cache for landing at root and app at /app
 const ASSETS_TO_CACHE = [
   '/',
-  '/index.html',
+  '/app',
+  '/app.html',
   '/manifest.json',
   '/logo.png'
 ];
 
 // Utility: Check if request is for the main site shell
 const isNavigationRequest = (request) => {
-  return request.mode === 'navigate' || (request.url.endsWith('/') || request.url.endsWith('/index.html'));
+  return request.mode === 'navigate' || (request.url.endsWith('/') || request.url.includes('/app') || request.url.endsWith('/app.html'));
 };
 
 // Utility: Identify API or Dynamic data that should NEVER be cached by SW
@@ -121,7 +122,7 @@ self.addEventListener('push', (event) => {
     badge: '/pwa-logo.png',
     tag: 'alltracker-maamu-reminder',
     renotify: true,
-    data: { url: payload.url || '/' },
+    data: { url: payload.url || '/app' },
   };
   event.waitUntil(self.registration.showNotification(payload.title || 'AllTracker', options));
 });

@@ -23,31 +23,31 @@ const apiMiddleware = () => ({
       const parsedUrl = new URL(req.url, 'http://localhost');
       const pathname = parsedUrl.pathname;
 
-      if (pathname === '/landing.html') {
+      if (pathname === '/landing.html' || pathname === '/index.html') {
         res.writeHead(302, { Location: '/' + (parsedUrl.search || '') });
         return res.end();
       }
 
-      if (pathname === '/index.html') {
+      if (pathname === '/app.html') {
         res.writeHead(302, { Location: '/app' + (parsedUrl.search || '') });
         return res.end();
       }
 
-      // Root domain / serves landing.html cleanly (e.g. localhost:5173/ or alltracker.online)
+      // Root domain / serves index.html (the landing page)
       if (pathname === '/' || pathname === '') {
-        req.url = '/landing.html' + parsedUrl.search;
-        return next();
-      }
-
-      // Vanity clean routes: /landing or /home
-      if (pathname === '/landing' || pathname === '/landing/' || pathname === '/home' || pathname === '/home/') {
-        req.url = '/landing.html' + parsedUrl.search;
-        return next();
-      }
-
-      // Main application route: /app
-      if (pathname === '/app' || pathname.startsWith('/app/')) {
         req.url = '/index.html' + parsedUrl.search;
+        return next();
+      }
+
+      // Vanity clean routes: /landing or /home -> redirect to /
+      if (pathname === '/landing' || pathname === '/landing/' || pathname === '/home' || pathname === '/home/') {
+        res.writeHead(302, { Location: '/' + (parsedUrl.search || '') });
+        return res.end();
+      }
+
+      // Main application route: /app -> serves app.html
+      if (pathname === '/app' || pathname === '/app/' || pathname.startsWith('/app/')) {
+        req.url = '/app.html' + parsedUrl.search;
         return next();
       }
 
@@ -129,8 +129,8 @@ export default defineConfig({
     minify: 'esbuild',
     rollupOptions: {
       input: {
-        main: resolve(__dirname, 'index.html'),
-        landing: resolve(__dirname, 'landing.html'),
+        landing: resolve(__dirname, 'index.html'),
+        app: resolve(__dirname, 'app.html'),
         manual: resolve(__dirname, 'manual.html'),
         privacy: resolve(__dirname, 'privacy.html'),
         terms: resolve(__dirname, 'terms.html'),

@@ -1,406 +1,2726 @@
 <!doctype html>
-<html lang="en-IN" data-theme="stealth-midnight">
+<html lang="en-IN" class="dark">
 
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <meta name="viewport"
-    content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=overlays-content" />
-
-  <meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains; preload" />
-  <!--  SECURITY & SEO HARDENING -->
-  <title>ALL Tracker</title>
-  <script>
-    if (window.location.pathname === '/index.html') {
-      window.history.replaceState(null, '', '/app' + window.location.search + window.location.hash);
-    }
-  </script>
-  <meta name="description"
-    content="All Tracker is the official web app at alltracker.online: track study hours, DSA rituals, tasks, focus sessions, and leaderboard rank. Free PWA with cloud sync and Maamu AI coaching for students and developers." />
-  <meta name="keywords"
-    content="All Tracker, All Tracker online, alltracker.online, All Tracker official, All Tracker app, All Tracker web, study tracker, DSA tracker, coding hours tracker, LeetCode routine, GATE study tracker, focus timer PWA, Maamu AI" />
-  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
-  <link rel="canonical" href="https://www.alltracker.online" />
-
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://www.alltracker.online/" />
-  <meta property="og:title" content="All Tracker — Official study tracker &amp; leaderboard" />
-  <meta property="og:description"
-    content="All Tracker (alltracker.online): your study dashboard for hours, DSA rituals, missions, focus timer &amp; Maamu AI. Install the PWA — free." />
-  <meta property="og:image" content="https://www.alltracker.online/pwa-logo.png" />
-  <meta property="og:image:type" content="image/png" />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
-  <meta property="og:site_name" content="All Tracker" />
-  <meta property="og:locale" content="en_IN" />
-
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:site" content="@alltracker" />
-  <meta name="twitter:url" content="https://www.alltracker.online/" />
-  <meta name="twitter:title" content="All Tracker — Official study &amp; DSA tracker web app" />
-  <meta name="twitter:description"
-    content='Search "All Tracker" or open alltracker.online — track hours, DSA routines, leaderboard, tasks &amp; AI mentor Maamu.' />
-  <meta name="twitter:image" content="https://www.alltracker.online/pwa-logo.png" />
-
-  <script type="application/ld+json">
-      [
-        {
-          "@context": "https://schema.org",
-          "@type": "Organization",
-          "@id": "https://www.alltracker.online/#organization",
-          "name": "All Tracker",
-          "alternateName": [
-            "All Tracker App",
-            "AllTracker Arena",
-            "AllTracker"
-          ],
-          "url": "https://www.alltracker.online",
-          "logo": "https://www.alltracker.online/icon-512.png",
-          "description": "All Tracker builds the official alltracker.online productivity web app for students and developers."
-        },
-        {
-          "@context": "https://schema.org",
-          "@type": "SoftwareApplication",
-          "@id": "https://www.alltracker.online/#app",
-          "name": "All Tracker",
-          "alternateName": ["All Tracker Arena", "AllTracker"],
-          "url": "https://www.alltracker.online",
-          "description": "All Tracker — official study and productivity tracker at alltracker.online. Log study hours, DSA rituals, leaderboard rank, missions, focus timer, Maamu AI coaching. Free PWA with cloud sync.",
-          "applicationCategory": "ProductivityApplication",
-          "applicationSubCategory": "StudyTracker",
-          "operatingSystem": "Web, Android, iOS",
-          "browserRequirements": "Requires JavaScript",
-          "inLanguage": ["en", "hi"],
-          "isAccessibleForFree": true,
-          "provider": {
-            "@id": "https://www.alltracker.online/#organization"
-          },
-          "featureList": [
-            "Daily Study Hour Tracker",
-            "DSA and Coding Routine Tracker",
-            "Global Leaderboard & World Rankings",
-            "Maamu AI Mentor (Groq-powered)",
-            "Focus Timer with Session Goals",
-            "Performance Analytics & Heatmap",
-            "Cloud Sync via Supabase",
-            "PWA — Installable on Mobile",
-            "Competitive Exam Preparation Tracker",
-            "Task Mission Board"
-          ],
-          "screenshot": "https://www.alltracker.online/pwa-logo.png",
-          "offers": {
-            "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "INR"
-          }
-        },
-        {
-          "@context": "https://schema.org",
-          "@type": "WebSite",
-          "@id": "https://www.alltracker.online/#website",
-          "name": "All Tracker",
-          "alternateName": ["All Tracker Official", "AllTracker"],
-          "url": "https://www.alltracker.online/",
-          "description": "All Tracker official website — study hours, DSA rituals, leaderboard, tasks, Maamu AI, installable PWA.",
-          "publisher": {
-            "@id": "https://www.alltracker.online/#organization"
-          },
-          "inLanguage": ["en-IN"]
-        },
-        {
-          "@context": "https://schema.org",
-          "@type": "BreadcrumbList",
-          "itemListElement": [
-            {
-              "@type": "ListItem",
-              "position": 1,
-              "name": "Dashboard",
-              "item": "https://www.alltracker.online/#dashboard"
-            },
-            {
-              "@type": "ListItem",
-              "position": 2,
-              "name": "Routine Tracker",
-              "item": "https://www.alltracker.online/#routine"
-            },
-            {
-              "@type": "ListItem",
-              "position": 3,
-              "name": "Task Missions",
-              "item": "https://www.alltracker.online/#tasks"
-            },
-            {
-              "@type": "ListItem",
-              "position": 4,
-              "name": "Maamu AI",
-              "item": "https://www.alltracker.online/#intelligence"
-            }
-          ]
-        }
-      ]
-    </script>
-
-  <link rel="manifest" href="/manifest.json?v=2" />
-  <link rel="icon" type="image/png" href="/icon-192.png?v=5" />
-  <link rel="shortcut icon" href="/icon-192.png?v=5" type="image/png" />
-  <link rel="apple-touch-icon" href="/icon-192.png?v=5" />
-
-  <!-- ⚡ Core Web Vitals: Preload critical assets for LCP -->
-  <link rel="preload" href="/app-logo.png" as="image" type="image/png" fetchpriority="high" />
-
-  <!-- 🔗 DNS Prefetch: Speed up third-party connections -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AllTracker — Your Productivity Command Center</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-  <link rel="dns-prefetch" href="https://supabase.co" />
-  <link rel="dns-prefetch" href="https://api.groq.com" />
-  <link rel="dns-prefetch" href="https://flagcdn.com" />
-
   <link
-    href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Tektur:wght@400..900&family=Caveat:wght@400..700&family=Architects+Daughter&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Orbitron:wght@400..900&family=Rajdhani:wght@400;500;600;700&family=Space+Grotesk:wght@400..700&family=Chakra+Petch:wght@400;500;600;700&family=Bebas+Neue&family=Cinzel:wght@400..900&family=Righteous&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Black+Ops+One&family=Bungee&family=Chakra+Petch:wght@400;500;600;700&family=Cinzel:wght@500;700;800&family=Cormorant+Garamond:wght@500;600;700&family=Fira+Code:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&family=Monoton&family=Orbitron:wght@400;600;800;900&family=Outfit:wght@400;500;600;700;800;900&family=Poppins:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&family=Righteous&family=Silkscreen:wght@400;700&family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@500;700;800&family=Tektur:wght@400;600;700;800&display=swap"
     rel="stylesheet" />
-  <meta name="theme-color" content="#0b0e1a" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="All Tracker" />
-  <meta name="application-name" content="All Tracker" />
-
-  <!-- 🎨 Bootstrap Loader Styles (Safe & Instant) -->
-  <style>
-    #app-bootstrap-loader {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: #000000;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 99999;
-      transition:
-        opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1),
-        visibility 0.6s;
-      font-family: "Outfit", sans-serif;
+  <link rel="stylesheet" href="/src/styles/landing.css" />
+  <link rel="icon" type="image/png" href="/icon-192.png?v=5" />
+  <link rel="canonical" href="https://www.alltracker.online/" />
+  <script>
+    if (window.location.pathname.endsWith('.html')) {
+      const cleanPath = (window.location.pathname === '/landing.html' || window.location.pathname === '/index.html') ? '/' : window.location.pathname.replace(/\.html$/, '');
+      window.history.replaceState(null, '', cleanPath + window.location.search + window.location.hash);
     }
-
-    #app-bootstrap-loader.hidden {
-      opacity: 0;
-      visibility: hidden;
-    }
-
-    .loader-content {
-      text-align: center;
-      animation: loader-pulse 2s ease-in-out infinite;
-    }
-
-    .loader-logo {
-      width: auto;
-      height: 300px;
-      max-width: 90vw;
-      object-fit: contain;
-      margin-bottom: 24px;
-      filter: none;
-    }
-
-    .loader-text {
-      color: #a494c9;
-      font-size: 1.25rem;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      font-family: "Tektur", sans-serif;
-      margin-top: 10px;
-    }
-
-    .loader-progress {
-      width: 200px;
-      height: 2px;
-      background: rgba(124, 58, 237, 0.1);
-      margin: 20px auto 0;
-      border-radius: 4px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .loader-progress-bar {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 40%;
-      height: 100%;
-      background: #7c3aed;
-      border-radius: 4px;
-      animation: progress-slide 1.5s ease-in-out infinite;
-    }
-
-    @keyframes loader-pulse {
-
-      0%,
-      100% {
-        transform: scale(1);
-        opacity: 1;
-      }
-
-      50% {
-        transform: scale(1.02);
-        opacity: 0.8;
-      }
-    }
-
-    @keyframes progress-slide {
-      0% {
-        left: -40%;
-      }
-
-      100% {
-        left: 100%;
-      }
-    }
-  </style>
-  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Black+Ops+One&display=swap"
-    rel="stylesheet" />
+  </script>
 </head>
 
-<body class="antialiased selection:bg-indigo-500/30 selection:text-white">
-  <h1 style="
-        position: absolute;
-        left: -10000px;
-        top: auto;
-        width: 1px;
-        height: 1px;
-        overflow: hidden;
-      ">
-    All Tracker — The Official Productivity &amp; DSA Tracker Web App
-  </h1>
-  <!-- 🚀 Initial Sync Loader -->
-  <div id="app-bootstrap-loader">
-    <div class="loader-content">
-      <img src="/app-logo.png" class="loader-logo" alt="All Tracker" />
-      <div class="loader-text">Processing… thoda time lagega</div>
-      <div class="loader-progress">
-        <div class="loader-progress-bar"></div>
+<body>
+  <!-- Cyber Background Elements -->
+  <div class="cyber-bg-grid"></div>
+
+  <div class="landing-page-container">
+
+    <!-- Top Site Nav Header (Enlarged Logo + Navigation in Leftover Space) -->
+    <header class="site-nav-header">
+      <a href="/" class="site-brand-logo" title="AllTracker">
+        <img src="/app-logo.png" alt="AllTracker" class="site-brand-logo-img" />
+      </a>
+
+      <!-- Leftover Space Live Metrics Strip -->
+      <div class="site-nav-stats">
+        <div class="nav-telemetry-badge">
+          <span class="telemetry-live-dot"></span>
+          <span class="telemetry-label">LIVE</span>
+        </div>
+        <div class="nav-stat-chip">
+          <span class="nav-stat-num">400+</span>
+          <span class="nav-stat-label">hr logged</span>
+        </div>
+        <div class="nav-stat-divider"></div>
+        <div class="nav-stat-chip">
+          <span class="nav-stat-num">20+</span>
+          <span class="nav-stat-label">active users</span>
+        </div>
+        <div class="nav-stat-divider"></div>
+        <div class="nav-stat-chip">
+          <span class="nav-stat-num">150+</span>
+          <span class="nav-stat-label">sessions</span>
+        </div>
+        <div class="nav-stat-divider"></div>
+        <div class="nav-stat-chip">
+          <span class="nav-stat-num">80+</span>
+          <span class="nav-stat-label">maamu interactions</span>
+        </div>
       </div>
-    </div>
+
+      <div class="site-nav-right">
+        <nav class="site-nav-menu" aria-label="Main Navigation">
+          <a href="#features" class="site-nav-link">Features</a>
+          <a href="#feature-overview" class="site-nav-link">Modules</a>
+          <a href="/manual.html" class="site-nav-link">Handbook</a>
+          <a href="#faq" class="site-nav-link">FAQ</a>
+          <a href="https://github.com/ankitpandey1900/AllTracker" target="_blank" rel="noopener" class="site-nav-link">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
+            </svg>
+            <span>GitHub</span>
+          </a>
+        </nav>
+        <a href="/app" class="site-nav-cta-btn">Launch App &rarr;</a>
+      </div>
+    </header>
+
+    <!-- Hero Section (Left Hero Art + Right Live Running Timer App Window) -->
+    <section class="hero-grid">
+
+      <!-- Left Hero Column: Hero Artwork -->
+      <div class="hero-art-showcase">
+        <img src="/hero-horizontal.png" alt="AllTracker Focus Session" class="hero-art-img" />
+      </div>
+
+      <!-- Right Hero Column: Focus Timer Screen (Image 2) -->
+      <div class="mockup-desktop-window">
+        <!-- Window Inner Body: Live Running Focus Timer (Image 2) -->
+        <div class="hero-timer-body">
+
+          <!-- Top HUD bar -->
+          <div class="timer-top-hud-bar">
+            <div class="timer-hud-left-group">
+              <div class="timer-active-phase-badge">
+                <div class="timer-phase-dot-pulse"></div>
+                <span>Active Phase</span>
+              </div>
+              <span class="timer-cloud-icon" title="Atmospheric Noise">☁</span>
+
+              <!-- Volume Widget -->
+              <div class="timer-volume-widget">
+                <span class="timer-vol-speaker">🔊</span>
+                <div class="timer-vol-track">
+                  <div class="timer-vol-fill">
+                    <div class="timer-vol-thumb"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Headphones indicator (Stacked NONE over 🎧 as in Image 2) -->
+              <div class="timer-headphones-badge">
+                <span class="timer-headphone-status">NONE</span>
+                <span class="timer-headphone-icon">🎧</span>
+              </div>
+            </div>
+
+            <!-- Center HUD icon: Picture-in-Picture (as in Image 2) -->
+            <div class="timer-hud-center-icon">
+              <button class="timer-hud-icon-btn" title="Picture in Picture">🗖</button>
+            </div>
+
+            <!-- Right HUD icon: Fullscreen (as in Image 2) -->
+            <div class="timer-hud-right-icons">
+              <button class="timer-hud-icon-btn" title="Fullscreen">⤢</button>
+            </div>
+          </div>
+
+          <!-- Center Subject & Giant Digital Clock -->
+          <div class="timer-center-core">
+            <div class="timer-subject-pill">C + +</div>
+
+            <div class="timer-clock-wrapper">
+              <div class="timer-hud-bracket-left"></div>
+              <div id="heroLiveTimerDisplay" class="timer-giant-digits">00:00:02</div>
+              <div class="timer-hud-bracket-right"></div>
+            </div>
+          </div>
+
+          <!-- Bottom Action Buttons Dock -->
+          <div class="timer-action-dock">
+            <button class="timer-dock-btn btn-break" id="heroTimerBreakBtn" onclick="toggleHeroTimer()">
+              <span id="heroBreakIcon">❚❚</span>
+              <span id="heroBreakText">Break</span>
+            </button>
+            <button class="timer-dock-btn btn-terminate" onclick="resetHeroTimer()">
+              <span>✕</span>
+              <span>Terminate</span>
+            </button>
+            <button class="timer-dock-btn btn-stop" onclick="stopHeroTimer()">
+              <span>■</span>
+              <span>Stop</span>
+            </button>
+          </div>
+
+          <!-- Toast Notification in Bottom Right (Image 2 style) -->
+          <div class="timer-floating-toast" id="timerToast">
+            <span class="toast-check-icon">✓</span>
+            <span class="toast-msg-text">Timer started for C++</span>
+            <button class="toast-close-btn"
+              onclick="document.getElementById('timerToast').style.display='none'">✕</button>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SECTION 2: LIVE DASHBOARD COMMAND COCKPIT
+         ═══════════════════════════════════════════════════════════ -->
+    <!-- ═══════════════════════════════════════════════════════════
+         SECTION 2: 4 CORE CAPABILITIES (EXACT FROM MOCKUP IMAGE)
+         ═══════════════════════════════════════════════════════════ -->
+    <!-- ═══════════════════════════════════════════════════════════
+         SECTION 2: 3 CORE CAPABILITIES (TASK, WORLD STAGE, WEEKLY SUMMARY)
+         ═══════════════════════════════════════════════════════════ -->
+    <section id="feature-overview" class="features-row-grid">
+
+      <!-- Card 1: Task Management -->
+      <div class="feature-box-panel">
+        <div class="panel-header-wrap">
+          <div class="panel-title-text">
+            <span class="panel-title-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="2.2"
+                stroke-linecap="round" stroke-linejoin="round"
+                style="filter: drop-shadow(0 0 6px rgba(168, 85, 247, 0.45));">
+                <path d="M9 11l3 3L22 4"></path>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+              </svg>
+            </span>
+            <span>Task Management</span>
+          </div>
+          <div class="panel-desc-text">Plan and check off daily study tasks.</div>
+        </div>
+
+        <div class="panel-display-box">
+          <div class="mc-card-inner">
+            <!-- Header: Mission Control & Backlog Badge -->
+            <div class="mc-head-row">
+              <div>
+                <div class="mc-head-title">MISSION CONTROL</div>
+                <div class="mc-head-sub">DAILY OBJECTIVE TRACKING</div>
+              </div>
+              <div class="mc-backlog-badge">4 Backlog</div>
+            </div>
+
+            <!-- Clearance Rate Progress Gauge -->
+            <div class="mc-clearance-wrap">
+              <div class="mc-clearance-header">
+                <span>CLEARANCE RATE</span>
+                <span class="mc-clearance-pct">0%</span>
+              </div>
+              <div class="mc-clearance-track">
+                <div class="mc-clearance-fill" style="width: 4%;"></div>
+              </div>
+            </div>
+
+            <!-- Objective Creation & Controls Strip -->
+            <div class="mc-action-strip">
+              <div class="mc-type-toggle">
+                <button class="mc-toggle-btn active">Daily Mission</button>
+                <button class="mc-toggle-btn">Weekly Goal</button>
+              </div>
+              <div class="mc-input-field">
+                <span>⊕</span>
+                <span>Initiate new objective...</span>
+              </div>
+              <div class="mc-priority-group">
+                <span class="mc-prio-btn">L</span>
+                <span class="mc-prio-btn active">M</span>
+                <span class="mc-prio-btn">H</span>
+              </div>
+              <button class="mc-deploy-btn">DEPLOY &gt;</button>
+            </div>
+
+            <!-- Active Missions Section -->
+            <div>
+              <div class="mc-section-heading">ACTIVE MISSIONS (DAILY)</div>
+
+              <div class="mc-task-list">
+                <div class="mc-task-row">
+                  <div class="mc-task-check"></div>
+                  <span class="mc-task-name">LeetCode: 3 DP Problems</span>
+                  <span class="mc-task-tag tag-red">High Priority</span>
+                  <span class="mc-task-time">⏱ 2 hrs</span>
+                  <button class="mc-task-play-btn" title="Start Focus Timer" onclick="location.href='/'">▶</button>
+                  <span class="mc-task-kebab">⋮</span>
+                </div>
+
+                <div class="mc-task-row">
+                  <div class="mc-task-check"></div>
+                  <span class="mc-task-name">System Design: Cache Invalidation</span>
+                  <span class="mc-task-tag tag-teal">Architecture</span>
+                  <span class="mc-task-time">⏱ 1.5 hrs</span>
+                  <button class="mc-task-play-btn" title="Start Focus Timer" onclick="location.href='/'">▶</button>
+                  <span class="mc-task-kebab">⋮</span>
+                </div>
+
+                <div class="mc-task-row">
+                  <div class="mc-task-check"></div>
+                  <span class="mc-task-name">Revise Graph Algorithms (SCC)</span>
+                  <span class="mc-task-tag tag-blue">Revision</span>
+                  <span class="mc-task-time">⏱ 1 hr</span>
+                  <button class="mc-task-play-btn" title="Start Focus Timer" onclick="location.href='/'">▶</button>
+                  <span class="mc-task-kebab">⋮</span>
+                </div>
+
+                <div class="mc-task-row">
+                  <div class="mc-task-check"></div>
+                  <span class="mc-task-name">Operating Systems Chapter 4</span>
+                  <span class="mc-task-tag tag-purple">Theory</span>
+                  <span class="mc-task-time">⏱ 1 hr</span>
+                  <button class="mc-task-play-btn" title="Start Focus Timer" onclick="location.href='/'">▶</button>
+                  <span class="mc-task-kebab">⋮</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: World Stage -->
+      <div class="feature-box-panel">
+        <div class="panel-header-wrap">
+          <div class="panel-title-text">
+            <span class="panel-title-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.2"
+                stroke-linecap="round" stroke-linejoin="round"
+                style="filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.45));">
+                <path d="M12 2v20M2 12h20"></path>
+                <path d="m4.93 4.93 14.14 14.14M19.07 4.93 4.93 19.07"></path>
+              </svg>
+            </span>
+            <span>World Stage</span>
+          </div>
+          <div class="panel-desc-text">Compete, stay consistent &amp; climb ranks.</div>
+        </div>
+
+        <div class="panel-display-box">
+          <div class="ws-card-header">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span class="ws-card-title">WORLD STAGE</span>
+              <span
+                style="font-family: 'JetBrains Mono', monospace; font-size: 7.5px; color: #ef4444; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 3px; padding: 1px 4px; font-weight: 700;">●
+                LIVE</span>
+            </div>
+            <div class="ws-time-chips">
+              <span class="ws-chip">TODAY</span>
+              <span class="ws-chip">7 DAYS</span>
+              <span class="ws-chip">30 DAYS</span>
+              <span class="ws-chip active">ALL TIME</span>
+            </div>
+          </div>
+
+          <!-- 3 Podium Pedestals -->
+          <div class="ws-pedestals-row">
+
+            <!-- Rank 2 Pedestal (Nikhil: seen 7h ago) -->
+            <div class="ws-pedestal-card">
+              <div class="ws-top-pedestal-badge silver">2</div>
+              <div class="ws-card-avatar">🦇</div>
+              <div class="ws-card-handle">
+                <span>@nikhil98013</span>
+                <svg width="12" height="8" viewBox="0 0 900 600" style="border-radius:1px; flex-shrink:0;">
+                  <rect width="900" height="200" fill="#FF9933" />
+                  <rect y="200" width="900" height="200" fill="#FFFFFF" />
+                  <rect y="400" width="900" height="200" fill="#128807" />
+                  <circle cx="450" cy="300" r="75" fill="#000088" />
+                </svg>
+              </div>
+              <div class="ws-card-status">• SEEN 7H AGO</div>
+              <div class="ws-card-score">11</div>
+              <div class="ws-card-score-lbl">Rank Score</div>
+              <div class="ws-card-time-pill">
+                <span class="green-hrs">1h</span> TODAY &bull; 4h 8m
+              </div>
+            </div>
+
+            <!-- Rank 1 Pedestal (Ankit: Gold 👑) -->
+            <div class="ws-pedestal-card rank-1-pedestal">
+              <div class="ws-top-pedestal-badge gold">👑</div>
+              <div class="ws-card-avatar">🪐</div>
+              <div class="ws-card-handle">
+                <span>@ankit1pandey11</span>
+                <svg width="12" height="8" viewBox="0 0 900 600" style="border-radius:1px; flex-shrink:0;">
+                  <rect width="900" height="200" fill="#FF9933" />
+                  <rect y="200" width="900" height="200" fill="#FFFFFF" />
+                  <rect y="400" width="900" height="200" fill="#128807" />
+                  <circle cx="450" cy="300" r="75" fill="#000088" />
+                </svg>
+              </div>
+              <div class="ws-card-status online">● ONLINE</div>
+              <div class="ws-card-score">43</div>
+              <div class="ws-card-score-lbl">Rank Score</div>
+              <div class="ws-card-time-pill">
+                <span class="green-hrs">2h</span> TODAY &bull; 16h 38m
+              </div>
+            </div>
+
+            <!-- Rank 3 Pedestal (Sachin: seen 3d ago) -->
+            <div class="ws-pedestal-card">
+              <div class="ws-top-pedestal-badge bronze">3</div>
+              <div class="ws-card-avatar">🎧</div>
+              <div class="ws-card-handle">
+                <span>@ensachin5</span>
+                <svg width="12" height="8" viewBox="0 0 900 600" style="border-radius:1px; flex-shrink:0;">
+                  <rect width="900" height="200" fill="#FF9933" />
+                  <rect y="200" width="900" height="200" fill="#FFFFFF" />
+                  <rect y="400" width="900" height="200" fill="#128807" />
+                  <circle cx="450" cy="300" r="75" fill="#000088" />
+                </svg>
+              </div>
+              <div class="ws-card-status">• SEEN 3D AGO</div>
+              <div class="ws-card-score">9</div>
+              <div class="ws-card-score-lbl">Rank Score</div>
+              <div class="ws-card-time-pill">
+                <span class="green-hrs">0h</span> TODAY &bull; 28m
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Bottom Ranks 4 & 5 Strip -->
+          <div class="ws-bottom-ranks-row">
+            <div class="ws-mini-rank-chip">
+              <span class="ws-mini-rank-num">4</span>
+              <span class="ws-mini-avatar">🥷</span>
+              <div class="ws-mini-details">
+                <span class="ws-mini-user">@priya_dev 🇮🇳</span>
+                <span class="ws-mini-sub"><span style="color: #10b981; font-weight: 700;">1h 15m</span> &bull; 8
+                  PTS</span>
+              </div>
+            </div>
+
+            <div class="ws-mini-rank-chip">
+              <span class="ws-mini-rank-num">5</span>
+              <span class="ws-mini-avatar">👾</span>
+              <div class="ws-mini-details">
+                <span class="ws-mini-user">@rahul_coder 🇮🇳</span>
+                <span class="ws-mini-sub"><span style="color: #10b981; font-weight: 700;">1h 00m</span> &bull; 7
+                  PTS</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Card 3: Weekly Summary -->
+      <div class="feature-box-panel">
+        <div class="panel-header-wrap">
+          <div class="panel-title-text">
+            <span class="panel-title-icon">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round"
+                style="filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.4));">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+              </svg>
+            </span>
+            <span>Weekly Summary</span>
+          </div>
+          <div class="panel-desc-text">Your study hours &amp; daily breakdown.</div>
+        </div>
+
+        <div class="panel-display-box">
+          <!-- Top Stats Row -->
+          <div class="summary-stats-banner">
+            <div class="summary-stat-node">
+              <span class="summary-stat-tag">Total Hours</span>
+              <span class="summary-stat-digit">10h 24m</span>
+            </div>
+            <div class="summary-stat-node">
+              <span class="summary-stat-tag">Active Days</span>
+              <span class="summary-stat-digit green-highlight">6 / 7</span>
+            </div>
+            <div class="summary-stat-node">
+              <span class="summary-stat-tag">Focus Score</span>
+              <span class="summary-stat-digit green-highlight">56/100</span>
+            </div>
+            <div class="summary-stat-node">
+              <span class="summary-stat-tag">Daily Avg</span>
+              <span class="summary-stat-digit">1h 29m</span>
+            </div>
+          </div>
+
+          <!-- Activity Heatmap Section (Authentic from Image 2) -->
+          <div class="summary-heatmap-container">
+            <div class="summary-heatmap-title-row">
+              <span class="summary-heatmap-heading">Activity Heatmap</span>
+              <div class="summary-legend-scale">
+                <span>Less</span>
+                <span class="summary-legend-block"
+                  style="background: rgba(255,255,255,0.06); width: 7px; height: 7px; border-radius: 1.5px;"></span>
+                <span class="summary-legend-block"
+                  style="background: rgba(168,85,247,0.3); width: 7px; height: 7px; border-radius: 1.5px;"></span>
+                <span class="summary-legend-block"
+                  style="background: #a855f7; width: 7px; height: 7px; border-radius: 1.5px;"></span>
+                <span>More</span>
+              </div>
+            </div>
+
+            <!-- Days Column Axis -->
+            <div class="summary-days-axis">
+              <span></span>
+              <span class="summary-day-label">Sat</span>
+              <span class="summary-day-label">Sun</span>
+              <span class="summary-day-label">Mon</span>
+              <span class="summary-day-label">Tue</span>
+              <span class="summary-day-label">Wed</span>
+              <span class="summary-day-label">Thu</span>
+              <span class="summary-day-label">Fri</span>
+            </div>
+
+            <!-- Subject Rows with Activity Blocks -->
+            <div class="summary-subject-row">
+              <span class="summary-subject-name">
+                <span class="summary-sub-badge"
+                  style="background: rgba(6, 182, 212, 0.15); border: 1px solid rgba(6, 182, 212, 0.35);">
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="16 18 22 12 16 6"></polyline>
+                    <polyline points="8 6 2 12 8 18"></polyline>
+                  </svg>
+                </span>
+                <span>C++</span>
+              </span>
+              <div class="summary-heat-cell"></div>
+              <div class="summary-heat-cell"></div>
+              <div class="summary-heat-cell"></div>
+              <div class="summary-heat-cell"></div>
+              <div class="summary-heat-cell"></div>
+              <div class="summary-heat-cell active-glow"></div>
+              <div class="summary-heat-cell"></div>
+            </div>
+
+            <div class="summary-subject-row">
+              <span class="summary-subject-name">
+                <span class="summary-sub-badge"
+                  style="background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.35);">
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z">
+                    </path>
+                    <path
+                      d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z">
+                    </path>
+                    <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path>
+                    <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path>
+                  </svg>
+                </span>
+                <span>C-Proj</span>
+              </span>
+              <div class="summary-heat-cell active-glow"></div>
+              <div class="summary-heat-cell active-glow"></div>
+              <div class="summary-heat-cell"></div>
+              <div class="summary-heat-cell"></div>
+              <div class="summary-heat-cell"></div>
+              <div class="summary-heat-cell"></div>
+              <div class="summary-heat-cell"></div>
+            </div>
+
+            <div class="summary-subject-row">
+              <span class="summary-subject-name">
+                <span class="summary-sub-badge"
+                  style="background: rgba(236, 72, 153, 0.15); border: 1px solid rgba(236, 72, 153, 0.35);">
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2.2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                    <line x1="8" y1="21" x2="16" y2="21"></line>
+                    <line x1="12" y1="17" x2="12" y2="21"></line>
+                  </svg>
+                </span>
+                <span>OS</span>
+              </span>
+              <div class="summary-heat-cell"></div>
+              <div class="summary-heat-cell active-dim"></div>
+              <div class="summary-heat-cell active-dim"></div>
+              <div class="summary-heat-cell"></div>
+              <div class="summary-heat-cell"></div>
+              <div class="summary-heat-cell"></div>
+              <div class="summary-heat-cell"></div>
+            </div>
+
+            <div class="summary-subject-row">
+              <span class="summary-subject-name">
+                <span class="summary-sub-badge"
+                  style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.35);">
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                    <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+                  </svg>
+                </span>
+                <span>CLG</span>
+              </span>
+              <div class="summary-heat-cell"></div>
+              <div class="summary-heat-cell"></div>
+              <div class="summary-heat-cell"></div>
+              <div class="summary-heat-cell active-glow"></div>
+              <div class="summary-heat-cell active-glow"></div>
+              <div class="summary-heat-cell active-glow"></div>
+              <div class="summary-heat-cell"></div>
+            </div>
+          </div>
+
+          <!-- Subject Breakdown Gauges (Authentic from Image 2) -->
+          <div class="summary-breakdown-box">
+            <div class="summary-breakdown-item">
+              <span class="summary-sub-badge"
+                style="background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.35); width: 14px; height: 14px;">
+                <svg width="8.5" height="8.5" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z">
+                  </path>
+                  <path
+                    d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z">
+                  </path>
+                  <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path>
+                  <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path>
+                </svg>
+              </span>
+              <span class="summary-subject-title">C-Project</span>
+              <div class="summary-bar-track">
+                <div class="summary-bar-gauge"
+                  style="width: 45%; background: #3b82f6; height: 100%; border-radius: 2px;"></div>
+              </div>
+              <span class="summary-pct-label"
+                style="font-size: 8px; color: #94a3b8; width: 28px; text-align: right;">45%</span>
+            </div>
+            <div class="summary-breakdown-item">
+              <span class="summary-sub-badge"
+                style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.35); width: 14px; height: 14px;">
+                <svg width="8.5" height="8.5" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                  <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+                </svg>
+              </span>
+              <span class="summary-subject-title">CLG</span>
+              <div class="summary-bar-track">
+                <div class="summary-bar-gauge"
+                  style="width: 44%; background: #ef4444; height: 100%; border-radius: 2px;"></div>
+              </div>
+              <span class="summary-pct-label"
+                style="font-size: 8px; color: #94a3b8; width: 28px; text-align: right;">44%</span>
+            </div>
+            <div class="summary-breakdown-item">
+              <span class="summary-sub-badge"
+                style="background: rgba(236, 72, 153, 0.15); border: 1px solid rgba(236, 72, 153, 0.35); width: 14px; height: 14px;">
+                <svg width="8.5" height="8.5" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2.2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                  <line x1="8" y1="21" x2="16" y2="21"></line>
+                  <line x1="12" y1="17" x2="12" y2="21"></line>
+                </svg>
+              </span>
+              <span class="summary-subject-title">OS</span>
+              <div class="summary-bar-track">
+                <div class="summary-bar-gauge"
+                  style="width: 7%; background: #ec4899; height: 100%; border-radius: 2px;"></div>
+              </div>
+              <span class="summary-pct-label"
+                style="font-size: 8px; color: #94a3b8; width: 28px; text-align: right;">7%</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+
+
+
+
+
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SECTION 3: BESPOKE BENTO GRID ARCHITECTURE
+         ═══════════════════════════════════════════════════════════ -->
+    <section class="landing-section-wrap" id="features">
+      <div class="section-meta-header">
+        <span class="section-pill-badge">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polygon
+              points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+            </polygon>
+          </svg>
+          Built for Consistent Students &amp; Coders
+        </span>
+        <h2 class="section-headline">Everything in one place to study and stay consistent.</h2>
+        <p class="section-subtitle">
+          No more messy spreadsheets or jumping between five different apps. Your syllabus, study timer, revision
+          whiteboard, and progress stay organized in one simple dashboard.
+        </p>
+      </div>
+
+      <!-- Interactive Architecture Studio Console -->
+      <div class="arch-studio-container">
+
+        <!-- Left Navigation Rail (4 Core Modules) -->
+        <div class="arch-nav-rail" role="tablist" aria-label="System Architecture Modules">
+
+          <!-- 1. Mission Status & Thoughts (The Morning Cockpit & Launchpad) -->
+          <button class="arch-nav-tab active" role="tab" aria-selected="true" onclick="switchArchTab(0)">
+            <div class="arch-tab-icon" style="color: #a855f7;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+              </svg>
+            </div>
+            <div class="arch-tab-info">
+              <span class="arch-tab-title">Mission Status &amp; Thoughts</span>
+              <span class="arch-tab-sub">Dynamic goals &amp; memory thought engine</span>
+            </div>
+            <span class="arch-tab-arrow">→</span>
+          </button>
+
+          <!-- 2. Syllabus / Roadmap (The Study Plan) -->
+          <button class="arch-nav-tab" role="tab" aria-selected="false" onclick="switchArchTab(1)">
+            <div class="arch-tab-icon" style="color: #c084fc;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+            </div>
+            <div class="arch-tab-info">
+              <span class="arch-tab-title">Syllabus / Roadmap</span>
+              <span class="arch-tab-sub">Track chapters, topics &amp; study goals</span>
+            </div>
+            <span class="arch-tab-arrow">→</span>
+          </button>
+
+          <!-- 3. Bookmarks Vault (Resource Preparation) -->
+          <button class="arch-nav-tab" role="tab" aria-selected="false" onclick="switchArchTab(2)">
+            <div class="arch-tab-icon" style="color: #06b6d4;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+              </svg>
+            </div>
+            <div class="arch-tab-info">
+              <span class="arch-tab-title">Bookmarks Vault</span>
+              <span class="arch-tab-sub">Curate links, DSA sheets &amp; study resources</span>
+            </div>
+            <span class="arch-tab-arrow">→</span>
+          </button>
+
+          <!-- 4. Whiteboard & Canvas (Deep Work & Diagramming) -->
+          <button class="arch-nav-tab" role="tab" aria-selected="false" onclick="switchArchTab(3)">
+            <div class="arch-tab-icon" style="color: #818cf8;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
+                <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+              </svg>
+            </div>
+            <div class="arch-tab-info">
+              <span class="arch-tab-title">Whiteboard &amp; Canvas</span>
+              <span class="arch-tab-sub">Draw diagrams &amp; solve DSA problems</span>
+            </div>
+            <span class="arch-tab-arrow">→</span>
+          </button>
+
+          <!-- 5. Session History (Telemetry & Time Logging) -->
+          <button class="arch-nav-tab" role="tab" aria-selected="false" onclick="switchArchTab(4)">
+            <div class="arch-tab-icon" style="color: #38bdf8;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </div>
+            <div class="arch-tab-info">
+              <span class="arch-tab-title">Session History</span>
+              <span class="arch-tab-sub">Log daily focus sessions, breaks &amp; notes</span>
+            </div>
+            <span class="arch-tab-arrow">→</span>
+          </button>
+
+          <!-- 6. Maamu AI Coaching (Performance Audit & Review) -->
+          <button class="arch-nav-tab" role="tab" aria-selected="false" onclick="switchArchTab(5)">
+            <div class="arch-tab-icon" style="color: #ef4444;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path
+                  d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z">
+                </path>
+              </svg>
+            </div>
+            <div class="arch-tab-info">
+              <span class="arch-tab-title">Maamu AI Coaching</span>
+              <span class="arch-tab-sub">Honest, no-excuses study feedback</span>
+            </div>
+            <span class="arch-tab-arrow">→</span>
+          </button>
+
+          <!-- 7. Study Heatmap (365-Day) (Long-term Consistency Streak) -->
+          <button class="arch-nav-tab" role="tab" aria-selected="false" onclick="switchArchTab(6)">
+            <div class="arch-tab-icon" style="color: #f59e0b;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+            </div>
+            <div class="arch-tab-info">
+              <span class="arch-tab-title">Study Heatmap (365-Day)</span>
+              <span class="arch-tab-sub">See your daily consistency all year</span>
+            </div>
+            <span class="arch-tab-arrow">→</span>
+          </button>
+
+          <!-- 8. Appearance, Themes & Fonts (Personalization & Aesthetics) -->
+          <button class="arch-nav-tab" role="tab" aria-selected="false" onclick="switchArchTab(7)">
+            <div class="arch-tab-icon" style="color: #ec4899;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+                <path d="M2 12h20"></path>
+              </svg>
+            </div>
+            <div class="arch-tab-info">
+              <span class="arch-tab-title">Appearance, Themes &amp; Fonts</span>
+              <span class="arch-tab-sub">Choose dark themes, colors &amp; fonts</span>
+            </div>
+            <span class="arch-tab-arrow">→</span>
+          </button>
+
+        </div>
+
+        <!-- Right Living Stage Viewport -->
+        <div class="arch-stage-display">
+
+          <!-- Top Terminal Header Bar -->
+          <div class="arch-stage-chrome">
+            <div class="arch-chrome-dots">
+              <span class="arch-chrome-dot" style="background: #ef4444;"></span>
+              <span class="arch-chrome-dot" style="background: #f59e0b;"></span>
+              <span class="arch-chrome-dot" style="background: #10b981;"></span>
+            </div>
+            <span id="archBreadcrumbTitle"
+              style="color: #94a3b8; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.6px; font-weight: 700;">ALLTRACKER
+              // Mission Status &amp; Cockpit Wisdom</span>
+            <div style="display: flex; align-items: center; gap: 6px; color: #c084fc;">
+              <span
+                style="width: 6px; height: 6px; border-radius: 50%; background: #c084fc; box-shadow: 0 0 8px rgba(192, 132, 252, 0.6);"></span>
+              <span>LIVE</span>
+            </div>
+          </div>
+
+          <div class="arch-stage-body">
+
+            <!-- PANEL 1: Syllabus / Roadmap (Exact Real UI - Image 2) -->
+            <div class="arch-panel-content" id="archPanel1">
+              <div class="real-roadmap-wrap">
+                <!-- Roadmap Header (Matching Real App UI) -->
+                <div class="real-roadmap-header">
+                  <div class="real-roadmap-title-area">
+                    <h2 class="real-roadmap-title">Syllabus / Roadmap</h2>
+                    <div class="real-roadmap-badge">
+                      <span class="dot"></span>
+                      <span style="color: #c084fc;">0% Completed</span>
+                      <span style="opacity: 0.35;">·</span>
+                      <span style="color: #94a3b8;">0 / 0 tasks</span>
+                    </div>
+                  </div>
+                  <div class="real-roadmap-actions">
+                    <select class="real-roadmap-select" aria-label="Status filter">
+                      <option>All Status</option>
+                      <option>Not Started</option>
+                      <option>In Progress</option>
+                      <option>Completed</option>
+                      <option>Skipped</option>
+                    </select>
+                    <div class="real-roadmap-search">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                      </svg>
+                      <span>Search syllabus...</span>
+                    </div>
+                    <button class="real-roadmap-btn btn-import">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2.2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                      </svg>
+                      <span>Import</span>
+                    </button>
+                    <button class="real-roadmap-btn">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                      </svg>
+                      <span>Clear</span>
+                    </button>
+                    <button class="real-roadmap-btn">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                      <span>Close</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Dropzone Upload Area (Matching Real App UI) -->
+                <div class="real-roadmap-dropzone">
+                  <div style="color: #64748b;">
+                    <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="1.6">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                      <polyline points="14 2 14 8 20 8"></polyline>
+                      <line x1="16" y1="13" x2="8" y2="13"></line>
+                      <line x1="16" y1="17" x2="8" y2="17"></line>
+                      <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                  </div>
+                  <p>Click or drag an Excel file to import</p>
+                  <span>Supports .xlsx, .xls, .csv</span>
+                </div>
+
+                <!-- Footer Stats Bar (Matching Real App UI) -->
+                <div class="real-roadmap-footer">
+                  <div class="real-roadmap-stat-item">
+                    <div class="real-roadmap-stat-icon"
+                      style="background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.25); color: #c084fc;">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                      </svg>
+                    </div>
+                    <div class="real-roadmap-stat-meta">
+                      <span class="real-roadmap-stat-label">TOTAL DAYS</span>
+                      <span class="real-roadmap-stat-val">0</span>
+                    </div>
+                  </div>
+
+                  <div class="real-roadmap-stat-item">
+                    <div class="real-roadmap-stat-icon"
+                      style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); color: #10b981;">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                      </svg>
+                    </div>
+                    <div class="real-roadmap-stat-meta">
+                      <span class="real-roadmap-stat-label">COMPLETED</span>
+                      <span class="real-roadmap-stat-val">0 <span
+                          style="font-size: 10px; opacity: 0.7; font-weight: 500;">(0%)</span></span>
+                    </div>
+                  </div>
+
+                  <div class="real-roadmap-stat-item">
+                    <div class="real-roadmap-stat-icon"
+                      style="background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.25); color: #c084fc;">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                      </svg>
+                    </div>
+                    <div class="real-roadmap-stat-meta">
+                      <span class="real-roadmap-stat-label">REMAINING</span>
+                      <span class="real-roadmap-stat-val">0 <span
+                          style="font-size: 10px; opacity: 0.7; font-weight: 500;">(0%)</span></span>
+                    </div>
+                  </div>
+
+                  <div class="real-roadmap-progress-wrap">
+                    <div class="real-roadmap-progress-header">
+                      <span>PROGRESS</span>
+                      <span style="color: #ffffff; font-size: 11px;">0%</span>
+                    </div>
+                    <div class="real-roadmap-progress-track">
+                      <div
+                        style="width: 0%; height: 100%; background: linear-gradient(90deg, #9333ea, #c084fc); box-shadow: 0 0 8px rgba(168, 85, 247, 0.5);">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- PANEL 6: Study Heatmap (Exact Real UI - Image 3) -->
+            <div class="arch-panel-content" id="archPanel6">
+              <div class="real-heatmap-wrap">
+
+                <!-- Heatmap Header (Matching Real App UI) -->
+                <div class="real-heatmap-header">
+                  <h2 class="real-heatmap-title">STUDY HEATMAP</h2>
+                  <div class="real-heatmap-controls">
+                    <div class="real-heatmap-year">2026</div>
+                    <button
+                      style="background: none; border: none; color: #94a3b8; font-size: 18px; cursor: pointer; line-height: 1;"
+                      title="Close Heatmap">✕</button>
+                  </div>
+                </div>
+
+                <!-- 3 KPI Cards (Matching Real App UI) -->
+                <div class="real-heatmap-kpi-grid">
+                  <div class="real-heatmap-kpi-card">
+                    <div class="real-heatmap-kpi-label">TOTAL STUDY DAYS</div>
+                    <div class="real-heatmap-kpi-num gold">18</div>
+                  </div>
+                  <div class="real-heatmap-kpi-card">
+                    <div class="real-heatmap-kpi-label">DAILY AVERAGE</div>
+                    <div class="real-heatmap-kpi-num" style="color: #ffffff;">1.7h</div>
+                  </div>
+                  <div class="real-heatmap-kpi-card">
+                    <div class="real-heatmap-kpi-label">BEST PERFORMANCE</div>
+                    <div class="real-heatmap-kpi-num best-val">4 Sept 2026 (4.0h)</div>
+                  </div>
+                </div>
+
+                <!-- Heatmap Matrix Area (Matching Real App UI) -->
+                <div class="real-heatmap-matrix-card">
+                  <div class="real-heatmap-months-row">
+                    <span>JAN</span><span>FEB</span><span>MAR</span><span>APR</span><span>MAY</span><span>JUN</span>
+                    <span>JUL</span><span>AUG</span><span
+                      style="color: #f59e0b; font-weight: 800;">SEP</span><span>OCT</span><span>NOV</span><span>DEC</span>
+                  </div>
+
+                  <div class="real-heatmap-matrix-body">
+                    <div class="real-heatmap-yaxis">
+                      <span>Mon</span>
+                      <span>Wed</span>
+                      <span>Fri</span>
+                    </div>
+
+                    <!-- SVG Grid with Amber/Gold Intensity Cells Matching Screenshot -->
+                    <div style="flex-grow: 1; overflow-x: auto;">
+                      <svg width="100%" height="72" viewBox="0 0 520 72" fill="none"
+                        style="display: block; min-width: 480px;">
+                        <g opacity="0.35">
+                          <pattern id="emptyGridDots" width="10" height="10" patternUnits="userSpaceOnUse">
+                            <rect width="8" height="8" rx="1.5" fill="rgba(255, 255, 255, 0.03)" />
+                          </pattern>
+                          <rect width="340" height="70" fill="url(#emptyGridDots)" />
+                          <rect x="410" width="110" height="70" fill="url(#emptyGridDots)" />
+                        </g>
+
+                        <!-- Active Gold/Amber Cells around AUG / SEP (Matching Image 3) -->
+                        <g transform="translate(340, 0)">
+                          <!-- Week 35 (Late Aug) -->
+                          <rect x="0" y="0" width="8" height="8" rx="1.5" fill="rgba(255,255,255,0.03)" />
+                          <rect x="0" y="10" width="8" height="8" rx="1.5" fill="rgba(255,255,255,0.03)" />
+                          <rect x="0" y="20" width="8" height="8" rx="1.5" fill="rgba(255,255,255,0.03)" />
+                          <rect x="0" y="30" width="8" height="8" rx="1.5" fill="rgba(255,255,255,0.03)" />
+                          <rect x="0" y="40" width="8" height="8" rx="1.5" fill="rgba(255,255,255,0.03)" />
+                          <rect x="0" y="50" width="8" height="8" rx="1.5" fill="rgba(255,255,255,0.03)" />
+                          <rect x="0" y="60" width="8" height="8" rx="1.5" fill="#451a03" />
+
+                          <!-- Week 36 (Early Sep) -->
+                          <rect x="10" y="0" width="8" height="8" rx="1.5" fill="#78350f" />
+                          <rect x="10" y="10" width="8" height="8" rx="1.5" fill="#b45309" />
+                          <rect x="10" y="20" width="8" height="8" rx="1.5" fill="#78350f" />
+                          <rect x="10" y="30" width="8" height="8" rx="1.5" fill="#d97706" />
+                          <rect x="10" y="40" width="8" height="8" rx="1.5" fill="#f59e0b" />
+                          <rect x="10" y="50" width="8" height="8" rx="1.5" fill="rgba(255,255,255,0.03)" />
+                          <rect x="10" y="60" width="8" height="8" rx="1.5" fill="#b45309" />
+
+                          <!-- Week 37 (Mid Sep - Peak Day 4 Sept 4.0h) -->
+                          <rect x="20" y="0" width="8" height="8" rx="1.5" fill="#d97706" />
+                          <rect x="20" y="10" width="8" height="8" rx="1.5" fill="#b45309" />
+                          <rect x="20" y="20" width="8" height="8" rx="1.5" fill="#fbbf24"
+                            style="filter: drop-shadow(0 0 4px #f59e0b);" />
+                          <rect x="20" y="30" width="8" height="8" rx="1.5" fill="#b45309" />
+                          <rect x="20" y="40" width="8" height="8" rx="1.5" fill="#78350f" />
+                          <rect x="20" y="50" width="8" height="8" rx="1.5" fill="#fbbf24" />
+                          <rect x="20" y="60" width="8" height="8" rx="1.5" fill="#d97706" />
+
+                          <!-- Week 38 (Active) -->
+                          <rect x="30" y="0" width="8" height="8" rx="1.5" fill="rgba(255,255,255,0.03)" />
+                          <rect x="30" y="10" width="8" height="8" rx="1.5" fill="rgba(255,255,255,0.03)" />
+                          <rect x="30" y="20" width="8" height="8" rx="1.5" fill="#b45309" />
+                          <rect x="30" y="30" width="8" height="8" rx="1.5" fill="rgba(255,255,255,0.03)" />
+                          <rect x="30" y="40" width="8" height="8" rx="1.5" fill="rgba(255,255,255,0.03)" />
+                          <rect x="30" y="50" width="8" height="8" rx="1.5" fill="#fbbf24" />
+                          <rect x="30" y="60" width="8" height="8" rx="1.5" fill="rgba(255,255,255,0.03)" />
+
+                          <!-- Week 39 (Active) -->
+                          <rect x="40" y="0" width="8" height="8" rx="1.5" fill="rgba(255,255,255,0.03)" />
+                          <rect x="40" y="10" width="8" height="8" rx="1.5" fill="rgba(255,255,255,0.03)" />
+                          <rect x="40" y="20" width="8" height="8" rx="1.5" fill="rgba(255,255,255,0.03)" />
+                          <rect x="40" y="30" width="8" height="8" rx="1.5" fill="rgba(255,255,255,0.03)" />
+                          <rect x="40" y="40" width="8" height="8" rx="1.5" fill="rgba(255,255,255,0.03)" />
+                          <rect x="40" y="50" width="8" height="8" rx="1.5" fill="rgba(255,255,255,0.03)" />
+                          <rect x="40" y="60" width="8" height="8" rx="1.5" fill="#b45309" />
+
+                          <!-- Week 40 (Oct start) -->
+                          <rect x="50" y="0" width="8" height="8" rx="1.5" fill="rgba(255,255,255,0.03)" />
+                          <rect x="50" y="10" width="8" height="8" rx="1.5" fill="rgba(255,255,255,0.03)" />
+                          <rect x="50" y="20" width="8" height="8" rx="1.5" fill="rgba(255,255,255,0.03)" />
+                          <rect x="50" y="30" width="8" height="8" rx="1.5" fill="rgba(255,255,255,0.03)" />
+                          <rect x="50" y="40" width="8" height="8" rx="1.5" fill="rgba(255,255,255,0.03)" />
+                          <rect x="50" y="50" width="8" height="8" rx="1.5" fill="rgba(255,255,255,0.03)" />
+                          <rect x="50" y="60" width="8" height="8" rx="1.5" fill="#b45309" />
+                        </g>
+                      </svg>
+                    </div>
+                  </div>
+
+                  <!-- Legend Footer Matching Image 3 -->
+                  <div class="real-heatmap-legend">
+                    <span>LESS</span>
+                    <span class="real-heatmap-cell-swatch" style="background: rgba(255,255,255,0.04);"></span>
+                    <span class="real-heatmap-cell-swatch" style="background: #451a03;"></span>
+                    <span class="real-heatmap-cell-swatch" style="background: #78350f;"></span>
+                    <span class="real-heatmap-cell-swatch" style="background: #b45309;"></span>
+                    <span class="real-heatmap-cell-swatch" style="background: #d97706;"></span>
+                    <span class="real-heatmap-cell-swatch" style="background: #f59e0b;"></span>
+                    <span>MORE</span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- PANEL 3: Canvas & Whiteboard (Exact Real UI - Image 4) -->
+            <div class="arch-panel-content" id="archPanel3">
+              <div class="real-canvas-wrap">
+
+                <!-- Canvas Top Bar Switcher (Matching Real App UI) -->
+                <div class="real-canvas-top-bar">
+                  <div class="real-canvas-tools">
+                    <button class="real-canvas-tab-btn active" title="Active Canvas: tldraw">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
+                        <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+                      </svg>
+                      <span>tldraw (Default)</span>
+                    </button>
+                    <button class="real-canvas-tab-btn" title="Switch to Excalidraw">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M12 20h9"></path>
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                      </svg>
+                      <span>Excalidraw</span>
+                    </button>
+                  </div>
+                  <div style="display: flex; gap: 6px;">
+                    <button
+                      style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 6px; padding: 6px 10px; color: #94a3b8; cursor: pointer;"
+                      title="Reload Canvas">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M23 4v6h-6"></path>
+                        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                      </svg>
+                    </button>
+                    <button
+                      style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 6px; padding: 6px 10px; color: #94a3b8; cursor: pointer;"
+                      title="Toggle Focus Fullscreen">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M15 3h6v6"></path>
+                        <path d="M9 21H3v-6"></path>
+                        <path d="M21 3l-7 7"></path>
+                        <path d="M3 21l7-7"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- White Canvas Stage (Matching Real App UI) -->
+                <div class="real-canvas-stage">
+                  <!-- Header brand & tools inside canvas -->
+                  <div class="real-canvas-header-left">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="#0f172a">
+                      <rect x="3" y="3" width="18" height="18" rx="4"></rect>
+                      <path d="M12 8v8M8 12h8" stroke="#ffffff" stroke-width="2"></path>
+                    </svg>
+                    <span>tldraw</span>
+                    <span style="color: #94a3b8; font-size: 13px; margin-left: 2px;">⋮</span>
+                  </div>
+
+                  <div class="real-canvas-header-right">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2">
+                      <circle cx="18" cy="5" r="3"></circle>
+                      <circle cx="6" cy="12" r="3"></circle>
+                      <circle cx="18" cy="19" r="3"></circle>
+                      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                    </svg>
+                    <button
+                      style="background: #2563eb; color: #ffffff; border: none; border-radius: 6px; padding: 5px 12px; font-size: 11px; font-weight: 700; cursor: pointer; box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);">Sign
+                      in to share</button>
+                  </div>
+
+                  <!-- Right Floating Tools Palette (Exact match of Image 4) -->
+                  <div class="real-canvas-floating-palette">
+                    <!-- 12 color circle swatches -->
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
+                      <span
+                        style="width: 14px; height: 14px; border-radius: 50%; background: #18181b; display: inline-block;"></span>
+                      <span
+                        style="width: 14px; height: 14px; border-radius: 50%; background: #94a3b8; display: inline-block;"></span>
+                      <span
+                        style="width: 14px; height: 14px; border-radius: 50%; background: #c084fc; display: inline-block;"></span>
+                      <span
+                        style="width: 14px; height: 14px; border-radius: 50%; background: #9333ea; display: inline-block;"></span>
+                      <span
+                        style="width: 14px; height: 14px; border-radius: 50%; background: #2563eb; display: inline-block;"></span>
+                      <span
+                        style="width: 14px; height: 14px; border-radius: 50%; background: #38bdf8; display: inline-block;"></span>
+                      <span
+                        style="width: 14px; height: 14px; border-radius: 50%; background: #fb923c; display: inline-block;"></span>
+                      <span
+                        style="width: 14px; height: 14px; border-radius: 50%; background: #b45309; display: inline-block;"></span>
+                      <span
+                        style="width: 14px; height: 14px; border-radius: 50%; background: #047857; display: inline-block;"></span>
+                      <span
+                        style="width: 14px; height: 14px; border-radius: 50%; background: #22c55e; display: inline-block;"></span>
+                      <span
+                        style="width: 14px; height: 14px; border-radius: 50%; background: #f87171; display: inline-block;"></span>
+                      <span
+                        style="width: 14px; height: 14px; border-radius: 50%; background: #ef4444; display: inline-block;"></span>
+                    </div>
+
+                    <!-- Stroke width line slider with thumb -->
+                    <div style="margin: 4px 0; position: relative; height: 12px; display: flex; align-items: center;">
+                      <div style="width: 100%; height: 2px; background: #2563eb; border-radius: 1px;"></div>
+                      <div
+                        style="position: absolute; right: 2px; width: 10px; height: 10px; border-radius: 50%; background: #ffffff; border: 2px solid #2563eb; box-shadow: 0 1px 3px rgba(0,0,0,0.2);">
+                      </div>
+                    </div>
+
+                    <!-- Shape buttons -->
+                    <div
+                      style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; color: #475569; font-size: 11px; text-align: center;">
+                      <span>▢</span><span>▢</span><span>▢</span><span>▦</span>
+                      <span>◯</span><span>⬡</span><span>◇</span><span>◯</span>
+                    </div>
+
+                    <!-- Size options: S | M | L | XL -->
+                    <div
+                      style="display: flex; justify-content: space-between; font-size: 10px; font-weight: 700; color: #475569; padding-top: 4px; border-top: 1px solid #f1f5f9;">
+                      <span>S</span>
+                      <span style="color: #2563eb; font-weight: 900;">M</span>
+                      <span>L</span>
+                      <span>XL</span>
+                    </div>
+                  </div>
+
+                  <!-- Bottom Floating Action Bar -->
+                  <div class="real-canvas-floating-bar">
+                    <span title="Undo" style="cursor: pointer;">↶</span>
+                    <span title="Redo" style="cursor: pointer;">↷</span>
+                    <span title="Delete" style="cursor: pointer;">🗑️</span>
+                    <span title="Duplicate" style="cursor: pointer;">📋</span>
+                    <span title="Comment" style="cursor: pointer;">💬</span>
+                    <span title="More" style="cursor: pointer; font-weight: bold;">⋮</span>
+                  </div>
+
+                  <!-- Central Active Canvas Diagram -->
+                  <div
+                    style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none;">
+                    <svg width="340" height="180" viewBox="0 0 340 180" fill="none">
+                      <!-- Sketchy Tree / Graph nodes in tldraw aesthetic -->
+                      <line x1="170" y1="40" x2="100" y2="100" stroke="#0f172a" stroke-width="2.5"
+                        stroke-linecap="round" />
+                      <line x1="170" y1="40" x2="240" y2="100" stroke="#2563eb" stroke-width="2.5"
+                        stroke-linecap="round" />
+                      <line x1="100" y1="100" x2="60" y2="150" stroke="#0f172a" stroke-width="2" stroke-dasharray="4 4"
+                        stroke-linecap="round" />
+                      <line x1="100" y1="100" x2="135" y2="150" stroke="#0f172a" stroke-width="2"
+                        stroke-linecap="round" />
+
+                      <!-- Root Node -->
+                      <circle cx="170" cy="40" r="22" fill="#ffffff" stroke="#0f172a" stroke-width="2.5" />
+                      <text x="170" y="46" font-family="'Space Grotesk', sans-serif" font-size="14" font-weight="bold"
+                        fill="#0f172a" text-anchor="middle">Root (50)</text>
+
+                      <!-- Left Child -->
+                      <circle cx="100" cy="100" r="18" fill="#ffffff" stroke="#0f172a" stroke-width="2" />
+                      <text x="100" y="105" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="bold"
+                        fill="#0f172a" text-anchor="middle">25</text>
+
+                      <!-- Right Child (Selected in Blue) -->
+                      <circle cx="240" cy="100" r="20" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5" />
+                      <text x="240" y="105" font-family="'Space Grotesk', sans-serif" font-size="13" font-weight="bold"
+                        fill="#2563eb" text-anchor="middle">75</text>
+
+                      <!-- Leaf Nodes -->
+                      <circle cx="60" cy="150" r="14" fill="#ffffff" stroke="#94a3b8" stroke-width="1.8" />
+                      <text x="60" y="154" font-family="'Space Grotesk', sans-serif" font-size="11" fill="#64748b"
+                        text-anchor="middle">10</text>
+
+                      <circle cx="135" cy="150" r="14" fill="#ffffff" stroke="#0f172a" stroke-width="1.8" />
+                      <text x="135" y="154" font-family="'Space Grotesk', sans-serif" font-size="11" fill="#0f172a"
+                        text-anchor="middle">30</text>
+
+                      <!-- Handwritten style sticky note on side -->
+                      <g transform="translate(195, 125)">
+                        <rect width="90" height="42" rx="4" fill="#fef08a" stroke="#ca8a04" stroke-width="1" />
+                        <text x="10" y="18" font-family="'Space Grotesk', sans-serif" font-size="10" font-weight="bold"
+                          fill="#854d0e">BST Property:</text>
+                        <text x="10" y="32" font-family="'JetBrains Mono', monospace" font-size="9" fill="#713f12">O(log
+                          N) Search</text>
+                      </g>
+                    </svg>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- PANEL 7: Executive Cyber Themes & Pro Fonts (Exact Real UI - Image 1) -->
+            <div class="arch-panel-content" id="archPanel7">
+              <div class="img1-appearance-card">
+
+                <!-- Header matching Image 1: APPEARANCE / THEME -->
+                <div class="img1-card-header">
+                  <h3 class="img1-header-title">APPEARANCE / THEME</h3>
+                </div>
+
+                <!-- 1. Select Visual Theme (6 Built-in Themes) -->
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                  <label class="img1-section-label">Select Visual Theme (6 Built-in Themes)</label>
+                  <div class="img1-theme-grid">
+
+                    <!-- 1. Obsidian Glass (Active in Image 1) -->
+                    <div class="img1-theme-box active" id="themeBox_obsidian"
+                      onclick="previewThemeImg1('obsidian', '#3b82f6', 'rgba(15, 23, 42, 0.85)', '#3b82f6')">
+                      <div class="img1-theme-meta">
+                        <span class="img1-theme-name" style="color: #ffffff;">Obsidian Glass</span>
+                        <span class="img1-theme-tag" style="color: #94a3b8;">DEFAULT HUD</span>
+                      </div>
+                      <div class="img1-radio-outer active">
+                        <div class="img1-radio-inner"></div>
+                      </div>
+                    </div>
+
+                    <!-- 2. Stealth Midnight -->
+                    <div class="img1-theme-box" id="themeBox_stealth"
+                      onclick="previewThemeImg1('stealth', '#10b981', '#05070a', '#1e293b')">
+                      <div class="img1-theme-meta">
+                        <span class="img1-theme-name" style="color: #f1f5f9;">Stealth Midnight</span>
+                        <span class="img1-theme-tag" style="color: #64748b;">ELITE OBSIDIAN</span>
+                      </div>
+                      <div class="img1-radio-outer">
+                        <div class="img1-radio-inner"></div>
+                      </div>
+                    </div>
+
+                    <!-- 3. Tactical Navy -->
+                    <div class="img1-theme-box" id="themeBox_navy"
+                      onclick="previewThemeImg1('navy', '#38bdf8', 'rgba(8, 13, 26, 0.95)', '#2563eb')">
+                      <div class="img1-theme-meta">
+                        <span class="img1-theme-name" style="color: #bfdbfe;">Tactical Navy</span>
+                        <span class="img1-theme-tag" style="color: #38bdf8;">CHANAKYA SAGE</span>
+                      </div>
+                      <div class="img1-radio-outer">
+                        <div class="img1-radio-inner"></div>
+                      </div>
+                    </div>
+
+                    <!-- 4. Solar Gold -->
+                    <div class="img1-theme-box" id="themeBox_gold"
+                      onclick="previewThemeImg1('gold', '#f59e0b', 'rgba(18, 14, 6, 0.95)', '#b45309')">
+                      <div class="img1-theme-meta">
+                        <span class="img1-theme-name" style="color: #fef08a;">Solar Gold</span>
+                        <span class="img1-theme-tag" style="color: #d97706;">WARM AMBER</span>
+                      </div>
+                      <div class="img1-radio-outer">
+                        <div class="img1-radio-inner"></div>
+                      </div>
+                    </div>
+
+                    <!-- 5. Pristine White -->
+                    <div class="img1-theme-box pristine" id="themeBox_white"
+                      onclick="previewThemeImg1('white', '#2563eb', '#ffffff', '#cbd5e1')">
+                      <div class="img1-theme-meta">
+                        <span class="img1-theme-name" style="color: #0f172a;">Pristine White</span>
+                        <span class="img1-theme-tag" style="color: #64748b;">LIGHT MODE</span>
+                      </div>
+                      <div class="img1-radio-outer pristine-radio">
+                        <div class="img1-radio-inner"></div>
+                      </div>
+                    </div>
+
+                    <!-- 6. Quantum Purple -->
+                    <div class="img1-theme-box" id="themeBox_purple"
+                      onclick="previewThemeImg1('purple', '#c084fc', 'rgba(20, 8, 38, 0.95)', '#7e22ce')">
+                      <div class="img1-theme-meta">
+                        <span class="img1-theme-name" style="color: #f3e8ff;">Quantum Purple</span>
+                        <span class="img1-theme-tag" style="color: #c084fc;">CYBER NEON</span>
+                      </div>
+                      <div class="img1-radio-outer">
+                        <div class="img1-radio-inner"></div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                <!-- 2. Accent Color Row (Exact match of Image 1) -->
+                <div class="img1-row">
+                  <label class="img1-row-label">Accent Color</label>
+                  <div style="display: flex; align-items: center; gap: 12px; flex: 1; flex-wrap: wrap;">
+                    <div class="img1-hex-badge">
+                      <span id="img1AccentSquare" class="img1-hex-square" style="background: #a855f7;"></span>
+                      <span id="img1AccentHex" class="img1-hex-text">#a855f7</span>
+                    </div>
+                    <div class="img1-color-swatches">
+                      <span class="img1-swatch active" onclick="setAccentImg1('#a855f7', this)"
+                        style="background: #a855f7;" title="Purple"></span>
+                      <span class="img1-swatch" onclick="setAccentImg1('#3b82f6', this)" style="background: #3b82f6;"
+                        title="Blue"></span>
+                      <span class="img1-swatch" onclick="setAccentImg1('#10b981', this)" style="background: #10b981;"
+                        title="Emerald"></span>
+                      <span class="img1-swatch" onclick="setAccentImg1('#f59e0b', this)" style="background: #f59e0b;"
+                        title="Gold"></span>
+                      <span class="img1-swatch" onclick="setAccentImg1('#f43f5e', this)" style="background: #f43f5e;"
+                        title="Rose"></span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 3. Timer Layout Row (Exact match of Image 1) -->
+                <div class="img1-row">
+                  <label class="img1-row-label">Timer Layout</label>
+                  <div class="img1-layout-options">
+                    <button class="img1-layout-btn active" id="img1LayoutBlock" onclick="setLayoutImg1('block')">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                        <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+                        <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+                        <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+                        <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+                      </svg>
+                      <span>Neon Block (Recommended)</span>
+                    </button>
+                    <button class="img1-layout-btn" id="img1LayoutRing" onclick="setLayoutImg1('ring')">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <circle cx="12" cy="12" r="9"></circle>
+                      </svg>
+                      <span>Cyber Ring (Classic)</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- 4. Timer Font Row (Exact match of Image 1) -->
+                <div class="img1-row">
+                  <label class="img1-row-label">Timer Font</label>
+                  <div class="img1-chips-wrap" id="img1TimerFontChips">
+                    <button class="img1-chip" onclick="setTimerFontImg1('Fira Code', 'monospace', this)"
+                      style="font-family: 'Fira Code', monospace;">Fira Code (Hacker)</button>
+                    <button class="img1-chip" onclick="setTimerFontImg1('Inter', 'sans-serif', this)"
+                      style="font-family: 'Inter', sans-serif;">Inter (Default)</button>
+                    <button class="img1-chip" onclick="setTimerFontImg1('Orbitron', 'sans-serif', this)"
+                      style="font-family: 'Orbitron', sans-serif;">Orbitron (Digital)</button>
+                    <button class="img1-chip active" onclick="setTimerFontImg1('Tektur', 'sans-serif', this)"
+                      style="font-family: 'Tektur', sans-serif;">Tektur (Sci-Fi)</button>
+                    <button class="img1-chip" onclick="setTimerFontImg1('Monoton', 'cursive', this)"
+                      style="font-family: 'Monoton', cursive;">Monoton (Neon Racing)</button>
+                    <button class="img1-chip" onclick="setTimerFontImg1('Black Ops One', 'system-ui', this)"
+                      style="font-family: 'Black Ops One', system-ui;">Black Ops (Stencil)</button>
+                    <button class="img1-chip" onclick="setTimerFontImg1('Silkscreen', 'cursive', this)"
+                      style="font-family: 'Silkscreen', cursive;">Silkscreen (Pixel)</button>
+                    <button class="img1-chip" onclick="setTimerFontImg1('Bungee', 'cursive', this)"
+                      style="font-family: 'Bungee', cursive;">Bungee (Massive 3D)</button>
+                  </div>
+                </div>
+
+                <!-- 5. UI Text Font Row (Exact match of Image 1) -->
+                <div class="img1-row">
+                  <label class="img1-row-label">UI Text Font</label>
+                  <div class="img1-chips-wrap" id="img1UiFontChips">
+                    <button class="img1-chip" onclick="setUiFontImg1('Chakra Petch', 'sans-serif', this)"
+                      style="font-family: 'Chakra Petch', sans-serif;">Chakra Petch (Default)</button>
+                    <button class="img1-chip" onclick="setUiFontImg1('Space Grotesk', 'sans-serif', this)"
+                      style="font-family: 'Space Grotesk', sans-serif;">Space Grotesk (Modern)</button>
+                    <button class="img1-chip" onclick="setUiFontImg1('Rajdhani', 'sans-serif', this)"
+                      style="font-family: 'Rajdhani', sans-serif;">Rajdhani(Cyberpunk)</button>
+                    <button class="img1-chip" onclick="setUiFontImg1('Orbitron', 'sans-serif', this)"
+                      style="font-family: 'Orbitron', sans-serif;">Orbitron (Digital HUD)</button>
+                    <button class="img1-chip active" onclick="setUiFontImg1('Righteous', 'sans-serif', this)"
+                      style="font-family: 'Righteous', sans-serif;">Righteous (Art Deco)</button>
+                    <button class="img1-chip" onclick="setUiFontImg1('Bebas Neue', 'sans-serif', this)"
+                      style="font-family: 'Bebas Neue', sans-serif;">Bebas Neue (Cinematic)</button>
+                    <button class="img1-chip" onclick="setUiFontImg1('Cinzel', 'serif', this)"
+                      style="font-family: 'Cinzel', serif;">Cinzel (Luxury)</button>
+                    <button class="img1-chip" onclick="setUiFontImg1('Cormorant Garamond', 'serif', this)"
+                      style="font-family: 'Cormorant Garamond', serif;">Cormorant (Academic)</button>
+                    <button class="img1-chip" onclick="setUiFontImg1('Poppins', 'sans-serif', this)"
+                      style="font-family: 'Poppins', sans-serif;">Poppins(Geometric)</button>
+                    <button class="img1-chip" onclick="setUiFontImg1('Syne', 'sans-serif', this)"
+                      style="font-family: 'Syne', sans-serif;">Syne (Avant-Garde)</button>
+                    <button class="img1-chip" onclick="setUiFontImg1('Fira Code', 'monospace', this)"
+                      style="font-family: 'Fira Code', monospace;">Fira Code (Hacker)</button>
+                  </div>
+                </div>
+
+                <!-- 6. Live Real-time Specimen Box (Exact match of Image 1) -->
+                <div class="img1-preview-box" id="img1PreviewBox">
+                  <div class="img1-timer-left">
+                    <span id="img1TimerDigit" class="img1-timer-digits"
+                      style="font-family: 'Tektur', sans-serif; color: #38bdf8;">02:45:18</span>
+                    <span id="img1TimerBadge" class="img1-timer-badge">NEON BLOCK HUD</span>
+                  </div>
+                  <div class="img1-ui-right">
+                    <div id="img1UiHeading" class="img1-ui-heading" style="font-family: 'Righteous', sans-serif;">
+                      AllTracker // Focus Telemetry Active</div>
+                    <div class="img1-ui-caption">Session: Advanced Graph Theory &bull; 100% Offline Local Vault</div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- PANEL 5: Maamu AI Brutal Coaching Interface (Exact Real UI - Image 4) -->
+            <div class="arch-panel-content" id="archPanel5">
+              <div class="maamu-ui-wrap">
+
+                <!-- Maamu Top Navigation Bar -->
+                <div class="maamu-top-bar">
+                  <div class="maamu-top-left">
+                    <div class="maamu-brand-icon">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="#c084fc">
+                        <rect x="3" y="3" width="18" height="18" rx="4"></rect>
+                        <circle cx="12" cy="12" r="3" fill="#05070a"></circle>
+                      </svg>
+                    </div>
+                    <div class="maamu-new-chat-tag">
+                      <span class="maamu-dot-green">●</span>
+                      <span>NEW CHAT</span>
+                    </div>
+                  </div>
+                  <div class="maamu-top-right">
+                    <div class="maamu-beast-toggle active">
+                      <div class="beast-switch-pill">
+                        <span class="beast-switch-knob"></span>
+                      </div>
+                      <div class="beast-mode-label">
+                        <span style="font-size: 11px;">🔥</span>
+                        <span>BEAST MODE</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Chat Stream Area -->
+                <div class="maamu-chat-body">
+
+                  <!-- User Message Row -->
+                  <div class="maamu-msg-row user-row">
+                    <div class="maamu-user-avatar">
+                      <span>🪐</span>
+                    </div>
+                    <div class="maamu-user-bubble">
+                      <div class="maamu-user-name">ANKIT1PANDEY11</div>
+                      <div class="maamu-user-text">Analyze my weaknesses this week</div>
+                    </div>
+                  </div>
+
+                  <!-- Maamu AI Response Row (Exact roast from Image 4) -->
+                  <div class="maamu-msg-row ai-row">
+                    <div class="maamu-ai-avatar">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="#c084fc">
+                        <path d="M12 2L15 9L22 12L15 15L12 22L9 15L2 12L9 9L12 2Z"></path>
+                      </svg>
+                    </div>
+                    <div class="maamu-ai-bubble">
+                      <div class="maamu-ai-name">MAAMU</div>
+
+                      <div class="maamu-ai-content">
+                        <p class="maamu-p">Are you seriously asking me to analyze your "weaknesses" this week,
+                          <strong>@ankit1pandey11</strong>?
+                        </p>
+
+                        <p class="maamu-p">Look at your fucking data. You don't have "weaknesses" this week—you have a
+                          <strong>complete system shutdown</strong>. You have gone into a flatline coma.
+                        </p>
+
+                        <p class="maamu-p">Let's tear down your pathetic metrics and show you the mirror.</p>
+
+                        <div class="maamu-divider"></div>
+
+                        <h4 class="maamu-section-title">1. THE TWO-WEEK COMA (THE "ZERO" FESTIVAL)</h4>
+
+                        <p class="maamu-p-sub">You want to talk about this week? Let's look at your daily tracker from
+                          September 13th to September 25th:</p>
+
+                        <ul class="maamu-stat-list">
+                          <li>
+                            <span class="stat-bullet">•</span>
+                            <span><strong>Sep 13 to Sep 25: 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 HOURS.</strong></span>
+                          </li>
+                          <li>
+                            <span class="stat-bullet">•</span>
+                            <span style="color: #ef4444;"><strong>THIRTEEN DAYS OF ABSOLUTE NOTHINGNESS.</strong></span>
+                          </li>
+                        </ul>
+
+                        <p class="maamu-p">Before that? You ghosted from Sep 5 to Sep 11 too. Out of the last 21 days,
+                          you logged study hours on exactly <strong>one day</strong> (Sep 12 for a miserable 1.35
+                          hours).</p>
+
+                        <p class="maamu-p">What is this? A vacation? Your "SWE - 1" phase ends on <strong>September 30,
+                            2026</strong>. You are literally at the finish line of your phase, and instead of sprinting,
+                          you have crawled into a hole and fallen asleep.</p>
+
+                        <div class="maamu-divider"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- Input Dock Area (Exact match of Image 4) -->
+                <div class="maamu-input-dock">
+                  <div class="maamu-shortcuts-btn">
+                    <span>Prompt Shortcuts</span>
+                    <span style="font-size: 8px; opacity: 0.7;">▼</span>
+                  </div>
+
+                  <div class="maamu-input-bar">
+                    <span class="maamu-placeholder">Ask Maamu anything...</span>
+
+                    <div class="maamu-bar-actions">
+                      <button class="maamu-export-btn" title="Export conversation">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2.2">
+                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                          <polyline points="17 8 12 3 7 8"></polyline>
+                          <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        <span>Export</span>
+                      </button>
+
+                      <div style="display: flex; gap: 6px; align-items: center;">
+                        <button class="maamu-stop-btn" title="Stop generating">
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                            <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                          </svg>
+                        </button>
+                        <button class="maamu-send-btn" title="Send message">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- PANEL 2: Bookmarks Vault (Exact Replica of User Image 1) -->
+            <div class="arch-panel-content arch-panel-scrollable" id="archPanel2">
+              <div class="arch-bm-wrap">
+                <div class="arch-bm-top-row">
+                  <div class="arch-bm-title">Bookmarks Vault</div>
+                  <button class="arch-bm-add-btn" onclick="location.href='/app'">ADD BOOKMARK</button>
+                </div>
+
+                <!-- Category Filter Pills -->
+                <div class="arch-bm-pills-row" id="studioBmPills">
+                  <button class="arch-bm-pill active" onclick="setStudioBmFilter('all', this)">ALL</button>
+                  <button class="arch-bm-pill" onclick="setStudioBmFilter('development', this)">DEVELOPMENT</button>
+                  <button class="arch-bm-pill" onclick="setStudioBmFilter('learning', this)">LEARNING</button>
+                  <button class="arch-bm-pill" onclick="setStudioBmFilter('work', this)">WORK</button>
+                  <button class="arch-bm-pill" onclick="setStudioBmFilter('social', this)">SOCIAL</button>
+                  <button class="arch-bm-pill" onclick="setStudioBmFilter('personal', this)">PERSONAL</button>
+                  <button class="arch-bm-pill" onclick="setStudioBmFilter('random', this)">RANDOM</button>
+                  <button class="arch-bm-pill" onclick="setStudioBmFilter('other', this)">OTHER</button>
+                </div>
+
+                <!-- Section 1: DEVELOPMENT -->
+                <div class="arch-bm-section" id="studioSecDev">
+                  <div class="arch-bm-sec-header">DEVELOPMENT</div>
+                  <div class="arch-bm-grid-3col">
+                    <!-- Github -->
+                    <div class="arch-bm-card-replica">
+                      <div class="arch-bm-card-left">
+                        <div class="arch-bm-sq-icon">G</div>
+                        <div class="arch-bm-card-info">
+                          <span class="arch-bm-card-tag">DEVELOPMENT</span>
+                          <span class="arch-bm-card-title">Github</span>
+                        </div>
+                      </div>
+                      <div class="arch-bm-card-actions">
+                        <svg class="arch-bm-action-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                        <svg class="arch-bm-action-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polyline points="3 6 5 6 21 6"></polyline>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                      </div>
+                    </div>
+
+                    <!-- Supabase -->
+                    <div class="arch-bm-card-replica">
+                      <div class="arch-bm-card-left">
+                        <div class="arch-bm-sq-icon">S</div>
+                        <div class="arch-bm-card-info">
+                          <span class="arch-bm-card-tag">DEVELOPMENT</span>
+                          <span class="arch-bm-card-title">Supabase</span>
+                        </div>
+                      </div>
+                      <div class="arch-bm-card-actions">
+                        <svg class="arch-bm-action-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                        <svg class="arch-bm-action-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polyline points="3 6 5 6 21 6"></polyline>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                      </div>
+                    </div>
+
+                    <!-- FireBase -->
+                    <div class="arch-bm-card-replica">
+                      <div class="arch-bm-card-left">
+                        <div class="arch-bm-sq-icon">F</div>
+                        <div class="arch-bm-card-info">
+                          <span class="arch-bm-card-tag">DEVELOPMENT</span>
+                          <span class="arch-bm-card-title">FireBase</span>
+                        </div>
+                      </div>
+                      <div class="arch-bm-card-actions">
+                        <svg class="arch-bm-action-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                        <svg class="arch-bm-action-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polyline points="3 6 5 6 21 6"></polyline>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                      </div>
+                    </div>
+
+                    <!-- Vercel -->
+                    <div class="arch-bm-card-replica">
+                      <div class="arch-bm-card-left">
+                        <div class="arch-bm-sq-icon">V</div>
+                        <div class="arch-bm-card-info">
+                          <span class="arch-bm-card-tag">DEVELOPMENT</span>
+                          <span class="arch-bm-card-title">Vercel</span>
+                        </div>
+                      </div>
+                      <div class="arch-bm-card-actions">
+                        <svg class="arch-bm-action-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                        <svg class="arch-bm-action-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polyline points="3 6 5 6 21 6"></polyline>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                      </div>
+                    </div>
+
+                    <!-- Groq Api Keys -->
+                    <div class="arch-bm-card-replica">
+                      <div class="arch-bm-card-left">
+                        <div class="arch-bm-sq-icon">G</div>
+                        <div class="arch-bm-card-info">
+                          <span class="arch-bm-card-tag">DEVELOPMENT</span>
+                          <span class="arch-bm-card-title">Groq Api Keys</span>
+                        </div>
+                      </div>
+                      <div class="arch-bm-card-actions">
+                        <svg class="arch-bm-action-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                        <svg class="arch-bm-action-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polyline points="3 6 5 6 21 6"></polyline>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                      </div>
+                    </div>
+
+                    <!-- Google Search Console -->
+                    <div class="arch-bm-card-replica">
+                      <div class="arch-bm-card-left">
+                        <div class="arch-bm-sq-icon">G</div>
+                        <div class="arch-bm-card-info">
+                          <span class="arch-bm-card-tag">DEVELOPMENT</span>
+                          <span class="arch-bm-card-title">Google Search Console</span>
+                        </div>
+                      </div>
+                      <div class="arch-bm-card-actions">
+                        <svg class="arch-bm-action-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                        <svg class="arch-bm-action-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polyline points="3 6 5 6 21 6"></polyline>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Section 2: LEARNING -->
+                <div class="arch-bm-section" id="studioSecLearn">
+                  <div class="arch-bm-sec-header">LEARNING</div>
+                  <div class="arch-bm-grid-3col">
+                    <!-- Youtube -->
+                    <div class="arch-bm-card-replica">
+                      <div class="arch-bm-card-left">
+                        <div class="arch-bm-sq-icon">Y</div>
+                        <div class="arch-bm-card-info">
+                          <span class="arch-bm-card-tag">LEARNING</span>
+                          <span class="arch-bm-card-title">Youtube</span>
+                        </div>
+                      </div>
+                      <div class="arch-bm-card-actions">
+                        <svg class="arch-bm-action-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                        <svg class="arch-bm-action-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polyline points="3 6 5 6 21 6"></polyline>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                      </div>
+                    </div>
+
+                    <!-- Striver DSA -->
+                    <div class="arch-bm-card-replica">
+                      <div class="arch-bm-card-left">
+                        <div class="arch-bm-sq-icon">S</div>
+                        <div class="arch-bm-card-info">
+                          <span class="arch-bm-card-tag">LEARNING</span>
+                          <span class="arch-bm-card-title">Striver DSA</span>
+                        </div>
+                      </div>
+                      <div class="arch-bm-card-actions">
+                        <svg class="arch-bm-action-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                        <svg class="arch-bm-action-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polyline points="3 6 5 6 21 6"></polyline>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                      </div>
+                    </div>
+
+                    <!-- Udemy -->
+                    <div class="arch-bm-card-replica">
+                      <div class="arch-bm-card-left">
+                        <div class="arch-bm-sq-icon">U</div>
+                        <div class="arch-bm-card-info">
+                          <span class="arch-bm-card-tag">LEARNING</span>
+                          <span class="arch-bm-card-title">Udemy</span>
+                        </div>
+                      </div>
+                      <div class="arch-bm-card-actions">
+                        <svg class="arch-bm-action-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                        <svg class="arch-bm-action-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polyline points="3 6 5 6 21 6"></polyline>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- PANEL 4: Session History (Exact Replica of User Image 2) -->
+            <div class="arch-panel-content arch-panel-scrollable" id="archPanel4">
+              <div class="arch-sh-wrap">
+                <div class="arch-sh-top-bar">
+                  <span class="arch-sh-title">SESSION HISTORY</span>
+                  <button class="arch-sh-close-btn" title="Close" onclick="switchArchTab(0)">✕</button>
+                </div>
+
+                <div class="arch-sh-header-row">
+                  <div>Date</div>
+                  <div>Time</div>
+                  <div>Duration</div>
+                  <div>Subject</div>
+                  <div>Notes</div>
+                </div>
+
+                <div class="arch-sh-group-container">
+                  <!-- Group 1: 18/08/2026 Tue (Collapsed) -->
+                  <div class="arch-sh-date-group-card">
+                    <div class="arch-sh-parent-row" onclick="toggleStudioHistoryGroup('shGroup1', this)">
+                      <div class="arch-sh-date-col">
+                        <span class="arch-sh-sq-btn">
+                          <svg class="sh-chevron-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                          </svg>
+                        </span>
+                        <span class="arch-sh-sq-btn">
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                          </svg>
+                        </span>
+                        <div class="arch-sh-date-text-stack">
+                          <span class="arch-sh-date-str">18/08/2026</span>
+                          <span class="arch-sh-day-str">Tue</span>
+                        </div>
+                      </div>
+                      <div class="arch-sh-time-col">
+                        <span class="arch-sh-session-count">1 session</span>
+                      </div>
+                      <div class="arch-sh-duration-cyan">5m</div>
+                      <div></div>
+                      <div></div>
+                    </div>
+                    <div class="arch-sh-sub-sessions-list" id="shGroup1" style="display: none;"></div>
+                  </div>
+
+                  <!-- Group 2: 13/08/2026 Thu (Expanded) -->
+                  <div class="arch-sh-date-group-card">
+                    <div class="arch-sh-parent-row open" onclick="toggleStudioHistoryGroup('shGroup2', this)">
+                      <div class="arch-sh-date-col">
+                        <span class="arch-sh-sq-btn">
+                          <svg class="sh-chevron-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                          </svg>
+                        </span>
+                        <span class="arch-sh-sq-btn">
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                          </svg>
+                        </span>
+                        <div class="arch-sh-date-text-stack">
+                          <span class="arch-sh-date-str">13/08/2026</span>
+                          <span class="arch-sh-day-str">Thu</span>
+                        </div>
+                      </div>
+                      <div class="arch-sh-time-col">
+                        <span class="arch-sh-session-count">3 sessions</span>
+                        <span class="arch-sh-cyan-break-text">55m break</span>
+                      </div>
+                      <div class="arch-sh-duration-cyan">3h 45m</div>
+                      <div></div>
+                      <div></div>
+                    </div>
+
+                    <div class="arch-sh-sub-sessions-list" id="shGroup2">
+                      <!-- Sub-row 1 -->
+                      <div class="arch-sh-sub-row">
+                        <div class="arch-sh-sub-left">
+                          <div class="arch-sh-icon-box rocket">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#d946ef" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path>
+                              <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path>
+                              <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path>
+                              <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path>
+                            </svg>
+                          </div>
+                          <span class="arch-sh-sub-name">Session 1</span>
+                        </div>
+                        <div class="arch-sh-sub-time">4:26 AM &ndash; 6:32 AM</div>
+                        <div class="arch-sh-duration-cyan">2h</div>
+                        <div class="arch-sh-sub-subject">C-Project</div>
+                        <div class="arch-sh-note-empty">&mdash;</div>
+                      </div>
+
+                      <!-- Sub-row 2 -->
+                      <div class="arch-sh-sub-row">
+                        <div class="arch-sh-sub-left">
+                          <div class="arch-sh-icon-box rocket">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#d946ef" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path>
+                              <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path>
+                              <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path>
+                              <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path>
+                            </svg>
+                          </div>
+                          <span class="arch-sh-sub-name">Session 2</span>
+                        </div>
+                        <div class="arch-sh-sub-time">12:38 PM &ndash; 1:35 PM</div>
+                        <div class="arch-sh-duration-cyan">58m</div>
+                        <div class="arch-sh-sub-subject">C-Project</div>
+                        <div class="arch-sh-note-empty">&mdash;</div>
+                      </div>
+
+                      <!-- Sub-row 3 -->
+                      <div class="arch-sh-sub-row">
+                        <div class="arch-sh-sub-left">
+                          <div class="arch-sh-icon-box code">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                              <polyline points="16 18 22 12 16 6"></polyline>
+                              <polyline points="8 6 2 12 8 18"></polyline>
+                            </svg>
+                          </div>
+                          <span class="arch-sh-sub-name">Session 3</span>
+                          <span class="arch-sh-break-badge">2 BREAKS (55m)</span>
+                        </div>
+                        <div class="arch-sh-sub-time">8:23 PM &ndash; 10:07 PM</div>
+                        <div class="arch-sh-duration-cyan">47m</div>
+                        <div class="arch-sh-sub-subject">C++</div>
+                        <div class="arch-sh-sub-notes-wrap">
+                          <span class="arch-sh-note-text">ended lec -1 and started lec - 2</span>
+                          <div class="arch-sh-note-pills">
+                            <span class="arch-sh-pill-tag">Food (5m)</span>
+                            <span class="arch-sh-pill-tag">Distraction (50m)</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Group 3: 12/08/2026 Wed (Expanded) -->
+                  <div class="arch-sh-date-group-card">
+                    <div class="arch-sh-parent-row open" onclick="toggleStudioHistoryGroup('shGroup3', this)">
+                      <div class="arch-sh-date-col">
+                        <span class="arch-sh-sq-btn">
+                          <svg class="sh-chevron-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                          </svg>
+                        </span>
+                        <span class="arch-sh-sq-btn">
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                          </svg>
+                        </span>
+                        <div class="arch-sh-date-text-stack">
+                          <span class="arch-sh-date-str">12/08/2026</span>
+                          <span class="arch-sh-day-str">Wed</span>
+                        </div>
+                      </div>
+                      <div class="arch-sh-time-col">
+                        <span class="arch-sh-session-count">1 session</span>
+                        <span class="arch-sh-cyan-break-text">32m break</span>
+                      </div>
+                      <div class="arch-sh-duration-cyan">1h 26m</div>
+                      <div></div>
+                      <div></div>
+                    </div>
+
+                    <div class="arch-sh-sub-sessions-list" id="shGroup3">
+                      <!-- Sub-row 1 -->
+                      <div class="arch-sh-sub-row">
+                        <div class="arch-sh-sub-left">
+                          <div class="arch-sh-icon-box rocket">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#d946ef" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path>
+                              <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path>
+                              <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path>
+                              <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path>
+                            </svg>
+                          </div>
+                          <span class="arch-sh-sub-name">Session 1</span>
+                          <span class="arch-sh-break-badge">1 BREAK (32m)</span>
+                        </div>
+                        <div class="arch-sh-sub-time">9:14 PM &ndash; 11:13 PM</div>
+                        <div class="arch-sh-duration-cyan">1h 26m</div>
+                        <div class="arch-sh-sub-subject">C-Project</div>
+                        <div class="arch-sh-sub-notes-flex">
+                          <div class="arch-sh-sub-notes-wrap">
+                            <span class="arch-sh-note-text">final work on cue junction project</span>
+                            <div class="arch-sh-note-pills">
+                              <span class="arch-sh-pill-tag">Food (32m)</span>
+                            </div>
+                          </div>
+                          <span class="arch-sh-locked-tag">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                            Locked
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Group 4: 11/08/2026 Tue (Collapsed) -->
+                  <div class="arch-sh-date-group-card">
+                    <div class="arch-sh-parent-row" onclick="toggleStudioHistoryGroup('shGroup4', this)">
+                      <div class="arch-sh-date-col">
+                        <span class="arch-sh-sq-btn">
+                          <svg class="sh-chevron-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                          </svg>
+                        </span>
+                        <span class="arch-sh-sq-btn">
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                          </svg>
+                        </span>
+                        <div class="arch-sh-date-text-stack">
+                          <span class="arch-sh-date-str">11/08/2026</span>
+                          <span class="arch-sh-day-str">Tue</span>
+                        </div>
+                      </div>
+                      <div class="arch-sh-time-col">
+                        <span class="arch-sh-session-count">1 session</span>
+                        <span class="arch-sh-cyan-break-text">5m break</span>
+                      </div>
+                      <div class="arch-sh-duration-cyan">10m</div>
+                      <div></div>
+                      <div></div>
+                    </div>
+                    <div class="arch-sh-sub-sessions-list" id="shGroup4" style="display: none;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- PANEL 0: Mission Status & Thoughts Dashboard (Exact Replica of User Image 3) -->
+            <div class="arch-panel-content arch-panel-scrollable active" id="archPanel0">
+              <div class="arch-ms-wrap">
+                <!-- Top Cockpit Navbar -->
+                <div class="arch-ms-navbar">
+                  <div class="arch-ms-user-pill">
+                    <span>🪐</span>
+                    <span>@ankit1pandey11</span>
+                  </div>
+
+                  <div class="arch-ms-nav-center">
+                    <button class="arch-ms-nav-btn active">DASHBOARD</button>
+                    <button class="arch-ms-nav-btn">TASKS</button>
+                    <button class="arch-ms-nav-btn">WORLD STAGE</button>
+                  </div>
+
+                  <div class="arch-ms-nav-right">
+                    <button class="arch-ms-canvas-btn">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
+                        <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+                      </svg>
+                      <span>CANVAS</span>
+                    </button>
+                    <button class="arch-ms-timer-pill-btn">START TIMER</button>
+                    <span style="color: #64748b; font-size: 14px; cursor: pointer;">⋮</span>
+                  </div>
+                </div>
+
+                <!-- Main Cockpit Mission Status Card -->
+                <div class="arch-ms-cockpit-card">
+                  <div class="arch-ms-card-top">
+                    <span class="arch-ms-badge-title">MISSION STATUS</span>
+                    <div class="arch-ms-card-actions">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" style="cursor: pointer;">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                      </svg>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" style="cursor: pointer;">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                      </svg>
+                      <div class="arch-ms-day-pill">
+                        <span class="arch-ms-day-dot"></span>
+                        <span>DAY 49</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Big Bold Quote Display with Memory Rotation -->
+                  <div class="studio-quote-display" id="studioQuoteDisplay">
+                    &ldquo;SECURITY DOES NOT BECOME INTELLIGENT BECAUSE THE JSON IS VALID.&rdquo;
+                  </div>
+
+                  <div class="arch-ms-author-line" id="studioQuoteAuthor">
+                    &mdash; ALLTRACKER
+                  </div>
+
+                  <div class="arch-ms-sub-tagline">
+                    Every hour logged is a step toward dominance.
+                  </div>
+
+                  <!-- Button Row -->
+                  <div class="arch-ms-card-btn-strip">
+                    <button class="arch-ms-initiate-btn" onclick="nextStudioQuote()">INITIATE MISSION</button>
+                    <button class="arch-ms-secondary-btn" onclick="location.href='/app'">GO TO TODAY</button>
+                    <button class="arch-ms-secondary-btn" onclick="switchArchTab(1)">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                      </svg>
+                      <span>ROADMAP</span>
+                    </button>
+                  </div>
+
+                  <!-- Progress Level Bar -->
+                  <div class="arch-ms-lvl-bar">
+                    <span class="arch-ms-lvl-pill">LVL 4</span>
+                    <div class="arch-ms-track">
+                      <div class="arch-ms-track-fill"></div>
+                    </div>
+                    <span class="arch-ms-start-date">Started 8 Aug 2026</span>
+                  </div>
+                </div>
+
+                <!-- Bottom Dock Navigation Bar -->
+                <div class="arch-ms-dock-container">
+                  <div class="arch-ms-dock-tab" onclick="switchArchTab(4)">HISTORY</div>
+                  <div class="arch-ms-dock-tab" onclick="switchArchTab(6)">HEATMAP</div>
+                  <div class="arch-ms-dock-tab" onclick="location.href='/app'">ANALYTICS</div>
+                  <div class="arch-ms-dock-tab" onclick="location.href='/app'">BADGES</div>
+                  <div class="arch-ms-dock-tab" onclick="location.href='/app'">WEEKLY</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SECTION 4: FREQUENTLY ASKED QUESTIONS (2-COLUMN SPLIT)
+         ═══════════════════════════════════════════════════════════ -->
+    <section class="landing-section-wrap" id="faq">
+      <div class="faq-layout-grid">
+
+        <!-- Left Sidebar: Sticky Context & Handbook Card -->
+        <div class="faq-sidebar-col">
+          <span class="section-pill-badge purple">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            Frequently Asked Questions
+          </span>
+
+          <h2 class="faq-main-headline">
+            Everything you need to know.
+          </h2>
+
+          <p class="faq-main-subtitle">
+            Honest answers about how AllTracker operates, local offline caching, focus session tracking, study roadmaps,
+            and privacy.
+          </p>
+
+          <!-- Support Card -->
+          <div class="faq-support-card">
+            <div class="faq-support-badge">
+              <span class="support-dot"></span>
+              Open Docs &amp; Community
+            </div>
+            <h4 class="faq-support-title">Have another question or request?</h4>
+            <p class="faq-support-desc">Check out the offline handbook or open an issue on the repository.</p>
+            <div class="faq-support-links">
+              <a href="/manual.html" class="faq-btn-handbook">Read Handbook &rarr;</a>
+              <a href="https://github.com/ankitpandey1900/AllTracker/issues" target="_blank" rel="noopener"
+                class="faq-btn-github">GitHub Issues &rarr;</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Accordion Items (01 - 08) -->
+        <div class="faq-accordion-col">
+
+          <!-- FAQ 1: Free -->
+          <div class="faq-item active">
+            <button class="faq-question-btn" onclick="toggleFaq(this)">
+              <div class="faq-q-left">
+                <span class="faq-num">01</span>
+                <span>Is AllTracker completely free to use?</span>
+              </div>
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </button>
+            <div class="faq-answer-panel">
+              Yes, AllTracker is 100% free with no hidden charges, paywalls, or annoying ads. You get full access to every
+              feature &mdash; including the study timer, syllabus roadmap, drawing whiteboard, and your study history
+              &mdash; right from your very first day.
+            </div>
+          </div>
+
+          <!-- FAQ 2: Offline -->
+          <div class="faq-item">
+            <button class="faq-question-btn" onclick="toggleFaq(this)">
+              <div class="faq-q-left">
+                <span class="faq-num">02</span>
+                <span>Does AllTracker work without an internet connection?</span>
+              </div>
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </button>
+            <div class="faq-answer-panel">
+              Yes! You can study and run the timer even when you don't have internet. Everything you do is saved safely on
+              your device immediately. Whenever you go back online, all your study hours and progress update
+              automatically.
+            </div>
+          </div>
+
+          <!-- FAQ 3: Timer & Breaks -->
+          <div class="faq-item">
+            <button class="faq-question-btn" onclick="toggleFaq(this)">
+              <div class="faq-q-left">
+                <span class="faq-num">03</span>
+                <span>How does the study timer and break tracking work?</span>
+              </div>
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </button>
+            <div class="faq-answer-panel">
+              Select the subject you want to work on and tap Start. Whenever you need to rest, stretch, or get water, tap
+              Break to pause without losing your streak. When you finish, tap Stop. Your study time and break minutes are
+              neatly organized into your daily and weekly progress summaries.
+            </div>
+          </div>
+
+          <!-- FAQ 4: Maamu AI -->
+          <div class="faq-item">
+            <button class="faq-question-btn" onclick="toggleFaq(this)">
+              <div class="faq-q-left">
+                <span class="faq-num">04</span>
+                <span>What is Maamu AI and how does it help?</span>
+              </div>
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </button>
+            <div class="faq-answer-panel">
+              Maamu is your honest, no-excuses study coach. Instead of giving fake compliments or polite talk, Maamu
+              checks how much you actually studied. If you skip study sessions or fall behind your targets, Maamu gives
+              you straight, practical guidance to snap you back into action.
+            </div>
+          </div>
+
+          <!-- FAQ 5: World Stage -->
+          <div class="faq-item">
+            <button class="faq-question-btn" onclick="toggleFaq(this)">
+              <div class="faq-q-left">
+                <span class="faq-num">05</span>
+                <span>How does the World Stage leaderboard work?</span>
+              </div>
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </button>
+            <div class="faq-answer-panel">
+              World Stage is a shared study board where you can see other students putting in genuine effort alongside you
+              each day. As you log focused study hours and show up consistently, you earn points, level up, and stay
+              inspired together.
+            </div>
+          </div>
+
+          <!-- FAQ 6: Syllabus Import -->
+          <div class="faq-item">
+            <button class="faq-question-btn" onclick="toggleFaq(this)">
+              <div class="faq-q-left">
+                <span class="faq-num">06</span>
+                <span>Can I import or organize my own syllabus roadmap?</span>
+              </div>
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </button>
+            <div class="faq-answer-panel">
+              Yes! You can add your full course or exam syllabus. Divide it into subjects and chapters, set target exam
+              dates, and tick off topics as you finish them. The app shows you your completion percentage and estimates
+              when you will complete everything.
+            </div>
+          </div>
+
+          <!-- FAQ 7: PWA / Mobile -->
+          <div class="faq-item">
+            <button class="faq-question-btn" onclick="toggleFaq(this)">
+              <div class="faq-q-left">
+                <span class="faq-num">07</span>
+                <span>Can I use AllTracker on my phone or install it as an app?</span>
+              </div>
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </button>
+            <div class="faq-answer-panel">
+              Yes! You can use AllTracker on any phone, tablet, or laptop. Just open it in your browser and tap "Add to
+              Home Screen". It opens in full screen just like a regular mobile app, loads instantly, and works smoothly
+              wherever you are.
+            </div>
+          </div>
+
+          <!-- FAQ 8: Privacy -->
+          <div class="faq-item">
+            <button class="faq-question-btn" onclick="toggleFaq(this)">
+              <div class="faq-q-left">
+                <span class="faq-num">08</span>
+                <span>Is my personal study data private?</span>
+              </div>
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </button>
+            <div class="faq-answer-panel">
+              Yes, 100%. Your study notes, daily task checklists, and personal schedules stay completely private to you.
+              If you decide to join the optional community board, only your public study hours and chosen username will
+              ever be visible.
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="landing-site-footer">
+      <div>
+        &copy; 2026 <span class="brand-txt-all">All</span><span class="brand-txt-tracker">Tracker</span> &bull;
+        Made with dedication by <a href="https://ankitpandey19.vercel.app" target="_blank" rel="noopener"
+          style="color: #c084fc; font-weight: 700; text-decoration: none;">Ankit Pandey</a>
+      </div>
+      <div style="display: flex; gap: 18px; align-items: center; flex-wrap: wrap;">
+        <a href="/privacy.html">Privacy</a>
+        <a href="/terms.html">Terms</a>
+        <a href="/manual.html">Handbook</a>
+        <a href="https://ankitpandey19.vercel.app" target="_blank" rel="noopener"
+          style="display: inline-flex; align-items: center; gap: 4px;">
+          <span>Portfolio</span>
+        </a>
+        <a href="https://x.com/ankitpandey190" target="_blank" rel="noopener"
+          style="display: inline-flex; align-items: center; gap: 4px;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+          </svg>
+          <span>@ankitpandey190</span>
+        </a>
+        <a href="https://github.com/ankitpandey1900/AllTracker" target="_blank" rel="noopener"
+          style="display: inline-flex; align-items: center; gap: 4px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
+          </svg>
+          <span>GitHub</span>
+        </a>
+        <a href="/app" style="color: #c084fc; font-weight: 700;">Open App &rarr;</a>
+      </div>
+    </footer>
+
   </div>
-  <div id="app-root">
-    <!-- App Shell and Features are injected here by Shell.ts & ui-registry.ts -->
-    <noscript>
-      <div style="padding: 20px; line-height: 1.6; color: #8b9cc4">
-        <h1>All Tracker — Official Web App</h1>
-        <p>
-          Welcome to <strong>All Tracker</strong>, the premier productivity
-          and study tracker available exclusively at
-          <strong>alltracker.online</strong>. If you are searching for "All
-          Tracker" to manage your daily study hours, organize your Data
-          Structures and Algorithms (DSA) routines, or track your competitive
-          programming progress, you have found the definitive tool. All
-          Tracker is built for high-performance students, developers, and
-          engineers who want to gamify their learning experience.
-        </p>
 
-        <h2>Why Choose All Tracker?</h2>
-        <p>
-          All Tracker is not just a timer; it is a comprehensive ecosystem
-          designed to push you further. Unlike generic tracking apps, All
-          Tracker combines deep analytics with an engaging, gamified
-          interface. By joining All Tracker, you enter the World Stage, a
-          global leaderboard where top performers showcase their dedication.
-        </p>
+  <!-- Interactive Script for Live Running Timer and Controls -->
+  <script>
+    function switchMockTab(tabName, el) {
+      document.querySelectorAll('.mock-tab-btn').forEach(btn => btn.classList.remove('active'));
+      if (el) el.classList.add('active');
+    }
 
-        <h2>Core Features of All Tracker:</h2>
-        <ul>
-          <li>
-            <strong>Study Hours Dashboard:</strong> The heart of All Tracker.
-            Log your daily study hours across multiple subjects. Monitor your
-            Key Performance Indicators (KPIs) such as daily averages and total
-            focused hours.
-          </li>
-          <li>
-            <strong>DSA & Routine Rituals Tracker:</strong> A dedicated DSA
-            tracker within All Tracker helps you log daily coding problems,
-            LeetCode challenges, and system design sessions. Visualize your
-            consistency with the All Tracker performance heatmap.
-          </li>
-          <li>
-            <strong>Mission Control (Tasks):</strong> Organize your daily
-            missions. The All Tracker task board helps you manage backlogs,
-            prioritize critical study sessions, and maintain a high-frequency
-            study state.
-          </li>
-          <li>
-            <strong>Maamu AI Intelligence:</strong> Exclusive to All Tracker,
-            get personalized study briefings, DSA advice, and unyielding
-            motivation from your AI mentor, Maamu.
-          </li>
-          <li>
-            <strong>Bookmark Vault:</strong> Save and categorize elite study
-            resources, roadmap links, and critical documentation directly
-            within your All Tracker account.
-          </li>
-          <li>
-            <strong>Focus Timer PWA:</strong> All Tracker is a Progressive Web
-            App (PWA). Install All Tracker directly on your mobile device or
-            desktop for a seamless, app-like experience.
-          </li>
-        </ul>
+    let timerSeconds = 2; // Exact initial second from user's Image 2
+    let timerRunning = true;
+    const heroTimerElem = document.getElementById('heroLiveTimerDisplay');
+    const heroBreakBtn = document.getElementById('heroTimerBreakBtn');
+    const heroBreakIcon = document.getElementById('heroBreakIcon');
+    const heroBreakText = document.getElementById('heroBreakText');
 
-        <h2>Join the All Tracker Community</h2>
-        <p>
-          Whether you are preparing for GATE, cracking top tech company
-          interviews, or aiming to improve your daily productivity,
-          <strong>All Tracker</strong> provides the analytics and motivation
-          you need. Search for "All Tracker" online, bookmark
-          alltracker.online, and never lose your streak.
-        </p>
+    function formatTime(totalSecs) {
+      const hrs = String(Math.floor(totalSecs / 3600)).padStart(2, '0');
+      const mins = String(Math.floor((totalSecs % 3600) / 60)).padStart(2, '0');
+      const secs = String(totalSecs % 60).padStart(2, '0');
+      return `${hrs}:${mins}:${secs}`;
+    }
 
-        <h2>Measuring Productivity and Progress Tracking</h2>
-        <p>
-          In the modern digital landscape,
-          <strong>measuring productivity</strong> goes beyond a simple to-do
-          list. <strong>Long term productivity</strong> requires consistent,
-          <strong>real time</strong> feedback on every
-          <strong>hour worked</strong>. By meticulously tracking your
-          <strong>data structures</strong> practice and focus sessions, All
-          Tracker ensures <strong>high productivity</strong> and sustainable
-          <strong>productivity growth</strong>. Whether you are aiming to
-          <strong>increase productivity</strong> for personal goals or
-          professional milestones, our
-          <strong>progress tracking</strong> tools provide the empirical data
-          needed to optimize your <strong>output per worker</strong> or
-          individual study rate. Embrace a system that turns abstract effort
-          into tangible <strong>productivity improving</strong> metrics.
-        </p>
+    const timerInterval = setInterval(() => {
+      if (timerRunning) {
+        timerSeconds++;
+        const formatted = formatTime(timerSeconds);
+        if (heroTimerElem) heroTimerElem.textContent = formatted;
+      }
+    }, 1000);
 
-        <p>
-          Experience the official All Tracker app today. Built for the
-          dedicated. Track everything. Achieve anything. Join the World Stage
-          at
-          <a href="https://www.alltracker.online">www.alltracker.online</a>.
-        </p>
-      </div>
-    </noscript>
-  </div>
+    function toggleHeroTimer() {
+      timerRunning = !timerRunning;
+      if (heroBreakIcon && heroBreakText) {
+        heroBreakIcon.textContent = timerRunning ? '❚❚' : '▶';
+        heroBreakText.textContent = timerRunning ? 'Break' : 'Resume';
+      }
+    }
 
-  <div id="trackerNoteModal" class="roadmap-note-modal">
-    <div class="roadmap-note-content">
-      <div class="roadmap-note-header">
-        <h3>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-          <span id="trackerNoteModalTitle">Notes</span>
-        </h3>
-        <button id="closeTrackerNoteBtn" class="roadmap-note-close">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-        </button>
-      </div>
-      <textarea id="trackerNoteTextarea" placeholder="Write your notes here..."></textarea>
-      <div class="roadmap-note-footer">
-        <button id="saveTrackerNoteBtn" class="roadmap-btn primary">Save</button>
-      </div>
-    </div>
-  </div>
+    function resetHeroTimer() {
+      timerSeconds = 0;
+      const formatted = formatTime(0);
+      if (heroTimerElem) heroTimerElem.textContent = formatted;
+    }
 
-  <script type="module" src="/src/main.ts"></script>
+    function stopHeroTimer() {
+      timerRunning = false;
+      window.location.href = '/app';
+    }
+
+
+    let card3Secs = 4;
+    let card3Running = true;
+    const card3TimerElem = document.getElementById('liveTimerDisplay');
+    const card3BreakBtn = document.getElementById('timerBreakBtn');
+
+    setInterval(() => {
+      if (card3Running && card3TimerElem) {
+        card3Secs++;
+        card3TimerElem.textContent = formatTime(card3Secs);
+      }
+    }, 1000);
+
+    function toggleTimer() {
+      card3Running = !card3Running;
+      if (card3BreakBtn) {
+        card3BreakBtn.textContent = card3Running ? '❚❚ Break' : '▶ Resume';
+      }
+    }
+
+    function resetTimer() {
+      card3Secs = 0;
+      if (card3TimerElem) card3TimerElem.textContent = formatTime(0);
+    }
+
+    function stopTimer() {
+      card3Running = false;
+      window.location.href = '/app';
+    }
+
+    // ── Interactive Architecture Studio Tab Switcher (8 Core Modules) ──
+    const archTitles = [
+      "ALLTRACKER // Mission Status & Cockpit Wisdom",
+      "ALLTRACKER // Syllabus & Roadmap Architecture",
+      "ALLTRACKER // Bookmarks Vault & Knowledge Graph",
+      "ALLTRACKER // Whiteboard & Canvas Architecture",
+      "ALLTRACKER // Session History & Time Logs",
+      "ALLTRACKER // Maamu AI Performance Coaching",
+      "ALLTRACKER // 365-Day Study Heatmap Engine",
+      "ALLTRACKER // Appearance, Themes & Typography Studio"
+    ];
+
+    function switchArchTab(tabIndex) {
+      const tabs = document.querySelectorAll('.arch-nav-tab');
+      tabs.forEach((tab, idx) => {
+        if (idx === tabIndex) {
+          tab.classList.add('active');
+          tab.setAttribute('aria-selected', 'true');
+        } else {
+          tab.classList.remove('active');
+          tab.setAttribute('aria-selected', 'false');
+        }
+      });
+
+      for (let i = 0; i < 8; i++) {
+        const panel = document.getElementById('archPanel' + i);
+        if (panel) {
+          if (i === tabIndex) {
+            panel.classList.add('active');
+          } else {
+            panel.classList.remove('active');
+          }
+        }
+      }
+
+      const breadcrumb = document.getElementById('archBreadcrumbTitle');
+      if (breadcrumb && archTitles[tabIndex]) {
+        breadcrumb.textContent = archTitles[tabIndex];
+      }
+    }
+
+    // ── Bookmarks Vault Filter ──
+    function setStudioBmFilter(cat, btn) {
+      const pills = document.querySelectorAll('#studioBmPills .arch-bm-pill');
+      pills.forEach(p => p.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+
+      const secDev = document.getElementById('studioSecDev');
+      const secLearn = document.getElementById('studioSecLearn');
+
+      if (cat === 'all') {
+        if (secDev) secDev.style.display = 'block';
+        if (secLearn) secLearn.style.display = 'block';
+      } else if (cat === 'development') {
+        if (secDev) secDev.style.display = 'block';
+        if (secLearn) secLearn.style.display = 'none';
+      } else if (cat === 'learning') {
+        if (secDev) secDev.style.display = 'none';
+        if (secLearn) secLearn.style.display = 'block';
+      } else {
+        if (secDev) secDev.style.display = 'none';
+        if (secLearn) secLearn.style.display = 'none';
+      }
+    }
+
+    // ── Session History Interactive Expand/Collapse ──
+    function toggleStudioHistoryGroup(groupId, rowEl) {
+      const group = document.getElementById(groupId);
+      if (!group) return;
+      const isHidden = group.style.display === 'none';
+      group.style.display = isHidden ? 'flex' : 'none';
+      if (rowEl && rowEl.classList) {
+        rowEl.classList.toggle('open', isHidden);
+      }
+    }
+
+    // ── LinkedIn Memory Quote Engine (Repeat Buffer 50 + 15% Gita/Krishna) ──
+    const studioQuotesPool = [
+      { text: "SECURITY DOES NOT BECOME INTELLIGENT BECAUSE THE JSON IS VALID.", author: "ALLTRACKER", isGita: false },
+      { text: "YOU HAVE A RIGHT TO PERFORM YOUR PRESCRIBED DUTY, BUT YOU ARE NOT ENTITLED TO THE FRUITS OF ACTION.", author: "BHAGAVAD GITA 2.47", isGita: true },
+      { text: "DISCIPLINE IS THE BRIDGE BETWEEN GOALS AND ACCOMPLISHMENT.", author: "ALLTRACKER", isGita: false },
+      { text: "FOR HIM WHO HAS CONQUERED THE MIND, THE MIND IS THE BEST OF FRIENDS; BUT FOR ONE WHO HAS FAILED, IT IS THE GREATEST ENEMY.", author: "BHAGAVAD GITA 6.6", isGita: true },
+      { text: "A YEAR FROM NOW YOU MAY WISH YOU HAD STARTED TODAY.", author: "KAREN LAMB", isGita: false },
+      { text: "THE SECRET OF GETTING AHEAD IS GETTING STARTED.", author: "MARK TWAIN", isGita: false },
+      { text: "WHEN MEDITATION IS MASTERED, THE MIND IS UNWAVERING LIKE THE FLAME OF A LAMP IN A WINDLESS PLACE.", author: "BHAGAVAD GITA 6.19", isGita: true },
+      { text: "EVERY HOUR LOGGED IS A STEP TOWARD DOMINANCE.", author: "ALLTRACKER", isGita: false },
+      { text: "CONSISTENCY IS WHAT TRANSFORMS AVERAGE INTO EXCELLENCE.", author: "ALLTRACKER", isGita: false },
+      { text: "THERE IS NEITHER THIS WORLD, NOR THE WORLD BEYOND, NOR HAPPINESS FOR THE ONE WHO DOUBTS.", author: "BHAGAVAD GITA 4.40", isGita: true }
+    ];
+
+    let quoteRecentBuffer = [];
+    const BUFFER_LIMIT = 50;
+
+    function getNextMemoryQuote() {
+      const isGitaRoll = Math.random() < 0.15;
+      let candidatePool = studioQuotesPool.filter(q => !quoteRecentBuffer.includes(q.text));
+      if (candidatePool.length === 0) {
+        quoteRecentBuffer = [];
+        candidatePool = studioQuotesPool;
+      }
+      let selected;
+      if (isGitaRoll) {
+        const gitaCandidates = candidatePool.filter(q => q.isGita);
+        if (gitaCandidates.length > 0) {
+          selected = gitaCandidates[Math.floor(Math.random() * gitaCandidates.length)];
+        }
+      }
+      if (!selected) {
+        selected = candidatePool[Math.floor(Math.random() * candidatePool.length)];
+      }
+      quoteRecentBuffer.push(selected.text);
+      if (quoteRecentBuffer.length > BUFFER_LIMIT) quoteRecentBuffer.shift();
+      return selected;
+    }
+
+    function nextStudioQuote() {
+      const qElem = document.getElementById('studioQuoteDisplay');
+      const aElem = document.getElementById('studioQuoteAuthor');
+      if (!qElem) return;
+      const nextQ = getNextMemoryQuote();
+      qElem.style.opacity = '0';
+      setTimeout(() => {
+        qElem.textContent = '\u201C' + nextQ.text + '\u201D';
+        if (aElem) aElem.textContent = '\u2014 ' + nextQ.author;
+        qElem.style.opacity = '1';
+      }, 350);
+    }
+
+    let studioQuoteTimer = null;
+    function initStudioQuoteEngine() {
+      if (studioQuoteTimer) clearInterval(studioQuoteTimer);
+      studioQuoteTimer = setInterval(() => {
+        const panel7 = document.getElementById('archPanel7');
+        if (panel7 && panel7.classList.contains('active')) {
+          nextStudioQuote();
+        }
+      }, 6000);
+    }
+    initStudioQuoteEngine();
+
+    // ── Live Interactive Theme & Typography Preview (Image 1) ──
+    function previewThemeImg1(themeKey, accentColor, bgStyle, borderStyle) {
+      document.querySelectorAll('.img1-theme-box').forEach(b => {
+        b.classList.remove('active');
+        const radio = b.querySelector('.img1-radio-outer');
+        if (radio) radio.classList.remove('active');
+      });
+
+      const activeBox = document.getElementById('themeBox_' + themeKey);
+      if (activeBox) {
+        activeBox.classList.add('active');
+        const radio = activeBox.querySelector('.img1-radio-outer');
+        if (radio) radio.classList.add('active');
+      }
+
+      const pBox = document.getElementById('img1PreviewBox');
+      if (pBox) {
+        pBox.style.background = bgStyle;
+        pBox.style.borderColor = borderStyle;
+      }
+      setAccentImg1(accentColor, null);
+    }
+
+    function setAccentImg1(color, swatchElem) {
+      if (swatchElem) {
+        document.querySelectorAll('.img1-swatch').forEach(s => s.classList.remove('active'));
+        swatchElem.classList.add('active');
+      }
+      const sq = document.getElementById('img1AccentSquare');
+      const hex = document.getElementById('img1AccentHex');
+      const digits = document.getElementById('img1TimerDigit');
+      if (sq) sq.style.background = color;
+      if (hex) hex.textContent = color;
+      if (digits) digits.style.color = color;
+    }
+
+    function setLayoutImg1(layout) {
+      const bBlock = document.getElementById('img1LayoutBlock');
+      const bRing = document.getElementById('img1LayoutRing');
+      const badge = document.getElementById('img1TimerBadge');
+      if (layout === 'block') {
+        if (bBlock) bBlock.classList.add('active');
+        if (bRing) bRing.classList.remove('active');
+        if (badge) badge.textContent = 'NEON BLOCK HUD';
+      } else {
+        if (bRing) bRing.classList.add('active');
+        if (bBlock) bBlock.classList.remove('active');
+        if (badge) badge.textContent = 'CYBER RING HUD';
+      }
+    }
+
+    function setTimerFontImg1(fontName, generic, btn) {
+      document.querySelectorAll('#img1TimerFontChips .img1-chip').forEach(c => c.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      const digits = document.getElementById('img1TimerDigit');
+      if (digits) digits.style.fontFamily = "'" + fontName + "', " + generic;
+    }
+
+    function setUiFontImg1(fontName, generic, btn) {
+      document.querySelectorAll('#img1UiFontChips .img1-chip').forEach(c => c.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      const heading = document.getElementById('img1UiHeading');
+      if (heading) heading.style.fontFamily = "'" + fontName + "', " + generic;
+    }
+
+    // ── Interactive FAQ Accordion ──
+    function toggleFaq(button) {
+      const faqItem = button.closest('.faq-item');
+      const allItems = document.querySelectorAll('.faq-item');
+      allItems.forEach(item => {
+        if (item !== faqItem) item.classList.remove('active');
+      });
+      faqItem.classList.toggle('active');
+    }
+  </script>
 </body>
 
 </html>

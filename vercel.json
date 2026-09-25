@@ -20,24 +20,12 @@
       "destination": "/api/main"
     },
     {
-      "source": "/",
-      "destination": "/landing.html"
-    },
-    {
-      "source": "/landing",
-      "destination": "/landing.html"
-    },
-    {
-      "source": "/home",
-      "destination": "/landing.html"
-    },
-    {
       "source": "/app",
-      "destination": "/index.html"
+      "destination": "/app.html"
     },
     {
       "source": "/app/(.*)",
-      "destination": "/index.html"
+      "destination": "/app.html"
     }
   ],
   "redirects": [
@@ -47,7 +35,17 @@
       "permanent": true
     },
     {
-      "source": "/index.html",
+      "source": "/landing",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/home",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/app.html",
       "destination": "/app",
       "permanent": true
     },
