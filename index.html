@@ -9,6 +9,11 @@
   <meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains; preload" />
   <!--  SECURITY & SEO HARDENING -->
   <title>ALL Tracker</title>
+  <script>
+    if (window.location.pathname === '/index.html') {
+      window.history.replaceState(null, '', '/app' + window.location.search + window.location.hash);
+    }
+  </script>
   <meta name="description"
     content="All Tracker is the official web app at alltracker.online: track study hours, DSA rituals, tasks, focus sessions, and leaderboard rank. Free PWA with cloud sync and Maamu AI coaching for students and developers." />
   <meta name="keywords"

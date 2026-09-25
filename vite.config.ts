@@ -19,6 +19,52 @@ const apiMiddleware = () => ({
         return next();
       }
 
+      // Clean URL redirects: Strip .html so users only see clean paths or root domain
+      const parsedUrl = new URL(req.url, 'http://localhost');
+      const pathname = parsedUrl.pathname;
+
+      if (pathname === '/landing.html') {
+        res.writeHead(302, { Location: '/' + (parsedUrl.search || '') });
+        return res.end();
+      }
+
+      if (pathname === '/index.html') {
+        res.writeHead(302, { Location: '/app' + (parsedUrl.search || '') });
+        return res.end();
+      }
+
+      // Root domain / serves landing.html cleanly (e.g. localhost:5173/ or alltracker.online)
+      if (pathname === '/' || pathname === '') {
+        req.url = '/landing.html' + parsedUrl.search;
+        return next();
+      }
+
+      // Vanity clean routes: /landing or /home
+      if (pathname === '/landing' || pathname === '/landing/' || pathname === '/home' || pathname === '/home/') {
+        req.url = '/landing.html' + parsedUrl.search;
+        return next();
+      }
+
+      // Main application route: /app
+      if (pathname === '/app' || pathname.startsWith('/app/')) {
+        req.url = '/index.html' + parsedUrl.search;
+        return next();
+      }
+
+      // Extension-less clean routes for documentation & legal pages
+      if (pathname === '/manual' || pathname === '/manual/') {
+        req.url = '/manual.html' + parsedUrl.search;
+        return next();
+      }
+      if (pathname === '/privacy' || pathname === '/privacy/') {
+        req.url = '/privacy.html' + parsedUrl.search;
+        return next();
+      }
+      if (pathname === '/terms' || pathname === '/terms/') {
+        req.url = '/terms.html' + parsedUrl.search;
+        return next();
+      }
+
       if (!req.url.startsWith('/api/')) return next();
 
       try {
@@ -84,6 +130,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
+        landing: resolve(__dirname, 'landing.html'),
         manual: resolve(__dirname, 'manual.html'),
         privacy: resolve(__dirname, 'privacy.html'),
         terms: resolve(__dirname, 'terms.html'),

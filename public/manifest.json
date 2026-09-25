@@ -3,7 +3,7 @@
   "name": "All Tracker",
   "short_name": "All Tracker",
   "description": "The ultimate study tracker for students & developers. Log DSA hours, track coding routines, compete on a global leaderboard, and get AI mentoring. Free, PWA-ready.",
-  "start_url": "/",
+  "start_url": "/app",
   "display": "standalone",
   "background_color": "#0a0a0a",
   "theme_color": "#0b0e1a",
@@ -18,12 +18,12 @@
   "shortcuts": [
     {
       "name": "Open Dashboard",
-      "url": "/",
+      "url": "/app",
       "description": "View your study stats and global leaderboard"
     },
     {
       "name": "Start Focus Timer",
-      "url": "/?action=timer",
+      "url": "/app?action=timer",
       "description": "Launch the focus session timer"
     }
   ],

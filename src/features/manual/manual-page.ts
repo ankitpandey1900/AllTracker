@@ -7,13 +7,13 @@ if (root) {
   root.innerHTML = `
     <div class="manual-shell">
       <header class="manual-topbar">
-        <a class="manual-brand" href="/" aria-label="Return to All Tracker dashboard"><img src="/icon-512.png" alt="All Tracker" /></a>
+        <a class="manual-brand" href="/" aria-label="Return to All Tracker"><img src="/icon-512.png" alt="All Tracker" /></a>
         <div class="manual-topbar-actions">
           <label class="manual-search" for="manualSearch">
             <span class="manual-search-label">Search</span>
             <input id="manualSearch" type="search" placeholder="Search documentation" autocomplete="off" />
           </label>
-          <a class="manual-back" href="/">Open app</a>
+          <a class="manual-back" href="/app">Open app</a>
         </div>
       </header>
 

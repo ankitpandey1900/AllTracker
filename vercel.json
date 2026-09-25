@@ -5,6 +5,7 @@
       "schedule": "30 2 * * *"
     }
   ],
+  "cleanUrls": true,
   "rewrites": [
     {
       "source": "/ankit",
@@ -17,9 +18,39 @@
     {
       "source": "/api/app/(.*)",
       "destination": "/api/main"
+    },
+    {
+      "source": "/",
+      "destination": "/landing.html"
+    },
+    {
+      "source": "/landing",
+      "destination": "/landing.html"
+    },
+    {
+      "source": "/home",
+      "destination": "/landing.html"
+    },
+    {
+      "source": "/app",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/app/(.*)",
+      "destination": "/index.html"
     }
   ],
   "redirects": [
+    {
+      "source": "/landing.html",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/index.html",
+      "destination": "/app",
+      "permanent": true
+    },
     {
       "source": "/(.*)",
       "has": [
