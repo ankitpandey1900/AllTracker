@@ -24,6 +24,8 @@
 
     html {
       scroll-behavior: smooth;
+      overflow-x: hidden;
+      max-width: 100vw;
     }
 
     body {
@@ -32,6 +34,7 @@
       font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       min-height: 100vh;
       overflow-x: hidden;
+      max-width: 100vw;
       line-height: 1.4;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
@@ -64,6 +67,14 @@
       display: flex;
       flex-direction: column;
       gap: 28px;
+      overflow-x: hidden;
+    }
+
+    @media (max-width: 640px) {
+      .landing-page-container {
+        padding: 16px 14px 36px 14px;
+        gap: 20px;
+      }
     }
 
     /* Top Site Nav Header */
@@ -264,10 +275,155 @@
       transform: translateY(-1px);
     }
 
+    /* Mobile Menu Hamburger Button */
+    .site-mobile-menu-btn {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 4px;
+      width: 36px;
+      height: 36px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      cursor: pointer;
+      padding: 0;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .site-mobile-menu-btn:hover {
+      background: rgba(168, 85, 247, 0.15);
+      border-color: rgba(168, 85, 247, 0.4);
+    }
+
+    .hamburger-line {
+      width: 18px;
+      height: 2px;
+      background: #f1f5f9;
+      border-radius: 2px;
+      transition: transform 0.25s ease, opacity 0.25s ease;
+    }
+
+    .site-mobile-menu-btn.active .line-1 {
+      transform: translateY(6px) rotate(45deg);
+    }
+
+    .site-mobile-menu-btn.active .line-2 {
+      opacity: 0;
+    }
+
+    .site-mobile-menu-btn.active .line-3 {
+      transform: translateY(-6px) rotate(-45deg);
+    }
+
     @media (max-width: 860px) {
       .site-nav-menu {
         display: none;
       }
+      .site-mobile-menu-btn {
+        display: flex;
+      }
+    }
+
+    /* Mobile Nav Drawer Dropdown */
+    .mobile-nav-drawer {
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+      background: rgba(10, 14, 23, 0.96);
+      border: 1px solid rgba(168, 85, 247, 0.35);
+      border-radius: 14px;
+      padding: 16px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), 0 0 24px rgba(168, 85, 247, 0.2);
+      animation: drawerSlideDown 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+      margin-top: -10px;
+      margin-bottom: 6px;
+      position: relative;
+      z-index: 100;
+    }
+
+    @keyframes drawerSlideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .mobile-nav-drawer.active {
+      display: flex;
+    }
+
+    .mobile-nav-links {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .mobile-drawer-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 8px;
+      color: #e2e8f0;
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+
+    .mobile-drawer-link:hover {
+      background: rgba(168, 85, 247, 0.12);
+      border-color: rgba(168, 85, 247, 0.3);
+      color: #ffffff;
+    }
+
+    .drawer-arrow {
+      color: #a855f7;
+      font-size: 13px;
+    }
+
+    .mobile-drawer-footer {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .mobile-drawer-telemetry {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: #94a3b8;
+    }
+
+    .mobile-drawer-cta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+      border-radius: 8px;
+      color: #ffffff;
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      text-decoration: none;
+      box-shadow: 0 4px 16px rgba(168, 85, 247, 0.4);
     }
 
     /* Hero Grid Layout (45% Image / 55% Timer Split) */
@@ -706,7 +862,7 @@
     .timer-giant-digits {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
       font-weight: 800;
-      font-size: clamp(74px, 7.8vw, 114px);
+      font-size: clamp(44px, 12vw, 114px);
       letter-spacing: -1.5px;
       font-variant-numeric: tabular-nums;
       color: #ffffff;
@@ -714,6 +870,34 @@
       text-align: center;
       text-shadow: none;
       white-space: nowrap;
+    }
+
+    @media (max-width: 480px) {
+      .timer-clock-wrapper {
+        padding: 4px 14px;
+      }
+      .timer-hud-bracket-left,
+      .timer-hud-bracket-right {
+        width: 8px;
+        border-width: 2px;
+      }
+      .timer-action-dock {
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .timer-dock-btn {
+        padding: 6px 12px;
+        font-size: 10px;
+      }
+      .timer-top-hud-bar {
+        font-size: 9.5px;
+      }
+      .timer-vol-track {
+        width: 28px;
+      }
+      .timer-hud-left-group {
+        gap: 8px;
+      }
     }
 
     /* Action Buttons Bar */
@@ -821,6 +1005,15 @@
 
     .toast-close-btn:hover {
       color: #fff;
+    }
+
+    @media (max-width: 560px) {
+      .timer-floating-toast {
+        position: static;
+        margin: 8px auto 0 auto;
+        transform: none;
+        width: fit-content;
+      }
     }
 
     /* Bottom 3 Feature Cards (Spacious, Generous Box Size & Zero Wrapping) */
@@ -4568,7 +4761,7 @@
         gap: 16px;
       }
       .studio-quote-display {
-        font-size: 20px !important;
+        font-size: 18px !important;
         max-width: 100% !important;
       }
       .arch-ms-dock-container {
@@ -4579,5 +4772,633 @@
     @media (max-width: 440px) {
       .arch-ms-dock-container {
         grid-template-columns: repeat(2, 1fr) !important;
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       COMPREHENSIVE RESPONSIVE ENGINE (MOBILE & TABLET EXCELLENCE)
+       ═══════════════════════════════════════════════════════════ */
+
+    /* 1. Global Viewport & Section Spacing */
+    @media (max-width: 768px) {
+      .landing-section-wrap {
+        margin-top: 24px;
+        gap: 16px;
+      }
+      .section-headline {
+        font-size: clamp(22px, 5.5vw, 30px);
+      }
+      .section-subtitle {
+        font-size: 13.5px;
+      }
+    }
+
+    /* 2. Architecture Studio: Horizontal Swipeable Pill Rail on <= 900px */
+    @media (max-width: 900px) {
+      .arch-studio-container {
+        grid-template-columns: 1fr !important;
+        padding: 12px 10px !important;
+        gap: 12px !important;
+        border-radius: 14px !important;
+      }
+
+      .arch-nav-rail {
+        flex-direction: row !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
+        gap: 8px !important;
+        padding: 4px 2px 8px 2px !important;
+        scrollbar-width: none !important;
+      }
+
+      .arch-nav-rail::-webkit-scrollbar {
+        display: none !important;
+      }
+
+      .arch-nav-tab {
+        flex-shrink: 0 !important;
+        padding: 7px 14px !important;
+        gap: 8px !important;
+        border-radius: 999px !important;
+        background: rgba(255, 255, 255, 0.035) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        white-space: nowrap !important;
+        transform: none !important;
+      }
+
+      .arch-nav-tab:hover {
+        transform: none !important;
+      }
+
+      .arch-nav-tab.active {
+        background: rgba(168, 85, 247, 0.18) !important;
+        border-color: rgba(168, 85, 247, 0.6) !important;
+        box-shadow: 0 0 14px rgba(168, 85, 247, 0.25) !important;
+      }
+
+      .arch-nav-tab.active::before {
+        display: none !important;
+      }
+
+      .arch-tab-icon {
+        width: 24px !important;
+        height: 24px !important;
+        border-radius: 6px !important;
+      }
+
+      .arch-tab-icon svg {
+        width: 14px !important;
+        height: 14px !important;
+      }
+
+      .arch-tab-title {
+        font-size: 12px !important;
+        white-space: nowrap !important;
+      }
+
+      .arch-tab-sub,
+      .arch-tab-arrow {
+        display: none !important;
+      }
+
+      .arch-stage-display {
+        min-height: auto !important;
+      }
+
+      .arch-stage-body {
+        padding: 14px 10px !important;
+      }
+    }
+
+    /* 3. Studio Preview Chrome Header on Small Mobile */
+    @media (max-width: 600px) {
+      .arch-stage-chrome {
+        padding: 8px 12px;
+      }
+
+      #archBreadcrumbTitle {
+        max-width: 60%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 10px !important;
+      }
+    }
+
+    /* 4. Section 2 Feature Cards on Mobile */
+    @media (max-width: 580px) {
+      .feature-box-panel {
+        padding: 16px 12px !important;
+      }
+
+      /* Task Management Input Row */
+      .mc-action-strip {
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+        padding: 6px !important;
+      }
+
+      .mc-type-toggle {
+        flex: 1 1 auto;
+      }
+
+      .mc-input-field {
+        flex: 2 1 120px;
+      }
+
+      .mc-priority-group {
+        display: flex;
+      }
+
+      .mc-deploy-btn {
+        flex-shrink: 0;
+      }
+
+      .mc-task-name {
+        font-size: 8.5px;
+      }
+
+      /* World Stage Pedestal on Small Mobile */
+      .ws-pedestals-row {
+        gap: 4px !important;
+      }
+
+      .ws-pedestal-card {
+        padding: 10px 4px 8px 4px !important;
+      }
+
+      .ws-card-handle {
+        max-width: 75px !important;
+        font-size: 8px !important;
+      }
+
+      .ws-card-avatar {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 14px !important;
+      }
+
+      .rank-1-pedestal .ws-card-avatar {
+        width: 38px !important;
+        height: 38px !important;
+        font-size: 16px !important;
+      }
+
+      .ws-card-score {
+        font-size: 14px !important;
+      }
+
+      .ws-stat-chip {
+        font-size: 7px !important;
+        padding: 1.5px 4px !important;
+      }
+    }
+
+    /* 5. Module 1: Cockpit Navbar & Buttons */
+    @media (max-width: 680px) {
+      .arch-ms-navbar {
+        padding: 6px 10px !important;
+        gap: 6px !important;
+      }
+
+      .arch-ms-nav-right {
+        display: none !important;
+      }
+
+      .arch-ms-user-pill {
+        padding: 4px 8px !important;
+        font-size: 10.5px !important;
+        flex-shrink: 0 !important;
+      }
+
+      .arch-ms-nav-center {
+        overflow-x: auto !important;
+        scrollbar-width: none !important;
+        gap: 4px !important;
+      }
+
+      .arch-ms-nav-btn {
+        padding: 4px 8px !important;
+        font-size: 9.5px !important;
+        white-space: nowrap !important;
+      }
+
+      .arch-ms-card-btn-strip {
+        gap: 8px !important;
+      }
+
+      .arch-ms-initiate-btn {
+        padding: 8px 16px !important;
+        font-size: 11px !important;
+      }
+
+      .arch-ms-secondary-btn {
+        padding: 8px 12px !important;
+        font-size: 10.5px !important;
+      }
+    }
+
+    /* 6. Module 2: Syllabus / Roadmap Header & Actions */
+    @media (max-width: 680px) {
+      .real-roadmap-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+      }
+
+      .real-roadmap-actions {
+        width: 100% !important;
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+      }
+
+      .real-roadmap-search {
+        flex: 1 1 130px !important;
+        min-width: 110px !important;
+      }
+
+      .real-roadmap-dropzone {
+        padding: 32px 14px !important;
+      }
+
+      .real-roadmap-dropzone p {
+        font-size: 13px !important;
+      }
+    }
+
+    /* 7. Footer Responsive Stacking */
+    @media (max-width: 680px) {
+      .landing-site-footer {
+        flex-direction: column !important;
+        text-align: center !important;
+        gap: 16px !important;
+        padding-top: 20px !important;
+        padding-bottom: 28px !important;
+      }
+
+      .landing-site-footer > div:last-child {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 12px 16px !important;
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       IPHONE SE & COMPACT SMARTPHONE ENGINE (320px - 380px)
+       ═══════════════════════════════════════════════════════════ */
+    @media (max-width: 380px) {
+      /* Container & Layout */
+      .landing-page-container {
+        padding: 12px 10px 32px 10px !important;
+        gap: 16px !important;
+      }
+
+      /* Header */
+      .site-brand-logo-img {
+        max-height: 36px !important;
+      }
+
+      .site-nav-cta-btn {
+        padding: 5px 10px !important;
+        font-size: 11px !important;
+      }
+
+      .site-mobile-menu-btn {
+        width: 32px !important;
+        height: 32px !important;
+      }
+
+      /* Hero Timer Window */
+      .hero-art-showcase {
+        max-height: 200px !important;
+      }
+
+      .hero-timer-body {
+        padding: 8px 8px 10px 8px !important;
+      }
+
+      .timer-volume-widget {
+        display: none !important;
+      }
+
+      .timer-giant-digits {
+        font-size: clamp(34px, 10.5vw, 44px) !important;
+        letter-spacing: -1px !important;
+      }
+
+      .timer-clock-wrapper {
+        padding: 2px 8px !important;
+      }
+
+      .timer-hud-bracket-left,
+      .timer-hud-bracket-right {
+        width: 6px !important;
+        border-width: 1.5px !important;
+      }
+
+      .timer-dock-btn {
+        padding: 5px 9px !important;
+        font-size: 9px !important;
+        gap: 3px !important;
+      }
+
+      .timer-floating-toast {
+        font-size: 7.5px !important;
+        padding: 2px 5px !important;
+        margin-top: 4px !important;
+      }
+
+      /* Section 2: Card 1 — Task Management (Mission Control) */
+      .feature-box-panel {
+        padding: 14px 10px !important;
+        gap: 10px !important;
+      }
+
+      .panel-title-text {
+        font-size: 12px !important;
+      }
+
+      .mc-card-inner {
+        padding: 8px 6px !important;
+        gap: 6px !important;
+      }
+
+      .mc-head-title {
+        font-size: 9.5px !important;
+      }
+
+      .mc-head-sub {
+        font-size: 7px !important;
+      }
+
+      .mc-backlog-badge {
+        font-size: 7px !important;
+        padding: 1px 4px !important;
+      }
+
+      .mc-clearance-header {
+        font-size: 7.5px !important;
+      }
+
+      .mc-action-strip {
+        padding: 4px !important;
+        gap: 4px !important;
+      }
+
+      .mc-toggle-btn {
+        font-size: 7.5px !important;
+        padding: 2px 4px !important;
+      }
+
+      .mc-input-field {
+        font-size: 7.5px !important;
+        padding: 2px 4px !important;
+      }
+
+      .mc-prio-btn {
+        width: 12px !important;
+        height: 12px !important;
+        font-size: 7px !important;
+      }
+
+      .mc-deploy-btn {
+        font-size: 7.5px !important;
+        padding: 2px 6px !important;
+      }
+
+      .mc-task-row {
+        padding: 3.5px 6px !important;
+        gap: 4px !important;
+      }
+
+      .mc-task-name {
+        font-size: 8px !important;
+      }
+
+      .tag-badge {
+        font-size: 6.5px !important;
+        padding: 1px 3px !important;
+      }
+
+      .mc-task-time {
+        font-size: 7px !important;
+      }
+
+      /* Section 2: Card 2 — World Stage Podium */
+      .ws-pedestals-row {
+        gap: 2px !important;
+      }
+
+      .ws-pedestal-card {
+        padding: 8px 2px 6px 2px !important;
+      }
+
+      .ws-card-handle {
+        font-size: 7.5px !important;
+        max-width: 58px !important;
+      }
+
+      .ws-card-avatar {
+        width: 26px !important;
+        height: 26px !important;
+        font-size: 11px !important;
+      }
+
+      .rank-1-pedestal .ws-card-avatar {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 13px !important;
+      }
+
+      .ws-top-pedestal-badge {
+        width: 16px !important;
+        height: 16px !important;
+        font-size: 8px !important;
+        top: -8px !important;
+      }
+
+      .ws-card-score {
+        font-size: 12px !important;
+      }
+
+      .ws-score-label {
+        font-size: 6px !important;
+      }
+
+      .ws-stat-chip {
+        font-size: 6px !important;
+        padding: 1px 2px !important;
+      }
+
+      /* Section 3: Architecture Studio — Nav Tabs */
+      .arch-studio-container {
+        padding: 10px 8px !important;
+      }
+
+      .arch-nav-tab {
+        padding: 5px 10px !important;
+        gap: 6px !important;
+      }
+
+      .arch-tab-icon {
+        width: 20px !important;
+        height: 20px !important;
+      }
+
+      .arch-tab-icon svg {
+        width: 12px !important;
+        height: 12px !important;
+      }
+
+      .arch-tab-title {
+        font-size: 11px !important;
+      }
+
+      /* Section 3: Module 0 — Mission Status & Thoughts Dashboard */
+      .arch-ms-cockpit-card {
+        padding: 12px 10px !important;
+        gap: 12px !important;
+      }
+
+      .studio-quote-display {
+        font-size: 15px !important;
+        line-height: 1.25 !important;
+      }
+
+      .arch-ms-author-line {
+        font-size: 10.5px !important;
+        margin-top: -4px !important;
+      }
+
+      .arch-ms-sub-tagline {
+        font-size: 11px !important;
+      }
+
+      .arch-ms-card-btn-strip {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+      }
+
+      .arch-ms-initiate-btn {
+        width: 100% !important;
+        text-align: center !important;
+        padding: 8px 12px !important;
+        font-size: 10.5px !important;
+      }
+
+      .arch-ms-secondary-btn {
+        flex: 1 1 45% !important;
+        text-align: center !important;
+        justify-content: center !important;
+        padding: 7px 8px !important;
+        font-size: 10px !important;
+      }
+
+      .arch-ms-lvl-bar {
+        gap: 6px !important;
+      }
+
+      .arch-ms-lvl-pill {
+        font-size: 8.5px !important;
+        padding: 1.5px 5px !important;
+      }
+
+      .arch-ms-start-date {
+        font-size: 8.5px !important;
+      }
+
+      .arch-ms-dock-container {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 4px !important;
+      }
+
+      .arch-ms-dock-tab {
+        padding: 6px 3px !important;
+        font-size: 8.5px !important;
+        letter-spacing: 0.4px !important;
+      }
+
+      /* Section 3: Module 1 — Syllabus / Roadmap */
+      .real-roadmap-title {
+        font-size: 16px !important;
+      }
+
+      .real-roadmap-badge {
+        font-size: 9px !important;
+        padding: 2px 6px !important;
+      }
+
+      .real-roadmap-select,
+      .real-roadmap-btn {
+        font-size: 10px !important;
+        padding: 4px 8px !important;
+      }
+
+      .real-roadmap-footer {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 6px !important;
+        padding: 6px 8px !important;
+      }
+
+      .real-roadmap-stat-val {
+        font-size: 11px !important;
+      }
+
+      .real-roadmap-stat-label {
+        font-size: 7.5px !important;
+      }
+
+      /* Section 3: Module 2 — Bookmarks */
+      .arch-bm-card-replica {
+        padding: 6px 8px !important;
+      }
+
+      .arch-bm-title {
+        font-size: 11px !important;
+      }
+
+      .arch-bm-cat-pill {
+        font-size: 9px !important;
+        padding: 2.5px 6px !important;
+      }
+
+      /* Section 3: Module 4 — Session History */
+      .arch-sh-wrap {
+        padding: 8px 6px 12px !important;
+      }
+
+      .arch-sh-title {
+        font-size: 14px !important;
+      }
+
+      /* Section 3: Module 6 — Heatmap */
+      .heatmap-stat-val {
+        font-size: 13px !important;
+      }
+
+      /* Section 3: Module 7 — Themes */
+      .img1-theme-grid,
+      .real-theme-grid {
+        grid-template-columns: 1fr !important;
+      }
+
+      .img1-theme-box,
+      .real-theme-chip {
+        padding: 7px 10px !important;
+        font-size: 10.5px !important;
+      }
+
+      /* FAQ items on SE */
+      .faq-question-btn {
+        padding: 12px 14px !important;
+        font-size: 13.5px !important;
+      }
+
+      .faq-item.active .faq-answer-panel {
+        padding: 0 14px 14px 14px !important;
+        font-size: 12.5px !important;
       }
     }

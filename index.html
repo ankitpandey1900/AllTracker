@@ -75,8 +75,47 @@
           </a>
         </nav>
         <a href="/app" class="site-nav-cta-btn">Launch App &rarr;</a>
+        <!-- Mobile Menu Toggle Button (Visible only on mobile <= 860px) -->
+        <button class="site-mobile-menu-btn" id="mobileMenuToggle" onclick="toggleMobileMenu()" aria-label="Toggle Navigation Menu">
+          <span class="hamburger-line line-1"></span>
+          <span class="hamburger-line line-2"></span>
+          <span class="hamburger-line line-3"></span>
+        </button>
       </div>
     </header>
+
+    <!-- Mobile Navigation Drawer Dropdown -->
+    <div class="mobile-nav-drawer" id="mobileNavDrawer">
+      <nav class="mobile-nav-links">
+        <a href="#features" class="mobile-drawer-link" onclick="closeMobileMenu()">
+          <span>Features</span>
+          <span class="drawer-arrow">&rarr;</span>
+        </a>
+        <a href="#feature-overview" class="mobile-drawer-link" onclick="closeMobileMenu()">
+          <span>Modules</span>
+          <span class="drawer-arrow">&rarr;</span>
+        </a>
+        <a href="/manual.html" class="mobile-drawer-link">
+          <span>Handbook</span>
+          <span class="drawer-arrow">&rarr;</span>
+        </a>
+        <a href="#faq" class="mobile-drawer-link" onclick="closeMobileMenu()">
+          <span>FAQ</span>
+          <span class="drawer-arrow">&rarr;</span>
+        </a>
+        <a href="https://github.com/ankitpandey1900/AllTracker" target="_blank" rel="noopener" class="mobile-drawer-link">
+          <span>GitHub</span>
+          <span class="drawer-arrow">↗</span>
+        </a>
+      </nav>
+      <div class="mobile-drawer-footer">
+        <div class="mobile-drawer-telemetry">
+          <span class="telemetry-live-dot"></span>
+          <span>400+ hrs logged • 150+ sessions • 20+ active</span>
+        </div>
+        <a href="/app" class="mobile-drawer-cta">Launch AllTracker &rarr;</a>
+      </div>
+    </div>
 
     <!-- Hero Section (Left Hero Art + Right Live Running Timer App Window) -->
     <section class="hero-grid">
@@ -2719,6 +2758,21 @@
         if (item !== faqItem) item.classList.remove('active');
       });
       faqItem.classList.toggle('active');
+    }
+
+    // ── Mobile Navigation Drawer ──
+    function toggleMobileMenu() {
+      const drawer = document.getElementById('mobileNavDrawer');
+      const btn = document.getElementById('mobileMenuToggle');
+      if (drawer) drawer.classList.toggle('active');
+      if (btn) btn.classList.toggle('active');
+    }
+
+    function closeMobileMenu() {
+      const drawer = document.getElementById('mobileNavDrawer');
+      const btn = document.getElementById('mobileMenuToggle');
+      if (drawer) drawer.classList.remove('active');
+      if (btn) btn.classList.remove('active');
     }
   </script>
 </body>
