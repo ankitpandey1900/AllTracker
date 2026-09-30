@@ -265,6 +265,19 @@ export async function readVault(
       return { data: rows.map(toBookmark), updatedAt };
     }
     case "tasks": {
+      // Auto-cleanup completed tasks older than 24 hours
+      await pool.query(
+        `
+          update tasks
+          set deleted_at = now(), updated_at = now()
+          where user_id = $1::uuid
+            and deleted_at is null
+            and completed is true
+            and coalesce(completed_at, created_at) < (now() - interval '24 hours')
+        `,
+        [profile.profileId],
+      );
+
       const { rows } = await pool.query<TaskRow>(
         `
           select id, text, completed, to_char(date::timestamp, 'YYYY-MM-DD') as date, priority, created_at, completed_at, type, to_char(week_of::timestamp, 'YYYY-MM-DD') as week_of, updated_at
@@ -474,7 +487,25 @@ export async function writeVault(
         return { updatedAt: new Date().toISOString() };
       }
       case "tasks": {
-        if (data && Array.isArray(data) && data.length > 0) {
+        const incomingTasks = Array.isArray(data) ? data : [];
+        const validTasks = incomingTasks.filter((t: any) =>
+          t && typeof t.id === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(t.id)
+        );
+        const activeIds = validTasks.map((t: any) => t.id);
+
+        if (activeIds.length > 0) {
+          // Soft-delete any tasks belonging to this user that are not in the incoming active list
+          await client.query(
+            `
+              update tasks
+              set deleted_at = now(), updated_at = now()
+              where user_id = $1::uuid
+                and deleted_at is null
+                and not (id = any($2::uuid[]))
+            `,
+            [profile.profileId, activeIds],
+          );
+
           await client.query(
             `
               insert into tasks (id, user_id, text, completed, date, priority, created_at, completed_at, type, week_of, updated_at, deleted_at)
@@ -504,7 +535,18 @@ export async function writeVault(
                 deleted_at = null
               where tasks.user_id = excluded.user_id
             `,
-            [profile.profileId, JSON.stringify(data)],
+            [profile.profileId, JSON.stringify(validTasks)],
+          );
+        } else {
+          // If active list is empty, mark all remaining active tasks for user as deleted
+          await client.query(
+            `
+              update tasks
+              set deleted_at = now(), updated_at = now()
+              where user_id = $1::uuid
+                and deleted_at is null
+            `,
+            [profile.profileId],
           );
         }
         await client.query("commit");
@@ -656,6 +698,9 @@ export async function upsertTask(
 }
 
 export async function deleteTask(profile: AuthenticatedProfile, taskId: string): Promise<void> {
+  if (!taskId || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(taskId)) {
+    return;
+  }
   const pool = getPool();
   await pool.query(
     "update tasks set deleted_at = now(), updated_at = now() where id = $1::uuid and user_id = $2::uuid",
@@ -663,22 +708,3 @@ export async function deleteTask(profile: AuthenticatedProfile, taskId: string):
   );
 }
 
-export async function clearTimerState(profile: AuthenticatedProfile): Promise<void> {
-  const pool = getPool();
-  await pool.query(
-    `
-      update timer_state
-      set
-        is_running = false,
-        elapsed_acc = 0,
-        start_time = null,
-        category = null,
-        col_name = '',
-        session_start_clock = null,
-        break_data = null,
-        updated_at = now()
-      where user_id = $1
-    `,
-    [profile.profileId],
-  );
-}

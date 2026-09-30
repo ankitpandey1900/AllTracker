@@ -9,7 +9,7 @@ import {
   saveBookmarksCloud, loadBookmarksCloud,
   saveRoutineHistoryCloud, loadRoutineHistoryCloud,
   saveTimerStateCloud, loadTimerStateCloud,
-  saveTasksCloud, loadTasksCloud,
+  saveTasksCloud, loadTasksCloud, deleteTaskCloud,
   upsertPhaseCloud, deletePhaseCloud,
   loadUserProfileCloud,
   updateSyncStatus,
@@ -171,8 +171,14 @@ export async function saveTasksToStorage(data: any[]): Promise<void> {
   queueVaultWrite(STORAGE_KEYS.TASKS, () => saveTasksCloud(snapshot));
 }
 
-export async function deleteTaskFromStorage(_taskId: string): Promise<void> {
-  // Array is already updated in appState.tasks by the caller
+export async function deleteTaskFromStorage(taskId: string): Promise<void> {
+  if (taskId) {
+    try {
+      await deleteTaskCloud(taskId);
+    } catch (err) {
+      log.warn(`Direct cloud delete failed, will reconcile via snapshot: ${String(err)}`);
+    }
+  }
   await saveTasksToStorage(appState.tasks);
 }
 
@@ -268,7 +274,10 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
     }, saveSettingsCloud);
     sync(STORAGE_KEYS.TRACKER_DATA, cloudTracker, appState.trackerData, (d: any) => { appState.trackerData = d; syncTrackerTimelineWithSettings(); ensureTimelineIntegrity(); }, saveTrackerDataCloud);
     sync(STORAGE_KEYS.ROUTINES, cloudRoutines, appState.routines, (d: any) => { appState.routines = d; }, saveRoutinesCloud);
-    sync(STORAGE_KEYS.TASKS, cloudTasks, appState.tasks, (d: any) => { appState.tasks = d; }, saveTasksCloud);
+    sync(STORAGE_KEYS.TASKS, cloudTasks, appState.tasks, (d: any) => {
+      appState.tasks = d;
+      import('@/features/tasks/tasks').then(m => m.cleanupTasks());
+    }, saveTasksCloud);
     sync(STORAGE_KEYS.BOOKMARKS, cloudBookmarks, appState.bookmarks, (d: any) => { appState.bookmarks = d; }, saveBookmarksCloud);
     sync(STORAGE_KEYS.ROADMAP, cloudRoadmap, appState.roadmap, (d: any) => { appState.roadmap = d; }, saveRoadmapCloud);
 
@@ -347,7 +356,10 @@ export async function performBackgroundSync(): Promise<void> {
     });
     check(STORAGE_KEYS.TRACKER_DATA, cloud[0], appState.trackerData, (d: any) => { appState.trackerData = d; syncTrackerTimelineWithSettings(); ensureTimelineIntegrity(); });
     check(STORAGE_KEYS.ROUTINES, cloud[2], appState.routines, (d: any) => { appState.routines = d; });
-    check(STORAGE_KEYS.TASKS, cloud[3], appState.tasks, (d: any) => { appState.tasks = d; });
+    check(STORAGE_KEYS.TASKS, cloud[3], appState.tasks, (d: any) => {
+      appState.tasks = d;
+      import('@/features/tasks/tasks').then(m => m.cleanupTasks());
+    });
     check(STORAGE_KEYS.ROUTINE_HISTORY, cloud[4], appState.routineHistory, (d: any) => { appState.routineHistory = d; });
     check(STORAGE_KEYS.BOOKMARKS, cloud[5], appState.bookmarks, (d: any) => { appState.bookmarks = d; });
     check(STORAGE_KEYS.ROADMAP, cloud[7], appState.roadmap, (d: any) => { appState.roadmap = d; });

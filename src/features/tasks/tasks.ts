@@ -14,20 +14,21 @@ import { requireAuth } from '@/services/auth.service';
 
 // --- Starting Up ---
 
-/** Initializes the task feature and performs the backlog/cleanup check */
 export function initTasks(): void {
-  // Senior Developer Practice: Reactive Subscriptions
-  // This ensures the UI is always in sync with the state, regardless of where the change came from.
+  // Reactive Subscriptions: ensure UI stays in sync with state
   subscribeToState((path) => {
-    if (path === 'tasks') renderTasks();
+    if (path === 'tasks') {
+      cleanupTasks();
+      renderTasks();
+    }
   });
 
-  // 🛡️ CLOUD-SAFE CLEANUP: Delayed 5s so cloud sync can pull fresh task data first.
-  // Without this delay, cleanup ran on stale local state and then OVERWROTE the cloud vault
-  // with fewer tasks — permanently deleting tasks that only existed in the cloud.
-  setTimeout(() => cleanupTasks(), 5000);
+  cleanupTasks();
   renderTasks();
   setupTaskListeners();
+
+  // Periodic cleanup check every 5 minutes while app is active
+  window.setInterval(() => cleanupTasks(), 5 * 60 * 1000);
 }
 
 // --- Showing the Tasks ---
@@ -49,9 +50,15 @@ export function renderTasks(): void {
   const dailyTasks = tasks.filter(t => t.type !== 'weekly');
   const weeklyTasks = tasks.filter(t => t.type === 'weekly');
 
+  const cutoff24h = Date.now() - (24 * 60 * 60 * 1000);
+  const isRecentCompleted = (t: StudyTask) => {
+    const time = getTaskTimestamp(t.completedAt) || getTaskTimestamp(t.createdAt);
+    return time > cutoff24h;
+  };
+
   // Daily processing
   let backlogDaily = dailyTasks.filter(t => !t.completed && t.date < today);
-  const historyDaily = dailyTasks.filter(t => t.completed).sort((a, b) => b.createdAt - a.createdAt);
+  const historyDaily = dailyTasks.filter(t => t.completed && isRecentCompleted(t)).sort((a, b) => b.createdAt - a.createdAt);
 
   const todayCompleted = historyDaily.filter(t => t.date === today);
   const todayIncomplete = dailyTasks.filter(t => !t.completed && t.date === today);
@@ -73,7 +80,7 @@ export function renderTasks(): void {
   const backlogWeekly = weeklyTasks.filter(t => !t.completed && t.date < cutoffIso);
 
   const allBacklog = [...backlogDaily, ...backlogWeekly];
-  const historyWeekly = weeklyTasks.filter(t => t.completed).sort((a, b) => b.createdAt - a.createdAt);
+  const historyWeekly = weeklyTasks.filter(t => t.completed && isRecentCompleted(t)).sort((a, b) => b.createdAt - a.createdAt);
 
   // Sorting
   const prioritySort = (a: StudyTask, b: StudyTask) => {
@@ -283,19 +290,31 @@ export function toggleTask(id: string): void {
   }
 }
 
-/** Automatically cleans up completed tasks older than 3 days. */
-function cleanupTasks(): void {
-  const cutoff = Date.now() - (3 * 86400000);
+function getTaskTimestamp(val: unknown): number {
+  if (!val) return 0;
+  if (typeof val === 'number') return isNaN(val) ? 0 : val;
+  if (typeof val === 'string') {
+    const parsed = new Date(val).getTime();
+    return isNaN(parsed) ? 0 : parsed;
+  }
+  return 0;
+}
+
+/** Automatically cleans up completed tasks older than 24 hours. */
+export function cleanupTasks(): boolean {
+  const cutoff = Date.now() - (24 * 60 * 60 * 1000); // 24 hours
   const activeTasks = appState.tasks.filter(t => {
     if (!t.completed) return true;
-    const timeToCompare = t.completedAt || t.createdAt;
+    const timeToCompare = getTaskTimestamp(t.completedAt) || getTaskTimestamp(t.createdAt);
     return timeToCompare > cutoff;
   });
   
   if (activeTasks.length !== appState.tasks.length) {
     appState.tasks = activeTasks;
     saveTasks();
+    return true;
   }
+  return false;
 }
 
 export function deleteTask(id: string): void {
