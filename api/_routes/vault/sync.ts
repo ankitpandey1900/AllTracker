@@ -13,6 +13,7 @@ const vaults: VaultName[] = [
   "bookmarks",
   "tasks",
   "timer",
+  "roadmap",
 ];
 
 export default async function handler(

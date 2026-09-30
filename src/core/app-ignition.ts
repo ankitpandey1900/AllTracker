@@ -8,6 +8,7 @@ import {
   loadBookmarksFromStorage,
   loadTasksFromStorage,
   loadTimerStateFromStorage,
+  loadRoadmapFromStorage,
   performBackgroundSync
 } from "@/services/data-bridge";
 import { initUI } from "@/components/ui-registry";
@@ -59,7 +60,7 @@ export async function igniteApp(): Promise<void> {
     });
 
     // 2. Load Local State (Zero-Latency)
-    const [settings, trackerData, routines, history, bookmarks, savedTimer, tasks] = await Promise.all([
+    const [settings, trackerData, routines, history, bookmarks, savedTimer, tasks, roadmap] = await Promise.all([
       loadSettingsFromStorage(),
       loadTrackerDataFromStorage(),
       loadRoutinesFromStorage(),
@@ -67,6 +68,7 @@ export async function igniteApp(): Promise<void> {
       loadBookmarksFromStorage(),
       loadTimerStateFromStorage(),
       loadTasksFromStorage(),
+      loadRoadmapFromStorage(),
     ]);
 
     // 3. State Preparation
@@ -90,6 +92,7 @@ export async function igniteApp(): Promise<void> {
     appState.routineHistory = history;
     appState.bookmarks = bookmarks;
     appState.tasks = tasks;
+    if (roadmap) appState.roadmap = roadmap;
     if (savedTimer) Object.assign(appState.activeTimer, savedTimer);
 
     // Keep the local vault cache. It is the offline/reload safety net while

@@ -201,6 +201,7 @@ export async function subscribeToUserDataSync(
             snapshotMap.bookmarks,
             snapshotMap.tasks,
             snapshotMap.timer,
+            snapshotMap.roadmap,
           ];
           const fingerprint = JSON.stringify(snapshot);
           if (fingerprint !== lastFingerprint) {
