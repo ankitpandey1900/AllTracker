@@ -449,6 +449,9 @@ function handleNumberInput(e: Event): void {
 
   saveTrackerDataToStorage(appState.trackerData);
   syncProfileBroadcast();
+
+  // Sync dashboard metrics immediately (e.g. Problems Solved, Total stats)
+  import('@/features/dashboard/dashboard').then(m => m.updateDashboard());
 }
 
 

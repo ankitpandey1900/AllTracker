@@ -1,4 +1,5 @@
 import { appState, getAllHourColumnLabels } from '@/state/app-state';
+import { getLocalIsoDate } from '@/utils/date.utils';
 
 let chartLibrary: any = null;
 
@@ -46,15 +47,15 @@ async function renderStudyTrendChart(): Promise<void> {
   const hoursData: number[] = [];
   const problemsData: number[] = [];
 
-  // Generate a full 21-day window ending at todayDay
+  // Generate a full window ending at todayDay
   for (let i = todayDay - (daysToShow - 1); i <= todayDay; i++) {
-    const dayData = appState.trackerData.find(d => d.day === i);
-    
-    // Label calculation
-    let dateLabel = `Day ${i}`;
     const d = new Date(start);
     d.setDate(d.getDate() + (i - 1));
-    dateLabel = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    const targetDateStr = getLocalIsoDate(d);
+    const dayData = appState.trackerData.find(entry => entry.day === i || (entry.date && entry.date.split('T')[0] === targetDateStr));
+    
+    // Label calculation
+    const dateLabel = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 
     const dayHours = dayData && Array.isArray(dayData.studyHours) 
       ? dayData.studyHours.reduce((s, n) => s + (n || 0), 0) 
