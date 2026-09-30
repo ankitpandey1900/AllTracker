@@ -1,4 +1,4 @@
-const CACHE_NAME = 'alltracker-cache-v2.0.2'; // V2.0.2: Update shell cache for landing at root and app at /app
+const CACHE_NAME = 'alltracker-cache-v2.0.3'; // V2.0.3: Invalidate stale shell caches
 const ASSETS_TO_CACHE = [
   '/',
   '/app',

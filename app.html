@@ -283,6 +283,16 @@
       </div>
     </div>
   </div>
+  <script>
+    // Universal failsafe: Dismiss the bootstrap loader after 4s under any circumstances
+    setTimeout(function() {
+      var loader = document.getElementById('app-bootstrap-loader');
+      if (loader && !loader.classList.contains('hidden')) {
+        loader.classList.add('hidden');
+        setTimeout(function() { if (loader && loader.parentNode) loader.remove(); }, 600);
+      }
+    }, 4000);
+  </script>
   <div id="app-root">
     <!-- App Shell and Features are injected here by Shell.ts & ui-registry.ts -->
     <noscript>

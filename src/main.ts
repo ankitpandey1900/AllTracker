@@ -25,18 +25,16 @@ import { igniteApp } from "./core/app-ignition";
 import { refreshApplicationUI } from "./core/mission-pulse";
 
 // 3. System Ignition
-document.addEventListener("DOMContentLoaded", () => {
-  const CACHE_VERSION = 'v3.0.0-nuke';
-  if (localStorage.getItem('app_cache_version') !== CACHE_VERSION) {
-    localStorage.clear();
-    sessionStorage.clear();
-    localStorage.setItem('app_cache_version', CACHE_VERSION);
-    window.location.href = window.location.href.split('?')[0]; // Clean the URL if it has a query string
-    return;
-  }
-  
+function bootApp(): void {
   void igniteApp();
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", bootApp, { once: true });
+} else {
+  // Document is already parsed (cached by browser or service worker) - boot immediately
+  bootApp();
+}
 
 // 4. Export for global bridge access (Sync)
 export { refreshApplicationUI };

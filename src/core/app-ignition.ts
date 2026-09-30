@@ -36,6 +36,11 @@ import { startMissionPulse } from "./mission-pulse";
  */
 
 export async function igniteApp(): Promise<void> {
+  // Failsafe: Ensure loader is dismissed within 3.5s even if an unexpected stall occurs
+  const failsafeTimeout = setTimeout(() => {
+    void completeBootVisuals();
+  }, 3500);
+
   try {
     // 1. Initial UI Structure
     shell.init('app-root');
@@ -174,18 +179,22 @@ export async function igniteApp(): Promise<void> {
     generateTable();
     updateDashboard();
   } finally {
+    clearTimeout(failsafeTimeout);
     await completeBootVisuals();
   }
 }
 
+let visualsCompleted = false;
 async function completeBootVisuals(): Promise<void> {
+  if (visualsCompleted) return;
+  visualsCompleted = true;
   const loader = document.getElementById('app-bootstrap-loader');
   if (!loader) return;
   const loaderText = document.querySelector('.loader-text');
   
-  setTimeout(() => { if (loaderText) loaderText.textContent = "SYSTEMS SYNCHRONIZED."; }, 200);
+  if (loaderText) loaderText.textContent = "SYSTEMS SYNCHRONIZED.";
   setTimeout(() => {
     loader.classList.add('hidden');
     setTimeout(() => loader.remove(), 800);
-  }, 1000);
+  }, 300);
 }
