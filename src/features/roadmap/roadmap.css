@@ -347,6 +347,16 @@
   background-color: var(--surface);
 }
 
+/* Today Row Highlight */
+.roadmap-table tr.today-row {
+  background: color-mix(in srgb, var(--accent-blue) 10%, transparent) !important;
+  box-shadow: inset 3px 0 0 var(--accent-blue);
+}
+
+.roadmap-table tr.today-row:hover {
+  background: color-mix(in srgb, var(--accent-blue) 16%, transparent) !important;
+}
+
 /* Checkbox Column */
 .col-checkbox {
   width: 32px;

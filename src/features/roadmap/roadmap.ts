@@ -69,6 +69,9 @@ function injectRoadmapModal() {
               ${SVGS.search}
               <input type="text" id="roadmapSearchInput" placeholder="Search syllabus..." autocomplete="off" />
             </div>
+            <button id="todayRoadmapBtn" class="roadmap-btn" title="Jump to Today's syllabus">
+              ${SVGS.calendar} Today
+            </button>
             <button id="importRoadmapBtn" class="roadmap-btn">
               ${SVGS.upload} Import
             </button>
@@ -167,9 +170,79 @@ function injectRoadmapModal() {
   overlay = document.getElementById('roadmapOverlay');
 }
 
+function parseRowDate(raw: string): Date | null {
+  if (!raw) return null;
+  const clean = raw.replace(/\[.*?\]/g, '').trim();
+  if (/^\d{5}$/.test(clean)) {
+    const serial = parseInt(clean, 10);
+    const d = new Date(Math.round((serial - 25569) * 86400 * 1000));
+    return isNaN(d.getTime()) ? null : d;
+  }
+  const d = new Date(clean);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+function isRowToday(row: any, columns: string[]): boolean {
+  if (!row || !row.cells) return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // 1. Check Date / Deadline columns
+  for (const col of columns) {
+    const colUpper = col.toUpperCase().trim();
+    if (colUpper.includes('DATE') || colUpper.includes('DEADLINE')) {
+      const cellVal = row.cells[col] ? String(row.cells[col]) : '';
+      const d = parseRowDate(cellVal);
+      if (d && d.getDate() === today.getDate() && d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear()) {
+        return true;
+      }
+    }
+  }
+
+  // 2. Check Day column vs tracker day
+  let currentTrackerDay: number | null = null;
+  if (appState.startDate) {
+    const start = new Date(appState.startDate);
+    start.setHours(0, 0, 0, 0);
+    const diff = Math.floor((today.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    if (diff > 0) currentTrackerDay = diff;
+  }
+
+  if (currentTrackerDay !== null) {
+    for (const col of columns) {
+      if (col.toUpperCase().trim() === 'DAY') {
+        const val = parseInt(String(row.cells[col] || '').trim(), 10);
+        if (val === currentTrackerDay) {
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
+}
+
+export function jumpToToday(): void {
+  const { columns, rows } = appState.roadmap || { columns: [], rows: [] };
+  if (!rows || rows.length === 0) return;
+
+  const todayIndex = rows.findIndex(row => isRowToday(row, columns));
+  if (todayIndex >= 0) {
+    roadmapCurrentPage = Math.floor(todayIndex / roadmapItemsPerPage) + 1;
+  }
+}
+
 export function openRoadmap() {
+  jumpToToday();
   renderRoadmap();
   if (overlay) overlay.classList.add('active');
+
+  setTimeout(() => {
+    const todayRow = document.querySelector('.roadmap-table tr.today-row') as HTMLElement;
+    if (todayRow) {
+      todayRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, 100);
 }
 
 export function closeRoadmap() {
@@ -178,6 +251,17 @@ export function closeRoadmap() {
 
 function setupEventListeners() {
   document.getElementById('closeRoadmapBtn')?.addEventListener('click', closeRoadmap);
+  
+  document.getElementById('todayRoadmapBtn')?.addEventListener('click', () => {
+    jumpToToday();
+    renderRoadmap();
+    setTimeout(() => {
+      const todayRow = document.querySelector('.roadmap-table tr.today-row') as HTMLElement;
+      if (todayRow) {
+        todayRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }, 50);
+  });
   
   const fileInput = document.getElementById('roadmapFileInput') as HTMLInputElement;
   const dropZone = document.getElementById('roadmapDropZone');
@@ -474,6 +558,7 @@ function renderRoadmap() {
   paginatedRows.forEach(row => {
     const tr = document.createElement('tr');
     if (row.isCompleted) tr.classList.add('completed');
+    if (isRowToday(row, columns)) tr.classList.add('today-row');
 
     let statusVal = '';
     columns.forEach(c => {
@@ -551,6 +636,7 @@ function renderRoadmap() {
            
            dateHtml += `<span class="date-main">${displayDateStr}</span>`;
            if (isToday) {
+             td.classList.add('date-today');
              dateHtml += `<span class="date-day-name today">Today</span>`;
            } else {
              dateHtml += `<span class="date-day-name">${dayName}</span>`;
