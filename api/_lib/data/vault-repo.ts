@@ -253,15 +253,17 @@ export async function readVault(
     case "bookmarks": {
       const { rows } = await pool.query<BookmarkRow>(
         `
-          select id, title, url, category, created_at
+          select id, title, url, category, coalesce(created_at, now()) as created_at
           from bookmarks
           where user_id = $1
           order by created_at asc
         `,
         [profile.profileId],
       );
-      const updatedAt =
-        rows.length > 0 ? rows[rows.length - 1].created_at || null : null;
+      const lastRow = rows.length > 0 ? rows[rows.length - 1] : null;
+      const updatedAt = lastRow
+        ? (lastRow.created_at ? new Date(lastRow.created_at).toISOString() : new Date().toISOString())
+        : null;
       return { data: rows.map(toBookmark), updatedAt };
     }
     case "tasks": {
@@ -471,13 +473,18 @@ export async function writeVault(
         if (data && Array.isArray(data) && data.length > 0) {
           await client.query(
             `
-              insert into bookmarks (id, user_id, title, url, category)
+              insert into bookmarks (id, user_id, title, url, category, created_at)
               select 
-                (b->>'id')::uuid, 
+                case 
+                  when (b->>'id') ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' 
+                  then (b->>'id')::uuid 
+                  else gen_random_uuid() 
+                end, 
                 $1::uuid, 
-                (b->>'title'), 
-                (b->>'url'), 
-                (b->>'category')
+                coalesce(nullif(trim(b->>'title'), ''), 'Untitled'), 
+                coalesce(nullif(trim(b->>'url'), ''), '#'), 
+                coalesce(nullif(trim(b->>'category'), ''), 'Other'),
+                now()
               from jsonb_array_elements($2::jsonb) as b
             `,
             [profile.profileId, JSON.stringify(data)],

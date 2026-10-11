@@ -21,9 +21,10 @@ function renderBookmarkFilters(): void {
   const container = document.getElementById('bookmarkFilters');
   if (!container) return;
 
-  const categories = ['All', ...BOOKMARK_CATEGORIES];
+  const userCats = appState.bookmarks.map(b => (b.category || 'Other').trim());
+  const categories = ['All', ...Array.from(new Set([...BOOKMARK_CATEGORIES, ...userCats]))];
   container.innerHTML = categories.map(cat => `
-    <div class="filter-pill ${activeCategory === cat ? 'active' : ''}" data-category="${cat}">
+    <div class="filter-pill ${activeCategory.toLowerCase() === cat.toLowerCase() ? 'active' : ''}" data-category="${cat}">
       ${cat}
     </div>
   `).join('');
@@ -42,7 +43,7 @@ export function renderBookmarks(): void {
 
   renderBookmarkFilters();
 
-  if (appState.bookmarks.length === 0) {
+  if (!appState.bookmarks || appState.bookmarks.length === 0) {
     list.innerHTML = `
       <div class="empty-state-modern">
         <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -57,7 +58,7 @@ export function renderBookmarks(): void {
 
   const filteredBookmarks = activeCategory === 'All' 
     ? appState.bookmarks 
-    : appState.bookmarks.filter(b => (b.category || 'Other') === activeCategory);
+    : appState.bookmarks.filter(b => (b.category || 'Other').trim().toLowerCase() === activeCategory.trim().toLowerCase());
 
   if (filteredBookmarks.length === 0) {
     list.innerHTML = `
@@ -73,22 +74,31 @@ export function renderBookmarks(): void {
     return;
   }
 
-  // Define categories to render (either just the active one or all if 'All' is selected)
-  const categoriesToRender = activeCategory === 'All' 
-    ? BOOKMARK_CATEGORIES 
-    : [activeCategory as any];
+  // Group bookmarks by category
+  const categoryMap = new Map<string, typeof filteredBookmarks>();
+  filteredBookmarks.forEach((item) => {
+    const rawCat = (item.category || 'Other').trim();
+    const standardCat = BOOKMARK_CATEGORIES.find(c => c.toLowerCase() === rawCat.toLowerCase()) || rawCat || 'Other';
+    if (!categoryMap.has(standardCat)) {
+      categoryMap.set(standardCat, []);
+    }
+    categoryMap.get(standardCat)!.push(item);
+  });
+
+  // Render ordered by standard categories first, then any extra categories
+  const allKnownCats = Array.from(new Set([...BOOKMARK_CATEGORIES, ...Array.from(categoryMap.keys())]));
 
   let html = '';
-  categoriesToRender.forEach((cat) => {
-    const catBookmarks = filteredBookmarks.filter((b) => (b.category || 'Other') === cat);
-    if (catBookmarks.length === 0) return;
+  allKnownCats.forEach((cat) => {
+    const catBookmarks = categoryMap.get(cat);
+    if (!catBookmarks || catBookmarks.length === 0) return;
 
     html += `
       <div class="bookmark-category-section active">
         <h3 class="bookmark-category-header">${cat}</h3>
         <div class="bookmark-grid">
           ${catBookmarks.map((item) => {
-            const firstLetter = item.title.charAt(0).toUpperCase();
+            const firstLetter = (item.title || 'U').charAt(0).toUpperCase();
             return `
               <div class="bookmark-card" data-action="open" data-url="${item.url}">
                 <div class="bookmark-info">
@@ -234,7 +244,14 @@ export function setupBookmarkListeners(): void {
         const item = appState.bookmarks.find((b) => b.id === editId);
         if (item) { item.title = title; item.url = url; item.category = category; }
       } else {
-        appState.bookmarks.push({ id: crypto.randomUUID(), title, url, category });
+        const bookmarkId = (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function')
+          ? crypto.randomUUID()
+          : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+              const r = (Math.random() * 16) | 0;
+              const v = c === 'x' ? r : (r & 0x3) | 0x8;
+              return v.toString(16);
+            });
+        appState.bookmarks.push({ id: bookmarkId, title, url, category });
       }
 
       saveBookmarksToStorage(appState.bookmarks);

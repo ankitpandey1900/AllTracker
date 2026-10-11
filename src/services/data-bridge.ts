@@ -234,22 +234,24 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
     const sync = (key: string, cloud: any, local: any, setter: Function, cloudSaver: Function) => {
       const isNewer = isCloudNewer(key, cloud?.updatedAt);
       const isDiff = cloud && isDifferent(local, cloud.data);
-      const isCloudDataEmpty = cloud && isLocalEmpty(cloud.data);
+      const isCloudDataEmpty = !cloud || isLocalEmpty(cloud.data);
+      const isLocalDataEmpty = isLocalEmpty(local);
       const hasLocalSave = getLocalTimestamp(key) > 0;
       
       if (cloud && force) {
         setter(cloud.data, false);
         saveLocal(key, cloud.data);
         updateLocalTimestamp(key, cloud.updatedAt || undefined);
-      } else if (cloud && isNewer && !isCloudDataEmpty) {
-        // Cloud is newer and HAS DATA: Overwrite local
+      } else if (cloud && !isCloudDataEmpty && (isNewer || isLocalDataEmpty || !hasLocalSave)) {
+        // Cloud has data AND (cloud is newer OR local is currently empty OR no local save on this browser):
+        // Always adopt cloud data to avoid wiping out user's data with empty local state
         setter(cloud.data, false);
         saveLocal(key, cloud.data);
         updateLocalTimestamp(key, cloud.updatedAt || undefined);
-      } else if (isDiff && hasLocalSave) {
+      } else if (isDiff && hasLocalSave && !isLocalDataEmpty) {
         // Local is newer AND was explicitly saved on this browser: Push local to cloud
         cloudSaver(local);
-      } else if (!cloud && hasLocalSave) {
+      } else if (!cloud && hasLocalSave && !isLocalDataEmpty) {
         // Cloud is empty/missing but local has explicitly saved data: Push to cloud
         cloudSaver(local);
       } else if (cloud && !hasLocalSave && !isCloudDataEmpty) {
@@ -278,7 +280,10 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
       appState.tasks = d;
       import('@/features/tasks/tasks').then(m => m.cleanupTasks());
     }, saveTasksCloud);
-    sync(STORAGE_KEYS.BOOKMARKS, cloudBookmarks, appState.bookmarks, (d: any) => { appState.bookmarks = d; }, saveBookmarksCloud);
+    sync(STORAGE_KEYS.BOOKMARKS, cloudBookmarks, appState.bookmarks, (d: any) => { 
+      appState.bookmarks = d; 
+      import('@/features/bookmarks/bookmarks').then(m => m.renderBookmarks());
+    }, saveBookmarksCloud);
     sync(STORAGE_KEYS.ROADMAP, cloudRoadmap, appState.roadmap, (d: any) => { appState.roadmap = d; }, saveRoadmapCloud);
 
     // If cloud timer is >24h old and running, it's a ghost session. Clear it.
@@ -333,8 +338,10 @@ export async function performBackgroundSync(): Promise<void> {
     ]);
     let changed = false;
 
-    const check = (key: string, cloud: any, _local: any, setter: Function) => {
-      if (cloud && isCloudNewer(key, cloud.updatedAt)) {
+    const check = (key: string, cloud: any, local: any, setter: Function) => {
+      const isCloudDataEmpty = !cloud || isLocalEmpty(cloud.data);
+      const isLocalDataEmpty = isLocalEmpty(local);
+      if (cloud && (isCloudNewer(key, cloud.updatedAt) || (!isCloudDataEmpty && isLocalDataEmpty))) {
         setter(cloud.data);
         saveLocal(key, cloud.data);
         updateLocalTimestamp(key, cloud.updatedAt || undefined);
@@ -361,7 +368,10 @@ export async function performBackgroundSync(): Promise<void> {
       import('@/features/tasks/tasks').then(m => m.cleanupTasks());
     });
     check(STORAGE_KEYS.ROUTINE_HISTORY, cloud[4], appState.routineHistory, (d: any) => { appState.routineHistory = d; });
-    check(STORAGE_KEYS.BOOKMARKS, cloud[5], appState.bookmarks, (d: any) => { appState.bookmarks = d; });
+    check(STORAGE_KEYS.BOOKMARKS, cloud[5], appState.bookmarks, (d: any) => { 
+      appState.bookmarks = d;
+      import('@/features/bookmarks/bookmarks').then(m => m.renderBookmarks());
+    });
     check(STORAGE_KEYS.ROADMAP, cloud[7], appState.roadmap, (d: any) => { appState.roadmap = d; });
     
     // Adopt cloud timer if newer
