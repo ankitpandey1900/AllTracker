@@ -3,7 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Command Center</title>
+  <title>Admin Command Center | AllTracker</title>
+  <link rel="icon" type="image/png" href="/icon-192.png?v=5" />
+  <script>
+    if (window.location.pathname === '/src/admin/ankit.html' || window.location.pathname === '/src/admin/ankit') {
+      window.history.replaceState(null, '', '/ankit' + window.location.search + window.location.hash);
+    }
+  </script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

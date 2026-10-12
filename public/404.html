@@ -1,102 +1,564 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>404: Mission Deviation | All Tracker</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&family=Tektur:wght@600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>404 — Page Not Found | AllTracker</title>
+  <link rel="icon" type="image/png" href="/icon-192.png?v=5" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #030611;
-      --accent: #6a86ff;
-      --text: #ffffff;
-      --subtext: #8b9cc4;
+      --bg: #030712;
+      --card-bg: rgba(15, 23, 42, 0.72);
+      --card-border: rgba(56, 189, 248, 0.16);
+      --card-border-hover: rgba(56, 189, 248, 0.35);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-sub: #64748b;
+      --cyan: #38bdf8;
+      --cyan-glow: rgba(56, 189, 248, 0.28);
+      --indigo: #6366f1;
+      --emerald: #10b981;
+      --amber: #f59e0b;
     }
-    body {
+
+    * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Outfit', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      padding: 24px 16px;
+      overflow-x: hidden;
+      position: relative;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Ambient background grid & lighting */
+    .bg-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
       overflow: hidden;
+    }
+
+    .bg-grid {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(circle at 50% 50%, black 30%, transparent 80%);
+      -webkit-mask-image: radial-gradient(circle at 50% 50%, black 30%, transparent 80%);
+    }
+
+    .glow-cyan {
+      position: absolute;
+      top: 20%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px;
+      height: 400px;
+      background: radial-gradient(ellipse at center, rgba(56, 189, 248, 0.12) 0%, rgba(99, 102, 241, 0.06) 45%, transparent 70%);
+      filter: blur(50px);
+    }
+
+    .glow-indigo {
+      position: absolute;
+      bottom: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 500px;
+      height: 250px;
+      background: radial-gradient(ellipse at center, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
+      filter: blur(60px);
+    }
+
+    /* Central Layout Container */
+    .container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 580px;
+      margin: auto;
       text-align: center;
     }
-    .glitch-container {
-      position: relative;
-    }
-    .glitch-text {
-      font-family: 'Tektur', sans-serif;
-      font-size: 8rem;
-      font-weight: 600;
-      color: var(--accent);
-      text-shadow: 0 0 20px rgba(106, 134, 255, 0.4);
-      margin: 0;
-      line-height: 1;
-    }
-    .sub-heading {
-      font-size: 1.5rem;
-      color: var(--text);
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      margin-top: -10px;
-    }
-    .description {
-      color: var(--subtext);
-      max-width: 400px;
-      margin: 24px auto;
-      line-height: 1.6;
-    }
-    .btn {
-      padding: 12px 32px;
-      background: var(--accent);
-      color: white;
+
+    /* Header brand pill */
+    .brand-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
       text-decoration: none;
-      border-radius: 8px;
+      color: var(--text-main);
+      margin-bottom: 24px;
+      padding: 6px 14px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 9999px;
+      transition: all 0.2s ease;
+    }
+
+    .brand-link:hover {
+      border-color: rgba(56, 189, 248, 0.35);
+      background: rgba(15, 23, 42, 0.85);
+      transform: translateY(-1px);
+    }
+
+    .brand-link img {
+      width: 22px;
+      height: 22px;
+      object-fit: contain;
+      border-radius: 4px;
+    }
+
+    .brand-link span {
+      font-family: 'Outfit', sans-serif;
       font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(106, 134, 255, 0.3);
+      font-size: 0.9rem;
+      letter-spacing: 0.5px;
     }
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(106, 134, 255, 0.5);
+
+    /* Glass Card */
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 44px 36px 36px;
+      box-shadow: 
+        0 20px 40px -15px rgba(0, 0, 0, 0.6),
+        0 0 0 1px rgba(255, 255, 255, 0.03),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      position: relative;
+      overflow: hidden;
+      animation: cardAppear 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
     }
-    .particles {
+
+    @keyframes cardAppear {
+      from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .card::before {
+      content: '';
       position: absolute;
       top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: -1;
-      background: radial-gradient(circle at center, rgba(106, 134, 255, 0.05) 0%, transparent 70%);
+      left: 15%;
+      right: 15%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.6), transparent);
+    }
+
+    /* Status Pill */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      color: #cbd5e1;
+      background: rgba(30, 41, 59, 0.7);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      padding: 5px 14px;
+      border-radius: 9999px;
+      margin-bottom: 20px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--amber);
+      box-shadow: 0 0 8px var(--amber);
+      animation: pulseDot 2s infinite ease-in-out;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    /* 404 Hero Display */
+    .number-display {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(4.5rem, 15vw, 6.5rem);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -2px;
+      margin-bottom: 12px;
+      background: linear-gradient(180deg, #ffffff 30%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      user-select: none;
+    }
+
+    .headline {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(1.35rem, 4vw, 1.65rem);
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.3px;
+      margin-bottom: 12px;
+    }
+
+    .subline {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      max-width: 440px;
+      margin: 0 auto 20px;
+    }
+
+    /* Path Badge */
+    .route-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(3, 7, 18, 0.6);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--cyan);
+      max-width: 90%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      margin-bottom: 28px;
+    }
+
+    .route-chip svg {
+      flex-shrink: 0;
+      opacity: 0.7;
+    }
+
+    /* Action Buttons */
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+
+    @media (min-width: 480px) {
+      .actions {
+        flex-direction: row;
+        justify-content: center;
+      }
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: pointer;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: #0284c7;
+      background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+      color: #030712;
+      box-shadow: 0 4px 16px rgba(56, 189, 248, 0.3);
+      font-weight: 700;
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 6px 24px rgba(56, 189, 248, 0.45);
+      transform: translateY(-1.5px);
+    }
+
+    .btn-secondary {
+      background: rgba(30, 41, 59, 0.7);
+      color: #f1f5f9;
+      border-color: rgba(148, 163, 184, 0.18);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(51, 65, 85, 0.8);
+      border-color: rgba(148, 163, 184, 0.35);
+      color: #ffffff;
+      transform: translateY(-1.5px);
+    }
+
+    .btn-back {
+      background: transparent;
+      color: var(--text-muted);
+      border-color: rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+    }
+
+    .btn-back:hover {
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Shortcuts Row */
+    .shortcuts {
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding-top: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .shortcuts-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-sub);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .shortcut-chips {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .chip-link {
+      color: #cbd5e1;
+      font-size: 0.82rem;
+      text-decoration: none;
+      padding: 5px 11px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .chip-link:hover {
+      color: var(--cyan);
+      background: rgba(56, 189, 248, 0.08);
+      border-color: rgba(56, 189, 248, 0.25);
+    }
+
+    /* Auto redirect bar (user controllable) */
+    .redirect-banner {
+      margin-top: 16px;
+      font-size: 0.78rem;
+      color: var(--text-sub);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .redirect-pause {
+      background: none;
+      border: none;
+      color: var(--cyan);
+      font-size: 0.78rem;
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 0;
+      font-family: inherit;
+    }
+
+    .redirect-pause:hover {
+      color: #ffffff;
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 24px;
+      font-size: 0.8rem;
+      color: var(--text-sub);
+      position: relative;
+      z-index: 1;
+    }
+
+    footer a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.15s ease;
+    }
+
+    footer a:hover {
+      color: var(--cyan);
     }
   </style>
 </head>
 <body>
-  <div class="particles"></div>
-  <div class="glitch-container">
-    <h1 class="glitch-text">404</h1>
-    <div class="sub-heading">Mission Deviation</div>
+  <!-- Ambient backdrop elements -->
+  <div class="bg-canvas">
+    <div class="bg-grid"></div>
+    <div class="glow-cyan"></div>
+    <div class="glow-indigo"></div>
   </div>
-  <p class="description">
-    The sector you are trying to access does not exist in the World Stage. 
-    Redirecting to Command Center in 5 seconds...
-  </p>
-  <a href="/" class="btn">Return to Vault</a>
+
+  <div class="container">
+    <!-- Brand link -->
+    <a href="/" class="brand-link" title="AllTracker Official">
+      <img src="/app-logo.png" alt="AllTracker Logo" />
+      <span>ALLTRACKER</span>
+    </a>
+
+    <!-- Main Card -->
+    <div class="card">
+      <!-- Status pill -->
+      <div class="status-badge">
+        <span class="status-dot"></span>
+        <span>ROUTE UNREACHABLE</span>
+      </div>
+
+      <div class="number-display">404</div>
+      <h1 class="headline">Page Not Found</h1>
+      <p class="subline">
+        The link you followed may be incorrect, moved, or is temporarily unavailable. Let's get you back to your workspace.
+      </p>
+
+      <!-- Dynamic Path Indicator -->
+      <div class="route-chip" id="route-indicator" title="Requested path">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <span id="requested-path">/</span>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="actions">
+        <a href="/app" class="btn btn-primary" id="btn-open-app">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          Open Dashboard
+        </a>
+
+        <a href="/" class="btn btn-secondary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+          Landing Page
+        </a>
+
+        <button type="button" class="btn btn-back" id="btn-go-back">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+          Go Back
+        </button>
+      </div>
+
+      <!-- Quick Shortcuts -->
+      <div class="shortcuts">
+        <span class="shortcuts-label">Quick Destinations</span>
+        <div class="shortcut-chips">
+          <a href="/app#roadmap" class="chip-link">🗺️ DSA Roadmap</a>
+          <a href="/app#timer" class="chip-link">⏱️ Focus Timer</a>
+          <a href="/app#leaderboard" class="chip-link">🏆 Leaderboard</a>
+          <a href="/manual" class="chip-link">📖 User Manual</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controlled Auto Redirect Notice -->
+    <div class="redirect-banner" id="redirect-banner">
+      <span>Auto-navigating to Dashboard in <strong id="countdown-val">10</strong>s</span>
+      <span>•</span>
+      <button type="button" class="redirect-pause" id="pause-redirect-btn">Cancel</button>
+    </div>
+
+    <footer>
+      <span>&copy; <span id="current-year">2026</span> AllTracker &bull; </span>
+      <a href="/privacy">Privacy</a> &bull; 
+      <a href="/terms">Terms</a>
+    </footer>
+  </div>
 
   <script>
-    setTimeout(() => {
-      window.location.href = '/';
-    }, 5000);
+    // Update path display dynamically
+    const currentPath = window.location.pathname || '/';
+    const pathSpan = document.getElementById('requested-path');
+    if (pathSpan) {
+      pathSpan.textContent = currentPath + (window.location.search || '');
+    }
+
+    // Dynamic year
+    const yrEl = document.getElementById('current-year');
+    if (yrEl) yrEl.textContent = new Date().getFullYear();
+
+    // Go Back Handler
+    const backBtn = document.getElementById('btn-go-back');
+    if (backBtn) {
+      backBtn.addEventListener('click', () => {
+        if (window.history.length > 1) {
+          window.history.back();
+        } else {
+          window.location.href = '/app';
+        }
+      });
+    }
+
+    // User-friendly countdown redirect
+    let countdown = 10;
+    const countdownEl = document.getElementById('countdown-val');
+    const bannerEl = document.getElementById('redirect-banner');
+    const pauseBtn = document.getElementById('pause-redirect-btn');
+    let timerId = null;
+
+    function tick() {
+      countdown--;
+      if (countdownEl) countdownEl.textContent = countdown;
+      if (countdown <= 0) {
+        clearInterval(timerId);
+        window.location.href = '/app';
+      }
+    }
+
+    timerId = setInterval(tick, 1000);
+
+    if (pauseBtn) {
+      pauseBtn.addEventListener('click', () => {
+        clearInterval(timerId);
+        if (bannerEl) {
+          bannerEl.innerHTML = '<span style="color: #64748b;">Auto-redirect canceled. Take your time.</span>';
+        }
+      });
+    }
   </script>
 </body>
 </html>

@@ -13,15 +13,20 @@ const apiMiddleware = () => ({
     Object.assign(process.env, env);
 
     server.middlewares.use(async (req: any, res: any, next: any) => {
-      // Dev mode rewrite for /ankit to match Vercel behavior
-      if (req.url === '/ankit' || req.url === '/ankit/') {
-        req.url = '/src/admin/ankit.html';
-        return next();
-      }
-
       // Clean URL redirects: Strip .html so users only see clean paths or root domain
       const parsedUrl = new URL(req.url, 'http://localhost');
       const pathname = parsedUrl.pathname;
+
+      // Dev mode rewrites for admin routes (/ankit, /app/ankit, /admin, etc.)
+      if (
+        pathname === '/ankit' || pathname === '/ankit/' ||
+        pathname === '/app/ankit' || pathname === '/app/ankit/' ||
+        pathname === '/admin' || pathname === '/admin/' ||
+        pathname === '/app/admin' || pathname === '/app/admin/'
+      ) {
+        req.url = '/src/admin/ankit.html' + (parsedUrl.search || '');
+        return next();
+      }
 
       if (pathname === '/landing.html' || pathname === '/index.html') {
         res.writeHead(302, { Location: '/' + (parsedUrl.search || '') });

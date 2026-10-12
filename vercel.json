@@ -8,8 +8,28 @@
   "cleanUrls": true,
   "rewrites": [
     {
+      "source": "/app/ankit",
+      "destination": "/src/admin/ankit"
+    },
+    {
+      "source": "/app/ankit/(.*)",
+      "destination": "/src/admin/ankit"
+    },
+    {
+      "source": "/admin",
+      "destination": "/src/admin/ankit"
+    },
+    {
+      "source": "/admin/(.*)",
+      "destination": "/src/admin/ankit"
+    },
+    {
       "source": "/ankit",
-      "destination": "/src/admin/ankit.html"
+      "destination": "/src/admin/ankit"
+    },
+    {
+      "source": "/ankit/(.*)",
+      "destination": "/src/admin/ankit"
     },
     {
       "source": "/api/auth/(.*)",
