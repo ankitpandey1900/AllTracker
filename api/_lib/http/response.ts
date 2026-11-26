@@ -1,4 +1,5 @@
-import type { ServerResponse } from "node:http";
+import type { IncomingMessage, ServerResponse } from "node:http";
+import { createHash } from "node:crypto";
 import { ConfigurationError } from "../config/env.js";
 
 function applyDefaultHeaders(res: ServerResponse): void {
@@ -19,6 +20,35 @@ export function sendJson(
   applyDefaultHeaders(res);
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.end(JSON.stringify(payload));
+}
+
+/**
+ * Like sendJson, but for data that clients poll. The response carries an ETag
+ * and may be revalidated by the browser; if nothing changed since the copy the
+ * browser already has, it gets an empty 304 and reuses that copy. The data is
+ * never stale: the server still builds it on every request.
+ */
+export function sendJsonWithEtag(
+  req: IncomingMessage,
+  res: ServerResponse,
+  payload: unknown,
+): void {
+  const body = JSON.stringify(payload);
+  const etag = `"${createHash("sha1").update(body).digest("base64url")}"`;
+  applyDefaultHeaders(res);
+  // Private to this user; the browser must check with the server every time.
+  res.setHeader("Cache-Control", "private, no-cache");
+  res.setHeader("ETag", etag);
+
+  if (req.headers["if-none-match"] === etag) {
+    res.statusCode = 304;
+    res.end();
+    return;
+  }
+
+  res.statusCode = 200;
+  res.setHeader("Content-Type", "application/json; charset=utf-8");
+  res.end(body);
 }
 
 export function sendMethodNotAllowed(

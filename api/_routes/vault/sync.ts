@@ -3,7 +3,7 @@ import { getAuth } from "../../_lib/auth/index.js";
 import { readVault, VaultName } from "../../_lib/data/vault-repo.js";
 import { ensureProfileForUser } from "../../_lib/data/profile-repo.js";
 import { headersFromNode } from "../../_lib/http/request.js";
-import { handleRouteError, sendJson, sendMethodNotAllowed } from "../../_lib/http/response.js";
+import { handleRouteError, sendJson, sendJsonWithEtag, sendMethodNotAllowed } from "../../_lib/http/response.js";
 
 const vaults: VaultName[] = [
   "tracker",
@@ -51,7 +51,8 @@ export default async function handler(
       snapshot[r.name] = { data: r.data, updatedAt: r.updatedAt };
     });
 
-    sendJson(res, 200, snapshot);
+    // Polled every 10s: unchanged snapshots come back as an empty 304.
+    sendJsonWithEtag(req, res, snapshot);
   } catch (error) {
     handleRouteError(res, error);
   }

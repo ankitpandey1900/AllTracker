@@ -3,7 +3,7 @@ import { getAuth } from "../_lib/auth/index.js";
 import { fetchStudySessions, logStudySession, deleteStudySession, updateStudySession } from "../_lib/data/study-repo.js";
 import { ensureProfileForUser } from "../_lib/data/profile-repo.js";
 import { headersFromNode, readJsonBody } from "../_lib/http/request.js";
-import { handleRouteError, sendJson, sendMethodNotAllowed } from "../_lib/http/response.js";
+import { handleRouteError, sendJson, sendJsonWithEtag, sendMethodNotAllowed } from "../_lib/http/response.js";
 
 export default async function handler(
   req: IncomingMessage,
@@ -26,7 +26,8 @@ export default async function handler(
       const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
       const timezone = url.searchParams.get('timezone') || undefined;
       const rows = await fetchStudySessions(profile, timezone);
-      sendJson(res, 200, rows);
+      // Refetched on every World Stage broadcast: unchanged lists come back as an empty 304.
+      sendJsonWithEtag(req, res, rows);
       return;
     }
 
