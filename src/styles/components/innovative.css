@@ -504,7 +504,8 @@ body.timer-font-fira {
 }
 
 body.timer-style-block.timer-font-fira .timer-display {
-  font-size: clamp(3rem, 19cqw, 40rem);
+  --clock-cqw: 19cqw;
+  font-size: clamp(3rem, var(--clock-cqw), 40rem);
   letter-spacing: -6px;
 }
 
@@ -514,7 +515,8 @@ body.timer-font-digital {
 }
 
 body.timer-style-block.timer-font-digital .timer-display {
-  font-size: clamp(3rem, 16cqw, 40rem);
+  --clock-cqw: 16cqw;
+  font-size: clamp(3rem, var(--clock-cqw), 40rem);
   letter-spacing: -2px;
 }
 
@@ -524,7 +526,8 @@ body.timer-font-tektur {
 }
 
 body.timer-style-block.timer-font-tektur .timer-display {
-  font-size: clamp(3rem, 23cqw, 45rem);
+  --clock-cqw: 23cqw;
+  font-size: clamp(3rem, var(--clock-cqw), 45rem);
   letter-spacing: -4px;
 }
 
@@ -534,7 +537,8 @@ body.timer-font-inter {
 }
 
 body.timer-style-block.timer-font-inter .timer-display {
-  font-size: clamp(3rem, 23cqw, 45rem);
+  --clock-cqw: 23cqw;
+  font-size: clamp(3rem, var(--clock-cqw), 45rem);
   font-weight: 600;
   letter-spacing: -8px;
   font-variant-numeric: tabular-nums;
@@ -546,7 +550,8 @@ body.timer-font-monoton {
 }
 
 body.timer-style-block.timer-font-monoton .timer-display {
-  font-size: clamp(3rem, 16cqw, 40rem);
+  --clock-cqw: 16cqw;
+  font-size: clamp(3rem, var(--clock-cqw), 40rem);
   letter-spacing: 2px;
   font-weight: 400;
 }
@@ -557,7 +562,8 @@ body.timer-font-blackops {
 }
 
 body.timer-style-block.timer-font-blackops .timer-display {
-  font-size: clamp(3rem, 17cqw, 40rem);
+  --clock-cqw: 17cqw;
+  font-size: clamp(3rem, var(--clock-cqw), 40rem);
   letter-spacing: -2px;
   font-weight: 400;
 }
@@ -568,7 +574,8 @@ body.timer-font-silkscreen {
 }
 
 body.timer-style-block.timer-font-silkscreen .timer-display {
-  font-size: clamp(3rem, 16.5cqw, 40rem);
+  --clock-cqw: 16.5cqw;
+  font-size: clamp(3rem, var(--clock-cqw), 40rem);
   letter-spacing: -4px;
   font-weight: 400;
 }
@@ -579,7 +586,8 @@ body.timer-font-bungee {
 }
 
 body.timer-style-block.timer-font-bungee .timer-display {
-  font-size: clamp(3rem, 16.5cqw, 40rem);
+  --clock-cqw: 16.5cqw;
+  font-size: clamp(3rem, var(--clock-cqw), 40rem);
   letter-spacing: -2px;
   font-weight: 400;
 }
@@ -930,10 +938,11 @@ body.focus-minimized.timer-style-block #activeTimerSection:hover {
     font-size: 3rem !important;
   }
 
-  /* Landscape: height is the limit, so size the clock by viewport height. */
+  /* Landscape: as tall as the screen allows, but never wider than the font's
+     own width limit (--clock-cqw, set per font). Digits get a little air. */
   body.timer-style-block .timer-display {
-    font-size: min(15cqw, 34vh) !important;
-    letter-spacing: -1px !important;
+    font-size: min(calc(var(--clock-cqw, 16cqw) * 0.82), 44vh) !important;
+    letter-spacing: 0.04em !important;
   }
 
   body.timer-style-block .glass-block-content {
@@ -995,9 +1004,35 @@ body.focus-minimized.timer-style-block #activeTimerSection:hover {
     font-size: 0.7rem !important;
   }
 
+  /* Slim top bar: icons only, so the clock gets the height. */
   .hud-top-bar {
-    padding: 4px 8px !important;
+    padding: 0 4px !important;
     gap: 4px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .hud-top-bar .btn-icon {
+    width: 28px;
+    height: 28px;
+    padding: 4px;
+  }
+
+  .hud-top-bar svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .hud-status span,
+  #ambientSoundLabel {
+    display: none !important;
+  }
+
+  .volume-slider-wrap {
+    padding: 2px 8px !important;
+  }
+
+  .hud-volume-slider {
+    width: 48px !important;
   }
 
   .timer-circle-container {
@@ -1048,8 +1083,8 @@ body.focus-minimized.timer-style-block #activeTimerSection:hover {
   .focus-hud.force-landscape body.timer-style-block .timer-display,
   body.timer-style-block .focus-hud.force-landscape .timer-display {
     /* Rotated 90°: the screen's width is the available height here. */
-    font-size: min(15cqw, 34vw) !important;
-    letter-spacing: -1px !important;
+    font-size: min(calc(var(--clock-cqw, 16cqw) * 0.82), 44vw) !important;
+    letter-spacing: 0.04em !important;
   }
 
   .focus-hud.force-landscape .glass-block-content {
