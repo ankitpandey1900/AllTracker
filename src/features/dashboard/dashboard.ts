@@ -43,10 +43,13 @@ export function toggleFocusHUD(show: boolean, subject: string = '', time: string
   if (!hud) return;
 
   if (show) {
-    if (subjEl) subjEl.textContent = subject.toUpperCase();
-    if (timeEl) timeEl.textContent = time;
-    hud.classList.add('active');
-    document.body.style.overflow = 'hidden';
+    if (subjEl && subjEl.textContent !== subject.toUpperCase()) subjEl.textContent = subject.toUpperCase();
+    if (timeEl && timeEl.textContent !== time) timeEl.textContent = time;
+    if (!hud.classList.contains('active')) hud.classList.add('active');
+    const desiredOverflow = document.body.classList.contains('focus-minimized') ? '' : 'hidden';
+    if (document.body.style.overflow !== desiredOverflow) {
+      document.body.style.overflow = desiredOverflow;
+    }
   } else {
     hud.classList.remove('active');
     document.body.classList.remove('focus-minimized');

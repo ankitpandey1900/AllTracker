@@ -152,6 +152,28 @@ function notify(path: string, value: any) {
   listeners.forEach(fn => fn(path, value));
 }
 
+function safeStorageArray<T>(key: string): T[] {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as T[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function safeStorageObject<T extends Record<string, any>>(key: string, fallback: T): T {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return fallback;
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? (parsed as T) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 const rawState = {
   /** Daily tracker entries */
   trackerData: [] as TrackerDay[],
@@ -160,19 +182,19 @@ const rawState = {
   settings: createDefaultSettings(),
 
   /** Daily routine items */
-  routines: JSON.parse(localStorage.getItem(STORAGE_KEYS.ROUTINES) || '[]') as RoutineItem[],
+  routines: safeStorageArray<RoutineItem>(STORAGE_KEYS.ROUTINES),
 
   /** Routine completion history by date */
-  routineHistory: JSON.parse(localStorage.getItem(STORAGE_KEYS.ROUTINE_HISTORY) || '{}') as RoutineHistory,
+  routineHistory: safeStorageObject<RoutineHistory>(STORAGE_KEYS.ROUTINE_HISTORY, {}),
 
   /** Saved bookmarks */
-  bookmarks: JSON.parse(localStorage.getItem(STORAGE_KEYS.BOOKMARKS) || '[]') as Bookmark[],
+  bookmarks: safeStorageArray<Bookmark>(STORAGE_KEYS.BOOKMARKS),
 
   /** Study tasks (To-Do list) */
-  tasks: JSON.parse(localStorage.getItem(STORAGE_KEYS.TASKS) || '[]') as StudyTask[],
+  tasks: safeStorageArray<StudyTask>(STORAGE_KEYS.TASKS),
 
   /** Imported Roadmap/Syllabus */
-  roadmap: JSON.parse(localStorage.getItem(STORAGE_KEYS.ROADMAP) || '{"columns":[],"rows":[]}') as Roadmap,
+  roadmap: safeStorageObject<Roadmap>(STORAGE_KEYS.ROADMAP, { columns: [], rows: [] }),
 
   /** Active study timer */
   activeTimer: createDefaultTimer(),
@@ -471,6 +493,7 @@ export function ensureTimelineIntegrity(): void {
 
   const lastEntry = data[data.length - 1];
   const lastDate = new Date(lastEntry.date);
+  if (isNaN(lastDate.getTime())) return;
   lastDate.setHours(0, 0, 0, 0);
 
   const today = new Date();
@@ -482,6 +505,8 @@ export function ensureTimelineIntegrity(): void {
 
   // RESPECT THE USER'S END DATE: Do not auto-extend past the configured End Date or Phase End
   const configuredEnd = new Date(appState.settings.endDate);
+  if (isNaN(configuredEnd.getTime())) return;
+  configuredEnd.setHours(0, 0, 0, 0);
   const finalTargetDate = targetDate > configuredEnd ? configuredEnd : targetDate;
 
   if (lastDate < finalTargetDate) {
@@ -490,7 +515,8 @@ export function ensureTimelineIntegrity(): void {
     let current = new Date(lastDate);
     current.setDate(current.getDate() + 1);
 
-    while (current <= finalTargetDate) {
+    let safetyCounter = 0;
+    while (current <= finalTargetDate && safetyCounter < 3653) {
       const colCount = (appState.settings.columns || []).length;
       missingDays.push({
         day: data.length + missingDays.length + 1,
@@ -502,6 +528,7 @@ export function ensureTimelineIntegrity(): void {
         completed: false,
       });
       current.setDate(current.getDate() + 1);
+      safetyCounter++;
     }
 
     appState.trackerData = [...data, ...missingDays];

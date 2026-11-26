@@ -268,7 +268,10 @@ export function updateHeaderProfileUI(): void {
   if (!headerRight) return;
 
   const profileRaw = getSecureLocalProfileString();
-  const profile = profileRaw ? JSON.parse(profileRaw) : null;
+  let profile: Record<string, any> | null = null;
+  if (profileRaw) {
+    try { profile = JSON.parse(profileRaw); } catch { profile = null; }
+  }
   const avatar = profile?.avatar || "👤";
   const handle = localStorage.getItem("tracker_username") || "Tracker User";
 

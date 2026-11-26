@@ -42,7 +42,10 @@ export async function checkProfileIdentity(): Promise<void> {
   const usernameSaved = localStorage.getItem('tracker_username');
 
   // 1. Check local profile first
-  let profile: UserProfile | null = profileSaved ? JSON.parse(profileSaved) : null;
+  let profile: UserProfile | null = null;
+  if (profileSaved) {
+    try { profile = JSON.parse(profileSaved); } catch { profile = null; }
+  }
 
   // 2. Data Sync: Detect missing cloud data and reconcile
   // We perform a brief delay to ensure local data is fully parsed
@@ -112,7 +115,12 @@ export async function syncProfileBroadcast(focusStateChanged = false): Promise<v
   const saved = getSecureLocalProfileString();
   if (!saved) return;
 
-  const profile = JSON.parse(saved) as UserProfile;
+  let profile: UserProfile;
+  try {
+    profile = JSON.parse(saved) as UserProfile;
+  } catch {
+    return;
+  }
 
   // Fast-tracking focus state changes is no longer handled by a separate payload.
   // Instead, the full payload broadcast will bypass the 30-second rate limit.
@@ -221,18 +229,20 @@ export async function syncProfileBroadcast(focusStateChanged = false): Promise<v
   }
   
   if (lastBroadcastPayload) {
-    const prev = JSON.parse(lastBroadcastPayload);
-    if (prev.display_name === profile.displayName) {
-      if (todayHours < prev.today_hours) {
-        if (prev.today_hours - todayHours > 0.005) {
-          log.warn(`Sync Guard: Prevented today_hours regression. (Current: ${todayHours.toFixed(4)}, Prev: ${prev.today_hours.toFixed(4)})`);
+    try {
+      const prev = JSON.parse(lastBroadcastPayload);
+      if (prev.display_name === profile.displayName) {
+        if (todayHours < prev.today_hours) {
+          if (prev.today_hours - todayHours > 0.005) {
+            log.warn(`Sync Guard: Prevented today_hours regression. (Current: ${todayHours.toFixed(4)}, Prev: ${prev.today_hours.toFixed(4)})`);
+          }
+          todayHours = prev.today_hours;
         }
-        todayHours = prev.today_hours;
+        if (totalHours < prev.total_hours) {
+          totalHours = prev.total_hours;
+        }
       }
-      if (totalHours < prev.total_hours) {
-        totalHours = prev.total_hours;
-      }
-    }
+    } catch { /* ignore malformed cached broadcast payload */ }
   }
 
   const streak = calculateStreak(appState.trackerData);

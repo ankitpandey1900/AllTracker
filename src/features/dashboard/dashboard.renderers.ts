@@ -106,25 +106,44 @@ export function applyKPIMissionAuras(completionRate: number, streak: number): vo
 export function initInteractiveParallax(): void {
   const cards = document.querySelectorAll('.card');
   cards.forEach(card => {
-    (card as HTMLElement).addEventListener('mousemove', (e: MouseEvent) => {
-      const rect = (card as HTMLElement).getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+    const el = card as HTMLElement & { _hasParallaxListener?: boolean };
+    if (el._hasParallaxListener) return;
+    el._hasParallaxListener = true;
 
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
+    let rafId: number | null = null;
+    let lastEvent: MouseEvent | null = null;
 
-      // Calculate rotation (max 10 degrees)
-      const rotateX = ((y - centerY) / centerY) * -6;
-      const rotateY = ((x - centerX) / centerX) * 6;
+    el.addEventListener('mousemove', (e: MouseEvent) => {
+      lastEvent = e;
+      if (rafId !== null) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        if (!lastEvent) return;
+        const rect = el.getBoundingClientRect();
+        if (!rect.width || !rect.height) return;
+        const x = lastEvent.clientX - rect.left;
+        const y = lastEvent.clientY - rect.top;
 
-      (card as HTMLElement).style.setProperty('--tilt-x', `${rotateX}deg`);
-      (card as HTMLElement).style.setProperty('--tilt-y', `${rotateY}deg`);
-    });
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
 
-    (card as HTMLElement).addEventListener('mouseleave', () => {
-      (card as HTMLElement).style.setProperty('--tilt-x', `0deg`);
-      (card as HTMLElement).style.setProperty('--tilt-y', `0deg`);
+        // Calculate rotation (max 6 degrees)
+        const rotateX = ((y - centerY) / centerY) * -6;
+        const rotateY = ((x - centerX) / centerX) * 6;
+
+        el.style.setProperty('--tilt-x', `${rotateX}deg`);
+        el.style.setProperty('--tilt-y', `${rotateY}deg`);
+      });
+    }, { passive: true });
+
+    el.addEventListener('mouseleave', () => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+      lastEvent = null;
+      el.style.setProperty('--tilt-x', `0deg`);
+      el.style.setProperty('--tilt-y', `0deg`);
     });
   });
 }

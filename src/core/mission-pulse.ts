@@ -86,15 +86,27 @@ export function startMissionPulse(): void {
     }
   });
 
-  // 2. Interactive Backdrop Pulse
+  // 2. Interactive Backdrop Pulse (rAF-throttled to avoid per-pixel style recalcs)
+  let mouseRafId: number | null = null;
+  let lastMouseX = 0;
+  let lastMouseY = 0;
   document.addEventListener("mousemove", (e) => {
-    document.documentElement.style.setProperty("--mouse-x", `${e.clientX}px`);
-    document.documentElement.style.setProperty("--mouse-y", `${e.clientY}px`);
-  });
+    lastMouseX = e.clientX;
+    lastMouseY = e.clientY;
+    if (mouseRafId !== null) return;
+    mouseRafId = requestAnimationFrame(() => {
+      mouseRafId = null;
+      document.documentElement.style.setProperty("--mouse-x", `${lastMouseX}px`);
+      document.documentElement.style.setProperty("--mouse-y", `${lastMouseY}px`);
+    });
+  }, { passive: true });
 
   // 3. PWA Service Worker (Shield Protocol)
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
+      const hadController = !!navigator.serviceWorker.controller;
+      let isRefreshing = false;
+
       navigator.serviceWorker.register('/sw.js')
         .then(reg => {
           log.success('Shield Protocol: Service Worker active');
@@ -109,7 +121,12 @@ export function startMissionPulse(): void {
         })
         .catch(err => log.error('Shield failure', err));
 
-      navigator.serviceWorker.addEventListener('controllerchange', () => window.location.reload());
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (hadController && !isRefreshing) {
+          isRefreshing = true;
+          window.location.reload();
+        }
+      });
     });
   }
 }

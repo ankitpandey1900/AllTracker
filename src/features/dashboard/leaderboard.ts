@@ -22,11 +22,17 @@ import {
 import { renderLbPage, renderLbPagination } from './leaderboard.ui';
 import { handleGlobalHudDismiss } from './leaderboard.events';
 
+let worldStageInitialized = false;
+let activityTrackingInitialized = false;
+
 /**
  * Starts the leaderboard and platform telemetry systems.
  */
 export async function initWorldStage(): Promise<void> {
   await refreshLeaderboard();
+
+  if (worldStageInitialized) return;
+  worldStageInitialized = true;
 
   let lbDebounceTimer: ReturnType<typeof setTimeout> | null = null;
   const debouncedRefresh = () => {
@@ -85,6 +91,8 @@ function setupTimeframeSelector() {
 }
 
 export function initActivityTracking(): void {
+  if (activityTrackingInitialized) return;
+  activityTrackingInitialized = true;
   const updateActivity = () => { updateLastInteraction(); };
   window.addEventListener('mousedown', updateActivity);
   window.addEventListener('keydown', updateActivity);
@@ -106,7 +114,15 @@ export function initActivityTracking(): void {
   window.addEventListener('beforeunload', () => syncProfileBroadcast());
 }
 
-
+function getSafeMyDisplayName(): string | null {
+  const profileData = getSecureLocalProfileString();
+  if (!profileData) return null;
+  try {
+    return JSON.parse(profileData).displayName || null;
+  } catch {
+    return null;
+  }
+}
 
 export function getCurrentUserLeaderboardContext(): {
   position: number;
@@ -117,8 +133,7 @@ export function getCurrentUserLeaderboardContext(): {
   topUserHandle: string;
 } | null {
   if (!lbAllUsers.length) return null;
-  const profileData = getSecureLocalProfileString();
-  const myDisplayName = profileData ? JSON.parse(profileData).displayName : null;
+  const myDisplayName = getSafeMyDisplayName();
   if (!myDisplayName) return null;
 
   const sorted = [...lbAllUsers].sort((a, b) => {
@@ -217,8 +232,7 @@ export async function refreshLeaderboard(): Promise<void> {
 
   let users = await fetchLeaderboard(lbTimeframe);
   
-  const profileData = getSecureLocalProfileString();
-  const myDisplayName = profileData ? JSON.parse(profileData).displayName : null;
+  const myDisplayName = getSafeMyDisplayName();
 
   // Optimistic UI Merge: Apply local state to bypass server rate limits/caches
   const localPayloadStr = getLastBroadcastPayload();

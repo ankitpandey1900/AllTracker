@@ -253,16 +253,16 @@ export async function readVault(
     case "bookmarks": {
       const { rows } = await pool.query<BookmarkRow>(
         `
-          select id, title, url, category, coalesce(created_at, now()) as created_at
+          select id, title, url, category, created_at
           from bookmarks
           where user_id = $1
-          order by created_at asc
+          order by created_at asc nulls first
         `,
         [profile.profileId],
       );
       const lastRow = rows.length > 0 ? rows[rows.length - 1] : null;
-      const updatedAt = lastRow
-        ? (lastRow.created_at ? new Date(lastRow.created_at).toISOString() : new Date().toISOString())
+      const updatedAt = lastRow?.created_at
+        ? new Date(lastRow.created_at).toISOString()
         : null;
       return { data: rows.map(toBookmark), updatedAt };
     }

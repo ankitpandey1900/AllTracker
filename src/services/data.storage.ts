@@ -7,14 +7,33 @@ import { STORAGE_KEYS } from '@/config/constants';
  * Handles all low-level localStorage operations and encryption.
  */
 
+export function safeParseJson<T>(raw: string | null, fallback: T): T {
+  if (!raw) return fallback;
+  try {
+    const parsed = JSON.parse(raw);
+    return parsed === null || parsed === undefined ? fallback : (parsed as T);
+  } catch {
+    return fallback;
+  }
+}
+
 export function saveLocal(key: string, data: any): void {
-  localStorage.setItem(key, JSON.stringify(data));
+  if (data === undefined) return;
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch (err) {
+    console.warn(`[Storage] Failed to persist "${key}" to localStorage:`, err);
+  }
 }
 
 export function loadLocal<T>(key: string): T | null {
-  const saved = localStorage.getItem(key);
-  if (!saved) return null;
-  try { return JSON.parse(saved) as T; } catch { return null; }
+  try {
+    const saved = localStorage.getItem(key);
+    if (!saved) return null;
+    return JSON.parse(saved) as T;
+  } catch {
+    return null;
+  }
 }
 
 export function removeLocal(key: string): void {
