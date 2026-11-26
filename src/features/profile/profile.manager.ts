@@ -228,7 +228,11 @@ export async function syncProfileBroadcast(focusStateChanged = false): Promise<v
     log.info("Midnight Reset: Cleared broadcast cache for new day.");
   }
   
-  if (lastBroadcastPayload) {
+  // The guard only applies while a session is live, where hours are an
+  // estimate that can briefly dip. Once nothing is running, the saved log is
+  // the truth and may legitimately go down: time subtracted at stop, a
+  // terminated session, or a session edited or deleted in history.
+  if (lastBroadcastPayload && hasActiveSession) {
     try {
       const prev = JSON.parse(lastBroadcastPayload);
       if (prev.display_name === profile.displayName) {
