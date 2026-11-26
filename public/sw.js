@@ -1,15 +1,22 @@
-const CACHE_NAME = 'alltracker-cache-v2.0.3'; // V2.0.3: Invalidate stale shell caches
+const CACHE_NAME = 'alltracker-cache-v2.0.5'; // V2.0.5: New landing page; drop the cached old one
 const ASSETS_TO_CACHE = [
   '/',
   '/app',
   '/app.html',
   '/manifest.json',
-  '/logo.png'
+  '/app-logo.png',
+  '/icon-192.png'
 ];
 
 // Utility: Check if request is for the main site shell
 const isNavigationRequest = (request) => {
-  return request.mode === 'navigate' || (request.url.endsWith('/') || request.url.includes('/app') || request.url.endsWith('/app.html'));
+  if (request.mode === 'navigate') return true;
+  try {
+    const { pathname } = new URL(request.url);
+    return pathname === '/' || pathname === '/app' || pathname === '/app.html';
+  } catch {
+    return false;
+  }
 };
 
 // Utility: Identify API or Dynamic data that should NEVER be cached by SW
@@ -32,7 +39,9 @@ const isExternalCacheable = (url) => {
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
+    caches.open(CACHE_NAME).then((cache) =>
+      Promise.allSettled(ASSETS_TO_CACHE.map((asset) => cache.add(asset)))
+    )
   );
 });
 
@@ -62,8 +71,10 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          if (response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          }
           return response;
         })
         .catch(() => caches.match(event.request))
@@ -71,22 +82,33 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 3. Asset Strategy: Selective Stale-While-Revalidate
+  // 3. Asset Strategy: Selective Stale-While-Revalidate (never cache HTML rewrites as JS/CSS)
+  let pathname = '';
+  try {
+    pathname = new URL(url).pathname.toLowerCase();
+  } catch {
+    return;
+  }
+
   const isInternal = url.startsWith(self.location.origin);
   const cacheableExtensions = ['.js', '.css', '.woff2', '.png', '.svg', '.jpg'];
-  const isCacheableFile = cacheableExtensions.some(ext => url.toLowerCase().endsWith(ext));
+  const isCacheableFile = cacheableExtensions.some(ext => pathname.endsWith(ext));
+  const isCodeAsset = pathname.endsWith('.js') || pathname.endsWith('.css');
 
   if ((isInternal && isCacheableFile) || isExternalCacheable(url)) {
     event.respondWith(
       caches.match(event.request).then((cachedResponse) => {
-        const fetchPromise = fetch(event.request).then((networkResponse) => {
-          // Only cache successful GET responses that aren't too massive
-          if (networkResponse.ok) {
-            const responseToCache = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
-          }
-          return networkResponse;
-        });
+        const fetchPromise = fetch(event.request)
+          .then((networkResponse) => {
+            const contentType = networkResponse.headers.get('content-type') || '';
+            const validAsset = !isCodeAsset || !contentType.includes('text/html');
+            if (networkResponse.ok && validAsset) {
+              const responseToCache = networkResponse.clone();
+              caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
+            }
+            return networkResponse;
+          })
+          .catch(() => cachedResponse || Response.error());
         return cachedResponse || fetchPromise;
       })
     );
