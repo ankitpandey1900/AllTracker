@@ -17,9 +17,9 @@ async function getVault<T>(vault: string): Promise<VaultResponse<T> | null> {
   return apiRequest<VaultResponse<T>>(`/api/app/vault/${vault}`);
 }
 
-async function putVault(vault: string, data: unknown): Promise<void> {
+async function putVault(vault: string, data: unknown): Promise<{ updatedAt?: string | null } | void> {
   if (!getCurrentUserId()) return;
-  await apiRequest(`/api/app/vault/${vault}`, {
+  return apiRequest<{ updatedAt?: string | null }>(`/api/app/vault/${vault}`, {
     method: "PUT",
     body: { data },
   });
@@ -66,8 +66,10 @@ export async function loadTrackerDataCloud(): Promise<VaultResponse<TrackerDay[]
   return getVault<TrackerDay[]>("tracker");
 }
 
-export async function saveSettingsCloud(settings: Settings): Promise<void> {
-  await putVault("settings", settings);
+/** Saves settings and returns the server's timestamp for this write. */
+export async function saveSettingsCloud(settings: Settings): Promise<string | null> {
+  const res = await putVault("settings", settings);
+  return (res && res.updatedAt) || null;
 }
 
 export async function loadSettingsCloud(): Promise<VaultResponse<Settings> | null> {
@@ -178,70 +180,95 @@ export async function syncAllUserDataCloud(): Promise<Record<string, VaultRespon
   return apiRequest<Record<string, VaultResponse<any>>>("/api/app/vault/sync");
 }
 
+type UserDataSyncCallback = (payload: any) => void;
+const userSyncSubscribers = new Set<UserDataSyncCallback>();
+let userSyncLastFingerprint = "";
+let userSyncTimeoutId: number | undefined;
+let userSyncVisibilityBound = false;
+let userSyncInFlight = false;
+
+async function runUserDataSyncPoll(): Promise<void> {
+  if (userSyncSubscribers.size === 0 || !getCurrentUserId()) return;
+
+  if (document.visibilityState === 'visible' && !userSyncInFlight) {
+    userSyncInFlight = true;
+    try {
+      const snapshotMap = await syncAllUserDataCloud();
+      if (snapshotMap) {
+        const snapshot = [
+          snapshotMap.tracker,
+          snapshotMap.settings,
+          snapshotMap.routines,
+          snapshotMap.history,
+          snapshotMap.bookmarks,
+          snapshotMap.tasks,
+          snapshotMap.timer,
+          snapshotMap.roadmap,
+        ];
+        const fingerprint = JSON.stringify(snapshot);
+        if (fingerprint !== userSyncLastFingerprint) {
+          userSyncLastFingerprint = fingerprint;
+          const payload = {
+            table: "__poll__",
+            eventType: "UPDATE",
+            new: { data: snapshot, snapshotMap },
+          };
+          userSyncSubscribers.forEach((cb) => {
+            try {
+              cb(payload);
+            } catch (err) {
+              log.error("User data sync subscriber failed", err);
+            }
+          });
+        }
+      }
+    } catch (error) {
+      log.error("User data polling failed", error);
+    } finally {
+      userSyncInFlight = false;
+    }
+  }
+
+  // Schedule next pull (10s in foreground) only while subscribers remain
+  if (userSyncSubscribers.size > 0) {
+    window.clearTimeout(userSyncTimeoutId);
+    userSyncTimeoutId = window.setTimeout(runUserDataSyncPoll, 10000);
+  }
+}
+
+function handleUserSyncVisibilityChange(): void {
+  if (document.visibilityState === 'visible' && userSyncSubscribers.size > 0) {
+    window.clearTimeout(userSyncTimeoutId);
+    void runUserDataSyncPoll();
+  }
+}
+
 export async function subscribeToUserDataSync(
   callback: (payload: any) => void,
 ): Promise<{ unsubscribe: () => void }> {
-  let lastFingerprint = "";
-  let timeoutId: number;
-  let isUnsubscribed = false;
+  const wasEmpty = userSyncSubscribers.size === 0;
+  userSyncSubscribers.add(callback);
 
-  const fetchSync = async () => {
-    if (isUnsubscribed || !getCurrentUserId()) return;
-    
-    // Adaptive: if hidden, we don't fetch. We rely on visibilitychange to trigger when back.
-    if (document.visibilityState === 'visible') {
-      try {
-        const snapshotMap = await syncAllUserDataCloud();
-        if (snapshotMap) {
-          const snapshot = [
-            snapshotMap.tracker,
-            snapshotMap.settings,
-            snapshotMap.routines,
-            snapshotMap.history,
-            snapshotMap.bookmarks,
-            snapshotMap.tasks,
-            snapshotMap.timer,
-            snapshotMap.roadmap,
-          ];
-          const fingerprint = JSON.stringify(snapshot);
-          if (fingerprint !== lastFingerprint) {
-            lastFingerprint = fingerprint;
-            callback({
-              table: "__poll__",
-              eventType: "UPDATE",
-              new: { data: snapshot },
-            });
-          }
-        }
-      } catch (error) {
-        log.error("User data polling failed", error);
-      }
-    }
-    
-    // Schedule next pull (10s in foreground)
-    if (!isUnsubscribed) {
-      timeoutId = window.setTimeout(fetchSync, 10000);
-    }
-  };
+  if (!userSyncVisibilityBound) {
+    userSyncVisibilityBound = true;
+    document.addEventListener('visibilitychange', handleUserSyncVisibilityChange);
+  }
 
-  // Start polling
-  fetchSync();
-
-  // Instant fetch on visibility return
-  const visibilityHandler = () => {
-    if (document.visibilityState === 'visible') {
-      // Clear existing timeout to prevent overlapping immediate calls
-      window.clearTimeout(timeoutId);
-      fetchSync();
-    }
-  };
-  document.addEventListener('visibilitychange', visibilityHandler);
+  if (wasEmpty) {
+    void runUserDataSyncPoll();
+  }
 
   return {
     unsubscribe: () => {
-      isUnsubscribed = true;
-      window.clearTimeout(timeoutId);
-      document.removeEventListener('visibilitychange', visibilityHandler);
+      userSyncSubscribers.delete(callback);
+      if (userSyncSubscribers.size === 0) {
+        window.clearTimeout(userSyncTimeoutId);
+        userSyncTimeoutId = undefined;
+        if (userSyncVisibilityBound) {
+          document.removeEventListener('visibilitychange', handleUserSyncVisibilityChange);
+          userSyncVisibilityBound = false;
+        }
+      }
     }
   };
 }
@@ -268,8 +295,14 @@ export async function logStudySessionCloud(
 ): Promise<void> {
   if (!getCurrentUserId()) {
     // Fallback: Save to local history if not logged in
-    const localSaved = localStorage.getItem('all_tracker_history');
-    const localLogs: StudySession[] = localSaved ? JSON.parse(localSaved) : [];
+    let localLogs: StudySession[] = [];
+    try {
+      const localSaved = localStorage.getItem('all_tracker_history');
+      const parsed = localSaved ? JSON.parse(localSaved) : [];
+      localLogs = Array.isArray(parsed) ? parsed : [];
+    } catch {
+      localLogs = [];
+    }
     localLogs.push({
       id: crypto.randomUUID(),
       user_id: 'local-session', // Offline placeholder
@@ -280,7 +313,9 @@ export async function logStudySessionCloud(
       note: note || '',
       log_date: getLocalIsoDate(startTime || new Date())
     });
-    localStorage.setItem('all_tracker_history', JSON.stringify(localLogs));
+    try {
+      localStorage.setItem('all_tracker_history', JSON.stringify(localLogs.slice(-100)));
+    } catch { /* ignore quota error */ }
     return;
   }
 
@@ -306,9 +341,12 @@ export async function logStudySessionCloud(
   } catch (err) {
     // Network/server failure — queue for retry so the session is never lost
     log.warn(`Session save failed, queuing for offline retry: ${err}`);
-    const queue: Array<typeof payload> = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
-    queue.push(payload);
-    localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
+    try {
+      const parsed = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
+      const queue: Array<typeof payload> = Array.isArray(parsed) ? parsed : [];
+      queue.push(payload);
+      localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
+    } catch { /* ignore storage error */ }
   }
 }
 
@@ -321,7 +359,14 @@ export async function drainOfflineSessionQueue(): Promise<void> {
   const raw = localStorage.getItem(OFFLINE_QUEUE_KEY);
   if (!raw) return;
 
-  const queue: any[] = JSON.parse(raw);
+  let queue: any[] = [];
+  try {
+    const parsed = JSON.parse(raw);
+    queue = Array.isArray(parsed) ? parsed : [];
+  } catch {
+    localStorage.removeItem(OFFLINE_QUEUE_KEY);
+    return;
+  }
   if (queue.length === 0) return;
 
   log.info(`[Offline Queue] Draining ${queue.length} queued session(s)...`);

@@ -504,7 +504,7 @@ body.timer-font-fira {
 }
 
 body.timer-style-block.timer-font-fira .timer-display {
-  font-size: clamp(8rem, 19cqw, 40rem);
+  font-size: clamp(3rem, 19cqw, 40rem);
   letter-spacing: -6px;
 }
 
@@ -514,7 +514,7 @@ body.timer-font-digital {
 }
 
 body.timer-style-block.timer-font-digital .timer-display {
-  font-size: clamp(8rem, 16cqw, 40rem);
+  font-size: clamp(3rem, 16cqw, 40rem);
   letter-spacing: -2px;
 }
 
@@ -524,7 +524,7 @@ body.timer-font-tektur {
 }
 
 body.timer-style-block.timer-font-tektur .timer-display {
-  font-size: clamp(8rem, 23cqw, 45rem);
+  font-size: clamp(3rem, 23cqw, 45rem);
   letter-spacing: -4px;
 }
 
@@ -534,7 +534,7 @@ body.timer-font-inter {
 }
 
 body.timer-style-block.timer-font-inter .timer-display {
-  font-size: clamp(8rem, 23cqw, 45rem);
+  font-size: clamp(3rem, 23cqw, 45rem);
   font-weight: 600;
   letter-spacing: -8px;
   font-variant-numeric: tabular-nums;
@@ -546,7 +546,7 @@ body.timer-font-monoton {
 }
 
 body.timer-style-block.timer-font-monoton .timer-display {
-  font-size: clamp(8rem, 16cqw, 40rem);
+  font-size: clamp(3rem, 16cqw, 40rem);
   letter-spacing: 2px;
   font-weight: 400;
 }
@@ -557,7 +557,7 @@ body.timer-font-blackops {
 }
 
 body.timer-style-block.timer-font-blackops .timer-display {
-  font-size: clamp(8rem, 17cqw, 40rem);
+  font-size: clamp(3rem, 17cqw, 40rem);
   letter-spacing: -2px;
   font-weight: 400;
 }
@@ -568,7 +568,7 @@ body.timer-font-silkscreen {
 }
 
 body.timer-style-block.timer-font-silkscreen .timer-display {
-  font-size: clamp(8rem, 16.5cqw, 40rem);
+  font-size: clamp(3rem, 16.5cqw, 40rem);
   letter-spacing: -4px;
   font-weight: 400;
 }
@@ -579,7 +579,7 @@ body.timer-font-bungee {
 }
 
 body.timer-style-block.timer-font-bungee .timer-display {
-  font-size: clamp(8rem, 16.5cqw, 40rem);
+  font-size: clamp(3rem, 16.5cqw, 40rem);
   letter-spacing: -2px;
   font-weight: 400;
 }
@@ -820,10 +820,43 @@ body.focus-minimized.timer-style-block #activeTimerSection:hover {
     font-size: 2.2rem;
   }
 
-  /* Timer Scaling: BLOCK STYLE */
+  /* Timer Scaling: BLOCK STYLE
+     The clock keeps its per-font cqw size, so it fills the card's width;
+     only the tight desktop letter-spacing is relaxed for small sizes. */
   body.timer-style-block .timer-display {
-    font-size: clamp(2.5rem, 14vw, 5rem) !important;
     letter-spacing: -1px !important;
+  }
+
+  /* Buttons sized for a phone: Break and Stop share a row, Terminate sits
+     below at full width. They no longer outsize the clock. */
+  body.timer-style-block .control-row {
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  body.timer-style-block .control-row .btn {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 12px 10px !important;
+    font-size: 0.85rem !important;
+  }
+
+  body.timer-style-block .control-row #timerTerminateBtn {
+    flex-basis: 100%;
+    order: 3;
+    padding: 10px !important;
+    font-size: 0.75rem !important;
+  }
+
+  body.timer-style-block .session-goal-row {
+    margin-top: 6px;
+    padding: 10px 12px;
+    font-size: 0.85rem;
+  }
+
+  body.timer-style-block .session-goal-row input {
+    font-size: 0.9rem;
+    padding: 4px 6px;
   }
 
   body.timer-style-block .glass-block-content {
@@ -897,8 +930,10 @@ body.focus-minimized.timer-style-block #activeTimerSection:hover {
     font-size: 3rem !important;
   }
 
+  /* Landscape: height is the limit, so size the clock by viewport height. */
   body.timer-style-block .timer-display {
-    font-size: clamp(2rem, 12vw, 4rem) !important;
+    font-size: min(15cqw, 34vh) !important;
+    letter-spacing: -1px !important;
   }
 
   body.timer-style-block .glass-block-content {
@@ -920,9 +955,11 @@ body.focus-minimized.timer-style-block #activeTimerSection:hover {
     margin-top: 8px !important;
   }
 
-  .control-row .btn {
+  /* The block-style selector is needed to beat its desktop !important size. */
+  .control-row .btn,
+  body.timer-style-block .control-row .btn {
     padding: 8px 14px !important;
-    font-size: 0.7rem !important;
+    font-size: 0.75rem !important;
     min-width: auto !important;
     flex: 0 1 auto !important;
   }
@@ -1010,7 +1047,9 @@ body.focus-minimized.timer-style-block #activeTimerSection:hover {
 
   .focus-hud.force-landscape body.timer-style-block .timer-display,
   body.timer-style-block .focus-hud.force-landscape .timer-display {
-    font-size: clamp(2rem, 12vw, 4rem) !important;
+    /* Rotated 90°: the screen's width is the available height here. */
+    font-size: min(15cqw, 34vw) !important;
+    letter-spacing: -1px !important;
   }
 
   .focus-hud.force-landscape .glass-block-content {
@@ -1031,9 +1070,10 @@ body.focus-minimized.timer-style-block #activeTimerSection:hover {
     margin-top: 8px !important;
   }
 
-  .focus-hud.force-landscape .control-row .btn {
+  .focus-hud.force-landscape .control-row .btn,
+  body.timer-style-block .focus-hud.force-landscape .control-row .btn {
     padding: 8px 14px !important;
-    font-size: 0.7rem !important;
+    font-size: 0.75rem !important;
     min-width: auto !important;
     flex: 0 1 auto !important;
   }

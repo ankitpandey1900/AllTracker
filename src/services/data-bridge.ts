@@ -119,15 +119,120 @@ export async function loadRoutineResetFromStorage(): Promise<string | null> {
 }
 
 // --- Settings ---
+//
+// Settings are one row shared by every device. Many features save the whole
+// settings object (finishing a session, Beast mode, badges...), so a device
+// that hasn't pulled the latest copy used to push its stale values back and
+// undo changes made elsewhere: change the accent on the laptop, finish a
+// session on the phone, and the laptop's accent was gone.
+//
+// Now each device remembers which fields *it* changed ("pending"), and every
+// push merges only those onto the current cloud copy. Fields this device did
+// not touch always come from the cloud. Device clocks are never compared.
+
+const PENDING_SETTINGS_KEY = 'at_settings_pending';
+
+/** field -> local edit counter, so an edit made mid-push isn't marked as sent */
+const pendingSettings = new Map<string, number>(
+  (loadLocal<string[]>(PENDING_SETTINGS_KEY) || []).map((k) => [k, 1]),
+);
+
+function persistPendingSettings(): void {
+  saveLocal(PENDING_SETTINGS_KEY, [...pendingSettings.keys()]);
+}
+
+function applySettingsToDOM(d: any): void {
+  import('@/state/app-state').then(m => {
+    if (d.theme) m.applyThemeToDOM(d.theme);
+    if (d.accentColor) m.applyAccentColorToDOM(d.accentColor);
+    if (d.timerStyle) m.applyTimerStyleToDOM(d.timerStyle);
+    if (d.timerFont) m.applyTimerFontToDOM(d.timerFont);
+    if (d.uiFont) m.applyUiFontToDOM(d.uiFont);
+  });
+}
+
+/** Cloud copy, with this device's pending edits on top. */
+function mergeSettings(cloudData: any, local: any): any {
+  const merged = { ...local };
+  for (const [key, value] of Object.entries(cloudData || {})) {
+    // Unset columns come back as null; never let them erase a local value.
+    if (value === null || value === undefined) continue;
+    if (pendingSettings.has(key)) continue;
+    merged[key] = value;
+  }
+  // Badges only ever unlock, so keep the union of both sides.
+  const badges = new Set<string>([...(local?.unlockedBadges || []), ...(cloudData?.unlockedBadges || [])]);
+  merged.unlockedBadges = [...badges];
+  // The routine-reset marker only moves forward; an older cloud value would re-run the reset.
+  if (local?.lastRoutineReset && cloudData?.lastRoutineReset) {
+    merged.lastRoutineReset = local.lastRoutineReset > cloudData.lastRoutineReset
+      ? local.lastRoutineReset
+      : cloudData.lastRoutineReset;
+  }
+  return merged;
+}
+
+/** Adopts the cloud settings (keeping pending local edits). Returns true if anything changed. */
+function reconcileSettingsFromCloud(cloud: { data: any; updatedAt: string | null } | null | undefined): boolean {
+  // No updatedAt means the account has no saved settings row yet; the server
+  // still returns empty phases/badges, which must not wipe this device's copy.
+  if (!cloud || !cloud.updatedAt || isLocalEmpty(cloud.data)) return false;
+  const merged = mergeSettings(cloud.data, appState.settings);
+  if (cloud.updatedAt) updateLocalTimestamp(STORAGE_KEYS.SETTINGS, cloud.updatedAt);
+  if (!isDifferent(merged, appState.settings)) return false;
+
+  appState.settings = merged;
+  calculateDates();
+  saveLocal(STORAGE_KEYS.SETTINGS, appState.settings);
+  applySettingsToDOM(merged);
+  return true;
+}
+
+/** Pushes this device's pending setting edits, merged onto the latest cloud copy. */
+async function pushPendingSettings(): Promise<void> {
+  if (pendingSettings.size === 0) return;
+  const sent = new Map(pendingSettings);
+
+  const cloud = await loadSettingsCloud();
+  if (reconcileSettingsFromCloud(cloud)) {
+    void refreshAppAfterSync();
+  }
+
+  const outgoing = snapshotForSync(appState.settings);
+  const updatedAt = await saveSettingsCloud(outgoing);
+
+  for (const [key, version] of sent) {
+    if (pendingSettings.get(key) === version) pendingSettings.delete(key);
+  }
+  persistPendingSettings();
+  // Track the server's clock, not this device's.
+  if (updatedAt) updateLocalTimestamp(STORAGE_KEYS.SETTINGS, updatedAt);
+}
+
 export async function saveSettingsToStorage(settings: any, skipSync: boolean = false): Promise<void> {
-  const previous = loadLocal<any>(STORAGE_KEYS.SETTINGS)?.customRanges || [];
+  const baseline = loadLocal<any>(STORAGE_KEYS.SETTINGS);
+  const before = baseline || {};
+  const isWholeObject = settings === appState.settings;
+  const previous = before.customRanges || [];
   appState.settings = { ...appState.settings, ...settings };
   const snapshot = snapshotForSync(appState.settings);
   saveLocal(STORAGE_KEYS.SETTINGS, snapshot);
-  
+
   if (!skipSync) {
+    // Only fields that really changed on this device become pending. With no
+    // saved copy to compare against (a fresh browser), a whole-object save
+    // can't tell what changed, so it claims nothing and the cloud stays the
+    // authority; a partial save still claims the fields it was given.
+    const next = snapshot as unknown as Record<string, unknown>;
+    const changed = baseline
+      ? Object.keys(next).filter((key) => isDifferent(before[key], next[key]))
+      : isWholeObject ? [] : Object.keys(settings || {});
+    for (const key of changed) {
+      pendingSettings.set(key, (pendingSettings.get(key) || 0) + 1);
+    }
+    persistPendingSettings();
     updateLocalTimestamp(STORAGE_KEYS.SETTINGS);
-    queueVaultWrite(STORAGE_KEYS.SETTINGS, () => saveSettingsCloud(snapshot));
+    queueVaultWrite(STORAGE_KEYS.SETTINGS, pushPendingSettings);
   }
 
   const previousById = new Map(previous.filter((phase: any) => phase.id).map((phase: any) => [phase.id, phase]));
@@ -262,18 +367,17 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
       }
     };
 
-    sync(STORAGE_KEYS.SETTINGS, cloudSettings, appState.settings, (d: any) => { 
-      appState.settings = { ...appState.settings, ...d }; 
-      calculateDates();
-      saveLocal(STORAGE_KEYS.SETTINGS, appState.settings);
-      import('@/state/app-state').then(m => {
-        if (d.theme) m.applyThemeToDOM(d.theme);
-        if (d.accentColor) m.applyAccentColorToDOM(d.accentColor);
-        if (d.timerStyle) m.applyTimerStyleToDOM(d.timerStyle);
-        if (d.timerFont) m.applyTimerFontToDOM(d.timerFont);
-        if (d.uiFont) m.applyUiFontToDOM(d.uiFont);
-      });
-    }, saveSettingsCloud);
+    // Settings: the cloud copy wins for every field this device hasn't
+    // changed itself; pending local edits are then pushed on top.
+    if (cloudSettings?.updatedAt && !isLocalEmpty(cloudSettings.data)) {
+      reconcileSettingsFromCloud(cloudSettings);
+      if (pendingSettings.size > 0) queueVaultWrite(STORAGE_KEYS.SETTINGS, pushPendingSettings);
+    } else if (getLocalTimestamp(STORAGE_KEYS.SETTINGS) > 0 && !isLocalEmpty(appState.settings)) {
+      // Nothing in the cloud yet: this device's settings become the first copy.
+      Object.keys(appState.settings).forEach((key) => pendingSettings.set(key, 1));
+      persistPendingSettings();
+      queueVaultWrite(STORAGE_KEYS.SETTINGS, pushPendingSettings);
+    }
     sync(STORAGE_KEYS.TRACKER_DATA, cloudTracker, appState.trackerData, (d: any) => { appState.trackerData = d; syncTrackerTimelineWithSettings(); ensureTimelineIntegrity(); }, saveTrackerDataCloud);
     sync(STORAGE_KEYS.ROUTINES, cloudRoutines, appState.routines, (d: any) => { appState.routines = d; }, saveRoutinesCloud);
     sync(STORAGE_KEYS.TASKS, cloudTasks, appState.tasks, (d: any) => {
@@ -320,22 +424,36 @@ export async function syncDataOnLogin(forceCloudPull = false): Promise<void> {
   }
 }
 
-export async function performBackgroundSync(): Promise<void> {
-  if (!isAuthenticated()) return;
+let isBackgroundSyncRunning = false;
+
+export async function performBackgroundSync(preloadedSnapshot?: Record<string, any> | null): Promise<void> {
+  if (!isAuthenticated() || isBackgroundSyncRunning) return;
+  isBackgroundSyncRunning = true;
   try {
     // Drain any queued offline sessions first
     await drainOfflineSessionQueue();
 
-    const cloud = await Promise.all([
-      loadTrackerDataCloud(), 
-      loadSettingsCloud(), 
-      loadRoutinesCloud(), 
-      loadTasksCloud(),
-      loadRoutineHistoryCloud(),
-      loadBookmarksCloud(),
-      loadTimerStateCloud(),
-      loadRoadmapCloud()
-    ]);
+    const cloud = preloadedSnapshot
+      ? [
+          preloadedSnapshot.tracker,
+          preloadedSnapshot.settings,
+          preloadedSnapshot.routines,
+          preloadedSnapshot.tasks,
+          preloadedSnapshot.history,
+          preloadedSnapshot.bookmarks,
+          preloadedSnapshot.timer,
+          preloadedSnapshot.roadmap,
+        ]
+      : await Promise.all([
+          loadTrackerDataCloud(), 
+          loadSettingsCloud(), 
+          loadRoutinesCloud(), 
+          loadTasksCloud(),
+          loadRoutineHistoryCloud(),
+          loadBookmarksCloud(),
+          loadTimerStateCloud(),
+          loadRoadmapCloud()
+        ]);
     let changed = false;
 
     const check = (key: string, cloud: any, local: any, setter: Function) => {
@@ -349,18 +467,9 @@ export async function performBackgroundSync(): Promise<void> {
       }
     };
 
-    check(STORAGE_KEYS.SETTINGS, cloud[1], appState.settings, (d: any) => { 
-      appState.settings = { ...appState.settings, ...d }; 
-      calculateDates();
-      saveLocal(STORAGE_KEYS.SETTINGS, appState.settings);
-      import('@/state/app-state').then(m => {
-        if (d.theme) m.applyThemeToDOM(d.theme);
-        if (d.accentColor) m.applyAccentColorToDOM(d.accentColor);
-        if (d.timerStyle) m.applyTimerStyleToDOM(d.timerStyle);
-        if (d.timerFont) m.applyTimerFontToDOM(d.timerFont);
-        if (d.uiFont) m.applyUiFontToDOM(d.uiFont);
-      });
-    });
+    // Settings don't use timestamps: adopt whatever the cloud has for fields
+    // this device isn't in the middle of changing.
+    if (reconcileSettingsFromCloud(cloud[1])) changed = true;
     check(STORAGE_KEYS.TRACKER_DATA, cloud[0], appState.trackerData, (d: any) => { appState.trackerData = d; syncTrackerTimelineWithSettings(); ensureTimelineIntegrity(); });
     check(STORAGE_KEYS.ROUTINES, cloud[2], appState.routines, (d: any) => { appState.routines = d; });
     check(STORAGE_KEYS.TASKS, cloud[3], appState.tasks, (d: any) => {
@@ -388,6 +497,9 @@ export async function performBackgroundSync(): Promise<void> {
 
     if (changed) await refreshAppAfterSync();
   } catch (err) { /* silent */ }
+  finally {
+    isBackgroundSyncRunning = false;
+  }
 }
 
 async function refreshAppAfterSync(): Promise<void> {
@@ -395,8 +507,12 @@ async function refreshAppAfterSync(): Promise<void> {
   await refreshApplicationUI();
 }
 
+let liveSyncRegistered = false;
+
 export async function startLiveSync(): Promise<void> {
-  if (isAuthenticated()) await subscribeToUserDataSync(() => performBackgroundSync());
+  if (!isAuthenticated() || liveSyncRegistered) return;
+  liveSyncRegistered = true;
+  await subscribeToUserDataSync((payload) => performBackgroundSync(payload?.new?.snapshotMap));
 }
 
 export async function handleUserDataSync(payload: any): Promise<void> {

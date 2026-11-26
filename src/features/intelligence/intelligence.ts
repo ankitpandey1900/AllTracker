@@ -68,15 +68,23 @@ function setStopButtonState(isStreaming: boolean): void {
   stopBtn.style.display = isStreaming ? 'inline-flex' : 'none';
 }
 
+// Maamu preferences live in the synced settings. The separate localStorage
+// keys are only a fallback for data saved before they were synced, so another
+// device's change is never hidden by this browser's old value.
 function isCompactModeEnabled(): boolean {
-  const local = localStorage.getItem(MAAMU_COMPACT_STORAGE_KEY);
-  if (local !== null) return local === '1';
-  return (appState.settings as any).maamuCompact === true;
+  const synced = (appState.settings as any).maamuCompact;
+  if (typeof synced === 'boolean') return synced;
+  return localStorage.getItem(MAAMU_COMPACT_STORAGE_KEY) === '1';
 }
 
-function setCompactMode(enabled: boolean): void {
-  localStorage.setItem(MAAMU_COMPACT_STORAGE_KEY, enabled ? '1' : '0');
-  saveSettingsToStorage({ maamuCompact: enabled });
+function setCompactMode(enabled: boolean, persist: boolean = true): void {
+  if (persist) {
+    const prev = (appState.settings as any).maamuCompact;
+    localStorage.setItem(MAAMU_COMPACT_STORAGE_KEY, enabled ? '1' : '0');
+    if (prev !== enabled) {
+      saveSettingsToStorage({ maamuCompact: enabled });
+    }
+  }
   const container = document.getElementById('maamuGptContainer');
   if (container) container.classList.toggle('maamu-compact', enabled);
   const btn = document.getElementById('toggleCompactView') as HTMLButtonElement | null;
@@ -94,14 +102,19 @@ function getEffectiveCompactMode(): boolean {
 }
 
 function areTemplatesCollapsed(): boolean {
-  const local = localStorage.getItem(MAAMU_TEMPLATES_COLLAPSED_KEY);
-  if (local !== null) return local === '1';
-  return (appState.settings as any).maamuTemplatesCollapsed === true;
+  const synced = (appState.settings as any).maamuTemplatesCollapsed;
+  if (typeof synced === 'boolean') return synced;
+  return localStorage.getItem(MAAMU_TEMPLATES_COLLAPSED_KEY) === '1';
 }
 
-function setTemplatesCollapsed(collapsed: boolean): void {
-  localStorage.setItem(MAAMU_TEMPLATES_COLLAPSED_KEY, collapsed ? '1' : '0');
-  saveSettingsToStorage({ maamuTemplatesCollapsed: collapsed });
+function setTemplatesCollapsed(collapsed: boolean, persist: boolean = true): void {
+  if (persist) {
+    const prev = (appState.settings as any).maamuTemplatesCollapsed;
+    localStorage.setItem(MAAMU_TEMPLATES_COLLAPSED_KEY, collapsed ? '1' : '0');
+    if (prev !== collapsed) {
+      saveSettingsToStorage({ maamuTemplatesCollapsed: collapsed });
+    }
+  }
   const container = document.getElementById('maamuGptContainer');
   if (container) container.classList.toggle('templates-collapsed', collapsed);
   const btn = document.getElementById('toggleTemplatesBtn') as HTMLButtonElement | null;
@@ -112,14 +125,13 @@ function setTemplatesCollapsed(collapsed: boolean): void {
 
 function getTemplateFavorites(): Set<string> {
   try {
+    const fromSettings = (appState.settings as any).maamuTemplateFavs;
+    if (Array.isArray(fromSettings)) return new Set(fromSettings.map(String));
     const raw = localStorage.getItem(MAAMU_TEMPLATE_FAVS_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
       return new Set(Array.isArray(parsed) ? parsed.map(String) : []);
     }
-    // Fall back to cloud-synced settings
-    const fromSettings = (appState.settings as any).maamuTemplateFavs;
-    if (Array.isArray(fromSettings)) return new Set(fromSettings.map(String));
   } catch { /* noop */ }
   return new Set();
 }
@@ -131,8 +143,9 @@ function saveTemplateFavorites(favs: Set<string>): void {
 }
 
 function getTemplateCategory(): string {
-  const local = localStorage.getItem(MAAMU_TEMPLATE_CATEGORY_KEY);
-  const value = local || (appState.settings as any).maamuTemplateCategory || 'all';
+  const value = (appState.settings as any).maamuTemplateCategory
+    || localStorage.getItem(MAAMU_TEMPLATE_CATEGORY_KEY)
+    || 'all';
   return ['all', 'favorites', 'general', 'coding', 'web'].includes(value) ? value : 'all';
 }
 
@@ -243,15 +256,6 @@ export function renderIntelligenceBriefing(): void {
   }
 
   // Ensure shell is updated with current state
-  renderSidebarMetrics();
-  renderSessionsList();
-  renderActiveChat();
-  renderSessionQuickAccess();
-
-  const s = getActiveSession();
-  const t = document.getElementById('activeMissionTitle');
-  if (t) t.textContent = s ? s.title : 'MAAMU AI';
-
   const toggle = document.getElementById('beastModeToggle') as HTMLInputElement;
   if (toggle) toggle.checked = !!appState.settings.beastMode;
 
@@ -266,8 +270,8 @@ export function renderIntelligenceBriefing(): void {
   const session = getActiveSession();
   const titleEl = document.getElementById('activeMissionTitle');
   if (titleEl) titleEl.textContent = session ? session.title : 'MAAMU AI';
-  setCompactMode(getEffectiveCompactMode());
-  setTemplatesCollapsed(areTemplatesCollapsed());
+  setCompactMode(getEffectiveCompactMode(), false);
+  setTemplatesCollapsed(areTemplatesCollapsed(), false);
   renderModelOptions();
 
   renderSessionsList();
@@ -938,8 +942,10 @@ function setupListeners(): boolean {
   });
   updateSendButtonState();
   setStopButtonState(false);
-  setCompactMode(getEffectiveCompactMode());
-  setTemplatesCollapsed(areTemplatesCollapsed());
+  // Apply the saved preferences without saving them again: re-saving on every
+  // load pushed this device's value over a change made on another device.
+  setCompactMode(getEffectiveCompactMode(), false);
+  setTemplatesCollapsed(areTemplatesCollapsed(), false);
 
   // ── Scroll to Bottom Button ──
   const scrollBtn = document.getElementById('maamuScrollBottomBtn');
