@@ -1,5 +1,4 @@
 import './roadmap.css';
-import * as XLSX from 'xlsx';
 import { appState } from '@/state/app-state';
 import { saveRoadmapToStorage } from '@/services/data-bridge';
 import { log } from '@/utils/logger.utils';
@@ -422,6 +421,8 @@ function setupEventListeners() {
 async function handleFileUpload(file: File) {
   try {
     const data = await file.arrayBuffer();
+    // The spreadsheet parser is large, so it loads only when a file is imported.
+    const XLSX = await import('xlsx');
     const workbook = XLSX.read(data, { type: 'array' });
     const firstSheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[firstSheetName];

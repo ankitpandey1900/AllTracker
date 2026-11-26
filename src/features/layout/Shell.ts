@@ -150,6 +150,16 @@ export class Shell {
   // ⚡ PRE-LOADED MODULE CACHE: All features are loaded eagerly on first shell init
   // This prevents the lazy-load delay when switching tabs for the first time
   private preloadAllModules(): void {
+    // Wait until the first screen is ready so this doesn't compete with startup.
+    // Opening a tab before then still works: it imports its module on demand.
+    const whenIdle = (fn: () => void) =>
+      'requestIdleCallback' in window
+        ? (window as any).requestIdleCallback(fn, { timeout: 3000 })
+        : setTimeout(fn, 1500);
+    whenIdle(() => this.loadFeatureModules());
+  }
+
+  private loadFeatureModules(): void {
     // Fire all imports in parallel — browser caches them, subsequent calls are instant
     Promise.allSettled([
       import("@/features/tasks/tasks"),

@@ -2,7 +2,7 @@
    MAAMU AI — Premium ChatGPT-Style Interface
    ════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+/* Inter (300–800) is loaded once in styles/core/fonts.css. */
 
 .maamu-gpt-container {
   display: flex;

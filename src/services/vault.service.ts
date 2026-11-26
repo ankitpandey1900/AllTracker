@@ -148,12 +148,13 @@ export async function loadRoadmapCloud(): Promise<VaultResponse<any> | null> {
 
 export function subscribeToRealtimeTelemetry(
   callback: (payload: any) => void,
+  isActive: () => boolean = () => true,
 ): { unsubscribe: () => void } {
   let lastFingerprint = "";
   // Increased interval to 60s — Global stats don't need sub-10s updates
   const intervalId = window.setInterval(async () => {
-    // Stop polling if tab is backgrounded
-    if (document.visibilityState !== 'visible') return;
+    // Stop polling if tab is backgrounded or the board isn't on screen
+    if (document.visibilityState !== 'visible' || !isActive()) return;
 
     try {
       const [telemetry, leaderboard] = await Promise.all([

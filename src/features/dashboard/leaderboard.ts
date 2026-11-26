@@ -25,6 +25,14 @@ import { handleGlobalHudDismiss } from './leaderboard.events';
 let worldStageInitialized = false;
 let activityTrackingInitialized = false;
 
+/** Background refreshes only matter while the World Stage is on screen.
+ *  Opening the tab refreshes it immediately (see initWorldStage). */
+function isWorldStageVisible(): boolean {
+  if (document.visibilityState !== 'visible') return false;
+  const pane = document.getElementById('worldStagePane');
+  return !!pane && pane.getClientRects().length > 0;
+}
+
 /**
  * Starts the leaderboard and platform telemetry systems.
  */
@@ -41,10 +49,12 @@ export async function initWorldStage(): Promise<void> {
   };
 
   import('@/services/vault.service').then(({ subscribeToRealtimeTelemetry }) => {
-    subscribeToRealtimeTelemetry(debouncedRefresh);
+    subscribeToRealtimeTelemetry(debouncedRefresh, isWorldStageVisible);
   });
 
-  Registry.setInterval('lb_polling', () => refreshLeaderboard(), 30000);
+  Registry.setInterval('lb_polling', () => {
+    if (isWorldStageVisible()) void refreshLeaderboard();
+  }, 30000);
 
   const closeProfileBtn = document.getElementById('closeProfileModal');
   if (closeProfileBtn) {

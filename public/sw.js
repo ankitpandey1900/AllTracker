@@ -1,10 +1,10 @@
-const CACHE_NAME = 'alltracker-cache-v2.0.5'; // V2.0.5: New landing page; drop the cached old one
+const CACHE_NAME = 'alltracker-cache-v2.0.6'; // V2.0.6: Smaller logo and icons, combined font requests
 const ASSETS_TO_CACHE = [
   '/',
   '/app',
   '/app.html',
   '/manifest.json',
-  '/app-logo.png',
+  '/app-logo.webp',
   '/icon-192.png'
 ];
 
