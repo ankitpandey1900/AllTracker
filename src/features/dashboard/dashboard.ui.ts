@@ -176,7 +176,7 @@ export const dashboardView = `
             <div style="display: flex; gap: 15px; font-size: 0.75rem; opacity: 0.7;">
                <label class="row-center" style="gap: 6px; cursor: pointer;"><input id="filterWithHours" type="checkbox" /> With Hours</label>
                <label class="row-center" style="gap: 6px; cursor: pointer;"><input id="filterCompleted" type="checkbox" /> Completed</label>
-               <button id="resetBtn" style="margin-left: auto; color: #ef4444; background: none; border: none; font-size: 0.65rem; cursor: pointer; letter-spacing: 1px;">SYSTEM RESET</button>
+               <button id="resetBtn" style="margin-left: auto; color: #ef4444; background: rgba(239, 68, 68, 0.06); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; min-height: 36px; padding: 0 12px; font-size: 0.72rem; font-weight: 700; cursor: pointer; letter-spacing: 1px;">SYSTEM RESET</button>
             </div>
           </article>
 

@@ -264,7 +264,8 @@ i
     width: 100%;
     height: var(--mobile-nav-height);
     background: var(--nav-bg);
-    backdrop-filter: blur(25px);
+    /* Solid bar: no see-through or blur (blur is costly on phones). */
+    backdrop-filter: none;
     border-top: 1px solid var(--card-border);
     display: flex;
     justify-content: space-around;
@@ -815,5 +816,54 @@ i
       padding-top: calc(env(safe-area-inset-top, 0px) + 12px) !important;
       height: auto !important;
     }
+  }
+}
+/* ── Phone fixes: readable text, real tap targets, nothing hidden ───────── */
+@media (max-width: 768px) {
+  /* The bottom nav sits above everything; hide it while a modal is open so
+     the modal's own buttons aren't covered. */
+  body:has(.modal.active) .mobile-nav,
+  body:has(.modal[style*="display: flex"]) .mobile-nav {
+    display: none !important;
+  }
+
+  /* Close buttons get a full finger-sized target. */
+  .modal-close {
+    min-width: 40px;
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Dashboard tool chips: 12px text and 40px tall. */
+  #historyBtn, #heatmapViewBtn, #analyticsViewBtn, #badgesViewBtn, #weeklyViewBtn {
+    font-size: 12px !important;
+    min-height: 40px;
+  }
+
+  #toggleKpiBtn {
+    min-height: 36px;
+  }
+
+  .btn-rest-day {
+    min-height: 30px;
+  }
+
+  /* Settings: primary action at a usable size, and labels above their
+     inputs so dropdown text isn't cut off. */
+  #applyThemeBtn {
+    min-height: 40px;
+  }
+}
+
+@media (max-width: 480px) {
+  #settingsModal div:has(> label[style*="width: 120px"]) {
+    flex-wrap: wrap;
+    gap: 6px !important;
+  }
+
+  #settingsModal label[style*="width: 120px"] {
+    width: 100% !important;
   }
 }

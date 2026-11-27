@@ -609,15 +609,40 @@ th.action-cell {
     font-size: 0.75rem;
   }
 
-  /* Release sticky headers on small/medium screens to avoid UI overlap glitches */
+  /* Keep the day column pinned while the subjects scroll sideways, so every
+     row still shows its date. It needs a solid background (a see-through
+     one caused the old overlap glitch); row tints are layered on top. */
   #trackerTable th:nth-child(1),
   #trackerTable td:nth-child(1) {
-    position: static !important;
-    background: inherit !important;
-    border: none !important;
-    box-shadow: none !important;
+    position: sticky !important;
+    left: 0;
+    z-index: 3;
+    min-width: 76px;
+    background: var(--bg-secondary, #0b0b10) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 8px 0 12px -6px rgba(0, 0, 0, 0.55) !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
+  }
+
+  #trackerTable th:nth-child(1) {
+    z-index: 5;
+  }
+
+  #trackerTable tr.today td:nth-child(1) {
+    background: linear-gradient(rgba(99, 102, 241, 0.12), rgba(99, 102, 241, 0.12)), var(--bg-secondary, #0b0b10) !important;
+  }
+
+  #trackerTable tr.completed td:nth-child(1),
+  #trackerTable tr.rest-day td:nth-child(1) {
+    background: linear-gradient(rgba(34, 211, 238, 0.05), rgba(34, 211, 238, 0.05)), var(--bg-secondary, #0b0b10) !important;
+  }
+
+  /* A little room before the pinned Done column so the last value
+     isn't hidden behind it. */
+  #trackerTable td:nth-last-child(2),
+  #trackerTable th:nth-last-child(2) {
+    padding-right: 18px;
   }
 }
 

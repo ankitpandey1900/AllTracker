@@ -835,6 +835,26 @@ body.focus-minimized.timer-style-block #activeTimerSection:hover {
     letter-spacing: -1px !important;
   }
 
+  /* Fill the screen down to the bottom nav, so there's no empty band below
+     the buttons; the clock panel takes the extra height. */
+  body.timer-style-block:not(.focus-minimized) #activeTimerSection {
+    height: calc(100vh - var(--mobile-nav-height, 64px) - 20px);
+    height: calc(100dvh - var(--mobile-nav-height, 64px) - 20px);
+  }
+
+  body.timer-style-block .timer-circle-container {
+    min-height: 0;
+  }
+
+  body.timer-style-block .timer-center-content,
+  body.timer-style-block .glass-block-content {
+    height: 100%;
+  }
+
+  body.timer-style-block .glass-block-content {
+    justify-content: center;
+  }
+
   /* Buttons sized for a phone: Break and Stop share a row, Terminate sits
      below at full width. They no longer outsize the clock. */
   body.timer-style-block .control-row {
@@ -941,12 +961,29 @@ body.focus-minimized.timer-style-block #activeTimerSection:hover {
   /* Landscape: as tall as the screen allows, but never wider than the font's
      own width limit (--clock-cqw, set per font). Digits get a little air. */
   body.timer-style-block .timer-display {
-    font-size: min(calc(var(--clock-cqw, 16cqw) * 0.82), 44vh) !important;
+    font-size: min(calc(var(--clock-cqw, 16cqw) * 0.82), 50vh) !important;
     letter-spacing: 0.04em !important;
+  }
+
+  /* Fill the whole screen height: the clock panel takes all the space the
+     top bar and buttons don't use, so nothing is left empty at the bottom. */
+  body.timer-style-block:not(.focus-minimized) #activeTimerSection {
+    height: calc(100vh - 16px) !important;
+    height: calc(100dvh - 16px) !important;
+  }
+
+  body.timer-style-block .timer-circle-container {
+    min-height: 0;
+  }
+
+  body.timer-style-block .timer-center-content,
+  body.timer-style-block .glass-block-content {
+    height: 100%;
   }
 
   body.timer-style-block .glass-block-content {
     padding: 8px 12px !important;
+    justify-content: center;
   }
 
   body.timer-style-block #timerSubject {
