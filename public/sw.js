@@ -1,10 +1,10 @@
-const CACHE_NAME = 'alltracker-cache-v2.0.6'; // V2.0.6: Smaller logo and icons, combined font requests
+const CACHE_NAME = 'alltracker-cache-v2.0.7'; // V2.0.7: New logo and app icons
 const ASSETS_TO_CACHE = [
   '/',
   '/app',
   '/app.html',
   '/manifest.json',
-  '/app-logo.webp',
+  '/logo-mark.svg',
   '/icon-192.png'
 ];
 
@@ -140,8 +140,8 @@ self.addEventListener('push', (event) => {
   const payload = event.data ? event.data.json() : {};
   const options = {
     body: payload.body || 'Maamu has a study reminder for you.',
-    icon: '/pwa-logo.png',
-    badge: '/pwa-logo.png',
+    icon: '/icon-192.png',
+    badge: '/badge-96.png',
     tag: 'alltracker-maamu-reminder',
     renotify: true,
     data: { url: payload.url || '/app' },

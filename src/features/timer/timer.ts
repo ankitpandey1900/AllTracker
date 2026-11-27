@@ -169,7 +169,7 @@ function updateMediaSession(isRunning: boolean) {
     navigator.mediaSession.metadata = new MediaMetadata({
       title: `Focus: ${appState.activeTimer.colName}`,
       artist: 'All Tracker',
-      artwork: [{ src: 'pwa-logo.png', sizes: '512x512', type: 'image/png' }]
+      artwork: [{ src: '/icon-512.png', sizes: '512x512', type: 'image/png' }]
     });
     navigator.mediaSession.setActionHandler('play', () => startTimerInterval());
     navigator.mediaSession.setActionHandler('pause', () => pauseTimer());

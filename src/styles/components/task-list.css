@@ -61,7 +61,6 @@
 .mc-clearance-hud {
   background: linear-gradient(135deg, rgba(20, 20, 30, 0.8), rgba(10, 10, 15, 0.9));
   border: 1px solid rgba(255,255,255,0.08);
-  border-left: 4px solid var(--accent-purple);
   border-radius: 12px;
   padding: 24px;
   position: relative;
@@ -349,7 +348,7 @@
   background: rgba(255, 255, 255, 0.01);
 }
 .mc-task-item.completed::before {
-  background: var(--accent-green);
+  background: transparent;
   box-shadow: none;
 }
 
@@ -632,7 +631,7 @@
 
 .task-type-toggle .type-btn.active {
   background: var(--accent-purple);
-  color: white;
+  color: var(--accent-ink, #fff);
 }
 
 .mc-tasks-container.split-layout {

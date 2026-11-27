@@ -260,8 +260,8 @@ async function sendNotification(title: string, body: string): Promise<boolean> {
   const finalBody = body.replace(/Operative/g, myName());
   const options = {
     body: finalBody,
-    icon: '/pwa-logo.png',
-    badge: '/pwa-logo.png',
+    icon: '/icon-192.png',
+    badge: '/badge-96.png',
     tag: `alltracker-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40)}`,
     renotify: true,
     data: { url: `${window.location.origin}/` },

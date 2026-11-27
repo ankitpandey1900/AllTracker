@@ -78,7 +78,7 @@ html[data-theme="quantum-purple"] .nav-item {
 
 html[data-theme="quantum-purple"] .nav-item.active {
   background: var(--accent-purple) !important;
-  color: #fff !important;
+  color: var(--accent-ink, #fff) !important;
   border: none !important;
 }
 
@@ -189,7 +189,7 @@ html[data-theme="quantum-purple"] .modal-close {
 
 html[data-theme="quantum-purple"] .modal-close:hover {
   background: var(--accent-purple) !important;
-  color: white !important;
+  color: var(--accent-ink, #fff) !important;
 }
 
 /* Empty States */
@@ -241,7 +241,7 @@ html[data-theme="quantum-purple"] .msg-row.assistant .msg-body {
 
 html[data-theme="quantum-purple"] .msg-row.user .msg-body {
   background: var(--accent-purple) !important;
-  color: #fff !important;
+  color: var(--accent-ink, #fff) !important;
   border-radius: 0 !important;
   border: none !important;
 }
@@ -517,7 +517,7 @@ html[data-theme="quantum-purple"] .stat-val {
 /* Button Sync */
 html[data-theme="quantum-purple"] .lb-hud-close {
   background: var(--accent-purple) !important;
-  color: #fff !important;
+  color: var(--accent-ink, #fff) !important;
   border: none !important;
   border-radius: 0 !important;
   font-family: 'Oswald', sans-serif !important;

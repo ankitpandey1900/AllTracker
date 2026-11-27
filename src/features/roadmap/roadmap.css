@@ -935,7 +935,7 @@ td.date-today .date-day-name {
 
 .roadmap-pagination-btn.active {
   background: var(--accent-blue);
-  color: #ffffff;
+  color: var(--accent-ink, #fff);
   border: none;
 }
 

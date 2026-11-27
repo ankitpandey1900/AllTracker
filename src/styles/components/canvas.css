@@ -35,7 +35,7 @@
 
 .canvas-tool-btn.active {
   background: var(--accent-purple);
-  color: white;
+  color: var(--accent-ink, #fff);
   border-color: transparent;
   box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
 }

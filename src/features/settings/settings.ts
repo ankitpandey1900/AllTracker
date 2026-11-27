@@ -5,7 +5,7 @@
  * study categories, and changing themes.
  */
 
-import { appState, syncTrackerTimelineWithSettings } from '@/state/app-state';
+import { appState, syncTrackerTimelineWithSettings, effectiveAccent } from '@/state/app-state';
 import { showToast } from '@/utils/dom.utils';
 import { getLocalIsoDate } from '@/utils/date.utils';
 import { saveSettingsToStorage, saveTrackerDataToStorage } from '@/services/data-bridge';
@@ -29,7 +29,7 @@ export function openSettingsModal(): void {
   if (timerStyleInput) timerStyleInput.value = s.timerStyle || 'block';
   if (timerFontInput) timerFontInput.value = s.timerFont || 'fira';
   if (uiFontInput) uiFontInput.value = s.uiFont || 'default';
-  if (accentColorInput) accentColorInput.value = s.accentColor || '#3b82f6';
+  if (accentColorInput) accentColorInput.value = effectiveAccent(s.accentColor).toLowerCase();
 
   renderCustomRanges();
   modal?.classList.add('active');

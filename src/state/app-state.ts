@@ -28,7 +28,7 @@ function createDefaultSettings(): Settings {
     groqApiKey: '',
     maamuModel: 'openai/gpt-oss-20b',
     theme: 'obsidian-glass',
-    accentColor: '#477bf5', 
+    accentColor: DEFAULT_ACCENT,
     timerStyle: 'block',
     timerFont: 'inter',
     uiFont: 'chakra-petch',
@@ -43,12 +43,29 @@ export function applyThemeToDOM(themeName: string = 'obsidian-glass') {
   document.documentElement.setAttribute('data-theme', themeName);
 }
 
+/** The brand accent: the same amber as the landing page. */
+export const DEFAULT_ACCENT = '#f7a928';
+/** Deeper amber for the white theme, where light amber text is hard to read. */
+const DEFAULT_ACCENT_ON_LIGHT = '#b45309';
+/** Earlier blue defaults. Accounts still on them never picked a colour, so
+ *  they get the new default; any other saved colour is left alone. */
+const LEGACY_DEFAULT_ACCENTS = ['#477bf5', '#3b82f6'];
+
+/** The accent to actually use for a saved value. */
+export function effectiveAccent(color?: string | null): string {
+  if (!color || LEGACY_DEFAULT_ACCENTS.includes(color.toLowerCase())) return DEFAULT_ACCENT;
+  return color;
+}
+
 /** Applies the accent color dynamically */
 export function applyAccentColorToDOM(color: string) {
-  if (!color) return;
-  
+  color = effectiveAccent(color);
+  if (color === DEFAULT_ACCENT && document.documentElement.getAttribute('data-theme') === 'pristine-white') {
+    color = DEFAULT_ACCENT_ON_LIGHT;
+  }
+
   let hexColor = color;
-  let r = 59, g = 130, b = 246; // Default to #3b82f6 (blue)
+  let r = 247, g = 169, b = 40; // Fallback: the default amber
   
   // Check if color is in format "r, g, b" or "r,g,b"
   const rgbMatch = color.match(/^(\d+)\s*,\s*(\d+)\s*,\s*(\d+)$/);
@@ -82,6 +99,11 @@ export function applyAccentColorToDOM(color: string) {
   }
 
   const rgb = `${r}, ${g}, ${b}`;
+
+  // Text placed on top of the accent: dark on light accents (like the amber),
+  // white on dark ones, so buttons stay readable whatever colour is picked.
+  const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+  document.documentElement.style.setProperty('--accent-ink', luminance > 0.55 ? '#1a1206' : '#ffffff');
 
   document.documentElement.style.setProperty('--accent-blue', hexColor);
   document.documentElement.style.setProperty('--zen-accent', hexColor);

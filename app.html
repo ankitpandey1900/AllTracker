@@ -26,20 +26,20 @@
   <meta property="og:title" content="All Tracker — Official study tracker &amp; leaderboard" />
   <meta property="og:description"
     content="All Tracker (alltracker.online): your study dashboard for hours, DSA rituals, missions, focus timer &amp; Maamu AI. Install the PWA — free." />
-  <meta property="og:image" content="https://www.alltracker.online/pwa-logo.png" />
+  <meta property="og:image" content="https://www.alltracker.online/icon-512.png" />
   <meta property="og:image:type" content="image/png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:site_name" content="All Tracker" />
   <meta property="og:locale" content="en_IN" />
 
-  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:card" content="summary" />
   <meta name="twitter:site" content="@alltracker" />
   <meta name="twitter:url" content="https://www.alltracker.online/" />
   <meta name="twitter:title" content="All Tracker — Official study &amp; DSA tracker web app" />
   <meta name="twitter:description"
     content='Search "All Tracker" or open alltracker.online — track hours, DSA routines, leaderboard, tasks &amp; AI mentor Maamu.' />
-  <meta name="twitter:image" content="https://www.alltracker.online/pwa-logo.png" />
+  <meta name="twitter:image" content="https://www.alltracker.online/icon-512.png" />
 
   <script type="application/ld+json">
       [
@@ -86,7 +86,7 @@
             "Competitive Exam Preparation Tracker",
             "Task Mission Board"
           ],
-          "screenshot": "https://www.alltracker.online/pwa-logo.png",
+          "screenshot": "https://www.alltracker.online/icon-512.png",
           "offers": {
             "@type": "Offer",
             "price": "0",
@@ -140,12 +140,13 @@
     </script>
 
   <link rel="manifest" href="/manifest.json?v=2" />
-  <link rel="icon" type="image/png" href="/icon-192.png?v=5" />
-  <link rel="shortcut icon" href="/icon-192.png?v=5" type="image/png" />
-  <link rel="apple-touch-icon" href="/icon-192.png?v=5" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=7" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png?v=7" />
+  <link rel="shortcut icon" href="/icon-192.png?v=7" type="image/png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=7" />
 
   <!-- ⚡ Core Web Vitals: Preload critical assets for LCP -->
-  <link rel="preload" href="/app-logo.webp" as="image" type="image/webp" fetchpriority="high" />
+  <link rel="preload" href="/logo-mark.svg?v=7" as="image" type="image/svg+xml" fetchpriority="high" />
 
   <!-- 🔗 DNS Prefetch: Speed up third-party connections -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -173,7 +174,7 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      background: #000000;
+      background: #0e0d13;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -195,18 +196,31 @@
       animation: loader-pulse 2s ease-in-out infinite;
     }
 
-    .loader-logo {
+    /* Same lockup as the landing header: mark + wordmark. */
+    .loader-brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(12px, 2.5vw, 20px);
+      margin-bottom: 28px;
+    }
+
+    .loader-mark {
       width: auto;
-      height: 300px;
-      max-width: 90vw;
-      object-fit: contain;
-      margin-bottom: 24px;
-      filter: none;
+      height: clamp(44px, 10vw, 72px);
+    }
+
+    /* Same font as inside the app: Chakra Petch by default, or whichever
+       UI font is chosen in settings (that class overrides this). */
+    .loader-wordmark {
+      font: 700 clamp(2.5rem, 9vw, 4.25rem)/1 "Chakra Petch", "Outfit", sans-serif;
+      letter-spacing: 0.01em;
+      color: #f2f0f7;
     }
 
     .loader-text {
-      color: #a494c9;
-      font-size: 1.25rem;
+      color: #a4a0b5;
+      font-size: 0.95rem;
       letter-spacing: 2px;
       text-transform: uppercase;
       font-family: "Tektur", sans-serif;
@@ -216,7 +230,7 @@
     .loader-progress {
       width: 200px;
       height: 2px;
-      background: rgba(124, 58, 237, 0.1);
+      background: rgba(247, 169, 40, 0.15);
       margin: 20px auto 0;
       border-radius: 4px;
       position: relative;
@@ -229,7 +243,7 @@
       left: 0;
       width: 40%;
       height: 100%;
-      background: #7c3aed;
+      background: #f7a928;
       border-radius: 4px;
       animation: progress-slide 1.5s ease-in-out infinite;
     }
@@ -274,7 +288,7 @@
   <!-- 🚀 Initial Sync Loader -->
   <div id="app-bootstrap-loader">
     <div class="loader-content">
-      <img src="/app-logo.webp" class="loader-logo" alt="All Tracker" />
+      <div class="loader-brand"><img src="/logo-mark.svg?v=7" class="loader-mark" alt="" width="99" height="84" /><span class="loader-wordmark">AllTracker</span></div>
       <div class="loader-text">Processing… thoda time lagega</div>
       <div class="loader-progress">
         <div class="loader-progress-bar"></div>

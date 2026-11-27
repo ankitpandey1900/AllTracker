@@ -144,7 +144,7 @@ html[data-theme="obsidian-glass"] .focus-core {
 /* ❄️ FROZEN BUTTONS */
 html[data-theme="obsidian-glass"] .btn-primary {
   background: var(--accent-blue) !important;
-  color: #ffffff !important;
+  color: var(--accent-ink, #fff) !important;
   border-radius: 12px !important;
   border: none !important;
   transition: all 0.2s ease;
@@ -172,8 +172,7 @@ html[data-theme="obsidian-glass"] .font-select-options {
 }
 
 html[data-theme="obsidian-glass"] .mobile-nav {
-  background: rgba(10, 17, 24, 0.4) !important;
-  backdrop-filter: blur(12px);
+  background: var(--bg-secondary, #09090b) !important;
   border-top: 1px solid var(--border) !important;
 }
 

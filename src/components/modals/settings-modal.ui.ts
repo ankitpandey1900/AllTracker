@@ -28,7 +28,7 @@ export const settingsModal = `
               </div>
               <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 12px;">
                 <label for="accentColorInput" style="color: var(--text-muted); font-size: 0.85rem; font-weight: 700; width: 120px;">Accent Color</label>
-                <input type="color" id="accentColorInput" class="settings-input" style="flex: 1; height: 38px; padding: 2px;" value="#3b82f6" />
+                <input type="color" id="accentColorInput" class="settings-input" style="flex: 1; height: 38px; padding: 2px;" value="#f7a928" />
               </div>
               <div style="display: flex; gap: 12px; align-items: center;">
                 <label for="timerStyleSelectInput" style="color: var(--text-muted); font-size: 0.85rem; font-weight: 700; width: 120px;">Timer Layout</label>

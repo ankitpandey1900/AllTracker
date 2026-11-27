@@ -213,9 +213,8 @@ kbd {
 }
 
 .mark img {
-  width: 28px;
-  height: 28px;
-  border-radius: 7px;
+  width: auto;
+  height: 26px;
 }
 
 .top-nav {

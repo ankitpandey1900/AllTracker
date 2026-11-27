@@ -243,32 +243,16 @@ body:has(.modal.active) {
   transform: scale(1.1);
 }
 
-.toast.success {
-  border-left: 4px solid var(--success);
-}
-
 .toast.success .toast-icon {
   color: var(--success);
-}
-
-.toast.error {
-  border-left: 4px solid var(--danger);
 }
 
 .toast.error .toast-icon {
   color: var(--danger);
 }
 
-.toast.warning {
-  border-left: 4px solid var(--warning);
-}
-
 .toast.warning .toast-icon {
   color: var(--warning);
-}
-
-.toast.info {
-  border-left: 4px solid var(--info);
 }
 
 .toast.info .toast-icon {

@@ -58,7 +58,7 @@ class NotificationService {
         const registration = await navigator.serviceWorker.getRegistration();
         const options = {
           body,
-          icon: '/pwa-logo.png',
+          icon: '/icon-192.png',
           badge: '/favicon-48x48.png', 
           vibrate: [200, 100, 200],
           tag: 'timer-alert', 
