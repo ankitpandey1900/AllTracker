@@ -60,7 +60,7 @@ export const CATEGORY_COLORS = [
 
 // --- Badge Condition Helpers ---
 
-function getStreak(data: TrackerDay[]): number {
+export function getStreak(data: TrackerDay[]): number {
   let streak = 0;
   const todayStr = new Date().toISOString().split('T')[0];
 
@@ -77,7 +77,7 @@ function getStreak(data: TrackerDay[]): number {
   return streak;
 }
 
-function getTotalHours(data: TrackerDay[]): number {
+export function getTotalHours(data: TrackerDay[]): number {
   return data.reduce(
     (sum, day) =>
       sum + (Array.isArray(day.studyHours) ? day.studyHours.reduce((s, n) => s + (n || 0), 0) : 0),

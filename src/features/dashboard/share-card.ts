@@ -1,258 +1,200 @@
 import { appState } from '@/state/app-state';
 import { getRank } from '@/features/dashboard/dashboard';
 import { openSharePreview } from '@/features/dashboard/share-preview';
-import { calculateVerificationScore, calculateCompetitiveXP, calculateXP, calculateTotalStudyHours } from '@/utils/calc.utils';
+import {
+  calculateVerificationScore,
+  calculateCompetitiveXP,
+  calculateXP,
+  calculateTotalStudyHours,
+  calculateStreak,
+} from '@/utils/calc.utils';
+import { RANK_TIERS } from '@/config/constants';
 import { getSecureLocalProfileString } from '@/utils/security';
 import { getLocalIsoDate } from '@/utils/date.utils';
 import { toPng } from 'html-to-image';
 
 /**
- * Reverted to Legacy Arena Style Stats Card with Added Tactical Heatmap.
- * FIXED: Level calculation now syncs with Dashboard XP levels.
- * FIXED: Heatmap now correctly reflects the last 7 calendar days.
+ * Progress share card, in the AllTracker brand: ink background, amber for
+ * hours, the logo mark, and the app's own UI font.
+ *
+ * 540 × 675 CSS px (4:5), exported at 2× → 1080 × 1350, the portrait size
+ * Instagram, WhatsApp and LinkedIn show without cropping.
  */
-export async function generateShareCard(): Promise<void> {
-  const container = document.createElement('div');
-  container.style.position = 'fixed';
-  container.style.top = '0';
-  container.style.left = '0';
-  container.style.opacity = '0';
-  container.style.pointerEvents = 'none';
-  container.style.zIndex = '-9999';
-  document.body.appendChild(container);
 
+const INK = '#0E0D13';
+const PAPER = '#F2F0F7';
+const DUST = '#A4A0B5';
+const LINE = 'rgba(242,240,247,0.10)';
+const AMBER = '#F7A928';
+
+const esc = (s: string) =>
+  s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
+
+const titleCase = (s: string) => s.charAt(0) + s.slice(1).toLowerCase();
+
+function hoursLabel(h: number): string {
+  if (h <= 0) return '0h';
+  const whole = Math.floor(h);
+  const mins = Math.round((h - whole) * 60);
+  if (whole === 0) return `${mins}m`;
+  return mins ? `${whole}h ${mins}m` : `${whole}h`;
+}
+
+export async function generateShareCard(): Promise<void> {
   const localTotal = calculateTotalStudyHours(appState.trackerData);
-  const appFontFamily = (getComputedStyle(document.body).fontFamily || "'Space Grotesk', 'Inter', sans-serif").replace(/"/g, "'");
-  
-  // Unified data source: Mirror the Dashboard/Leaderboard's logic
   const totalHours = Math.max(localTotal, appState.verifiedTotalHours);
   const rank = getRank(totalHours);
-  const xpData = calculateXP(totalHours);
-  
-  let currentStreak = 0;
-  for (let i = appState.trackerData.length - 1; i >= 0; i--) {
-    const day = appState.trackerData[i];
-    if (day.date > new Date().toISOString().split('T')[0]) continue; 
-    if (day.completed) currentStreak++;
-    else if (!day.restDay) break;
-  }
-  
-  const streak = currentStreak;
+  const level = calculateXP(totalHours).level;
+  // Same streak rule as the dashboard (2+ hours a day, rest days freeze).
+  const streak = calculateStreak(appState.trackerData);
   const verificationScore = calculateVerificationScore(appState.verifiedHours, localTotal);
-  const localRankScore = calculateCompetitiveXP(totalHours, streak, verificationScore);
-  const rankScore = Math.max(localRankScore, appState.verifiedRankScore);
+  const rankScore = Math.max(calculateCompetitiveXP(totalHours, streak, verificationScore), appState.verifiedRankScore);
 
-  let displayName = 'ALL TRACKER';
-  let realName = 'Agent';
+  // Progress to the next rank title.
+  const tierIdx = RANK_TIERS.findIndex((t) => t.name === rank.name);
+  const nextTier = tierIdx >= 0 && tierIdx < RANK_TIERS.length - 1 ? RANK_TIERS[tierIdx + 1] : null;
+  const tierPct = Math.max(2, Math.min(100, Math.round(((totalHours - rank.min) / (rank.max - rank.min)) * 100)));
+  const nextLine = nextTier
+    ? `${hoursLabel(Math.max(0, nextTier.min - totalHours))} to ${titleCase(nextTier.name)}`
+    : 'Highest rank reached';
+
+  // Identity.
+  let name = '';
+  let handle = '';
   let avatar = '👤';
-  
   const profileRaw = getSecureLocalProfileString();
   if (profileRaw) {
     try {
-      const profile = JSON.parse(profileRaw);
-      displayName = profile.displayName || 'ALL TRACKER';
-      realName = profile.realName || profile.displayName || 'Agent';
-      avatar = profile.avatar || '👤';
-    } catch (e) {}
+      const p = JSON.parse(profileRaw);
+      name = p.realName || p.displayName || '';
+      handle = p.displayName || '';
+      avatar = p.avatar || avatar;
+    } catch { /* fall back to defaults */ }
   }
+  if (!name) name = 'AllTracker member';
 
-  // --- HEATMAP (LAST 7 CALENDAR DAYS) ---
-  const today = new Date();
-  const heatmapDotsArr = [];
+  // Last 7 calendar days, oldest first.
+  const days: { label: string; hours: number; isToday: boolean }[] = [];
   for (let i = 6; i >= 0; i--) {
     const d = new Date();
-    d.setDate(today.getDate() - i);
-    const dateStr = getLocalIsoDate(d);
-    const dayData = appState.trackerData.find(day => day.date === dateStr);
-    
-    let border = 'rgba(255,255,255,0.15)';
-    let bg = 'rgba(255,255,255,0.02)';
-    let shadow = 'none';
-    if (dayData) {
-      if (dayData.completed) {
-        border = 'rgba(255,138,0,0.8)';
-        bg = 'rgba(255,138,0,0.2)';
-        shadow = '0 0 6px rgba(255,138,0,0.3)';
-      }
-      else if (dayData.restDay) {
-        border = 'rgba(139,92,246,0.6)';
-        bg = 'transparent';
-      }
-    }
-    heatmapDotsArr.push(`<div style="width: 6px; height: 6px; border-radius: 50%; border: 1px solid ${border}; background: ${bg}; box-shadow: ${shadow};"></div>`);
+    d.setDate(d.getDate() - i);
+    const iso = getLocalIsoDate(d);
+    const row = appState.trackerData.find((day) => day.date === iso);
+    const hours = (row?.studyHours || []).reduce((s: number, h: number) => s + (Number(h) || 0), 0);
+    days.push({ label: d.toLocaleDateString('en-IN', { weekday: 'narrow' }), hours, isToday: i === 0 });
   }
-  const heatmapDots = heatmapDotsArr.join('');
+  const weekTotal = days.reduce((s, d) => s + d.hours, 0);
+  const maxDay = Math.max(2, ...days.map((d) => d.hours));
+  const bars = days
+    .map((d) => {
+      const h = d.hours > 0 ? Math.max(6, Math.round((d.hours / maxDay) * 100)) : 3;
+      const fill = d.hours > 0 ? (d.isToday ? AMBER : 'rgba(247,169,40,0.55)') : LINE;
+      return `
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:8px;">
+          <div style="height:68px; width:100%; display:flex; align-items:flex-end;">
+            <div style="width:100%; height:${h}%; background:${fill}; border-radius:5px;"></div>
+          </div>
+          <div style="font-size:12px; color:${d.isToday ? PAPER : DUST}; font-weight:${d.isToday ? 700 : 500};">${d.label}</div>
+        </div>`;
+    })
+    .join('');
 
+  const dateLine = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  const font = (getComputedStyle(document.body).fontFamily || "'Chakra Petch', sans-serif").replace(/"/g, "'");
+  const stat = (label: string, value: string) => `
+    <div style="flex:1; padding:14px 16px; border:1px solid ${LINE}; border-radius:12px;">
+      <div style="font-size:12px; color:${DUST};">${label}</div>
+      <div style="margin-top:6px; font-size:26px; font-weight:700; line-height:1; font-variant-numeric:tabular-nums;">${value}</div>
+    </div>`;
+
+  const container = document.createElement('div');
+  container.style.cssText = 'position:fixed; top:0; left:0; opacity:0; pointer-events:none; z-index:-9999;';
   container.innerHTML = `
     <div id="arenaShareCardCapture" style="
-      width: 540px;
-      background: #070709;
-      color: #F5F5F7;
-      font-family: ${appFontFamily};
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      box-sizing: border-box;
-      padding: 32px 44px;
-    ">
+      width:540px; height:675px; box-sizing:border-box; padding:32px 40px 26px;
+      background:${INK}; color:${PAPER}; font-family:${font};
+      display:flex; flex-direction:column; position:relative; overflow:hidden;">
 
-      <!-- ▸ BACKGROUND & LIGHTING -->
-      <div style="position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.012) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.012) 1px, transparent 1px); background-size: 32px 32px; z-index: 0; pointer-events: none;"></div>
-      
-      <!-- Cinematic lighting -->
-      <div style="position: absolute; top: -200px; right: -150px; width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(139,92,246,0.08) 0%, rgba(139,92,246,0.03) 40%, transparent 70%); z-index: 0; pointer-events: none;"></div>
-      <div style="position: absolute; top: -50px; right: 0; width: 300px; height: 300px; border-radius: 50%; background: radial-gradient(circle, rgba(139,92,246,0.05) 0%, transparent 60%); mix-blend-mode: screen; z-index: 0; pointer-events: none;"></div>
+      <!-- One warm light, top left, like the landing page -->
+      <div style="position:absolute; top:-220px; left:-180px; width:560px; height:480px; border-radius:50%;
+        background:radial-gradient(closest-side, rgba(247,169,40,0.12), transparent); pointer-events:none;"></div>
 
-      <!-- Film Grain Overlay -->
-      <div style="position: absolute; inset: 0; opacity: 0.04; mix-blend-mode: overlay; background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noise%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noise)%22/%3E%3C/svg%3E'); z-index: 0; pointer-events: none;"></div>
-
-      <!-- Subtle Stars -->
-      <div style="position: absolute; top: 110px; right: 90px; width: 320px; height: 320px; border-radius: 50%; border-top: 1px solid rgba(255,255,255,0.02); transform: rotate(-15deg); z-index: 0; pointer-events: none;"></div>
-      <div style="position: absolute; top: 160px; left: 100px; width: 1.5px; height: 1.5px; background: #fff; opacity: 0.2; box-shadow: 0 0 4px rgba(255,255,255,0.8); border-radius: 50%;"></div>
-      <div style="position: absolute; top: 380px; right: 60px; width: 1px; height: 1px; background: rgba(255,255,255,0.4); border-radius: 50%;"></div>
-
-      <!-- ════════════════════════════════════════════ -->
-      <!-- HEADER (Brand)                               -->
-      <!-- ════════════════════════════════════════════ -->
-      <div style="position: absolute; top: 32px; right: 44px; z-index: 10; display: flex; align-items: center; gap: 12px;">
-        <div style="font-weight: 700; font-size: 0.8rem; letter-spacing: 2.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">
-          <span style="color: rgba(245,245,247,0.9);">All</span><span style="color: rgba(139,92,246,0.9);">Tracker</span>
+      <!-- Brand + date -->
+      <div style="position:relative; display:flex; align-items:center; justify-content:space-between;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <img src="/logo-mark.svg?v=7" alt="" style="height:24px; width:auto;" />
+          <span style="font-size:19px; font-weight:700; letter-spacing:0.01em;">AllTracker</span>
         </div>
-        <div style="width: 12px; height: 1px; background: rgba(139,92,246,0.4);"></div>
+        <span style="font-size:13px; color:${DUST};">${esc(dateLine)}</span>
       </div>
 
-      <!-- ════════════════════════════════════════════ -->
-      <!-- HERO SECTION (Identity)                      -->
-      <!-- ════════════════════════════════════════════ -->
-      <div style="position: relative; z-index: 1; margin-top: 0px; display: flex; flex-direction: column; align-items: flex-start;">
-        <!-- Avatar Block -->
-        <div style="position: relative; width: 90px; height: 90px;">
-          <!-- Precision orbital rings -->
-          <div style="position: absolute; inset: -10px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.03); border-left: 1px solid rgba(139,92,246,0.2); transform: rotate(30deg);"></div>
-          <!-- Anodized inner frame -->
-          <div style="position: absolute; inset: 0; border-radius: 50%; background: #0F1014; border: 1px solid rgba(255,255,255,0.08); box-shadow: inset 0 2px 10px rgba(255,255,255,0.02), 0 10px 30px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; padding-bottom: 12px; box-sizing: border-box;">
-            <span style="font-size: 46px; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4));">${avatar}</span>
-          </div>
-          <div style="position: absolute; top: -10px; left: 50%; width: 1px; height: 4px; background: rgba(255,255,255,0.15); transform: translateX(-50%);"></div>
-        </div>
-        
-        <div style="margin-top: 16px;">
-          <div style="font-weight: 700; font-size: 2.2rem; letter-spacing: -0.5px; text-transform: uppercase; line-height: 0.9; background: linear-gradient(180deg, #FFFFFF 0%, #D1D5DB 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">${realName}</div>
-          <div style="font-weight: 500; font-size: 0.75rem; color: #9CA3AF; margin-top: 4px; letter-spacing: 1.5px;"><span style="color: #8B5CF6; opacity: 0.8;">@</span>${displayName}</div>
-        </div>
-
-        <!-- Engineered Status Pill -->
-        <div style="margin-top: 14px; display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(90deg, rgba(139,92,246,0.1) 0%, rgba(255,255,255,0.02) 100%); border: 1px solid rgba(139,92,246,0.2); padding: 6px 14px; border-radius: 100px; box-shadow: inset 0 0 12px rgba(139,92,246,0.05), 0 4px 12px rgba(0,0,0,0.2);">
-          
-          <!-- Pulsing Core -->
-          <div style="position: relative; width: 6px; height: 6px;">
-            <div style="position: absolute; inset: -2px; background: #8B5CF6; border-radius: 50%; opacity: 0.5; filter: blur(2px);"></div>
-            <div style="position: absolute; inset: 0; background: #A78BFA; border-radius: 50%; box-shadow: 0 0 6px #A78BFA;"></div>
-          </div>
-          
-          <div style="font-size: 0.55rem; font-weight: 700; color: #E5E7EB; letter-spacing: 2px; line-height: 1;">
-            LEVEL <span style="color: #FFFFFF; font-weight: 900; margin-left: 2px; font-size: 0.65rem;">${xpData.level}</span>
-          </div>
-          
-          <!-- Angled slash separator -->
-          <div style="font-size: 0.6rem; color: rgba(255,255,255,0.2); margin: 0 2px; font-style: italic;">//</div>
-          
-          <div style="font-size: 0.45rem; font-weight: 600; color: rgba(139,92,246,0.8); letter-spacing: 2px; line-height: 1;">
-            XP ACTIVE
-          </div>
+      <!-- Identity -->
+      <div style="position:relative; margin-top:24px; display:flex; align-items:center; gap:14px;">
+        <div style="width:56px; height:56px; border-radius:50%; background:rgba(242,240,247,0.06); border:1px solid ${LINE};
+          display:flex; align-items:center; justify-content:center; font-size:30px; line-height:1;">${esc(avatar)}</div>
+        <div style="min-width:0;">
+          <div style="font-size:24px; font-weight:700; line-height:1.15; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:380px;">${esc(name)}</div>
+          ${handle ? `<div style="font-size:14px; color:${DUST}; margin-top:2px;">@${esc(handle)}</div>` : ''}
         </div>
       </div>
 
-      <!-- ════════════════════════════════════════════ -->
-      <!-- ACHIEVEMENT PANEL (The Centerpiece)          -->
-      <!-- ════════════════════════════════════════════ -->
-      <div style="position: relative; z-index: 1; margin-top: 24px; display: flex; flex-direction: column;">
-        <!-- Engineered Separator -->
-        <div style="width: 100%; height: 1px; background: linear-gradient(90deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%); margin-bottom: 12px;"></div>
-        
-        <div style="display: flex; justify-content: space-between; align-items: flex-end;">
-          <div style="flex: 1;">
-            <div style="font-size: 0.5rem; font-weight: 600; color: rgba(138,140,149,0.8); letter-spacing: 6px; margin-bottom: 4px;">GLOBAL RANK</div>
-            <div style="font-size: 5.6rem; font-weight: 900; line-height: 0.85; color: ${rank.color}; text-transform: uppercase; letter-spacing: -2px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); margin-left: -4px;">${rank.name}</div>
-          </div>
-
-          <div style="text-align: right; padding-bottom: 4px;">
-            <div style="font-size: 0.45rem; font-weight: 600; color: rgba(138,140,149,0.6); letter-spacing: 4px; margin-bottom: 6px;">HOURS LOGGED</div>
-            <div style="font-size: 3.2rem; font-weight: 800; line-height: 0.85; color: #F5F5F7; letter-spacing: -1px; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">
-              ${totalHours.toFixed(1)}
-            </div>
-          </div>
+      <!-- Hours: the number that matters -->
+      <div style="position:relative; margin-top:20px;">
+        <div style="font-size:14px; color:${DUST};">Total study hours</div>
+        <div style="display:flex; align-items:baseline; gap:10px; margin-top:4px;">
+          <span style="font-size:96px; font-weight:700; line-height:0.9; color:${AMBER}; letter-spacing:-0.02em; font-variant-numeric:tabular-nums;">${totalHours.toLocaleString('en-IN', { maximumFractionDigits: 1, minimumFractionDigits: totalHours < 100 ? 1 : 0 })}</span>
+          <span style="font-size:22px; font-weight:600; color:${DUST};">hours</span>
         </div>
       </div>
 
-      <!-- ════════════════════════════════════════════ -->
-      <!-- STATISTICS AREA (Unified Surface)            -->
-      <!-- ════════════════════════════════════════════ -->
-      <div style="position: relative; z-index: 1; margin-top: 20px; display: flex; justify-content: space-between; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.04);">
-        
-        <!-- Subtle engraved vertical divider -->
-        <div style="position: absolute; top: 0; bottom: -10px; left: 50%; width: 1px; background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 100%);"></div>
-
-        <!-- STREAK SECTION -->
-        <div style="position: relative; flex: 1; padding-right: 40px; display: flex; flex-direction: column; justify-content: space-between;">
-          <div style="font-size: 0.45rem; font-weight: 600; color: #8A8C95; letter-spacing: 5px;">CURRENT STREAK</div>
-          
-          <div style="margin-top: 8px; display: flex; align-items: center; justify-content: space-between;">
-            <div style="font-size: 3.4rem; font-weight: 700; line-height: 0.9; color: #FF8A00; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">${streak}</div>
-            
-            <!-- Engineered Pill for Heatmap -->
-            <div style="display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 20px;">
-              ${heatmapDots}
-            </div>
-          </div>
+      <!-- Rank + progress to the next one -->
+      <div style="position:relative; margin-top:18px;">
+        <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px;">
+          <span style="font-size:28px; font-weight:700; white-space:nowrap;">${titleCase(rank.name)} <span style="color:${DUST}; font-weight:600;">${rank.division}</span></span>
+          <span style="font-size:13px; color:${DUST}; white-space:nowrap;">${esc(nextLine)}</span>
         </div>
-
-        <!-- RANK SCORE SECTION -->
-        <div style="position: relative; flex: 1; padding-left: 40px; display: flex; flex-direction: column; justify-content: space-between;">
-          <div style="font-size: 0.45rem; font-weight: 600; color: #8A8C95; letter-spacing: 5px;">RANK SCORE</div>
-          
-          <div style="margin-top: 8px; display: flex; align-items: center; justify-content: space-between;">
-            <div style="font-size: 3.4rem; font-weight: 700; line-height: 0.9; color: #8B5CF6; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">${rankScore.toLocaleString()}</div>
-            
-            <!-- Minimal Technical Graph -->
-            <div style="display: flex; align-items: flex-end; gap: 3px; height: 20px; opacity: 0.4;">
-              <div style="width: 3px; height: 40%; background: #8B5CF6; border-radius: 1px;"></div>
-              <div style="width: 3px; height: 60%; background: #8B5CF6; border-radius: 1px;"></div>
-              <div style="width: 3px; height: 30%; background: #8B5CF6; border-radius: 1px;"></div>
-              <div style="width: 3px; height: 80%; background: #8B5CF6; border-radius: 1px;"></div>
-              <div style="width: 3px; height: 100%; background: #8B5CF6; border-radius: 1px; box-shadow: 0 0 8px rgba(139,92,246,0.8);"></div>
-            </div>
-          </div>
+        <div style="margin-top:10px; height:8px; border-radius:99px; background:${LINE}; overflow:hidden;">
+          <div style="width:${tierPct}%; height:100%; background:${AMBER}; border-radius:99px;"></div>
         </div>
-
       </div>
 
-      <!-- ════════════════════════════════════════════ -->
-      <!-- FOOTER                                       -->
-      <!-- ════════════════════════════════════════════ -->
-      <div style="position: relative; z-index: 1; text-align: center; margin-top: 36px; display: flex; align-items: center; justify-content: center; gap: 16px;">
-        <div style="width: 24px; height: 1px; background: rgba(255,255,255,0.1);"></div>
-        <div style="font-size: 0.45rem; font-weight: 600; color: #8A8C95; letter-spacing: 8px;">TRACK // IMPROVE // CONQUER</div>
-        <div style="width: 24px; height: 1px; background: rgba(255,255,255,0.1);"></div>
+      <!-- Stats -->
+      <div style="position:relative; margin-top:18px; display:flex; gap:10px;">
+        ${stat('Streak', `${streak} ${streak === 1 ? 'day' : 'days'}`)}
+        ${stat('Rank score', rankScore.toLocaleString('en-IN'))}
+        ${stat('Level', String(level))}
       </div>
-      
-    </div>
-  `;
 
-  const captureTarget = container.firstElementChild as HTMLElement;
-  if (captureTarget) {
-    try {
-      await new Promise(res => setTimeout(res, 150));
-      const dataUrl = await toPng(captureTarget, {
-        backgroundColor: '#070709',
-        pixelRatio: 2,
-        width: 540
-      });
+      <!-- Last 7 days -->
+      <div style="position:relative; margin-top:18px;">
+        <div style="display:flex; justify-content:space-between; font-size:13px; color:${DUST};">
+          <span>Last 7 days</span><span style="color:${PAPER}; font-weight:600;">${hoursLabel(weekTotal)}</span>
+        </div>
+        <div style="margin-top:10px; display:flex; gap:10px;">${bars}</div>
+      </div>
+
+      <!-- Footer -->
+      <div style="position:relative; margin-top:auto; padding-top:16px; border-top:1px solid ${LINE};
+        display:flex; justify-content:space-between; align-items:center; font-size:13px; color:${DUST};">
+        <span>Track every hour. Outwork yesterday.</span>
+        <span style="color:${PAPER}; font-weight:600;">alltracker.online</span>
+      </div>
+    </div>`;
+  document.body.appendChild(container);
+
+  const captureTarget = container.firstElementChild as HTMLElement | null;
+  try {
+    if (captureTarget) {
+      // Make sure the logo and fonts are ready before taking the picture.
+      const logo = captureTarget.querySelector('img');
+      if (logo && !logo.complete) await new Promise((res) => { logo.onload = logo.onerror = res; });
+      await document.fonts?.ready;
+      const dataUrl = await toPng(captureTarget, { backgroundColor: INK, pixelRatio: 2, width: 540, height: 675 });
       openSharePreview(dataUrl, 'SHARE YOUR PROGRESS');
-    } catch (e) {
-      console.error(e);
     }
+  } catch (e) {
+    console.error(e);
+  } finally {
+    document.body.removeChild(container);
   }
-  document.body.removeChild(container);
 }

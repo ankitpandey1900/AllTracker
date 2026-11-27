@@ -320,7 +320,7 @@ export function renderHoverCard(
             <span class="readout-val" style="color: var(--text-primary); font-size: 0.65rem;">
               ${(() => {
                 const lockedBadge = BADGES.find(b => !appState.settings.unlockedBadges.includes(b.id));
-                return lockedBadge ? `${lockedBadge.icon} ${lockedBadge.name}` : 'ALL UNLOCKED 🏆';
+                return lockedBadge ? lockedBadge.name : 'ALL UNLOCKED';
               })()}
             </span>
           </div>
