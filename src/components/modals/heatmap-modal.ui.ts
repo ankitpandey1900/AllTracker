@@ -22,7 +22,7 @@ export const heatmapModal = `
         <button id="closeHeatmapModal" class="modal-close">&times;</button>
       </div>
       <div class="modal-body">
-        <div class="heatmap-matrix-hub" style="padding-bottom: calc(var(--mobile-nav-height, 60px) + env(safe-area-inset-bottom, 0px) + 24px);">
+        <div class="heatmap-matrix-hub">
           <!-- KPI Row -->
           <div class="heatmap-kpi-row">
             <div class="kpi-card">
@@ -43,13 +43,14 @@ export const heatmapModal = `
 
           <!-- Grid Row -->
           <div class="heatmap-grid-area">
-            <div class="heatmap-scroll-viewport">
-              <div class="heatmap-grid-container">
-                <div class="heatmap-yaxis">
-                  <span>Mon</span>
-                  <span>Wed</span>
-                  <span>Fri</span>
-                </div>
+            <!-- Day labels stay put; only the weeks scroll on small screens -->
+            <div class="heatmap-grid-container">
+              <div class="heatmap-yaxis">
+                <span>Mon</span>
+                <span>Wed</span>
+                <span>Fri</span>
+              </div>
+              <div class="heatmap-scroll-viewport">
                 <div class="heatmap-grid-wrapper">
                   <div id="heatmapModalMonths" class="heatmap-months"></div>
                   <div id="heatmapModalGrid" class="heatmap-grid centered-grid"></div>

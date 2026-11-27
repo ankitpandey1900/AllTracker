@@ -6,23 +6,28 @@
   --hm-gap: 3px;
 }
 
+/* Day labels use the same 7 rows as the grid (weeks start on Sunday), so
+   Mon / Wed / Fri sit exactly on rows 2, 4 and 6. */
 .heatmap-yaxis {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: calc((var(--hm-cell) * 7) + (var(--hm-gap) * 6));
-  padding-top: calc(var(--hm-cell) + var(--hm-gap)); /* Offset for first row (Sun) */
-  font-size: 10px;
+  display: grid;
+  grid-template-rows: repeat(7, var(--hm-cell));
+  row-gap: var(--hm-gap);
+  align-items: center;
+  font-size: 11px;
   color: var(--text-muted);
   font-weight: 500;
   text-align: right;
-  margin-top: 28px; /* Align with grid below months */
+  margin-top: 18px; /* Height of the month row (16px + 2px gap) */
   white-space: nowrap;
   flex-shrink: 0;
 }
 .heatmap-yaxis span {
-  line-height: var(--hm-cell);
+  line-height: 1;
 }
+
+.heatmap-yaxis span:nth-child(1) { grid-row: 2; }
+.heatmap-yaxis span:nth-child(2) { grid-row: 4; }
+.heatmap-yaxis span:nth-child(3) { grid-row: 6; }
 
 .heatmap-grid-wrapper {
   display: flex;
@@ -399,7 +404,7 @@
 
   .kpi-card .label {
     margin-bottom: 0;
-    font-size: 9px;
+    font-size: 11px;
     letter-spacing: 1px;
     opacity: 0.6;
   }
@@ -421,8 +426,8 @@
   }
 
   .heatmap-yaxis {
-    font-size: 8px;
-    margin-top: 22px;
+    font-size: 10px;
+    margin-top: 16px; /* month row on phones: 12px + 4px gap */
   }
 
   /* Unified Unified Scroll Architecture */
@@ -479,13 +484,13 @@
   }
 
   .heatmap-months .month-label {
-    font-size: 8px;
+    font-size: 10px;
   }
 
   .legend-content {
     background: rgba(255, 255, 255, 0.02);
-    padding: 6px 16px;
-    font-size: 8px;
+    padding: 8px 16px;
+    font-size: 11px;
     gap: 6px;
     border-radius: 12px;
   }
@@ -493,5 +498,51 @@
   .legend-content .heatmap-cell {
     width: 10px;
     height: 10px;
+  }
+}
+
+/* The month row spans the whole year (not just the visible part), so names
+   never wrap. */
+.heatmap-grid-wrapper {
+  width: max-content;
+}
+
+.heatmap-months .month-label,
+.month-label {
+  white-space: nowrap;
+}
+
+/* Day labels sit beside the scrolling weeks (not inside), so they never
+   scroll away and need no background. */
+.heatmap-grid-area .heatmap-grid-container {
+  max-width: 100%;
+}
+
+.heatmap-grid-area .heatmap-scroll-viewport {
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.heatmap-grid-area .heatmap-scroll-viewport::-webkit-scrollbar {
+  display: none;
+}
+
+/* Phones: the heatmap is a solid card with real inner spacing. */
+@media (max-width: 768px) {
+  #heatmapModal .modal-content {
+    background: var(--bg-secondary, #0e0d13) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 16px !important;
+    overflow: hidden;
+  }
+
+  #heatmapModal .modal-header {
+    padding: 16px 16px 12px !important;
+    background: transparent !important;
+  }
+
+  #heatmapModal .modal-body {
+    padding: 12px 16px 16px !important;
   }
 }

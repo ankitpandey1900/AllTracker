@@ -126,12 +126,16 @@ function renderAdvancedHeatmap(grid: HTMLElement, labels: HTMLElement, mode: 'da
     }
   }
 
-  // 8. Auto-scroll to current date (right)
+  // 8. Size cells to the space available, then scroll to the latest week
+  const weeks = Math.ceil((firstDayOfWeek + Math.round((endDate.getTime() - startDate.getTime()) / 86400000) + 1) / 7);
+  fitHeatmapCells(grid, weeks);
+  watchHeatmapResize();
+
+  // On phones the year scrolls sideways; start at the latest weeks.
   setTimeout(() => {
-    if (grid) grid.scrollLeft = grid.scrollWidth;
-    const area = grid.closest('.heatmap-grid-area');
-    if (area) area.scrollLeft = area.scrollWidth;
-  }, 50);
+    const viewport = grid.closest('.heatmap-scroll-viewport') as HTMLElement | null;
+    if (viewport) viewport.scrollLeft = viewport.scrollWidth;
+  }, 80);
 }
 
 function renderMonthLabels(container: HTMLElement, year: number): void {
@@ -152,4 +156,44 @@ function renderMonthLabels(container: HTMLElement, year: number): void {
     span.style.left = `calc((var(--hm-cell, 12px) + var(--hm-gap, 3px)) * ${weekIndex})`;
     container.appendChild(span);
   });
+}
+
+// --- Responsive cell sizing ---
+
+/**
+ * Picks a cell size so the whole year fills the available width on desktop
+ * (up to 20px), and keeps a readable 11px minimum on phones, where the
+ * year scrolls sideways instead.
+ */
+function fitHeatmapCells(grid: HTMLElement, weeks: number): void {
+  const container = grid.closest('.heatmap-grid-container') as HTMLElement | null;
+  const area = grid.closest('.heatmap-grid-area') as HTMLElement | null;
+  if (!container || !area) return;
+
+  requestAnimationFrame(() => {
+    const areaStyle = getComputedStyle(area);
+    const inner = area.clientWidth - parseFloat(areaStyle.paddingLeft) - parseFloat(areaStyle.paddingRight);
+    if (inner <= 0) return; // not visible yet; the next render or resize will size it
+    const yaxis = container.querySelector('.heatmap-yaxis') as HTMLElement | null;
+    const used = (yaxis ? yaxis.offsetWidth : 0) + parseFloat(getComputedStyle(container).columnGap || '0');
+    const gap = window.innerWidth <= 768 ? 3 : 4;
+    const fit = Math.floor((inner - used - (weeks - 1) * gap) / weeks);
+    const cell = Math.max(11, Math.min(20, fit));
+    container.style.setProperty('--hm-cell', `${cell}px`);
+    container.style.setProperty('--hm-gap', `${gap}px`);
+  });
+}
+
+let heatmapResizeBound = false;
+function watchHeatmapResize(): void {
+  if (heatmapResizeBound) return;
+  heatmapResizeBound = true;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  window.addEventListener('resize', () => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      if (document.getElementById('heatmapModal')?.classList.contains('active')) renderHeatmapModal();
+      if (document.getElementById('heatmapGrid')) renderHeatmap();
+    }, 150);
+  }, { passive: true });
 }
